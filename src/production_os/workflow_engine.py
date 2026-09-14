@@ -561,6 +561,49 @@ class WorkflowEngine:
         current_sha = str(
             latest_metadata.get("github_pr_head_sha") or ""
         )
+        if not current_sha:
+            latest_metadata.update({
+                "github_pr_head_sha":str(head_sha),
+                "github_pr_generation":int(
+                    latest_metadata.get(
+                        "github_pr_generation",
+                        1,
+                    )
+                ),
+            })
+            with self.backend.transaction() as db:
+                _execute(
+                    db,
+                    self.backend,
+                    """
+                    UPDATE workflows
+                    SET metadata_json=?, updated_at=?
+                    WHERE id=?
+                    """,
+                    (
+                        json.dumps(
+                            latest_metadata,
+                            ensure_ascii=False,
+                        ),
+                        _now(),
+                        latest["id"],
+                    ),
+                )
+                self.backend.append_event(
+                    db,
+                    "workflow-pr-generation-bound",
+                    {
+                        "workflow_id":latest["id"],
+                        "pr_number":pr_number,
+                        "head_sha":head_sha,
+                        "generation":latest_metadata[
+                            "github_pr_generation"
+                        ],
+                    },
+                    repository=repository,
+                )
+            return self.get(latest["id"]), []
+
         if current_sha == str(head_sha):
             return latest, []
 
