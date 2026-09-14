@@ -586,3 +586,116 @@ metrics
 runtime records
 timestamp
 ```
+
+
+## P5 multi-worker orchestration
+
+Production-OS now supports a persistent worker registry with capability-aware routing and backpressure.
+
+Register workers:
+
+```bash
+production-os worker-register \
+  --registry artifacts/workers.json \
+  --worker-id android-1 \
+  --capability android \
+  --max-concurrency 2
+
+production-os worker-register \
+  --registry artifacts/workers.json \
+  --worker-id python-1 \
+  --capability python \
+  --max-concurrency 3
+```
+
+Worker heartbeat:
+
+```bash
+production-os worker-heartbeat \
+  --registry artifacts/workers.json \
+  --worker-id android-1 \
+  --active-tasks 1
+```
+
+Inspect workers and detect stale/dead workers:
+
+```bash
+production-os worker-list \
+  --registry artifacts/workers.json \
+  --dead-timeout-seconds 120
+```
+
+Worker selection considers:
+
+```text
+required capabilities
+current load
+max concurrency
+worker liveness
+stable worker ID tie-break
+```
+
+If no capable worker is available, dispatch fails closed with backpressure rather than overloading an incompatible worker.
+
+Direct worker-aware dispatch:
+
+```bash
+production-os dispatch \
+  --handoff artifacts/handoff.json \
+  --runtime-state artifacts/runtime-state.json \
+  --queue-dir artifacts/queue \
+  --worker-registry artifacts/workers.json \
+  --required-capability android \
+  --receipt-dir artifacts/receipts
+```
+
+The controller can also route automatically:
+
+```bash
+production-os controller \
+  --owner dbrckk \
+  --runtime-state artifacts/runtime-state.json \
+  --queue-dir artifacts/queue \
+  --snapshot-dir artifacts/snapshots \
+  --metrics artifacts/metrics.json \
+  --health artifacts/health.json \
+  --journal artifacts/execution.jsonl \
+  --worker-registry artifacts/workers.json \
+  --receipt-dir artifacts/receipts \
+  --cycles 12
+```
+
+Current routing rules infer a first-pass worker affinity from repository profile/language:
+
+```text
+android-app / android-game → android worker
+Python repository          → python worker
+JavaScript/TypeScript      → node worker
+```
+
+Dispatch receipts persist:
+
+```text
+idempotency key
+worker ID
+repository
+task
+status
+timestamp
+```
+
+### P5
+
+- [x] persistent worker registry
+- [x] worker capabilities
+- [x] worker load tracking
+- [x] capability/task affinity
+- [x] dead-worker detection
+- [x] max-concurrency backpressure
+- [x] worker-aware dispatch
+- [x] dispatch receipts
+- [ ] acknowledgement/claim protocol
+- [ ] worker completion accounting
+- [ ] priority preemption
+- [ ] queue fairness
+- [ ] at-least-once delivery recovery
