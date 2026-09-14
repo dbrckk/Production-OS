@@ -766,7 +766,24 @@ def make_handler(control: ControlPlane):
                             else None
                         ),
                     )
-                    self._send(HTTPStatus.OK, {"worker":worker.to_dict()})
+                    stale_job_keys = []
+                    for key in body.get("active_job_keys", []):
+                        try:
+                            job = control.queue.get(str(key))
+                        except KeyError:
+                            stale_job_keys.append(str(key))
+                            continue
+                        if not control.workflows.job_generation_current(
+                            job
+                        ):
+                            stale_job_keys.append(str(key))
+                    self._send(
+                        HTTPStatus.OK,
+                        {
+                            "worker":worker.to_dict(),
+                            "stale_job_keys":stale_job_keys,
+                        },
+                    )
                     return
 
                 if parsed.path == "/v1/jobs/enqueue":
@@ -888,6 +905,17 @@ def make_handler(control: ControlPlane):
                     key = str(body["key"])
                     worker_id = str(body["worker_id"])
                     before = control.queue.get(key)
+                    if not control.workflows.job_generation_current(
+                        before
+                    ):
+                        self._send(
+                            HTTPStatus.CONFLICT,
+                            {
+                                "error":"stale workflow generation",
+                                "key":key,
+                            },
+                        )
+                        return
 
                     duration_seconds = body.get("duration_seconds")
                     if duration_seconds is not None:
@@ -968,6 +996,17 @@ def make_handler(control: ControlPlane):
                     worker_id = str(body["worker_id"])
                     reason = str(body.get("reason", "worker failure"))
                     before = control.queue.get(key)
+                    if not control.workflows.job_generation_current(
+                        before
+                    ):
+                        self._send(
+                            HTTPStatus.CONFLICT,
+                            {
+                                "error":"stale workflow generation",
+                                "key":key,
+                            },
+                        )
+                        return
 
                     duration_seconds = body.get("duration_seconds")
                     if duration_seconds is not None:
