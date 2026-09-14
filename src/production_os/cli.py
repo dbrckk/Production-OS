@@ -358,6 +358,18 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     speculate.add_argument("--min-runtime-seconds", type=float, default=60.0)
     speculate.add_argument("--min-samples", type=int, default=2)
 
+    workflowimpact = sub.add_parser(
+        "workflow-impact",
+        help="Apply changed-path impact analysis to a workflow",
+    )
+    workflowimpact.add_argument("--database", required=True)
+    workflowimpact.add_argument("--workflow-id", required=True)
+    workflowimpact.add_argument(
+        "--changed-path",
+        action="append",
+        default=[],
+    )
+
     workflowcancel = sub.add_parser("workflow-cancel", help="Cancel a workflow")
     workflowcancel.add_argument("--database", required=True)
     workflowcancel.add_argument("--workflow-id", required=True)
@@ -1453,6 +1465,20 @@ def run_speculate_stragglers(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_workflow_impact(args: argparse.Namespace) -> int:
+    engine = _workflow_engine(args.database)
+    decisions = engine.apply_change_impact(
+        args.workflow_id,
+        args.changed_path,
+    )
+    print(json.dumps({
+        "schema_version":"production-os/change-impact/v1",
+        "decisions":decisions,
+        "workflow":engine.get(args.workflow_id),
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
 def run_workflow_cancel(args: argparse.Namespace) -> int:
     workflow = _workflow_engine(args.database).cancel(args.workflow_id)
     print(json.dumps({
@@ -1581,6 +1607,8 @@ def main(argv: list[str] | None = None) -> int:
         return run_stragglers(args)
     if args.command == "speculate-stragglers":
         return run_speculate_stragglers(args)
+    if args.command == "workflow-impact":
+        return run_workflow_impact(args)
     if args.command == "workflow-cancel":
         return run_workflow_cancel(args)
     if args.command == "artifact-add":
