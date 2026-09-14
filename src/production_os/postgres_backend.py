@@ -1065,6 +1065,39 @@ class PostgresJobQueue:
             raise KeyError(key)
         return self._job_dict(row)
 
+
+    def peek_candidates(
+        self,
+        *,
+        worker_id: str | None = None,
+        limit: int = 100,
+    ) -> list[dict]:
+        with self.backend.connect() as db:
+            with db.cursor() as cur:
+                if worker_id is None:
+                    cur.execute(
+                        """
+                        SELECT * FROM jobs
+                        WHERE status='queued'
+                        ORDER BY priority DESC, created_at ASC
+                        LIMIT %s
+                        """,
+                        (max(1, min(limit, 1000)),),
+                    )
+                else:
+                    cur.execute(
+                        """
+                        SELECT * FROM jobs
+                        WHERE status='queued'
+                          AND (assigned_worker IS NULL OR assigned_worker=%s)
+                        ORDER BY priority DESC, created_at ASC
+                        LIMIT %s
+                        """,
+                        (worker_id, max(1, min(limit, 1000))),
+                    )
+                rows = cur.fetchall()
+        return [self._job_dict(row) for row in rows]
+
     def claim_next(
         self,
         worker_id: str,
