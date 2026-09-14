@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Iterable
 
+from .learning import LearningSignal, learning_weight
 from .models import ActionCandidate, RepoAssessment
 
 
@@ -50,7 +51,7 @@ def _blockers(action: ActionCandidate, assessment: RepoAssessment | None) -> tup
     return tuple(blockers)
 
 
-def _schedule_score(action: ActionCandidate, assessment: RepoAssessment | None) -> float:
+def _schedule_score(action: ActionCandidate, assessment: RepoAssessment | None, learning_signals: list[LearningSignal] | None = None) -> float:
     maturity = assessment.score.total if assessment else 0
     blocker_bonus = 0.0
     if assessment:
@@ -61,13 +62,15 @@ def _schedule_score(action: ActionCandidate, assessment: RepoAssessment | None) 
     release_bonus = action.release_proximity * 2.0
     maturity_gap_bonus = max(0, 70 - maturity) * 0.15
     effort_penalty = max(action.effort - 1, 0) * 2.5
-    return round(action.priority + blocker_bonus + release_bonus + maturity_gap_bonus - effort_penalty, 2)
+    learned = learning_weight(learning_signals or [], action.repository, action.task)
+    return round(action.priority + blocker_bonus + release_bonus + maturity_gap_bonus - effort_penalty + learned, 2)
 
 
 def build_schedule(
     assessments: list[RepoAssessment],
     actions: list[ActionCandidate],
     capacity: int = 3,
+    learning_signals: list[LearningSignal] | None = None,
 ) -> dict:
     if capacity < 1:
         raise ValueError("capacity must be >= 1")
@@ -76,7 +79,7 @@ def build_schedule(
     ranked: list[tuple[ActionCandidate, RepoAssessment | None, float, tuple[str, ...]]] = []
     for action in actions:
         assessment = repos.get(action.repository)
-        ranked.append((action, assessment, _schedule_score(action, assessment), _blockers(action, assessment)))
+        ranked.append((action, assessment, _schedule_score(action, assessment, learning_signals), _blockers(action, assessment)))
 
     ranked.sort(key=lambda row: (-row[2], row[0].effort, row[0].repository, row[0].task))
 
@@ -114,6 +117,7 @@ def build_schedule(
     return {
         "schema_version": "production-os/schedule/v1",
         "capacity": capacity,
+        "learning_enabled": bool(learning_signals),
         "counts": counts,
         "work": [item.to_dict() for item in work],
     }
