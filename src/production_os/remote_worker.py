@@ -1,0 +1,123 @@
+from __future__ import annotations
+
+import json
+import time
+import urllib.error
+import urllib.request
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True, slots=True)
+class RemoteJob:
+    key: str
+    payload: dict
+
+    def to_dict(self) -> dict:
+        return {"key": self.key, "payload": self.payload}
+
+
+class RemoteWorkerClient:
+    def __init__(
+        self,
+        base_url: str,
+        token: str,
+        worker_id: str,
+        capabilities: list[str],
+        *,
+        timeout: float = 15.0,
+    ):
+        self.base_url = base_url.rstrip("/")
+        self.token = token
+        self.worker_id = worker_id
+        self.capabilities = sorted(set(capabilities))
+        self.timeout = timeout
+
+    def _request(self, path: str, payload: dict | None = None) -> tuple[int, dict]:
+        body = None if payload is None else json.dumps(payload).encode("utf-8")
+        request = urllib.request.Request(
+            self.base_url + path,
+            data=body,
+            headers={
+                "Authorization":f"Bearer {self.token}",
+                "Content-Type":"application/json",
+                "Accept":"application/json",
+            },
+            method="POST" if payload is not None else "GET",
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=self.timeout) as response:
+                raw = response.read()
+                return response.status, json.loads(raw or b"{}")
+        except urllib.error.HTTPError as exc:
+            raw = exc.read()
+            payload = json.loads(raw or b"{}")
+            raise RuntimeError(
+                f"control-plane HTTP {exc.code}: {payload.get('error', payload)}"
+            ) from exc
+        except urllib.error.URLError as exc:
+            raise RuntimeError(f"control-plane unavailable: {exc}") from exc
+
+    def heartbeat(self, active_tasks: int | None = None) -> dict:
+        payload = {"worker_id":self.worker_id}
+        if active_tasks is not None:
+            payload["active_tasks"] = active_tasks
+        _, result = self._request("/v1/workers/heartbeat", payload)
+        return result["worker"]
+
+    def claim(self, ack_timeout_seconds: int = 120) -> RemoteJob | None:
+        status, result = self._request(
+            "/v1/jobs/claim",
+            {
+                "worker_id":self.worker_id,
+                "capabilities":self.capabilities,
+                "ack_timeout_seconds":ack_timeout_seconds,
+            },
+        )
+        if status == 204 or not result.get("job"):
+            return None
+        job = result["job"]
+        return RemoteJob(job["key"], job)
+
+    def ack(self, key: str) -> dict:
+        _, result = self._request(
+            "/v1/jobs/ack",
+            {"key":key,"worker_id":self.worker_id},
+        )
+        return result["job"]
+
+    def complete(self, key: str) -> dict:
+        _, result = self._request(
+            "/v1/jobs/complete",
+            {"key":key,"worker_id":self.worker_id},
+        )
+        return result["job"]
+
+    def fail(self, key: str, reason: str) -> dict:
+        _, result = self._request(
+            "/v1/jobs/fail",
+            {
+                "key":key,
+                "worker_id":self.worker_id,
+                "reason":reason,
+            },
+        )
+        return result["job"]
+
+    def poll(
+        self,
+        *,
+        cycles: int = 1,
+        interval_seconds: int = 5,
+        ack_timeout_seconds: int = 120,
+    ) -> list[RemoteJob]:
+        if cycles < 1:
+            raise ValueError("cycles must be >= 1")
+        jobs: list[RemoteJob] = []
+        for index in range(cycles):
+            self.heartbeat()
+            job = self.claim(ack_timeout_seconds=ack_timeout_seconds)
+            if job is not None:
+                jobs.append(job)
+            if index + 1 < cycles and job is None:
+                time.sleep(max(1, interval_seconds))
+        return jobs
