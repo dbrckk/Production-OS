@@ -30,7 +30,8 @@ from .migration_registry import migrate_many
 from .migrations import migrate_state_file
 from .models import ActionCandidate, RepoAssessment
 from .reuse import detect_reuse
-from .policy import PolicySet
+from .policy import PolicySet, evaluate_policy
+from .policy_validation import validate_policy_payload
 from .preemption import confirm_checkpoint_and_release, request_preemption
 from .quarantine import QuarantineStore
 from .queue_maintenance import compact_queue, retry_dead_letters
@@ -276,6 +277,13 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     budgetrecord.add_argument("--tokens", type=float, default=0.0)
     budgetrecord.add_argument("--cost", type=float, default=0.0)
     budgetrecord.add_argument("--minutes", type=float, default=0.0)
+
+    policyvalidate = sub.add_parser("policy-validate", help="Validate policy-as-code JSON")
+    policyvalidate.add_argument("--policy", required=True)
+
+    policycheck = sub.add_parser("policy-check", help="Evaluate one handoff against policy-as-code")
+    policycheck.add_argument("--policy", required=True)
+    policycheck.add_argument("--handoff", required=True)
 
     return parser.parse_args(argv)
 
@@ -1087,6 +1095,30 @@ def run_budget_record(args: argparse.Namespace) -> int:
     }, indent=2, ensure_ascii=False))
     return 0
 
+
+
+def run_policy_validate(args: argparse.Namespace) -> int:
+    payload = json.loads(Path(args.policy).read_text(encoding="utf-8"))
+    result = validate_policy_payload(payload)
+    print(json.dumps({
+        "schema_version":"production-os/policy-validation/v1",
+        **result.to_dict(),
+    }, indent=2, ensure_ascii=False))
+    return 0 if result.valid else 7
+
+
+def run_policy_check(args: argparse.Namespace) -> int:
+    policy_set = PolicySet.load(args.policy)
+    handoff = json.loads(Path(args.handoff).read_text(encoding="utf-8"))
+    decision = evaluate_policy(policy_set, handoff)
+    print(json.dumps({
+        "schema_version":"production-os/policy-decision/v1",
+        "repository":handoff.get("repository"),
+        "task":handoff.get("task"),
+        "decision":decision.to_dict(),
+    }, indent=2, ensure_ascii=False))
+    return 0 if decision.allowed else 8
+
 def run_health_server(args: argparse.Namespace) -> int:
     serve_health(args.health, host=args.host, port=args.port)
     return 0
@@ -1164,6 +1196,10 @@ def main(argv: list[str] | None = None) -> int:
         return run_unquarantine(args)
     if args.command == "budget-record":
         return run_budget_record(args)
+    if args.command == "policy-validate":
+        return run_policy_validate(args)
+    if args.command == "policy-check":
+        return run_policy_check(args)
     return 1
 
 
