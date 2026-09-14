@@ -6,6 +6,8 @@ import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 
+from .atomic_io import atomic_write_text
+
 
 def _sha256(path: Path) -> str:
     digest = hashlib.sha256()
@@ -40,8 +42,37 @@ def create_backup(paths: list[str], destination_dir: str) -> dict:
         "created_at": datetime.now(timezone.utc).isoformat(),
         "files": files,
     }
-    (root / "manifest.json").write_text(
+    atomic_write_text(
+        root / "manifest.json",
         json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
-        encoding="utf-8",
     )
     return manifest
+
+
+def restore_backup(manifest_path: str, *, verify_only: bool = False) -> dict:
+    manifest_file = Path(manifest_path)
+    manifest = json.loads(manifest_file.read_text(encoding="utf-8"))
+    restored = []
+    for item in manifest.get("files", []):
+        backup = Path(item["backup"])
+        expected = str(item["sha256"])
+        actual = _sha256(backup)
+        if actual != expected:
+            raise RuntimeError(f"backup checksum mismatch: {backup}")
+
+        source = Path(item["source"])
+        restored.append({
+            "source": str(source),
+            "backup": str(backup),
+            "sha256": actual,
+            "restored": not verify_only,
+        })
+        if not verify_only:
+            atomic_write_text(source, backup.read_text(encoding="utf-8"))
+
+    return {
+        "schema_version": "production-os/restore/v1",
+        "verified": True,
+        "verify_only": verify_only,
+        "files": restored,
+    }
