@@ -198,6 +198,104 @@ class ExecutionOptimizer:
             )
         return min(candidates, key=lambda item: (item.score, item.worker_id))
 
+    def stragglers(
+        self,
+        *,
+        threshold_factor: float = 1.75,
+        min_runtime_seconds: float = 60.0,
+        min_samples: int = 2,
+        workers: list | None = None,
+    ) -> list[dict]:
+        now = datetime.now(timezone.utc)
+        with self.backend.connect() as db:
+            rows = _execute(
+                db,
+                self.backend,
+                """
+                SELECT *
+                FROM jobs
+                WHERE status IN ('claimed','acked')
+                  AND claimed_at IS NOT NULL
+                ORDER BY claimed_at ASC
+                """,
+            ).fetchall()
+
+        result = []
+        for row in rows:
+            claimed_at = datetime.fromisoformat(
+                str(row["claimed_at"]).replace("Z", "+00:00")
+            )
+            runtime_seconds = max(
+                0.0,
+                (now - claimed_at).total_seconds(),
+            )
+            if runtime_seconds < min_runtime_seconds:
+                continue
+
+            prediction = self.task_prediction(
+                str(row["repository"]),
+                str(row["task"]),
+                fallback_minutes=runtime_seconds / 60.0,
+            )
+            if int(prediction["samples"]) < min_samples:
+                continue
+
+            expected_seconds = max(
+                1.0,
+                float(prediction["predicted_minutes"]) * 60.0,
+            )
+            ratio = runtime_seconds / expected_seconds
+            if ratio < threshold_factor:
+                continue
+
+            payload = json.loads(row["payload_json"])
+            required = [
+                str(x)
+                for x in payload.get("required_capabilities", [])
+            ]
+            alternate = None
+            if workers:
+                candidates = [
+                    worker
+                    for worker in workers
+                    if worker.worker_id != row["claimed_by"]
+                ]
+                placement = self.choose_worker(
+                    repository=str(row["repository"]),
+                    task=str(row["task"]),
+                    workers=candidates,
+                    required_capabilities=required,
+                    fallback_minutes=float(
+                        prediction["predicted_minutes"]
+                    ),
+                )
+                if placement is not None:
+                    alternate = {
+                        "worker_id":placement.worker_id,
+                        "predicted_minutes":placement.predicted_minutes,
+                        "score":placement.score,
+                    }
+
+            result.append({
+                "job_key":row["key"],
+                "repository":row["repository"],
+                "task":row["task"],
+                "worker_id":row["claimed_by"],
+                "runtime_seconds":round(runtime_seconds, 2),
+                "expected_seconds":round(expected_seconds, 2),
+                "slowdown_ratio":round(ratio, 3),
+                "samples":prediction["samples"],
+                "alternate_worker":alternate,
+            })
+
+        return sorted(
+            result,
+            key=lambda item: (
+                -item["slowdown_ratio"],
+                item["job_key"],
+            ),
+        )
+
     def workflow_eta(self, workflow: dict) -> dict:
         tasks = {task["task_id"]:task for task in workflow["tasks"]}
         memo: dict[str, tuple[float, list[str]]] = {}
