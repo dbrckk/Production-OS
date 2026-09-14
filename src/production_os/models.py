@@ -93,6 +93,7 @@ class RepoAssessment:
     profile_signals: list[str] = field(default_factory=list)
     capabilities: list[Any] = field(default_factory=list)
     source_signals: list[Any] = field(default_factory=list)
+    components: list[Any] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -105,5 +106,6 @@ class RepoAssessment:
             },
             "capabilities": [cap.to_dict() for cap in self.capabilities],
             "source_signals": [signal.to_dict() for signal in self.source_signals],
+            "components": [component.to_dict() for component in self.components],
             "actions": [action.to_dict() for action in self.actions],
         }
