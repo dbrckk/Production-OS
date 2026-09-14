@@ -220,3 +220,73 @@ def test_find_workflows_bound_to_github_pr_accepts_string_metadata(tmp_path):
 
     assert [item["id"] for item in matches]==[created["id"]]
 
+
+def test_pr_generation_supersedes_old_workflow_and_jobs(tmp_path):
+    wf=engine(tmp_path)
+    original=wf.create(
+        name="pr-build",
+        repository="o/a",
+        metadata={
+            "github_pr_number":12,
+            "github_pr_head_sha":"sha-1",
+            "github_pr_generation":1,
+        },
+        tasks=[
+            WorkflowTaskSpec(
+                "tests",
+                "Tests",
+                {
+                    "impact":{
+                        "paths":["src/**"],
+                        "skip_when_unaffected":True,
+                    }
+                },
+            ),
+        ],
+    )
+    jobs=wf.dispatch_ready(original["id"])
+    assert len(jobs)==1
+    assert jobs[0]["status"]=="queued"
+
+    generation,superseded=wf.ensure_pr_generation(
+        "o/a",
+        12,
+        "sha-2",
+    )
+
+    assert generation is not None
+    assert generation["id"]!=original["id"]
+    assert generation["metadata"]["github_pr_head_sha"]=="sha-2"
+    assert generation["metadata"]["github_pr_generation"]==2
+    assert generation["metadata"]["supersedes_workflow_id"]==original["id"]
+    assert [item["id"] for item in superseded]==[original["id"]]
+
+    old=wf.get(original["id"])
+    assert old["status"]=="cancelled"
+    assert old["metadata"]["superseded"] is True
+    assert old["metadata"]["superseded_by_workflow_id"]==generation["id"]
+    assert wf.queue.get(jobs[0]["key"])["status"]=="cancelled"
+
+
+def test_pr_generation_reuses_same_workflow_for_same_head_sha(tmp_path):
+    wf=engine(tmp_path)
+    original=wf.create(
+        name="pr-build",
+        repository="o/a",
+        metadata={
+            "github_pr_number":12,
+            "github_pr_head_sha":"sha-1",
+            "github_pr_generation":1,
+        },
+        tasks=[WorkflowTaskSpec("tests","Tests",{})],
+    )
+
+    generation,superseded=wf.ensure_pr_generation(
+        "o/a",
+        12,
+        "sha-1",
+    )
+
+    assert generation["id"]==original["id"]
+    assert superseded==[]
+
