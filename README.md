@@ -905,7 +905,36 @@ production-os restore --manifest artifacts/backups/<timestamp>/manifest.json
 - [x] backup with checksums
 - [x] checksum-verified restore
 - [x] explicit state migrations v1→v2
-- [ ] queue compaction
-- [ ] dead-letter retry policy
-- [ ] richer migration registry
-- [ ] signed audit checkpoints
+- [x] queue compaction
+- [x] dead-letter retry policy
+- [x] richer migration registry
+- [x] signed audit checkpoints
+
+### P6 maintenance commands
+
+Compact completed queue entries:
+
+```bash
+production-os queue-compact --queue-dir artifacts/queue --claims artifacts/claims.json --archive-dir artifacts/queue-archive
+```
+
+Retry dead-letter jobs within a bounded attempt budget:
+
+```bash
+production-os dead-letter-retry --dead-letter-dir artifacts/dead-letter --queue-dir artifacts/queue --max-attempts 3
+```
+
+Batch state migrations:
+
+```bash
+production-os migrate-many artifacts/runtime-state.json artifacts/workers.json artifacts/claims.json
+```
+
+Create and verify an HMAC-signed audit checkpoint:
+
+```bash
+production-os audit-checkpoint-create --journal artifacts/execution.jsonl --checkpoint artifacts/audit-checkpoint.json --secret <secret>
+production-os audit-checkpoint-verify --checkpoint artifacts/audit-checkpoint.json --secret <secret>
+```
+
+Legacy unchained journal rows are reported as unverified legacy history; once the hash chain starts, any later unchained/tampered row invalidates verification.
