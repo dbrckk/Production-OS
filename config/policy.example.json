@@ -1,0 +1,48 @@
+{
+  "defaults": {
+    "max_risk_class": "critical",
+    "approval_required_from": "high",
+    "allowed_worker_classes": ["python", "node", "android"],
+    "freeze_timezone": "Europe/Paris",
+    "freeze_windows": [
+      {
+        "days": ["fri", "sat", "sun"],
+        "start": "18:00",
+        "end": "08:00"
+      }
+    ],
+    "freeze_risk_classes": ["high", "critical"],
+    "require_branch_protection_for": ["high", "critical"],
+    "auto_quarantine_after_failures": 3,
+    "budgets": {
+      "tokens": 1000000,
+      "cost": 20,
+      "minutes": 600
+    },
+    "slo": {
+      "max_runtime_minutes": 120,
+      "max_attempts": 5,
+      "max_consecutive_failures": 3
+    }
+  },
+  "portfolio_budgets": {
+    "tokens": 5000000,
+    "cost": 100,
+    "minutes": 3000
+  },
+  "repositories": [
+    {
+      "match": "dbrckk/deadline-zero",
+      "approval_required_from": "critical",
+      "allowed_worker_classes": ["android"],
+      "budgets": {
+        "tokens": 1500000,
+        "minutes": 900
+      }
+    },
+    {
+      "match": "dbrckk/ai-dev-server",
+      "allowed_worker_classes": ["python", "node"]
+    }
+  ]
+}
