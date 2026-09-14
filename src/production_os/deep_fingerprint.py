@@ -23,8 +23,7 @@ class SourceSignal:
 
 def analyze_source_evidence(e: RepoEvidence) -> list[SourceSignal]:
     signals: list[SourceSignal] = []
-    combined = "
-".join(e.source_documents.values()).lower()
+    combined = "\\n".join(e.source_documents.values()).lower()
 
     def add(kind: str, value: str, confidence: float, evidence: list[str]) -> None:
         signals.append(
