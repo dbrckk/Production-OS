@@ -438,6 +438,21 @@ def make_handler(control: ControlPlane):
                     refreshed = []
                     dispatched = []
                     for workflow in workflows:
+                        if not control.workflows.generation_refreshable(
+                            workflow
+                        ):
+                            refreshed.append({
+                                "workflow_id":workflow["id"],
+                                "generation":workflow.get(
+                                    "metadata", {}
+                                ).get("github_pr_generation"),
+                                "head_sha":head_sha,
+                                "decisions":[],
+                                "generation_noop":True,
+                                "workflow":workflow,
+                            })
+                            continue
+
                         decisions = control.workflows.apply_change_impact(
                             workflow["id"],
                             changed_paths,
@@ -452,6 +467,7 @@ def make_handler(control: ControlPlane):
                             ).get("github_pr_generation"),
                             "head_sha":head_sha,
                             "decisions":decisions,
+                            "generation_noop":False,
                             "workflow":control.workflows.get(
                                 workflow["id"]
                             ),
