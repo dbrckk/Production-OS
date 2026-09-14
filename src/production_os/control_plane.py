@@ -195,6 +195,20 @@ def make_handler(control: ControlPlane):
                 )
                 return
 
+            if parsed.path == "/v1/stragglers":
+                control.workers.load()
+                self._send(
+                    HTTPStatus.OK,
+                    {
+                        "stragglers":control.optimizer.stragglers(
+                            workers=list(
+                                control.workers.workers.values()
+                            )
+                        )
+                    },
+                )
+                return
+
             if parsed.path == "/v1/workflows":
                 with control.backend.connect() as db:
                     rows = db.execute(
