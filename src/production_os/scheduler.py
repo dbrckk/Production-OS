@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Iterable
 
+from .fairness import round_robin_by_repository
 from .learning import LearningSignal, learning_weight
 from .models import ActionCandidate, RepoAssessment
 from .runtime_state import RuntimeState
@@ -95,6 +96,7 @@ def build_schedule(
         ranked.append((action, assessment, _schedule_score(action, assessment, learning_signals), _blockers(action, assessment, runtime_state)))
 
     ranked.sort(key=lambda row: (-row[2], row[0].effort, row[0].repository, row[0].task))
+    ranked = round_robin_by_repository(ranked)
 
     selected_repos: set[str] = set()
     active = 0
@@ -131,9 +133,10 @@ def build_schedule(
 
     counts = {lane: sum(1 for item in work if item.lane == lane) for lane in ("NOW","PARALLEL","NEXT","PAUSE","IGNORE")}
     return {
-        "schema_version": "production-os/schedule/v1",
+        "schema_version": "production-os/schedule/v2",
         "capacity": capacity,
         "learning_enabled": bool(learning_signals),
+        "fairness_policy": "round-robin-by-repository",
         "counts": counts,
         "work": [item.to_dict() for item in work],
     }
