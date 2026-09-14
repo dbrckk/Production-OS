@@ -1,0 +1,73 @@
+{
+  "name": "android-release",
+  "repository": "dbrckk/deadline-zero",
+  "metadata": {
+    "purpose": "Example fan-out/fan-in production workflow"
+  },
+  "tasks": [
+    {
+      "task_id": "build",
+      "title": "Build debug and release artifacts",
+      "priority": 100,
+      "max_attempts": 2,
+      "estimated_minutes": 8,
+      "payload": {
+        "required_capabilities": [
+          "android"
+        ],
+        "handoff": {
+          "task": "Build debug and release artifacts",
+          "constraints": {
+            "verify_before_completion": true
+          }
+        }
+      }
+    },
+    {
+      "task_id": "unit-tests",
+      "title": "Run unit tests",
+      "dependencies": [
+        "build"
+      ],
+      "priority": 90,
+      "max_attempts": 2,
+      "estimated_minutes": 5,
+      "payload": {
+        "required_capabilities": [
+          "android"
+        ]
+      }
+    },
+    {
+      "task_id": "lint",
+      "title": "Run Android lint",
+      "dependencies": [
+        "build"
+      ],
+      "priority": 80,
+      "max_attempts": 2,
+      "estimated_minutes": 4,
+      "payload": {
+        "required_capabilities": [
+          "android"
+        ]
+      }
+    },
+    {
+      "task_id": "package",
+      "title": "Package release candidate",
+      "dependencies": [
+        "unit-tests",
+        "lint"
+      ],
+      "priority": 70,
+      "max_attempts": 1,
+      "estimated_minutes": 3,
+      "payload": {
+        "required_capabilities": [
+          "android"
+        ]
+      }
+    }
+  ]
+}
