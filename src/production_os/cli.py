@@ -6,11 +6,13 @@ import sys
 from pathlib import Path
 from typing import Iterable
 
+from .control_surface import write_control_surface
 from .execution_feedback import decide_execution_outcome
 from .feedback import summarize_validation_results
 from .github_client import GitHubAPIError, GitHubClient
 from .graph import build_knowledge_graph
 from .history import build_snapshot, detect_regressions, load_snapshot, save_snapshot
+from .learning import build_learning_signals
 from .models import ActionCandidate, RepoAssessment
 from .reuse import detect_reuse
 from .resources import allocate_resources
@@ -40,6 +42,8 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     scan.add_argument("--schedule", action="store_true", help="Emit autonomous portfolio schedule")
     scan.add_argument("--capacity", type=int, default=3, help="Maximum concurrent active repositories")
     scan.add_argument("--slots", type=int, default=3, help="Execution slots to allocate")
+    scan.add_argument("--learning-events", help="JSON file with historical execution events")
+    scan.add_argument("--dashboard", help="Write an HTML control surface to this path")
 
     validation = sub.add_parser(
         "validation-results",
@@ -267,12 +271,29 @@ def run_scan(args: argparse.Namespace) -> int:
         save_snapshot(snapshot, args.snapshot)
 
     if args.schedule:
-        schedule = build_schedule(assessments, actions, capacity=args.capacity)
+        learning_signals = []
+        if args.learning_events:
+            events_payload = json.loads(Path(args.learning_events).read_text(encoding="utf-8"))
+            events = events_payload.get("events", events_payload)
+            if not isinstance(events, list):
+                raise SystemExit("learning events must be a JSON list or contain events")
+            learning_signals = build_learning_signals(events)
+
+        schedule = build_schedule(
+            assessments,
+            actions,
+            capacity=args.capacity,
+            learning_signals=learning_signals,
+        )
         payload = {
             "schema_version": "production-os/portfolio-control/v1",
             "schedule": schedule,
             "resource_allocation": allocate_resources(schedule, total_slots=args.slots),
+            "learning_signals": [signal.to_dict() for signal in learning_signals],
         }
+        if args.dashboard:
+            write_control_surface(payload, args.dashboard)
+            payload["dashboard"] = args.dashboard
         print(json.dumps(payload, indent=2, ensure_ascii=False))
     elif args.handoff:
         payload = _handoff(actions[0], reuse, catalog) if actions else {
