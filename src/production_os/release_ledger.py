@@ -21,6 +21,16 @@ def _execute(db, backend, statement: str, params: tuple = ()):
     return db.execute(_sql(backend, statement), params)
 
 
+def _valid_sha256(value: str | None) -> bool:
+    if not value or len(str(value)) != 64:
+        return False
+    try:
+        int(str(value), 16)
+    except ValueError:
+        return False
+    return True
+
+
 class ReleaseLedger:
     def __init__(self, backend, workflows):
         self.backend = backend
@@ -89,58 +99,103 @@ class ReleaseLedger:
         validation: dict,
         metadata: dict | None = None,
     ) -> dict:
-        workflow = self.workflows.get(workflow_id)
-        if workflow["status"] != "succeeded":
-            raise RuntimeError(
-                "workflow must be succeeded before promotion"
-            )
         if not self._validation_passed(validation):
             raise RuntimeError(
                 "validation must be passed before promotion"
             )
 
-        artifact = next(
-            (
-                item
-                for item in workflow.get("artifacts", [])
-                if str(item["id"]) == str(artifact_id)
-            ),
-            None,
-        )
-        if artifact is None:
-            raise KeyError(f"artifact {artifact_id}")
-        if not artifact.get("sha256"):
-            raise RuntimeError(
-                "artifact sha256 is required before promotion"
-            )
-
-        artifact_metadata = dict(artifact.get("metadata") or {})
-        workflow_metadata = dict(workflow.get("metadata") or {})
-        source_revision = artifact_metadata.get("source_revision")
-        workflow_generation = artifact_metadata.get(
-            "workflow_generation"
-        )
-
-        if (
-            workflow_metadata.get("github_pr_head_sha")
-            or workflow_metadata.get("github_pr_generation") is not None
-        ):
-            self.workflows.assert_generation_current(
-                workflow_id,
-                source_revision=source_revision,
-                workflow_generation=workflow_generation,
-            )
-
         release_id = uuid.uuid4().hex
         now = _now()
-        release_metadata = {
-            **dict(metadata or {}),
-            "artifact_name":artifact["name"],
-            "artifact_uri":artifact["uri"],
-            "artifact_sha256":artifact["sha256"],
-        }
 
         with self.backend.transaction() as db:
+            workflow_row = _execute(
+                db,
+                self.backend,
+                (
+                    "SELECT * FROM workflows WHERE id=? FOR UPDATE"
+                    if _is_postgres(self.backend)
+                    else "SELECT * FROM workflows WHERE id=?"
+                ),
+                (workflow_id,),
+            ).fetchone()
+            if workflow_row is None:
+                raise KeyError(workflow_id)
+            if workflow_row["status"] != "succeeded":
+                raise RuntimeError(
+                    "workflow must be succeeded before promotion"
+                )
+
+            workflow_metadata = json.loads(
+                workflow_row["metadata_json"]
+            )
+            if bool(workflow_metadata.get("superseded", False)):
+                raise RuntimeError(
+                    "stale workflow generation: workflow is superseded"
+                )
+
+            artifact_row = _execute(
+                db,
+                self.backend,
+                (
+                    "SELECT * FROM artifacts "
+                    "WHERE id=? AND workflow_id=? FOR UPDATE"
+                    if _is_postgres(self.backend)
+                    else
+                    "SELECT * FROM artifacts "
+                    "WHERE id=? AND workflow_id=?"
+                ),
+                (artifact_id, workflow_id),
+            ).fetchone()
+            if artifact_row is None:
+                raise KeyError(f"artifact {artifact_id}")
+
+            artifact_metadata = json.loads(
+                artifact_row["metadata_json"]
+            )
+            artifact_sha256 = artifact_row["sha256"]
+            if not _valid_sha256(artifact_sha256):
+                raise RuntimeError(
+                    "valid 64-character artifact sha256 is required "
+                    "before promotion"
+                )
+
+            source_revision = artifact_metadata.get(
+                "source_revision"
+            )
+            workflow_generation = artifact_metadata.get(
+                "workflow_generation"
+            )
+            expected_revision = workflow_metadata.get(
+                "github_pr_head_sha"
+            )
+            expected_generation = workflow_metadata.get(
+                "github_pr_generation"
+            )
+
+            if expected_revision:
+                if not source_revision:
+                    raise RuntimeError(
+                        "source revision required for PR workflow"
+                    )
+                if str(source_revision) != str(expected_revision):
+                    raise RuntimeError(
+                        "stale workflow generation: "
+                        "source revision mismatch"
+                    )
+
+            if expected_generation is not None:
+                if workflow_generation is None:
+                    raise RuntimeError(
+                        "workflow generation required for PR workflow"
+                    )
+                if int(workflow_generation) != int(
+                    expected_generation
+                ):
+                    raise RuntimeError(
+                        "stale workflow generation: "
+                        "generation mismatch"
+                    )
+
             existing = _execute(
                 db,
                 self.backend,
@@ -156,6 +211,12 @@ class ReleaseLedger:
                     f"{existing['id']}"
                 )
 
+            release_metadata = {
+                **dict(metadata or {}),
+                "artifact_name":artifact_row["name"],
+                "artifact_uri":artifact_row["uri"],
+                "artifact_sha256":artifact_sha256,
+            }
             _execute(
                 db,
                 self.backend,
@@ -172,7 +233,7 @@ class ReleaseLedger:
                     release_id,
                     workflow_id,
                     artifact_id,
-                    workflow["repository"],
+                    workflow_row["repository"],
                     source_revision,
                     (
                         int(workflow_generation)
@@ -191,11 +252,11 @@ class ReleaseLedger:
                     "release_id":release_id,
                     "workflow_id":workflow_id,
                     "artifact_id":artifact_id,
-                    "artifact_sha256":artifact["sha256"],
+                    "artifact_sha256":artifact_sha256,
                     "source_revision":source_revision,
                     "workflow_generation":workflow_generation,
                 },
-                repository=workflow["repository"],
+                repository=workflow_row["repository"],
             )
             row = _execute(
                 db,
