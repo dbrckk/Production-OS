@@ -217,6 +217,10 @@ class SQLiteBackend:
                 CREATE INDEX IF NOT EXISTS idx_releases_workflow
                 ON releases(workflow_id, created_at);
 
+                CREATE UNIQUE INDEX IF NOT EXISTS idx_release_single_rollback
+                ON releases(rollback_of)
+                WHERE rollback_of IS NOT NULL;
+
                 CREATE TABLE IF NOT EXISTS execution_history (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     repository TEXT NOT NULL,
