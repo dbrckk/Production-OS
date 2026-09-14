@@ -18,7 +18,7 @@ def _utcnow() -> str:
 
 
 class SQLiteBackend:
-    SCHEMA_VERSION = 5
+    SCHEMA_VERSION = 6
 
     def __init__(self, path: str | Path):
         self.path = Path(path)
