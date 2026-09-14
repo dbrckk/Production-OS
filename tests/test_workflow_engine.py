@@ -379,3 +379,73 @@ def test_create_unseen_pr_without_template_returns_none(tmp_path):
         "sha-77",
     ) is None
 
+
+def test_pr_artifact_requires_current_revision_and_generation(tmp_path):
+    wf=engine(tmp_path)
+    created=wf.create(
+        name="pr-build",
+        repository="o/a",
+        metadata={
+            "github_pr_number":12,
+            "github_pr_head_sha":"sha-9",
+            "github_pr_generation":4,
+        },
+        tasks=[WorkflowTaskSpec("tests","Tests",{})],
+    )
+
+    with pytest.raises(RuntimeError, match="source revision required"):
+        wf.add_artifact(
+            created["id"],
+            name="report.json",
+            uri="artifact://report.json",
+        )
+
+    with pytest.raises(RuntimeError, match="source revision mismatch"):
+        wf.add_artifact(
+            created["id"],
+            name="report.json",
+            uri="artifact://report.json",
+            metadata={
+                "source_revision":"old-sha",
+                "workflow_generation":4,
+            },
+        )
+
+    artifact=wf.add_artifact(
+        created["id"],
+        name="report.json",
+        uri="artifact://report.json",
+        metadata={
+            "source_revision":"sha-9",
+            "workflow_generation":4,
+        },
+    )
+    assert artifact["metadata"]["source_revision"]=="sha-9"
+
+
+def test_superseded_pr_rejects_artifact_promotion(tmp_path):
+    wf=engine(tmp_path)
+    original=wf.create(
+        name="pr-build",
+        repository="o/a",
+        metadata={
+            "github_pr_number":12,
+            "github_pr_head_sha":"sha-1",
+            "github_pr_generation":1,
+        },
+        tasks=[WorkflowTaskSpec("tests","Tests",{})],
+    )
+    generation,_=wf.ensure_pr_generation("o/a",12,"sha-2")
+    assert generation is not None
+
+    with pytest.raises(RuntimeError, match="superseded"):
+        wf.add_artifact(
+            original["id"],
+            name="old.apk",
+            uri="artifact://old.apk",
+            metadata={
+                "source_revision":"sha-1",
+                "workflow_generation":1,
+            },
+        )
+
