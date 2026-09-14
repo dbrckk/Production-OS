@@ -304,6 +304,17 @@ def make_handler(control: ControlPlane):
                             payload = control.optimizer.workflow_eta(workflow)
                             self._send(HTTPStatus.OK, payload)
                             return
+                        if len(parts) == 4 and parts[3] == "releases":
+                            self._send(
+                                HTTPStatus.OK,
+                                {
+                                    "releases":
+                                        control.releases.list_for_workflow(
+                                            workflow_id
+                                        )
+                                },
+                            )
+                            return
                         if len(parts) == 3:
                             payload = control.workflows.get(workflow_id)
                             self._send(
@@ -317,6 +328,27 @@ def make_handler(control: ControlPlane):
                             {"error":"workflow not found"},
                         )
                         return
+
+            if parsed.path.startswith("/v1/releases/"):
+                parts = [
+                    part
+                    for part in parsed.path.split("/")
+                    if part
+                ]
+                if len(parts) == 3 and parts[1] == "releases":
+                    try:
+                        release = control.releases.get(parts[2])
+                    except KeyError:
+                        self._send(
+                            HTTPStatus.NOT_FOUND,
+                            {"error":"release not found"},
+                        )
+                        return
+                    self._send(
+                        HTTPStatus.OK,
+                        {"release":release},
+                    )
+                    return
 
             if parsed.path == "/v1/workers":
                 control.workers.load()
