@@ -97,6 +97,22 @@ def test_remote_worker_detects_superseded_generation(tmp_path):
         )
         assert heartbeat["stale_job_keys"]==[job.key]
 
+        checkpoint=client.checkpoint_stale(
+            job.key,
+            "checkpoint://worker/w1/job-1",
+        )
+        assert checkpoint["status"]=="checkpointed"
+        events=control.backend.events_after(0,1000)
+        checkpoint_events=[
+            event
+            for event in events
+            if event["event_type"]=="stale-job-checkpointed"
+        ]
+        assert len(checkpoint_events)==1
+        assert checkpoint_events[0]["payload"][
+            "checkpoint_ref"
+        ]=="checkpoint://worker/w1/job-1"
+
         try:
             client.complete(job.key)
         except RuntimeError as exc:
