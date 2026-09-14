@@ -13,6 +13,9 @@ class ControlMetrics:
     dispatched: int = 0
     dispatch_failures: int = 0
     reconciliations: int = 0
+    github_reconciliations: int = 0
+    self_healing_actions: int = 0
+    heartbeats_renewed: int = 0
     last_cycle_at: str | None = None
     last_error: str | None = None
 
