@@ -696,7 +696,7 @@ timestamp
 - [x] dispatch receipts
 - [x] acknowledgement/claim protocol
 - [x] worker completion accounting
-- [ ] priority preemption
+- [x] priority preemption
 - [x] queue fairness
 - [x] at-least-once delivery recovery
 
@@ -753,3 +753,53 @@ The continuous controller can perform the same recovery every cycle with:
 Delivery semantics are now at-least-once with explicit idempotency guards. An expired unacked delivery releases the worker slot and task lease before redelivery/dead-letter handling.
 
 Queue ordering now uses round-robin inter-repository fairness while preserving score order inside each repository. This prevents one repository with many high-ranked actions from monopolizing the pending queue.
+
+
+### P5 cooperative priority preemption
+
+Preemption is cooperative and checkpoint-based. Production-OS never force-kills an arbitrary running task.
+
+Only tasks explicitly marked interruptible can be preempted.
+
+Request:
+
+```bash
+production-os preempt-request \
+  --runtime-state artifacts/runtime-state.json \
+  --repository dbrckk/ai-dev-server \
+  --task "Lower priority task"
+```
+
+The worker checkpoints, then confirms:
+
+```bash
+production-os preempt-checkpoint \
+  --runtime-state artifacts/runtime-state.json \
+  --registry artifacts/workers.json \
+  --repository dbrckk/ai-dev-server \
+  --task "Lower priority task" \
+  --worker-id python-1 \
+  --checkpoint-ref checkpoint://run-123
+```
+
+The task transitions:
+
+```text
+running
+→ preempt-requested
+→ checkpoint persisted
+→ paused
+→ worker slot released
+→ task becomes eligible for later resume/replan
+```
+
+Safe victim selection considers:
+
+```text
+worker capability compatibility
+task interruptibility
+incoming vs running priority gap
+lowest running priority first
+```
+
+A task without an explicit checkpoint is never released merely because a higher-priority task exists.
