@@ -18,7 +18,7 @@ def _utcnow() -> str:
 
 
 class SQLiteBackend:
-    SCHEMA_VERSION = 1
+    SCHEMA_VERSION = 2
 
     def __init__(self, path: str | Path):
         self.path = Path(path)
@@ -133,6 +133,55 @@ class SQLiteBackend:
 
                 CREATE INDEX IF NOT EXISTS idx_events_id
                 ON events(id);
+
+                CREATE TABLE IF NOT EXISTS workflows (
+                    id TEXT PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    repository TEXT NOT NULL,
+                    status TEXT NOT NULL DEFAULT 'pending',
+                    metadata_json TEXT NOT NULL DEFAULT '{}',
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                );
+
+                CREATE TABLE IF NOT EXISTS workflow_tasks (
+                    workflow_id TEXT NOT NULL,
+                    task_id TEXT NOT NULL,
+                    title TEXT NOT NULL,
+                    payload_json TEXT NOT NULL,
+                    status TEXT NOT NULL DEFAULT 'pending',
+                    priority REAL NOT NULL DEFAULT 0,
+                    dependencies_json TEXT NOT NULL DEFAULT '[]',
+                    claimed_job_key TEXT,
+                    result_json TEXT,
+                    attempts INTEGER NOT NULL DEFAULT 0,
+                    max_attempts INTEGER NOT NULL DEFAULT 1,
+                    estimated_minutes REAL NOT NULL DEFAULT 1,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    PRIMARY KEY(workflow_id, task_id),
+                    FOREIGN KEY(workflow_id) REFERENCES workflows(id)
+                        ON DELETE CASCADE
+                );
+
+                CREATE INDEX IF NOT EXISTS idx_workflow_tasks_status
+                ON workflow_tasks(workflow_id, status, priority DESC);
+
+                CREATE TABLE IF NOT EXISTS artifacts (
+                    id TEXT PRIMARY KEY,
+                    workflow_id TEXT NOT NULL,
+                    task_id TEXT,
+                    name TEXT NOT NULL,
+                    uri TEXT NOT NULL,
+                    sha256 TEXT,
+                    metadata_json TEXT NOT NULL DEFAULT '{}',
+                    created_at TEXT NOT NULL,
+                    FOREIGN KEY(workflow_id) REFERENCES workflows(id)
+                        ON DELETE CASCADE
+                );
+
+                CREATE INDEX IF NOT EXISTS idx_artifacts_workflow
+                ON artifacts(workflow_id, task_id);
                 """
             )
             db.execute(
