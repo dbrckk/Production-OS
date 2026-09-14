@@ -8,6 +8,10 @@ from pathlib import Path
 from typing import Iterable
 
 from .approvals import ApprovalStore
+from .attestations import (
+    create_validation_attestation,
+    verify_release_provenance,
+)
 from .audit_checkpoint import create_audit_checkpoint, verify_audit_checkpoint
 from .audit_integrity import verify_hash_chain
 from .backup import create_backup, restore_backup
@@ -319,6 +323,16 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default="PRODUCTION_OS_GITHUB_WEBHOOK_SECRET",
         help="Environment variable containing the GitHub webhook secret",
     )
+    controlplane.add_argument(
+        "--validation-attestation-keys-env",
+        default="PRODUCTION_OS_VALIDATION_ATTESTATION_KEYS",
+        help="Environment variable containing validator_id->secret JSON",
+    )
+    controlplane.add_argument(
+        "--release-provenance-secret-env",
+        default="PRODUCTION_OS_RELEASE_PROVENANCE_SECRET",
+        help="Environment variable containing release provenance secret",
+    )
 
     remotepoll = sub.add_parser("remote-worker-poll", help="Poll the P8 control plane for remote jobs")
     remotepoll.add_argument("--url", required=True)
@@ -416,7 +430,34 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     releasepromote.add_argument("--workflow-id", required=True)
     releasepromote.add_argument("--artifact-id", required=True)
     releasepromote.add_argument("--validation", required=True)
+    releasepromote.add_argument("--attestation", required=True)
     releasepromote.add_argument("--metadata")
+
+    validationattest = sub.add_parser(
+        "validation-attest",
+        help="Sign validation evidence for one exact workflow artifact",
+    )
+    validationattest.add_argument("--database", required=True)
+    validationattest.add_argument("--workflow-id", required=True)
+    validationattest.add_argument("--artifact-id", required=True)
+    validationattest.add_argument("--validation", required=True)
+    validationattest.add_argument("--validator-id", required=True)
+    validationattest.add_argument(
+        "--secret-env",
+        default="PRODUCTION_OS_VALIDATION_ATTESTATION_SECRET",
+    )
+    validationattest.add_argument("--output")
+
+    releaseverify = sub.add_parser(
+        "release-verify",
+        help="Verify the signed provenance stored on a release",
+    )
+    releaseverify.add_argument("--database", required=True)
+    releaseverify.add_argument("--release-id", required=True)
+    releaseverify.add_argument(
+        "--secret-env",
+        default="PRODUCTION_OS_RELEASE_PROVENANCE_SECRET",
+    )
 
     releaserollback = sub.add_parser(
         "release-rollback",
@@ -1346,6 +1387,22 @@ def run_token_hash(args: argparse.Namespace) -> int:
     return 0
 
 
+def _trusted_validation_keys_from_env(name: str) -> dict[str, str]:
+    raw = os.getenv(name, "").strip()
+    if not raw:
+        return {}
+    payload = json.loads(raw)
+    if not isinstance(payload, dict):
+        raise ValueError(
+            f"{name} must contain a JSON object"
+        )
+    return {
+        str(key):str(value)
+        for key, value in payload.items()
+        if str(key).strip() and str(value).strip()
+    }
+
+
 def run_control_plane(args: argparse.Namespace) -> int:
     serve_control_plane(
         args.database,
@@ -1354,6 +1411,12 @@ def run_control_plane(args: argparse.Namespace) -> int:
         port=args.port,
         github_webhook_secret=os.getenv(
             args.github_webhook_secret_env
+        ),
+        trusted_validation_secrets=_trusted_validation_keys_from_env(
+            args.validation_attestation_keys_env
+        ),
+        provenance_secret=os.getenv(
+            args.release_provenance_secret_env
         ),
     )
     return 0
@@ -1630,7 +1693,89 @@ def run_artifact_add(args: argparse.Namespace) -> int:
 
 def _release_ledger(database: str) -> ReleaseLedger:
     engine = _workflow_engine(database)
-    return ReleaseLedger(engine.backend, engine)
+    return ReleaseLedger(
+        engine.backend,
+        engine,
+        trusted_validation_secrets=_trusted_validation_keys_from_env(
+            "PRODUCTION_OS_VALIDATION_ATTESTATION_KEYS"
+        ),
+        provenance_secret=os.getenv(
+            "PRODUCTION_OS_RELEASE_PROVENANCE_SECRET"
+        ),
+    )
+
+
+def run_validation_attest(args: argparse.Namespace) -> int:
+    secret = os.getenv(args.secret_env, "")
+    if not secret:
+        raise ValueError(
+            f"validation signing secret missing: {args.secret_env}"
+        )
+
+    engine = _workflow_engine(args.database)
+    workflow = engine.get(args.workflow_id)
+    artifact = next(
+        (
+            item
+            for item in workflow.get("artifacts", [])
+            if item["id"] == args.artifact_id
+        ),
+        None,
+    )
+    if artifact is None:
+        raise KeyError(f"artifact {args.artifact_id}")
+
+    validation = json.loads(
+        Path(args.validation).read_text(encoding="utf-8")
+    )
+    metadata = dict(artifact.get("metadata") or {})
+    attestation = create_validation_attestation(
+        validator_id=args.validator_id,
+        secret=secret,
+        workflow_id=args.workflow_id,
+        artifact_id=args.artifact_id,
+        artifact_sha256=str(artifact.get("sha256") or ""),
+        source_revision=metadata.get("source_revision"),
+        workflow_generation=metadata.get("workflow_generation"),
+        validation=dict(validation),
+    )
+    rendered = json.dumps(
+        attestation,
+        indent=2,
+        ensure_ascii=False,
+    )
+    if args.output:
+        Path(args.output).write_text(
+            rendered + "\n",
+            encoding="utf-8",
+        )
+    print(rendered)
+    return 0
+
+
+def run_release_verify(args: argparse.Namespace) -> int:
+    secret = os.getenv(args.secret_env, "")
+    if not secret:
+        raise ValueError(
+            f"provenance secret missing: {args.secret_env}"
+        )
+    release = _release_ledger(args.database).get(
+        args.release_id
+    )
+    provenance = dict(
+        release.get("metadata", {}).get("provenance") or {}
+    )
+    valid = verify_release_provenance(
+        provenance,
+        secret=secret,
+    )
+    print(json.dumps({
+        "schema_version":"production-os/release-verification/v1",
+        "release_id":args.release_id,
+        "valid":valid,
+        "provenance":provenance,
+    }, indent=2, ensure_ascii=False))
+    return 0 if valid else 9
 
 
 def run_release_promote(args: argparse.Namespace) -> int:
@@ -1642,10 +1787,14 @@ def run_release_promote(args: argparse.Namespace) -> int:
         if args.metadata
         else {}
     )
+    attestation = json.loads(
+        Path(args.attestation).read_text(encoding="utf-8")
+    )
     release = _release_ledger(args.database).promote(
         workflow_id=args.workflow_id,
         artifact_id=args.artifact_id,
         validation=dict(validation),
+        attestation=dict(attestation),
         metadata=dict(metadata),
     )
     print(json.dumps({
@@ -1788,6 +1937,10 @@ def main(argv: list[str] | None = None) -> int:
         return run_workflow_cancel(args)
     if args.command == "artifact-add":
         return run_artifact_add(args)
+    if args.command == "validation-attest":
+        return run_validation_attest(args)
+    if args.command == "release-verify":
+        return run_release_verify(args)
     if args.command == "release-promote":
         return run_release_promote(args)
     if args.command == "release-rollback":
