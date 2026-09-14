@@ -427,20 +427,25 @@ def make_handler(control: ControlPlane):
                         )
                     )
                     workflows = [generation] if generation else []
+                    refreshable = [
+                        workflow
+                        for workflow in workflows
+                        if control.workflows.generation_refreshable(
+                            workflow
+                        )
+                    ]
                     changed_paths = (
                         GitHubClient().list_pull_request_files(
                             repository,
                             pr_number,
                         )
-                        if workflows
+                        if refreshable
                         else []
                     )
                     refreshed = []
                     dispatched = []
                     for workflow in workflows:
-                        if not control.workflows.generation_refreshable(
-                            workflow
-                        ):
+                        if workflow not in refreshable:
                             refreshed.append({
                                 "workflow_id":workflow["id"],
                                 "generation":workflow.get(
