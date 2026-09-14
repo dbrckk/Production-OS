@@ -543,6 +543,59 @@ class WorkflowEngine:
             )
         return self.get(workflow_id)
 
+    def find_pr_template(
+        self,
+        repository: str,
+    ) -> dict | None:
+        with self.backend.connect() as db:
+            rows = _execute(
+                db,
+                self.backend,
+                """
+                SELECT id, metadata_json
+                FROM workflows
+                WHERE repository=?
+                ORDER BY created_at DESC
+                """,
+                (repository,),
+            ).fetchall()
+
+        for row in rows:
+            metadata = json.loads(row["metadata_json"])
+            if bool(metadata.get("github_pr_template", False)):
+                return self.get(str(row["id"]))
+        return None
+
+    def create_from_pr_template(
+        self,
+        repository: str,
+        pr_number: int,
+        head_sha: str,
+    ) -> dict | None:
+        template = self.find_pr_template(repository)
+        if template is None:
+            return None
+
+        metadata = dict(template.get("metadata") or {})
+        metadata.pop("github_pr_template", None)
+        metadata.pop("changed_paths", None)
+        metadata.update({
+            "github_pr_number":int(pr_number),
+            "github_pr_head_sha":str(head_sha),
+            "github_pr_generation":1,
+            "github_pr_template_workflow_id":template["id"],
+        })
+
+        return self.create(
+            name=template["name"],
+            repository=repository,
+            tasks=[
+                self._spec_from_task(task)
+                for task in template["tasks"]
+            ],
+            metadata=metadata,
+        )
+
     @staticmethod
     def generation_refreshable(workflow: dict) -> bool:
         for task in workflow.get("tasks", []):
