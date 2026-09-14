@@ -18,158 +18,114 @@ Production-OS sits above individual repositories and answers four questions:
 - bounded recursive source-tree sampling
 - deep source fingerprinting
 - capability fingerprinting
-- **source-symbol/component extraction**
-- **component provenance**
-- **component→dependency→capability graph**
-- component-level cross-repository reuse matching
+- source-symbol/component extraction
+- component provenance
+- component→dependency→capability graph
+- **test-to-component linking**
+- **adaptation risk scoring**
+- component-level cross-repository reuse ranking
 - persistent snapshots and regression detection
 - live `dbrckk/star-list` ingestion and ranking
 - portfolio-wide **Next Best Action**
 - direct `ai-dev-server` handoff
 
-## Component provenance
+## Adaptation risk
 
-Production-OS now extracts selected source symbols from sampled files.
+Every reusable component candidate is now scored from 0 to 100.
 
-Supported first-pass extraction:
+Signals include:
 
-```text
-Python
-├── classes
-├── public functions
-└── imports
+- source/target profile mismatch
+- language mismatch
+- dependency count
+- linked tests
+- direct capability match
+- UI coupling
+- whether the candidate is itself test code
 
-Kotlin / Java
-├── classes
-├── interfaces
-├── objects
-├── enum classes
-└── imports
-```
-
-Each component carries:
+Risk levels:
 
 ```text
-name
-kind
-path
-language
-confidence
-dependencies
-capability_hints
-test_like
+0-25   low
+26-50  medium
+51-75  high
+76-100 very-high
 ```
+
+Low-risk and medium-risk non-test components are preferred in the handoff.
+
+## Test-to-component linking
+
+Production-OS links likely tests to components using:
+
+- component name appearing in test symbol
+- component name appearing in test path
+- shared capability hints
+- shared dependencies
 
 Example:
 
 ```text
-component: BillingManager
-path: app/src/.../BillingManager.kt
-language: kotlin
-dependencies:
-  - BillingClient
-capability_hints:
-  - android-play-billing
+BillingManager
+   ↓ tested_by
+BillingManagerTest
 ```
 
-## Knowledge graph V2
+Those tests are attached to the adaptation candidate so `ai-dev-server` can reuse or recreate the verification coverage.
 
-The graph now models:
+## Component reuse ranking
+
+Candidate ranking now considers:
 
 ```text
-repository --contains------> component
-component  --depends_on----> dependency
-component  --implements----> capability
-repository --provides------> capability
-repository --classified_as-> profile
+adaptation risk
+      +
+component confidence
+      +
+linked test coverage
+      +
+project family compatibility
+      ↓
+recommended component
 ```
 
-This makes provenance explicit: Production-OS can distinguish a capability declared at repository level from a concrete component that appears to implement it.
+A repository-level reuse score is also reduced when the only available component candidates have high adaptation risk.
 
-## Component-level reuse
-
-Reuse recommendations now include candidate source components.
-
-Example:
-
-```text
-Target:
-deadline-zero
-
-Missing capability:
-android-play-billing
-
-Source:
-Who-are-you
-
-Candidate components:
-- BillingManager
-  path: ...
-  dependencies:
-    - BillingClient
-
-- PremiumRepository
-  path: ...
-```
-
-The system still treats these as **adaptation candidates**, not blindly copyable code. Compatibility and tests remain mandatory.
-
-## ai-dev-server handoff V5
+## ai-dev-server handoff V6
 
 ```bash
 production-os scan --owner dbrckk --handoff
 ```
 
-The V5 handoff contains:
+The V6 contract adds:
 
-- prioritized task
-- target repository
-- trigger evidence
-- acceptance criteria
-- repo-level reuse candidates
-- **reusable component candidates**
-- component paths
-- component dependencies
-- live star-list references
-- verification constraints
+- `adaptation_risk`
+- `adaptation_risk_level`
+- `adaptation_reasons`
+- `linked_tests`
+- `recommended_components`
 
-The policy is now:
+The policy becomes:
 
 ```text
 repair blockers first
         ↓
-reuse internal component if suitable
+find internal component
         ↓
-otherwise reuse internal architecture/pattern
+score adaptation risk
+        ↓
+prefer tested low-risk component
+        ↓
+otherwise reuse architecture/pattern
         ↓
 otherwise consult star-list
         ↓
-adapt
-        ↓
-test
-        ↓
-verify
+adapt + test + verify
 ```
 
-## Portfolio JSON V6
+## Portfolio JSON V7
 
-```bash
-production-os scan --owner dbrckk --json
-```
-
-includes:
-
-- repo assessments
-- sampled source documents
-- source signals
-- components
-- capability fingerprints
-- ranked actions
-- component-aware reuse opportunities
-- knowledge graph V2
-- regressions
-- snapshots
-- star-list status
+The JSON portfolio now exposes the enriched component reuse data and the same adaptation metadata used by the handoff.
 
 ## Roadmap
 
@@ -194,10 +150,11 @@ includes:
 - [x] reusable component provenance
 - [x] first dependency graph
 - [x] component-aware reuse handoff
-- [ ] test-to-component linking
+- [x] test-to-component linking
+- [x] adaptation risk scoring
 - [ ] call/import graph refinement
-- [ ] adaptation risk scoring
 - [ ] reusable boundary detection
+- [ ] automatic adaptation plans
 
 ### P2
 - [ ] autonomous scheduling
@@ -212,6 +169,7 @@ includes:
 - Deterministic decisions before LLM judgment
 - Fail closed on missing evidence
 - Reuse before rebuild
+- Prefer low-risk tested components
 - Adapt rather than blindly copy
 - Test before promotion
 - Human approval for destructive or externally privileged actions
