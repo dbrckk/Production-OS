@@ -6,18 +6,22 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from .approvals import ApprovalStore
+from .budgets import BudgetLedger
 from .claims import ClaimStore
 from .delivery import recover_unacked_jobs
 from .dispatch import dispatch_handoff
 from .emergency import emergency_stop_active
 from .github_client import GitHubClient
 from .github_work_state import fetch_github_work_state, runtime_decision_from_github
+from .governance import apply_governance
 from .health import build_health, write_health
 from .heartbeat_manager import renew_active_leases
 from .history import build_snapshot, save_snapshot
 from .journal import ExecutionJournal
 from .metrics import MetricsStore
 from .observability import build_observability_payload, write_observability
+from .policy import PolicySet
+from .quarantine import QuarantineStore
 from .rate_limit import RateLimitStore
 from .reconciliation import reconcile_runtime_state
 from .resources import allocate_resources
@@ -123,6 +127,9 @@ def run_control_cycle(
     emergency_stop_path: str | None = None,
     rate_limit_path: str | None = None,
     approval_path: str | None = None,
+    policy_path: str | None = None,
+    budget_path: str | None = None,
+    quarantine_path: str | None = None,
     capacity: int = 3,
     slots: int = 3,
     lease_owner: str = "production-os-controller",
@@ -134,6 +141,9 @@ def run_control_cycle(
     worker_registry = WorkerRegistry(worker_registry_path) if worker_registry_path else None
     rate_limit_store = RateLimitStore(rate_limit_path) if rate_limit_path else None
     approval_store = ApprovalStore(approval_path) if approval_path else None
+    policy_set = PolicySet.load(policy_path)
+    budget_ledger = BudgetLedger(budget_path) if budget_path else None
+    quarantine_store = QuarantineStore(quarantine_path) if quarantine_path else None
     delivery_recovery = []
     if worker_registry is not None:
         worker_registry.detect_dead()
@@ -157,6 +167,19 @@ def run_control_cycle(
 
     healing_actions = apply_self_healing(state)
     metrics_store.metrics.self_healing_actions += len(healing_actions)
+
+    governance_actions = []
+    if quarantine_store is not None:
+        governance_actions = apply_governance(
+            state,
+            policy_set,
+            quarantine_store,
+        )
+        for item in governance_actions:
+            journal.append({
+                "source":"controller-governance",
+                **item.to_dict(),
+            })
 
     heartbeat_results = renew_active_leases(
         state,
@@ -199,6 +222,8 @@ def run_control_cycle(
         actions,
         capacity=capacity,
         runtime_state=state,
+        policy_set=policy_set,
+        quarantine_store=quarantine_store,
     )
     allocation = allocate_resources(schedule, total_slots=slots)
 
@@ -240,6 +265,9 @@ def run_control_cycle(
                 emergency_stop_path=emergency_stop_path,
                 rate_limit_store=rate_limit_store,
                 approval_store=approval_store,
+                policy_set=policy_set,
+                budget_ledger=budget_ledger,
+                quarantine_store=quarantine_store,
             )
             dispatches.append(result.to_dict())
             metrics_store.metrics.dispatched += 1
@@ -285,6 +313,7 @@ def run_control_cycle(
         "dispatches":dispatches,
         "reconciliation":[a.to_dict() for a in reconcile_actions],
         "self_healing":[a.to_dict() for a in healing_actions],
+        "governance":[a.to_dict() for a in governance_actions],
         "heartbeats":[a.to_dict() for a in heartbeat_results],
         "github_reconciliation":github_results,
         "workers":[w.to_dict() for w in worker_registry.workers.values()] if worker_registry else [],
