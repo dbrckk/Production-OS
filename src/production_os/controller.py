@@ -1,12 +1,15 @@
 from __future__ import annotations
 
+import json
 import time
 from datetime import datetime, timezone
 from pathlib import Path
 
 from .dispatch import dispatch_handoff
 from .github_client import GitHubClient
+from .github_work_state import fetch_github_work_state, runtime_decision_from_github
 from .health import build_health, write_health
+from .heartbeat_manager import renew_active_leases
 from .history import build_snapshot, save_snapshot
 from .journal import ExecutionJournal
 from .metrics import MetricsStore
@@ -16,6 +19,7 @@ from .reuse import detect_reuse
 from .runtime_state import RuntimeState
 from .scheduler import build_schedule
 from .scoring import assess_repository
+from .self_healing import apply_self_healing
 
 
 def _rank_actions(assessments):
@@ -26,7 +30,7 @@ def _rank_actions(assessments):
 def _handoff_for_action(action, reuse):
     related = [item.to_dict() for item in reuse if item.target == action.repository][:5]
     return {
-        "schema_version":"production-os/task-handoff/controller-v1",
+        "schema_version":"production-os/task-handoff/controller-v2",
         "source":"Production-OS",
         "executor":"ai-dev-server",
         "repository":action.repository,
@@ -44,6 +48,56 @@ def _handoff_for_action(action, reuse):
     }
 
 
+def _load_github_mappings(path: str | None) -> list[dict]:
+    if not path:
+        return []
+    source = Path(path)
+    if not source.exists():
+        return []
+    payload = json.loads(source.read_text(encoding="utf-8"))
+    rows = payload.get("mappings", payload)
+    return rows if isinstance(rows, list) else []
+
+
+def _reconcile_github(
+    client: GitHubClient,
+    state: RuntimeState,
+    journal: ExecutionJournal,
+    mappings: list[dict],
+) -> list[dict]:
+    results = []
+    for item in mappings:
+        repository = str(item.get("repository", ""))
+        task = str(item.get("task", ""))
+        if not repository or not task:
+            continue
+
+        work_state = fetch_github_work_state(
+            client,
+            repository,
+            issue_number=item.get("issue_number"),
+            pr_number=item.get("pr_number"),
+        )
+        decision = runtime_decision_from_github(work_state)
+        updated = None
+        if decision in {"promote","retry","replan"}:
+            updated = state.record_outcome(repository, task, decision).to_dict()
+
+        row = {
+            "repository":repository,
+            "task":task,
+            "decision":decision,
+            "github":work_state.to_dict(),
+            "runtime_state":updated,
+        }
+        results.append(row)
+        journal.append({
+            "source":"controller-github-reconcile",
+            **row,
+        })
+    return results
+
+
 def run_control_cycle(
     *,
     owner: str,
@@ -53,6 +107,7 @@ def run_control_cycle(
     metrics_path: str,
     health_path: str,
     journal_path: str,
+    github_mapping_path: str | None = None,
     capacity: int = 3,
     slots: int = 3,
     lease_owner: str = "production-os-controller",
@@ -65,7 +120,27 @@ def run_control_cycle(
     reconcile_actions = reconcile_runtime_state(state)
     metrics_store.metrics.reconciliations += len(reconcile_actions)
 
+    healing_actions = apply_self_healing(state)
+    metrics_store.metrics.self_healing_actions += len(healing_actions)
+
+    heartbeat_results = renew_active_leases(
+        state,
+        owner=lease_owner,
+        minutes=lease_minutes,
+    )
+    metrics_store.metrics.heartbeats_renewed += sum(
+        1 for item in heartbeat_results if item.renewed
+    )
+
     client = GitHubClient()
+    github_results = _reconcile_github(
+        client,
+        state,
+        journal,
+        _load_github_mappings(github_mapping_path),
+    )
+    metrics_store.metrics.github_reconciliations += len(github_results)
+
     repos = client.list_repositories(owner)
     assessments = []
     for repo in repos:
@@ -138,12 +213,15 @@ def run_control_cycle(
     write_health(health, health_path)
 
     return {
-        "schema_version":"production-os/control-cycle/v1",
+        "schema_version":"production-os/control-cycle/v2",
         "snapshot":snapshot_path,
         "schedule":schedule,
         "resource_allocation":allocation,
         "dispatches":dispatches,
         "reconciliation":[a.to_dict() for a in reconcile_actions],
+        "self_healing":[a.to_dict() for a in healing_actions],
+        "heartbeats":[a.to_dict() for a in heartbeat_results],
+        "github_reconciliation":github_results,
         "health":health,
     }
 
@@ -158,7 +236,24 @@ def run_controller(
         raise ValueError("cycles must be >= 1")
     results = []
     for index in range(cycles):
-        results.append(run_control_cycle(**kwargs))
+        try:
+            results.append(run_control_cycle(**kwargs))
+        except Exception as exc:
+            metrics_path = kwargs.get("metrics_path")
+            health_path = kwargs.get("health_path")
+            runtime_state_path = kwargs.get("runtime_state_path")
+            if metrics_path and runtime_state_path:
+                metrics_store = MetricsStore(metrics_path)
+                metrics_store.metrics.last_error = str(exc)
+                metrics_store.metrics.cycles += 1
+                metrics_store.save()
+                if health_path:
+                    state = RuntimeState(runtime_state_path)
+                    write_health(
+                        build_health(state, metrics_store.metrics.to_dict()),
+                        health_path,
+                    )
+            raise
         if index + 1 < cycles:
             time.sleep(max(1, interval_seconds))
     return results
