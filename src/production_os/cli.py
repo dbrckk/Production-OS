@@ -379,6 +379,14 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     workflowimpactpr.add_argument("--repository", required=True)
     workflowimpactpr.add_argument("--pr-number", type=int, required=True)
 
+    prrefresh = sub.add_parser(
+        "pr-refresh",
+        help="Refresh every workflow bound to a GitHub pull request",
+    )
+    prrefresh.add_argument("--database", required=True)
+    prrefresh.add_argument("--repository", required=True)
+    prrefresh.add_argument("--pr-number", type=int, required=True)
+
     workflowcancel = sub.add_parser("workflow-cancel", help="Cancel a workflow")
     workflowcancel.add_argument("--database", required=True)
     workflowcancel.add_argument("--workflow-id", required=True)
@@ -1510,6 +1518,50 @@ def run_workflow_impact_pr(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_pr_refresh(args: argparse.Namespace) -> int:
+    engine = _workflow_engine(args.database)
+    workflows = engine.find_by_github_pr(
+        args.repository,
+        args.pr_number,
+    )
+    if not workflows:
+        print(json.dumps({
+            "schema_version":"production-os/pr-refresh/v1",
+            "repository":args.repository,
+            "pr_number":args.pr_number,
+            "changed_paths":[],
+            "workflows":[],
+            "refreshed":0,
+        }, indent=2, ensure_ascii=False))
+        return 0
+
+    changed_paths = GitHubClient().list_pull_request_files(
+        args.repository,
+        args.pr_number,
+    )
+    refreshed = []
+    for workflow in workflows:
+        decisions = engine.apply_change_impact(
+            workflow["id"],
+            changed_paths,
+        )
+        refreshed.append({
+            "workflow_id":workflow["id"],
+            "decisions":decisions,
+            "workflow":engine.get(workflow["id"]),
+        })
+
+    print(json.dumps({
+        "schema_version":"production-os/pr-refresh/v1",
+        "repository":args.repository,
+        "pr_number":args.pr_number,
+        "changed_paths":changed_paths,
+        "workflows":refreshed,
+        "refreshed":len(refreshed),
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
 def run_workflow_cancel(args: argparse.Namespace) -> int:
     workflow = _workflow_engine(args.database).cancel(args.workflow_id)
     print(json.dumps({
@@ -1642,6 +1694,8 @@ def main(argv: list[str] | None = None) -> int:
         return run_workflow_impact(args)
     if args.command == "workflow-impact-pr":
         return run_workflow_impact_pr(args)
+    if args.command == "pr-refresh":
+        return run_pr_refresh(args)
     if args.command == "workflow-cancel":
         return run_workflow_cancel(args)
     if args.command == "artifact-add":
