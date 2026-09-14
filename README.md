@@ -1953,6 +1953,59 @@ The resulting workflow then enters the normal P11/P12 incremental path.
 - [x] automatic workflow creation for unseen PRs
 - [x] generation rotation regression tests
 - [x] webhook template auto-creation tests
-- [ ] cooperative checkpoint acknowledgement from workers on supersession
-- [ ] worker-side stale-generation heartbeat rejection
-- [ ] artifact promotion guard against superseded source revisions
+- [x] cooperative checkpoint acknowledgement from workers on supersession
+- [x] worker-side stale-generation heartbeat rejection
+- [x] artifact promotion guard against superseded source revisions
+
+### P13 stale-generation enforcement
+
+Generation freshness is enforced across the worker and artifact lifecycle.
+
+Worker heartbeat may report active job keys:
+
+    POST /v1/workers/heartbeat
+
+    {
+      "worker_id": "python-1",
+      "active_tasks": 1,
+      "active_job_keys": ["<job-key>"]
+    }
+
+The response contains:
+
+    {
+      "stale_job_keys": ["<job-key>"]
+    }
+
+A superseded job is rejected from:
+
+- queue candidate selection;
+- acknowledgement;
+- completion;
+- failure reporting.
+
+A worker can checkpoint useful partial state before stopping:
+
+    POST /v1/jobs/stale-checkpoint
+
+    {
+      "key": "<job-key>",
+      "worker_id": "python-1",
+      "checkpoint_ref": "checkpoint://..."
+    }
+
+The checkpoint is persisted in the durable event stream as `stale-job-checkpointed` with workflow generation and source revision evidence.
+
+Artifacts belonging to PR workflows must carry:
+
+    source_revision
+    workflow_generation
+
+Artifact registration fails closed when:
+
+- the workflow was superseded;
+- source_revision differs from the workflow head SHA;
+- workflow_generation differs from the current generation;
+- revision/generation evidence is missing for a PR workflow.
+
+This prevents stale results from being promoted even if a worker finishes after a new commit reaches the PR.
