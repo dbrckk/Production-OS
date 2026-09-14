@@ -12,6 +12,7 @@ from .execution_optimizer import ExecutionOptimizer
 from .speculation import SpeculationManager
 from .portfolio_optimizer import PortfolioOptimizer
 from .github_client import GitHubClient
+from .release_ledger import ReleaseLedger
 from .github_webhook import (
     WebhookDeliveryStore,
     WebhookError,
@@ -36,6 +37,7 @@ class ControlPlane:
         self.optimizer = ExecutionOptimizer(self.backend)
         self.speculation = SpeculationManager(self.backend, self.queue)
         self.portfolio = PortfolioOptimizer(self.workflows, self.optimizer)
+        self.releases = ReleaseLedger(self.backend, self.workflows)
         self.authorizer = authorizer
         self.github_webhook_secret = github_webhook_secret
         self.webhook_deliveries = WebhookDeliveryStore(self.backend)
@@ -719,6 +721,33 @@ def make_handler(control: ControlPlane):
                                 {"workflow":workflow},
                             )
                             return
+                        if action == "promote":
+                            release = control.releases.promote(
+                                workflow_id=workflow_id,
+                                artifact_id=str(body["artifact_id"]),
+                                validation=dict(
+                                    body.get("validation") or {}
+                                ),
+                                metadata=dict(
+                                    body.get("metadata") or {}
+                                ),
+                            )
+                            self._send(
+                                HTTPStatus.CREATED,
+                                {"release":release},
+                            )
+                            return
+                        if action == "releases":
+                            self._send(
+                                HTTPStatus.OK,
+                                {
+                                    "releases":
+                                        control.releases.list_for_workflow(
+                                            workflow_id
+                                        )
+                                },
+                            )
+                            return
                         if action == "artifacts":
                             artifact = control.workflows.add_artifact(
                                 workflow_id,
@@ -793,6 +822,33 @@ def make_handler(control: ControlPlane):
                         },
                     )
                     return
+
+                if parsed.path.startswith("/v1/releases/"):
+                    parts = [
+                        part
+                        for part in parsed.path.split("/")
+                        if part
+                    ]
+                    if (
+                        len(parts) == 4
+                        and parts[1] == "releases"
+                        and parts[3] == "rollback"
+                    ):
+                        principal = self._require("operator")
+                        if principal is None:
+                            return
+                        release = control.releases.rollback(
+                            parts[2],
+                            reason=str(body.get("reason") or ""),
+                            metadata=dict(
+                                body.get("metadata") or {}
+                            ),
+                        )
+                        self._send(
+                            HTTPStatus.CREATED,
+                            {"release":release},
+                        )
+                        return
 
                 if parsed.path == "/v1/jobs/enqueue":
                     principal = self._require("operator")
