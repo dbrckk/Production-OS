@@ -2152,3 +2152,192 @@ The rollback record points to the original release through `rollback_of`. Only o
 - [ ] cryptographic attestation of validation producer
 - [ ] signed provenance envelope
 - [ ] policy approval binding to release record
+
+## P15 signed validation and provenance attestations
+
+Release promotion now requires cryptographic validation evidence.
+
+Production-OS uses canonical JSON + HMAC-SHA256 for two independent trust boundaries:
+
+    validator secret
+        ↓
+    validation attestation
+        ↓
+    transactional release promotion
+        ↓
+    release provenance secret
+        ↓
+    signed release provenance
+
+No validation or provenance signing secret is persisted in workflow, artifact, release, or audit records.
+
+### Trusted validator configuration
+
+The control plane reads trusted validator identities from:
+
+    PRODUCTION_OS_VALIDATION_ATTESTATION_KEYS
+
+Example:
+
+    {
+      "validator-1": "strong-validator-secret"
+    }
+
+Release provenance uses a separate secret:
+
+    PRODUCTION_OS_RELEASE_PROVENANCE_SECRET
+
+A validator key and the release provenance key should not be the same secret.
+
+### Validation attestation
+
+Generate a signed attestation for one exact artifact:
+
+    export PRODUCTION_OS_VALIDATION_ATTESTATION_SECRET='<validator-secret>'
+
+    production-os validation-attest \
+      --database artifacts/production.db \
+      --workflow-id <workflow-id> \
+      --artifact-id <artifact-id> \
+      --validation validation-summary.json \
+      --validator-id validator-1 \
+      --output validation-attestation.json
+
+The attestation is bound to:
+
+    validator_id
+    workflow_id
+    artifact_id
+    artifact_sha256
+    source_revision
+    workflow_generation
+    validation payload
+    issued_at
+
+Changing any bound value invalidates the attestation.
+
+Attestations are accepted only from configured validator identities and are fresh for one hour by default. Excessively future-dated attestations are rejected.
+
+### Signed promotion
+
+CLI promotion now requires both the validation result and its attestation:
+
+    production-os release-promote \
+      --database artifacts/production.db \
+      --workflow-id <workflow-id> \
+      --artifact-id <artifact-id> \
+      --validation validation-summary.json \
+      --attestation validation-attestation.json \
+      --approved-by local-operator \
+      --approval-role operator
+
+Control-plane promotion:
+
+    POST /v1/workflows/<workflow-id>/promote
+
+The authenticated bearer principal is used as the release approver. The client cannot choose a different approved_by identity through the API.
+
+### Approval binding
+
+Every promoted release records an approval bound to:
+
+    workflow_id
+    artifact_id
+    artifact_sha256
+    source_revision
+    workflow_generation
+
+Production-OS computes a deterministic SHA-256 approval key for this tuple.
+
+The signed provenance envelope includes:
+
+    approval_key
+    approved_by
+    approval_role
+
+Changing the artifact, source revision, or workflow generation therefore changes the approval key and invalidates reuse of the old approval.
+
+### Signed release provenance
+
+The immutable release stores a signed provenance envelope containing:
+
+    release_id
+    workflow_id
+    artifact_id
+    repository
+    artifact_sha256
+    source_revision
+    workflow_generation
+    validator_id
+    validation attestation signature
+    approval_key
+    approved_by
+    approval_role
+    release creation timestamp
+
+The provenance envelope and the release row are persisted in the same database transaction.
+
+### Release verification
+
+CLI:
+
+    production-os release-verify \
+      --database artifacts/production.db \
+      --release-id <release-id>
+
+API:
+
+    GET /v1/releases/<release-id>/verify
+
+Verification checks:
+
+    trusted validator identity
+    validation attestation signature
+    exact attestation bindings
+    release provenance signature
+    exact provenance bindings
+    artifact digest
+    source revision
+    workflow generation
+    operator approval identity
+
+A release remains independently auditable after promotion even if the workflow has already completed.
+
+### Deployment variables
+
+    PRODUCTION_OS_VALIDATION_ATTESTATION_KEYS
+    PRODUCTION_OS_RELEASE_PROVENANCE_SECRET
+
+The example Docker, PostgreSQL and TLS compose configurations pass both variables into the Production-OS service.
+
+### P15 progress
+
+- [x] canonical validation attestation schema
+- [x] HMAC-SHA256 validator signatures
+- [x] trusted validator identity map
+- [x] exact workflow binding
+- [x] exact artifact binding
+- [x] artifact SHA-256 binding
+- [x] source revision binding
+- [x] workflow generation binding
+- [x] validation payload binding
+- [x] issued-at freshness enforcement
+- [x] future timestamp skew rejection
+- [x] untrusted validator rejection
+- [x] invalid signature rejection
+- [x] mandatory signed attestation for promotion
+- [x] authenticated operator approval binding
+- [x] deterministic approval key
+- [x] signed immutable release provenance
+- [x] atomic provenance persistence
+- [x] full post-release verification
+- [x] CLI validation-attest command
+- [x] CLI release-verify command
+- [x] control-plane release verification endpoint
+- [x] Docker/PostgreSQL/TLS secret wiring
+- [x] tamper-detection tests
+- [x] expired-attestation tests
+- [x] API approval identity test
+- [ ] asymmetric signing / offline public-key verification
+- [ ] key rotation metadata and key IDs
+- [ ] external transparency-log anchoring
