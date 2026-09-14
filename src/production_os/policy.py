@@ -125,6 +125,19 @@ def evaluate_policy(
             allowed = False
             reasons.append("release/change freeze window active")
 
+    protected_for = set(
+        str(x) for x in policy.get(
+            "require_branch_protection_for",
+            [],
+        )
+    )
+    if risk in protected_for:
+        if handoff.get("branch_protected") is not True:
+            allowed = False
+            reasons.append(
+                "branch protection is required but not positively verified"
+            )
+
     quarantine = policy.get("quarantine", {}) or {}
     if bool(quarantine.get("active", False)):
         quarantined = True
