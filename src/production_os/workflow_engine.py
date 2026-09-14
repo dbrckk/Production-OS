@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from .runtime_state import task_key
+from .result_cache import ResultCache, fingerprint
 
 
 TERMINAL_TASK_STATES = {"succeeded", "failed", "cancelled", "blocked"}
@@ -60,6 +61,7 @@ class WorkflowEngine:
     def __init__(self, backend, queue):
         self.backend = backend
         self.queue = queue
+        self.cache = ResultCache(backend)
 
     @staticmethod
     def _validate(tasks: list[WorkflowTaskSpec]) -> None:
@@ -379,9 +381,62 @@ class WorkflowEngine:
             )
         )
         dispatched = []
+        cache_hits = 0
 
         for task in ready[:max(1, limit)]:
             payload = dict(task["payload"])
+            if bool(payload.get("cacheable", False)):
+                cache_inputs = dict(
+                    payload.get("cache_inputs")
+                    or {"payload":payload}
+                )
+                cache_key = fingerprint(
+                    repository=workflow["repository"],
+                    task=task["title"],
+                    inputs=cache_inputs,
+                )
+                cached = self.cache.get(cache_key)
+                if cached is not None:
+                    now = _now()
+                    with self.backend.transaction() as db:
+                        updated = _execute(
+                            db,
+                            self.backend,
+                            """
+                            UPDATE workflow_tasks
+                            SET status='succeeded', result_json=?,
+                                claimed_job_key=NULL, updated_at=?
+                            WHERE workflow_id=? AND task_id=?
+                              AND status='ready'
+                            """,
+                            (
+                                json.dumps(
+                                    {
+                                        "cache_hit":True,
+                                        "cache_fingerprint":cache_key,
+                                        "cached_result":cached["result"],
+                                        "artifacts":cached["artifacts"],
+                                    },
+                                    ensure_ascii=False,
+                                ),
+                                now,
+                                workflow_id,
+                                task["task_id"],
+                            ),
+                        )
+                        if updated.rowcount == 1:
+                            self.backend.append_event(
+                                db,
+                                "workflow-task-cache-hit",
+                                {
+                                    "workflow_id":workflow_id,
+                                    "task_id":task["task_id"],
+                                    "fingerprint":cache_key,
+                                },
+                                repository=workflow["repository"],
+                            )
+                            cache_hits += 1
+                    continue
             handoff = dict(payload.get("handoff") or payload)
             handoff.setdefault("repository", workflow["repository"])
             handoff.setdefault("task", task["title"])
@@ -437,8 +492,17 @@ class WorkflowEngine:
                 )
             dispatched.append(job)
 
-        if dispatched:
+        if dispatched or cache_hits:
             self.refresh(workflow_id)
+        if cache_hits:
+            remaining = max(0, limit - len(dispatched))
+            if remaining > 0:
+                dispatched.extend(
+                    self.dispatch_ready(
+                        workflow_id,
+                        limit=remaining,
+                    )
+                )
         return dispatched
 
     def record_result(
@@ -498,6 +562,25 @@ class WorkflowEngine:
                 },
                 task_key_value=row["claimed_job_key"],
             )
+
+        if succeeded:
+            task_payload = json.loads(row["payload_json"])
+            if bool(task_payload.get("cacheable", False)):
+                cache_inputs = dict(
+                    task_payload.get("cache_inputs")
+                    or {"payload":task_payload}
+                )
+                cache_key = fingerprint(
+                    repository=self.get(workflow_id)["repository"],
+                    task=row["title"],
+                    inputs=cache_inputs,
+                )
+                self.cache.put(
+                    key=cache_key,
+                    repository=self.get(workflow_id)["repository"],
+                    task=row["title"],
+                    result=result or {},
+                )
 
         refreshed = self.refresh(workflow_id)
         if status in {"succeeded", "ready"}:
