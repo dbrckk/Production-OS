@@ -101,6 +101,21 @@ class RemoteWorkerClient:
         )
         return result["job"]
 
+    def checkpoint_stale(
+        self,
+        key: str,
+        checkpoint_ref: str,
+    ) -> dict:
+        _, result = self._request(
+            "/v1/jobs/stale-checkpoint",
+            {
+                "key":key,
+                "worker_id":self.worker_id,
+                "checkpoint_ref":checkpoint_ref,
+            },
+        )
+        return result
+
     def complete(
         self,
         key: str,
