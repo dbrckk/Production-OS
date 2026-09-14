@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 
 RISK_ORDER = {"low":0, "medium":1, "high":2, "critical":3}
@@ -80,8 +81,13 @@ def classify_risk(handoff: dict) -> str:
 
 def _freeze_active(policy: dict[str, Any], now: datetime) -> bool:
     freezes = policy.get("freeze_windows", [])
-    weekday = now.strftime("%a").lower()[:3]
-    hhmm = now.strftime("%H:%M")
+    timezone_name = str(policy.get("freeze_timezone", "UTC"))
+    try:
+        local_now = now.astimezone(ZoneInfo(timezone_name))
+    except ZoneInfoNotFoundError:
+        local_now = now
+    weekday = local_now.strftime("%a").lower()[:3]
+    hhmm = local_now.strftime("%H:%M")
     for freeze in freezes:
         days = [str(x).lower()[:3] for x in freeze.get("days", [])]
         if days and weekday not in days:
