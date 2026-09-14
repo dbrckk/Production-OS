@@ -1864,3 +1864,95 @@ Unsupported GitHub events/actions are acknowledged and ignored after signature v
 - [ ] PR head-SHA generation binding
 - [ ] superseded-generation cancellation/checkpoint handoff
 
+## P13 PR workflow generations
+
+Production-OS now binds incremental execution to the exact pull-request head SHA.
+
+Each PR workflow carries:
+
+    github_pr_number
+    github_pr_head_sha
+    github_pr_generation
+
+Jobs dispatched from the workflow also carry:
+
+    workflow_generation
+    source_revision
+
+This prevents workers from treating work produced for an older PR revision as current.
+
+### Generation rotation
+
+When GitHub sends a supported pull-request webhook with a new head SHA:
+
+    generation N / sha-A
+        ↓
+    synchronize webhook / sha-B
+        ↓
+    clone DAG as generation N+1
+        ↓
+    mark generation N superseded
+        ↓
+    cancel queued / claimed / acked jobs from generation N
+        ↓
+    recompute changed-path impact for sha-B
+        ↓
+    dispatch only the minimal ready sub-DAG
+
+The superseded workflow remains persisted for auditability and records:
+
+    superseded = true
+    superseded_by_workflow_id
+    superseded_by_head_sha
+
+A first webhook for a PR-bound workflow that does not yet have a head SHA binds the SHA in place as generation 1 instead of creating an artificial generation 2.
+
+### Same-SHA idempotency
+
+A separate GitHub delivery for a head SHA that is already executing or completed is treated as a generation no-op.
+
+Production-OS does not:
+
+- recompute impact;
+- refetch PR files;
+- enqueue duplicate jobs.
+
+This is independent from the X-GitHub-Delivery replay guard and protects against logically duplicate events with different delivery IDs.
+
+### Automatic workflows for unseen PRs
+
+A repository can define a reusable PR workflow template with:
+
+    {
+      "github_pr_template": true
+    }
+
+When an opened/reopened/synchronize webhook arrives for a PR with no bound workflow, Production-OS clones the latest repository template and binds:
+
+    github_pr_number
+    github_pr_head_sha
+    github_pr_generation = 1
+    github_pr_template_workflow_id
+
+The resulting workflow then enters the normal P11/P12 incremental path.
+
+### P13 progress
+
+- [x] PR head-SHA binding
+- [x] explicit workflow generation numbers
+- [x] generation N→N+1 DAG cloning
+- [x] superseded workflow metadata
+- [x] cancellation of superseded queued jobs
+- [x] cancellation of superseded claimed/acked jobs
+- [x] source revision stamped into dispatched jobs
+- [x] workflow generation stamped into dispatched jobs
+- [x] same-SHA generation no-op
+- [x] skip redundant GitHub changed-file fetches
+- [x] initial generation-1 binding without artificial clone
+- [x] repository PR workflow templates
+- [x] automatic workflow creation for unseen PRs
+- [x] generation rotation regression tests
+- [x] webhook template auto-creation tests
+- [ ] cooperative checkpoint acknowledgement from workers on supersession
+- [ ] worker-side stale-generation heartbeat rejection
+- [ ] artifact promotion guard against superseded source revisions
