@@ -10,6 +10,7 @@ from .approvals import ApprovalStore
 from .audit_checkpoint import create_audit_checkpoint, verify_audit_checkpoint
 from .audit_integrity import verify_hash_chain
 from .backup import create_backup, restore_backup
+from .budgets import BudgetLedger
 from .claims import ClaimStore
 from .control_surface import write_control_surface
 from .controller import run_controller
@@ -29,7 +30,9 @@ from .migration_registry import migrate_many
 from .migrations import migrate_state_file
 from .models import ActionCandidate, RepoAssessment
 from .reuse import detect_reuse
+from .policy import PolicySet
 from .preemption import confirm_checkpoint_and_release, request_preemption
+from .quarantine import QuarantineStore
 from .queue_maintenance import compact_queue, retry_dead_letters
 from .rate_limit import RateLimitStore
 from .reconciliation import reconcile_runtime_state
@@ -108,6 +111,9 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     dispatch.add_argument("--emergency-stop")
     dispatch.add_argument("--rate-limit-state")
     dispatch.add_argument("--approvals")
+    dispatch.add_argument("--policy")
+    dispatch.add_argument("--budgets")
+    dispatch.add_argument("--quarantine")
 
     ghrec = sub.add_parser("github-reconcile", help="Reconcile runtime tasks from explicit GitHub issue/PR mappings")
     ghrec.add_argument("--mapping", required=True, help="JSON list of repository/task/issue_number/pr_number mappings")
@@ -137,6 +143,9 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     controller.add_argument("--emergency-stop", help="Global emergency stop state JSON")
     controller.add_argument("--rate-limit-state", help="Persistent rate-limit state JSON")
     controller.add_argument("--approvals", help="Persistent approval gate store JSON")
+    controller.add_argument("--policy", help="Policy-as-code JSON")
+    controller.add_argument("--budgets", help="Persistent budget ledger JSON")
+    controller.add_argument("--quarantine", help="Persistent quarantine state JSON")
 
     healthserver = sub.add_parser("health-server", help="Serve the health JSON over HTTP")
     healthserver.add_argument("--health", required=True)
@@ -250,6 +259,23 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     averify = sub.add_parser("audit-checkpoint-verify", help="Verify signed HMAC audit checkpoint")
     averify.add_argument("--checkpoint", required=True)
     averify.add_argument("--secret", required=True)
+
+    quarantine = sub.add_parser("quarantine", help="Manually quarantine a repository")
+    quarantine.add_argument("--store", required=True)
+    quarantine.add_argument("--repository", required=True)
+    quarantine.add_argument("--reason", required=True)
+
+    unquarantine = sub.add_parser("unquarantine", help="Release a repository from quarantine")
+    unquarantine.add_argument("--store", required=True)
+    unquarantine.add_argument("--repository", required=True)
+    unquarantine.add_argument("--reason")
+
+    budgetrecord = sub.add_parser("budget-record", help="Record portfolio budget usage")
+    budgetrecord.add_argument("--ledger", required=True)
+    budgetrecord.add_argument("--repository", required=True)
+    budgetrecord.add_argument("--tokens", type=float, default=0.0)
+    budgetrecord.add_argument("--cost", type=float, default=0.0)
+    budgetrecord.add_argument("--minutes", type=float, default=0.0)
 
     return parser.parse_args(argv)
 
@@ -637,6 +663,9 @@ def run_dispatch(args: argparse.Namespace) -> int:
     worker_registry = WorkerRegistry(args.worker_registry) if args.worker_registry else None
     rate_limit_store = RateLimitStore(args.rate_limit_state) if args.rate_limit_state else None
     approval_store = ApprovalStore(args.approvals) if args.approvals else None
+    policy_set = PolicySet.load(args.policy)
+    budget_ledger = BudgetLedger(args.budgets) if args.budgets else None
+    quarantine_store = QuarantineStore(args.quarantine) if args.quarantine else None
     result = dispatch_handoff(
         handoff,
         args.queue_dir,
@@ -649,6 +678,9 @@ def run_dispatch(args: argparse.Namespace) -> int:
         emergency_stop_path=args.emergency_stop,
         rate_limit_store=rate_limit_store,
         approval_store=approval_store,
+        policy_set=policy_set,
+        budget_ledger=budget_ledger,
+        quarantine_store=quarantine_store,
     )
     print(json.dumps({
         "schema_version": "production-os/dispatch-result/v2",
@@ -730,6 +762,9 @@ def run_controller_command(args: argparse.Namespace) -> int:
         emergency_stop_path=args.emergency_stop,
         rate_limit_path=args.rate_limit_state,
         approval_path=args.approvals,
+        policy_path=args.policy,
+        budget_path=args.budgets,
+        quarantine_path=args.quarantine,
         capacity=args.capacity,
         slots=args.slots,
         lease_owner=args.lease_owner,
@@ -1011,6 +1046,47 @@ def run_audit_checkpoint_verify(args: argparse.Namespace) -> int:
     print(json.dumps(payload, indent=2, ensure_ascii=False))
     return 0 if payload.get("valid") else 6
 
+
+
+def run_quarantine(args: argparse.Namespace) -> int:
+    store = QuarantineStore(args.store)
+    item = store.set(args.repository, active=True, reason=args.reason)
+    print(json.dumps({
+        "schema_version":"production-os/quarantine/v1",
+        "repository":args.repository,
+        "state":item,
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
+def run_unquarantine(args: argparse.Namespace) -> int:
+    store = QuarantineStore(args.store)
+    item = store.set(args.repository, active=False, reason=args.reason or "manual release")
+    print(json.dumps({
+        "schema_version":"production-os/quarantine/v1",
+        "repository":args.repository,
+        "state":item,
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
+def run_budget_record(args: argparse.Namespace) -> int:
+    ledger = BudgetLedger(args.ledger)
+    usage = ledger.record(
+        args.repository,
+        {
+            "tokens":args.tokens,
+            "cost":args.cost,
+            "minutes":args.minutes,
+        },
+    )
+    print(json.dumps({
+        "schema_version":"production-os/budget-ledger/v1",
+        "repository":args.repository,
+        "usage":usage,
+    }, indent=2, ensure_ascii=False))
+    return 0
+
 def run_health_server(args: argparse.Namespace) -> int:
     serve_health(args.health, host=args.host, port=args.port)
     return 0
@@ -1082,6 +1158,12 @@ def main(argv: list[str] | None = None) -> int:
         return run_audit_checkpoint_create(args)
     if args.command == "audit-checkpoint-verify":
         return run_audit_checkpoint_verify(args)
+    if args.command == "quarantine":
+        return run_quarantine(args)
+    if args.command == "unquarantine":
+        return run_unquarantine(args)
+    if args.command == "budget-record":
+        return run_budget_record(args)
     return 1
 
 
