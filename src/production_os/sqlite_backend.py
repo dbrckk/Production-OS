@@ -1057,6 +1057,60 @@ class SQLiteJobQueue:
                 ).fetchall()
         return [self._job_dict(row) for row in rows]
 
+
+    def claim_key(
+        self,
+        key: str,
+        worker_id: str,
+        *,
+        ack_timeout_seconds: int = 120,
+    ) -> dict | None:
+        now = datetime.now(timezone.utc)
+        deadline = (
+            now + timedelta(seconds=ack_timeout_seconds)
+        ).isoformat()
+        with self.backend.transaction() as db:
+            row = db.execute(
+                """
+                SELECT * FROM jobs
+                WHERE key=? AND status='queued'
+                  AND (assigned_worker IS NULL OR assigned_worker=?)
+                """,
+                (key, worker_id),
+            ).fetchone()
+            if row is None:
+                return None
+            updated = db.execute(
+                """
+                UPDATE jobs
+                SET status='claimed', claimed_by=?, claimed_at=?,
+                    ack_deadline=?, delivery_attempt=delivery_attempt+1,
+                    updated_at=?
+                WHERE key=? AND status='queued'
+                """,
+                (
+                    worker_id,
+                    now.isoformat(),
+                    deadline,
+                    now.isoformat(),
+                    key,
+                ),
+            )
+            if updated.rowcount != 1:
+                return None
+            self.backend.append_event(
+                db,
+                "job-claimed",
+                {"worker_id":worker_id},
+                repository=row["repository"],
+                task_key_value=key,
+            )
+            claimed = db.execute(
+                "SELECT * FROM jobs WHERE key=?",
+                (key,),
+            ).fetchone()
+        return self._job_dict(claimed)
+
     def claim_next(
         self,
         worker_id: str,
