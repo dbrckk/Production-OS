@@ -50,6 +50,7 @@ from .starlist import suggest_external_references
 from .trends import build_trends
 from .workers import WorkerRegistry
 from .workflow_engine import WorkflowEngine, WorkflowTaskSpec
+from .execution_optimizer import ExecutionOptimizer
 
 
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -336,6 +337,10 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     workflowcritical = sub.add_parser("workflow-critical-path", help="Calculate workflow critical path")
     workflowcritical.add_argument("--database", required=True)
     workflowcritical.add_argument("--workflow-id", required=True)
+
+    workfloweta = sub.add_parser("workflow-eta", help="Predict remaining workflow duration")
+    workfloweta.add_argument("--database", required=True)
+    workfloweta.add_argument("--workflow-id", required=True)
 
     workflowcancel = sub.add_parser("workflow-cancel", help="Cancel a workflow")
     workflowcancel.add_argument("--database", required=True)
@@ -1357,6 +1362,18 @@ def run_workflow_critical_path(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_workflow_eta(args: argparse.Namespace) -> int:
+    engine = _workflow_engine(args.database)
+    workflow = engine.get(args.workflow_id)
+    optimizer = ExecutionOptimizer(engine.backend)
+    print(json.dumps(
+        optimizer.workflow_eta(workflow),
+        indent=2,
+        ensure_ascii=False,
+    ))
+    return 0
+
+
 def run_workflow_cancel(args: argparse.Namespace) -> int:
     workflow = _workflow_engine(args.database).cancel(args.workflow_id)
     print(json.dumps({
@@ -1479,6 +1496,8 @@ def main(argv: list[str] | None = None) -> int:
         return run_workflow_dispatch(args)
     if args.command == "workflow-critical-path":
         return run_workflow_critical_path(args)
+    if args.command == "workflow-eta":
+        return run_workflow_eta(args)
     if args.command == "workflow-cancel":
         return run_workflow_cancel(args)
     if args.command == "artifact-add":
