@@ -9,6 +9,19 @@ from production_os.control_plane import ControlPlane, make_handler
 from production_os.workflow_engine import WorkflowTaskSpec
 
 
+def get_request(url, token):
+    req=urllib.request.Request(
+        url,
+        headers={
+            "Authorization":f"Bearer {token}",
+            "Accept":"application/json",
+        },
+        method="GET",
+    )
+    with urllib.request.urlopen(req,timeout=3) as response:
+        return response.status, json.loads(response.read() or b"{}")
+
+
 def request(url, token, payload):
     req=urllib.request.Request(
         url,
@@ -99,6 +112,16 @@ def test_control_plane_promote_and_rollback_release(tmp_path):
         promoted=payload["release"]
         assert promoted["status"]=="promoted"
         assert promoted["metadata"]["artifact_sha256"]=="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        assert promoted["metadata"]["approval"]["approved_by"]=="op"
+        assert promoted["metadata"]["approval"]["role"]=="operator"
+
+        status,verified=get_request(
+            base+f"/v1/releases/{promoted['id']}/verify",
+            "op",
+        )
+        assert status==200
+        assert verified["verification"]["valid"] is True
+        assert verified["verification"]["validator_id"]=="validator-1"
 
         status,payload=request(
             base+f"/v1/releases/{promoted['id']}/rollback",
