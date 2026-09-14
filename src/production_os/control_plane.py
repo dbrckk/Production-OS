@@ -898,6 +898,59 @@ def make_handler(control: ControlPlane):
                     self._send(HTTPStatus.OK, {"job":job})
                     return
 
+                if parsed.path == "/v1/jobs/stale-checkpoint":
+                    principal = self._require("worker")
+                    if principal is None:
+                        return
+                    key = str(body["key"])
+                    worker_id = str(body["worker_id"])
+                    checkpoint_ref = str(
+                        body.get("checkpoint_ref") or ""
+                    ).strip()
+                    if not checkpoint_ref:
+                        raise ValueError("checkpoint_ref is required")
+
+                    job = control.queue.get(key)
+                    if job.get("claimed_by") != worker_id:
+                        raise RuntimeError("job claim owner mismatch")
+                    if control.workflows.job_generation_current(job):
+                        raise RuntimeError(
+                            "job is not from a stale workflow generation"
+                        )
+
+                    payload = dict(job.get("payload") or {})
+                    with control.backend.transaction() as db:
+                        control.backend.append_event(
+                            db,
+                            "stale-job-checkpointed",
+                            {
+                                "job_key":key,
+                                "worker_id":worker_id,
+                                "checkpoint_ref":checkpoint_ref,
+                                "workflow_id":payload.get(
+                                    "workflow_id"
+                                ),
+                                "workflow_generation":payload.get(
+                                    "workflow_generation"
+                                ),
+                                "source_revision":payload.get(
+                                    "source_revision"
+                                ),
+                            },
+                            repository=job.get("repository"),
+                            task_key_value=key,
+                        )
+
+                    self._send(
+                        HTTPStatus.OK,
+                        {
+                            "status":"checkpointed",
+                            "key":key,
+                            "checkpoint_ref":checkpoint_ref,
+                        },
+                    )
+                    return
+
                 if parsed.path == "/v1/jobs/complete":
                     principal = self._require("worker")
                     if principal is None:
