@@ -37,6 +37,7 @@ from .preemption import confirm_checkpoint_and_release, request_preemption
 from .quarantine import QuarantineStore
 from .queue_maintenance import compact_queue, retry_dead_letters
 from .rate_limit import RateLimitStore
+from .remote_worker import RemoteWorkerClient
 from .reconciliation import reconcile_runtime_state
 from .resources import allocate_resources
 from .runtime_state import RuntimeState
@@ -308,6 +309,15 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     controlplane.add_argument("--auth-config", required=True)
     controlplane.add_argument("--host", default="127.0.0.1")
     controlplane.add_argument("--port", type=int, default=8787)
+
+    remotepoll = sub.add_parser("remote-worker-poll", help="Poll the P8 control plane for remote jobs")
+    remotepoll.add_argument("--url", required=True)
+    remotepoll.add_argument("--token", required=True)
+    remotepoll.add_argument("--worker-id", required=True)
+    remotepoll.add_argument("--capability", action="append", default=[])
+    remotepoll.add_argument("--cycles", type=int, default=1)
+    remotepoll.add_argument("--interval-seconds", type=int, default=5)
+    remotepoll.add_argument("--ack-timeout-seconds", type=int, default=120)
 
     return parser.parse_args(argv)
 
@@ -1216,6 +1226,27 @@ def run_control_plane(args: argparse.Namespace) -> int:
     )
     return 0
 
+
+
+def run_remote_worker_poll(args: argparse.Namespace) -> int:
+    client = RemoteWorkerClient(
+        args.url,
+        args.token,
+        args.worker_id,
+        args.capability,
+    )
+    jobs = client.poll(
+        cycles=args.cycles,
+        interval_seconds=args.interval_seconds,
+        ack_timeout_seconds=args.ack_timeout_seconds,
+    )
+    print(json.dumps({
+        "schema_version":"production-os/remote-worker-poll/v1",
+        "worker_id":args.worker_id,
+        "jobs":[job.to_dict() for job in jobs],
+    }, indent=2, ensure_ascii=False))
+    return 0
+
 def run_health_server(args: argparse.Namespace) -> int:
     serve_health(args.health, host=args.host, port=args.port)
     return 0
@@ -1305,6 +1336,8 @@ def main(argv: list[str] | None = None) -> int:
         return run_token_hash(args)
     if args.command == "control-plane":
         return run_control_plane(args)
+    if args.command == "remote-worker-poll":
+        return run_remote_worker_poll(args)
     return 1
 
 
