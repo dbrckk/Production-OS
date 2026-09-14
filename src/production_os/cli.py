@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 from typing import Iterable
 
+from .approvals import ApprovalStore
 from .audit_integrity import verify_hash_chain
 from .backup import create_backup, restore_backup
 from .claims import ClaimStore
@@ -23,6 +24,7 @@ from .health_server import serve_health
 from .history import build_snapshot, detect_regressions, load_snapshot, save_snapshot
 from .journal import ExecutionJournal
 from .learning import build_learning_signals
+from .migrations import migrate_state_file
 from .models import ActionCandidate, RepoAssessment
 from .reuse import detect_reuse
 from .preemption import confirm_checkpoint_and_release, request_preemption
@@ -102,6 +104,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     dispatch.add_argument("--receipt-dir")
     dispatch.add_argument("--emergency-stop")
     dispatch.add_argument("--rate-limit-state")
+    dispatch.add_argument("--approvals")
 
     ghrec = sub.add_parser("github-reconcile", help="Reconcile runtime tasks from explicit GitHub issue/PR mappings")
     ghrec.add_argument("--mapping", required=True, help="JSON list of repository/task/issue_number/pr_number mappings")
@@ -130,6 +133,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     controller.add_argument("--dead-letter-dir", help="Directory for expired unacked jobs")
     controller.add_argument("--emergency-stop", help="Global emergency stop state JSON")
     controller.add_argument("--rate-limit-state", help="Persistent rate-limit state JSON")
+    controller.add_argument("--approvals", help="Persistent approval gate store JSON")
 
     healthserver = sub.add_parser("health-server", help="Serve the health JSON over HTTP")
     healthserver.add_argument("--health", required=True)
@@ -206,6 +210,21 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     restore = sub.add_parser("restore", help="Restore or verify a backup manifest")
     restore.add_argument("--manifest", required=True)
     restore.add_argument("--verify-only", action="store_true")
+
+    approve = sub.add_parser("approve", help="Approve a gated task key")
+    approve.add_argument("--store", required=True)
+    approve.add_argument("--key", required=True)
+    approve.add_argument("--approved-by", required=True)
+    approve.add_argument("--reason")
+
+    revoke = sub.add_parser("revoke", help="Revoke a gated task key")
+    revoke.add_argument("--store", required=True)
+    revoke.add_argument("--key", required=True)
+    revoke.add_argument("--approved-by", required=True)
+    revoke.add_argument("--reason")
+
+    migrate = sub.add_parser("migrate-state", help="Migrate a persistent state file to the current schema")
+    migrate.add_argument("--path", required=True)
 
     return parser.parse_args(argv)
 
@@ -592,6 +611,7 @@ def run_dispatch(args: argparse.Namespace) -> int:
     state = RuntimeState(args.runtime_state)
     worker_registry = WorkerRegistry(args.worker_registry) if args.worker_registry else None
     rate_limit_store = RateLimitStore(args.rate_limit_state) if args.rate_limit_state else None
+    approval_store = ApprovalStore(args.approvals) if args.approvals else None
     result = dispatch_handoff(
         handoff,
         args.queue_dir,
@@ -603,6 +623,7 @@ def run_dispatch(args: argparse.Namespace) -> int:
         receipt_dir=args.receipt_dir,
         emergency_stop_path=args.emergency_stop,
         rate_limit_store=rate_limit_store,
+        approval_store=approval_store,
     )
     print(json.dumps({
         "schema_version": "production-os/dispatch-result/v2",
@@ -683,6 +704,7 @@ def run_controller_command(args: argparse.Namespace) -> int:
         dead_letter_dir=args.dead_letter_dir,
         emergency_stop_path=args.emergency_stop,
         rate_limit_path=args.rate_limit_state,
+        approval_path=args.approvals,
         capacity=args.capacity,
         slots=args.slots,
         lease_owner=args.lease_owner,
@@ -871,6 +893,43 @@ def run_restore(args: argparse.Namespace) -> int:
     print(json.dumps(payload, indent=2, ensure_ascii=False))
     return 0
 
+
+
+def run_approve(args: argparse.Namespace) -> int:
+    store = ApprovalStore(args.store)
+    item = store.set(
+        args.key,
+        approved=True,
+        approved_by=args.approved_by,
+        reason=args.reason,
+    )
+    print(json.dumps({
+        "schema_version":"production-os/approval/v1",
+        "approval":item.to_dict(),
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
+def run_revoke(args: argparse.Namespace) -> int:
+    store = ApprovalStore(args.store)
+    item = store.set(
+        args.key,
+        approved=False,
+        approved_by=args.approved_by,
+        reason=args.reason,
+    )
+    print(json.dumps({
+        "schema_version":"production-os/approval/v1",
+        "approval":item.to_dict(),
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
+def run_migrate_state(args: argparse.Namespace) -> int:
+    payload = migrate_state_file(args.path)
+    print(json.dumps(payload, indent=2, ensure_ascii=False))
+    return 0
+
 def run_health_server(args: argparse.Namespace) -> int:
     serve_health(args.health, host=args.host, port=args.port)
     return 0
@@ -926,6 +985,12 @@ def main(argv: list[str] | None = None) -> int:
         return run_backup(args)
     if args.command == "restore":
         return run_restore(args)
+    if args.command == "approve":
+        return run_approve(args)
+    if args.command == "revoke":
+        return run_revoke(args)
+    if args.command == "migrate-state":
+        return run_migrate_state(args)
     return 1
 
 
