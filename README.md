@@ -9,164 +9,149 @@ Production-OS sits above individual repositories and answers four questions:
 3. **Which proven implementation can be reused instead of rebuilt?**
 4. **Has portfolio quality improved or regressed since the last scan?**
 
-It is designed to coordinate repositories such as `ai-dev-server`, Android products, research systems and shared knowledge bases.
-
 ## Current capabilities
 
 - GitHub portfolio discovery
 - deterministic maturity scoring
 - project classification
 - GitHub Actions runtime-state ingestion
-- capability fingerprinting with confidence + evidence
 - bounded recursive source-tree sampling
-- deep source fingerprinting from manifests, workflows, infrastructure and sampled source files
-- cross-repository reuse matching
-- knowledge graph
+- deep source fingerprinting
+- capability fingerprinting
+- **source-symbol/component extraction**
+- **component provenance**
+- **component→dependency→capability graph**
+- component-level cross-repository reuse matching
 - persistent snapshots and regression detection
-- **live `dbrckk/star-list` catalog ingestion**
-- star-list ranking by capability match, repository score and tier metadata
+- live `dbrckk/star-list` ingestion and ranking
 - portfolio-wide **Next Best Action**
 - direct `ai-dev-server` handoff
 
-## Recursive source sampling
+## Component provenance
 
-Production-OS uses GitHub's recursive tree endpoint to inspect repository structure without walking every directory with individual API calls.
+Production-OS now extracts selected source symbols from sampled files.
 
-Sampling is deliberately bounded:
-
-```text
-max depth          3
-max sampled files  40
-max chars/file     12,000
-```
-
-Priority directories include:
+Supported first-pass extraction:
 
 ```text
-src
-app
-core
-android
-backend
-studio
-tests
-lib
-server
-services
-packages
+Python
+├── classes
+├── public functions
+└── imports
+
+Kotlin / Java
+├── classes
+├── interfaces
+├── objects
+├── enum classes
+└── imports
 ```
 
-Generated/build/vendor directories and binary artifacts are excluded.
-
-The sampled source is used only as evidence; repository content is treated as untrusted input.
-
-## Live star-list integration
-
-By default:
-
-```bash
-production-os scan --owner dbrckk
-```
-
-also reads:
+Each component carries:
 
 ```text
-dbrckk/star-list
-└── catalog.json
+name
+kind
+path
+language
+confidence
+dependencies
+capability_hints
+test_like
 ```
 
-The catalog already exposes:
-
-- repository score
-- tier
-- category
-- domain
-- capabilities
-- alternatives
-- complements
-- best-for guidance
-- avoid-when guidance
-- runtime/resource/integration metadata
-
-Production-OS ranks relevant external references using:
+Example:
 
 ```text
-capability match
-      +
-star-list score
-      +
-tier/domain metadata
-      ↓
-ranked external references
+component: BillingManager
+path: app/src/.../BillingManager.kt
+language: kotlin
+dependencies:
+  - BillingClient
+capability_hints:
+  - android-play-billing
 ```
 
-The integration can be disabled:
+## Knowledge graph V2
 
-```bash
-production-os scan --owner dbrckk --no-star-list
-```
-
-or redirected:
-
-```bash
-production-os scan \
-  --owner dbrckk \
-  --star-list-repo dbrckk/star-list \
-  --star-list-path catalog.json
-```
-
-## Decision pipeline
+The graph now models:
 
 ```text
-Target repository
-      ↓
-metadata + CI state
-      ↓
-recursive source sampling
-      ↓
-capabilities + source signals
-      ↓
-internal portfolio reuse search
-      ↓
-live star-list ranking
-      ↓
-Next Best Action
-      ↓
-ai-dev-server
-      ↓
-implementation + verification
+repository --contains------> component
+component  --depends_on----> dependency
+component  --implements----> capability
+repository --provides------> capability
+repository --classified_as-> profile
 ```
 
-Internal reuse remains preferred over external adoption.
+This makes provenance explicit: Production-OS can distinguish a capability declared at repository level from a concrete component that appears to implement it.
 
-## ai-dev-server handoff V4
+## Component-level reuse
+
+Reuse recommendations now include candidate source components.
+
+Example:
+
+```text
+Target:
+deadline-zero
+
+Missing capability:
+android-play-billing
+
+Source:
+Who-are-you
+
+Candidate components:
+- BillingManager
+  path: ...
+  dependencies:
+    - BillingClient
+
+- PremiumRepository
+  path: ...
+```
+
+The system still treats these as **adaptation candidates**, not blindly copyable code. Compatibility and tests remain mandatory.
+
+## ai-dev-server handoff V5
 
 ```bash
 production-os scan --owner dbrckk --handoff
 ```
 
-The V4 task contract contains:
+The V5 handoff contains:
 
-- target repository
 - prioritized task
-- rationale
+- target repository
+- trigger evidence
 - acceptance criteria
-- triggering evidence
-- priority
-- internal reuse candidates
-- live star-list external-reference candidates
-- verification and safety constraints
+- repo-level reuse candidates
+- **reusable component candidates**
+- component paths
+- component dependencies
+- live star-list references
+- verification constraints
 
-The core policy is:
+The policy is now:
 
 ```text
 repair blockers first
-reuse internal implementation before rebuilding
-use evidence-backed external references when needed
-verify before completion
+        ↓
+reuse internal component if suitable
+        ↓
+otherwise reuse internal architecture/pattern
+        ↓
+otherwise consult star-list
+        ↓
+adapt
+        ↓
+test
+        ↓
+verify
 ```
 
-## Portfolio JSON V5
+## Portfolio JSON V6
 
 ```bash
 production-os scan --owner dbrckk --json
@@ -174,16 +159,17 @@ production-os scan --owner dbrckk --json
 
 includes:
 
-- repository assessments
-- sampled source evidence
-- capability fingerprints
+- repo assessments
+- sampled source documents
 - source signals
+- components
+- capability fingerprints
 - ranked actions
-- cross-repo reuse opportunities
-- knowledge graph
+- component-aware reuse opportunities
+- knowledge graph V2
 - regressions
-- snapshot
-- star-list catalog status and repository count
+- snapshots
+- star-list status
 
 ## Roadmap
 
@@ -201,22 +187,23 @@ includes:
 ### P1
 - [x] GitHub Actions state
 - [x] capability fingerprints
-- [x] knowledge graph
-- [x] cross-repository reuse
-- [x] profile-aware scoring
 - [x] deep source fingerprinting
 - [x] recursive source-tree sampling
-- [x] live star-list catalog ingestion
-- [ ] reusable component provenance
-- [ ] dependency graph
-- [ ] source-symbol/component extraction
-- [ ] risk-aware automatic adaptation plans
+- [x] live star-list ingestion
+- [x] source-symbol/component extraction
+- [x] reusable component provenance
+- [x] first dependency graph
+- [x] component-aware reuse handoff
+- [ ] test-to-component linking
+- [ ] call/import graph refinement
+- [ ] adaptation risk scoring
+- [ ] reusable boundary detection
 
 ### P2
 - [ ] autonomous scheduling
 - [ ] portfolio resource allocation
-- [ ] trend history
-- [ ] component extraction recommendations
+- [ ] long-term trend history
+- [ ] automatic component extraction plans
 - [ ] mobile dashboard
 
 ## Design principles
@@ -225,5 +212,6 @@ includes:
 - Deterministic decisions before LLM judgment
 - Fail closed on missing evidence
 - Reuse before rebuild
+- Adapt rather than blindly copy
 - Test before promotion
 - Human approval for destructive or externally privileged actions
