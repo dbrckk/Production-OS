@@ -50,6 +50,7 @@ pre{white-space:pre-wrap;overflow:auto}
 <h1>Production-OS Control Plane</h1>
 <p><input id="token" type="password" placeholder="Bearer token"> <button onclick="refresh()">Refresh</button></p>
 <div id="stats" class="grid"></div>
+<h2>Workflows</h2><pre id="workflows"></pre>
 <h2>Workers</h2><pre id="workers"></pre>
 <h2>Recent events</h2><pre id="events"></pre>
 <script>
@@ -61,12 +62,14 @@ async function api(path){
 }
 async function refresh(){
  try{
-  const [stats,workers,events]=await Promise.all([
-   api('/v1/stats'),api('/v1/workers'),api('/v1/events?limit=30')
+  const [stats,workflows,workers,events]=await Promise.all([
+   api('/v1/stats'),api('/v1/workflows'),api('/v1/workers'),
+   api('/v1/events?limit=30')
   ]);
   document.getElementById('stats').innerHTML=Object.entries(stats.jobs||{}).map(
    ([k,v])=>'<div class="card"><b>'+k+'</b><div>'+v+'</div></div>'
   ).join('');
+  document.getElementById('workflows').textContent=JSON.stringify(workflows.workflows,null,2);
   document.getElementById('workers').textContent=JSON.stringify(workers.workers,null,2);
   document.getElementById('events').textContent=JSON.stringify(events.events,null,2);
  }catch(e){document.getElementById('events').textContent=String(e)}
@@ -174,11 +177,46 @@ def make_handler(control: ControlPlane):
                     workers = db.execute(
                         "SELECT COUNT(*) AS count FROM workers WHERE status='online'"
                     ).fetchone()["count"]
+                    workflow_rows = db.execute(
+                        "SELECT status, COUNT(*) AS count FROM workflows GROUP BY status"
+                    ).fetchall()
                 self._send(
                     HTTPStatus.OK,
                     {
                         "jobs":{row["status"]:row["count"] for row in rows},
+                        "workflows":{
+                            row["status"]:row["count"]
+                            for row in workflow_rows
+                        },
                         "online_workers":workers,
+                    },
+                )
+                return
+
+            if parsed.path == "/v1/workflows":
+                with control.backend.connect() as db:
+                    rows = db.execute(
+                        """
+                        SELECT id, name, repository, status, created_at, updated_at
+                        FROM workflows
+                        ORDER BY created_at DESC
+                        LIMIT 100
+                        """
+                    ).fetchall()
+                self._send(
+                    HTTPStatus.OK,
+                    {
+                        "workflows":[
+                            {
+                                "id":row["id"],
+                                "name":row["name"],
+                                "repository":row["repository"],
+                                "status":row["status"],
+                                "created_at":row["created_at"],
+                                "updated_at":row["updated_at"],
+                            }
+                            for row in rows
+                        ]
                     },
                 )
                 return
