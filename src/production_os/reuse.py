@@ -12,6 +12,7 @@ class ReuseOpportunity:
     capability: str
     confidence: float
     rationale: str
+    evidence: tuple[str, ...] = ()
 
     def to_dict(self) -> dict:
         return {
@@ -20,47 +21,61 @@ class ReuseOpportunity:
             "capability": self.capability,
             "confidence": self.confidence,
             "rationale": self.rationale,
+            "evidence": list(self.evidence),
         }
+
+
+def _compatible(source: RepoAssessment, target: RepoAssessment) -> bool:
+    if source.profile == target.profile:
+        return True
+    if {source.profile, target.profile} <= {"android-app", "android-game"}:
+        return True
+    if {source.profile, target.profile} <= {"automation-platform", "python-service"}:
+        return True
+    return False
 
 
 def detect_reuse(assessments: list[RepoAssessment]) -> list[ReuseOpportunity]:
     opportunities: list[ReuseOpportunity] = []
+    seen: set[tuple[str, str, str]] = set()
 
     for target in assessments:
+        target_caps = {cap.name for cap in target.capabilities}
+
         for source in assessments:
             if source.evidence.full_name == target.evidence.full_name:
                 continue
-
-            same_family = (
-                source.profile == target.profile
-                or {source.profile, target.profile} <= {"android-app", "android-game"}
-            )
-            if not same_family:
+            if not _compatible(source, target):
                 continue
 
-            pairs = [
-                ("CI workflow", source.evidence.has_ci, target.evidence.has_ci),
-                ("release workflow", source.evidence.has_release_workflow, target.evidence.has_release_workflow),
-                ("security policy", source.evidence.has_security_policy, target.evidence.has_security_policy),
-                ("dependency automation", source.evidence.has_dependency_automation, target.evidence.has_dependency_automation),
-                ("test baseline", source.evidence.has_tests, target.evidence.has_tests),
-            ]
+            for capability in source.capabilities:
+                if not capability.portable or capability.name in target_caps:
+                    continue
+                if capability.confidence < 0.75:
+                    continue
 
-            for capability, source_has, target_has in pairs:
-                if source_has and not target_has:
-                    confidence = 0.90 if source.profile == target.profile else 0.78
-                    opportunities.append(
-                        ReuseOpportunity(
-                            source=source.evidence.full_name,
-                            target=target.evidence.full_name,
-                            capability=capability,
-                            confidence=confidence,
-                            rationale=(
-                                f"{source.evidence.full_name} already exposes evidence for {capability} "
-                                f"while {target.evidence.full_name} does not."
-                            ),
-                        )
+                key = (source.evidence.full_name, target.evidence.full_name, capability.name)
+                if key in seen:
+                    continue
+                seen.add(key)
+
+                family_factor = 1.0 if source.profile == target.profile else 0.88
+                confidence = round(capability.confidence * family_factor, 2)
+                opportunities.append(
+                    ReuseOpportunity(
+                        source=source.evidence.full_name,
+                        target=target.evidence.full_name,
+                        capability=capability.name,
+                        confidence=confidence,
+                        rationale=(
+                            f"{source.evidence.full_name} has evidence-backed capability "
+                            f"'{capability.name}' that is absent from {target.evidence.full_name}."
+                        ),
+                        evidence=capability.evidence,
                     )
+                )
 
-    opportunities.sort(key=lambda item: item.confidence, reverse=True)
+    opportunities.sort(
+        key=lambda item: (-item.confidence, item.target, item.capability, item.source)
+    )
     return opportunities
