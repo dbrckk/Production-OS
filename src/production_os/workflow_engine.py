@@ -8,6 +8,7 @@ from typing import Any
 
 from .runtime_state import task_key
 from .result_cache import ResultCache, fingerprint
+from .change_impact import analyze_change_impact
 
 
 TERMINAL_TASK_STATES = {"succeeded", "failed", "cancelled", "blocked"}
@@ -251,8 +252,94 @@ class WorkflowEngine:
                 repository=repository,
             )
 
-        self.refresh(workflow_id)
+        if metadata is not None and "changed_paths" in metadata:
+            self.apply_change_impact(
+                workflow_id,
+                [
+                    str(path)
+                    for path in metadata.get("changed_paths", [])
+                ],
+            )
+        else:
+            self.refresh(workflow_id)
         return self.get(workflow_id)
+
+    def apply_change_impact(
+        self,
+        workflow_id: str,
+        changed_paths: list[str],
+    ) -> list[dict]:
+        workflow = self.get(workflow_id)
+        decisions = analyze_change_impact(
+            workflow["tasks"],
+            changed_paths,
+        )
+        task_lookup = {
+            task["task_id"]:task
+            for task in workflow["tasks"]
+        }
+        now = _now()
+
+        with self.backend.transaction() as db:
+            for decision in decisions:
+                if decision.affected:
+                    continue
+                task = task_lookup[decision.task_id]
+                if bool(
+                    task.get("payload", {}).get(
+                        "virtual_barrier",
+                        False,
+                    )
+                ):
+                    continue
+
+                _execute(
+                    db,
+                    self.backend,
+                    """
+                    UPDATE workflow_tasks
+                    SET status='succeeded', result_json=?,
+                        claimed_job_key=NULL, updated_at=?
+                    WHERE workflow_id=? AND task_id=?
+                      AND status IN ('pending','ready')
+                    """,
+                    (
+                        json.dumps(
+                            {
+                                "skipped":True,
+                                "reason":decision.reason,
+                                "changed_paths":changed_paths,
+                            },
+                            ensure_ascii=False,
+                        ),
+                        now,
+                        workflow_id,
+                        decision.task_id,
+                    ),
+                )
+
+            self.backend.append_event(
+                db,
+                "workflow-impact-evaluated",
+                {
+                    "workflow_id":workflow_id,
+                    "changed_paths":changed_paths,
+                    "affected":[
+                        item.task_id
+                        for item in decisions
+                        if item.affected
+                    ],
+                    "skipped":[
+                        item.task_id
+                        for item in decisions
+                        if not item.affected
+                    ],
+                },
+                repository=workflow["repository"],
+            )
+
+        self.refresh(workflow_id)
+        return [item.to_dict() for item in decisions]
 
     def get(self, workflow_id: str) -> dict:
         with self.backend.connect() as db:
