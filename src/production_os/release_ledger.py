@@ -6,6 +6,7 @@ import uuid
 from .attestations import (
     AttestationError,
     create_release_provenance,
+    verify_release_provenance,
     verify_validation_attestation,
 )
 from datetime import datetime, timezone
@@ -45,6 +46,7 @@ class ReleaseLedger:
         *,
         trusted_validation_secrets: dict[str, str] | None = None,
         provenance_secret: str | None = None,
+        attestation_max_age_seconds: int = 3600,
     ):
         self.backend = backend
         self.workflows = workflows
@@ -52,6 +54,9 @@ class ReleaseLedger:
             trusted_validation_secrets or {}
         )
         self.provenance_secret = provenance_secret
+        self.attestation_max_age_seconds = int(
+            attestation_max_age_seconds
+        )
 
     @staticmethod
     def _validation_passed(validation: dict) -> bool:
@@ -203,6 +208,7 @@ class ReleaseLedger:
                     source_revision=source_revision,
                     workflow_generation=workflow_generation,
                     validation=validation,
+                    max_age_seconds=self.attestation_max_age_seconds,
                 )
             except AttestationError as exc:
                 raise RuntimeError(str(exc)) from exc
@@ -345,6 +351,92 @@ class ReleaseLedger:
             ).fetchone()
 
         return self._row(row)
+
+    def verify(self, release_id: str) -> dict:
+        release = self.get(release_id)
+        metadata = dict(release.get("metadata") or {})
+        attestation = dict(
+            metadata.get("validation_attestation") or {}
+        )
+        provenance = dict(metadata.get("provenance") or {})
+
+        if not self.trusted_validation_secrets:
+            return {
+                "release_id":release_id,
+                "valid":False,
+                "reason":"trusted validation attestation keys not configured",
+            }
+        if not self.provenance_secret:
+            return {
+                "release_id":release_id,
+                "valid":False,
+                "reason":"release provenance signing secret not configured",
+            }
+
+        try:
+            verified = verify_validation_attestation(
+                attestation,
+                trusted_secrets=self.trusted_validation_secrets,
+                workflow_id=release["workflow_id"],
+                artifact_id=release["artifact_id"],
+                artifact_sha256=release["metadata"][
+                    "artifact_sha256"
+                ],
+                source_revision=release["source_revision"],
+                workflow_generation=release["workflow_generation"],
+                validation=release["validation"],
+                max_age_seconds=-1,
+            )
+        except AttestationError as exc:
+            return {
+                "release_id":release_id,
+                "valid":False,
+                "reason":str(exc),
+            }
+
+        provenance_valid = verify_release_provenance(
+            provenance,
+            secret=self.provenance_secret,
+        )
+        if not provenance_valid:
+            return {
+                "release_id":release_id,
+                "valid":False,
+                "reason":"invalid release provenance signature",
+            }
+
+        expected = {
+            "release_id":release["id"],
+            "workflow_id":release["workflow_id"],
+            "artifact_id":release["artifact_id"],
+            "repository":release["repository"],
+            "artifact_sha256":release["metadata"][
+                "artifact_sha256"
+            ],
+            "source_revision":release["source_revision"],
+            "workflow_generation":release["workflow_generation"],
+            "validator_id":verified["validator_id"],
+            "validation_attestation_signature":
+                verified["signature"],
+            "created_at":release["created_at"],
+        }
+        for key, value in expected.items():
+            if provenance.get(key) != value:
+                return {
+                    "release_id":release_id,
+                    "valid":False,
+                    "reason":f"release provenance binding mismatch: {key}",
+                }
+
+        return {
+            "release_id":release_id,
+            "valid":True,
+            "validator_id":verified["validator_id"],
+            "source_revision":release["source_revision"],
+            "workflow_generation":release["workflow_generation"],
+            "artifact_sha256":release["metadata"]["artifact_sha256"],
+            "provenance_signature":provenance["signature"],
+        }
 
     def rollback(
         self,
