@@ -21,6 +21,9 @@ class RepoEvidence:
     has_readme: bool = False
     has_tests: bool = False
     has_ci: bool = False
+    latest_ci_status: str | None = None
+    latest_ci_conclusion: str | None = None
+    latest_ci_url: str | None = None
     has_release_workflow: bool = False
     has_manifest: bool = False
     has_license: bool = False
