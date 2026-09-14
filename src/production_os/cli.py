@@ -51,6 +51,7 @@ from .trends import build_trends
 from .workers import WorkerRegistry
 from .workflow_engine import WorkflowEngine, WorkflowTaskSpec
 from .execution_optimizer import ExecutionOptimizer
+from .speculation import SpeculationManager
 
 
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -347,6 +348,15 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     stragglers.add_argument("--threshold-factor", type=float, default=1.75)
     stragglers.add_argument("--min-runtime-seconds", type=float, default=60.0)
     stragglers.add_argument("--min-samples", type=int, default=2)
+
+    speculate = sub.add_parser(
+        "speculate-stragglers",
+        help="Spawn safe speculative copies for detected stragglers",
+    )
+    speculate.add_argument("--database", required=True)
+    speculate.add_argument("--threshold-factor", type=float, default=1.75)
+    speculate.add_argument("--min-runtime-seconds", type=float, default=60.0)
+    speculate.add_argument("--min-samples", type=int, default=2)
 
     workflowcancel = sub.add_parser("workflow-cancel", help="Cancel a workflow")
     workflowcancel.add_argument("--database", required=True)
@@ -1398,6 +1408,51 @@ def run_stragglers(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_speculate_stragglers(args: argparse.Namespace) -> int:
+    backend = open_backend(args.database)
+    optimizer = ExecutionOptimizer(backend)
+    workers = worker_registry_for(backend)
+    workers.load()
+    queue = job_queue_for(backend)
+    manager = SpeculationManager(backend, queue)
+
+    rows = optimizer.stragglers(
+        threshold_factor=args.threshold_factor,
+        min_runtime_seconds=args.min_runtime_seconds,
+        min_samples=args.min_samples,
+        workers=list(workers.workers.values()),
+    )
+    spawned = []
+    skipped = []
+    for item in rows:
+        alternate = item.get("alternate_worker")
+        if not alternate:
+            skipped.append({
+                "job_key":item["job_key"],
+                "reason":"no alternate worker",
+            })
+            continue
+        try:
+            job = manager.spawn(
+                item["job_key"],
+                target_worker=str(alternate["worker_id"]),
+            )
+        except RuntimeError as exc:
+            skipped.append({
+                "job_key":item["job_key"],
+                "reason":str(exc),
+            })
+            continue
+        spawned.append(job)
+
+    print(json.dumps({
+        "schema_version":"production-os/speculation/v1",
+        "spawned":spawned,
+        "skipped":skipped,
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
 def run_workflow_cancel(args: argparse.Namespace) -> int:
     workflow = _workflow_engine(args.database).cancel(args.workflow_id)
     print(json.dumps({
@@ -1524,6 +1579,8 @@ def main(argv: list[str] | None = None) -> int:
         return run_workflow_eta(args)
     if args.command == "stragglers":
         return run_stragglers(args)
+    if args.command == "speculate-stragglers":
+        return run_speculate_stragglers(args)
     if args.command == "workflow-cancel":
         return run_workflow_cancel(args)
     if args.command == "artifact-add":
