@@ -933,12 +933,19 @@ class WorkflowEngine:
             handoff["workflow_id"] = workflow_id
             handoff["workflow_task_id"] = task["task_id"]
             attempt_number = int(task["attempts"]) + 1
+            metadata = dict(workflow.get("metadata") or {})
             queue_payload = {
                 **payload,
                 "schema_version":"production-os/workflow-dispatch/v1",
                 "workflow_id":workflow_id,
                 "workflow_task_id":task["task_id"],
                 "workflow_attempt":attempt_number,
+                "workflow_generation":metadata.get(
+                    "github_pr_generation"
+                ),
+                "source_revision":metadata.get(
+                    "github_pr_head_sha"
+                ),
                 "idempotency_key":task_key(
                     workflow_id,
                     f"{task['task_id']}:{attempt_number}",
