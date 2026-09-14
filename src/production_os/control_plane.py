@@ -9,6 +9,7 @@ from .api_auth import Principal, TokenAuthorizer
 from .storage import job_queue_for, open_backend, worker_registry_for
 from .workflow_engine import WorkflowEngine, WorkflowTaskSpec
 from .execution_optimizer import ExecutionOptimizer
+from .speculation import SpeculationManager
 
 
 class ControlPlane:
@@ -23,6 +24,7 @@ class ControlPlane:
         self.workers = worker_registry_for(self.backend)
         self.workflows = WorkflowEngine(self.backend, self.queue)
         self.optimizer = ExecutionOptimizer(self.backend)
+        self.speculation = SpeculationManager(self.backend, self.queue)
         self.authorizer = authorizer
 
 
@@ -324,6 +326,59 @@ def make_handler(control: ControlPlane):
                 return
 
             try:
+                if parsed.path == "/v1/stragglers/speculate":
+                    principal = self._require("operator")
+                    if principal is None:
+                        return
+                    control.workers.load()
+                    stragglers = control.optimizer.stragglers(
+                        threshold_factor=float(
+                            body.get("threshold_factor", 1.75)
+                        ),
+                        min_runtime_seconds=float(
+                            body.get("min_runtime_seconds", 60.0)
+                        ),
+                        min_samples=int(
+                            body.get("min_samples", 2)
+                        ),
+                        workers=list(
+                            control.workers.workers.values()
+                        ),
+                    )
+                    spawned = []
+                    skipped = []
+                    for item in stragglers:
+                        alternate = item.get("alternate_worker")
+                        if not alternate:
+                            skipped.append({
+                                "job_key":item["job_key"],
+                                "reason":"no alternate worker",
+                            })
+                            continue
+                        try:
+                            job = control.speculation.spawn(
+                                item["job_key"],
+                                target_worker=str(
+                                    alternate["worker_id"]
+                                ),
+                            )
+                        except RuntimeError as exc:
+                            skipped.append({
+                                "job_key":item["job_key"],
+                                "reason":str(exc),
+                            })
+                            continue
+                        spawned.append(job)
+
+                    self._send(
+                        HTTPStatus.OK,
+                        {
+                            "spawned":spawned,
+                            "skipped":skipped,
+                        },
+                    )
+                    return
+
                 if parsed.path == "/v1/workflows":
                     principal = self._require("operator")
                     if principal is None:
@@ -527,11 +582,7 @@ def make_handler(control: ControlPlane):
                     key = str(body["key"])
                     worker_id = str(body["worker_id"])
                     before = control.queue.get(key)
-                    job = control.queue.complete(key, worker_id)
-                    workflow_id = before["payload"].get("workflow_id")
-                    workflow_task_id = before["payload"].get(
-                        "workflow_task_id"
-                    )
+
                     duration_seconds = body.get("duration_seconds")
                     if duration_seconds is not None:
                         control.optimizer.record_execution(
@@ -540,8 +591,46 @@ def make_handler(control: ControlPlane):
                             worker_id=worker_id,
                             duration_seconds=float(duration_seconds),
                             succeeded=True,
-                            capabilities=[str(x) for x in body.get("capabilities", [])],
+                            capabilities=[
+                                str(x)
+                                for x in body.get("capabilities", [])
+                            ],
                         )
+
+                    group_id = control.speculation.group_for_job(key)
+                    if (
+                        group_id is not None
+                        and not control.speculation.try_win(
+                            group_id,
+                            key,
+                        )
+                    ):
+                        job = control.speculation.cancel_job(key)
+                        self._send(
+                            HTTPStatus.OK,
+                            {
+                                "job":job,
+                                "workflow":None,
+                                "speculation":{
+                                    "group_id":group_id,
+                                    "winner":False,
+                                },
+                            },
+                        )
+                        return
+
+                    job = control.queue.complete(key, worker_id)
+                    cancelled = []
+                    if group_id is not None:
+                        cancelled = control.speculation.cancel_losers(
+                            group_id,
+                            key,
+                        )
+
+                    workflow_id = before["payload"].get("workflow_id")
+                    workflow_task_id = before["payload"].get(
+                        "workflow_task_id"
+                    )
                     workflow = None
                     if workflow_id and workflow_task_id:
                         workflow = control.workflows.record_result(
@@ -550,9 +639,18 @@ def make_handler(control: ControlPlane):
                             succeeded=True,
                             result=dict(body.get("result") or {}),
                         )
+
                     self._send(
                         HTTPStatus.OK,
-                        {"job":job, "workflow":workflow},
+                        {
+                            "job":job,
+                            "workflow":workflow,
+                            "speculation":{
+                                "group_id":group_id,
+                                "winner":True,
+                                "cancelled_losers":cancelled,
+                            } if group_id else None,
+                        },
                     )
                     return
 
@@ -564,15 +662,7 @@ def make_handler(control: ControlPlane):
                     worker_id = str(body["worker_id"])
                     reason = str(body.get("reason", "worker failure"))
                     before = control.queue.get(key)
-                    job = control.queue.fail(
-                        key,
-                        worker_id,
-                        reason,
-                    )
-                    workflow_id = before["payload"].get("workflow_id")
-                    workflow_task_id = before["payload"].get(
-                        "workflow_task_id"
-                    )
+
                     duration_seconds = body.get("duration_seconds")
                     if duration_seconds is not None:
                         control.optimizer.record_execution(
@@ -581,8 +671,42 @@ def make_handler(control: ControlPlane):
                             worker_id=worker_id,
                             duration_seconds=float(duration_seconds),
                             succeeded=False,
-                            capabilities=[str(x) for x in body.get("capabilities", [])],
+                            capabilities=[
+                                str(x)
+                                for x in body.get("capabilities", [])
+                            ],
                         )
+
+                    job = control.queue.fail(
+                        key,
+                        worker_id,
+                        reason,
+                    )
+                    group_id = control.speculation.group_for_job(key)
+                    if (
+                        group_id is not None
+                        and not control.speculation.failure_is_terminal(
+                            group_id,
+                            key,
+                        )
+                    ):
+                        self._send(
+                            HTTPStatus.OK,
+                            {
+                                "job":job,
+                                "workflow":None,
+                                "speculation":{
+                                    "group_id":group_id,
+                                    "terminal_failure":False,
+                                },
+                            },
+                        )
+                        return
+
+                    workflow_id = before["payload"].get("workflow_id")
+                    workflow_task_id = before["payload"].get(
+                        "workflow_task_id"
+                    )
                     workflow = None
                     if workflow_id and workflow_task_id:
                         workflow = control.workflows.record_result(
@@ -594,9 +718,17 @@ def make_handler(control: ControlPlane):
                                 **dict(body.get("result") or {}),
                             },
                         )
+
                     self._send(
                         HTTPStatus.OK,
-                        {"job":job, "workflow":workflow},
+                        {
+                            "job":job,
+                            "workflow":workflow,
+                            "speculation":{
+                                "group_id":group_id,
+                                "terminal_failure":True,
+                            } if group_id else None,
+                        },
                     )
                     return
 
