@@ -7,6 +7,7 @@ from .adaptation_plan import build_adaptation_plan
 from .compatibility import check_dependency_compatibility
 from .models import RepoAssessment
 from .validation import build_validation_plan
+from .versioning import compare_dependency_versions
 
 
 @dataclass(frozen=True, slots=True)
@@ -43,19 +44,12 @@ def _compatible(source: RepoAssessment, target: RepoAssessment) -> bool:
     return False
 
 
-def _component_candidates(
-    source: RepoAssessment,
-    target: RepoAssessment,
-    capability: str,
-) -> tuple[dict, ...]:
+def _component_candidates(source: RepoAssessment, target: RepoAssessment, capability: str) -> tuple[dict, ...]:
     matches = []
-
     for component in source.components:
         if capability not in component.capability_hints:
             continue
-
         adaptation = score_adaptation_risk(source, target, capability, component)
-
         matches.append({
             "name": component.name,
             "kind": component.kind,
@@ -95,6 +89,11 @@ def detect_reuse(assessments: list[RepoAssessment]) -> list[ReuseOpportunity]:
             if not _compatible(source, target):
                 continue
 
+            version_checks = [
+                row.to_dict()
+                for row in compare_dependency_versions(source, target)
+            ]
+
             for capability in source.capabilities:
                 if not capability.portable or capability.name in target_caps:
                     continue
@@ -130,6 +129,16 @@ def detect_reuse(assessments: list[RepoAssessment]) -> list[ReuseOpportunity]:
                         plan.get("recreate", []),
                     )
                 ]
+
+                relevant_versions = [
+                    item for item in version_checks
+                    if (
+                        item["status"] in {"major-version-mismatch", "same-major-review-required"}
+                        or item["dependency"].split(":")[-1].lower()
+                        in {dep.lower() for dep in plan.get("recreate", [])}
+                    )
+                ]
+
                 validation_plan = [
                     step.to_dict()
                     for step in build_validation_plan(
@@ -145,11 +154,20 @@ def detect_reuse(assessments: list[RepoAssessment]) -> list[ReuseOpportunity]:
                     for item in dependency_checks
                     if item["status"] != "available"
                 ]
+                major_mismatches = [
+                    item["dependency"]
+                    for item in relevant_versions
+                    if item["status"] == "major-version-mismatch"
+                ]
 
                 plan["dependency_compatibility"] = dependency_checks
+                plan["dependency_version_compatibility"] = relevant_versions
                 plan["missing_dependencies"] = missing
+                plan["major_version_mismatches"] = major_mismatches
                 plan["compatible_for_adaptation"] = (
-                    plan.get("overall_risk", 101) <= 50 and len(missing) <= 3
+                    plan.get("overall_risk", 101) <= 50
+                    and len(missing) <= 3
+                    and not major_mismatches
                 )
                 plan["validation_plan"] = validation_plan
 
@@ -162,7 +180,7 @@ def detect_reuse(assessments: list[RepoAssessment]) -> list[ReuseOpportunity]:
                         rationale=(
                             f"{source.evidence.full_name} has evidence-backed capability "
                             f"'{capability.name}' that is absent from {target.evidence.full_name}. "
-                            f"Compatibility and validation requirements were evaluated."
+                            f"Compatibility, versions and validation requirements were evaluated."
                         ),
                         evidence=capability.evidence,
                         components=components,
@@ -174,6 +192,7 @@ def detect_reuse(assessments: list[RepoAssessment]) -> list[ReuseOpportunity]:
         key=lambda item: (
             not bool(item.adaptation_plan and item.adaptation_plan.get("compatible_for_adaptation")),
             item.adaptation_plan.get("overall_risk", 101) if item.adaptation_plan else 101,
+            len(item.adaptation_plan.get("major_version_mismatches", [])) if item.adaptation_plan else 999,
             len(item.adaptation_plan.get("missing_dependencies", [])) if item.adaptation_plan else 999,
             -item.confidence,
             item.target,
