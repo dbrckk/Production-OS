@@ -416,3 +416,100 @@ PR still open / CI running
 ```
 
 Mappings are explicit by design; Production-OS does not guess that an unrelated PR belongs to a runtime task.
+
+
+## P4 continuous autonomous operation
+
+Production-OS now includes a bounded continuous controller.
+
+One safe cycle:
+
+```bash
+production-os controller \
+  --owner dbrckk \
+  --runtime-state artifacts/runtime-state.json \
+  --queue-dir artifacts/ai-dev-server-queue \
+  --snapshot-dir artifacts/snapshots \
+  --metrics artifacts/metrics.json \
+  --health artifacts/health.json \
+  --journal artifacts/execution.jsonl \
+  --cycles 1
+```
+
+Multiple bounded cycles:
+
+```bash
+production-os controller \
+  --owner dbrckk \
+  --runtime-state artifacts/runtime-state.json \
+  --queue-dir artifacts/ai-dev-server-queue \
+  --snapshot-dir artifacts/snapshots \
+  --metrics artifacts/metrics.json \
+  --health artifacts/health.json \
+  --journal artifacts/execution.jsonl \
+  --cycles 12 \
+  --interval-seconds 300
+```
+
+Each cycle performs:
+
+```text
+runtime reconciliation
+        ↓
+portfolio scan
+        ↓
+assessment / action ranking
+        ↓
+schedule
+        ↓
+resource allocation
+        ↓
+guarded dispatch
+        ↓
+snapshot
+        ↓
+metrics
+        ↓
+health state
+```
+
+Health output includes:
+
+```text
+healthy / degraded
+running task count
+open circuit count
+failed task count
+controller metrics
+last error
+```
+
+Metrics persist:
+
+```text
+cycles
+scans
+dispatches
+dispatch failures
+reconciliations
+last cycle
+last error
+```
+
+The controller is intentionally bounded by `--cycles`; continuous deployment environments can supervise/restart it rather than relying on an opaque infinite loop.
+
+### P4
+
+- [x] bounded autonomous control loop
+- [x] periodic portfolio scans
+- [x] automatic schedule refresh
+- [x] guarded automatic dispatch
+- [x] runtime reconciliation each cycle
+- [x] per-cycle snapshots
+- [x] persistent metrics
+- [x] persistent health state
+- [ ] automatic GitHub reconciliation inside controller
+- [ ] lease heartbeat manager for active workers
+- [ ] self-healing policy engine
+- [ ] service/HTTP health endpoint
+- [ ] structured observability export
