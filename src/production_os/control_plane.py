@@ -6,11 +6,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
 from .api_auth import Principal, TokenAuthorizer
-from .sqlite_backend import (
-    SQLiteBackend,
-    SQLiteJobQueue,
-    SQLiteWorkerRegistry,
-)
+from .storage import job_queue_for, open_backend, worker_registry_for
 
 
 class ControlPlane:
@@ -20,9 +16,9 @@ class ControlPlane:
         *,
         authorizer: TokenAuthorizer,
     ):
-        self.backend = SQLiteBackend(database)
-        self.queue = SQLiteJobQueue(self.backend)
-        self.workers = SQLiteWorkerRegistry(self.backend)
+        self.backend = open_backend(database)
+        self.queue = job_queue_for(self.backend)
+        self.workers = worker_registry_for(self.backend)
         self.authorizer = authorizer
 
 
