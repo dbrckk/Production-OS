@@ -1786,6 +1786,23 @@ Safety semantics:
 - impact recomputation is refused after actual execution has started.
 - large pull requests are paginated beyond the first 100 files.
 
+Automatic refresh for every workflow bound to the same PR is available through metadata:
+
+    {
+      "github_pr_number": 123
+    }
+
+Then run:
+
+    production-os pr-refresh \
+      --database artifacts/production.db \
+      --repository dbrckk/project \
+      --pr-number 123
+
+Control-plane equivalent:
+
+    POST /v1/github/pr-refresh
+
 ### P12 progress
 
 - [x] GitHub PR changed-file ingestion
@@ -1798,6 +1815,7 @@ Safety semantics:
 - [x] control-plane integration test
 - [ ] signed GitHub webhook ingestion
 - [ ] event idempotency / delivery replay guard
-- [ ] automatic workflow binding from repository + PR
-- [ ] automatic impact refresh on PR synchronize events
+- [x] automatic workflow binding from repository + PR
+- [ ] signed GitHub webhook ingestion
+- [x] PR-bound workflow refresh command/API
 - [ ] automatic minimal dispatch after impact refresh
