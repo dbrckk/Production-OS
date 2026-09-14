@@ -2,7 +2,7 @@
 
 Portfolio control plane for autonomous software production.
 
-Production-OS now manages portfolio state, reuse, compatibility, and validation readiness before handing work to `ai-dev-server`.
+Production-OS manages portfolio state, prioritization, reuse, compatibility, validation, and execution feedback before handing work to `ai-dev-server`.
 
 ## Current capabilities
 
@@ -16,112 +16,116 @@ Production-OS now manages portfolio state, reuse, compatibility, and validation 
 - source-symbol/component extraction
 - component provenance
 - component→dependency→capability graph
+- **call/import graph refinement**
 - test-to-component linking
 - adaptation risk scoring
 - reusable boundary detection
 - automatic adaptation plans
-- **target-side dependency compatibility checks**
-- **automatic validation-plan generation**
+- target-side dependency compatibility checks
+- **dependency version compatibility**
+- automatic validation-plan generation
+- **validation-result ingestion**
 - live `dbrckk/star-list` ranking
 - portfolio-wide **Next Best Action**
 - direct `ai-dev-server` handoff
 
-## Target dependency compatibility
+## Knowledge graph V3
 
-For every adaptation plan, Production-OS now compares required dependencies against target evidence.
-
-Each dependency is classified as:
+The graph now includes:
 
 ```text
-available
-missing-or-unverified
+repository --contains------> component
+component  --depends_on----> dependency
+component  --implements----> capability
+component  --calls---------> symbol
+repository --provides------> capability
+repository --classified_as-> profile
 ```
 
-The result is added to the adaptation plan as:
+This improves reusable-boundary reasoning and makes hidden coupling more visible.
+
+## Dependency version compatibility
+
+Production-OS compares source and target dependency versions where version evidence can be extracted.
+
+Statuses include:
 
 ```text
-dependency_compatibility
-missing_dependencies
-compatible_for_adaptation
+exact-match
+same-major-review-required
+major-version-mismatch
+not-present-in-target
 ```
 
-A plan is considered directly adaptable only when its risk remains acceptable and the unresolved dependency set stays limited.
+A major-version mismatch blocks direct adaptation until resolved.
 
-## Automatic validation plan
+## Validation feedback loop
 
-Every adaptation plan now carries an ordered validation checklist.
-
-Depending on the capability and target, this can include:
-
-```text
-1. resolve dependencies
-2. compile/build
-3. port/recreate linked unit tests
-4. Android APK/AAB build
-5. emulator/device smoke test
-6. capability-specific validation
-7. CI green
-8. regression suite
-```
-
-Android Play Billing additionally requires explicit purchase, acknowledgement, restore and entitlement verification.
-
-## ai-dev-server handoff V8
+After `ai-dev-server` executes an adaptation plan, validation results can be fed back into Production-OS:
 
 ```bash
-production-os scan --owner dbrckk --handoff
+production-os validation-results \
+  --plan adaptation-plan.json \
+  --results validation-results.json \
+  --output validation-summary.json
 ```
 
-The V8 contract contains:
+The summary reports:
 
-- reuse candidates
-- reusable components
-- recommended low-risk components
-- adaptation plans
+```text
+passed
+failed
+pending
+blocking_failures
+promotion_allowed
+```
+
+Promotion is allowed only when every required validation step has passed.
+
+Example result:
+
+```json
+{
+  "summary": {
+    "status": "blocked",
+    "passed": 4,
+    "failed": 1,
+    "pending": 0,
+    "blocking_failures": ["ci"]
+  },
+  "promotion_allowed": false
+}
+```
+
+## ai-dev-server handoff V9
+
+The handoff now includes:
+
+- prioritized task
+- repo/component reuse candidates
+- adaptation risk
+- reusable boundaries
 - dependency compatibility
+- dependency version compatibility
 - missing dependencies
-- validation plans
+- major-version mismatches
+- validation plan
 - executable adaptation plans
 - external star-list references
 
-Promotion constraints now include:
+Promotion constraints include:
 
 ```text
 resolve_missing_dependencies_before_promotion = true
+reject_major_version_mismatch_before_promotion = true
 complete_validation_plan_before_promotion = true
 ```
 
-## Decision pipeline
+## Portfolio JSON V10
 
-```text
-Next Best Action
-      ↓
-internal capability search
-      ↓
-component extraction
-      ↓
-adaptation risk
-      ↓
-reusable boundary
-      ↓
-dependency compatibility
-      ↓
-validation plan
-      ↓
-executable adaptation plan
-      ↓
-ai-dev-server
-      ↓
-implementation
-      ↓
-tests / device / CI / regression
-```
+The full scan exports the same evidence and decisions used by the handoff, including Knowledge Graph V3 and version-aware adaptation plans.
 
-## Portfolio JSON V9
-
-The portfolio output exposes the same compatibility and validation information used by the V8 handoff.
-
-## Roadmap
+## P1 status
 
 ### P0
 - [x] Portfolio discovery
@@ -142,24 +146,24 @@ The portfolio output exposes the same compatibility and validation information u
 - [x] live star-list ingestion
 - [x] source-symbol/component extraction
 - [x] reusable component provenance
-- [x] first dependency graph
+- [x] dependency graph
+- [x] call/import graph refinement
 - [x] component-aware reuse handoff
 - [x] test-to-component linking
 - [x] adaptation risk scoring
 - [x] reusable boundary detection
 - [x] automatic adaptation plans
 - [x] target dependency compatibility
+- [x] dependency version compatibility
 - [x] automatic validation plans
-- [ ] call/import graph refinement
-- [ ] stronger dependency/version compatibility
-- [ ] validation-result ingestion
+- [x] validation-result ingestion
 
 ### P2
 - [ ] autonomous scheduling
 - [ ] portfolio resource allocation
 - [ ] long-term trend history
 - [ ] automatic execution feedback loop
-- [ ] mobile dashboard
+- [ ] mobile/dashboard control surface
 
 ## Design principles
 
