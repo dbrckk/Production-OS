@@ -28,7 +28,7 @@ class GitHubClient:
             headers={
                 "Accept": "application/vnd.github+json",
                 "X-GitHub-Api-Version": "2022-11-28",
-                "User-Agent": "Production-OS/0.3",
+                "User-Agent": "Production-OS/0.4",
                 **({"Authorization": f"Bearer {self.token}"} if self.token else {}),
             },
         )
@@ -94,6 +94,29 @@ class GitHubClient:
         runs = payload.get("workflow_runs", []) if isinstance(payload, dict) else []
         return runs[0] if runs else None
 
+    def _collect_source_documents(self, full_name: str, names: set[str], workflow_names: list[str]) -> dict[str, str]:
+        candidates = [
+            "pyproject.toml", "requirements.txt", "package.json",
+            "build.gradle", "build.gradle.kts", "settings.gradle.kts",
+            "gradle.properties", "pom.xml", "Cargo.toml", "go.mod",
+            "docker-compose.yml", "compose.yml", "compose.yaml",
+            "Dockerfile",
+        ]
+        docs: dict[str, str] = {}
+        for path in candidates:
+            if path in names:
+                text = self._read_text(full_name, path)
+                if text:
+                    docs[path] = text[:20000]
+
+        for workflow in workflow_names[:12]:
+            path = f".github/workflows/{workflow}"
+            text = self._read_text(full_name, path)
+            if text:
+                docs[path] = text[:20000]
+
+        return docs
+
     def collect_evidence(self, repo: dict[str, Any]) -> RepoEvidence:
         full_name = repo["full_name"]
         default_branch = repo.get("default_branch") or "main"
@@ -113,6 +136,7 @@ class GitHubClient:
         readme_name = next((n for n in names if n.lower().startswith("readme")), "")
         readme = self._read_text(full_name, readme_name) if readme_name else ""
         readme_lower = readme.lower()
+        source_documents = self._collect_source_documents(full_name, names, workflow_names)
 
         manifest_names = {
             "pyproject.toml", "package.json", "pom.xml", "build.gradle",
@@ -158,4 +182,5 @@ class GitHubClient:
             readme_text=readme[:12000],
             detected_files=sorted(names),
             workflow_names=workflow_names,
+            source_documents=source_documents,
         )
