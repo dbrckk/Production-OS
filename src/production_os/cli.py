@@ -14,6 +14,7 @@ from .feedback import summarize_validation_results
 from .github_client import GitHubAPIError, GitHubClient
 from .github_work_state import fetch_github_work_state, runtime_decision_from_github
 from .graph import build_knowledge_graph
+from .health_server import serve_health
 from .history import build_snapshot, detect_regressions, load_snapshot, save_snapshot
 from .journal import ExecutionJournal
 from .learning import build_learning_signals
@@ -109,6 +110,12 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     controller.add_argument("--lease-owner", default="production-os-controller")
     controller.add_argument("--lease-minutes", type=int, default=30)
     controller.add_argument("--github-mapping", help="Optional explicit task->issue/PR mapping JSON")
+    controller.add_argument("--observability", help="Write structured observability JSON")
+
+    healthserver = sub.add_parser("health-server", help="Serve the health JSON over HTTP")
+    healthserver.add_argument("--health", required=True)
+    healthserver.add_argument("--host", default="127.0.0.1")
+    healthserver.add_argument("--port", type=int, default=8765)
 
     return parser.parse_args(argv)
 
@@ -500,6 +507,7 @@ def run_dispatch(args: argparse.Namespace) -> int:
         lease_owner=args.owner,
         lease_minutes=args.lease_minutes,
         github_mapping_path=args.github_mapping,
+        observability_path=args.observability,
     )
     print(json.dumps({
         "schema_version": "production-os/dispatch-result/v1",
@@ -586,6 +594,11 @@ def run_controller_command(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_health_server(args: argparse.Namespace) -> int:
+    serve_health(args.health, host=args.host, port=args.port)
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
     if args.command == "scan":
@@ -606,6 +619,8 @@ def main(argv: list[str] | None = None) -> int:
         return run_github_reconcile(args)
     if args.command == "controller":
         return run_controller_command(args)
+    if args.command == "health-server":
+        return run_health_server(args)
     return 1
 
 
