@@ -63,7 +63,12 @@ def _handoff(action: ActionCandidate, reuse: list, catalog: dict | None) -> dict
     ][:5]
 
     reusable_components = []
+    adaptation_plans = []
+
     for item in related_reuse:
+        if item.get("adaptation_plan"):
+            adaptation_plans.append(item["adaptation_plan"])
+
         for component in item.get("components", []):
             reusable_components.append({
                 "source_repository": item["source"],
@@ -82,6 +87,14 @@ def _handoff(action: ActionCandidate, reuse: list, catalog: dict | None) -> dict
         )
     )
 
+    adaptation_plans.sort(
+        key=lambda item: (
+            int(item.get("overall_risk", 101)),
+            item.get("source_repository", ""),
+            item.get("capability", ""),
+        )
+    )
+
     recommended = [
         component
         for component in reusable_components
@@ -90,7 +103,7 @@ def _handoff(action: ActionCandidate, reuse: list, catalog: dict | None) -> dict
     ]
 
     return {
-        "schema_version": "production-os/task-handoff/v6",
+        "schema_version": "production-os/task-handoff/v7",
         "source": "Production-OS",
         "executor": "ai-dev-server",
         "repository": action.repository,
@@ -102,6 +115,7 @@ def _handoff(action: ActionCandidate, reuse: list, catalog: dict | None) -> dict
         "reuse_candidates": related_reuse,
         "reusable_components": reusable_components[:12],
         "recommended_components": recommended[:8],
+        "adaptation_plans": adaptation_plans[:5],
         "external_reference_candidates": _external_refs_for_action(action, catalog),
         "constraints": {
             "preserve_existing_behavior": True,
@@ -110,6 +124,7 @@ def _handoff(action: ActionCandidate, reuse: list, catalog: dict | None) -> dict
             "prefer_component_level_reuse": True,
             "prefer_low_risk_components": True,
             "require_linked_tests_when_available": True,
+            "respect_do_not_copy_boundaries": True,
             "prefer_evidence_backed_references": True,
             "no_secret_material_in_workspace": True,
         },
@@ -149,10 +164,20 @@ def _print_human(assessments, actions, regressions, reuse, catalog_loaded: bool)
                 item.components[0]["adaptation_risk"]
                 if item.components else "n/a"
             )
+            plan_risk = (
+                item.adaptation_plan.get("overall_risk")
+                if item.adaptation_plan else "n/a"
+            )
+            strategy = (
+                item.adaptation_plan.get("strategy")
+                if item.adaptation_plan else "n/a"
+            )
             print(
                 f"- {item.target} <- {item.source}: "
                 f"{item.capability} ({item.confidence:.0%}) "
-                f"components={len(item.components)} best-risk={best_risk}"
+                f"components={len(item.components)} "
+                f"best-risk={best_risk} plan-risk={plan_risk} "
+                f"strategy={strategy}"
             )
         print()
 
@@ -223,13 +248,13 @@ def run_scan(args: argparse.Namespace) -> int:
 
     if args.handoff:
         payload = _handoff(actions[0], reuse, catalog) if actions else {
-            "schema_version": "production-os/task-handoff/v6",
+            "schema_version": "production-os/task-handoff/v7",
             "status": "no_action",
         }
         print(json.dumps(payload, indent=2, ensure_ascii=False))
     elif args.json:
         payload = {
-            "schema_version": "production-os/portfolio/v7",
+            "schema_version": "production-os/portfolio/v8",
             "owner": args.owner,
             "star_list": {
                 "repository": args.star_list_repo,
