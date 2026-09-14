@@ -1,0 +1,38 @@
+services:
+  production-os:
+    build: .
+    restart: unless-stopped
+    expose:
+      - "8787"
+    volumes:
+      - ./artifacts:/data
+    command:
+      - control-plane
+      - --database
+      - /data/production.db
+      - --auth-config
+      - /data/auth.json
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8787"
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - production-os
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:
