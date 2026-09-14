@@ -52,6 +52,9 @@ def check_dependency_compatibility(
     dependencies: list[str] | tuple[str, ...],
 ) -> list[DependencyCompatibility]:
     tokens = _target_tokens(target)
+    source_text = "\n".join(
+        target.evidence.source_documents.values()
+    ).lower()
     results: list[DependencyCompatibility] = []
 
     for dependency in dependencies:
@@ -60,7 +63,11 @@ def check_dependency_compatibility(
             continue
         key = dep.lower()
         aliases = ALIASES.get(key, (key,))
-        matched = [alias for alias in aliases if alias in tokens]
+        matched = [
+            alias
+            for alias in aliases
+            if alias in tokens or alias in source_text
+        ]
 
         if matched:
             results.append(
