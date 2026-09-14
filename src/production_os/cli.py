@@ -6,7 +6,9 @@ import sys
 from typing import Iterable
 
 from .github_client import GitHubAPIError, GitHubClient
+from .history import build_snapshot, detect_regressions, load_snapshot, save_snapshot
 from .models import ActionCandidate, RepoAssessment
+from .reuse import detect_reuse
 from .scoring import assess_repository
 
 
@@ -20,6 +22,8 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     scan.add_argument("--exclude", nargs="*", default=[], help="Exclude repository names")
     scan.add_argument("--json", action="store_true", help="Emit complete JSON assessment")
     scan.add_argument("--handoff", action="store_true", help="Emit only the top ai-dev-server task contract")
+    scan.add_argument("--snapshot", help="Persist current portfolio snapshot to this JSON file")
+    scan.add_argument("--compare", help="Compare current portfolio against a previous snapshot")
     scan.add_argument("--include-forks", action="store_true")
     scan.add_argument("--include-archived", action="store_true")
 
@@ -50,14 +54,41 @@ def _handoff(action: ActionCandidate) -> dict:
     }
 
 
-def _print_human(assessments: list[RepoAssessment], actions: list[ActionCandidate]) -> None:
+def _print_human(
+    assessments: list[RepoAssessment],
+    actions: list[ActionCandidate],
+    regressions: list,
+    reuse: list,
+) -> None:
     print("Production-OS portfolio assessment")
     print("=" * 34)
     for assessment in sorted(assessments, key=lambda item: item.score.total, reverse=True):
         e = assessment.evidence
-        print(f"{e.full_name:<40} {assessment.score.total:>3}/100")
+        print(
+            f"{e.full_name:<40} {assessment.score.total:>3}/100 "
+            f"[{assessment.profile}]"
+        )
 
     print()
+    if regressions:
+        print("REGRESSIONS")
+        for regression in regressions:
+            print(
+                f"- {regression.repository}: "
+                f"{regression.previous_score} -> {regression.current_score} "
+                f"({regression.delta})"
+            )
+        print()
+
+    if reuse:
+        print("TOP REUSE OPPORTUNITIES")
+        for item in reuse[:5]:
+            print(
+                f"- {item.target} <- {item.source}: "
+                f"{item.capability} ({item.confidence:.0%})"
+            )
+        print()
+
     if not actions:
         print("No improvement action generated from the current evidence.")
         return
@@ -107,6 +138,13 @@ def run_scan(args: argparse.Namespace) -> int:
         assessments.append(assess_repository(evidence))
 
     actions = _rank_actions(assessments)
+    reuse = detect_reuse(assessments)
+    snapshot = build_snapshot(args.owner, assessments)
+    previous = load_snapshot(args.compare) if args.compare else None
+    regressions = detect_regressions(previous, snapshot)
+
+    if args.snapshot:
+        save_snapshot(snapshot, args.snapshot)
 
     if args.handoff:
         payload = _handoff(actions[0]) if actions else {
@@ -116,14 +154,25 @@ def run_scan(args: argparse.Namespace) -> int:
         print(json.dumps(payload, indent=2, ensure_ascii=False))
     elif args.json:
         payload = {
-            "schema_version": "production-os/portfolio/v1",
+            "schema_version": "production-os/portfolio/v2",
             "owner": args.owner,
             "repositories": [a.to_dict() for a in assessments],
             "ranked_actions": [a.to_dict() for a in actions],
+            "reuse_opportunities": [item.to_dict() for item in reuse],
+            "regressions": [
+                {
+                    "repository": item.repository,
+                    "previous_score": item.previous_score,
+                    "current_score": item.current_score,
+                    "delta": item.delta,
+                }
+                for item in regressions
+            ],
+            "snapshot": snapshot,
         }
         print(json.dumps(payload, indent=2, ensure_ascii=False))
     else:
-        _print_human(assessments, actions)
+        _print_human(assessments, actions, regressions, reuse)
 
     return 0
 
