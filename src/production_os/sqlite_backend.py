@@ -18,7 +18,7 @@ def _utcnow() -> str:
 
 
 class SQLiteBackend:
-    SCHEMA_VERSION = 4
+    SCHEMA_VERSION = 5
 
     def __init__(self, path: str | Path):
         self.path = Path(path)
@@ -213,6 +213,27 @@ class SQLiteBackend:
 
                 CREATE INDEX IF NOT EXISTS idx_result_cache_repo_task
                 ON result_cache(repository, task, last_used_at DESC);
+
+                CREATE TABLE IF NOT EXISTS speculation_groups (
+                    group_id TEXT PRIMARY KEY,
+                    canonical_job_key TEXT NOT NULL,
+                    winner_job_key TEXT,
+                    created_at TEXT NOT NULL,
+                    resolved_at TEXT
+                );
+
+                CREATE TABLE IF NOT EXISTS speculation_members (
+                    group_id TEXT NOT NULL,
+                    job_key TEXT NOT NULL,
+                    worker_id TEXT,
+                    created_at TEXT NOT NULL,
+                    PRIMARY KEY(group_id, job_key),
+                    FOREIGN KEY(group_id) REFERENCES speculation_groups(group_id)
+                        ON DELETE CASCADE
+                );
+
+                CREATE INDEX IF NOT EXISTS idx_speculation_members_job
+                ON speculation_members(job_key);
                 """
             )
             db.execute(
