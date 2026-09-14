@@ -1691,7 +1691,13 @@ def run_artifact_add(args: argparse.Namespace) -> int:
     }, indent=2, ensure_ascii=False))
     return 0
 
-def _release_ledger(database: str) -> ReleaseLedger:
+def _release_ledger(
+    database: str,
+    *,
+    provenance_secret_env: str = (
+        "PRODUCTION_OS_RELEASE_PROVENANCE_SECRET"
+    ),
+) -> ReleaseLedger:
     engine = _workflow_engine(database)
     return ReleaseLedger(
         engine.backend,
@@ -1699,9 +1705,7 @@ def _release_ledger(database: str) -> ReleaseLedger:
         trusted_validation_secrets=_trusted_validation_keys_from_env(
             "PRODUCTION_OS_VALIDATION_ATTESTATION_KEYS"
         ),
-        provenance_secret=os.getenv(
-            "PRODUCTION_OS_RELEASE_PROVENANCE_SECRET"
-        ),
+        provenance_secret=os.getenv(provenance_secret_env),
     )
 
 
@@ -1754,9 +1758,10 @@ def run_validation_attest(args: argparse.Namespace) -> int:
 
 
 def run_release_verify(args: argparse.Namespace) -> int:
-    result = _release_ledger(args.database).verify(
-        args.release_id
-    )
+    result = _release_ledger(
+        args.database,
+        provenance_secret_env=args.secret_env,
+    ).verify(args.release_id)
     print(json.dumps({
         "schema_version":"production-os/release-verification/v1",
         **result,
