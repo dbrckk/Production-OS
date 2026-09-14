@@ -85,20 +85,36 @@ class RemoteWorkerClient:
         )
         return result["job"]
 
-    def complete(self, key: str) -> dict:
+    def complete(
+        self,
+        key: str,
+        *,
+        result_payload: dict | None = None,
+    ) -> dict:
         _, result = self._request(
             "/v1/jobs/complete",
-            {"key":key,"worker_id":self.worker_id},
+            {
+                "key":key,
+                "worker_id":self.worker_id,
+                "result":result_payload or {},
+            },
         )
         return result["job"]
 
-    def fail(self, key: str, reason: str) -> dict:
+    def fail(
+        self,
+        key: str,
+        reason: str,
+        *,
+        result_payload: dict | None = None,
+    ) -> dict:
         _, result = self._request(
             "/v1/jobs/fail",
             {
                 "key":key,
                 "worker_id":self.worker_id,
                 "reason":reason,
+                "result":result_payload or {},
             },
         )
         return result["job"]
