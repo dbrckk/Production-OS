@@ -543,6 +543,22 @@ class WorkflowEngine:
             )
         return self.get(workflow_id)
 
+    @staticmethod
+    def generation_refreshable(workflow: dict) -> bool:
+        for task in workflow.get("tasks", []):
+            status = str(task.get("status") or "")
+            if status in {"pending", "ready"}:
+                continue
+            if status == "succeeded":
+                result = dict(task.get("result") or {})
+                payload = dict(task.get("payload") or {})
+                if bool(result.get("skipped", False)):
+                    continue
+                if bool(payload.get("virtual_barrier", False)):
+                    continue
+            return False
+        return True
+
     def ensure_pr_generation(
         self,
         repository: str,
