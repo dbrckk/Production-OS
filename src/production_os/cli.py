@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Iterable
 
 from .control_surface import write_control_surface
+from .dispatch import dispatch_handoff
 from .execution_feedback import decide_execution_outcome
 from .feedback import summarize_validation_results
 from .github_client import GitHubAPIError, GitHubClient
@@ -16,6 +17,7 @@ from .journal import ExecutionJournal
 from .learning import build_learning_signals
 from .models import ActionCandidate, RepoAssessment
 from .reuse import detect_reuse
+from .reconciliation import reconcile_runtime_state
 from .resources import allocate_resources
 from .runtime_state import RuntimeState
 from .scheduler import build_schedule
@@ -67,6 +69,23 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
     trends = sub.add_parser("trends", help="Build long-term repository score trends from snapshot JSON files")
     trends.add_argument("snapshots", nargs="+")
+
+    heartbeat = sub.add_parser("heartbeat", help="Renew an execution lease")
+    heartbeat.add_argument("--runtime-state", required=True)
+    heartbeat.add_argument("--repository", required=True)
+    heartbeat.add_argument("--task", required=True)
+    heartbeat.add_argument("--owner", required=True)
+    heartbeat.add_argument("--minutes", type=int, default=30)
+
+    reconcile = sub.add_parser("reconcile", help="Recover expired leases and cooled-down circuits")
+    reconcile.add_argument("--runtime-state", required=True)
+
+    dispatch = sub.add_parser("dispatch", help="Dispatch a handoff to the ai-dev-server file queue")
+    dispatch.add_argument("--handoff", required=True)
+    dispatch.add_argument("--runtime-state", required=True)
+    dispatch.add_argument("--queue-dir", required=True)
+    dispatch.add_argument("--owner", default="production-os")
+    dispatch.add_argument("--lease-minutes", type=int, default=30)
 
     return parser.parse_args(argv)
 
@@ -423,6 +442,48 @@ def run_trends(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_heartbeat(args: argparse.Namespace) -> int:
+    state = RuntimeState(args.runtime_state)
+    record = state.heartbeat_lease(
+        args.repository,
+        args.task,
+        owner=args.owner,
+        minutes=args.minutes,
+    )
+    print(json.dumps({
+        "schema_version": "production-os/lease-heartbeat/v1",
+        "record": record.to_dict(),
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
+def run_reconcile(args: argparse.Namespace) -> int:
+    state = RuntimeState(args.runtime_state)
+    actions = reconcile_runtime_state(state)
+    print(json.dumps({
+        "schema_version": "production-os/reconciliation/v1",
+        "actions": [action.to_dict() for action in actions],
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
+def run_dispatch(args: argparse.Namespace) -> int:
+    handoff = json.loads(Path(args.handoff).read_text(encoding="utf-8"))
+    state = RuntimeState(args.runtime_state)
+    result = dispatch_handoff(
+        handoff,
+        args.queue_dir,
+        state,
+        lease_owner=args.owner,
+        lease_minutes=args.lease_minutes,
+    )
+    print(json.dumps({
+        "schema_version": "production-os/dispatch-result/v1",
+        "result": result.to_dict(),
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
     if args.command == "scan":
@@ -433,6 +494,12 @@ def main(argv: list[str] | None = None) -> int:
         return run_execution_feedback(args)
     if args.command == "trends":
         return run_trends(args)
+    if args.command == "heartbeat":
+        return run_heartbeat(args)
+    if args.command == "reconcile":
+        return run_reconcile(args)
+    if args.command == "dispatch":
+        return run_dispatch(args)
     return 1
 
 
