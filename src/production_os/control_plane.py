@@ -419,12 +419,69 @@ def make_handler(control: ControlPlane):
                     principal = self._require("worker")
                     if principal is None:
                         return
+
+                    worker_id = str(body["worker_id"])
+                    capabilities = [
+                        str(x) for x in body.get("capabilities", [])
+                    ]
+
+                    candidate = None
+                    for queued in control.queue.peek_candidates(
+                        worker_id=worker_id,
+                        limit=100,
+                    ):
+                        required = set(
+                            queued["payload"].get(
+                                "required_capabilities",
+                                [],
+                            )
+                        )
+                        if required.issubset(set(capabilities)):
+                            candidate = queued
+                            break
+
+                    if candidate is not None:
+                        assigned = candidate.get("assigned_worker")
+                        control.workers.load()
+                        available_workers = list(
+                            control.workers.workers.values()
+                        )
+                        if assigned:
+                            available_workers = [
+                                worker
+                                for worker in available_workers
+                                if worker.worker_id == assigned
+                            ]
+
+                        placement = control.optimizer.choose_worker(
+                            repository=candidate["repository"],
+                            task=candidate["task"],
+                            workers=available_workers,
+                            required_capabilities=list(
+                                candidate["payload"].get(
+                                    "required_capabilities",
+                                    [],
+                                )
+                            ),
+                            fallback_minutes=float(
+                                candidate["payload"]
+                                .get("handoff", {})
+                                .get("estimated_minutes", 1.0)
+                            ),
+                        )
+                        if (
+                            placement is not None
+                            and placement.worker_id != worker_id
+                        ):
+                            self._send(
+                                HTTPStatus.NO_CONTENT,
+                                {},
+                            )
+                            return
+
                     job = control.queue.claim_next(
-                        str(body["worker_id"]),
-                        capabilities=[
-                            str(x)
-                            for x in body.get("capabilities", [])
-                        ],
+                        worker_id,
+                        capabilities=capabilities,
                         ack_timeout_seconds=int(
                             body.get("ack_timeout_seconds", 120)
                         ),
