@@ -679,6 +679,10 @@ def run_controller_command(args: argparse.Namespace) -> int:
         github_mapping_path=args.github_mapping,
         worker_registry_path=args.worker_registry,
         receipt_dir=args.receipt_dir,
+        claims_path=args.claims,
+        dead_letter_dir=args.dead_letter_dir,
+        emergency_stop_path=args.emergency_stop,
+        rate_limit_path=args.rate_limit_state,
         capacity=args.capacity,
         slots=args.slots,
         lease_owner=args.lease_owner,
@@ -771,9 +775,8 @@ def run_job_complete(args: argparse.Namespace) -> int:
 
     registry = WorkerRegistry(args.registry)
     worker = registry.workers.get(args.worker_id)
-    if worker is not None and worker.active_tasks > 0:
-        worker.active_tasks -= 1
-        registry.save()
+    if worker is not None:
+        worker = registry.adjust_active_tasks(args.worker_id, -1)
 
     state = RuntimeState(args.runtime_state)
     record = state.get(claim.repository, claim.task)
