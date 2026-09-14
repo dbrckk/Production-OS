@@ -12,6 +12,13 @@ from .execution_optimizer import ExecutionOptimizer
 from .speculation import SpeculationManager
 from .portfolio_optimizer import PortfolioOptimizer
 from .github_client import GitHubClient
+from .github_webhook import (
+    WebhookDeliveryStore,
+    WebhookError,
+    parse_github_webhook,
+    pull_request_event_target,
+    verify_github_signature,
+)
 
 
 class ControlPlane:
@@ -20,6 +27,7 @@ class ControlPlane:
         database: str,
         *,
         authorizer: TokenAuthorizer,
+        github_webhook_secret: str | None = None,
     ):
         self.backend = open_backend(database)
         self.queue = job_queue_for(self.backend)
@@ -29,6 +37,8 @@ class ControlPlane:
         self.speculation = SpeculationManager(self.backend, self.queue)
         self.portfolio = PortfolioOptimizer(self.workflows, self.optimizer)
         self.authorizer = authorizer
+        self.github_webhook_secret = github_webhook_secret
+        self.webhook_deliveries = WebhookDeliveryStore(self.backend)
 
 
 def _json_bytes(payload: dict | list) -> bytes:
@@ -115,7 +125,7 @@ def make_handler(control: ControlPlane):
             self.end_headers()
             self.wfile.write(body)
 
-        def _read_json(self) -> dict:
+        def _read_body(self) -> bytes:
             raw_length = self.headers.get("Content-Length", "0")
             try:
                 length = int(raw_length)
@@ -123,9 +133,13 @@ def make_handler(control: ControlPlane):
                 raise ValueError("invalid Content-Length") from exc
             if length < 0 or length > 1024 * 1024:
                 raise ValueError("request body too large")
-            if length == 0:
+            return self.rfile.read(length) if length else b""
+
+        def _read_json(self) -> dict:
+            raw = self._read_body()
+            if not raw:
                 return {}
-            payload = json.loads(self.rfile.read(length).decode("utf-8"))
+            payload = json.loads(raw.decode("utf-8"))
             if not isinstance(payload, dict):
                 raise ValueError("JSON body must be an object")
             return payload
@@ -319,6 +333,143 @@ def make_handler(control: ControlPlane):
 
         def do_POST(self) -> None:
             parsed = urlparse(self.path)
+
+            if parsed.path == "/v1/github/webhook":
+                if not control.github_webhook_secret:
+                    self._send(
+                        HTTPStatus.SERVICE_UNAVAILABLE,
+                        {"error":"github webhook secret not configured"},
+                    )
+                    return
+                try:
+                    raw = self._read_body()
+                except ValueError as exc:
+                    self._send(
+                        HTTPStatus.BAD_REQUEST,
+                        {"error":str(exc)},
+                    )
+                    return
+
+                if not verify_github_signature(
+                    control.github_webhook_secret,
+                    raw,
+                    self.headers.get("X-Hub-Signature-256"),
+                ):
+                    self._send(
+                        HTTPStatus.UNAUTHORIZED,
+                        {"error":"invalid github webhook signature"},
+                    )
+                    return
+
+                delivery_id = self.headers.get(
+                    "X-GitHub-Delivery",
+                    "",
+                )
+                event_name = self.headers.get(
+                    "X-GitHub-Event",
+                    "",
+                )
+                try:
+                    payload = parse_github_webhook(raw)
+                    target = pull_request_event_target(
+                        event_name,
+                        payload,
+                    )
+                except WebhookError as exc:
+                    self._send(
+                        HTTPStatus.BAD_REQUEST,
+                        {"error":str(exc)},
+                    )
+                    return
+
+                repository = target[0] if target else None
+                try:
+                    claimed = control.webhook_deliveries.claim(
+                        delivery_id,
+                        event_name,
+                        repository,
+                    )
+                except WebhookError as exc:
+                    self._send(
+                        HTTPStatus.BAD_REQUEST,
+                        {"error":str(exc)},
+                    )
+                    return
+
+                if not claimed:
+                    self._send(
+                        HTTPStatus.OK,
+                        {
+                            "status":"duplicate",
+                            "delivery_id":delivery_id,
+                        },
+                    )
+                    return
+
+                try:
+                    if target is None:
+                        self._send(
+                            HTTPStatus.ACCEPTED,
+                            {
+                                "status":"ignored",
+                                "delivery_id":delivery_id,
+                                "event":event_name,
+                            },
+                        )
+                        return
+
+                    repository, pr_number, action = target
+                    workflows = control.workflows.find_by_github_pr(
+                        repository,
+                        pr_number,
+                    )
+                    changed_paths = (
+                        GitHubClient().list_pull_request_files(
+                            repository,
+                            pr_number,
+                        )
+                        if workflows
+                        else []
+                    )
+                    refreshed = []
+                    dispatched = []
+                    for workflow in workflows:
+                        decisions = control.workflows.apply_change_impact(
+                            workflow["id"],
+                            changed_paths,
+                        )
+                        jobs = control.workflows.dispatch_ready(
+                            workflow["id"],
+                        )
+                        refreshed.append({
+                            "workflow_id":workflow["id"],
+                            "decisions":decisions,
+                            "workflow":control.workflows.get(
+                                workflow["id"]
+                            ),
+                        })
+                        dispatched.extend(jobs)
+
+                    self._send(
+                        HTTPStatus.OK,
+                        {
+                            "status":"processed",
+                            "delivery_id":delivery_id,
+                            "event":event_name,
+                            "action":action,
+                            "repository":repository,
+                            "pr_number":pr_number,
+                            "changed_paths":changed_paths,
+                            "refreshed":len(refreshed),
+                            "workflows":refreshed,
+                            "dispatched_jobs":dispatched,
+                        },
+                    )
+                    return
+                except Exception:
+                    control.webhook_deliveries.release(delivery_id)
+                    raise
+
             try:
                 body = self._read_json()
             except (ValueError, json.JSONDecodeError) as exc:
