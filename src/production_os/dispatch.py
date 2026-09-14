@@ -82,19 +82,40 @@ def dispatch_handoff(
     handoff = {**handoff, "risk_class": policy_decision.risk_class, "constraints": constraints}
 
     resource_request = handoff.get("resource_request", {}) or {}
+    normalized_request = {
+        str(k): float(v)
+        for k, v in resource_request.items()
+        if isinstance(v, (int, float))
+    }
     if budget_ledger is not None and policy_decision.budgets:
         budget_decision = budget_ledger.check(
             repository,
             policy_decision.budgets,
-            {
-                str(k): float(v)
-                for k, v in resource_request.items()
-                if isinstance(v, (int, float))
-            },
+            normalized_request,
         )
         if not budget_decision.allowed:
             raise RuntimeError(
                 "budget blocked dispatch: " + "; ".join(budget_decision.reasons)
+            )
+
+    portfolio_budgets = {
+        str(k): float(v)
+        for k, v in (
+            (policy_set or PolicySet({})).payload.get("portfolio_budgets", {})
+            or {}
+        ).items()
+        if isinstance(v, (int, float))
+    }
+    if budget_ledger is not None and portfolio_budgets:
+        portfolio_budget_decision = budget_ledger.check(
+            "__portfolio__",
+            portfolio_budgets,
+            normalized_request,
+        )
+        if not portfolio_budget_decision.allowed:
+            raise RuntimeError(
+                "portfolio budget blocked dispatch: "
+                + "; ".join(portfolio_budget_decision.reasons)
             )
 
     worker = None
@@ -185,15 +206,9 @@ def dispatch_handoff(
                 task=task,
             )
 
-        if budget_ledger is not None and resource_request:
-            budget_ledger.record(
-                repository,
-                {
-                    str(k): float(v)
-                    for k, v in resource_request.items()
-                    if isinstance(v, (int, float))
-                },
-            )
+        if budget_ledger is not None and normalized_request:
+            budget_ledger.record(repository, normalized_request)
+            budget_ledger.record("__portfolio__", normalized_request)
 
         return DispatchResult(
             repository=repository,
