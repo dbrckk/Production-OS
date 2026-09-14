@@ -3,8 +3,10 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from pathlib import Path
 from typing import Iterable
 
+from .feedback import summarize_validation_results
 from .github_client import GitHubAPIError, GitHubClient
 from .graph import build_knowledge_graph
 from .history import build_snapshot, detect_regressions, load_snapshot, save_snapshot
@@ -31,6 +33,14 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     scan.add_argument("--no-star-list", action="store_true")
     scan.add_argument("--include-forks", action="store_true")
     scan.add_argument("--include-archived", action="store_true")
+
+    validation = sub.add_parser(
+        "validation-results",
+        help="Evaluate execution/validation results against a generated validation plan",
+    )
+    validation.add_argument("--plan", required=True, help="JSON file containing an adaptation plan or validation plan")
+    validation.add_argument("--results", required=True, help="JSON file containing validation results")
+    validation.add_argument("--output", help="Optional path to write the summary JSON")
 
     return parser.parse_args(argv)
 
@@ -90,6 +100,7 @@ def _handoff(action: ActionCandidate, reuse: list, catalog: dict | None) -> dict
         key=lambda item: (
             not bool(item.get("compatible_for_adaptation")),
             int(item.get("overall_risk", 101)),
+            len(item.get("major_version_mismatches", [])),
             len(item.get("missing_dependencies", [])),
             item.get("source_repository", ""),
             item.get("capability", ""),
@@ -109,7 +120,7 @@ def _handoff(action: ActionCandidate, reuse: list, catalog: dict | None) -> dict
     ]
 
     return {
-        "schema_version": "production-os/task-handoff/v8",
+        "schema_version": "production-os/task-handoff/v9",
         "source": "Production-OS",
         "executor": "ai-dev-server",
         "repository": action.repository,
@@ -133,6 +144,7 @@ def _handoff(action: ActionCandidate, reuse: list, catalog: dict | None) -> dict
             "require_linked_tests_when_available": True,
             "respect_do_not_copy_boundaries": True,
             "resolve_missing_dependencies_before_promotion": True,
+            "reject_major_version_mismatch_before_promotion": True,
             "complete_validation_plan_before_promotion": True,
             "prefer_evidence_backed_references": True,
             "no_secret_material_in_workspace": True,
@@ -173,6 +185,7 @@ def _print_human(assessments, actions, regressions, reuse, catalog_loaded: bool)
                 f"- {item.target} <- {item.source}: {item.capability} "
                 f"({item.confidence:.0%}) risk={plan.get('overall_risk', 'n/a')} "
                 f"missing={len(plan.get('missing_dependencies', []))} "
+                f"version-conflicts={len(plan.get('major_version_mismatches', []))} "
                 f"compatible={plan.get('compatible_for_adaptation', False)}"
             )
         print()
@@ -239,13 +252,13 @@ def run_scan(args: argparse.Namespace) -> int:
 
     if args.handoff:
         payload = _handoff(actions[0], reuse, catalog) if actions else {
-            "schema_version": "production-os/task-handoff/v8",
+            "schema_version": "production-os/task-handoff/v9",
             "status": "no_action",
         }
         print(json.dumps(payload, indent=2, ensure_ascii=False))
     elif args.json:
         payload = {
-            "schema_version": "production-os/portfolio/v9",
+            "schema_version": "production-os/portfolio/v10",
             "owner": args.owner,
             "star_list": {
                 "repository": args.star_list_repo,
@@ -275,10 +288,44 @@ def run_scan(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_validation_results(args: argparse.Namespace) -> int:
+    plan_payload = json.loads(Path(args.plan).read_text(encoding="utf-8"))
+    results_payload = json.loads(Path(args.results).read_text(encoding="utf-8"))
+
+    validation_plan = plan_payload.get("validation_plan", plan_payload)
+    if isinstance(validation_plan, dict):
+        validation_plan = validation_plan.get("steps", [])
+    results = results_payload.get("results", results_payload)
+
+    if not isinstance(validation_plan, list):
+        raise SystemExit("validation plan must be a JSON list or contain validation_plan")
+    if not isinstance(results, list):
+        raise SystemExit("validation results must be a JSON list or contain results")
+
+    summary = summarize_validation_results(validation_plan, results)
+    payload = {
+        "schema_version": "production-os/validation-feedback/v1",
+        "summary": summary.to_dict(),
+        "promotion_allowed": summary.status == "passed",
+        "results": results,
+    }
+
+    rendered = json.dumps(payload, indent=2, ensure_ascii=False)
+    if args.output:
+        destination = Path(args.output)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_text(rendered + "\n", encoding="utf-8")
+    print(rendered)
+
+    return 0 if summary.status == "passed" else 3
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
     if args.command == "scan":
         return run_scan(args)
+    if args.command == "validation-results":
+        return run_validation_results(args)
     return 1
 
 
