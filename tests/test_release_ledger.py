@@ -147,6 +147,7 @@ def test_release_rollback_is_append_only(tmp_path):
         workflow_id=workflow["id"],
         artifact_id=artifact["id"],
         validation=passed_validation(),
+        attestation=signed_attestation(workflow,artifact),
     )
 
     rollback=releases.rollback(
@@ -198,6 +199,7 @@ def test_promotion_requires_artifact_sha256(tmp_path):
             workflow_id=workflow["id"],
             artifact_id=artifact["id"],
             validation=passed_validation(),
+            attestation={},
         )
 
 
