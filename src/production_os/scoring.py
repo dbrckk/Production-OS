@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
+from .capabilities import extract_capabilities
 from .classification import classify_repository
 from .models import ActionCandidate, RepoAssessment, RepoEvidence, ScoreBreakdown
 
@@ -31,7 +32,6 @@ def score_repository(e: RepoEvidence) -> ScoreBreakdown:
         ci = 5
     release = 15 if e.has_release_workflow else 0
     build = 10 if e.has_manifest else 0
-
     security = (5 if e.has_security_policy else 0) + (5 if e.has_dependency_automation else 0)
     license_points = 5 if e.has_license else 0
     activity = _recent_activity_points(e.pushed_at)
@@ -155,6 +155,7 @@ def generate_actions(e: RepoEvidence, score: ScoreBreakdown, profile: str) -> li
 def assess_repository(evidence: RepoEvidence) -> RepoAssessment:
     score = score_repository(evidence)
     profile = classify_repository(evidence)
+    capabilities = extract_capabilities(evidence)
     return RepoAssessment(
         evidence=evidence,
         score=score,
@@ -162,4 +163,5 @@ def assess_repository(evidence: RepoEvidence) -> RepoAssessment:
         profile=profile.kind,
         profile_confidence=profile.confidence,
         profile_signals=list(profile.signals),
+        capabilities=capabilities,
     )
