@@ -111,7 +111,14 @@ def test_release_provenance_detects_tampering():
         "repository":"o/a",
         "source_revision":"sha-1",
         "workflow_generation":1,
-        "metadata":{"artifact_sha256":"a"*64},
+        "metadata":{
+            "artifact_sha256":"a"*64,
+            "approval":{
+                "approval_key":"approval-1",
+                "approved_by":"operator-1",
+                "role":"operator",
+            },
+        },
         "created_at":"2026-09-14T20:00:00+00:00",
     }
     provenance=create_release_provenance(
