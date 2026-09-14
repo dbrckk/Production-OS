@@ -50,7 +50,7 @@ def parse_github_webhook(body: bytes) -> dict[str, Any]:
 def pull_request_event_target(
     event_name: str,
     payload: dict[str, Any],
-) -> tuple[str, int, str] | None:
+) -> tuple[str, int, str, str] | None:
     if event_name != "pull_request":
         return None
 
@@ -70,9 +70,15 @@ def pull_request_event_target(
 
     full_name = str(repository.get("full_name") or "").strip()
     number = pull_request.get("number", payload.get("number"))
-    if not full_name or number is None:
+    head = pull_request.get("head")
+    head_sha = (
+        str(head.get("sha") or "").strip()
+        if isinstance(head, dict)
+        else ""
+    )
+    if not full_name or number is None or not head_sha:
         raise WebhookError(
-            "pull_request webhook missing repository or PR number"
+            "pull_request webhook missing repository, PR number, or head SHA"
         )
 
     try:
@@ -83,7 +89,7 @@ def pull_request_event_target(
     if pr_number < 1:
         raise WebhookError("invalid pull request number")
 
-    return full_name, pr_number, action
+    return full_name, pr_number, action, head_sha
 
 
 class WebhookDeliveryStore:
