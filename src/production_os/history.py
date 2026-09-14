@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable
@@ -26,6 +26,8 @@ def build_snapshot(owner: str, assessments: Iterable[RepoAssessment]) -> dict:
             "evidence": {
                 "has_tests": assessment.evidence.has_tests,
                 "has_ci": assessment.evidence.has_ci,
+                "latest_ci_status": assessment.evidence.latest_ci_status,
+                "latest_ci_conclusion": assessment.evidence.latest_ci_conclusion,
                 "has_release_workflow": assessment.evidence.has_release_workflow,
                 "has_security_policy": assessment.evidence.has_security_policy,
                 "has_dependency_automation": assessment.evidence.has_dependency_automation,
