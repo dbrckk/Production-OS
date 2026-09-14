@@ -28,7 +28,7 @@ class GitHubClient:
             headers={
                 "Accept": "application/vnd.github+json",
                 "X-GitHub-Api-Version": "2022-11-28",
-                "User-Agent": "Production-OS/0.1",
+                "User-Agent": "Production-OS/0.2",
                 **({"Authorization": f"Bearer {self.token}"} if self.token else {}),
             },
         )
@@ -83,8 +83,22 @@ class GitHubClient:
         except Exception:
             return ""
 
+    def _latest_workflow_run(self, full_name: str, branch: str) -> dict[str, Any] | None:
+        try:
+            payload = self._get(
+                f"/repos/{full_name}/actions/runs?per_page=10&branch="
+                f"{urllib.parse.quote(branch)}"
+            )
+        except GitHubAPIError:
+            return None
+        runs = payload.get("workflow_runs", []) if isinstance(payload, dict) else []
+        if not runs:
+            return None
+        return runs[0]
+
     def collect_evidence(self, repo: dict[str, Any]) -> RepoEvidence:
         full_name = repo["full_name"]
+        default_branch = repo.get("default_branch") or "main"
         root = self._contents(full_name)
         names = {item.get("name", "") for item in root}
         lower = {name.lower() for name in names}
@@ -93,6 +107,7 @@ class GitHubClient:
         workflow_names = {item.get("name", "").lower() for item in workflow_entries}
         github_entries = self._contents(full_name, ".github")
         github_names = {item.get("name", "").lower() for item in github_entries}
+        latest_run = self._latest_workflow_run(full_name, default_branch) if workflow_names else None
 
         readme_name = next((n for n in names if n.lower().startswith("readme")), "")
         readme = self._read_text(full_name, readme_name) if readme_name else ""
@@ -103,17 +118,15 @@ class GitHubClient:
             "build.gradle.kts", "cargo.toml", "go.mod", "requirements.txt",
             "composer.json", "gemfile",
         }
-        test_markers = {
-            "tests", "test", "spec", "src/test", "androidtest",
-        }
+        test_markers = {"tests", "test", "spec", "src/test", "androidtest"}
         release_words = ("release", "publish", "deploy", "play", "store")
         roadmap_words = ("roadmap", "todo", "milestone")
 
-        evidence = RepoEvidence(
+        return RepoEvidence(
             name=repo["name"],
             full_name=full_name,
             html_url=repo.get("html_url", ""),
-            default_branch=repo.get("default_branch") or "main",
+            default_branch=default_branch,
             archived=bool(repo.get("archived")),
             fork=bool(repo.get("fork")),
             private=bool(repo.get("private")),
@@ -128,19 +141,19 @@ class GitHubClient:
             or "unit test" in readme_lower
             or "junit" in readme_lower,
             has_ci=bool(workflow_names),
+            latest_ci_status=latest_run.get("status") if latest_run else None,
+            latest_ci_conclusion=latest_run.get("conclusion") if latest_run else None,
+            latest_ci_url=latest_run.get("html_url") if latest_run else None,
             has_release_workflow=any(
                 any(word in workflow for word in release_words)
                 for workflow in workflow_names
             ),
             has_manifest=bool(manifest_names & lower),
             has_license=any(name.startswith("license") for name in lower),
-            has_security_policy="security.md" in github_names
-            or "security.md" in lower,
-            has_dependency_automation="dependabot.yml" in github_names
-            or "renovate.json" in lower,
+            has_security_policy="security.md" in github_names or "security.md" in lower,
+            has_dependency_automation="dependabot.yml" in github_names or "renovate.json" in lower,
             has_roadmap=any(word in name for name in lower for word in roadmap_words)
             or any(word in readme_lower for word in roadmap_words),
             readme_text=readme[:12000],
             detected_files=sorted(names),
         )
-        return evidence
