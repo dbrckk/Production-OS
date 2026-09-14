@@ -143,6 +143,14 @@ class PostgresBackend:
                     )
                 """)
                 cur.execute("""
+                    CREATE TABLE IF NOT EXISTS webhook_deliveries (
+                        delivery_id TEXT PRIMARY KEY,
+                        event_name TEXT NOT NULL,
+                        repository TEXT,
+                        received_at TEXT NOT NULL
+                    )
+                """)
+                cur.execute("""
                     CREATE TABLE IF NOT EXISTS workflows (
                         id TEXT PRIMARY KEY,
                         name TEXT NOT NULL,
