@@ -43,6 +43,23 @@ class GitHubClient:
             raise GitHubAPIError(f"GitHub API unavailable: {exc}") from exc
 
 
+
+    def get_branch_protection(
+        self,
+        full_name: str,
+        branch: str,
+    ) -> bool | None:
+        encoded = urllib.parse.quote(branch, safe="")
+        try:
+            payload = self._get(
+                f"/repos/{full_name}/branches/{encoded}/protection"
+            )
+        except GitHubAPIError as exc:
+            if "404" in str(exc):
+                return False
+            return None
+        return isinstance(payload, dict)
+
     def get_issue(self, full_name: str, issue_number: int) -> dict[str, Any] | None:
         try:
             payload = self._get(f"/repos/{full_name}/issues/{issue_number}")
