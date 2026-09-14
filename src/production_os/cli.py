@@ -90,6 +90,9 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     dispatch.add_argument("--queue-dir", required=True)
     dispatch.add_argument("--owner", default="production-os")
     dispatch.add_argument("--lease-minutes", type=int, default=30)
+    dispatch.add_argument("--worker-registry")
+    dispatch.add_argument("--required-capability", action="append", default=[])
+    dispatch.add_argument("--receipt-dir")
 
     ghrec = sub.add_parser("github-reconcile", help="Reconcile runtime tasks from explicit GitHub issue/PR mappings")
     ghrec.add_argument("--mapping", required=True, help="JSON list of repository/task/issue_number/pr_number mappings")
@@ -518,23 +521,22 @@ def run_reconcile(args: argparse.Namespace) -> int:
 def run_dispatch(args: argparse.Namespace) -> int:
     handoff = json.loads(Path(args.handoff).read_text(encoding="utf-8"))
     state = RuntimeState(args.runtime_state)
+    worker_registry = WorkerRegistry(args.worker_registry) if args.worker_registry else None
     result = dispatch_handoff(
         handoff,
         args.queue_dir,
         state,
         lease_owner=args.owner,
         lease_minutes=args.lease_minutes,
-        worker_registry_path=args.worker_registry,
+        worker_registry=worker_registry,
+        required_capabilities=args.required_capability,
         receipt_dir=args.receipt_dir,
-        github_mapping_path=args.github_mapping,
-        observability_path=args.observability,
     )
     print(json.dumps({
-        "schema_version": "production-os/dispatch-result/v1",
+        "schema_version": "production-os/dispatch-result/v2",
         "result": result.to_dict(),
     }, indent=2, ensure_ascii=False))
     return 0
-
 
 def run_github_reconcile(args: argparse.Namespace) -> int:
     payload = json.loads(Path(args.mapping).read_text(encoding="utf-8"))
@@ -601,18 +603,21 @@ def run_controller_command(args: argparse.Namespace) -> int:
         metrics_path=args.metrics,
         health_path=args.health,
         journal_path=args.journal,
+        observability_path=args.observability,
+        github_mapping_path=args.github_mapping,
+        worker_registry_path=args.worker_registry,
+        receipt_dir=args.receipt_dir,
         capacity=args.capacity,
         slots=args.slots,
         lease_owner=args.lease_owner,
         lease_minutes=args.lease_minutes,
     )
     print(json.dumps({
-        "schema_version":"production-os/controller-run/v1",
+        "schema_version":"production-os/controller-run/v2",
         "cycles":len(results),
         "results":results,
     }, indent=2, ensure_ascii=False))
     return 0
-
 
 def run_worker_register(args: argparse.Namespace) -> int:
     registry = WorkerRegistry(args.registry)
