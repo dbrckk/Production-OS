@@ -1803,6 +1803,42 @@ Control-plane equivalent:
 
     POST /v1/github/pr-refresh
 
+### Signed GitHub webhook
+
+Set a shared webhook secret in the control-plane environment:
+
+    export PRODUCTION_OS_GITHUB_WEBHOOK_SECRET='<strong-random-secret>'
+
+Configure the GitHub webhook target:
+
+    POST https://<production-os-host>/v1/github/webhook
+
+The endpoint validates `X-Hub-Signature-256` against the exact raw request body. It does not use bearer authentication because GitHub authenticates the request with the HMAC signature.
+
+Supported pull-request actions:
+
+    opened
+    reopened
+    synchronize
+
+For a supported delivery:
+
+    signed webhook
+        ↓
+    durable X-GitHub-Delivery claim
+        ↓
+    repository + PR workflow binding
+        ↓
+    authoritative changed-file retrieval
+        ↓
+    P11 impact pruning
+        ↓
+    minimal ready-task dispatch
+
+Delivery IDs are persisted in SQLite/PostgreSQL, so GitHub retries cannot duplicate production work. If processing fails before completion, the delivery claim is released so a legitimate GitHub retry can be processed.
+
+Unsupported GitHub events/actions are acknowledged and ignored after signature verification.
+
 ### P12 progress
 
 - [x] GitHub PR changed-file ingestion
@@ -1813,9 +1849,18 @@ Control-plane equivalent:
 - [x] authenticated control-plane PR impact endpoint
 - [x] GitHub ingestion regression tests
 - [x] control-plane integration test
-- [ ] signed GitHub webhook ingestion
-- [ ] event idempotency / delivery replay guard
 - [x] automatic workflow binding from repository + PR
-- [ ] signed GitHub webhook ingestion
 - [x] PR-bound workflow refresh command/API
-- [ ] automatic minimal dispatch after impact refresh
+- [x] signed GitHub webhook ingestion
+- [x] HMAC SHA-256 signature validation
+- [x] durable event idempotency / delivery replay guard
+- [x] SQLite webhook delivery persistence
+- [x] PostgreSQL webhook delivery persistence
+- [x] automatic refresh for opened/reopened/synchronize
+- [x] automatic minimal dispatch after impact refresh
+- [x] webhook signature/idempotency integration tests
+- [x] Docker/deployment secret wiring
+- [ ] automatic workflow creation for previously unseen PRs
+- [ ] PR head-SHA generation binding
+- [ ] superseded-generation cancellation/checkpoint handoff
+
