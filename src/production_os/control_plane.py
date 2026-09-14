@@ -766,8 +766,16 @@ def make_handler(control: ControlPlane):
                             else None
                         ),
                     )
+                    active_job_keys = body.get(
+                        "active_job_keys",
+                        [],
+                    )
+                    if not isinstance(active_job_keys, list):
+                        raise ValueError(
+                            "active_job_keys must be a list"
+                        )
                     stale_job_keys = []
-                    for key in body.get("active_job_keys", []):
+                    for key in active_job_keys:
                         try:
                             job = control.queue.get(str(key))
                         except KeyError:
@@ -809,6 +817,10 @@ def make_handler(control: ControlPlane):
                         worker_id=worker_id,
                         limit=100,
                     ):
+                        if not control.workflows.job_generation_current(
+                            queued
+                        ):
+                            continue
                         required = set(
                             queued["payload"].get(
                                 "required_capabilities",
@@ -891,8 +903,21 @@ def make_handler(control: ControlPlane):
                     principal = self._require("worker")
                     if principal is None:
                         return
+                    key = str(body["key"])
+                    before = control.queue.get(key)
+                    if not control.workflows.job_generation_current(
+                        before
+                    ):
+                        self._send(
+                            HTTPStatus.CONFLICT,
+                            {
+                                "error":"stale workflow generation",
+                                "key":key,
+                            },
+                        )
+                        return
                     job = control.queue.ack(
-                        str(body["key"]),
+                        key,
                         str(body["worker_id"]),
                     )
                     self._send(HTTPStatus.OK, {"job":job})
