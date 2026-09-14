@@ -1532,9 +1532,147 @@ The result contains the predicted remaining duration and learned critical task p
 - [x] CLI ETA command
 - [x] SQLite optimizer tests
 - [x] PostgreSQL optimizer tests
-- [ ] automatic placement in queue claiming
-- [ ] cache/reuse detection
-- [ ] redundant-work elimination
-- [ ] speculative execution
-- [ ] straggler detection
-- [ ] automatic task splitting
+- [x] automatic placement in queue claiming
+- [x] cache/reuse detection
+- [x] redundant-work elimination
+- [x] speculative execution
+- [x] straggler detection
+- [x] automatic task splitting
+- [x] portfolio-wide throughput optimizer
+
+
+### Automatic worker placement
+
+Job claims now use a two-stage optimizer:
+
+```text
+portfolio job ranking
+→ capability filter
+→ learned worker placement
+→ exact transactional claim
+```
+
+A polling worker receives a job only when it is both:
+
+1. the highest-value compatible queued job for the portfolio;
+2. assigned to the best currently available worker according to learned execution history.
+
+### Result cache and redundant-work elimination
+
+Workflow tasks can opt in:
+
+```json
+{
+  "cacheable": true,
+  "cache_inputs": {
+    "commit": "abc123",
+    "toolchain": "android-35"
+  }
+}
+```
+
+The cache fingerprint covers repository, task and canonicalized cache inputs.
+
+On a cache hit:
+
+```text
+ready
+→ cache lookup
+→ succeeded
+→ downstream dependencies unlocked
+```
+
+No worker slot is consumed.
+
+### Straggler detection
+
+```bash
+production-os stragglers \
+  --database artifacts/production.db \
+  --threshold-factor 1.75 \
+  --min-runtime-seconds 60 \
+  --min-samples 2
+```
+
+API:
+
+```text
+GET /v1/stragglers
+```
+
+A straggler is compared against learned historical duration. Production-OS can also recommend a faster eligible alternate worker.
+
+### Safe speculative execution
+
+Only explicitly safe jobs can be duplicated:
+
+```json
+{
+  "constraints": {
+    "speculative_safe": true
+  }
+}
+```
+
+Operator command:
+
+```bash
+production-os speculate-stragglers \
+  --database artifacts/production.db
+```
+
+Control-plane endpoint:
+
+```text
+POST /v1/stragglers/speculate
+```
+
+Speculative copies use a persistent speculation group:
+
+```text
+slow original ─┐
+               ├→ first successful completion wins
+fast duplicate ─┘
+                         ↓
+                  losing copies cancelled
+```
+
+An individual speculative failure does not fail the workflow while another copy is still viable.
+
+### Automatic task splitting
+
+A workflow task may opt into deterministic sharding:
+
+```json
+{
+  "splittable": true,
+  "split_items": [1, 2, 3, 4, 5],
+  "split_size": 2
+}
+```
+
+Production-OS expands it into:
+
+```text
+task#shard-1 ─┐
+task#shard-2 ─┼→ virtual barrier → downstream task
+task#shard-3 ─┘
+```
+
+The virtual barrier consumes no worker and succeeds automatically once every shard succeeds.
+
+### Portfolio throughput optimizer
+
+Queued work is no longer ordered only by static priority.
+
+The runtime score considers:
+
+```text
+business priority
++ critical-path membership
++ number of downstream tasks unlocked
++ queue age / anti-starvation
+- predicted execution duration
+```
+
+This ordering is combined with exact-key transactional claims, so SQLite and PostgreSQL preserve concurrency safety while using the adaptive ranking.
