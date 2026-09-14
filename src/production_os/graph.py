@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from .callgraph import build_call_import_graph
 from .models import RepoAssessment
 
 
@@ -53,13 +54,13 @@ def build_knowledge_graph(assessments: list[RepoAssessment]) -> dict:
             })
             edges.append(GraphEdge(repo_id, "provides", cap_id, capability.confidence))
 
-        component_ids: dict[tuple[str, str], str] = {}
+        component_lookup: dict[str, str] = {}
         for component in assessment.components:
             component_id = (
                 f"component:{assessment.evidence.full_name}:"
                 f"{component.path}:{component.kind}:{component.name}"
             )
-            component_ids[(component.path, component.name)] = component_id
+            component_lookup[f"{component.path}:{component.name}"] = component_id
             nodes[component_id] = {
                 "id": component_id,
                 "type": "component",
@@ -90,8 +91,28 @@ def build_knowledge_graph(assessments: list[RepoAssessment]) -> dict:
                 })
                 edges.append(GraphEdge(component_id, "depends_on", dep_id, 0.90))
 
+        call_graph = build_call_import_graph(assessment)
+        for call in call_graph.get("edges", []):
+            source_id = component_lookup.get(call["source_component"])
+            if not source_id:
+                continue
+            symbol_id = f"symbol:{assessment.evidence.full_name}:{call['target_symbol']}"
+            nodes.setdefault(symbol_id, {
+                "id": symbol_id,
+                "type": "symbol",
+                "name": call["target_symbol"],
+            })
+            edges.append(
+                GraphEdge(
+                    source_id,
+                    call["relation"],
+                    symbol_id,
+                    float(call.get("confidence", 0.7)),
+                )
+            )
+
     return {
-        "schema_version": "production-os/knowledge-graph/v2",
+        "schema_version": "production-os/knowledge-graph/v3",
         "nodes": sorted(nodes.values(), key=lambda node: node["id"]),
         "edges": [edge.to_dict() for edge in edges],
     }
