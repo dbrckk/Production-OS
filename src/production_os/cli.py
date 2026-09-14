@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 from typing import Iterable
@@ -312,6 +313,11 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     controlplane.add_argument("--auth-config", required=True)
     controlplane.add_argument("--host", default="127.0.0.1")
     controlplane.add_argument("--port", type=int, default=8787)
+    controlplane.add_argument(
+        "--github-webhook-secret-env",
+        default="PRODUCTION_OS_GITHUB_WEBHOOK_SECRET",
+        help="Environment variable containing the GitHub webhook secret",
+    )
 
     remotepoll = sub.add_parser("remote-worker-poll", help="Poll the P8 control plane for remote jobs")
     remotepoll.add_argument("--url", required=True)
@@ -1324,6 +1330,9 @@ def run_control_plane(args: argparse.Namespace) -> int:
         args.auth_config,
         host=args.host,
         port=args.port,
+        github_webhook_secret=os.getenv(
+            args.github_webhook_secret_env
+        ),
     )
     return 0
 
