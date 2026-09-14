@@ -1460,3 +1460,81 @@ timestamp
 - [x] CLI controls
 - [x] remote-worker result propagation
 - [x] dashboard workflow visibility
+
+
+## P10 adaptive execution optimizer
+
+Production-OS now learns from historical execution telemetry instead of relying only on static task estimates.
+
+### Learned execution history
+
+Workers can report duration and capability telemetry on job completion or failure. Production-OS persists:
+
+```text
+repository
+task
+worker
+duration
+success/failure
+worker capabilities
+timestamp
+```
+
+The history is available on both SQLite and PostgreSQL.
+
+### Duration prediction
+
+Predictions use successful historical observations with a robust trimmed mean when enough samples exist. Static `estimated_minutes` remains the cold-start fallback.
+
+### Reliability-aware worker placement
+
+The optimizer scores eligible workers using:
+
+```text
+predicted task duration
+× current worker load
+÷ historical reliability
+```
+
+A fast but repeatedly failing worker is therefore penalized against a slightly slower stable worker.
+
+### Workflow ETA
+
+```bash
+production-os workflow-eta \
+  --database artifacts/production.db \
+  --workflow-id <workflow-id>
+```
+
+API:
+
+```text
+GET /v1/workflows/<id>/eta
+```
+
+The result contains the predicted remaining duration and learned critical task path.
+
+### P10 progress
+
+- [x] execution-history persistence
+- [x] SQLite telemetry
+- [x] PostgreSQL telemetry
+- [x] robust task-duration prediction
+- [x] prediction confidence
+- [x] worker performance profiles
+- [x] reliability-aware worker ranking
+- [x] worker-load penalty
+- [x] capability-aware placement
+- [x] learned workflow ETA
+- [x] learned critical path
+- [x] remote-worker telemetry protocol
+- [x] API ETA endpoint
+- [x] CLI ETA command
+- [x] SQLite optimizer tests
+- [x] PostgreSQL optimizer tests
+- [ ] automatic placement in queue claiming
+- [ ] cache/reuse detection
+- [ ] redundant-work elimination
+- [ ] speculative execution
+- [ ] straggler detection
+- [ ] automatic task splitting
