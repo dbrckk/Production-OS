@@ -267,6 +267,30 @@ class SpeculationManager:
                 )
         return cancelled
 
+    def failure_is_terminal(
+        self,
+        group_id: str,
+        failed_job_key: str,
+    ) -> bool:
+        with self.backend.connect() as db:
+            rows = _execute(
+                db,
+                self.backend,
+                """
+                SELECT j.key, j.status
+                FROM speculation_members m
+                JOIN jobs j ON j.key=m.job_key
+                WHERE m.group_id=? AND j.key<>?
+                """,
+                (group_id, failed_job_key),
+            ).fetchall()
+        for row in rows:
+            if row["status"] in {
+                "queued", "claimed", "acked", "completed"
+            }:
+                return False
+        return True
+
     def cancel_job(
         self,
         job_key: str,
