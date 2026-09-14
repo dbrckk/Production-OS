@@ -4,6 +4,7 @@ import urllib.request
 from http.server import ThreadingHTTPServer
 
 from production_os.api_auth import TokenAuthorizer, token_digest
+from production_os.attestations import create_validation_attestation
 from production_os.control_plane import ControlPlane, make_handler
 from production_os.workflow_engine import WorkflowTaskSpec
 
@@ -29,6 +30,10 @@ def test_control_plane_promote_and_rollback_release(tmp_path):
     control=ControlPlane(
         str(tmp_path/"db.sqlite"),
         authorizer=auth,
+        trusted_validation_secrets={
+            "validator-1":"validator-secret"
+        },
+        provenance_secret="provenance-secret",
     )
     workflow=control.workflows.create(
         name="release",
@@ -65,16 +70,28 @@ def test_control_plane_promote_and_rollback_release(tmp_path):
     thread.start()
     base=f"http://127.0.0.1:{server.server_port}"
     try:
+        validation={
+            "status":"passed",
+            "promotion_allowed":True,
+            "blocking_failures":[],
+        }
+        attestation=create_validation_attestation(
+            validator_id="validator-1",
+            secret="validator-secret",
+            workflow_id=workflow["id"],
+            artifact_id=artifact["id"],
+            artifact_sha256=artifact["sha256"],
+            source_revision="sha-1",
+            workflow_generation=1,
+            validation=validation,
+        )
         status,payload=request(
             base+f"/v1/workflows/{workflow['id']}/promote",
             "op",
             {
                 "artifact_id":artifact["id"],
-                "validation":{
-                    "status":"passed",
-                    "promotion_allowed":True,
-                    "blocking_failures":[],
-                },
+                "validation":validation,
+                "attestation":attestation,
                 "metadata":{"channel":"internal"},
             },
         )
