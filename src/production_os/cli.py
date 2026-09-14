@@ -26,6 +26,9 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     scan.add_argument("--handoff", action="store_true", help="Emit only the top ai-dev-server task contract")
     scan.add_argument("--snapshot", help="Persist current portfolio snapshot to this JSON file")
     scan.add_argument("--compare", help="Compare current portfolio against a previous snapshot")
+    scan.add_argument("--star-list-repo", default="dbrckk/star-list")
+    scan.add_argument("--star-list-path", default="catalog.json")
+    scan.add_argument("--no-star-list", action="store_true")
     scan.add_argument("--include-forks", action="store_true")
     scan.add_argument("--include-archived", action="store_true")
 
@@ -37,7 +40,7 @@ def _rank_actions(assessments: Iterable[RepoAssessment]) -> list[ActionCandidate
     return sorted(actions, key=lambda action: action.priority, reverse=True)
 
 
-def _external_refs_for_action(action: ActionCandidate) -> list[dict]:
+def _external_refs_for_action(action: ActionCandidate, catalog: dict | None) -> list[dict]:
     mapping = {
         "Add an executable automated test baseline": "automated-tests",
         "Add continuous integration for every change": "github-actions-ci",
@@ -48,15 +51,18 @@ def _external_refs_for_action(action: ActionCandidate) -> list[dict]:
     capability = mapping.get(action.task)
     if not capability:
         return []
-    return [ref.to_dict() for ref in suggest_external_references(capability)][:5]
+    return [
+        ref.to_dict()
+        for ref in suggest_external_references(capability, catalog, limit=5)
+    ]
 
 
-def _handoff(action: ActionCandidate, reuse: list) -> dict:
+def _handoff(action: ActionCandidate, reuse: list, catalog: dict | None) -> dict:
     related_reuse = [
         item.to_dict() for item in reuse if item.target == action.repository
     ][:5]
     return {
-        "schema_version": "production-os/task-handoff/v3",
+        "schema_version": "production-os/task-handoff/v4",
         "source": "Production-OS",
         "executor": "ai-dev-server",
         "repository": action.repository,
@@ -66,7 +72,7 @@ def _handoff(action: ActionCandidate, reuse: list) -> dict:
         "trigger_evidence": action.evidence,
         "priority": action.priority,
         "reuse_candidates": related_reuse,
-        "external_reference_candidates": _external_refs_for_action(action),
+        "external_reference_candidates": _external_refs_for_action(action, catalog),
         "constraints": {
             "preserve_existing_behavior": True,
             "verify_before_completion": True,
@@ -77,15 +83,19 @@ def _handoff(action: ActionCandidate, reuse: list) -> dict:
     }
 
 
-def _print_human(assessments, actions, regressions, reuse) -> None:
+def _print_human(assessments, actions, regressions, reuse, catalog_loaded: bool) -> None:
     print("Production-OS portfolio assessment")
     print("=" * 34)
+    print(f"star-list catalog: {'loaded' if catalog_loaded else 'unavailable'}")
+    print()
+
     for assessment in sorted(assessments, key=lambda item: item.score.total, reverse=True):
         e = assessment.evidence
         print(
             f"{e.full_name:<40} {assessment.score.total:>3}/100 "
             f"[{assessment.profile}] caps={len(assessment.capabilities)} "
-            f"source={len(assessment.source_signals)}"
+            f"source={len(assessment.source_signals)} "
+            f"sampled={len(e.source_documents)}"
         )
 
     print()
@@ -133,6 +143,13 @@ def run_scan(args: argparse.Namespace) -> int:
         print(str(exc), file=sys.stderr)
         return 2
 
+    catalog = None
+    if not args.no_star_list:
+        try:
+            catalog = client.read_json_file(args.star_list_repo, args.star_list_path)
+        except GitHubAPIError as exc:
+            print(f"warning: star-list unavailable: {exc}", file=sys.stderr)
+
     include = set(args.include or [])
     exclude = set(args.exclude or [])
     selected = []
@@ -167,15 +184,21 @@ def run_scan(args: argparse.Namespace) -> int:
         save_snapshot(snapshot, args.snapshot)
 
     if args.handoff:
-        payload = _handoff(actions[0], reuse) if actions else {
-            "schema_version": "production-os/task-handoff/v3",
+        payload = _handoff(actions[0], reuse, catalog) if actions else {
+            "schema_version": "production-os/task-handoff/v4",
             "status": "no_action",
         }
         print(json.dumps(payload, indent=2, ensure_ascii=False))
     elif args.json:
         payload = {
-            "schema_version": "production-os/portfolio/v4",
+            "schema_version": "production-os/portfolio/v5",
             "owner": args.owner,
+            "star_list": {
+                "repository": args.star_list_repo,
+                "path": args.star_list_path,
+                "loaded": bool(catalog),
+                "repository_count": len(catalog.get("repositories", [])) if catalog else 0,
+            },
             "repositories": [a.to_dict() for a in assessments],
             "ranked_actions": [a.to_dict() for a in actions],
             "reuse_opportunities": [item.to_dict() for item in reuse],
@@ -193,7 +216,7 @@ def run_scan(args: argparse.Namespace) -> int:
         }
         print(json.dumps(payload, indent=2, ensure_ascii=False))
     else:
-        _print_human(assessments, actions, regressions, reuse)
+        _print_human(assessments, actions, regressions, reuse, bool(catalog))
 
     return 0
 
