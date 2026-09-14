@@ -13,6 +13,7 @@ from .heartbeat_manager import renew_active_leases
 from .history import build_snapshot, save_snapshot
 from .journal import ExecutionJournal
 from .metrics import MetricsStore
+from .observability import build_observability_payload, write_observability
 from .reconciliation import reconcile_runtime_state
 from .resources import allocate_resources
 from .reuse import detect_reuse
@@ -107,6 +108,7 @@ def run_control_cycle(
     metrics_path: str,
     health_path: str,
     journal_path: str,
+    observability_path: str | None = None,
     github_mapping_path: str | None = None,
     capacity: int = 3,
     slots: int = 3,
@@ -212,6 +214,14 @@ def run_control_cycle(
     health = build_health(state, metrics_store.metrics.to_dict())
     write_health(health, health_path)
 
+    observability = build_observability_payload(
+        health=health,
+        metrics=metrics_store.metrics.to_dict(),
+        runtime_records=[record.to_dict() for record in state.records.values()],
+    )
+    if observability_path:
+        write_observability(observability, observability_path)
+
     return {
         "schema_version":"production-os/control-cycle/v2",
         "snapshot":snapshot_path,
@@ -223,6 +233,7 @@ def run_control_cycle(
         "heartbeats":[a.to_dict() for a in heartbeat_results],
         "github_reconciliation":github_results,
         "health":health,
+        "observability":observability,
     }
 
 
