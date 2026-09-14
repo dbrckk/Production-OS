@@ -22,7 +22,7 @@ def _utcnow() -> str:
 
 
 class PostgresBackend:
-    SCHEMA_VERSION = 4
+    SCHEMA_VERSION = 5
 
     def __init__(self, dsn: str):
         if psycopg is None:
@@ -229,6 +229,29 @@ class PostgresBackend:
                 cur.execute("""
                     CREATE INDEX IF NOT EXISTS idx_result_cache_repo_task
                     ON result_cache(repository, task, last_used_at DESC)
+                """)
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS speculation_groups (
+                        group_id TEXT PRIMARY KEY,
+                        canonical_job_key TEXT NOT NULL,
+                        winner_job_key TEXT,
+                        created_at TEXT NOT NULL,
+                        resolved_at TEXT
+                    )
+                """)
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS speculation_members (
+                        group_id TEXT NOT NULL REFERENCES speculation_groups(group_id)
+                            ON DELETE CASCADE,
+                        job_key TEXT NOT NULL,
+                        worker_id TEXT,
+                        created_at TEXT NOT NULL,
+                        PRIMARY KEY(group_id, job_key)
+                    )
+                """)
+                cur.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_speculation_members_job
+                    ON speculation_members(job_key)
                 """)
                 cur.execute("""
                     INSERT INTO schema_meta(key, value)
