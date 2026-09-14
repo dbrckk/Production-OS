@@ -18,19 +18,52 @@ class ImpactDecision:
         }
 
 
+def _normalize_path(path: str) -> str:
+    normalized = path.replace("\\\\", "/")
+    while normalized.startswith("./"):
+        normalized = normalized[2:]
+    return normalized
+
+
 def _matches(path: str, patterns: list[str]) -> bool:
-    normalized = path.replace("\\", "/")
+    normalized = _normalize_path(path)
     return any(
         fnmatch.fnmatch(normalized, pattern)
         for pattern in patterns
     )
 
 
+def _direct_match(
+    changed_paths: list[str],
+    include_patterns: list[str],
+    exclude_patterns: list[str],
+) -> list[str]:
+    matches: list[str] = []
+    for raw_path in changed_paths:
+        path = _normalize_path(raw_path)
+        if not _matches(path, include_patterns):
+            continue
+        if exclude_patterns and _matches(path, exclude_patterns):
+            continue
+        matches.append(path)
+    return sorted(set(matches))
+
+
 def analyze_change_impact(
     tasks: list[dict],
     changed_paths: list[str],
 ) -> list[ImpactDecision]:
-    """Fail-safe impact analysis with explicit opt-in skipping."""
+    """Fail-safe impact analysis with explicit opt-in skipping.
+
+    Empty or unknown change sets execute by default. A task may explicitly
+    opt into empty-change skipping with allow_empty_changes.
+    """
+    normalized_changes = [
+        _normalize_path(str(path))
+        for path in changed_paths
+        if str(path).strip()
+    ]
+
     by_id = {
         str(task["task_id"]):task
         for task in tasks
@@ -64,6 +97,12 @@ def analyze_change_impact(
         patterns = [
             str(value)
             for value in impact.get("paths", [])
+            if str(value).strip()
+        ]
+        exclude_patterns = [
+            str(value)
+            for value in impact.get("exclude_paths", [])
+            if str(value).strip()
         ]
 
         if not skip_when_unaffected:
@@ -76,16 +115,24 @@ def analyze_change_impact(
             reasons[task_id] = "fail-safe: no impact paths declared"
             continue
 
-        matches = [
-            path
-            for path in changed_paths
-            if _matches(path, patterns)
-        ]
+        if (
+            not normalized_changes
+            and not bool(impact.get("allow_empty_changes", False))
+        ):
+            affected.add(task_id)
+            reasons[task_id] = "fail-safe: no changed paths supplied"
+            continue
+
+        matches = _direct_match(
+            normalized_changes,
+            patterns,
+            exclude_patterns,
+        )
         if matches:
             affected.add(task_id)
             reasons[task_id] = (
                 "matched changed paths: "
-                + ", ".join(sorted(matches)[:5])
+                + ", ".join(matches[:5])
             )
         else:
             reasons[task_id] = "no changed path matched declared inputs"
