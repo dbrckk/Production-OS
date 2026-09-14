@@ -42,7 +42,7 @@ from .reconciliation import reconcile_runtime_state
 from .resources import allocate_resources
 from .runtime_state import RuntimeState
 from .sqlite_migration import import_json_state
-from .storage import job_queue_for, open_backend
+from .storage import job_queue_for, open_backend, worker_registry_for
 from .api_auth import token_digest
 from .scheduler import build_schedule
 from .scoring import assess_repository
@@ -341,6 +341,12 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     workfloweta = sub.add_parser("workflow-eta", help="Predict remaining workflow duration")
     workfloweta.add_argument("--database", required=True)
     workfloweta.add_argument("--workflow-id", required=True)
+
+    stragglers = sub.add_parser("stragglers", help="Detect slow running jobs")
+    stragglers.add_argument("--database", required=True)
+    stragglers.add_argument("--threshold-factor", type=float, default=1.75)
+    stragglers.add_argument("--min-runtime-seconds", type=float, default=60.0)
+    stragglers.add_argument("--min-samples", type=int, default=2)
 
     workflowcancel = sub.add_parser("workflow-cancel", help="Cancel a workflow")
     workflowcancel.add_argument("--database", required=True)
@@ -1374,6 +1380,24 @@ def run_workflow_eta(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_stragglers(args: argparse.Namespace) -> int:
+    backend = open_backend(args.database)
+    optimizer = ExecutionOptimizer(backend)
+    workers = worker_registry_for(backend)
+    workers.load()
+    payload = optimizer.stragglers(
+        threshold_factor=args.threshold_factor,
+        min_runtime_seconds=args.min_runtime_seconds,
+        min_samples=args.min_samples,
+        workers=list(workers.workers.values()),
+    )
+    print(json.dumps({
+        "schema_version":"production-os/stragglers/v1",
+        "stragglers":payload,
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
 def run_workflow_cancel(args: argparse.Namespace) -> int:
     workflow = _workflow_engine(args.database).cancel(args.workflow_id)
     print(json.dumps({
@@ -1498,6 +1522,8 @@ def main(argv: list[str] | None = None) -> int:
         return run_workflow_critical_path(args)
     if args.command == "workflow-eta":
         return run_workflow_eta(args)
+    if args.command == "stragglers":
+        return run_stragglers(args)
     if args.command == "workflow-cancel":
         return run_workflow_cancel(args)
     if args.command == "artifact-add":
