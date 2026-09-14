@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 
@@ -74,6 +74,8 @@ def verify_validation_attestation(
     source_revision: str | None,
     workflow_generation: int | None,
     validation: dict[str, Any],
+    max_age_seconds: int = 3600,
+    future_skew_seconds: int = 300,
 ) -> dict[str, Any]:
     payload = dict(attestation)
     signature = str(payload.pop("signature", ""))
@@ -84,6 +86,30 @@ def verify_validation_attestation(
     secret = trusted_secrets.get(validator_id)
     if not validator_id or not secret:
         raise AttestationError("untrusted validation attestation producer")
+
+    issued_raw = str(payload.get("issued_at") or "")
+    try:
+        issued_at = datetime.fromisoformat(
+            issued_raw.replace("Z", "+00:00")
+        )
+    except ValueError as exc:
+        raise AttestationError(
+            "invalid validation attestation issued_at"
+        ) from exc
+    if issued_at.tzinfo is None:
+        raise AttestationError(
+            "validation attestation issued_at must be timezone-aware"
+        )
+    now = datetime.now(timezone.utc)
+    if issued_at > now + timedelta(seconds=future_skew_seconds):
+        raise AttestationError(
+            "validation attestation issued_at is in the future"
+        )
+    if (
+        max_age_seconds >= 0
+        and now - issued_at > timedelta(seconds=max_age_seconds)
+    ):
+        raise AttestationError("validation attestation expired")
 
     expected_bindings = {
         "workflow_id":str(workflow_id),
