@@ -230,6 +230,11 @@ class PostgresBackend:
                     ON releases(workflow_id, created_at)
                 """)
                 cur.execute("""
+                    CREATE UNIQUE INDEX IF NOT EXISTS idx_release_single_rollback
+                    ON releases(rollback_of)
+                    WHERE rollback_of IS NOT NULL
+                """)
+                cur.execute("""
                     CREATE TABLE IF NOT EXISTS execution_history (
                         id BIGSERIAL PRIMARY KEY,
                         repository TEXT NOT NULL,
