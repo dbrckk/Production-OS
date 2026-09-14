@@ -19,9 +19,27 @@ def test_deep_fingerprint_detects_real_dependencies():
     assert ("python-library", "pytest") in values
 
 
-def test_starlist_reference_filtering():
-    refs = suggest_external_references(
-        "backtesting",
-        {"QuantConnect/Lean", "other/repo"},
-    )
-    assert [ref.repository for ref in refs] == ["QuantConnect/Lean"]
+def test_starlist_catalog_is_ranked_by_score_and_match():
+    catalog = {
+        "repositories": [
+            {
+                "repo": "low/example",
+                "score": 8.1,
+                "tier": "specialized",
+                "domain": "trading",
+                "capabilities": ["backtesting"],
+                "bestFor": ["quant backtesting"],
+            },
+            {
+                "repo": "high/example",
+                "score": 9.7,
+                "tier": "core",
+                "domain": "trading",
+                "capabilities": ["backtesting"],
+                "bestFor": ["quant trading backtesting"],
+            },
+        ]
+    }
+    refs = suggest_external_references("backtesting", catalog)
+    assert [ref.repository for ref in refs] == ["high/example", "low/example"]
+    assert refs[0].star_score == 9.7
