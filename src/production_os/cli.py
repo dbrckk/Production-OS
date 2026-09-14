@@ -11,6 +11,7 @@ from .history import build_snapshot, detect_regressions, load_snapshot, save_sna
 from .models import ActionCandidate, RepoAssessment
 from .reuse import detect_reuse
 from .scoring import assess_repository
+from .starlist import suggest_external_references
 
 
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -36,12 +37,26 @@ def _rank_actions(assessments: Iterable[RepoAssessment]) -> list[ActionCandidate
     return sorted(actions, key=lambda action: action.priority, reverse=True)
 
 
+def _external_refs_for_action(action: ActionCandidate) -> list[dict]:
+    mapping = {
+        "Add an executable automated test baseline": "automated-tests",
+        "Add continuous integration for every change": "github-actions-ci",
+        "Create a deterministic release pipeline": "release-automation",
+        "Add Android release-readiness gate": "android-device-qa",
+        "Harden repository maintenance and supply-chain hygiene": "dependency-automation",
+    }
+    capability = mapping.get(action.task)
+    if not capability:
+        return []
+    return [ref.to_dict() for ref in suggest_external_references(capability)][:5]
+
+
 def _handoff(action: ActionCandidate, reuse: list) -> dict:
     related_reuse = [
         item.to_dict() for item in reuse if item.target == action.repository
     ][:5]
     return {
-        "schema_version": "production-os/task-handoff/v2",
+        "schema_version": "production-os/task-handoff/v3",
         "source": "Production-OS",
         "executor": "ai-dev-server",
         "repository": action.repository,
@@ -51,10 +66,12 @@ def _handoff(action: ActionCandidate, reuse: list) -> dict:
         "trigger_evidence": action.evidence,
         "priority": action.priority,
         "reuse_candidates": related_reuse,
+        "external_reference_candidates": _external_refs_for_action(action),
         "constraints": {
             "preserve_existing_behavior": True,
             "verify_before_completion": True,
             "reuse_before_rebuild": True,
+            "prefer_evidence_backed_references": True,
             "no_secret_material_in_workspace": True,
         },
     }
@@ -67,7 +84,8 @@ def _print_human(assessments, actions, regressions, reuse) -> None:
         e = assessment.evidence
         print(
             f"{e.full_name:<40} {assessment.score.total:>3}/100 "
-            f"[{assessment.profile}] caps={len(assessment.capabilities)}"
+            f"[{assessment.profile}] caps={len(assessment.capabilities)} "
+            f"source={len(assessment.source_signals)}"
         )
 
     print()
@@ -150,13 +168,13 @@ def run_scan(args: argparse.Namespace) -> int:
 
     if args.handoff:
         payload = _handoff(actions[0], reuse) if actions else {
-            "schema_version": "production-os/task-handoff/v2",
+            "schema_version": "production-os/task-handoff/v3",
             "status": "no_action",
         }
         print(json.dumps(payload, indent=2, ensure_ascii=False))
     elif args.json:
         payload = {
-            "schema_version": "production-os/portfolio/v3",
+            "schema_version": "production-os/portfolio/v4",
             "owner": args.owner,
             "repositories": [a.to_dict() for a in assessments],
             "ranked_actions": [a.to_dict() for a in actions],
