@@ -20,7 +20,7 @@ from .history import build_snapshot, save_snapshot
 from .journal import ExecutionJournal
 from .metrics import MetricsStore
 from .observability import build_observability_payload, write_observability
-from .policy import PolicySet
+from .policy import PolicySet, classify_risk
 from .quarantine import QuarantineStore
 from .rate_limit import RateLimitStore
 from .reconciliation import reconcile_runtime_state
@@ -38,7 +38,7 @@ def _rank_actions(assessments):
     return sorted(actions, key=lambda action: action.priority, reverse=True)
 
 
-def _handoff_for_action(action, reuse):
+def _handoff_for_action(action, reuse, *, branch_protected: bool | None = None):
     related = [item.to_dict() for item in reuse if item.target == action.repository][:5]
     return {
         "schema_version":"production-os/task-handoff/controller-v2",
@@ -50,6 +50,7 @@ def _handoff_for_action(action, reuse):
         "acceptance_criteria":action.acceptance_criteria,
         "trigger_evidence":action.evidence,
         "priority":action.priority,
+        "branch_protected":branch_protected,
         "reuse_candidates":related,
         "constraints":{
             "preserve_existing_behavior":True,
@@ -240,8 +241,24 @@ def run_control_cycle(
         action = action_lookup.get((item["repository"], item["task"]))
         if action is None:
             continue
-        handoff = _handoff_for_action(action, reuse)
         assessment = assessment_lookup.get(action.repository)
+        branch_protected = None
+        base_handoff = _handoff_for_action(action, reuse)
+        policy = policy_set.merged_for(action.repository)
+        risk = classify_risk(base_handoff)
+        protected_for = set(
+            str(x) for x in policy.get("require_branch_protection_for", [])
+        )
+        if risk in protected_for and assessment is not None:
+            branch_protected = client.get_branch_protection(
+                action.repository,
+                assessment.evidence.default_branch,
+            )
+        handoff = _handoff_for_action(
+            action,
+            reuse,
+            branch_protected=branch_protected,
+        )
         required_capabilities = []
         if assessment is not None:
             if assessment.profile in {"android-app","android-game"}:
