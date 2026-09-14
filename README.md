@@ -20,160 +20,73 @@ It is designed to coordinate repositories such as `ai-dev-server`, Android produ
 - GitHub Actions runtime-state ingestion
 - portfolio-wide **Next Best Action** ranking
 - capability fingerprinting with confidence + evidence
+- **deep source fingerprinting** from manifests, workflows and infrastructure files
 - cross-repository reuse matching
 - knowledge graph of repositories, profiles and capabilities
 - persistent portfolio snapshots
 - score regression detection
+- first external-reference bridge for `star-list`-style recommendations
 - JSON output suitable for agents and CI
 - explicit handoff payload for `ai-dev-server`
 
-## Architecture
+## Deep source fingerprinting
+
+Production-OS now reads selected high-signal files when present:
+
+- `pyproject.toml`
+- `requirements.txt`
+- `package.json`
+- `build.gradle(.kts)`
+- `settings.gradle.kts`
+- `pom.xml`
+- `Cargo.toml`
+- `go.mod`
+- Docker/Compose files
+- GitHub Actions workflows
+
+This produces source-level signals such as:
+
+- Android Play Billing dependency
+- Google Mobile Ads
+- UMP consent
+- FastAPI
+- Celery
+- Redis
+- Optuna
+- vectorbt
+- yfinance
+- pytest
+- Docker Compose
+- GitHub Actions
+
+These signals are exported separately from README-derived capabilities so downstream agents can distinguish declared features from implementation evidence.
+
+## External reference bridge
+
+The handoff contract can now attach external reference candidates for missing capabilities.
+
+Examples:
 
 ```text
-GitHub repositories
-        |
-        v
- Portfolio Scanner
-        |
-        v
- Evidence Model
-        |
-        +------> Project Classifier
-        |
-        +------> Capability Fingerprints
-        |                 |
-        |                 v
-        |          Knowledge Graph
-        |
-        +------> Maturity / CI / Release Scoring
-        |
-        +------> Cross-Repo Reuse Matcher
-        |
-        +------> Snapshot / Regression Engine
-        |
-        +------> Action Generator
-                       |
-                       v
-              Next Best Action
-                       |
-                       v
-                ai-dev-server
+backtesting
+  -> QuantConnect/Lean
+  -> nautechsystems/nautilus_trader
+  -> polakowo/vectorbt
+
+dependency-automation
+  -> dependabot/dependabot-core
+  -> renovatebot/renovate
 ```
 
-## Quick start
+The bridge is intentionally conservative: it only maps known capabilities to known reference repositories. A later step will read the actual `star-list` catalog and filter by its scoring/ranking metadata.
 
-Requires Python 3.11+.
-
-```bash
-git clone https://github.com/dbrckk/Production-OS
-cd Production-OS
-python -m pip install -e ".[dev]"
-
-production-os scan --owner dbrckk
-```
-
-For higher GitHub API limits:
-
-```bash
-export GITHUB_TOKEN=...
-production-os scan --owner dbrckk --json
-```
-
-Focus on the active portfolio:
-
-```bash
-production-os scan \
-  --owner dbrckk \
-  --include ai-dev-server deadline-zero Who-are-you Ai-trading xbow-perso Production-OS
-```
-
-## Capability fingerprints
-
-Production-OS now extracts evidence-backed capabilities rather than only coarse repository metadata.
-
-Examples currently recognized include:
-
-- `android-play-billing`
-- `android-admob`
-- `android-consent`
-- `android-play-release`
-- `android-device-qa`
-- `android-artifact-build`
-- `github-actions-ci`
-- `release-automation`
-- `automated-tests`
-- `multi-agent-orchestration`
-- `autonomous-execution`
-- `checkpoint-recovery`
-- `audit-trail`
-- `queued-workers`
-- `docker-compose-deployment`
-- `walk-forward-validation`
-- `independent-risk-engine`
-- `paper-broker`
-- `backtesting`
-- `experiment-registry`
-
-Each fingerprint includes a confidence score and the evidence that triggered it.
-
-## Knowledge graph
-
-The JSON scan output contains a graph with:
-
-```text
-repository --classified_as--> profile
-repository ----provides-----> capability
-```
-
-This is the foundation for later dependency, similarity, provenance and reuse relationships.
-
-## Cross-repository reuse
-
-Reuse matching is now capability-based. Production-OS only proposes a source when:
-
-1. source and target belong to compatible project families;
-2. the source capability has sufficient confidence;
-3. the capability is marked portable;
-4. the capability is absent from the target.
-
-A task handoff to `ai-dev-server` now carries matching reuse candidates directly.
-
-## CI priority
-
-When the latest default-branch GitHub Actions run fails, is cancelled, times out or requires action:
-
-- the CI score is reduced;
-- a repair action is generated;
-- restoring CI to green receives maximum operational priority.
-
-Verification gates are never intentionally weakened to improve the score.
-
-## Snapshots and regressions
-
-Persist the current state:
-
-```bash
-production-os scan --owner dbrckk --snapshot artifacts/portfolio.json
-```
-
-Compare a later scan:
-
-```bash
-production-os scan \
-  --owner dbrckk \
-  --compare artifacts/portfolio.json \
-  --snapshot artifacts/portfolio-next.json
-```
-
-A maturity regression is reported when a repository score drops by at least five points.
-
-## ai-dev-server handoff
+## ai-dev-server handoff V3
 
 ```bash
 production-os scan --owner dbrckk --handoff
 ```
 
-The v2 handoff contains:
+The v3 handoff contains:
 
 - target repository
 - prioritized task
@@ -182,7 +95,16 @@ The v2 handoff contains:
 - triggering evidence
 - priority
 - evidence-backed reuse candidates
+- external reference candidates
 - safety/verification constraints
+
+Important constraints include:
+
+```text
+reuse_before_rebuild = true
+prefer_evidence_backed_references = true
+verify_before_completion = true
+```
 
 ## Roadmap
 
@@ -203,10 +125,12 @@ The v2 handoff contains:
 - [x] first knowledge graph
 - [x] capability-based cross-repository reuse
 - [x] profile-aware release scoring
-- [ ] deeper source-code fingerprinting
-- [ ] star-list retrieval bridge
+- [x] first deep source fingerprinting
+- [x] first external-reference bridge
+- [ ] live `star-list` catalog ingestion
 - [ ] reusable component provenance
 - [ ] dependency graph
+- [ ] nested source-tree sampling
 
 ### P2
 - [ ] autonomous scheduling
