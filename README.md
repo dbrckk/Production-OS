@@ -21,111 +21,114 @@ Production-OS sits above individual repositories and answers four questions:
 - source-symbol/component extraction
 - component provenance
 - component→dependency→capability graph
-- **test-to-component linking**
-- **adaptation risk scoring**
+- test-to-component linking
+- adaptation risk scoring
+- **reusable boundary detection**
+- **automatic adaptation plans**
 - component-level cross-repository reuse ranking
 - persistent snapshots and regression detection
 - live `dbrckk/star-list` ingestion and ranking
 - portfolio-wide **Next Best Action**
 - direct `ai-dev-server` handoff
 
-## Adaptation risk
+## Reusable boundary detection
 
-Every reusable component candidate is now scored from 0 to 100.
-
-Signals include:
-
-- source/target profile mismatch
-- language mismatch
-- dependency count
-- linked tests
-- direct capability match
-- UI coupling
-- whether the candidate is itself test code
-
-Risk levels:
+Production-OS now separates component reuse into four explicit buckets:
 
 ```text
-0-25   low
-26-50  medium
-51-75  high
-76-100 very-high
+COPY / ADAPT
+RECREATE LOCALLY
+REUSE TESTS
+DO NOT COPY
 ```
 
-Low-risk and medium-risk non-test components are preferred in the handoff.
-
-## Test-to-component linking
-
-Production-OS links likely tests to components using:
-
-- component name appearing in test symbol
-- component name appearing in test path
-- shared capability hints
-- shared dependencies
+A component is excluded from direct reuse when it is too risky, test-only, or strongly UI-coupled.
 
 Example:
 
 ```text
-BillingManager
-   ↓ tested_by
-BillingManagerTest
+COPY / ADAPT
+- BillingManager
+
+RECREATE LOCALLY
+- BillingClient binding
+- target entitlement store
+
+REUSE TESTS
+- BillingManagerTest
+
+DO NOT COPY
+- PremiumScreen
+- app-specific UI
 ```
 
-Those tests are attached to the adaptation candidate so `ai-dev-server` can reuse or recreate the verification coverage.
+## Automatic adaptation plans
 
-## Component reuse ranking
+Every reuse opportunity can now generate an adaptation plan containing:
 
-Candidate ranking now considers:
+- source repository
+- target repository
+- capability
+- strategy
+- components to adapt
+- dependencies to recreate/bind locally
+- tests to reuse
+- components not to copy
+- target-specific changes
+- overall adaptation risk
+
+Strategies:
 
 ```text
-adaptation risk
-      +
-component confidence
-      +
-linked test coverage
-      +
-project family compatibility
-      ↓
-recommended component
+component-adaptation
+architecture-pattern-only
 ```
 
-A repository-level reuse score is also reduced when the only available component candidates have high adaptation risk.
+When no safe component boundary exists, Production-OS automatically falls back to architecture-pattern reuse rather than recommending a risky copy.
 
-## ai-dev-server handoff V6
+## ai-dev-server handoff V7
 
 ```bash
 production-os scan --owner dbrckk --handoff
 ```
 
-The V6 contract adds:
+The V7 contract adds:
 
-- `adaptation_risk`
-- `adaptation_risk_level`
-- `adaptation_reasons`
-- `linked_tests`
-- `recommended_components`
+- `adaptation_plans`
+- explicit `copy_or_adapt`
+- explicit `recreate`
+- explicit `reuse_tests`
+- explicit `do_not_copy`
+- explicit `target_changes`
+- overall plan risk
 
-The policy becomes:
+The execution policy is now:
 
 ```text
-repair blockers first
+repair blockers
         ↓
-find internal component
+find internal capability
+        ↓
+find concrete components
         ↓
 score adaptation risk
         ↓
-prefer tested low-risk component
+detect reusable boundary
         ↓
-otherwise reuse architecture/pattern
+generate adaptation plan
         ↓
-otherwise consult star-list
+reuse tests
         ↓
-adapt + test + verify
+consult star-list only if needed
+        ↓
+implement
+        ↓
+verify
 ```
 
-## Portfolio JSON V7
+## Portfolio JSON V8
 
-The JSON portfolio now exposes the enriched component reuse data and the same adaptation metadata used by the handoff.
+The portfolio output now carries adaptation plans inside reuse opportunities, making the same plan available to dashboards, agents and later scheduling logic.
 
 ## Roadmap
 
@@ -152,9 +155,11 @@ The JSON portfolio now exposes the enriched component reuse data and the same ad
 - [x] component-aware reuse handoff
 - [x] test-to-component linking
 - [x] adaptation risk scoring
+- [x] reusable boundary detection
+- [x] automatic adaptation plans
 - [ ] call/import graph refinement
-- [ ] reusable boundary detection
-- [ ] automatic adaptation plans
+- [ ] target-side dependency compatibility checks
+- [ ] automatic validation-plan generation
 
 ### P2
 - [ ] autonomous scheduling
