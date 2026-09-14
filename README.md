@@ -2,12 +2,7 @@
 
 Portfolio control plane for autonomous software production.
 
-Production-OS sits above individual repositories and answers four questions:
-
-1. **What is the real state of every project?**
-2. **What should be worked on next?**
-3. **Which proven implementation can be reused instead of rebuilt?**
-4. **Has portfolio quality improved or regressed since the last scan?**
+Production-OS now manages portfolio state, reuse, compatibility, and validation readiness before handing work to `ai-dev-server`.
 
 ## Current capabilities
 
@@ -23,112 +18,108 @@ Production-OS sits above individual repositories and answers four questions:
 - component→dependency→capability graph
 - test-to-component linking
 - adaptation risk scoring
-- **reusable boundary detection**
-- **automatic adaptation plans**
-- component-level cross-repository reuse ranking
-- persistent snapshots and regression detection
-- live `dbrckk/star-list` ingestion and ranking
+- reusable boundary detection
+- automatic adaptation plans
+- **target-side dependency compatibility checks**
+- **automatic validation-plan generation**
+- live `dbrckk/star-list` ranking
 - portfolio-wide **Next Best Action**
 - direct `ai-dev-server` handoff
 
-## Reusable boundary detection
+## Target dependency compatibility
 
-Production-OS now separates component reuse into four explicit buckets:
+For every adaptation plan, Production-OS now compares required dependencies against target evidence.
 
-```text
-COPY / ADAPT
-RECREATE LOCALLY
-REUSE TESTS
-DO NOT COPY
-```
-
-A component is excluded from direct reuse when it is too risky, test-only, or strongly UI-coupled.
-
-Example:
+Each dependency is classified as:
 
 ```text
-COPY / ADAPT
-- BillingManager
-
-RECREATE LOCALLY
-- BillingClient binding
-- target entitlement store
-
-REUSE TESTS
-- BillingManagerTest
-
-DO NOT COPY
-- PremiumScreen
-- app-specific UI
+available
+missing-or-unverified
 ```
 
-## Automatic adaptation plans
-
-Every reuse opportunity can now generate an adaptation plan containing:
-
-- source repository
-- target repository
-- capability
-- strategy
-- components to adapt
-- dependencies to recreate/bind locally
-- tests to reuse
-- components not to copy
-- target-specific changes
-- overall adaptation risk
-
-Strategies:
+The result is added to the adaptation plan as:
 
 ```text
-component-adaptation
-architecture-pattern-only
+dependency_compatibility
+missing_dependencies
+compatible_for_adaptation
 ```
 
-When no safe component boundary exists, Production-OS automatically falls back to architecture-pattern reuse rather than recommending a risky copy.
+A plan is considered directly adaptable only when its risk remains acceptable and the unresolved dependency set stays limited.
 
-## ai-dev-server handoff V7
+## Automatic validation plan
+
+Every adaptation plan now carries an ordered validation checklist.
+
+Depending on the capability and target, this can include:
+
+```text
+1. resolve dependencies
+2. compile/build
+3. port/recreate linked unit tests
+4. Android APK/AAB build
+5. emulator/device smoke test
+6. capability-specific validation
+7. CI green
+8. regression suite
+```
+
+Android Play Billing additionally requires explicit purchase, acknowledgement, restore and entitlement verification.
+
+## ai-dev-server handoff V8
 
 ```bash
 production-os scan --owner dbrckk --handoff
 ```
 
-The V7 contract adds:
+The V8 contract contains:
 
-- `adaptation_plans`
-- explicit `copy_or_adapt`
-- explicit `recreate`
-- explicit `reuse_tests`
-- explicit `do_not_copy`
-- explicit `target_changes`
-- overall plan risk
+- reuse candidates
+- reusable components
+- recommended low-risk components
+- adaptation plans
+- dependency compatibility
+- missing dependencies
+- validation plans
+- executable adaptation plans
+- external star-list references
 
-The execution policy is now:
+Promotion constraints now include:
 
 ```text
-repair blockers
-        ↓
-find internal capability
-        ↓
-find concrete components
-        ↓
-score adaptation risk
-        ↓
-detect reusable boundary
-        ↓
-generate adaptation plan
-        ↓
-reuse tests
-        ↓
-consult star-list only if needed
-        ↓
-implement
-        ↓
-verify
+resolve_missing_dependencies_before_promotion = true
+complete_validation_plan_before_promotion = true
 ```
 
-## Portfolio JSON V8
+## Decision pipeline
 
-The portfolio output now carries adaptation plans inside reuse opportunities, making the same plan available to dashboards, agents and later scheduling logic.
+```text
+Next Best Action
+      ↓
+internal capability search
+      ↓
+component extraction
+      ↓
+adaptation risk
+      ↓
+reusable boundary
+      ↓
+dependency compatibility
+      ↓
+validation plan
+      ↓
+executable adaptation plan
+      ↓
+ai-dev-server
+      ↓
+implementation
+      ↓
+tests / device / CI / regression
+```
+
+## Portfolio JSON V9
+
+The portfolio output exposes the same compatibility and validation information used by the V8 handoff.
 
 ## Roadmap
 
@@ -157,15 +148,17 @@ The portfolio output now carries adaptation plans inside reuse opportunities, ma
 - [x] adaptation risk scoring
 - [x] reusable boundary detection
 - [x] automatic adaptation plans
+- [x] target dependency compatibility
+- [x] automatic validation plans
 - [ ] call/import graph refinement
-- [ ] target-side dependency compatibility checks
-- [ ] automatic validation-plan generation
+- [ ] stronger dependency/version compatibility
+- [ ] validation-result ingestion
 
 ### P2
 - [ ] autonomous scheduling
 - [ ] portfolio resource allocation
 - [ ] long-term trend history
-- [ ] automatic component extraction plans
+- [ ] automatic execution feedback loop
 - [ ] mobile dashboard
 
 ## Design principles
@@ -176,5 +169,5 @@ The portfolio output now carries adaptation plans inside reuse opportunities, ma
 - Reuse before rebuild
 - Prefer low-risk tested components
 - Adapt rather than blindly copy
-- Test before promotion
+- Validate before promotion
 - Human approval for destructive or externally privileged actions
