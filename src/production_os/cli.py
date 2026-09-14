@@ -892,8 +892,6 @@ def run_delivery_recover(args: argparse.Namespace) -> int:
         workers=registry,
         queue_dir=args.queue_dir,
         dead_letter_dir=args.dead_letter_dir,
-        emergency_stop_path=args.emergency_stop,
-        rate_limit_path=args.rate_limit_state,
     )
     print(json.dumps({
         "schema_version":"production-os/delivery-recovery/v1",
