@@ -150,6 +150,7 @@ def test_promotion_rejects_superseded_workflow(tmp_path):
             artifact_id=artifact["id"],
             validation=passed_validation(),
             attestation={},
+            approval=approval(),
         )
 
 
@@ -238,6 +239,7 @@ def test_promoted_release_contains_signed_provenance(tmp_path):
         artifact_id=artifact["id"],
         validation=passed_validation(),
         attestation=signed_attestation(workflow,artifact),
+        approval=approval(),
     )
 
     assert release["metadata"]["validation_attestation"]["verified"] is True
