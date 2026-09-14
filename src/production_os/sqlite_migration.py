@@ -3,11 +3,14 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from .sqlite_backend import SQLiteBackend
+from .claims import ClaimRecord
+from .runtime_state import RuntimeRecord
+from .storage import claim_store_for, runtime_state_for, worker_registry_for
+from .workers import Worker
 
 
 def import_json_state(
-    backend: SQLiteBackend,
+    backend,
     *,
     runtime_state: str | None = None,
     workers: str | None = None,
@@ -15,118 +18,76 @@ def import_json_state(
 ) -> dict:
     counts = {"runtime_records":0, "workers":0, "claims":0}
 
+    if runtime_state:
+        payload = json.loads(
+            Path(runtime_state).read_text(encoding="utf-8")
+        )
+        store = runtime_state_for(backend)
+        for key, row in payload.get("records", {}).items():
+            normalized = {
+                "key":row.get("key", key),
+                "repository":row["repository"],
+                "task":row["task"],
+                "status":row.get("status","idle"),
+                "attempts":int(row.get("attempts",0)),
+                "consecutive_failures":int(
+                    row.get("consecutive_failures",0)
+                ),
+                "lease_owner":row.get("lease_owner"),
+                "lease_expires_at":row.get("lease_expires_at"),
+                "cooldown_until":row.get("cooldown_until"),
+                "last_decision":row.get("last_decision"),
+                "updated_at":row.get("updated_at"),
+                "priority":float(row.get("priority",0.0)),
+                "interruptible":bool(row.get("interruptible",False)),
+                "preempt_requested":bool(
+                    row.get("preempt_requested",False)
+                ),
+                "checkpoint_ref":row.get("checkpoint_ref"),
+                "started_at":row.get("started_at"),
+            }
+            record = RuntimeRecord(**normalized)
+            store.records[record.key] = record
+            counts["runtime_records"] += 1
+        store.save()
+
+    if workers:
+        payload = json.loads(Path(workers).read_text(encoding="utf-8"))
+        registry = worker_registry_for(backend)
+        for row in payload.get("workers", []):
+            worker = Worker(
+                worker_id=row["worker_id"],
+                capabilities=[
+                    str(x) for x in row.get("capabilities", [])
+                ],
+                max_concurrency=int(row.get("max_concurrency",1)),
+                active_tasks=int(row.get("active_tasks",0)),
+                status=str(row.get("status","online")),
+                last_heartbeat=row.get("last_heartbeat"),
+            )
+            registry.workers[worker.worker_id] = worker
+            counts["workers"] += 1
+        registry.save()
+
+    if claims:
+        payload = json.loads(Path(claims).read_text(encoding="utf-8"))
+        store = claim_store_for(backend)
+        for row in payload.get("claims", []):
+            claim = ClaimRecord(
+                key=row["key"],
+                worker_id=row["worker_id"],
+                repository=row["repository"],
+                task=row["task"],
+                status=row["status"],
+                claimed_at=row["claimed_at"],
+                ack_deadline=row["ack_deadline"],
+                completed_at=row.get("completed_at"),
+            )
+            store.claims[claim.key] = claim
+            counts["claims"] += 1
+        store.save()
+
     with backend.transaction() as db:
-        if runtime_state:
-            payload=json.loads(Path(runtime_state).read_text(encoding="utf-8"))
-            for row in payload.get("records", {}).values():
-                db.execute(
-                    """
-                    INSERT INTO runtime_records(
-                        key, repository, task, status, attempts,
-                        consecutive_failures, lease_owner, lease_expires_at,
-                        cooldown_until, last_decision, updated_at, priority,
-                        interruptible, preempt_requested, checkpoint_ref,
-                        started_at
-                    )
-                    VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-                    ON CONFLICT(key) DO UPDATE SET
-                        repository=excluded.repository,
-                        task=excluded.task,
-                        status=excluded.status,
-                        attempts=excluded.attempts,
-                        consecutive_failures=excluded.consecutive_failures,
-                        lease_owner=excluded.lease_owner,
-                        lease_expires_at=excluded.lease_expires_at,
-                        cooldown_until=excluded.cooldown_until,
-                        last_decision=excluded.last_decision,
-                        updated_at=excluded.updated_at,
-                        priority=excluded.priority,
-                        interruptible=excluded.interruptible,
-                        preempt_requested=excluded.preempt_requested,
-                        checkpoint_ref=excluded.checkpoint_ref,
-                        started_at=excluded.started_at
-                    """,
-                    (
-                        row["key"],
-                        row["repository"],
-                        row["task"],
-                        row.get("status","idle"),
-                        int(row.get("attempts",0)),
-                        int(row.get("consecutive_failures",0)),
-                        row.get("lease_owner"),
-                        row.get("lease_expires_at"),
-                        row.get("cooldown_until"),
-                        row.get("last_decision"),
-                        row.get("updated_at"),
-                        float(row.get("priority",0.0)),
-                        int(bool(row.get("interruptible",False))),
-                        int(bool(row.get("preempt_requested",False))),
-                        row.get("checkpoint_ref"),
-                        row.get("started_at"),
-                    ),
-                )
-                counts["runtime_records"] += 1
-
-        if workers:
-            payload=json.loads(Path(workers).read_text(encoding="utf-8"))
-            for row in payload.get("workers", []):
-                db.execute(
-                    """
-                    INSERT INTO workers(
-                        worker_id, capabilities_json, max_concurrency,
-                        active_tasks, status, last_heartbeat
-                    )
-                    VALUES(?,?,?,?,?,?)
-                    ON CONFLICT(worker_id) DO UPDATE SET
-                        capabilities_json=excluded.capabilities_json,
-                        max_concurrency=excluded.max_concurrency,
-                        active_tasks=excluded.active_tasks,
-                        status=excluded.status,
-                        last_heartbeat=excluded.last_heartbeat
-                    """,
-                    (
-                        row["worker_id"],
-                        json.dumps(row.get("capabilities",[])),
-                        int(row.get("max_concurrency",1)),
-                        int(row.get("active_tasks",0)),
-                        row.get("status","online"),
-                        row.get("last_heartbeat"),
-                    ),
-                )
-                counts["workers"] += 1
-
-        if claims:
-            payload=json.loads(Path(claims).read_text(encoding="utf-8"))
-            for row in payload.get("claims", []):
-                db.execute(
-                    """
-                    INSERT INTO claims(
-                        key, worker_id, repository, task, status,
-                        claimed_at, ack_deadline, completed_at
-                    )
-                    VALUES(?,?,?,?,?,?,?,?)
-                    ON CONFLICT(key) DO UPDATE SET
-                        worker_id=excluded.worker_id,
-                        repository=excluded.repository,
-                        task=excluded.task,
-                        status=excluded.status,
-                        claimed_at=excluded.claimed_at,
-                        ack_deadline=excluded.ack_deadline,
-                        completed_at=excluded.completed_at
-                    """,
-                    (
-                        row["key"],
-                        row["worker_id"],
-                        row["repository"],
-                        row["task"],
-                        row["status"],
-                        row["claimed_at"],
-                        row["ack_deadline"],
-                        row.get("completed_at"),
-                    ),
-                )
-                counts["claims"] += 1
-
         backend.append_event(
             db,
             "json-state-imported",
@@ -134,6 +95,6 @@ def import_json_state(
         )
 
     return {
-        "schema_version":"production-os/sqlite-import/v1",
+        "schema_version":"production-os/database-import/v2",
         "counts":counts,
     }
