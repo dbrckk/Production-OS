@@ -431,6 +431,9 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     releasepromote.add_argument("--artifact-id", required=True)
     releasepromote.add_argument("--validation", required=True)
     releasepromote.add_argument("--attestation", required=True)
+    releasepromote.add_argument("--approved-by", required=True)
+    releasepromote.add_argument("--approval-role", default="operator")
+    releasepromote.add_argument("--approval-reason")
     releasepromote.add_argument("--metadata")
 
     validationattest = sub.add_parser(
@@ -1786,6 +1789,16 @@ def run_release_promote(args: argparse.Namespace) -> int:
         artifact_id=args.artifact_id,
         validation=dict(validation),
         attestation=dict(attestation),
+        approval={
+            "approved":True,
+            "approved_by":args.approved_by,
+            "role":args.approval_role,
+            **(
+                {"reason":args.approval_reason}
+                if args.approval_reason
+                else {}
+            ),
+        },
         metadata=dict(metadata),
     )
     print(json.dumps({
