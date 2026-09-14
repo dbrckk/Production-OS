@@ -180,3 +180,43 @@ def test_change_impact_recompute_rejected_after_dispatch(tmp_path):
     ):
         wf.apply_change_impact(created["id"],["README.md"])
 
+
+def test_find_workflows_bound_to_github_pr(tmp_path):
+    wf=engine(tmp_path)
+    first=wf.create(
+        name="pr-12",
+        repository="o/a",
+        metadata={"github_pr_number":12},
+        tasks=[WorkflowTaskSpec("test","Test",{})],
+    )
+    wf.create(
+        name="pr-13",
+        repository="o/a",
+        metadata={"github_pr_number":13},
+        tasks=[WorkflowTaskSpec("test","Test",{})],
+    )
+    wf.create(
+        name="other-repo",
+        repository="o/b",
+        metadata={"github_pr_number":12},
+        tasks=[WorkflowTaskSpec("test","Test",{})],
+    )
+
+    matches=wf.find_by_github_pr("o/a",12)
+
+    assert [item["id"] for item in matches]==[first["id"]]
+
+
+def test_find_workflows_bound_to_github_pr_accepts_string_metadata(tmp_path):
+    wf=engine(tmp_path)
+    created=wf.create(
+        name="pr-string",
+        repository="o/a",
+        metadata={"github_pr_number":"12"},
+        tasks=[WorkflowTaskSpec("test","Test",{})],
+    )
+
+    matches=wf.find_by_github_pr("o/a",12)
+
+    assert [item["id"] for item in matches]==[created["id"]]
+
