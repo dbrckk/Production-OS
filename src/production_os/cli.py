@@ -1754,28 +1754,14 @@ def run_validation_attest(args: argparse.Namespace) -> int:
 
 
 def run_release_verify(args: argparse.Namespace) -> int:
-    secret = os.getenv(args.secret_env, "")
-    if not secret:
-        raise ValueError(
-            f"provenance secret missing: {args.secret_env}"
-        )
-    release = _release_ledger(args.database).get(
+    result = _release_ledger(args.database).verify(
         args.release_id
-    )
-    provenance = dict(
-        release.get("metadata", {}).get("provenance") or {}
-    )
-    valid = verify_release_provenance(
-        provenance,
-        secret=secret,
     )
     print(json.dumps({
         "schema_version":"production-os/release-verification/v1",
-        "release_id":args.release_id,
-        "valid":valid,
-        "provenance":provenance,
+        **result,
     }, indent=2, ensure_ascii=False))
-    return 0 if valid else 9
+    return 0 if result.get("valid") else 9
 
 
 def run_release_promote(args: argparse.Namespace) -> int:
