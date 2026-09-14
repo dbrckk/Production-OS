@@ -790,6 +790,20 @@ def make_handler(control: ControlPlane):
                                 attestation=dict(
                                     body.get("attestation") or {}
                                 ),
+                                approval={
+                                    "approved":True,
+                                    "approved_by":principal.name,
+                                    "role":principal.role,
+                                    **(
+                                        {
+                                            "reason":str(
+                                                body["approval_reason"]
+                                            )
+                                        }
+                                        if body.get("approval_reason")
+                                        else {}
+                                    ),
+                                },
                                 metadata=dict(
                                     body.get("metadata") or {}
                                 ),
