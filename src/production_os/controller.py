@@ -27,12 +27,12 @@ from .reconciliation import reconcile_runtime_state
 from .resources import allocate_resources
 from .reuse import detect_reuse
 from .runtime_state import RuntimeState
-from .sqlite_backend import (
-    SQLiteBackend,
-    SQLiteClaimStore,
-    SQLiteJobQueue,
-    SQLiteRuntimeState,
-    SQLiteWorkerRegistry,
+from .storage import (
+    claim_store_for,
+    job_queue_for,
+    open_backend,
+    runtime_state_for,
+    worker_registry_for,
 )
 from .scheduler import build_schedule
 from .scoring import assess_repository
@@ -144,12 +144,12 @@ def run_control_cycle(
     lease_owner: str = "production-os-controller",
     lease_minutes: int = 30,
 ) -> dict:
-    backend = SQLiteBackend(database_path) if database_path else None
+    backend = open_backend(database_path) if database_path else None
     if backend is not None:
-        state = SQLiteRuntimeState(backend)
-        worker_registry = SQLiteWorkerRegistry(backend)
-        durable_queue = SQLiteJobQueue(backend)
-        claim_store = SQLiteClaimStore(backend)
+        state = runtime_state_for(backend)
+        worker_registry = worker_registry_for(backend)
+        durable_queue = job_queue_for(backend)
+        claim_store = claim_store_for(backend)
     else:
         if not runtime_state_path:
             raise ValueError("runtime_state_path is required without database_path")
@@ -395,7 +395,7 @@ def run_controller(
                 metrics_store.save()
                 if health_path:
                     state = (
-                        SQLiteRuntimeState(SQLiteBackend(database_path))
+                        runtime_state_for(open_backend(database_path))
                         if database_path
                         else RuntimeState(runtime_state_path)
                     )
