@@ -27,6 +27,7 @@ from .scheduler import build_schedule
 from .scoring import assess_repository
 from .starlist import suggest_external_references
 from .trends import build_trends
+from .workers import WorkerRegistry
 
 
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -111,11 +112,28 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     controller.add_argument("--lease-minutes", type=int, default=30)
     controller.add_argument("--github-mapping", help="Optional explicit task->issue/PR mapping JSON")
     controller.add_argument("--observability", help="Write structured observability JSON")
+    controller.add_argument("--worker-registry", help="Persistent worker registry JSON")
+    controller.add_argument("--receipt-dir", help="Dispatch receipt directory")
 
     healthserver = sub.add_parser("health-server", help="Serve the health JSON over HTTP")
     healthserver.add_argument("--health", required=True)
     healthserver.add_argument("--host", default="127.0.0.1")
     healthserver.add_argument("--port", type=int, default=8765)
+
+    workerreg = sub.add_parser("worker-register", help="Register or update a worker")
+    workerreg.add_argument("--registry", required=True)
+    workerreg.add_argument("--worker-id", required=True)
+    workerreg.add_argument("--capability", action="append", default=[])
+    workerreg.add_argument("--max-concurrency", type=int, default=1)
+
+    workerhb = sub.add_parser("worker-heartbeat", help="Heartbeat a worker and update its active task count")
+    workerhb.add_argument("--registry", required=True)
+    workerhb.add_argument("--worker-id", required=True)
+    workerhb.add_argument("--active-tasks", type=int)
+
+    workerlist = sub.add_parser("worker-list", help="List worker registry state")
+    workerlist.add_argument("--registry", required=True)
+    workerlist.add_argument("--dead-timeout-seconds", type=int, default=120)
 
     return parser.parse_args(argv)
 
@@ -506,6 +524,8 @@ def run_dispatch(args: argparse.Namespace) -> int:
         state,
         lease_owner=args.owner,
         lease_minutes=args.lease_minutes,
+        worker_registry_path=args.worker_registry,
+        receipt_dir=args.receipt_dir,
         github_mapping_path=args.github_mapping,
         observability_path=args.observability,
     )
@@ -594,6 +614,41 @@ def run_controller_command(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_worker_register(args: argparse.Namespace) -> int:
+    registry = WorkerRegistry(args.registry)
+    worker = registry.register(
+        args.worker_id,
+        args.capability,
+        args.max_concurrency,
+    )
+    print(json.dumps({
+        "schema_version":"production-os/worker-register/v1",
+        "worker":worker.to_dict(),
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
+def run_worker_heartbeat(args: argparse.Namespace) -> int:
+    registry = WorkerRegistry(args.registry)
+    worker = registry.heartbeat(args.worker_id, active_tasks=args.active_tasks)
+    print(json.dumps({
+        "schema_version":"production-os/worker-heartbeat/v1",
+        "worker":worker.to_dict(),
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
+def run_worker_list(args: argparse.Namespace) -> int:
+    registry = WorkerRegistry(args.registry)
+    dead = registry.detect_dead(args.dead_timeout_seconds)
+    print(json.dumps({
+        "schema_version":"production-os/worker-list/v1",
+        "workers":[w.to_dict() for w in registry.workers.values()],
+        "dead":[w.worker_id for w in dead],
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
 def run_health_server(args: argparse.Namespace) -> int:
     serve_health(args.health, host=args.host, port=args.port)
     return 0
@@ -621,6 +676,12 @@ def main(argv: list[str] | None = None) -> int:
         return run_controller_command(args)
     if args.command == "health-server":
         return run_health_server(args)
+    if args.command == "worker-register":
+        return run_worker_register(args)
+    if args.command == "worker-heartbeat":
+        return run_worker_heartbeat(args)
+    if args.command == "worker-list":
+        return run_worker_list(args)
     return 1
 
 
