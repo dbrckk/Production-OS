@@ -342,6 +342,26 @@ def make_handler(control: ControlPlane):
                     for part in parsed.path.split("/")
                     if part
                 ]
+                if (
+                    len(parts) == 4
+                    and parts[1] == "releases"
+                    and parts[3] == "verify"
+                ):
+                    try:
+                        verification = control.releases.verify(
+                            parts[2]
+                        )
+                    except KeyError:
+                        self._send(
+                            HTTPStatus.NOT_FOUND,
+                            {"error":"release not found"},
+                        )
+                        return
+                    self._send(
+                        HTTPStatus.OK,
+                        {"verification":verification},
+                    )
+                    return
                 if len(parts) == 3 and parts[1] == "releases":
                     try:
                         release = control.releases.get(parts[2])
