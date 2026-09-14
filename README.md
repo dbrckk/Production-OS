@@ -694,8 +694,62 @@ timestamp
 - [x] max-concurrency backpressure
 - [x] worker-aware dispatch
 - [x] dispatch receipts
-- [ ] acknowledgement/claim protocol
-- [ ] worker completion accounting
+- [x] acknowledgement/claim protocol
+- [x] worker completion accounting
 - [ ] priority preemption
-- [ ] queue fairness
-- [ ] at-least-once delivery recovery
+- [x] queue fairness
+- [x] at-least-once delivery recovery
+
+
+### P5 delivery protocol
+
+Worker claim:
+
+```bash
+production-os job-claim \
+  --claims artifacts/claims.json \
+  --queue-file artifacts/queue/<job>.json \
+  --worker-id python-1
+```
+
+Acknowledge:
+
+```bash
+production-os job-ack \
+  --claims artifacts/claims.json \
+  --key <idempotency-key> \
+  --worker-id python-1
+```
+
+Complete and release accounting:
+
+```bash
+production-os job-complete \
+  --claims artifacts/claims.json \
+  --key <idempotency-key> \
+  --worker-id python-1 \
+  --registry artifacts/workers.json \
+  --runtime-state artifacts/runtime-state.json
+```
+
+Expired unacknowledged jobs can be recovered:
+
+```bash
+production-os delivery-recover \
+  --claims artifacts/claims.json \
+  --registry artifacts/workers.json \
+  --runtime-state artifacts/runtime-state.json \
+  --queue-dir artifacts/queue \
+  --dead-letter-dir artifacts/dead-letter
+```
+
+The continuous controller can perform the same recovery every cycle with:
+
+```text
+--claims artifacts/claims.json
+--dead-letter-dir artifacts/dead-letter
+```
+
+Delivery semantics are now at-least-once with explicit idempotency guards. An expired unacked delivery releases the worker slot and task lease before redelivery/dead-letter handling.
+
+Queue ordering now uses round-robin inter-repository fairness while preserving score order inside each repository. This prevents one repository with many high-ranked actions from monopolizing the pending queue.
