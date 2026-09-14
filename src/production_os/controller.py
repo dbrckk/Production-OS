@@ -5,6 +5,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
+from .approvals import ApprovalStore
 from .claims import ClaimStore
 from .delivery import recover_unacked_jobs
 from .dispatch import dispatch_handoff
@@ -121,6 +122,7 @@ def run_control_cycle(
     dead_letter_dir: str | None = None,
     emergency_stop_path: str | None = None,
     rate_limit_path: str | None = None,
+    approval_path: str | None = None,
     capacity: int = 3,
     slots: int = 3,
     lease_owner: str = "production-os-controller",
@@ -131,6 +133,7 @@ def run_control_cycle(
     journal = ExecutionJournal(journal_path)
     worker_registry = WorkerRegistry(worker_registry_path) if worker_registry_path else None
     rate_limit_store = RateLimitStore(rate_limit_path) if rate_limit_path else None
+    approval_store = ApprovalStore(approval_path) if approval_path else None
     delivery_recovery = []
     if worker_registry is not None:
         worker_registry.detect_dead()
@@ -236,6 +239,7 @@ def run_control_cycle(
                 receipt_dir=receipt_dir,
                 emergency_stop_path=emergency_stop_path,
                 rate_limit_store=rate_limit_store,
+                approval_store=approval_store,
             )
             dispatches.append(result.to_dict())
             metrics_store.metrics.dispatched += 1
