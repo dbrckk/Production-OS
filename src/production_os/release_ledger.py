@@ -6,6 +6,7 @@ import uuid
 from .attestations import (
     AttestationError,
     create_release_provenance,
+    release_approval_key,
     verify_release_provenance,
     verify_validation_attestation,
 )
@@ -120,6 +121,7 @@ class ReleaseLedger:
         artifact_id: str,
         validation: dict,
         attestation: dict,
+        approval: dict,
         metadata: dict | None = None,
     ) -> dict:
         if not self._validation_passed(validation):
@@ -213,6 +215,49 @@ class ReleaseLedger:
             except AttestationError as exc:
                 raise RuntimeError(str(exc)) from exc
 
+            approval = dict(approval or {})
+            approved_by = str(
+                approval.get("approved_by") or ""
+            ).strip()
+            approval_role = str(
+                approval.get("role") or ""
+            ).strip()
+            if not bool(approval.get("approved", False)):
+                raise RuntimeError("release approval is required")
+            if not approved_by or not approval_role:
+                raise RuntimeError(
+                    "release approval requires approved_by and role"
+                )
+
+            computed_approval_key = release_approval_key(
+                workflow_id=workflow_id,
+                artifact_id=artifact_id,
+                artifact_sha256=artifact_sha256,
+                source_revision=source_revision,
+                workflow_generation=workflow_generation,
+            )
+            supplied_approval_key = str(
+                approval.get("approval_key") or ""
+            )
+            if (
+                supplied_approval_key
+                and supplied_approval_key != computed_approval_key
+            ):
+                raise RuntimeError(
+                    "release approval binding mismatch"
+                )
+            approval_record = {
+                "approved":True,
+                "approved_by":approved_by,
+                "role":approval_role,
+                "approval_key":computed_approval_key,
+                **(
+                    {"reason":str(approval["reason"])}
+                    if approval.get("reason") is not None
+                    else {}
+                ),
+            }
+
             expected_revision = workflow_metadata.get(
                 "github_pr_head_sha"
             )
@@ -264,6 +309,7 @@ class ReleaseLedger:
                 "artifact_name":artifact_row["name"],
                 "artifact_uri":artifact_row["uri"],
                 "artifact_sha256":artifact_sha256,
+                "approval":approval_record,
             }
             release_preview = {
                 "id":release_id,
@@ -418,6 +464,15 @@ class ReleaseLedger:
             "validator_id":verified["validator_id"],
             "validation_attestation_signature":
                 verified["signature"],
+            "approval_key":release["metadata"]["approval"][
+                "approval_key"
+            ],
+            "approved_by":release["metadata"]["approval"][
+                "approved_by"
+            ],
+            "approval_role":release["metadata"]["approval"][
+                "role"
+            ],
             "created_at":release["created_at"],
         }
         for key, value in expected.items():
