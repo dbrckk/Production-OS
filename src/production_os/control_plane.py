@@ -7,6 +7,7 @@ from urllib.parse import parse_qs, urlparse
 
 from .api_auth import Principal, TokenAuthorizer
 from .storage import job_queue_for, open_backend, worker_registry_for
+from .workflow_engine import WorkflowEngine, WorkflowTaskSpec
 
 
 class ControlPlane:
@@ -19,6 +20,7 @@ class ControlPlane:
         self.backend = open_backend(database)
         self.queue = job_queue_for(self.backend)
         self.workers = worker_registry_for(self.backend)
+        self.workflows = WorkflowEngine(self.backend, self.queue)
         self.authorizer = authorizer
 
 
@@ -213,6 +215,29 @@ def make_handler(control: ControlPlane):
                 self._send(HTTPStatus.OK, {"job":job})
                 return
 
+            if parsed.path.startswith("/v1/workflows/"):
+                parts = [part for part in parsed.path.split("/") if part]
+                if len(parts) >= 3:
+                    workflow_id = parts[2]
+                    try:
+                        if len(parts) == 4 and parts[3] == "critical-path":
+                            payload = control.workflows.critical_path(workflow_id)
+                            self._send(HTTPStatus.OK, payload)
+                            return
+                        if len(parts) == 3:
+                            payload = control.workflows.get(workflow_id)
+                            self._send(
+                                HTTPStatus.OK,
+                                {"workflow":payload},
+                            )
+                            return
+                    except KeyError:
+                        self._send(
+                            HTTPStatus.NOT_FOUND,
+                            {"error":"workflow not found"},
+                        )
+                        return
+
             if parsed.path == "/v1/workers":
                 control.workers.load()
                 self._send(
@@ -240,6 +265,76 @@ def make_handler(control: ControlPlane):
                 return
 
             try:
+                if parsed.path == "/v1/workflows":
+                    principal = self._require("operator")
+                    if principal is None:
+                        return
+                    tasks = [
+                        WorkflowTaskSpec.from_dict(item)
+                        for item in body.get("tasks", [])
+                    ]
+                    workflow = control.workflows.create(
+                        name=str(body["name"]),
+                        repository=str(body["repository"]),
+                        tasks=tasks,
+                        metadata=dict(body.get("metadata") or {}),
+                        workflow_id=(
+                            str(body["workflow_id"])
+                            if body.get("workflow_id")
+                            else None
+                        ),
+                    )
+                    self._send(
+                        HTTPStatus.CREATED,
+                        {"workflow":workflow},
+                    )
+                    return
+
+                if parsed.path.startswith("/v1/workflows/"):
+                    parts = [part for part in parsed.path.split("/") if part]
+                    if len(parts) >= 4:
+                        principal = self._require("operator")
+                        if principal is None:
+                            return
+                        workflow_id = parts[2]
+                        action = parts[3]
+                        if action == "dispatch":
+                            jobs = control.workflows.dispatch_ready(
+                                workflow_id,
+                                limit=int(body.get("limit", 10)),
+                            )
+                            self._send(HTTPStatus.OK, {"jobs":jobs})
+                            return
+                        if action == "cancel":
+                            workflow = control.workflows.cancel(workflow_id)
+                            self._send(
+                                HTTPStatus.OK,
+                                {"workflow":workflow},
+                            )
+                            return
+                        if action == "artifacts":
+                            artifact = control.workflows.add_artifact(
+                                workflow_id,
+                                task_id=(
+                                    str(body["task_id"])
+                                    if body.get("task_id")
+                                    else None
+                                ),
+                                name=str(body["name"]),
+                                uri=str(body["uri"]),
+                                sha256=(
+                                    str(body["sha256"])
+                                    if body.get("sha256")
+                                    else None
+                                ),
+                                metadata=dict(body.get("metadata") or {}),
+                            )
+                            self._send(
+                                HTTPStatus.CREATED,
+                                {"artifact":artifact},
+                            )
+                            return
+
                 if parsed.path == "/v1/workers/register":
                     principal = self._require("operator")
                     if principal is None:
@@ -313,23 +408,60 @@ def make_handler(control: ControlPlane):
                     principal = self._require("worker")
                     if principal is None:
                         return
-                    job = control.queue.complete(
-                        str(body["key"]),
-                        str(body["worker_id"]),
+                    key = str(body["key"])
+                    worker_id = str(body["worker_id"])
+                    before = control.queue.get(key)
+                    job = control.queue.complete(key, worker_id)
+                    workflow_id = before["payload"].get("workflow_id")
+                    workflow_task_id = before["payload"].get(
+                        "workflow_task_id"
                     )
-                    self._send(HTTPStatus.OK, {"job":job})
+                    workflow = None
+                    if workflow_id and workflow_task_id:
+                        workflow = control.workflows.record_result(
+                            str(workflow_id),
+                            str(workflow_task_id),
+                            succeeded=True,
+                            result=dict(body.get("result") or {}),
+                        )
+                    self._send(
+                        HTTPStatus.OK,
+                        {"job":job, "workflow":workflow},
+                    )
                     return
 
                 if parsed.path == "/v1/jobs/fail":
                     principal = self._require("worker")
                     if principal is None:
                         return
+                    key = str(body["key"])
+                    worker_id = str(body["worker_id"])
+                    reason = str(body.get("reason", "worker failure"))
+                    before = control.queue.get(key)
                     job = control.queue.fail(
-                        str(body["key"]),
-                        str(body["worker_id"]),
-                        str(body.get("reason", "worker failure")),
+                        key,
+                        worker_id,
+                        reason,
                     )
-                    self._send(HTTPStatus.OK, {"job":job})
+                    workflow_id = before["payload"].get("workflow_id")
+                    workflow_task_id = before["payload"].get(
+                        "workflow_task_id"
+                    )
+                    workflow = None
+                    if workflow_id and workflow_task_id:
+                        workflow = control.workflows.record_result(
+                            str(workflow_id),
+                            str(workflow_task_id),
+                            succeeded=False,
+                            result={
+                                "reason":reason,
+                                **dict(body.get("result") or {}),
+                            },
+                        )
+                    self._send(
+                        HTTPStatus.OK,
+                        {"job":job, "workflow":workflow},
+                    )
                     return
 
                 if parsed.path == "/v1/jobs/recover":
