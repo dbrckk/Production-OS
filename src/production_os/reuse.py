@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from .adaptation import score_adaptation_risk
 from .models import RepoAssessment
 
 
@@ -37,11 +38,24 @@ def _compatible(source: RepoAssessment, target: RepoAssessment) -> bool:
     return False
 
 
-def _component_candidates(source: RepoAssessment, capability: str) -> tuple[dict, ...]:
+def _component_candidates(
+    source: RepoAssessment,
+    target: RepoAssessment,
+    capability: str,
+) -> tuple[dict, ...]:
     matches = []
+
     for component in source.components:
         if capability not in component.capability_hints:
             continue
+
+        adaptation = score_adaptation_risk(
+            source,
+            target,
+            capability,
+            component,
+        )
+
         matches.append({
             "name": component.name,
             "kind": component.kind,
@@ -50,8 +64,21 @@ def _component_candidates(source: RepoAssessment, capability: str) -> tuple[dict
             "dependencies": list(component.dependencies),
             "confidence": component.confidence,
             "test_like": component.test_like,
+            "adaptation_risk": adaptation.risk_score,
+            "adaptation_risk_level": adaptation.risk_level,
+            "adaptation_reasons": list(adaptation.reasons),
+            "linked_tests": list(adaptation.linked_tests),
         })
-    matches.sort(key=lambda item: (-item["confidence"], item["path"], item["name"]))
+
+    matches.sort(
+        key=lambda item: (
+            item["adaptation_risk"],
+            -item["confidence"],
+            -len(item["linked_tests"]),
+            item["path"],
+            item["name"],
+        )
+    )
     return tuple(matches[:8])
 
 
@@ -74,14 +101,32 @@ def detect_reuse(assessments: list[RepoAssessment]) -> list[ReuseOpportunity]:
                 if capability.confidence < 0.75:
                     continue
 
-                key = (source.evidence.full_name, target.evidence.full_name, capability.name)
+                key = (
+                    source.evidence.full_name,
+                    target.evidence.full_name,
+                    capability.name,
+                )
                 if key in seen:
                     continue
                 seen.add(key)
 
                 family_factor = 1.0 if source.profile == target.profile else 0.88
-                confidence = round(capability.confidence * family_factor, 2)
-                components = _component_candidates(source, capability.name)
+                components = _component_candidates(
+                    source,
+                    target,
+                    capability.name,
+                )
+
+                risk_factor = 1.0
+                if components:
+                    best_risk = components[0]["adaptation_risk"]
+                    risk_factor = max(0.55, 1.0 - (best_risk / 150.0))
+
+                confidence = round(
+                    capability.confidence * family_factor * risk_factor,
+                    2,
+                )
+
                 opportunities.append(
                     ReuseOpportunity(
                         source=source.evidence.full_name,
@@ -90,7 +135,9 @@ def detect_reuse(assessments: list[RepoAssessment]) -> list[ReuseOpportunity]:
                         confidence=confidence,
                         rationale=(
                             f"{source.evidence.full_name} has evidence-backed capability "
-                            f"'{capability.name}' that is absent from {target.evidence.full_name}."
+                            f"'{capability.name}' that is absent from "
+                            f"{target.evidence.full_name}. Component candidates are "
+                            f"ranked by adaptation risk and test coverage."
                         ),
                         evidence=capability.evidence,
                         components=components,
@@ -100,6 +147,7 @@ def detect_reuse(assessments: list[RepoAssessment]) -> list[ReuseOpportunity]:
     opportunities.sort(
         key=lambda item: (
             -item.confidence,
+            item.components[0]["adaptation_risk"] if item.components else 101,
             -len(item.components),
             item.target,
             item.capability,
