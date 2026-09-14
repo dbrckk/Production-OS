@@ -29,6 +29,8 @@ class ControlPlane:
         *,
         authorizer: TokenAuthorizer,
         github_webhook_secret: str | None = None,
+        trusted_validation_secrets: dict[str, str] | None = None,
+        provenance_secret: str | None = None,
     ):
         self.backend = open_backend(database)
         self.queue = job_queue_for(self.backend)
@@ -37,7 +39,12 @@ class ControlPlane:
         self.optimizer = ExecutionOptimizer(self.backend)
         self.speculation = SpeculationManager(self.backend, self.queue)
         self.portfolio = PortfolioOptimizer(self.workflows, self.optimizer)
-        self.releases = ReleaseLedger(self.backend, self.workflows)
+        self.releases = ReleaseLedger(
+            self.backend,
+            self.workflows,
+            trusted_validation_secrets=trusted_validation_secrets,
+            provenance_secret=provenance_secret,
+        )
         self.authorizer = authorizer
         self.github_webhook_secret = github_webhook_secret
         self.webhook_deliveries = WebhookDeliveryStore(self.backend)
@@ -760,6 +767,9 @@ def make_handler(control: ControlPlane):
                                 validation=dict(
                                     body.get("validation") or {}
                                 ),
+                                attestation=dict(
+                                    body.get("attestation") or {}
+                                ),
                                 metadata=dict(
                                     body.get("metadata") or {}
                                 ),
@@ -1278,11 +1288,15 @@ def serve_control_plane(
     host: str = "127.0.0.1",
     port: int = 8787,
     github_webhook_secret: str | None = None,
+    trusted_validation_secrets: dict[str, str] | None = None,
+    provenance_secret: str | None = None,
 ) -> None:
     control = ControlPlane(
         database,
         authorizer=TokenAuthorizer.load(auth_config),
         github_webhook_secret=github_webhook_secret,
+        trusted_validation_secrets=trusted_validation_secrets,
+        provenance_secret=provenance_secret,
     )
     server = ThreadingHTTPServer(
         (host, port),
