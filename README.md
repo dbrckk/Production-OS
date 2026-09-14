@@ -2009,3 +2009,146 @@ Artifact registration fails closed when:
 - revision/generation evidence is missing for a PR workflow.
 
 This prevents stale results from being promoted even if a worker finishes after a new commit reaches the PR.
+
+## P14 transactional release promotion
+
+Production-OS now separates successful execution from release promotion.
+
+A successful job or workflow is not sufficient to create a release. Promotion requires:
+
+    workflow status = succeeded
+    validation status = passed
+    promotion_allowed != false
+    blocking_failures = []
+    artifact SHA-256 = valid 64-character digest
+    PR source_revision = current head SHA
+    workflow_generation = current generation
+    workflow not superseded
+
+The freshness checks and release insert execute in the same database transaction. PostgreSQL additionally locks the workflow and artifact rows during promotion.
+
+### Immutable release ledger
+
+Promotions are append-only records containing:
+
+    release ID
+    workflow ID
+    artifact ID
+    repository
+    source revision
+    workflow generation
+    validation evidence
+    artifact SHA-256
+    release metadata
+    status
+    timestamp
+
+The original artifact is never mutated into a release.
+
+Each artifact may be promoted only once.
+
+SQLite and PostgreSQL both enforce this with a unique release constraint.
+
+### Promotion API
+
+    POST /v1/workflows/<workflow-id>/promote
+
+Example:
+
+    {
+      "artifact_id": "<artifact-id>",
+      "validation": {
+        "status": "passed",
+        "promotion_allowed": true,
+        "blocking_failures": []
+      },
+      "metadata": {
+        "channel": "internal"
+      }
+    }
+
+Read releases:
+
+    GET /v1/workflows/<workflow-id>/releases
+    GET /v1/releases/<release-id>
+
+### CLI
+
+Promote:
+
+    production-os release-promote \
+      --database artifacts/production.db \
+      --workflow-id <workflow-id> \
+      --artifact-id <artifact-id> \
+      --validation validation-summary.json
+
+Optional release metadata:
+
+    --metadata release-metadata.json
+
+PR artifacts can be registered with explicit provenance:
+
+    production-os artifact-add \
+      --database artifacts/production.db \
+      --workflow-id <workflow-id> \
+      --name app.aab \
+      --uri artifact://app.aab \
+      --sha256 <64-char-sha256> \
+      --source-revision <git-sha> \
+      --workflow-generation 3
+
+### Append-only rollback
+
+A rollback never edits or deletes the promoted release.
+
+It appends a separate immutable record:
+
+    POST /v1/releases/<release-id>/rollback
+
+Request:
+
+    {
+      "reason": "regression detected",
+      "metadata": {
+        "incident": "INC-123"
+      }
+    }
+
+CLI:
+
+    production-os release-rollback \
+      --database artifacts/production.db \
+      --release-id <release-id> \
+      --reason "regression detected"
+
+The rollback record points to the original release through `rollback_of`. Only one rollback record is allowed per promoted release.
+
+### P14 progress
+
+- [x] immutable release ledger
+- [x] SQLite release persistence
+- [x] PostgreSQL release persistence
+- [x] schema version 7
+- [x] atomic promotion transaction
+- [x] PostgreSQL row locking during promotion
+- [x] workflow-success gate
+- [x] validation-pass gate
+- [x] blocking-failure gate
+- [x] valid SHA-256 artifact gate
+- [x] PR source-revision gate
+- [x] PR generation gate
+- [x] superseded-workflow rejection
+- [x] single-promotion constraint per artifact
+- [x] append-only rollback records
+- [x] single-rollback constraint
+- [x] release audit events
+- [x] control-plane promotion API
+- [x] control-plane rollback API
+- [x] release read API
+- [x] promotion/rollback CLI
+- [x] artifact provenance CLI flags
+- [x] promotion ledger tests
+- [x] API integration test
+- [ ] cryptographic attestation of validation producer
+- [ ] signed provenance envelope
+- [ ] policy approval binding to release record
