@@ -9,6 +9,7 @@ from base64 import b64decode
 from typing import Any
 
 from .models import RepoEvidence
+from .source_tree import TreeSamplePolicy, is_candidate_file, path_priority
 
 
 class GitHubAPIError(RuntimeError):
@@ -28,7 +29,7 @@ class GitHubClient:
             headers={
                 "Accept": "application/vnd.github+json",
                 "X-GitHub-Api-Version": "2022-11-28",
-                "User-Agent": "Production-OS/0.4",
+                "User-Agent": "Production-OS/0.5",
                 **({"Authorization": f"Bearer {self.token}"} if self.token else {}),
             },
         )
@@ -69,8 +70,9 @@ class GitHubClient:
         return payload if isinstance(payload, list) else [payload]
 
     def _read_text(self, full_name: str, path: str) -> str:
+        encoded_path = "/".join(urllib.parse.quote(part) for part in path.split("/") if part)
         try:
-            payload = self._get(f"/repos/{full_name}/contents/{path}")
+            payload = self._get(f"/repos/{full_name}/contents/{encoded_path}")
         except GitHubAPIError as exc:
             if "404" in str(exc):
                 return ""
@@ -83,6 +85,16 @@ class GitHubClient:
         except Exception:
             return ""
 
+    def read_json_file(self, full_name: str, path: str) -> dict[str, Any] | None:
+        text = self._read_text(full_name, path)
+        if not text:
+            return None
+        try:
+            value = json.loads(text)
+        except json.JSONDecodeError:
+            return None
+        return value if isinstance(value, dict) else None
+
     def _latest_workflow_run(self, full_name: str, branch: str) -> dict[str, Any] | None:
         try:
             payload = self._get(
@@ -94,26 +106,64 @@ class GitHubClient:
         runs = payload.get("workflow_runs", []) if isinstance(payload, dict) else []
         return runs[0] if runs else None
 
-    def _collect_source_documents(self, full_name: str, names: set[str], workflow_names: list[str]) -> dict[str, str]:
+    def _recursive_tree_paths(self, full_name: str, ref: str) -> list[str]:
+        try:
+            payload = self._get(
+                f"/repos/{full_name}/git/trees/{urllib.parse.quote(ref)}?recursive=1"
+            )
+        except GitHubAPIError:
+            return []
+        tree = payload.get("tree", []) if isinstance(payload, dict) else []
+        return [
+            item.get("path", "")
+            for item in tree
+            if item.get("type") == "blob" and item.get("path")
+        ]
+
+    def _collect_source_documents(
+        self,
+        full_name: str,
+        names: set[str],
+        workflow_names: list[str],
+        default_branch: str,
+        policy: TreeSamplePolicy | None = None,
+    ) -> dict[str, str]:
+        policy = policy or TreeSamplePolicy()
         candidates = [
             "pyproject.toml", "requirements.txt", "package.json",
             "build.gradle", "build.gradle.kts", "settings.gradle.kts",
             "gradle.properties", "pom.xml", "Cargo.toml", "go.mod",
-            "docker-compose.yml", "compose.yml", "compose.yaml",
-            "Dockerfile",
+            "docker-compose.yml", "compose.yml", "compose.yaml", "Dockerfile",
         ]
         docs: dict[str, str] = {}
+
         for path in candidates:
             if path in names:
                 text = self._read_text(full_name, path)
                 if text:
-                    docs[path] = text[:20000]
+                    docs[path] = text[:policy.max_chars_per_file]
 
         for workflow in workflow_names[:12]:
             path = f".github/workflows/{workflow}"
             text = self._read_text(full_name, path)
             if text:
-                docs[path] = text[:20000]
+                docs[path] = text[:policy.max_chars_per_file]
+
+        tree_paths = self._recursive_tree_paths(full_name, default_branch)
+        nested = [
+            path for path in tree_paths
+            if path.count("/") <= policy.max_depth
+            and is_candidate_file(path)
+            and path not in docs
+            and not path.lower().startswith(".github/")
+        ]
+        nested.sort(key=path_priority)
+
+        remaining = max(policy.max_files - len(docs), 0)
+        for path in nested[:remaining]:
+            text = self._read_text(full_name, path)
+            if text:
+                docs[path] = text[:policy.max_chars_per_file]
 
         return docs
 
@@ -136,14 +186,28 @@ class GitHubClient:
         readme_name = next((n for n in names if n.lower().startswith("readme")), "")
         readme = self._read_text(full_name, readme_name) if readme_name else ""
         readme_lower = readme.lower()
-        source_documents = self._collect_source_documents(full_name, names, workflow_names)
+        source_documents = self._collect_source_documents(
+            full_name, names, workflow_names, default_branch
+        )
 
         manifest_names = {
             "pyproject.toml", "package.json", "pom.xml", "build.gradle",
             "build.gradle.kts", "cargo.toml", "go.mod", "requirements.txt",
             "composer.json", "gemfile",
         }
-        test_markers = {"tests", "test", "spec", "src/test", "androidtest"}
+        all_source_paths = {path.lower() for path in source_documents}
+        has_tests = (
+            any(
+                "/test/" in f"/{path}/"
+                or "/tests/" in f"/{path}/"
+                or "androidtest" in path
+                or path.startswith("tests/")
+                for path in all_source_paths
+            )
+            or "pytest" in readme_lower
+            or "unit test" in readme_lower
+            or "junit" in readme_lower
+        )
         release_words = ("release", "publish", "deploy", "play", "store")
         roadmap_words = ("roadmap", "todo", "milestone")
 
@@ -161,10 +225,7 @@ class GitHubClient:
             open_issues=int(repo.get("open_issues_count") or 0),
             pushed_at=repo.get("pushed_at"),
             has_readme=bool(readme_name),
-            has_tests=bool(test_markers & lower)
-            or "pytest" in readme_lower
-            or "unit test" in readme_lower
-            or "junit" in readme_lower,
+            has_tests=has_tests,
             has_ci=bool(workflow_names),
             latest_ci_status=latest_run.get("status") if latest_run else None,
             latest_ci_conclusion=latest_run.get("conclusion") if latest_run else None,
