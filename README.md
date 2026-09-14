@@ -1749,3 +1749,55 @@ Request body:
 - [x] CLI impact command
 - [x] control-plane impact API
 - [x] regression tests
+
+## P12 GitHub-driven incremental execution
+
+Production-OS can now derive workflow impact directly from a GitHub pull request instead of requiring a manually assembled changed-path list.
+
+CLI:
+
+    production-os workflow-impact-pr \
+      --database artifacts/production.db \
+      --workflow-id <workflow-id> \
+      --repository dbrckk/project \
+      --pr-number 123
+
+The GitHub client paginates the pull-request files API and deduplicates changed paths before impact analysis.
+
+Control-plane API:
+
+    POST /v1/workflows/<id>/impact-pr
+
+Request:
+
+    {
+      "repository": "dbrckk/project",
+      "pr_number": 123
+    }
+
+The response includes the authoritative changed-path set, impact decisions, and updated workflow state.
+
+Safety semantics:
+
+- GitHub changed-file retrieval is fail-closed.
+- API failures do not degrade into an empty change set.
+- malformed GitHub responses are rejected.
+- workflow impact still uses the P11 fail-closed rules.
+- impact recomputation is refused after actual execution has started.
+- large pull requests are paginated beyond the first 100 files.
+
+### P12 progress
+
+- [x] GitHub PR changed-file ingestion
+- [x] pagination for large pull requests
+- [x] changed-path deduplication
+- [x] fail-closed GitHub retrieval
+- [x] CLI PR impact command
+- [x] authenticated control-plane PR impact endpoint
+- [x] GitHub ingestion regression tests
+- [x] control-plane integration test
+- [ ] signed GitHub webhook ingestion
+- [ ] event idempotency / delivery replay guard
+- [ ] automatic workflow binding from repository + PR
+- [ ] automatic impact refresh on PR synchronize events
+- [ ] automatic minimal dispatch after impact refresh
