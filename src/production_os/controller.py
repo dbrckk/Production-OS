@@ -5,6 +5,8 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
+from .claims import ClaimStore
+from .delivery import recover_unacked_jobs
 from .dispatch import dispatch_handoff
 from .github_client import GitHubClient
 from .github_work_state import fetch_github_work_state, runtime_decision_from_github
@@ -113,6 +115,8 @@ def run_control_cycle(
     github_mapping_path: str | None = None,
     worker_registry_path: str | None = None,
     receipt_dir: str | None = None,
+    claims_path: str | None = None,
+    dead_letter_dir: str | None = None,
     capacity: int = 3,
     slots: int = 3,
     lease_owner: str = "production-os-controller",
@@ -122,8 +126,23 @@ def run_control_cycle(
     metrics_store = MetricsStore(metrics_path)
     journal = ExecutionJournal(journal_path)
     worker_registry = WorkerRegistry(worker_registry_path) if worker_registry_path else None
+    delivery_recovery = []
     if worker_registry is not None:
         worker_registry.detect_dead()
+        if claims_path:
+            delivery_recovery = recover_unacked_jobs(
+                claims=ClaimStore(claims_path),
+                runtime_state=state,
+                workers=worker_registry,
+                queue_dir=queue_dir,
+                dead_letter_dir=dead_letter_dir,
+            )
+            for item in delivery_recovery:
+                journal.append({
+                    "source":"controller",
+                    "event":"delivery-recovery",
+                    **item,
+                })
 
     reconcile_actions = reconcile_runtime_state(state)
     metrics_store.metrics.reconciliations += len(reconcile_actions)
@@ -254,6 +273,7 @@ def run_control_cycle(
         "heartbeats":[a.to_dict() for a in heartbeat_results],
         "github_reconciliation":github_results,
         "workers":[w.to_dict() for w in worker_registry.workers.values()] if worker_registry else [],
+        "delivery_recovery":delivery_recovery,
         "health":health,
         "observability":observability,
     }
