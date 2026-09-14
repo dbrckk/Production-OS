@@ -16,46 +16,46 @@ def recover_unacked_jobs(
     queue_dir: str | Path,
     dead_letter_dir: str | Path | None = None,
 ) -> list[dict]:
-    recovered=[]
-    queue=Path(queue_dir)
-    dead=Path(dead_letter_dir) if dead_letter_dir else None
+    recovered = []
+    queue = Path(queue_dir)
+    dead = Path(dead_letter_dir) if dead_letter_dir else None
     if dead is not None:
-        dead.mkdir(parents=True,exist_ok=True)
+        dead.mkdir(parents=True, exist_ok=True)
 
-    for claim in claims.expired_unacked():
-        source_candidates=list(queue.glob(f"{claim.key}*.json"))
+    expired = claims.expired_unacked()
+    for claim in expired:
+        source_candidates = list(queue.glob(f"{claim.key}*.json"))
         for source in source_candidates:
             try:
-                payload=json.loads(source.read_text(encoding="utf-8"))
+                json.loads(source.read_text(encoding="utf-8"))
             except Exception:
                 continue
 
-            worker=workers.workers.get(claim.worker_id)
-            if worker is not None and worker.active_tasks > 0:
-                worker.active_tasks -= 1
+            if claim.worker_id in workers.workers:
+                workers.adjust_active_tasks(claim.worker_id, -1)
 
-            record=runtime_state.get(claim.repository,claim.task)
+            record = runtime_state.get(claim.repository, claim.task)
             if record.lease_owner == claim.worker_id:
-                runtime_state.release_lease(claim.repository,claim.task)
+                runtime_state.release_lease(claim.repository, claim.task)
 
-            claim.status="expired"
+            current = claims.claims.get(claim.key)
+            if current is not None:
+                current.status = "expired"
+                claims.save()
 
             if dead is not None:
-                target=dead/source.name
+                target = dead / source.name
                 source.replace(target)
                 recovered.append({
-                    "key":claim.key,
-                    "action":"dead-letter",
-                    "path":str(target),
+                    "key": claim.key,
+                    "action": "dead-letter",
+                    "path": str(target),
                 })
             else:
                 recovered.append({
-                    "key":claim.key,
-                    "action":"released-for-redelivery",
-                    "path":str(source),
+                    "key": claim.key,
+                    "action": "released-for-redelivery",
+                    "path": str(source),
                 })
 
-    if recovered:
-        claims.save()
-        workers.save()
     return recovered
