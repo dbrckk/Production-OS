@@ -22,7 +22,7 @@ def _utcnow() -> str:
 
 
 class PostgresBackend:
-    SCHEMA_VERSION = 2
+    SCHEMA_VERSION = 3
 
     def __init__(self, dsn: str):
         if psycopg is None:
@@ -193,6 +193,26 @@ class PostgresBackend:
                 cur.execute("""
                     CREATE INDEX IF NOT EXISTS idx_artifacts_workflow
                     ON artifacts(workflow_id, task_id)
+                """)
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS execution_history (
+                        id BIGSERIAL PRIMARY KEY,
+                        repository TEXT NOT NULL,
+                        task TEXT NOT NULL,
+                        worker_id TEXT NOT NULL,
+                        duration_seconds DOUBLE PRECISION NOT NULL,
+                        succeeded BOOLEAN NOT NULL,
+                        capabilities_json TEXT NOT NULL DEFAULT '[]',
+                        created_at TEXT NOT NULL
+                    )
+                """)
+                cur.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_execution_history_task
+                    ON execution_history(repository, task, created_at DESC)
+                """)
+                cur.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_execution_history_worker
+                    ON execution_history(worker_id, created_at DESC)
                 """)
                 cur.execute("""
                     INSERT INTO schema_meta(key, value)
