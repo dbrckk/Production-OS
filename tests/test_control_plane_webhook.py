@@ -176,3 +176,70 @@ def test_webhook_rejects_bad_signature(tmp_path):
     finally:
         server.shutdown()
         server.server_close()
+
+
+def test_webhook_creates_unseen_pr_from_template(tmp_path, monkeypatch):
+    class FakeGitHubClient:
+        def list_pull_request_files(self, repository, pr_number):
+            assert repository=="o/a"
+            assert pr_number==88
+            return ["src/new.py"]
+
+    monkeypatch.setattr(control_plane, "GitHubClient", FakeGitHubClient)
+
+    control=ControlPlane(
+        str(tmp_path/"db.sqlite"),
+        authorizer=TokenAuthorizer([]),
+        github_webhook_secret="secret",
+    )
+    template=control.workflows.create(
+        name="pr-template",
+        repository="o/a",
+        metadata={"github_pr_template":True},
+        tasks=[
+            control_plane.WorkflowTaskSpec(
+                "tests",
+                "Tests",
+                {
+                    "impact":{
+                        "paths":["src/**"],
+                        "skip_when_unaffected":True,
+                    }
+                },
+            ),
+        ],
+    )
+
+    server=ThreadingHTTPServer(
+        ("127.0.0.1",0),
+        make_handler(control),
+    )
+    thread=threading.Thread(target=server.serve_forever,daemon=True)
+    thread.start()
+    base=f"http://127.0.0.1:{server.server_port}"
+    payload={
+        "action":"opened",
+        "repository":{"full_name":"o/a"},
+        "pull_request":{
+            "number":88,
+            "head":{"sha":"sha-88"},
+        },
+    }
+    try:
+        status,result=signed_request(
+            base+"/v1/github/webhook",
+            payload,
+            delivery="delivery-88",
+        )
+        assert status==200
+        assert result["refreshed"]==1
+        assert len(result["dispatched_jobs"])==1
+        workflow=result["workflows"][0]["workflow"]
+        assert workflow["id"]!=template["id"]
+        assert workflow["metadata"]["github_pr_number"]==88
+        assert workflow["metadata"]["github_pr_head_sha"]=="sha-88"
+        assert workflow["metadata"]["github_pr_generation"]==1
+    finally:
+        server.shutdown()
+        server.server_close()
+
