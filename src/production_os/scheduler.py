@@ -5,6 +5,7 @@ from typing import Iterable
 
 from .learning import LearningSignal, learning_weight
 from .models import ActionCandidate, RepoAssessment
+from .runtime_state import RuntimeState
 
 
 @dataclass(frozen=True, slots=True)
@@ -33,7 +34,7 @@ def _repo_map(assessments: Iterable[RepoAssessment]) -> dict[str, RepoAssessment
     return {a.evidence.full_name: a for a in assessments}
 
 
-def _blockers(action: ActionCandidate, assessment: RepoAssessment | None) -> tuple[str, ...]:
+def _blockers(action: ActionCandidate, assessment: RepoAssessment | None, runtime_state: RuntimeState | None = None) -> tuple[str, ...]:
     if assessment is None:
         return ("missing-assessment",)
 
@@ -47,6 +48,17 @@ def _blockers(action: ActionCandidate, assessment: RepoAssessment | None) -> tup
 
     if action.task != "Add an executable automated test baseline" and not evidence.has_tests:
         blockers.append("no-test-baseline")
+
+    if runtime_state is not None:
+        record = runtime_state.get(action.repository, action.task)
+        if runtime_state.is_leased(record):
+            blockers.append("task-leased")
+        if runtime_state.in_cooldown(record):
+            blockers.append("task-cooldown")
+        if record.status == "circuit-open":
+            blockers.append("circuit-open")
+        if record.status == "succeeded":
+            blockers.append("already-succeeded")
 
     return tuple(blockers)
 
@@ -71,6 +83,7 @@ def build_schedule(
     actions: list[ActionCandidate],
     capacity: int = 3,
     learning_signals: list[LearningSignal] | None = None,
+    runtime_state: RuntimeState | None = None,
 ) -> dict:
     if capacity < 1:
         raise ValueError("capacity must be >= 1")
@@ -79,7 +92,7 @@ def build_schedule(
     ranked: list[tuple[ActionCandidate, RepoAssessment | None, float, tuple[str, ...]]] = []
     for action in actions:
         assessment = repos.get(action.repository)
-        ranked.append((action, assessment, _schedule_score(action, assessment, learning_signals), _blockers(action, assessment)))
+        ranked.append((action, assessment, _schedule_score(action, assessment, learning_signals), _blockers(action, assessment, runtime_state)))
 
     ranked.sort(key=lambda row: (-row[2], row[0].effort, row[0].repository, row[0].task))
 
@@ -88,7 +101,10 @@ def build_schedule(
     work: list[ScheduledWork] = []
 
     for action, assessment, score, blockers in ranked:
-        if action.repository in selected_repos:
+        hard_blocked = any(b in blockers for b in ("task-leased","task-cooldown","circuit-open","already-succeeded"))
+        if hard_blocked:
+            lane = "PAUSE"
+        elif action.repository in selected_repos:
             lane = "NEXT"
         elif active < capacity:
             lane = "NOW" if active == 0 else "PARALLEL"
