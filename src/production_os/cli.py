@@ -12,6 +12,8 @@ from .graph import build_knowledge_graph
 from .history import build_snapshot, detect_regressions, load_snapshot, save_snapshot
 from .models import ActionCandidate, RepoAssessment
 from .reuse import detect_reuse
+from .resources import allocate_resources
+from .scheduler import build_schedule
 from .scoring import assess_repository
 from .starlist import suggest_external_references
 
@@ -33,6 +35,9 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     scan.add_argument("--no-star-list", action="store_true")
     scan.add_argument("--include-forks", action="store_true")
     scan.add_argument("--include-archived", action="store_true")
+    scan.add_argument("--schedule", action="store_true", help="Emit autonomous portfolio schedule")
+    scan.add_argument("--capacity", type=int, default=3, help="Maximum concurrent active repositories")
+    scan.add_argument("--slots", type=int, default=3, help="Execution slots to allocate")
 
     validation = sub.add_parser(
         "validation-results",
@@ -250,7 +255,15 @@ def run_scan(args: argparse.Namespace) -> int:
     if args.snapshot:
         save_snapshot(snapshot, args.snapshot)
 
-    if args.handoff:
+    if args.schedule:
+        schedule = build_schedule(assessments, actions, capacity=args.capacity)
+        payload = {
+            "schema_version": "production-os/portfolio-control/v1",
+            "schedule": schedule,
+            "resource_allocation": allocate_resources(schedule, total_slots=args.slots),
+        }
+        print(json.dumps(payload, indent=2, ensure_ascii=False))
+    elif args.handoff:
         payload = _handoff(actions[0], reuse, catalog) if actions else {
             "schema_version": "production-os/task-handoff/v9",
             "status": "no_action",
