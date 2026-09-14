@@ -1080,3 +1080,171 @@ production-os controller \
 - [x] manual quarantine controls
 - [x] policy validation
 - [x] explainable policy decisions
+
+## P8 distributed runtime
+
+Production-OS now includes a dependency-free distributed runtime based on SQLite WAL and the Python standard library.
+
+### SQLite backend
+
+Initialize:
+
+```bash
+production-os db-init --database artifacts/production.db
+```
+
+Import legacy JSON state:
+
+```bash
+production-os db-import \
+  --database artifacts/production.db \
+  --runtime-state artifacts/runtime-state.json \
+  --workers artifacts/workers.json \
+  --claims artifacts/claims.json
+```
+
+SQLite stores:
+
+```text
+runtime records
+workers
+claims
+durable jobs
+event stream
+schema metadata
+```
+
+The database runs with WAL, foreign keys, NORMAL synchronous mode and a 30-second busy timeout.
+
+### Durable dispatch
+
+Direct durable dispatch:
+
+```bash
+production-os dispatch \
+  --handoff artifacts/handoff.json \
+  --queue-dir artifacts/queue \
+  --database artifacts/production.db
+```
+
+Continuous controller on SQLite:
+
+```bash
+production-os controller \
+  --owner dbrckk \
+  --database artifacts/production.db \
+  --queue-dir artifacts/queue \
+  --snapshot-dir artifacts/snapshots \
+  --metrics artifacts/metrics.json \
+  --health artifacts/health.json \
+  --journal artifacts/execution.jsonl \
+  --policy config/policy.example.json \
+  --budgets artifacts/budgets.json \
+  --quarantine artifacts/quarantine.json \
+  --approvals artifacts/approvals.json \
+  --cycles 12
+```
+
+When `--database` is used, runtime state, workers, claims and the execution queue use SQLite. Existing JSON mode remains supported.
+
+### API authentication and RBAC
+
+Generate a token digest:
+
+```bash
+production-os token-hash --token '<secret>'
+```
+
+Copy `config/auth.example.json`, replace the placeholder digest, and assign a role:
+
+```text
+viewer
+worker
+operator
+admin
+```
+
+Role ordering:
+
+```text
+viewer < worker < operator < admin
+```
+
+Raw tokens are not stored in the auth configuration; only SHA-256 digests are stored.
+
+### Control-plane API
+
+```bash
+production-os control-plane \
+  --database artifacts/production.db \
+  --auth-config artifacts/auth.json \
+  --host 0.0.0.0 \
+  --port 8787
+```
+
+Endpoints:
+
+```text
+GET  /health
+GET  /dashboard
+GET  /v1/stats
+GET  /v1/events
+GET  /v1/workers
+GET  /v1/jobs/<key>
+POST /v1/workers/register
+POST /v1/workers/heartbeat
+POST /v1/jobs/enqueue
+POST /v1/jobs/claim
+POST /v1/jobs/ack
+POST /v1/jobs/complete
+POST /v1/jobs/fail
+POST /v1/jobs/recover
+```
+
+The dashboard shell is served from `/dashboard`. It asks for a Bearer token locally and sends it only in the Authorization header.
+
+### Remote workers
+
+A remote worker can poll the control plane:
+
+```bash
+production-os remote-worker-poll \
+  --url http://127.0.0.1:8787 \
+  --token '<worker-token>' \
+  --worker-id python-1 \
+  --capability python \
+  --cycles 10
+```
+
+The worker protocol supports heartbeat, capability-aware claim, acknowledgement, completion and failure reporting.
+
+### Docker
+
+Prepare `artifacts/auth.json`, then:
+
+```bash
+docker compose up --build
+```
+
+The service exposes port `8787` and persists the SQLite database in `./artifacts`.
+
+### P8
+
+- [x] SQLite WAL transactional backend
+- [x] legacy JSON import
+- [x] runtime-state compatibility layer
+- [x] worker-registry compatibility layer
+- [x] claims compatibility layer
+- [x] durable job queue
+- [x] transactional job claiming
+- [x] expired claim recovery
+- [x] HTTP control-plane API
+- [x] bearer-token authentication
+- [x] RBAC
+- [x] remote worker protocol
+- [x] persistent event stream
+- [x] live dashboard
+- [x] Docker image
+- [x] Docker Compose startup
+- [ ] optional PostgreSQL backend
+- [ ] TLS termination / reverse-proxy reference config
