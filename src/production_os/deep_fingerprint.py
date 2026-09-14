@@ -23,7 +23,7 @@ class SourceSignal:
 
 def analyze_source_evidence(e: RepoEvidence) -> list[SourceSignal]:
     signals: list[SourceSignal] = []
-    combined = "\\n".join(e.source_documents.values()).lower()
+    combined = "\n".join(e.source_documents.values()).lower()
 
     def add(kind: str, value: str, confidence: float, evidence: list[str]) -> None:
         signals.append(
@@ -47,6 +47,18 @@ def analyze_source_evidence(e: RepoEvidence) -> list[SourceSignal]:
 
     for kind, value, needles, confidence in patterns:
         if any(needle in combined for needle in needles):
-            add(kind, value, confidence, [f"source contains {needle}" for needle in needles if needle in combined])
+            add(
+                kind,
+                value,
+                confidence,
+                [
+                    f"source contains {needle}"
+                    for needle in needles
+                    if needle in combined
+                ],
+            )
 
-    return sorted(signals, key=lambda item: (-item.confidence, item.kind, item.value))
+    return sorted(
+        signals,
+        key=lambda item: (-item.confidence, item.kind, item.value),
+    )
