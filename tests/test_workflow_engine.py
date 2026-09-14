@@ -82,8 +82,9 @@ def test_workflow_retry_budget(tmp_path):
     wf.record_result(
         created["id"],"test",succeeded=False,result={"error":"x"}
     )
-    assert wf.get(created["id"])["tasks"][0]["status"]=="ready"
-    wf.dispatch_ready(created["id"])
+    current=wf.get(created["id"])["tasks"][0]
+    assert current["status"]=="queued"
+    assert current["attempts"]==2
     wf.record_result(
         created["id"],"test",succeeded=False,result={"error":"x2"}
     )
