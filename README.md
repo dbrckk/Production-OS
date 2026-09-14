@@ -25,6 +25,8 @@ Production-OS manages portfolio state, prioritization, reuse, compatibility, val
 - **dependency version compatibility**
 - automatic validation-plan generation
 - **validation-result ingestion**
+- **autonomous portfolio scheduling**
+- **execution-slot resource allocation**
 - live `dbrckk/star-list` ranking
 - portfolio-wide **Next Best Action**
 - direct `ai-dev-server` handoff
@@ -158,9 +160,29 @@ The full scan exports the same evidence and decisions used by the handoff, inclu
 - [x] automatic validation plans
 - [x] validation-result ingestion
 
+## Autonomous portfolio control
+
+Production-OS can now convert the ranked action backlog into execution lanes:
+
+```bash
+production-os scan --owner dbrckk --schedule --capacity 3 --slots 3
+```
+
+The scheduler emits:
+
+```text
+NOW       highest-value primary task
+PARALLEL  other repositories that fit current capacity
+NEXT      queued high-value work
+PAUSE     lower-value work
+IGNORE    work below the current scheduling threshold
+```
+
+The resource allocator then assigns bounded execution slots to active repositories. This creates the first P2 control loop between portfolio priority and actual execution capacity.
+
 ### P2
-- [ ] autonomous scheduling
-- [ ] portfolio resource allocation
+- [x] autonomous scheduling
+- [x] portfolio resource allocation
 - [ ] long-term trend history
 - [ ] automatic execution feedback loop
 - [ ] mobile/dashboard control surface
