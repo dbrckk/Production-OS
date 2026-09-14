@@ -58,6 +58,79 @@ class WorkflowTaskSpec:
 
 
 class WorkflowEngine:
+    @staticmethod
+    def _expand_splittable_tasks(
+        tasks: list[WorkflowTaskSpec],
+    ) -> list[WorkflowTaskSpec]:
+        expanded: list[WorkflowTaskSpec] = []
+        for task in tasks:
+            payload = dict(task.payload)
+            if not bool(payload.get("splittable", False)):
+                expanded.append(task)
+                continue
+
+            items = list(payload.get("split_items", []))
+            if not items:
+                expanded.append(task)
+                continue
+
+            split_size = max(1, int(payload.get("split_size", 1)))
+            shards = [
+                items[index:index + split_size]
+                for index in range(0, len(items), split_size)
+            ]
+            shard_ids: list[str] = []
+
+            for index, chunk in enumerate(shards, start=1):
+                shard_id = f"{task.task_id}#shard-{index}"
+                shard_ids.append(shard_id)
+                shard_payload = {
+                    key:value
+                    for key, value in payload.items()
+                    if key not in {
+                        "splittable",
+                        "split_items",
+                        "split_size",
+                    }
+                }
+                shard_payload["split_chunk"] = chunk
+                shard_payload["split_index"] = index
+                shard_payload["split_count"] = len(shards)
+                shard_payload["split_parent_task_id"] = task.task_id
+
+                expanded.append(
+                    WorkflowTaskSpec(
+                        task_id=shard_id,
+                        title=f"{task.title} [{index}/{len(shards)}]",
+                        payload=shard_payload,
+                        dependencies=task.dependencies,
+                        priority=task.priority,
+                        max_attempts=task.max_attempts,
+                        estimated_minutes=max(
+                            0.01,
+                            task.estimated_minutes / len(shards),
+                        ),
+                    )
+                )
+
+            expanded.append(
+                WorkflowTaskSpec(
+                    task_id=task.task_id,
+                    title=task.title,
+                    payload={
+                        "virtual_barrier":True,
+                        "split_parent":True,
+                        "split_shards":shard_ids,
+                    },
+                    dependencies=tuple(shard_ids),
+                    priority=task.priority,
+                    max_attempts=1,
+                    estimated_minutes=0.0,
+                )
+            )
+
+        return expanded
+
     def __init__(self, backend, queue):
         self.backend = backend
         self.queue = queue
@@ -112,6 +185,7 @@ class WorkflowEngine:
             raise ValueError("workflow requires name and repository")
         if not tasks:
             raise ValueError("workflow requires at least one task")
+        tasks = self._expand_splittable_tasks(tasks)
         self._validate(tasks)
 
         workflow_id = workflow_id or uuid.uuid4().hex
@@ -299,15 +373,24 @@ class WorkflowEngine:
                         for dep in deps
                     ]
                     new_status = current
+                    payload = json.loads(row["payload_json"])
                     if any(
                         state in {"failed", "cancelled", "blocked"}
                         for state in dep_states
                     ):
                         new_status = "blocked"
                     elif all(state == "succeeded" for state in dep_states):
-                        new_status = "ready"
+                        new_status = (
+                            "succeeded"
+                            if bool(payload.get("virtual_barrier", False))
+                            else "ready"
+                        )
                     elif not deps:
-                        new_status = "ready"
+                        new_status = (
+                            "succeeded"
+                            if bool(payload.get("virtual_barrier", False))
+                            else "ready"
+                        )
 
                     if new_status != current:
                         _execute(
