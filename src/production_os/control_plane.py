@@ -418,11 +418,15 @@ def make_handler(control: ControlPlane):
                         )
                         return
 
-                    repository, pr_number, action = target
-                    workflows = control.workflows.find_by_github_pr(
-                        repository,
-                        pr_number,
+                    repository, pr_number, action, head_sha = target
+                    generation, superseded = (
+                        control.workflows.ensure_pr_generation(
+                            repository,
+                            pr_number,
+                            head_sha,
+                        )
                     )
+                    workflows = [generation] if generation else []
                     changed_paths = (
                         GitHubClient().list_pull_request_files(
                             repository,
@@ -443,6 +447,10 @@ def make_handler(control: ControlPlane):
                         )
                         refreshed.append({
                             "workflow_id":workflow["id"],
+                            "generation":workflow.get(
+                                "metadata", {}
+                            ).get("github_pr_generation"),
+                            "head_sha":head_sha,
                             "decisions":decisions,
                             "workflow":control.workflows.get(
                                 workflow["id"]
@@ -459,9 +467,14 @@ def make_handler(control: ControlPlane):
                             "action":action,
                             "repository":repository,
                             "pr_number":pr_number,
+                            "head_sha":head_sha,
                             "changed_paths":changed_paths,
                             "refreshed":len(refreshed),
                             "workflows":refreshed,
+                            "superseded_workflows":[
+                                item["id"]
+                                for item in superseded
+                            ],
                             "dispatched_jobs":dispatched,
                         },
                     )
