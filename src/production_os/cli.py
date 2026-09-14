@@ -11,6 +11,7 @@ from .dispatch import dispatch_handoff
 from .execution_feedback import decide_execution_outcome
 from .feedback import summarize_validation_results
 from .github_client import GitHubAPIError, GitHubClient
+from .github_work_state import fetch_github_work_state, runtime_decision_from_github
 from .graph import build_knowledge_graph
 from .history import build_snapshot, detect_regressions, load_snapshot, save_snapshot
 from .journal import ExecutionJournal
@@ -86,6 +87,11 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     dispatch.add_argument("--queue-dir", required=True)
     dispatch.add_argument("--owner", default="production-os")
     dispatch.add_argument("--lease-minutes", type=int, default=30)
+
+    ghrec = sub.add_parser("github-reconcile", help="Reconcile runtime tasks from explicit GitHub issue/PR mappings")
+    ghrec.add_argument("--mapping", required=True, help="JSON list of repository/task/issue_number/pr_number mappings")
+    ghrec.add_argument("--runtime-state", required=True)
+    ghrec.add_argument("--journal")
 
     return parser.parse_args(argv)
 
@@ -484,6 +490,60 @@ def run_dispatch(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_github_reconcile(args: argparse.Namespace) -> int:
+    payload = json.loads(Path(args.mapping).read_text(encoding="utf-8"))
+    mappings = payload.get("mappings", payload)
+    if not isinstance(mappings, list):
+        raise SystemExit("mapping must be a JSON list or contain mappings")
+
+    client = GitHubClient()
+    state = RuntimeState(args.runtime_state)
+    journal = ExecutionJournal(args.journal) if args.journal else None
+    results = []
+
+    for item in mappings:
+        repository = str(item.get("repository", ""))
+        task = str(item.get("task", ""))
+        if not repository or not task:
+            continue
+
+        work_state = fetch_github_work_state(
+            client,
+            repository,
+            issue_number=item.get("issue_number"),
+            pr_number=item.get("pr_number"),
+        )
+        decision = runtime_decision_from_github(work_state)
+
+        updated = None
+        if decision in {"promote", "retry", "replan"}:
+            updated = state.record_outcome(repository, task, decision).to_dict()
+
+        row = {
+            "repository": repository,
+            "task": task,
+            "github": work_state.to_dict(),
+            "decision": decision,
+            "runtime_state": updated,
+        }
+        results.append(row)
+
+        if journal is not None:
+            journal.append({
+                "repository": repository,
+                "task": task,
+                "source": "github-reconcile",
+                "decision": decision,
+                "github": work_state.to_dict(),
+            })
+
+    print(json.dumps({
+        "schema_version": "production-os/github-reconciliation/v1",
+        "results": results,
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
     if args.command == "scan":
@@ -500,6 +560,8 @@ def main(argv: list[str] | None = None) -> int:
         return run_reconcile(args)
     if args.command == "dispatch":
         return run_dispatch(args)
+    if args.command == "github-reconcile":
+        return run_github_reconcile(args)
     return 1
 
 
