@@ -405,6 +405,8 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     artifactadd.add_argument("--name", required=True)
     artifactadd.add_argument("--uri", required=True)
     artifactadd.add_argument("--sha256")
+    artifactadd.add_argument("--source-revision")
+    artifactadd.add_argument("--workflow-generation", type=int)
 
     releasepromote = sub.add_parser(
         "release-promote",
@@ -1607,6 +1609,18 @@ def run_artifact_add(args: argparse.Namespace) -> int:
         name=args.name,
         uri=args.uri,
         sha256=args.sha256,
+        metadata={
+            **(
+                {"source_revision":args.source_revision}
+                if args.source_revision
+                else {}
+            ),
+            **(
+                {"workflow_generation":args.workflow_generation}
+                if args.workflow_generation is not None
+                else {}
+            ),
+        },
     )
     print(json.dumps({
         "schema_version":"production-os/artifact/v1",
