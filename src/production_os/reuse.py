@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from .adaptation import score_adaptation_risk
+from .adaptation_plan import build_adaptation_plan
 from .models import RepoAssessment
 
 
@@ -15,6 +16,7 @@ class ReuseOpportunity:
     rationale: str
     evidence: tuple[str, ...] = ()
     components: tuple[dict, ...] = ()
+    adaptation_plan: dict | None = None
 
     def to_dict(self) -> dict:
         return {
@@ -25,6 +27,7 @@ class ReuseOpportunity:
             "rationale": self.rationale,
             "evidence": list(self.evidence),
             "components": list(self.components),
+            "adaptation_plan": self.adaptation_plan,
         }
 
 
@@ -127,6 +130,13 @@ def detect_reuse(assessments: list[RepoAssessment]) -> list[ReuseOpportunity]:
                     2,
                 )
 
+                plan = build_adaptation_plan(
+                    source,
+                    target,
+                    capability.name,
+                    list(components),
+                ).to_dict()
+
                 opportunities.append(
                     ReuseOpportunity(
                         source=source.evidence.full_name,
@@ -141,12 +151,15 @@ def detect_reuse(assessments: list[RepoAssessment]) -> list[ReuseOpportunity]:
                         ),
                         evidence=capability.evidence,
                         components=components,
+                        adaptation_plan=plan,
                     )
                 )
 
     opportunities.sort(
         key=lambda item: (
             -item.confidence,
+            item.adaptation_plan.get("overall_risk", 101)
+            if item.adaptation_plan else 101,
             item.components[0]["adaptation_risk"] if item.components else 101,
             -len(item.components),
             item.target,
