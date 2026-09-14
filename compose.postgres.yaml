@@ -6,6 +6,8 @@ services:
       POSTGRES_USER: production_os
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: production_os
+    environment:
+      PRODUCTION_OS_GITHUB_WEBHOOK_SECRET: ${PRODUCTION_OS_GITHUB_WEBHOOK_SECRET:-}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
