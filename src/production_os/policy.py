@@ -102,6 +102,7 @@ def evaluate_policy(
     handoff: dict,
     *,
     now: datetime | None = None,
+    enforce_runtime_evidence: bool = True,
 ) -> PolicyDecision:
     now = now or datetime.now(timezone.utc)
     repository = str(handoff.get("repository", ""))
@@ -131,7 +132,7 @@ def evaluate_policy(
             [],
         )
     )
-    if risk in protected_for:
+    if enforce_runtime_evidence and risk in protected_for:
         if handoff.get("branch_protected") is not True:
             allowed = False
             reasons.append(
