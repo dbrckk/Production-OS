@@ -27,6 +27,7 @@ class RuntimeRecord:
     interruptible: bool = False
     preempt_requested: bool = False
     checkpoint_ref: str | None = None
+    started_at: str | None = None
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -112,6 +113,7 @@ class RuntimeState:
             record.lease_owner = owner
             record.lease_expires_at = (now + timedelta(minutes=minutes)).isoformat()
             record.status = "running"
+            record.started_at = now.isoformat()
             record.priority = float(priority)
             record.interruptible = bool(interruptible)
             record.preempt_requested = False
