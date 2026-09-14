@@ -1676,3 +1676,76 @@ business priority
 ```
 
 This ordering is combined with exact-key transactional claims, so SQLite and PostgreSQL preserve concurrency safety while using the adaptive ranking.
+
+## P11 incremental workflow execution
+
+Production-OS can now prune workflow work deterministically from an explicit changed-path set.
+
+A task opts in through its payload:
+
+    {
+      "impact": {
+        "paths": ["src/**", "tests/**"],
+        "exclude_paths": ["src/generated/**"],
+        "skip_when_unaffected": true
+      }
+    }
+
+Tasks that do not explicitly opt in continue to execute. Missing impact patterns and unknown or empty change sets are fail-closed by default.
+
+To intentionally treat an empty change set as safe to skip:
+
+    {
+      "impact": {
+        "paths": ["docs/**"],
+        "skip_when_unaffected": true,
+        "allow_empty_changes": true
+      }
+    }
+
+Tasks can also force execution with:
+
+    {
+      "impact": {
+        "always_run": true
+      }
+    }
+
+Impact propagation is dependency-aware: once a task is affected, all downstream tasks are considered affected even when their own direct path patterns do not match.
+
+CLI:
+
+    production-os workflow-impact \
+      --database artifacts/production.db \
+      --workflow-id <workflow-id> \
+      --changed-path src/core.py \
+      --changed-path tests/test_core.py
+
+A workflow may also provide changed paths at creation time through metadata. Unaffected opt-in tasks are recorded as successful skips with the reason and changed-path evidence persisted in their result.
+
+Control-plane API:
+
+    POST /v1/workflows/<id>/impact
+
+Request body:
+
+    {
+      "changed_paths": ["src/core.py", "tests/test_core.py"]
+    }
+
+### P11
+
+- [x] deterministic changed-path analysis
+- [x] explicit opt-in task pruning
+- [x] fail-closed defaults
+- [x] empty-change safety
+- [x] path normalization
+- [x] include patterns
+- [x] exclude patterns
+- [x] always-run tasks
+- [x] downstream dependency propagation
+- [x] persisted skip evidence
+- [x] workflow-create integration
+- [x] CLI impact command
+- [x] control-plane impact API
+- [x] regression tests
