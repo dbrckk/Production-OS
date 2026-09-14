@@ -12,6 +12,7 @@ from .audit_integrity import verify_hash_chain
 from .backup import create_backup, restore_backup
 from .budgets import BudgetLedger
 from .claims import ClaimStore
+from .control_plane import serve_control_plane
 from .control_surface import write_control_surface
 from .controller import run_controller
 from .delivery import recover_unacked_jobs
@@ -39,6 +40,9 @@ from .rate_limit import RateLimitStore
 from .reconciliation import reconcile_runtime_state
 from .resources import allocate_resources
 from .runtime_state import RuntimeState
+from .sqlite_backend import SQLiteBackend, SQLiteJobQueue
+from .sqlite_migration import import_json_state
+from .api_auth import token_digest
 from .scheduler import build_schedule
 from .scoring import assess_repository
 from .starlist import suggest_external_references
@@ -115,6 +119,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     dispatch.add_argument("--policy")
     dispatch.add_argument("--budgets")
     dispatch.add_argument("--quarantine")
+    dispatch.add_argument("--database", help="Use durable SQLite queue instead of file queue")
 
     ghrec = sub.add_parser("github-reconcile", help="Reconcile runtime tasks from explicit GitHub issue/PR mappings")
     ghrec.add_argument("--mapping", required=True, help="JSON list of repository/task/issue_number/pr_number mappings")
@@ -284,6 +289,24 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     policycheck = sub.add_parser("policy-check", help="Evaluate one handoff against policy-as-code")
     policycheck.add_argument("--policy", required=True)
     policycheck.add_argument("--handoff", required=True)
+
+    dbinit = sub.add_parser("db-init", help="Initialize the P8 SQLite backend")
+    dbinit.add_argument("--database", required=True)
+
+    dbimport = sub.add_parser("db-import", help="Import legacy JSON state into SQLite")
+    dbimport.add_argument("--database", required=True)
+    dbimport.add_argument("--runtime-state")
+    dbimport.add_argument("--workers")
+    dbimport.add_argument("--claims")
+
+    tokenhash = sub.add_parser("token-hash", help="Hash an API bearer token for auth config")
+    tokenhash.add_argument("--token", required=True)
+
+    controlplane = sub.add_parser("control-plane", help="Run authenticated distributed control-plane API")
+    controlplane.add_argument("--database", required=True)
+    controlplane.add_argument("--auth-config", required=True)
+    controlplane.add_argument("--host", default="127.0.0.1")
+    controlplane.add_argument("--port", type=int, default=8787)
 
     return parser.parse_args(argv)
 
@@ -674,6 +697,22 @@ def run_dispatch(args: argparse.Namespace) -> int:
     policy_set = PolicySet.load(args.policy)
     budget_ledger = BudgetLedger(args.budgets) if args.budgets else None
     quarantine_store = QuarantineStore(args.quarantine) if args.quarantine else None
+    if args.database:
+        backend = SQLiteBackend(args.database)
+        queue = SQLiteJobQueue(backend)
+        payload = {
+            "schema_version":"production-os/dispatch/v4",
+            "handoff":handoff,
+            "required_capabilities":args.required_capability,
+        }
+        job = queue.enqueue(payload)
+        print(json.dumps({
+            "schema_version":"production-os/dispatch-result/v3",
+            "backend":"sqlite",
+            "job":job,
+        }, indent=2, ensure_ascii=False))
+        return 0
+
     result = dispatch_handoff(
         handoff,
         args.queue_dir,
@@ -1117,6 +1156,47 @@ def run_policy_check(args: argparse.Namespace) -> int:
     }, indent=2, ensure_ascii=False))
     return 0 if decision.allowed else 8
 
+
+
+def run_db_init(args: argparse.Namespace) -> int:
+    backend = SQLiteBackend(args.database)
+    print(json.dumps({
+        "schema_version":"production-os/sqlite-init/v1",
+        "database":str(backend.path),
+        "version":backend.SCHEMA_VERSION,
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
+def run_db_import(args: argparse.Namespace) -> int:
+    backend = SQLiteBackend(args.database)
+    payload = import_json_state(
+        backend,
+        runtime_state=args.runtime_state,
+        workers=args.workers,
+        claims=args.claims,
+    )
+    print(json.dumps(payload, indent=2, ensure_ascii=False))
+    return 0
+
+
+def run_token_hash(args: argparse.Namespace) -> int:
+    print(json.dumps({
+        "schema_version":"production-os/token-hash/v1",
+        "sha256":token_digest(args.token),
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
+def run_control_plane(args: argparse.Namespace) -> int:
+    serve_control_plane(
+        args.database,
+        args.auth_config,
+        host=args.host,
+        port=args.port,
+    )
+    return 0
+
 def run_health_server(args: argparse.Namespace) -> int:
     serve_health(args.health, host=args.host, port=args.port)
     return 0
@@ -1198,6 +1278,14 @@ def main(argv: list[str] | None = None) -> int:
         return run_policy_validate(args)
     if args.command == "policy-check":
         return run_policy_check(args)
+    if args.command == "db-init":
+        return run_db_init(args)
+    if args.command == "db-import":
+        return run_db_import(args)
+    if args.command == "token-hash":
+        return run_token_hash(args)
+    if args.command == "control-plane":
+        return run_control_plane(args)
     return 1
 
 
