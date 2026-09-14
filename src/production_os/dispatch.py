@@ -14,6 +14,7 @@ from .quarantine import QuarantineStore
 from .rate_limit import RateLimitStore
 from .receipts import write_dispatch_receipt
 from .runtime_state import RuntimeState
+from .sqlite_backend import SQLiteJobQueue
 from .workers import WorkerRegistry, select_worker
 
 
@@ -55,6 +56,7 @@ def dispatch_handoff(
     policy_set: PolicySet | None = None,
     budget_ledger: BudgetLedger | None = None,
     quarantine_store: QuarantineStore | None = None,
+    durable_queue: SQLiteJobQueue | None = None,
     repo_rate_limit: int = 20,
     worker_rate_limit: int = 60,
     rate_window_seconds: int = 3600,
@@ -182,19 +184,23 @@ def dispatch_handoff(
             worker_registry.adjust_active_tasks(worker.worker_id, +1)
             worker_incremented = True
 
-        queue = Path(queue_dir)
-        queue.mkdir(parents=True, exist_ok=True)
-        worker_suffix = f".{worker.worker_id}" if worker is not None else ""
-        destination = queue / f"{record.key}{worker_suffix}.json"
         payload = {
-            "schema_version": "production-os/dispatch/v3",
+            "schema_version": "production-os/dispatch/v4",
             "created_at": datetime.now(timezone.utc).isoformat(),
             "idempotency_key": record.key,
             "worker_id": worker.worker_id if worker is not None else None,
             "required_capabilities": required_capabilities or [],
             "handoff": handoff,
         }
-        atomic_write_json(destination, payload)
+        if durable_queue is not None:
+            durable_queue.enqueue(payload)
+            destination = Path(f"sqlite-{record.key}")
+        else:
+            queue = Path(queue_dir)
+            queue.mkdir(parents=True, exist_ok=True)
+            worker_suffix = f".{worker.worker_id}" if worker is not None else ""
+            destination = queue / f"{record.key}{worker_suffix}.json"
+            atomic_write_json(destination, payload)
 
         receipt_file = None
         if receipt_dir is not None and worker is not None:
@@ -220,7 +226,7 @@ def dispatch_handoff(
             receipt_file=receipt_file,
         )
     except Exception:
-        if destination is not None:
+        if destination is not None and durable_queue is None:
             destination.unlink(missing_ok=True)
         if worker is not None and worker_incremented:
             worker_registry.adjust_active_tasks(worker.worker_id, -1)
