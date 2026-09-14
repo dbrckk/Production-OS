@@ -6,6 +6,7 @@ import sys
 from typing import Iterable
 
 from .github_client import GitHubAPIError, GitHubClient
+from .graph import build_knowledge_graph
 from .history import build_snapshot, detect_regressions, load_snapshot, save_snapshot
 from .models import ActionCandidate, RepoAssessment
 from .reuse import detect_reuse
@@ -35,9 +36,12 @@ def _rank_actions(assessments: Iterable[RepoAssessment]) -> list[ActionCandidate
     return sorted(actions, key=lambda action: action.priority, reverse=True)
 
 
-def _handoff(action: ActionCandidate) -> dict:
+def _handoff(action: ActionCandidate, reuse: list) -> dict:
+    related_reuse = [
+        item.to_dict() for item in reuse if item.target == action.repository
+    ][:5]
     return {
-        "schema_version": "production-os/task-handoff/v1",
+        "schema_version": "production-os/task-handoff/v2",
         "source": "Production-OS",
         "executor": "ai-dev-server",
         "repository": action.repository,
@@ -46,27 +50,24 @@ def _handoff(action: ActionCandidate) -> dict:
         "acceptance_criteria": action.acceptance_criteria,
         "trigger_evidence": action.evidence,
         "priority": action.priority,
+        "reuse_candidates": related_reuse,
         "constraints": {
             "preserve_existing_behavior": True,
             "verify_before_completion": True,
+            "reuse_before_rebuild": True,
             "no_secret_material_in_workspace": True,
         },
     }
 
 
-def _print_human(
-    assessments: list[RepoAssessment],
-    actions: list[ActionCandidate],
-    regressions: list,
-    reuse: list,
-) -> None:
+def _print_human(assessments, actions, regressions, reuse) -> None:
     print("Production-OS portfolio assessment")
     print("=" * 34)
     for assessment in sorted(assessments, key=lambda item: item.score.total, reverse=True):
         e = assessment.evidence
         print(
             f"{e.full_name:<40} {assessment.score.total:>3}/100 "
-            f"[{assessment.profile}]"
+            f"[{assessment.profile}] caps={len(assessment.capabilities)}"
         )
 
     print()
@@ -82,7 +83,7 @@ def _print_human(
 
     if reuse:
         print("TOP REUSE OPPORTUNITIES")
-        for item in reuse[:5]:
+        for item in reuse[:8]:
             print(
                 f"- {item.target} <- {item.source}: "
                 f"{item.capability} ({item.confidence:.0%})"
@@ -139,6 +140,7 @@ def run_scan(args: argparse.Namespace) -> int:
 
     actions = _rank_actions(assessments)
     reuse = detect_reuse(assessments)
+    graph = build_knowledge_graph(assessments)
     snapshot = build_snapshot(args.owner, assessments)
     previous = load_snapshot(args.compare) if args.compare else None
     regressions = detect_regressions(previous, snapshot)
@@ -147,18 +149,19 @@ def run_scan(args: argparse.Namespace) -> int:
         save_snapshot(snapshot, args.snapshot)
 
     if args.handoff:
-        payload = _handoff(actions[0]) if actions else {
-            "schema_version": "production-os/task-handoff/v1",
+        payload = _handoff(actions[0], reuse) if actions else {
+            "schema_version": "production-os/task-handoff/v2",
             "status": "no_action",
         }
         print(json.dumps(payload, indent=2, ensure_ascii=False))
     elif args.json:
         payload = {
-            "schema_version": "production-os/portfolio/v2",
+            "schema_version": "production-os/portfolio/v3",
             "owner": args.owner,
             "repositories": [a.to_dict() for a in assessments],
             "ranked_actions": [a.to_dict() for a in actions],
             "reuse_opportunities": [item.to_dict() for item in reuse],
+            "knowledge_graph": graph,
             "regressions": [
                 {
                     "repository": item.repository,
