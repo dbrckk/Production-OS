@@ -392,6 +392,198 @@ class WorkflowEngine:
         self.refresh(workflow_id)
         return [item.to_dict() for item in decisions]
 
+    @staticmethod
+    def _spec_from_task(task: dict) -> WorkflowTaskSpec:
+        return WorkflowTaskSpec(
+            task_id=str(task["task_id"]),
+            title=str(task["title"]),
+            payload=dict(task.get("payload") or {}),
+            dependencies=tuple(
+                str(value)
+                for value in task.get("dependencies", [])
+            ),
+            priority=float(task.get("priority", 0.0)),
+            max_attempts=max(
+                1,
+                int(task.get("max_attempts", 1)),
+            ),
+            estimated_minutes=max(
+                0.0,
+                float(task.get("estimated_minutes", 1.0)),
+            ),
+        )
+
+    def create_pr_generation(
+        self,
+        source_workflow_id: str,
+        *,
+        head_sha: str,
+    ) -> dict:
+        source = self.get(source_workflow_id)
+        metadata = dict(source.get("metadata") or {})
+        current_generation = int(
+            metadata.get("github_pr_generation", 1)
+        )
+        metadata.update({
+            "github_pr_head_sha":str(head_sha),
+            "github_pr_generation":current_generation + 1,
+            "supersedes_workflow_id":source_workflow_id,
+        })
+        metadata.pop("changed_paths", None)
+
+        return self.create(
+            name=source["name"],
+            repository=source["repository"],
+            tasks=[
+                self._spec_from_task(task)
+                for task in source["tasks"]
+            ],
+            metadata=metadata,
+        )
+
+    def supersede(
+        self,
+        workflow_id: str,
+        *,
+        superseded_by: str,
+        head_sha: str,
+    ) -> dict:
+        workflow = self.get(workflow_id)
+        now = _now()
+        metadata = dict(workflow.get("metadata") or {})
+        metadata.update({
+            "superseded":True,
+            "superseded_by_workflow_id":superseded_by,
+            "superseded_by_head_sha":str(head_sha),
+        })
+
+        with self.backend.transaction() as db:
+            rows = _execute(
+                db,
+                self.backend,
+                """
+                SELECT task_id, claimed_job_key
+                FROM workflow_tasks
+                WHERE workflow_id=?
+                  AND status NOT IN (
+                    'succeeded','failed','cancelled'
+                  )
+                """,
+                (workflow_id,),
+            ).fetchall()
+
+            cancelled_jobs: list[str] = []
+            for row in rows:
+                key = row["claimed_job_key"]
+                if not key:
+                    continue
+                job = _execute(
+                    db,
+                    self.backend,
+                    "SELECT status FROM jobs WHERE key=?",
+                    (key,),
+                ).fetchone()
+                if job is None:
+                    continue
+                if job["status"] not in {
+                    "queued", "claimed", "acked"
+                }:
+                    continue
+                _execute(
+                    db,
+                    self.backend,
+                    """
+                    UPDATE jobs
+                    SET status='cancelled', updated_at=?
+                    WHERE key=?
+                    """,
+                    (now, key),
+                )
+                cancelled_jobs.append(str(key))
+
+            _execute(
+                db,
+                self.backend,
+                """
+                UPDATE workflow_tasks
+                SET status='cancelled', updated_at=?
+                WHERE workflow_id=?
+                  AND status NOT IN (
+                    'succeeded','failed','cancelled'
+                  )
+                """,
+                (now, workflow_id),
+            )
+            _execute(
+                db,
+                self.backend,
+                """
+                UPDATE workflows
+                SET status='cancelled',
+                    metadata_json=?,
+                    updated_at=?
+                WHERE id=?
+                """,
+                (
+                    json.dumps(metadata, ensure_ascii=False),
+                    now,
+                    workflow_id,
+                ),
+            )
+            self.backend.append_event(
+                db,
+                "workflow-superseded",
+                {
+                    "workflow_id":workflow_id,
+                    "superseded_by":superseded_by,
+                    "head_sha":head_sha,
+                    "cancelled_jobs":cancelled_jobs,
+                },
+                repository=workflow["repository"],
+            )
+        return self.get(workflow_id)
+
+    def ensure_pr_generation(
+        self,
+        repository: str,
+        pr_number: int,
+        head_sha: str,
+    ) -> tuple[dict | None, list[dict]]:
+        workflows = self.find_by_github_pr(
+            repository,
+            pr_number,
+        )
+        if not workflows:
+            return None, []
+
+        latest = workflows[0]
+        latest_metadata = dict(latest.get("metadata") or {})
+        current_sha = str(
+            latest_metadata.get("github_pr_head_sha") or ""
+        )
+        if current_sha == str(head_sha):
+            return latest, []
+
+        generation = self.create_pr_generation(
+            latest["id"],
+            head_sha=head_sha,
+        )
+        superseded = []
+        for workflow in workflows:
+            metadata = dict(workflow.get("metadata") or {})
+            if bool(metadata.get("superseded", False)):
+                continue
+            if workflow["id"] == generation["id"]:
+                continue
+            superseded.append(
+                self.supersede(
+                    workflow["id"],
+                    superseded_by=generation["id"],
+                    head_sha=head_sha,
+                )
+            )
+        return generation, superseded
+
     def find_by_github_pr(
         self,
         repository: str,
