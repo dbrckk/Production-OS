@@ -421,6 +421,27 @@ def make_handler(control: ControlPlane):
                             )
                             self._send(HTTPStatus.OK, {"jobs":jobs})
                             return
+                        if action == "impact":
+                            decisions = control.workflows.apply_change_impact(
+                                workflow_id,
+                                [
+                                    str(path)
+                                    for path in body.get(
+                                        "changed_paths",
+                                        [],
+                                    )
+                                ],
+                            )
+                            self._send(
+                                HTTPStatus.OK,
+                                {
+                                    "decisions":decisions,
+                                    "workflow":control.workflows.get(
+                                        workflow_id
+                                    ),
+                                },
+                            )
+                            return
                         if action == "cancel":
                             workflow = control.workflows.cancel(workflow_id)
                             self._send(
