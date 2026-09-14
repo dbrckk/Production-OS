@@ -66,6 +66,7 @@ def _blockers(
             "priority": action.priority,
             "constraints": {},
         },
+        enforce_runtime_evidence=False,
     )
     if not policy_decision.allowed:
         blockers.append("policy-blocked")
