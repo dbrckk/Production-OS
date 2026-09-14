@@ -8,6 +8,7 @@ from pathlib import Path
 from .claims import ClaimStore
 from .delivery import recover_unacked_jobs
 from .dispatch import dispatch_handoff
+from .emergency import emergency_stop_active
 from .github_client import GitHubClient
 from .github_work_state import fetch_github_work_state, runtime_decision_from_github
 from .health import build_health, write_health
@@ -16,6 +17,7 @@ from .history import build_snapshot, save_snapshot
 from .journal import ExecutionJournal
 from .metrics import MetricsStore
 from .observability import build_observability_payload, write_observability
+from .rate_limit import RateLimitStore
 from .reconciliation import reconcile_runtime_state
 from .resources import allocate_resources
 from .reuse import detect_reuse
@@ -117,6 +119,8 @@ def run_control_cycle(
     receipt_dir: str | None = None,
     claims_path: str | None = None,
     dead_letter_dir: str | None = None,
+    emergency_stop_path: str | None = None,
+    rate_limit_path: str | None = None,
     capacity: int = 3,
     slots: int = 3,
     lease_owner: str = "production-os-controller",
@@ -126,6 +130,7 @@ def run_control_cycle(
     metrics_store = MetricsStore(metrics_path)
     journal = ExecutionJournal(journal_path)
     worker_registry = WorkerRegistry(worker_registry_path) if worker_registry_path else None
+    rate_limit_store = RateLimitStore(rate_limit_path) if rate_limit_path else None
     delivery_recovery = []
     if worker_registry is not None:
         worker_registry.detect_dead()
@@ -197,8 +202,12 @@ def run_control_cycle(
     action_lookup = {(a.repository, a.task): a for a in actions}
     assessment_lookup = {a.evidence.full_name: a for a in assessments}
     dispatches = []
+    emergency_stopped = emergency_stop_active(emergency_stop_path)
     for item in schedule.get("work", []):
         if item.get("lane") not in {"NOW","PARALLEL"}:
+            continue
+        if emergency_stopped:
+            journal.append({"source":"controller","event":"dispatch-blocked","repository":item["repository"],"task":item["task"],"reason":"emergency-stop"})
             continue
         action = action_lookup.get((item["repository"], item["task"]))
         if action is None:
@@ -225,6 +234,8 @@ def run_control_cycle(
                 worker_registry=worker_registry,
                 required_capabilities=required_capabilities,
                 receipt_dir=receipt_dir,
+                emergency_stop_path=emergency_stop_path,
+                rate_limit_store=rate_limit_store,
             )
             dispatches.append(result.to_dict())
             metrics_store.metrics.dispatched += 1
@@ -274,6 +285,7 @@ def run_control_cycle(
         "github_reconciliation":github_results,
         "workers":[w.to_dict() for w in worker_registry.workers.values()] if worker_registry else [],
         "delivery_recovery":delivery_recovery,
+        "emergency_stop":emergency_stopped,
         "health":health,
         "observability":observability,
     }
