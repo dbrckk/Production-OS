@@ -27,7 +27,6 @@ def test_validation_attestation_verifies_exact_bindings():
         source_revision="sha-1",
         workflow_generation=3,
         validation=validation(),
-        issued_at="2026-09-14T20:00:00+00:00",
     )
 
     verified=verify_validation_attestation(
@@ -131,3 +130,31 @@ def test_release_provenance_detects_tampering():
         provenance,
         secret="provenance-secret",
     ) is False
+
+
+def test_validation_attestation_rejects_expired_signature():
+    attestation=create_validation_attestation(
+        validator_id="validator-1",
+        secret="secret",
+        workflow_id="wf-1",
+        artifact_id="artifact-1",
+        artifact_sha256="a"*64,
+        source_revision="sha-1",
+        workflow_generation=3,
+        validation=validation(),
+        issued_at="2000-01-01T00:00:00+00:00",
+    )
+
+    with pytest.raises(AttestationError,match="expired"):
+        verify_validation_attestation(
+            attestation,
+            trusted_secrets={"validator-1":"secret"},
+            workflow_id="wf-1",
+            artifact_id="artifact-1",
+            artifact_sha256="a"*64,
+            source_revision="sha-1",
+            workflow_generation=3,
+            validation=validation(),
+            max_age_seconds=3600,
+        )
+
