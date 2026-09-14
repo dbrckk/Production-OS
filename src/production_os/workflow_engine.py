@@ -206,7 +206,7 @@ class WorkflowEngine:
                     workflow_id,
                     name,
                     repository,
-                    json.dumps(metadata or {}, ensure_ascii=False),
+                    json.dumps(metadata, ensure_ascii=False),
                     now,
                     now,
                 ),
@@ -1192,6 +1192,62 @@ class WorkflowEngine:
             )
         return self.get(workflow_id)
 
+    def assert_generation_current(
+        self,
+        workflow_id: str,
+        *,
+        source_revision: str | None = None,
+        workflow_generation: int | None = None,
+    ) -> dict:
+        workflow = self.get(workflow_id)
+        metadata = dict(workflow.get("metadata") or {})
+
+        if bool(metadata.get("superseded", False)):
+            raise RuntimeError(
+                "stale workflow generation: workflow is superseded"
+            )
+
+        expected_revision = metadata.get("github_pr_head_sha")
+        if expected_revision:
+            if not source_revision:
+                raise RuntimeError(
+                    "source revision required for PR workflow"
+                )
+            if str(source_revision) != str(expected_revision):
+                raise RuntimeError(
+                    "stale workflow generation: source revision mismatch"
+                )
+
+        expected_generation = metadata.get("github_pr_generation")
+        if expected_generation is not None:
+            if workflow_generation is None:
+                raise RuntimeError(
+                    "workflow generation required for PR workflow"
+                )
+            if int(workflow_generation) != int(expected_generation):
+                raise RuntimeError(
+                    "stale workflow generation: generation mismatch"
+                )
+
+        return workflow
+
+    def job_generation_current(self, job: dict) -> bool:
+        payload = dict(job.get("payload") or {})
+        workflow_id = payload.get("workflow_id")
+        if not workflow_id:
+            return True
+        try:
+            self.assert_generation_current(
+                str(workflow_id),
+                source_revision=payload.get("source_revision"),
+                workflow_generation=payload.get(
+                    "workflow_generation"
+                ),
+            )
+        except (KeyError, RuntimeError, TypeError, ValueError):
+            return False
+        return True
+
     def add_artifact(
         self,
         workflow_id: str,
@@ -1202,6 +1258,21 @@ class WorkflowEngine:
         sha256: str | None = None,
         metadata: dict | None = None,
     ) -> dict:
+        metadata = dict(metadata or {})
+        workflow = self.get(workflow_id)
+        workflow_metadata = dict(workflow.get("metadata") or {})
+        if (
+            workflow_metadata.get("github_pr_head_sha")
+            or workflow_metadata.get("github_pr_generation") is not None
+        ):
+            self.assert_generation_current(
+                workflow_id,
+                source_revision=metadata.get("source_revision"),
+                workflow_generation=metadata.get(
+                    "workflow_generation"
+                ),
+            )
+
         artifact_id = uuid.uuid4().hex
         now = _now()
         with self.backend.transaction() as db:
