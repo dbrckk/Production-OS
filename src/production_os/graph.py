@@ -53,8 +53,45 @@ def build_knowledge_graph(assessments: list[RepoAssessment]) -> dict:
             })
             edges.append(GraphEdge(repo_id, "provides", cap_id, capability.confidence))
 
+        component_ids: dict[tuple[str, str], str] = {}
+        for component in assessment.components:
+            component_id = (
+                f"component:{assessment.evidence.full_name}:"
+                f"{component.path}:{component.kind}:{component.name}"
+            )
+            component_ids[(component.path, component.name)] = component_id
+            nodes[component_id] = {
+                "id": component_id,
+                "type": "component",
+                "name": component.name,
+                "kind": component.kind,
+                "path": component.path,
+                "language": component.language,
+                "test_like": component.test_like,
+            }
+            edges.append(GraphEdge(repo_id, "contains", component_id, component.confidence))
+
+            for capability in component.capability_hints:
+                cap_id = f"capability:{capability}"
+                nodes.setdefault(cap_id, {
+                    "id": cap_id,
+                    "type": "capability",
+                    "name": capability,
+                    "portable": True,
+                })
+                edges.append(GraphEdge(component_id, "implements", cap_id, 0.88))
+
+            for dependency in component.dependencies:
+                dep_id = f"dependency:{dependency}"
+                nodes.setdefault(dep_id, {
+                    "id": dep_id,
+                    "type": "dependency",
+                    "name": dependency,
+                })
+                edges.append(GraphEdge(component_id, "depends_on", dep_id, 0.90))
+
     return {
-        "schema_version": "production-os/knowledge-graph/v1",
+        "schema_version": "production-os/knowledge-graph/v2",
         "nodes": sorted(nodes.values(), key=lambda node: node["id"]),
         "edges": [edge.to_dict() for edge in edges],
     }
