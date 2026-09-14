@@ -1,5 +1,6 @@
 import pytest
 
+from production_os.attestations import create_validation_attestation
 from production_os.release_ledger import ReleaseLedger
 from production_os.sqlite_backend import SQLiteBackend, SQLiteJobQueue
 from production_os.workflow_engine import WorkflowEngine, WorkflowTaskSpec
@@ -8,7 +9,12 @@ from production_os.workflow_engine import WorkflowEngine, WorkflowTaskSpec
 def setup_release(tmp_path):
     backend=SQLiteBackend(tmp_path/"db.sqlite")
     workflows=WorkflowEngine(backend,SQLiteJobQueue(backend))
-    releases=ReleaseLedger(backend,workflows)
+    releases=ReleaseLedger(
+        backend,
+        workflows,
+        trusted_validation_secrets={"validator-1":"validator-secret"},
+        provenance_secret="provenance-secret",
+    )
 
     workflow=workflows.create(
         name="release",
@@ -48,6 +54,22 @@ def passed_validation():
     }
 
 
+def signed_attestation(workflow, artifact, validation=None):
+    validation=validation or passed_validation()
+    return create_validation_attestation(
+        validator_id="validator-1",
+        secret="validator-secret",
+        workflow_id=workflow["id"],
+        artifact_id=artifact["id"],
+        artifact_sha256=artifact["sha256"],
+        source_revision=artifact["metadata"].get("source_revision"),
+        workflow_generation=artifact["metadata"].get(
+            "workflow_generation"
+        ),
+        validation=validation,
+    )
+
+
 def test_promote_creates_immutable_release_record(tmp_path):
     _,_,releases,workflow,artifact=setup_release(tmp_path)
 
@@ -55,6 +77,7 @@ def test_promote_creates_immutable_release_record(tmp_path):
         workflow_id=workflow["id"],
         artifact_id=artifact["id"],
         validation=passed_validation(),
+        attestation=signed_attestation(workflow, artifact),
         metadata={"channel":"internal"},
     )
 
@@ -78,6 +101,7 @@ def test_promotion_rejects_failed_validation(tmp_path):
                 "promotion_allowed":False,
                 "blocking_failures":["tests"],
             },
+            attestation={},
         )
 
 
@@ -87,6 +111,7 @@ def test_promotion_rejects_duplicate_artifact(tmp_path):
         workflow_id=workflow["id"],
         artifact_id=artifact["id"],
         validation=passed_validation(),
+        attestation=signed_attestation(workflow, artifact),
     )
 
     with pytest.raises(RuntimeError,match="already promoted"):
@@ -94,6 +119,7 @@ def test_promotion_rejects_duplicate_artifact(tmp_path):
             workflow_id=workflow["id"],
             artifact_id=artifact["id"],
             validation=passed_validation(),
+            attestation=signed_attestation(workflow, artifact),
         )
 
 
@@ -111,6 +137,7 @@ def test_promotion_rejects_superseded_workflow(tmp_path):
             workflow_id=workflow["id"],
             artifact_id=artifact["id"],
             validation=passed_validation(),
+            attestation={},
         )
 
 
@@ -143,7 +170,12 @@ def test_release_rollback_is_append_only(tmp_path):
 def test_promotion_requires_artifact_sha256(tmp_path):
     backend=SQLiteBackend(tmp_path/"db.sqlite")
     workflows=WorkflowEngine(backend,SQLiteJobQueue(backend))
-    releases=ReleaseLedger(backend,workflows)
+    releases=ReleaseLedger(
+        backend,
+        workflows,
+        trusted_validation_secrets={"validator-1":"validator-secret"},
+        provenance_secret="provenance-secret",
+    )
     workflow=workflows.create(
         name="release",
         repository="o/a",
@@ -167,3 +199,32 @@ def test_promotion_requires_artifact_sha256(tmp_path):
             artifact_id=artifact["id"],
             validation=passed_validation(),
         )
+
+
+def test_promotion_rejects_invalid_attestation_signature(tmp_path):
+    _,_,releases,workflow,artifact=setup_release(tmp_path)
+    attestation=signed_attestation(workflow,artifact)
+    attestation["signature"]="0"*64
+
+    with pytest.raises(RuntimeError,match="invalid validation attestation signature"):
+        releases.promote(
+            workflow_id=workflow["id"],
+            artifact_id=artifact["id"],
+            validation=passed_validation(),
+            attestation=attestation,
+        )
+
+
+def test_promoted_release_contains_signed_provenance(tmp_path):
+    _,_,releases,workflow,artifact=setup_release(tmp_path)
+    release=releases.promote(
+        workflow_id=workflow["id"],
+        artifact_id=artifact["id"],
+        validation=passed_validation(),
+        attestation=signed_attestation(workflow,artifact),
+    )
+
+    assert release["metadata"]["validation_attestation"]["verified"] is True
+    assert release["metadata"]["provenance"]["validator_id"]=="validator-1"
+    assert len(release["metadata"]["provenance"]["signature"])==64
+
