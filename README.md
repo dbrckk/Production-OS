@@ -1299,3 +1299,164 @@ docker compose -f compose.tls.yaml up --build
 ```
 
 Caddy terminates HTTPS, applies security headers and proxies to the Production-OS control plane health-checked through `/healthz`.
+
+## P9 persistent workflow engine
+
+Production-OS now supports persistent multi-step DAG workflows on both SQLite and PostgreSQL.
+
+Example workflow:
+
+```text
+config/workflow.example.json
+```
+
+Create:
+
+```bash
+production-os workflow-create \
+  --database artifacts/production.db \
+  --spec config/workflow.example.json
+```
+
+Inspect:
+
+```bash
+production-os workflow-status \
+  --database artifacts/production.db \
+  --workflow-id <workflow-id>
+```
+
+Dispatch currently ready tasks:
+
+```bash
+production-os workflow-dispatch \
+  --database artifacts/production.db \
+  --workflow-id <workflow-id>
+```
+
+Critical path:
+
+```bash
+production-os workflow-critical-path \
+  --database artifacts/production.db \
+  --workflow-id <workflow-id>
+```
+
+Cancel:
+
+```bash
+production-os workflow-cancel \
+  --database artifacts/production.db \
+  --workflow-id <workflow-id>
+```
+
+Register an artifact:
+
+```bash
+production-os artifact-add \
+  --database artifacts/production.db \
+  --workflow-id <workflow-id> \
+  --task-id package \
+  --name app-release.aab \
+  --uri artifact://release/app-release.aab \
+  --sha256 <sha256>
+```
+
+### Workflow semantics
+
+Task lifecycle:
+
+```text
+pending
+→ ready
+→ queued
+→ succeeded
+```
+
+Failure with retry budget:
+
+```text
+queued
+→ failed attempt
+→ automatic redispatch
+→ queued
+```
+
+Terminal failure:
+
+```text
+retry budget exhausted
+→ failed
+→ dependent tasks blocked
+→ workflow failed
+```
+
+Each retry uses a unique per-attempt idempotency key, while duplicate dispatch inside the same attempt remains guarded.
+
+### Fan-out / fan-in
+
+Dependencies are explicit. Multiple children can become ready after one task succeeds, and a downstream task becomes ready only when all of its dependencies have succeeded.
+
+Example:
+
+```text
+build
+ ├─ unit-tests
+ └─ lint
+      ↓
+   package
+```
+
+### API
+
+```text
+GET  /v1/workflows
+GET  /v1/workflows/<id>
+GET  /v1/workflows/<id>/critical-path
+POST /v1/workflows
+POST /v1/workflows/<id>/dispatch
+POST /v1/workflows/<id>/cancel
+POST /v1/workflows/<id>/artifacts
+```
+
+Worker job completion/failure automatically updates the linked workflow task and dispatches newly unblocked tasks.
+
+### Critical path
+
+Each task can define `estimated_minutes`. Production-OS computes the longest dependency path, giving a first deterministic estimate of the workflow bottleneck.
+
+### Artifacts
+
+Artifacts persist:
+
+```text
+workflow
+task
+name
+URI
+SHA-256
+metadata
+timestamp
+```
+
+### P9
+
+- [x] persistent workflows
+- [x] DAG validation
+- [x] cycle detection
+- [x] explicit task dependencies
+- [x] fan-out
+- [x] fan-in
+- [x] automatic downstream dispatch
+- [x] bounded retries
+- [x] per-attempt idempotency
+- [x] dependent-task blocking
+- [x] workflow cancellation
+- [x] critical-path calculation
+- [x] artifact registry
+- [x] SQLite support
+- [x] PostgreSQL support
+- [x] control-plane API
+- [x] CLI controls
+- [x] remote-worker result propagation
+- [x] dashboard workflow visibility
