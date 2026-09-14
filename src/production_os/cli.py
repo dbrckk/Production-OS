@@ -106,7 +106,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
     dispatch = sub.add_parser("dispatch", help="Dispatch a handoff to the ai-dev-server file queue")
     dispatch.add_argument("--handoff", required=True)
-    dispatch.add_argument("--runtime-state", required=True)
+    dispatch.add_argument("--runtime-state")
     dispatch.add_argument("--queue-dir", required=True)
     dispatch.add_argument("--owner", default="production-os")
     dispatch.add_argument("--lease-minutes", type=int, default=30)
@@ -128,7 +128,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
     controller = sub.add_parser("controller", help="Run bounded autonomous control cycles")
     controller.add_argument("--owner", required=True)
-    controller.add_argument("--runtime-state", required=True)
+    controller.add_argument("--runtime-state")
     controller.add_argument("--queue-dir", required=True)
     controller.add_argument("--snapshot-dir", required=True)
     controller.add_argument("--metrics", required=True)
@@ -152,6 +152,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     controller.add_argument("--policy", help="Policy-as-code JSON")
     controller.add_argument("--budgets", help="Persistent budget ledger JSON")
     controller.add_argument("--quarantine", help="Persistent quarantine state JSON")
+    controller.add_argument("--database", help="P8 SQLite distributed backend")
 
     healthserver = sub.add_parser("health-server", help="Serve the health JSON over HTTP")
     healthserver.add_argument("--health", required=True)
@@ -690,6 +691,23 @@ def run_reconcile(args: argparse.Namespace) -> int:
 
 def run_dispatch(args: argparse.Namespace) -> int:
     handoff = json.loads(Path(args.handoff).read_text(encoding="utf-8"))
+    if args.database:
+        backend = SQLiteBackend(args.database)
+        queue = SQLiteJobQueue(backend)
+        payload = {
+            "schema_version":"production-os/dispatch/v4",
+            "handoff":handoff,
+            "required_capabilities":args.required_capability,
+        }
+        job = queue.enqueue(payload)
+        print(json.dumps({
+            "schema_version":"production-os/dispatch-result/v3",
+            "backend":"sqlite",
+            "job":job,
+        }, indent=2, ensure_ascii=False))
+        return 0
+    if not args.runtime_state:
+        raise SystemExit("--runtime-state is required unless --database is used")
     state = RuntimeState(args.runtime_state)
     worker_registry = WorkerRegistry(args.worker_registry) if args.worker_registry else None
     rate_limit_store = RateLimitStore(args.rate_limit_state) if args.rate_limit_state else None
@@ -796,6 +814,7 @@ def run_controller_command(args: argparse.Namespace) -> int:
         owner=args.owner,
         runtime_state_path=args.runtime_state,
         queue_dir=args.queue_dir,
+        database_path=args.database,
         snapshot_dir=args.snapshot_dir,
         metrics_path=args.metrics,
         health_path=args.health,
