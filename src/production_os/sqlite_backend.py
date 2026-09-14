@@ -131,6 +131,13 @@ class SQLiteBackend:
                     created_at TEXT NOT NULL
                 );
 
+                CREATE TABLE IF NOT EXISTS webhook_deliveries (
+                    delivery_id TEXT PRIMARY KEY,
+                    event_name TEXT NOT NULL,
+                    repository TEXT,
+                    received_at TEXT NOT NULL
+                );
+
                 CREATE INDEX IF NOT EXISTS idx_events_id
                 ON events(id);
 
