@@ -20,6 +20,10 @@ class RuntimeRecord:
     cooldown_until: str | None = None
     last_decision: str | None = None
     updated_at: str | None = None
+    priority: float = 0.0
+    interruptible: bool = False
+    preempt_requested: bool = False
+    checkpoint_ref: str | None = None
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -78,7 +82,16 @@ class RuntimeState:
         until = self._parse(record.cooldown_until)
         return bool(until and until > now)
 
-    def acquire_lease(self, repository: str, task: str, owner: str, minutes: int = 30) -> RuntimeRecord:
+    def acquire_lease(
+        self,
+        repository: str,
+        task: str,
+        owner: str,
+        minutes: int = 30,
+        *,
+        priority: float = 0.0,
+        interruptible: bool = False,
+    ) -> RuntimeRecord:
         record = self.get(repository, task)
         now = datetime.now(timezone.utc)
         if self.is_leased(record, now):
@@ -86,6 +99,9 @@ class RuntimeState:
         record.lease_owner = owner
         record.lease_expires_at = (now + timedelta(minutes=minutes)).isoformat()
         record.status = "running"
+        record.priority = float(priority)
+        record.interruptible = bool(interruptible)
+        record.preempt_requested = False
         record.updated_at = now.isoformat()
         self.save()
         return record
