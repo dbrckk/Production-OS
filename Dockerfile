@@ -3,7 +3,7 @@ FROM python:3.12-slim
 WORKDIR /app
 COPY pyproject.toml README.md LICENSE ./
 COPY src ./src
-RUN python -m pip install --no-cache-dir .
+RUN python -m pip install --no-cache-dir ".[postgres]"
 
 RUN useradd --create-home --uid 10001 productionos
 USER productionos
