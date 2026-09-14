@@ -938,3 +938,145 @@ production-os audit-checkpoint-verify --checkpoint artifacts/audit-checkpoint.js
 ```
 
 Legacy unchained journal rows are reported as unverified legacy history; once the hash chain starts, any later unchained/tampered row invalidates verification.
+
+## P7 policy and governance
+
+Production-OS now supports policy-as-code with global defaults and per-repository overrides.
+
+Example configuration:
+
+```text
+config/policy.example.json
+```
+
+Validate before use:
+
+```bash
+production-os policy-validate --policy config/policy.example.json
+```
+
+Explain one handoff decision:
+
+```bash
+production-os policy-check --policy config/policy.example.json --handoff artifacts/handoff.json
+```
+
+### Governed controls
+
+Policies can define:
+
+```text
+max_risk_class
+approval_required_from
+allowed_worker_classes
+freeze_timezone
+freeze_windows
+freeze_risk_classes
+require_branch_protection_for
+auto_quarantine_after_failures
+budgets
+slo.max_runtime_minutes
+slo.max_attempts
+slo.max_consecutive_failures
+```
+
+Portfolio-wide budgets are also supported through `portfolio_budgets`.
+
+### Risk classes
+
+```text
+low
+medium
+high
+critical
+```
+
+Release/deploy/publish-style work is classified high by default; destructive or externally privileged work is critical unless an explicit risk class is supplied.
+
+### Scheduling and dispatch enforcement
+
+The scheduler applies policy/freeze/quarantine blockers before allocating active lanes. Runtime evidence gates such as branch protection are intentionally deferred until dispatch, where they fail closed.
+
+For policies that require branch protection, the controller reads the default branch protection state from GitHub. A false or unavailable protection result blocks a governed high/critical dispatch.
+
+### Budgets
+
+Persistent ledger:
+
+```text
+--budgets artifacts/budgets.json
+```
+
+Supported budget dimensions are generic numeric keys; the standard policy example uses:
+
+```text
+tokens
+cost
+minutes
+```
+
+A handoff may provide projected usage:
+
+```json
+{
+  "resource_request": {
+    "tokens": 120000,
+    "cost": 2.5,
+    "minutes": 30
+  }
+}
+```
+
+When a projected request is present it is checked against both repository and portfolio budgets before dispatch and recorded on successful dispatch. Without a projected request, existing ledger exhaustion is still enforceable but future consumption cannot be predicted; actual usage can be recorded explicitly:
+
+```bash
+production-os budget-record --ledger artifacts/budgets.json --repository dbrckk/ai-dev-server --tokens 120000 --cost 2.5 --minutes 30
+```
+
+### Quarantine
+
+Manual quarantine:
+
+```bash
+production-os quarantine --store artifacts/quarantine.json --repository dbrckk/deadline-zero --reason "operator review"
+production-os unquarantine --store artifacts/quarantine.json --repository dbrckk/deadline-zero
+```
+
+Automatic quarantine can trigger from repeated failures, circuit-open state, excessive attempts, excessive consecutive failures, or max runtime SLO violations.
+
+### Continuous controller
+
+```bash
+production-os controller \
+  --owner dbrckk \
+  --runtime-state artifacts/runtime-state.json \
+  --queue-dir artifacts/queue \
+  --snapshot-dir artifacts/snapshots \
+  --metrics artifacts/metrics.json \
+  --health artifacts/health.json \
+  --journal artifacts/execution.jsonl \
+  --worker-registry artifacts/workers.json \
+  --policy config/policy.example.json \
+  --budgets artifacts/budgets.json \
+  --quarantine artifacts/quarantine.json \
+  --approvals artifacts/approvals.json \
+  --cycles 12
+```
+
+### P7
+
+- [x] policy-as-code
+- [x] global defaults + per-repo overrides
+- [x] risk classification
+- [x] mandatory approval by risk
+- [x] allowed worker classes
+- [x] repository budgets
+- [x] portfolio-wide budgets
+- [x] timezone-aware freeze windows
+- [x] branch protection awareness
+- [x] fail-closed runtime evidence gates
+- [x] SLO runtime/attempt/failure limits
+- [x] automatic quarantine
+- [x] manual quarantine controls
+- [x] policy validation
+- [x] explainable policy decisions
