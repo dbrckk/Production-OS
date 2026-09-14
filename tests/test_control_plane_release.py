@@ -50,7 +50,7 @@ def test_control_plane_promote_and_rollback_release(tmp_path):
         workflow["id"],
         name="app.aab",
         uri="artifact://app.aab",
-        sha256="abc123",
+        sha256="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         metadata={
             "source_revision":"sha-1",
             "workflow_generation":1,
@@ -81,7 +81,7 @@ def test_control_plane_promote_and_rollback_release(tmp_path):
         assert status==201
         promoted=payload["release"]
         assert promoted["status"]=="promoted"
-        assert promoted["metadata"]["artifact_sha256"]=="abc123"
+        assert promoted["metadata"]["artifact_sha256"]=="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 
         status,payload=request(
             base+f"/v1/releases/{promoted['id']}/rollback",
