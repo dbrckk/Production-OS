@@ -108,6 +108,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     controller.add_argument("--slots", type=int, default=3)
     controller.add_argument("--lease-owner", default="production-os-controller")
     controller.add_argument("--lease-minutes", type=int, default=30)
+    controller.add_argument("--github-mapping", help="Optional explicit task->issue/PR mapping JSON")
 
     return parser.parse_args(argv)
 
@@ -498,6 +499,7 @@ def run_dispatch(args: argparse.Namespace) -> int:
         state,
         lease_owner=args.owner,
         lease_minutes=args.lease_minutes,
+        github_mapping_path=args.github_mapping,
     )
     print(json.dumps({
         "schema_version": "production-os/dispatch-result/v1",
