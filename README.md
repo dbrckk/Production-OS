@@ -803,3 +803,109 @@ lowest running priority first
 ```
 
 A task without an explicit checkpoint is never released merely because a higher-priority task exists.
+
+## P6 production hardening
+
+Production-OS now adds stronger multi-process safety and operator controls.
+
+### Atomic state + inter-process locks
+
+Critical stores now use atomic replace semantics and sidecar locks:
+
+```text
+runtime-state.json
+workers.json
+claims.json
+```
+
+Critical mutations use a read-modify-write transaction under lock instead of loading stale state and overwriting another process.
+
+Current persistent schemas:
+
+```text
+production-os/runtime-state/v2
+production-os/workers/v2
+production-os/claims/v2
+```
+
+Upgrade older v1 state:
+
+```bash
+production-os migrate-state --path artifacts/runtime-state.json
+```
+
+### Transactional dispatch
+
+Dispatch now checks emergency stop, rate limits and approval gates before lease acquisition; queue writes are atomic and partial failures roll back worker load and lease state.
+
+### Global emergency stop
+
+```bash
+production-os emergency-stop --state artifacts/emergency-stop.json --reason "operator intervention"
+production-os emergency-resume --state artifacts/emergency-stop.json
+```
+
+Controller option:
+
+```text
+--emergency-stop artifacts/emergency-stop.json
+```
+
+When active, new dispatches are blocked while reconciliation and observability can continue.
+
+### Persistent rate limits
+
+```text
+--rate-limit-state artifacts/rate-limits.json
+```
+
+Dispatch volume is bounded per repository and per worker over a rolling window.
+
+### Human approval gates
+
+A handoff may declare requires_human_approval=true. Such a task is blocked until its idempotency key is explicitly approved.
+
+```bash
+production-os approve --store artifacts/approvals.json --key <task-key> --approved-by operator --reason reviewed
+production-os revoke --store artifacts/approvals.json --key <task-key> --approved-by operator
+```
+
+Controller option:
+
+```text
+--approvals artifacts/approvals.json
+```
+
+### Audit integrity
+
+The execution journal now uses a SHA-256 hash chain.
+
+```bash
+production-os audit-verify --journal artifacts/execution.jsonl
+```
+
+### Backup / restore
+
+```bash
+production-os backup --destination-dir artifacts/backups artifacts/runtime-state.json artifacts/workers.json artifacts/claims.json artifacts/approvals.json
+production-os restore --manifest artifacts/backups/<timestamp>/manifest.json --verify-only
+production-os restore --manifest artifacts/backups/<timestamp>/manifest.json
+```
+
+### P6
+
+- [x] atomic state writes
+- [x] inter-process sidecar locks
+- [x] read-modify-write locking on critical stores
+- [x] transactional dispatch rollback
+- [x] persistent rate limits
+- [x] global emergency stop
+- [x] manual approval gates
+- [x] audit hash chain
+- [x] backup with checksums
+- [x] checksum-verified restore
+- [x] explicit state migrations v1→v2
+- [ ] queue compaction
+- [ ] dead-letter retry policy
+- [ ] richer migration registry
+- [ ] signed audit checkpoints
