@@ -266,3 +266,59 @@ The control surface shows execution lanes, repository/task priorities, blockers,
 - Adapt rather than blindly copy
 - Validate before promotion
 - Human approval for destructive or externally privileged actions
+
+
+## P3 runtime safety
+
+Production-OS now includes persistent execution safety primitives:
+
+```text
+execution journal
+idempotency keys
+leases
+retry budgets
+circuit breakers
+cooldowns
+duplicate-execution guards
+```
+
+Use persistent runtime state during scheduling:
+
+```bash
+production-os scan \
+  --owner dbrckk \
+  --schedule \
+  --runtime-state artifacts/runtime-state.json
+```
+
+When a task is already leased, in cooldown, has an open circuit, or was already marked succeeded, the scheduler does not place it in an active execution lane.
+
+Execution feedback can also persist the outcome:
+
+```bash
+production-os execution-feedback \
+  --before before.json \
+  --after after.json \
+  --repository dbrckk/deadline-zero \
+  --task "Restore the default branch CI to green" \
+  --validation-summary validation-summary.json \
+  --runtime-state artifacts/runtime-state.json \
+  --journal artifacts/execution.jsonl
+```
+
+Repeated failures eventually open a circuit and start a cooldown instead of retrying indefinitely.
+
+### P3
+
+- [x] persistent execution journal
+- [x] scheduler state persistence
+- [x] task idempotency keys
+- [x] execution leases
+- [x] retry budgets
+- [x] circuit breakers
+- [x] cooldowns
+- [x] duplicate-execution guards
+- [ ] GitHub issue/PR state ingestion
+- [ ] automatic dispatch to ai-dev-server
+- [ ] lease renewal/heartbeat
+- [ ] crash recovery reconciliation
