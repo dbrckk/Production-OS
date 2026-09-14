@@ -382,6 +382,58 @@ def make_handler(control: ControlPlane):
                     )
                     return
 
+                if parsed.path == "/v1/github/pr-refresh":
+                    principal = self._require("operator")
+                    if principal is None:
+                        return
+                    repository = str(body["repository"])
+                    pr_number = int(body["pr_number"])
+                    workflows = control.workflows.find_by_github_pr(
+                        repository,
+                        pr_number,
+                    )
+                    if not workflows:
+                        self._send(
+                            HTTPStatus.OK,
+                            {
+                                "repository":repository,
+                                "pr_number":pr_number,
+                                "changed_paths":[],
+                                "workflows":[],
+                                "refreshed":0,
+                            },
+                        )
+                        return
+
+                    changed_paths = GitHubClient().list_pull_request_files(
+                        repository,
+                        pr_number,
+                    )
+                    refreshed = []
+                    for workflow in workflows:
+                        decisions = control.workflows.apply_change_impact(
+                            workflow["id"],
+                            changed_paths,
+                        )
+                        refreshed.append({
+                            "workflow_id":workflow["id"],
+                            "decisions":decisions,
+                            "workflow":control.workflows.get(
+                                workflow["id"]
+                            ),
+                        })
+                    self._send(
+                        HTTPStatus.OK,
+                        {
+                            "repository":repository,
+                            "pr_number":pr_number,
+                            "changed_paths":changed_paths,
+                            "workflows":refreshed,
+                            "refreshed":len(refreshed),
+                        },
+                    )
+                    return
+
                 if parsed.path == "/v1/workflows":
                     principal = self._require("operator")
                     if principal is None:
