@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
+from .classification import classify_repository
 from .models import ActionCandidate, RepoAssessment, RepoEvidence, ScoreBreakdown
 
 
@@ -55,7 +56,7 @@ def score_repository(e: RepoEvidence) -> ScoreBreakdown:
     )
 
 
-def generate_actions(e: RepoEvidence, score: ScoreBreakdown) -> list[ActionCandidate]:
+def generate_actions(e: RepoEvidence, score: ScoreBreakdown, profile: str) -> list[ActionCandidate]:
     actions: list[ActionCandidate] = []
 
     def add(
@@ -85,13 +86,15 @@ def generate_actions(e: RepoEvidence, score: ScoreBreakdown) -> list[ActionCandi
         action.compute_priority()
         actions.append(action)
 
+    release_weight = 10 if profile in {"android-app", "android-game"} else 8
+
     if not e.has_tests:
         add(
             "Add an executable automated test baseline",
             "No automated test evidence was detected. Autonomous changes cannot be promoted safely without a verification gate.",
             ["At least one meaningful automated test executes", "Test command exits non-zero on failure", "Test command is documented"],
-            ["has_tests=false"],
-            impact=9, urgency=9, risk=10, release=8, effort=3,
+            ["has_tests=false", f"profile={profile}"],
+            impact=9, urgency=9, risk=10, release=release_weight, effort=3,
         )
 
     if not e.has_ci:
@@ -99,8 +102,8 @@ def generate_actions(e: RepoEvidence, score: ScoreBreakdown) -> list[ActionCandi
             "Add continuous integration for every change",
             "No GitHub Actions workflow was detected, so repository health is not automatically verified.",
             ["CI runs on pull requests and main", "Build/test failures block the workflow", "Workflow is reproducible"],
-            ["has_ci=false"],
-            impact=9, urgency=8, risk=10, release=8, effort=3,
+            ["has_ci=false", f"profile={profile}"],
+            impact=9, urgency=8, risk=10, release=release_weight, effort=3,
         )
 
     if not e.has_release_workflow and score.total >= 45:
@@ -108,8 +111,17 @@ def generate_actions(e: RepoEvidence, score: ScoreBreakdown) -> list[ActionCandi
             "Create a deterministic release pipeline",
             "The repository has development foundations but no release workflow was detected.",
             ["Release artifacts are built by CI", "Artifacts are versioned", "Release remains non-destructive by default"],
-            ["has_release_workflow=false", f"maturity_score={score.total}"],
+            ["has_release_workflow=false", f"maturity_score={score.total}", f"profile={profile}"],
             impact=8, urgency=6, risk=7, release=10, effort=5,
+        )
+
+    if profile in {"android-app", "android-game"} and e.has_ci and not e.has_release_workflow:
+        add(
+            "Add Android release-readiness gate",
+            "Android project detected with CI but without a release workflow.",
+            ["Release AAB/APK is built in CI", "Signing remains outside untrusted workspaces", "Release artifact can be traced to a commit"],
+            ["android_profile=true", "has_ci=true", "has_release_workflow=false"],
+            impact=9, urgency=7, risk=8, release=10, effort=4,
         )
 
     if not e.has_security_policy or not e.has_dependency_automation:
@@ -150,8 +162,12 @@ def generate_actions(e: RepoEvidence, score: ScoreBreakdown) -> list[ActionCandi
 
 def assess_repository(evidence: RepoEvidence) -> RepoAssessment:
     score = score_repository(evidence)
+    profile = classify_repository(evidence)
     return RepoAssessment(
         evidence=evidence,
         score=score,
-        actions=generate_actions(evidence, score),
+        actions=generate_actions(evidence, score, profile.kind),
+        profile=profile.kind,
+        profile_confidence=profile.confidence,
+        profile_signals=list(profile.signals),
     )
