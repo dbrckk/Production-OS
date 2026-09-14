@@ -21,6 +21,7 @@ from .runtime_state import RuntimeState
 from .scheduler import build_schedule
 from .scoring import assess_repository
 from .self_healing import apply_self_healing
+from .workers import WorkerRegistry
 
 
 def _rank_actions(assessments):
@@ -110,6 +111,8 @@ def run_control_cycle(
     journal_path: str,
     observability_path: str | None = None,
     github_mapping_path: str | None = None,
+    worker_registry_path: str | None = None,
+    receipt_dir: str | None = None,
     capacity: int = 3,
     slots: int = 3,
     lease_owner: str = "production-os-controller",
@@ -118,6 +121,9 @@ def run_control_cycle(
     state = RuntimeState(runtime_state_path)
     metrics_store = MetricsStore(metrics_path)
     journal = ExecutionJournal(journal_path)
+    worker_registry = WorkerRegistry(worker_registry_path) if worker_registry_path else None
+    if worker_registry is not None:
+        worker_registry.detect_dead()
 
     reconcile_actions = reconcile_runtime_state(state)
     metrics_store.metrics.reconciliations += len(reconcile_actions)
@@ -170,6 +176,7 @@ def run_control_cycle(
     allocation = allocate_resources(schedule, total_slots=slots)
 
     action_lookup = {(a.repository, a.task): a for a in actions}
+    assessment_lookup = {a.evidence.full_name: a for a in assessments}
     dispatches = []
     for item in schedule.get("work", []):
         if item.get("lane") not in {"NOW","PARALLEL"}:
@@ -178,6 +185,17 @@ def run_control_cycle(
         if action is None:
             continue
         handoff = _handoff_for_action(action, reuse)
+        assessment = assessment_lookup.get(action.repository)
+        required_capabilities = []
+        if assessment is not None:
+            if assessment.profile in {"android-app","android-game"}:
+                required_capabilities.append("android")
+            elif assessment.evidence.language:
+                lang = assessment.evidence.language.lower()
+                if "python" in lang:
+                    required_capabilities.append("python")
+                elif "javascript" in lang or "typescript" in lang:
+                    required_capabilities.append("node")
         try:
             result = dispatch_handoff(
                 handoff,
@@ -185,6 +203,9 @@ def run_control_cycle(
                 state,
                 lease_owner=lease_owner,
                 lease_minutes=lease_minutes,
+                worker_registry=worker_registry,
+                required_capabilities=required_capabilities,
+                receipt_dir=receipt_dir,
             )
             dispatches.append(result.to_dict())
             metrics_store.metrics.dispatched += 1
@@ -232,6 +253,7 @@ def run_control_cycle(
         "self_healing":[a.to_dict() for a in healing_actions],
         "heartbeats":[a.to_dict() for a in heartbeat_results],
         "github_reconciliation":github_results,
+        "workers":[w.to_dict() for w in worker_registry.workers.values()] if worker_registry else [],
         "health":health,
         "observability":observability,
     }
