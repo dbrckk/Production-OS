@@ -13,6 +13,7 @@ class ReuseOpportunity:
     confidence: float
     rationale: str
     evidence: tuple[str, ...] = ()
+    components: tuple[dict, ...] = ()
 
     def to_dict(self) -> dict:
         return {
@@ -22,6 +23,7 @@ class ReuseOpportunity:
             "confidence": self.confidence,
             "rationale": self.rationale,
             "evidence": list(self.evidence),
+            "components": list(self.components),
         }
 
 
@@ -33,6 +35,24 @@ def _compatible(source: RepoAssessment, target: RepoAssessment) -> bool:
     if {source.profile, target.profile} <= {"automation-platform", "python-service"}:
         return True
     return False
+
+
+def _component_candidates(source: RepoAssessment, capability: str) -> tuple[dict, ...]:
+    matches = []
+    for component in source.components:
+        if capability not in component.capability_hints:
+            continue
+        matches.append({
+            "name": component.name,
+            "kind": component.kind,
+            "path": component.path,
+            "language": component.language,
+            "dependencies": list(component.dependencies),
+            "confidence": component.confidence,
+            "test_like": component.test_like,
+        })
+    matches.sort(key=lambda item: (-item["confidence"], item["path"], item["name"]))
+    return tuple(matches[:8])
 
 
 def detect_reuse(assessments: list[RepoAssessment]) -> list[ReuseOpportunity]:
@@ -61,6 +81,7 @@ def detect_reuse(assessments: list[RepoAssessment]) -> list[ReuseOpportunity]:
 
                 family_factor = 1.0 if source.profile == target.profile else 0.88
                 confidence = round(capability.confidence * family_factor, 2)
+                components = _component_candidates(source, capability.name)
                 opportunities.append(
                     ReuseOpportunity(
                         source=source.evidence.full_name,
@@ -72,10 +93,17 @@ def detect_reuse(assessments: list[RepoAssessment]) -> list[ReuseOpportunity]:
                             f"'{capability.name}' that is absent from {target.evidence.full_name}."
                         ),
                         evidence=capability.evidence,
+                        components=components,
                     )
                 )
 
     opportunities.sort(
-        key=lambda item: (-item.confidence, item.target, item.capability, item.source)
+        key=lambda item: (
+            -item.confidence,
+            -len(item.components),
+            item.target,
+            item.capability,
+            item.source,
+        )
     )
     return opportunities
