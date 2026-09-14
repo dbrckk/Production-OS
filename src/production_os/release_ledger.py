@@ -253,12 +253,37 @@ class ReleaseLedger:
                     f"{existing['id']}"
                 )
 
-            release_metadata = {
+            base_metadata = {
                 **dict(metadata or {}),
                 "artifact_name":artifact_row["name"],
                 "artifact_uri":artifact_row["uri"],
                 "artifact_sha256":artifact_sha256,
             }
+            release_preview = {
+                "id":release_id,
+                "workflow_id":workflow_id,
+                "artifact_id":artifact_id,
+                "repository":workflow_row["repository"],
+                "source_revision":source_revision,
+                "workflow_generation":(
+                    int(workflow_generation)
+                    if workflow_generation is not None
+                    else None
+                ),
+                "metadata":base_metadata,
+                "created_at":now,
+            }
+            provenance = create_release_provenance(
+                secret=self.provenance_secret,
+                release=release_preview,
+                attestation=verified_attestation,
+            )
+            release_metadata = {
+                **base_metadata,
+                "validation_attestation":verified_attestation,
+                "provenance":provenance,
+            }
+
             _execute(
                 db,
                 self.backend,
@@ -300,42 +325,6 @@ class ReleaseLedger:
                 },
                 repository=workflow_row["repository"],
             )
-            row = _execute(
-                db,
-                self.backend,
-                "SELECT * FROM releases WHERE id=?",
-                (release_id,),
-            ).fetchone()
-
-        release = self._row(row)
-        provenance = create_release_provenance(
-            secret=self.provenance_secret,
-            release=release,
-            attestation=verified_attestation,
-        )
-
-        with self.backend.transaction() as db:
-            enriched_metadata = {
-                **release["metadata"],
-                "validation_attestation":verified_attestation,
-                "provenance":provenance,
-            }
-            _execute(
-                db,
-                self.backend,
-                """
-                UPDATE releases
-                SET metadata_json=?
-                WHERE id=?
-                """,
-                (
-                    json.dumps(
-                        enriched_metadata,
-                        ensure_ascii=False,
-                    ),
-                    release_id,
-                ),
-            )
             self.backend.append_event(
                 db,
                 "release-provenance-signed",
@@ -346,10 +335,16 @@ class ReleaseLedger:
                     ],
                     "provenance_signature":provenance["signature"],
                 },
-                repository=release["repository"],
+                repository=workflow_row["repository"],
             )
+            row = _execute(
+                db,
+                self.backend,
+                "SELECT * FROM releases WHERE id=?",
+                (release_id,),
+            ).fetchone()
 
-        return self.get(release_id)
+        return self._row(row)
 
     def rollback(
         self,
