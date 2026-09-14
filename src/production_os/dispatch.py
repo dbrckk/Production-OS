@@ -69,6 +69,8 @@ def dispatch_handoff(
         task,
         owner=owner,
         minutes=lease_minutes,
+        priority=float(handoff.get("priority", 0.0)),
+        interruptible=bool(handoff.get("constraints", {}).get("interruptible", False)),
     )
     record = runtime_state.get(repository, task)
 
