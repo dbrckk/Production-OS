@@ -106,3 +106,77 @@ def test_critical_path(tmp_path):
     path=wf.critical_path(created["id"])
     assert path["task_ids"]==["a","b","d"]
     assert path["estimated_minutes"]==10
+
+
+def test_change_impact_can_be_recomputed_before_execution(tmp_path):
+    wf=engine(tmp_path)
+    created=wf.create(
+        name="incremental",
+        repository="o/a",
+        metadata={"changed_paths":["src/core.py"]},
+        tasks=[
+            WorkflowTaskSpec(
+                "src-tests",
+                "Source tests",
+                {
+                    "impact":{
+                        "paths":["src/**"],
+                        "skip_when_unaffected":True,
+                    }
+                },
+            ),
+            WorkflowTaskSpec(
+                "docs-tests",
+                "Docs tests",
+                {
+                    "impact":{
+                        "paths":["docs/**"],
+                        "skip_when_unaffected":True,
+                    }
+                },
+            ),
+        ],
+    )
+    first={task["task_id"]:task for task in created["tasks"]}
+    assert first["src-tests"]["status"]=="ready"
+    assert first["docs-tests"]["status"]=="succeeded"
+    assert first["docs-tests"]["result"]["skipped"] is True
+
+    wf.apply_change_impact(created["id"],["docs/guide.md"])
+    current={
+        task["task_id"]:task
+        for task in wf.get(created["id"])["tasks"]
+    }
+    assert current["src-tests"]["status"]=="succeeded"
+    assert current["src-tests"]["result"]["skipped"] is True
+    assert current["docs-tests"]["status"]=="ready"
+    assert current["docs-tests"]["result"] is None
+
+
+def test_change_impact_recompute_rejected_after_dispatch(tmp_path):
+    wf=engine(tmp_path)
+    created=wf.create(
+        name="incremental",
+        repository="o/a",
+        tasks=[
+            WorkflowTaskSpec(
+                "tests",
+                "Tests",
+                {
+                    "impact":{
+                        "paths":["src/**"],
+                        "skip_when_unaffected":True,
+                    }
+                },
+            ),
+        ],
+    )
+    jobs=wf.dispatch_ready(created["id"])
+    assert len(jobs)==1
+
+    with pytest.raises(
+        RuntimeError,
+        match="workflow execution started",
+    ):
+        wf.apply_change_impact(created["id"],["README.md"])
+
