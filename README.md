@@ -508,8 +508,81 @@ The controller is intentionally bounded by `--cycles`; continuous deployment env
 - [x] per-cycle snapshots
 - [x] persistent metrics
 - [x] persistent health state
-- [ ] automatic GitHub reconciliation inside controller
-- [ ] lease heartbeat manager for active workers
-- [ ] self-healing policy engine
-- [ ] service/HTTP health endpoint
-- [ ] structured observability export
+- [x] automatic GitHub reconciliation inside controller
+- [x] lease heartbeat manager for active workers
+- [x] self-healing policy engine
+- [x] service/HTTP health endpoint
+- [x] structured observability export
+
+
+### P4 integrated supervision
+
+The controller can now ingest explicit GitHub task mappings on every cycle:
+
+```bash
+production-os controller \
+  --owner dbrckk \
+  --runtime-state artifacts/runtime-state.json \
+  --queue-dir artifacts/ai-dev-server-queue \
+  --snapshot-dir artifacts/snapshots \
+  --metrics artifacts/metrics.json \
+  --health artifacts/health.json \
+  --observability artifacts/observability.json \
+  --journal artifacts/execution.jsonl \
+  --github-mapping artifacts/github-mapping.json \
+  --cycles 12 \
+  --interval-seconds 300
+```
+
+Each cycle now performs:
+
+```text
+runtime reconciliation
+→ self-healing
+→ heartbeat renewal
+→ GitHub issue/PR/CI reconciliation
+→ portfolio scan
+→ scheduling
+→ guarded dispatch
+→ snapshot
+→ metrics
+→ health
+→ observability export
+```
+
+The self-healing policy handles:
+
+```text
+lost lease        → replan
+repeated failure  → circuit-open
+replan loop       → circuit-open
+expired cooldown  → circuit recovery
+```
+
+A lightweight HTTP health endpoint is also available:
+
+```bash
+production-os health-server \
+  --health artifacts/health.json \
+  --host 127.0.0.1 \
+  --port 8765
+```
+
+Endpoints:
+
+```text
+/
+/health
+/healthz
+```
+
+Healthy state returns HTTP 200. Degraded or missing health state returns HTTP 503.
+
+Structured observability can be emitted to JSON and includes:
+
+```text
+health
+metrics
+runtime records
+timestamp
+```
