@@ -6,6 +6,8 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
 
+from .runtime_state import task_key
+
 
 TERMINAL_TASK_STATES = {"succeeded", "failed", "cancelled", "blocked"}
 
@@ -386,11 +388,17 @@ class WorkflowEngine:
             handoff.setdefault("priority", task["priority"])
             handoff["workflow_id"] = workflow_id
             handoff["workflow_task_id"] = task["task_id"]
+            attempt_number = int(task["attempts"]) + 1
             queue_payload = {
                 **payload,
                 "schema_version":"production-os/workflow-dispatch/v1",
                 "workflow_id":workflow_id,
                 "workflow_task_id":task["task_id"],
+                "workflow_attempt":attempt_number,
+                "idempotency_key":task_key(
+                    workflow_id,
+                    f"{task['task_id']}:{attempt_number}",
+                ),
                 "handoff":handoff,
             }
             job = self.queue.enqueue(queue_payload)
