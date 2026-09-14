@@ -27,6 +27,13 @@ from .reconciliation import reconcile_runtime_state
 from .resources import allocate_resources
 from .reuse import detect_reuse
 from .runtime_state import RuntimeState
+from .sqlite_backend import (
+    SQLiteBackend,
+    SQLiteClaimStore,
+    SQLiteJobQueue,
+    SQLiteRuntimeState,
+    SQLiteWorkerRegistry,
+)
 from .scheduler import build_schedule
 from .scoring import assess_repository
 from .self_healing import apply_self_healing
@@ -113,8 +120,9 @@ def _reconcile_github(
 def run_control_cycle(
     *,
     owner: str,
-    runtime_state_path: str,
+    runtime_state_path: str | None,
     queue_dir: str,
+    database_path: str | None = None,
     snapshot_dir: str,
     metrics_path: str,
     health_path: str,
@@ -136,10 +144,22 @@ def run_control_cycle(
     lease_owner: str = "production-os-controller",
     lease_minutes: int = 30,
 ) -> dict:
-    state = RuntimeState(runtime_state_path)
+    backend = SQLiteBackend(database_path) if database_path else None
+    if backend is not None:
+        state = SQLiteRuntimeState(backend)
+        worker_registry = SQLiteWorkerRegistry(backend)
+        durable_queue = SQLiteJobQueue(backend)
+        claim_store = SQLiteClaimStore(backend)
+    else:
+        if not runtime_state_path:
+            raise ValueError("runtime_state_path is required without database_path")
+        state = RuntimeState(runtime_state_path)
+        worker_registry = WorkerRegistry(worker_registry_path) if worker_registry_path else None
+        durable_queue = None
+        claim_store = ClaimStore(claims_path) if claims_path else None
+
     metrics_store = MetricsStore(metrics_path)
     journal = ExecutionJournal(journal_path)
-    worker_registry = WorkerRegistry(worker_registry_path) if worker_registry_path else None
     rate_limit_store = RateLimitStore(rate_limit_path) if rate_limit_path else None
     approval_store = ApprovalStore(approval_path) if approval_path else None
     policy_set = PolicySet.load(policy_path)
@@ -148,9 +168,17 @@ def run_control_cycle(
     delivery_recovery = []
     if worker_registry is not None:
         worker_registry.detect_dead()
-        if claims_path:
+        if backend is not None and durable_queue is not None:
+            delivery_recovery = durable_queue.recover_expired()
+            for item in delivery_recovery:
+                journal.append({
+                    "source":"controller",
+                    "event":"delivery-recovery",
+                    **item,
+                })
+        elif claim_store is not None:
             delivery_recovery = recover_unacked_jobs(
-                claims=ClaimStore(claims_path),
+                claims=claim_store,
                 runtime_state=state,
                 workers=worker_registry,
                 queue_dir=queue_dir,
@@ -285,6 +313,7 @@ def run_control_cycle(
                 policy_set=policy_set,
                 budget_ledger=budget_ledger,
                 quarantine_store=quarantine_store,
+                durable_queue=durable_queue,
             )
             dispatches.append(result.to_dict())
             metrics_store.metrics.dispatched += 1
@@ -336,6 +365,7 @@ def run_control_cycle(
         "workers":[w.to_dict() for w in worker_registry.workers.values()] if worker_registry else [],
         "delivery_recovery":delivery_recovery,
         "emergency_stop":emergency_stopped,
+        "backend":"sqlite" if backend is not None else "json-files",
         "health":health,
         "observability":observability,
     }
@@ -357,13 +387,18 @@ def run_controller(
             metrics_path = kwargs.get("metrics_path")
             health_path = kwargs.get("health_path")
             runtime_state_path = kwargs.get("runtime_state_path")
-            if metrics_path and runtime_state_path:
+            database_path = kwargs.get("database_path")
+            if metrics_path and (runtime_state_path or database_path):
                 metrics_store = MetricsStore(metrics_path)
                 metrics_store.metrics.last_error = str(exc)
                 metrics_store.metrics.cycles += 1
                 metrics_store.save()
                 if health_path:
-                    state = RuntimeState(runtime_state_path)
+                    state = (
+                        SQLiteRuntimeState(SQLiteBackend(database_path))
+                        if database_path
+                        else RuntimeState(runtime_state_path)
+                    )
                     write_health(
                         build_health(state, metrics_store.metrics.to_dict()),
                         health_path,
