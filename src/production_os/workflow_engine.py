@@ -492,7 +492,7 @@ class WorkflowEngine:
             )
 
         refreshed = self.refresh(workflow_id)
-        if status == "succeeded":
+        if status in {"succeeded", "ready"}:
             self.dispatch_ready(workflow_id)
             refreshed = self.refresh(workflow_id)
         return refreshed
