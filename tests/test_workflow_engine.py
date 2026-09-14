@@ -290,3 +290,45 @@ def test_pr_generation_reuses_same_workflow_for_same_head_sha(tmp_path):
     assert generation["id"]==original["id"]
     assert superseded==[]
 
+
+def test_pr_generation_binds_initial_head_in_place(tmp_path):
+    wf=engine(tmp_path)
+    original=wf.create(
+        name="pr-build",
+        repository="o/a",
+        metadata={"github_pr_number":12},
+        tasks=[WorkflowTaskSpec("tests","Tests",{})],
+    )
+
+    generation,superseded=wf.ensure_pr_generation(
+        "o/a",
+        12,
+        "sha-1",
+    )
+
+    assert generation["id"]==original["id"]
+    assert generation["metadata"]["github_pr_head_sha"]=="sha-1"
+    assert generation["metadata"]["github_pr_generation"]==1
+    assert superseded==[]
+
+
+def test_dispatched_job_carries_pr_generation_and_revision(tmp_path):
+    wf=engine(tmp_path)
+    created=wf.create(
+        name="pr-build",
+        repository="o/a",
+        metadata={
+            "github_pr_number":12,
+            "github_pr_head_sha":"sha-9",
+            "github_pr_generation":4,
+        },
+        tasks=[WorkflowTaskSpec("tests","Tests",{})],
+    )
+
+    jobs=wf.dispatch_ready(created["id"])
+
+    assert len(jobs)==1
+    payload=jobs[0]["payload"]
+    assert payload["workflow_generation"]==4
+    assert payload["source_revision"]=="sha-9"
+
