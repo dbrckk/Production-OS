@@ -12,10 +12,12 @@ from .feedback import summarize_validation_results
 from .github_client import GitHubAPIError, GitHubClient
 from .graph import build_knowledge_graph
 from .history import build_snapshot, detect_regressions, load_snapshot, save_snapshot
+from .journal import ExecutionJournal
 from .learning import build_learning_signals
 from .models import ActionCandidate, RepoAssessment
 from .reuse import detect_reuse
 from .resources import allocate_resources
+from .runtime_state import RuntimeState
 from .scheduler import build_schedule
 from .scoring import assess_repository
 from .starlist import suggest_external_references
@@ -44,6 +46,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     scan.add_argument("--slots", type=int, default=3, help="Execution slots to allocate")
     scan.add_argument("--learning-events", help="JSON file with historical execution events")
     scan.add_argument("--dashboard", help="Write an HTML control surface to this path")
+    scan.add_argument("--runtime-state", help="Persistent runtime state JSON for leases/cooldowns/circuit breakers")
 
     validation = sub.add_parser(
         "validation-results",
@@ -58,6 +61,9 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     feedback.add_argument("--after", required=True)
     feedback.add_argument("--repository", required=True)
     feedback.add_argument("--validation-summary", required=True)
+    feedback.add_argument("--task", default="")
+    feedback.add_argument("--runtime-state")
+    feedback.add_argument("--journal")
 
     trends = sub.add_parser("trends", help="Build long-term repository score trends from snapshot JSON files")
     trends.add_argument("snapshots", nargs="+")
@@ -279,11 +285,13 @@ def run_scan(args: argparse.Namespace) -> int:
                 raise SystemExit("learning events must be a JSON list or contain events")
             learning_signals = build_learning_signals(events)
 
+        runtime_state = RuntimeState(args.runtime_state) if args.runtime_state else None
         schedule = build_schedule(
             assessments,
             actions,
             capacity=args.capacity,
             learning_signals=learning_signals,
+            runtime_state=runtime_state,
         )
         payload = {
             "schema_version": "production-os/portfolio-control/v1",
@@ -376,12 +384,28 @@ def run_execution_feedback(args: argparse.Namespace) -> int:
 
     decision = decide_execution_outcome(before_score, after_score, summary)
     payload = {
-        "schema_version": "production-os/execution-feedback/v1",
+        "schema_version": "production-os/execution-feedback/v2",
         "repository": args.repository,
         "before_score": before_score,
         "after_score": after_score,
         "decision": decision.to_dict(),
     }
+    if args.runtime_state and args.task:
+        state = RuntimeState(args.runtime_state)
+        record = state.record_outcome(args.repository, args.task, decision.decision)
+        payload["runtime_state"] = record.to_dict()
+
+    if args.journal:
+        journal = ExecutionJournal(args.journal)
+        journal.append({
+            "repository": args.repository,
+            "task": args.task,
+            "decision": decision.decision,
+            "score_delta": decision.score_delta,
+            "validation_status": decision.validation_status,
+        })
+        payload["journal"] = args.journal
+
     print(json.dumps(payload, indent=2, ensure_ascii=False))
     return 0 if decision.decision in {"promote", "replan"} else 4
 
