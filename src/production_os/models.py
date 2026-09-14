@@ -83,10 +83,18 @@ class RepoAssessment:
     evidence: RepoEvidence
     score: ScoreBreakdown
     actions: list[ActionCandidate]
+    profile: str = "generic"
+    profile_confidence: float = 0.0
+    profile_signals: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "evidence": self.evidence.to_dict(),
             "score": self.score.to_dict(),
+            "profile": {
+                "kind": self.profile,
+                "confidence": self.profile_confidence,
+                "signals": self.profile_signals,
+            },
             "actions": [action.to_dict() for action in self.actions],
         }
