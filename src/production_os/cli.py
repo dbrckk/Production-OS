@@ -370,6 +370,15 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=[],
     )
 
+    workflowimpactpr = sub.add_parser(
+        "workflow-impact-pr",
+        help="Apply GitHub pull-request changed paths to a workflow",
+    )
+    workflowimpactpr.add_argument("--database", required=True)
+    workflowimpactpr.add_argument("--workflow-id", required=True)
+    workflowimpactpr.add_argument("--repository", required=True)
+    workflowimpactpr.add_argument("--pr-number", type=int, required=True)
+
     workflowcancel = sub.add_parser("workflow-cancel", help="Cancel a workflow")
     workflowcancel.add_argument("--database", required=True)
     workflowcancel.add_argument("--workflow-id", required=True)
@@ -1479,6 +1488,28 @@ def run_workflow_impact(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_workflow_impact_pr(args: argparse.Namespace) -> int:
+    client = GitHubClient()
+    changed_paths = client.list_pull_request_files(
+        args.repository,
+        args.pr_number,
+    )
+    engine = _workflow_engine(args.database)
+    decisions = engine.apply_change_impact(
+        args.workflow_id,
+        changed_paths,
+    )
+    print(json.dumps({
+        "schema_version":"production-os/change-impact-pr/v1",
+        "repository":args.repository,
+        "pr_number":args.pr_number,
+        "changed_paths":changed_paths,
+        "decisions":decisions,
+        "workflow":engine.get(args.workflow_id),
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
 def run_workflow_cancel(args: argparse.Namespace) -> int:
     workflow = _workflow_engine(args.database).cancel(args.workflow_id)
     print(json.dumps({
@@ -1609,6 +1640,8 @@ def main(argv: list[str] | None = None) -> int:
         return run_speculate_stragglers(args)
     if args.command == "workflow-impact":
         return run_workflow_impact(args)
+    if args.command == "workflow-impact-pr":
+        return run_workflow_impact_pr(args)
     if args.command == "workflow-cancel":
         return run_workflow_cancel(args)
     if args.command == "artifact-add":
