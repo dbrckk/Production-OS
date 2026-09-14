@@ -119,6 +119,8 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     controller.add_argument("--observability", help="Write structured observability JSON")
     controller.add_argument("--worker-registry", help="Persistent worker registry JSON")
     controller.add_argument("--receipt-dir", help="Dispatch receipt directory")
+    controller.add_argument("--claims", help="Persistent claim store JSON")
+    controller.add_argument("--dead-letter-dir", help="Directory for expired unacked jobs")
 
     healthserver = sub.add_parser("health-server", help="Serve the health JSON over HTTP")
     healthserver.add_argument("--health", required=True)
@@ -558,6 +560,8 @@ def run_dispatch(args: argparse.Namespace) -> int:
         worker_registry=worker_registry,
         required_capabilities=args.required_capability,
         receipt_dir=args.receipt_dir,
+        claims_path=args.claims,
+        dead_letter_dir=args.dead_letter_dir,
     )
     print(json.dumps({
         "schema_version": "production-os/dispatch-result/v2",
