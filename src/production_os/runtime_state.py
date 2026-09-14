@@ -90,6 +90,24 @@ class RuntimeState:
         self.save()
         return record
 
+    def heartbeat_lease(
+        self,
+        repository: str,
+        task: str,
+        owner: str,
+        minutes: int = 30,
+    ) -> RuntimeRecord:
+        record = self.get(repository, task)
+        now = datetime.now(timezone.utc)
+        if not self.is_leased(record, now):
+            raise RuntimeError("task has no active lease")
+        if record.lease_owner != owner:
+            raise RuntimeError("lease owner mismatch")
+        record.lease_expires_at = (now + timedelta(minutes=minutes)).isoformat()
+        record.updated_at = now.isoformat()
+        self.save()
+        return record
+
     def release_lease(self, repository: str, task: str) -> RuntimeRecord:
         record = self.get(repository, task)
         record.lease_owner = None
