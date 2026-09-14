@@ -1246,5 +1246,56 @@ The service exposes port `8787` and persists the SQLite database in `./artifacts
 - [x] live dashboard
 - [x] Docker image
 - [x] Docker Compose startup
-- [ ] optional PostgreSQL backend
-- [ ] TLS termination / reverse-proxy reference config
+- [x] optional PostgreSQL backend
+- [x] TLS termination / reverse-proxy reference config
+
+### PostgreSQL deployment
+
+Production-OS accepts either a SQLite path or a PostgreSQL DSN through the same `--database` option.
+
+Example:
+
+```bash
+production-os db-init \
+  --database postgresql://production_os:password@127.0.0.1:5432/production_os
+```
+
+Control plane:
+
+```bash
+production-os control-plane \
+  --database postgresql://production_os:password@127.0.0.1:5432/production_os \
+  --auth-config artifacts/auth.json \
+  --host 0.0.0.0 \
+  --port 8787
+```
+
+Docker Compose:
+
+```bash
+cp deploy/.env.postgres.example .env
+# edit POSTGRES_PASSWORD
+docker compose -f compose.postgres.yaml up --build
+```
+
+The PostgreSQL queue uses transactional row locks and `FOR UPDATE SKIP LOCKED` for concurrent worker claims.
+
+### TLS deployment
+
+Reference files:
+
+```text
+deploy/Caddyfile
+compose.tls.yaml
+deploy/.env.example
+```
+
+Start:
+
+```bash
+cp deploy/.env.example .env
+# edit DOMAIN and ACME_EMAIL
+docker compose -f compose.tls.yaml up --build
+```
+
+Caddy terminates HTTPS, applies security headers and proxies to the Production-OS control plane health-checked through `/healthz`.
