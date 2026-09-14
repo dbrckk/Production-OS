@@ -319,6 +319,38 @@ Repeated failures eventually open a circuit and start a cooldown instead of retr
 - [x] cooldowns
 - [x] duplicate-execution guards
 - [ ] GitHub issue/PR state ingestion
-- [ ] automatic dispatch to ai-dev-server
-- [ ] lease renewal/heartbeat
-- [ ] crash recovery reconciliation
+- [x] automatic dispatch to ai-dev-server
+- [x] lease renewal/heartbeat
+- [x] crash recovery reconciliation
+
+
+### Operational P3 commands
+
+Renew a lease:
+
+```bash
+production-os heartbeat \
+  --runtime-state artifacts/runtime-state.json \
+  --repository dbrckk/deadline-zero \
+  --task "Restore the default branch CI to green" \
+  --owner worker-1
+```
+
+Recover stale runtime state after restart/crash:
+
+```bash
+production-os reconcile \
+  --runtime-state artifacts/runtime-state.json
+```
+
+Dispatch a generated handoff into the ai-dev-server file queue:
+
+```bash
+production-os dispatch \
+  --handoff artifacts/handoff.json \
+  --runtime-state artifacts/runtime-state.json \
+  --queue-dir artifacts/ai-dev-server-queue \
+  --owner production-os
+```
+
+Dispatch is guarded by the same idempotency key, lease, cooldown and circuit-breaker state used by the scheduler. Expired running leases are reconciled to `replan` rather than silently duplicated.
