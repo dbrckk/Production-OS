@@ -61,8 +61,27 @@ def _handoff(action: ActionCandidate, reuse: list, catalog: dict | None) -> dict
     related_reuse = [
         item.to_dict() for item in reuse if item.target == action.repository
     ][:5]
+
+    reusable_components = []
+    for item in related_reuse:
+        for component in item.get("components", []):
+            reusable_components.append({
+                "source_repository": item["source"],
+                "capability": item["capability"],
+                **component,
+            })
+
+    reusable_components.sort(
+        key=lambda item: (
+            -float(item.get("confidence", 0)),
+            item.get("source_repository", ""),
+            item.get("path", ""),
+            item.get("name", ""),
+        )
+    )
+
     return {
-        "schema_version": "production-os/task-handoff/v4",
+        "schema_version": "production-os/task-handoff/v5",
         "source": "Production-OS",
         "executor": "ai-dev-server",
         "repository": action.repository,
@@ -72,11 +91,13 @@ def _handoff(action: ActionCandidate, reuse: list, catalog: dict | None) -> dict
         "trigger_evidence": action.evidence,
         "priority": action.priority,
         "reuse_candidates": related_reuse,
+        "reusable_components": reusable_components[:12],
         "external_reference_candidates": _external_refs_for_action(action, catalog),
         "constraints": {
             "preserve_existing_behavior": True,
             "verify_before_completion": True,
             "reuse_before_rebuild": True,
+            "prefer_component_level_reuse": True,
             "prefer_evidence_backed_references": True,
             "no_secret_material_in_workspace": True,
         },
@@ -94,7 +115,7 @@ def _print_human(assessments, actions, regressions, reuse, catalog_loaded: bool)
         print(
             f"{e.full_name:<40} {assessment.score.total:>3}/100 "
             f"[{assessment.profile}] caps={len(assessment.capabilities)} "
-            f"source={len(assessment.source_signals)} "
+            f"components={len(assessment.components)} "
             f"sampled={len(e.source_documents)}"
         )
 
@@ -114,7 +135,8 @@ def _print_human(assessments, actions, regressions, reuse, catalog_loaded: bool)
         for item in reuse[:8]:
             print(
                 f"- {item.target} <- {item.source}: "
-                f"{item.capability} ({item.confidence:.0%})"
+                f"{item.capability} ({item.confidence:.0%}) "
+                f"components={len(item.components)}"
             )
         print()
 
@@ -185,13 +207,13 @@ def run_scan(args: argparse.Namespace) -> int:
 
     if args.handoff:
         payload = _handoff(actions[0], reuse, catalog) if actions else {
-            "schema_version": "production-os/task-handoff/v4",
+            "schema_version": "production-os/task-handoff/v5",
             "status": "no_action",
         }
         print(json.dumps(payload, indent=2, ensure_ascii=False))
     elif args.json:
         payload = {
-            "schema_version": "production-os/portfolio/v5",
+            "schema_version": "production-os/portfolio/v6",
             "owner": args.owner,
             "star_list": {
                 "repository": args.star_list_repo,
