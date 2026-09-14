@@ -136,6 +136,24 @@ def verify_validation_attestation(
     }
 
 
+def release_approval_key(
+    *,
+    workflow_id: str,
+    artifact_id: str,
+    artifact_sha256: str,
+    source_revision: str | None,
+    workflow_generation: int | None,
+) -> str:
+    payload = {
+        "workflow_id":str(workflow_id),
+        "artifact_id":str(artifact_id),
+        "artifact_sha256":str(artifact_sha256),
+        "source_revision":source_revision,
+        "workflow_generation":workflow_generation,
+    }
+    return hashlib.sha256(_canonical(payload)).hexdigest()
+
+
 def create_release_provenance(
     *,
     secret: str,
@@ -153,6 +171,9 @@ def create_release_provenance(
         "workflow_generation":release.get("workflow_generation"),
         "validator_id":attestation["validator_id"],
         "validation_attestation_signature":attestation["signature"],
+        "approval_key":release["metadata"]["approval"]["approval_key"],
+        "approved_by":release["metadata"]["approval"]["approved_by"],
+        "approval_role":release["metadata"]["approval"]["role"],
         "created_at":release["created_at"],
     }
     return {
