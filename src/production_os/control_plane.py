@@ -8,6 +8,7 @@ from urllib.parse import parse_qs, urlparse
 from .api_auth import Principal, TokenAuthorizer
 from .storage import job_queue_for, open_backend, worker_registry_for
 from .workflow_engine import WorkflowEngine, WorkflowTaskSpec
+from .execution_optimizer import ExecutionOptimizer
 
 
 class ControlPlane:
@@ -21,6 +22,7 @@ class ControlPlane:
         self.queue = job_queue_for(self.backend)
         self.workers = worker_registry_for(self.backend)
         self.workflows = WorkflowEngine(self.backend, self.queue)
+        self.optimizer = ExecutionOptimizer(self.backend)
         self.authorizer = authorizer
 
 
@@ -262,6 +264,11 @@ def make_handler(control: ControlPlane):
                             payload = control.workflows.critical_path(workflow_id)
                             self._send(HTTPStatus.OK, payload)
                             return
+                        if len(parts) == 4 and parts[3] == "eta":
+                            workflow = control.workflows.get(workflow_id)
+                            payload = control.optimizer.workflow_eta(workflow)
+                            self._send(HTTPStatus.OK, payload)
+                            return
                         if len(parts) == 3:
                             payload = control.workflows.get(workflow_id)
                             self._send(
@@ -454,6 +461,16 @@ def make_handler(control: ControlPlane):
                     workflow_task_id = before["payload"].get(
                         "workflow_task_id"
                     )
+                    duration_seconds = body.get("duration_seconds")
+                    if duration_seconds is not None:
+                        control.optimizer.record_execution(
+                            repository=before["repository"],
+                            task=before["task"],
+                            worker_id=worker_id,
+                            duration_seconds=float(duration_seconds),
+                            succeeded=True,
+                            capabilities=[str(x) for x in body.get("capabilities", [])],
+                        )
                     workflow = None
                     if workflow_id and workflow_task_id:
                         workflow = control.workflows.record_result(
@@ -485,6 +502,16 @@ def make_handler(control: ControlPlane):
                     workflow_task_id = before["payload"].get(
                         "workflow_task_id"
                     )
+                    duration_seconds = body.get("duration_seconds")
+                    if duration_seconds is not None:
+                        control.optimizer.record_execution(
+                            repository=before["repository"],
+                            task=before["task"],
+                            worker_id=worker_id,
+                            duration_seconds=float(duration_seconds),
+                            succeeded=False,
+                            capabilities=[str(x) for x in body.get("capabilities", [])],
+                        )
                     workflow = None
                     if workflow_id and workflow_task_id:
                         workflow = control.workflows.record_result(
