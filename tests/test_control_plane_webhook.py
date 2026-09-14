@@ -35,7 +35,10 @@ def signed_request(url, payload, delivery="delivery-1", secret="secret"):
 
 def test_signed_pr_webhook_refreshes_and_dispatches(tmp_path, monkeypatch):
     class FakeGitHubClient:
+        calls=0
+
         def list_pull_request_files(self, repository, pr_number):
+            type(self).calls+=1
             assert repository=="o/a"
             assert pr_number==12
             return ["src/core.py"]
@@ -120,6 +123,19 @@ def test_signed_pr_webhook_refreshes_and_dispatches(tmp_path, monkeypatch):
         )
         assert status==200
         assert duplicate["status"]=="duplicate"
+
+        status,same_generation=signed_request(
+            base+"/v1/github/webhook",
+            payload,
+            delivery="delivery-2",
+        )
+        assert status==200
+        assert same_generation["status"]=="processed"
+        assert same_generation["workflows"][0][
+            "generation_noop"
+        ] is True
+        assert same_generation["dispatched_jobs"]==[]
+        assert FakeGitHubClient.calls==1
     finally:
         server.shutdown()
         server.server_close()
