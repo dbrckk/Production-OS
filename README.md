@@ -180,11 +180,52 @@ IGNORE    work below the current scheduling threshold
 
 The resource allocator then assigns bounded execution slots to active repositories. This creates the first P2 control loop between portfolio priority and actual execution capacity.
 
+## Execution feedback loop
+
+After an `ai-dev-server` run, Production-OS can compare before/after snapshots plus validation status:
+
+```bash
+production-os execution-feedback \
+  --before before.json \
+  --after after.json \
+  --repository dbrckk/deadline-zero \
+  --validation-summary validation-summary.json
+```
+
+Possible decisions:
+
+```text
+promote
+retry
+rollback
+replan
+```
+
+The decision is driven by validation status and measured maturity delta.
+
+## Long-term trends
+
+Multiple snapshots can now be aggregated:
+
+```bash
+production-os trends snapshots/2026-09-01.json snapshots/2026-09-14.json
+```
+
+Each repository receives a direction:
+
+```text
+improving
+flat
+regressing
+```
+
+These trend signals are the basis for the next scheduler upgrade: favor work patterns that produce measured improvements and deprioritize repeated low-yield loops.
+
 ### P2
 - [x] autonomous scheduling
 - [x] portfolio resource allocation
-- [ ] long-term trend history
-- [ ] automatic execution feedback loop
+- [x] long-term trend history
+- [x] automatic execution feedback loop
 - [ ] mobile/dashboard control surface
 
 ## Design principles
