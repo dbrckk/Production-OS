@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Iterable
 
 from .control_surface import write_control_surface
+from .controller import run_controller
 from .dispatch import dispatch_handoff
 from .execution_feedback import decide_execution_outcome
 from .feedback import summarize_validation_results
@@ -92,6 +93,21 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     ghrec.add_argument("--mapping", required=True, help="JSON list of repository/task/issue_number/pr_number mappings")
     ghrec.add_argument("--runtime-state", required=True)
     ghrec.add_argument("--journal")
+
+    controller = sub.add_parser("controller", help="Run bounded autonomous control cycles")
+    controller.add_argument("--owner", required=True)
+    controller.add_argument("--runtime-state", required=True)
+    controller.add_argument("--queue-dir", required=True)
+    controller.add_argument("--snapshot-dir", required=True)
+    controller.add_argument("--metrics", required=True)
+    controller.add_argument("--health", required=True)
+    controller.add_argument("--journal", required=True)
+    controller.add_argument("--cycles", type=int, default=1)
+    controller.add_argument("--interval-seconds", type=int, default=300)
+    controller.add_argument("--capacity", type=int, default=3)
+    controller.add_argument("--slots", type=int, default=3)
+    controller.add_argument("--lease-owner", default="production-os-controller")
+    controller.add_argument("--lease-minutes", type=int, default=30)
 
     return parser.parse_args(argv)
 
@@ -544,6 +560,30 @@ def run_github_reconcile(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_controller_command(args: argparse.Namespace) -> int:
+    results = run_controller(
+        cycles=args.cycles,
+        interval_seconds=args.interval_seconds,
+        owner=args.owner,
+        runtime_state_path=args.runtime_state,
+        queue_dir=args.queue_dir,
+        snapshot_dir=args.snapshot_dir,
+        metrics_path=args.metrics,
+        health_path=args.health,
+        journal_path=args.journal,
+        capacity=args.capacity,
+        slots=args.slots,
+        lease_owner=args.lease_owner,
+        lease_minutes=args.lease_minutes,
+    )
+    print(json.dumps({
+        "schema_version":"production-os/controller-run/v1",
+        "cycles":len(results),
+        "results":results,
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
     if args.command == "scan":
@@ -562,6 +602,8 @@ def main(argv: list[str] | None = None) -> int:
         return run_dispatch(args)
     if args.command == "github-reconcile":
         return run_github_reconcile(args)
+    if args.command == "controller":
+        return run_controller_command(args)
     return 1
 
 
