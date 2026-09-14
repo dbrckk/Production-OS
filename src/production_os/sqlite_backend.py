@@ -18,7 +18,7 @@ def _utcnow() -> str:
 
 
 class SQLiteBackend:
-    SCHEMA_VERSION = 2
+    SCHEMA_VERSION = 3
 
     def __init__(self, path: str | Path):
         self.path = Path(path)
@@ -182,6 +182,23 @@ class SQLiteBackend:
 
                 CREATE INDEX IF NOT EXISTS idx_artifacts_workflow
                 ON artifacts(workflow_id, task_id);
+
+                CREATE TABLE IF NOT EXISTS execution_history (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    repository TEXT NOT NULL,
+                    task TEXT NOT NULL,
+                    worker_id TEXT NOT NULL,
+                    duration_seconds REAL NOT NULL,
+                    succeeded INTEGER NOT NULL,
+                    capabilities_json TEXT NOT NULL DEFAULT '[]',
+                    created_at TEXT NOT NULL
+                );
+
+                CREATE INDEX IF NOT EXISTS idx_execution_history_task
+                ON execution_history(repository, task, created_at DESC);
+
+                CREATE INDEX IF NOT EXISTS idx_execution_history_worker
+                ON execution_history(worker_id, created_at DESC);
                 """
             )
             db.execute(
