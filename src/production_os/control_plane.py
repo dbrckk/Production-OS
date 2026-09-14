@@ -10,6 +10,7 @@ from .storage import job_queue_for, open_backend, worker_registry_for
 from .workflow_engine import WorkflowEngine, WorkflowTaskSpec
 from .execution_optimizer import ExecutionOptimizer
 from .speculation import SpeculationManager
+from .portfolio_optimizer import PortfolioOptimizer
 
 
 class ControlPlane:
@@ -25,6 +26,7 @@ class ControlPlane:
         self.workflows = WorkflowEngine(self.backend, self.queue)
         self.optimizer = ExecutionOptimizer(self.backend)
         self.speculation = SpeculationManager(self.backend, self.queue)
+        self.portfolio = PortfolioOptimizer(self.workflows, self.optimizer)
         self.authorizer = authorizer
 
 
@@ -494,7 +496,7 @@ def make_handler(control: ControlPlane):
                         str(x) for x in body.get("capabilities", [])
                     ]
 
-                    candidate = None
+                    compatible = []
                     for queued in control.queue.peek_candidates(
                         worker_id=worker_id,
                         limit=100,
@@ -506,62 +508,75 @@ def make_handler(control: ControlPlane):
                             )
                         )
                         if required.issubset(set(capabilities)):
-                            candidate = queued
-                            break
+                            compatible.append(queued)
 
-                    if candidate is not None:
-                        assigned = candidate.get("assigned_worker")
-                        control.workers.load()
-                        available_workers = list(
-                            control.workers.workers.values()
-                        )
-                        if assigned:
-                            available_workers = [
-                                worker
-                                for worker in available_workers
-                                if worker.worker_id == assigned
-                            ]
+                    if not compatible:
+                        self._send(HTTPStatus.NO_CONTENT, {})
+                        return
 
-                        placement = control.optimizer.choose_worker(
-                            repository=candidate["repository"],
-                            task=candidate["task"],
-                            workers=available_workers,
-                            required_capabilities=list(
-                                candidate["payload"].get(
-                                    "required_capabilities",
-                                    [],
-                                )
-                            ),
-                            fallback_minutes=float(
-                                candidate["payload"]
-                                .get("handoff", {})
-                                .get("estimated_minutes", 1.0)
-                            ),
-                        )
-                        if (
-                            placement is not None
-                            and placement.worker_id != worker_id
-                        ):
-                            self._send(
-                                HTTPStatus.NO_CONTENT,
-                                {},
+                    ranked = control.portfolio.rank(compatible)
+                    candidate = ranked[0]["job"]
+
+                    assigned = candidate.get("assigned_worker")
+                    control.workers.load()
+                    available_workers = list(
+                        control.workers.workers.values()
+                    )
+                    if assigned:
+                        available_workers = [
+                            worker
+                            for worker in available_workers
+                            if worker.worker_id == assigned
+                        ]
+
+                    placement = control.optimizer.choose_worker(
+                        repository=candidate["repository"],
+                        task=candidate["task"],
+                        workers=available_workers,
+                        required_capabilities=list(
+                            candidate["payload"].get(
+                                "required_capabilities",
+                                [],
                             )
-                            return
+                        ),
+                        fallback_minutes=float(
+                            candidate["payload"]
+                            .get("handoff", {})
+                            .get("estimated_minutes", 1.0)
+                        ),
+                    )
+                    if (
+                        placement is not None
+                        and placement.worker_id != worker_id
+                    ):
+                        self._send(HTTPStatus.NO_CONTENT, {})
+                        return
 
-                    job = control.queue.claim_next(
+                    job = control.queue.claim_key(
+                        candidate["key"],
                         worker_id,
-                        capabilities=capabilities,
                         ack_timeout_seconds=int(
                             body.get("ack_timeout_seconds", 120)
                         ),
                     )
                     if job is None:
-                        self._send(
-                            HTTPStatus.NO_CONTENT,
-                            {},
-                        )
+                        self._send(HTTPStatus.NO_CONTENT, {})
                         return
-                    self._send(HTTPStatus.OK, {"job":job})
+
+                    self._send(
+                        HTTPStatus.OK,
+                        {
+                            "job":job,
+                            "optimization":{
+                                "portfolio_score":ranked[0]["score"],
+                                "critical":ranked[0]["critical"],
+                                "descendants":ranked[0]["descendants"],
+                                "predicted_minutes":ranked[0][
+                                    "predicted_minutes"
+                                ],
+                            },
+                        },
+                    )
                     return
 
                 if parsed.path == "/v1/jobs/ack":
