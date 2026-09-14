@@ -4,7 +4,9 @@ from dataclasses import dataclass
 
 from .adaptation import score_adaptation_risk
 from .adaptation_plan import build_adaptation_plan
+from .compatibility import check_dependency_compatibility
 from .models import RepoAssessment
+from .validation import build_validation_plan
 
 
 @dataclass(frozen=True, slots=True)
@@ -52,12 +54,7 @@ def _component_candidates(
         if capability not in component.capability_hints:
             continue
 
-        adaptation = score_adaptation_risk(
-            source,
-            target,
-            capability,
-            component,
-        )
+        adaptation = score_adaptation_risk(source, target, capability, component)
 
         matches.append({
             "name": component.name,
@@ -104,31 +101,20 @@ def detect_reuse(assessments: list[RepoAssessment]) -> list[ReuseOpportunity]:
                 if capability.confidence < 0.75:
                     continue
 
-                key = (
-                    source.evidence.full_name,
-                    target.evidence.full_name,
-                    capability.name,
-                )
+                key = (source.evidence.full_name, target.evidence.full_name, capability.name)
                 if key in seen:
                     continue
                 seen.add(key)
 
                 family_factor = 1.0 if source.profile == target.profile else 0.88
-                components = _component_candidates(
-                    source,
-                    target,
-                    capability.name,
-                )
+                components = _component_candidates(source, target, capability.name)
 
                 risk_factor = 1.0
                 if components:
                     best_risk = components[0]["adaptation_risk"]
                     risk_factor = max(0.55, 1.0 - (best_risk / 150.0))
 
-                confidence = round(
-                    capability.confidence * family_factor * risk_factor,
-                    2,
-                )
+                confidence = round(capability.confidence * family_factor * risk_factor, 2)
 
                 plan = build_adaptation_plan(
                     source,
@@ -136,6 +122,36 @@ def detect_reuse(assessments: list[RepoAssessment]) -> list[ReuseOpportunity]:
                     capability.name,
                     list(components),
                 ).to_dict()
+
+                dependency_checks = [
+                    item.to_dict()
+                    for item in check_dependency_compatibility(
+                        target,
+                        plan.get("recreate", []),
+                    )
+                ]
+                validation_plan = [
+                    step.to_dict()
+                    for step in build_validation_plan(
+                        target,
+                        capability.name,
+                        plan,
+                        dependency_checks,
+                    )
+                ]
+
+                missing = [
+                    item["dependency"]
+                    for item in dependency_checks
+                    if item["status"] != "available"
+                ]
+
+                plan["dependency_compatibility"] = dependency_checks
+                plan["missing_dependencies"] = missing
+                plan["compatible_for_adaptation"] = (
+                    plan.get("overall_risk", 101) <= 50 and len(missing) <= 3
+                )
+                plan["validation_plan"] = validation_plan
 
                 opportunities.append(
                     ReuseOpportunity(
@@ -145,9 +161,8 @@ def detect_reuse(assessments: list[RepoAssessment]) -> list[ReuseOpportunity]:
                         confidence=confidence,
                         rationale=(
                             f"{source.evidence.full_name} has evidence-backed capability "
-                            f"'{capability.name}' that is absent from "
-                            f"{target.evidence.full_name}. Component candidates are "
-                            f"ranked by adaptation risk and test coverage."
+                            f"'{capability.name}' that is absent from {target.evidence.full_name}. "
+                            f"Compatibility and validation requirements were evaluated."
                         ),
                         evidence=capability.evidence,
                         components=components,
@@ -157,11 +172,10 @@ def detect_reuse(assessments: list[RepoAssessment]) -> list[ReuseOpportunity]:
 
     opportunities.sort(
         key=lambda item: (
+            not bool(item.adaptation_plan and item.adaptation_plan.get("compatible_for_adaptation")),
+            item.adaptation_plan.get("overall_risk", 101) if item.adaptation_plan else 101,
+            len(item.adaptation_plan.get("missing_dependencies", [])) if item.adaptation_plan else 999,
             -item.confidence,
-            item.adaptation_plan.get("overall_risk", 101)
-            if item.adaptation_plan else 101,
-            item.components[0]["adaptation_risk"] if item.components else 101,
-            -len(item.components),
             item.target,
             item.capability,
             item.source,
