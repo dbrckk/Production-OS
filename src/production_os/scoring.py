@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 
 from .capabilities import extract_capabilities
 from .classification import classify_repository
+from .deep_fingerprint import analyze_source_evidence
 from .models import ActionCandidate, RepoAssessment, RepoEvidence, ScoreBreakdown
 
 
@@ -156,6 +157,7 @@ def assess_repository(evidence: RepoEvidence) -> RepoAssessment:
     score = score_repository(evidence)
     profile = classify_repository(evidence)
     capabilities = extract_capabilities(evidence)
+    source_signals = analyze_source_evidence(evidence)
     return RepoAssessment(
         evidence=evidence,
         score=score,
@@ -164,4 +166,5 @@ def assess_repository(evidence: RepoEvidence) -> RepoAssessment:
         profile_confidence=profile.confidence,
         profile_signals=list(profile.signals),
         capabilities=capabilities,
+        source_signals=source_signals,
     )
