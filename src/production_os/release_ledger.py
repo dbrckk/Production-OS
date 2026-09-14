@@ -2,6 +2,12 @@ from __future__ import annotations
 
 import json
 import uuid
+
+from .attestations import (
+    AttestationError,
+    create_release_provenance,
+    verify_validation_attestation,
+)
 from datetime import datetime, timezone
 
 
@@ -32,9 +38,20 @@ def _valid_sha256(value: str | None) -> bool:
 
 
 class ReleaseLedger:
-    def __init__(self, backend, workflows):
+    def __init__(
+        self,
+        backend,
+        workflows,
+        *,
+        trusted_validation_secrets: dict[str, str] | None = None,
+        provenance_secret: str | None = None,
+    ):
         self.backend = backend
         self.workflows = workflows
+        self.trusted_validation_secrets = dict(
+            trusted_validation_secrets or {}
+        )
+        self.provenance_secret = provenance_secret
 
     @staticmethod
     def _validation_passed(validation: dict) -> bool:
@@ -97,6 +114,7 @@ class ReleaseLedger:
         workflow_id: str,
         artifact_id: str,
         validation: dict,
+        attestation: dict,
         metadata: dict | None = None,
     ) -> dict:
         if not self._validation_passed(validation):
@@ -165,6 +183,30 @@ class ReleaseLedger:
             workflow_generation = artifact_metadata.get(
                 "workflow_generation"
             )
+
+            if not self.trusted_validation_secrets:
+                raise RuntimeError(
+                    "trusted validation attestation keys are not configured"
+                )
+            if not self.provenance_secret:
+                raise RuntimeError(
+                    "release provenance signing secret is not configured"
+                )
+
+            try:
+                verified_attestation = verify_validation_attestation(
+                    dict(attestation or {}),
+                    trusted_secrets=self.trusted_validation_secrets,
+                    workflow_id=workflow_id,
+                    artifact_id=artifact_id,
+                    artifact_sha256=artifact_sha256,
+                    source_revision=source_revision,
+                    workflow_generation=workflow_generation,
+                    validation=validation,
+                )
+            except AttestationError as exc:
+                raise RuntimeError(str(exc)) from exc
+
             expected_revision = workflow_metadata.get(
                 "github_pr_head_sha"
             )
@@ -265,7 +307,49 @@ class ReleaseLedger:
                 (release_id,),
             ).fetchone()
 
-        return self._row(row)
+        release = self._row(row)
+        provenance = create_release_provenance(
+            secret=self.provenance_secret,
+            release=release,
+            attestation=verified_attestation,
+        )
+
+        with self.backend.transaction() as db:
+            enriched_metadata = {
+                **release["metadata"],
+                "validation_attestation":verified_attestation,
+                "provenance":provenance,
+            }
+            _execute(
+                db,
+                self.backend,
+                """
+                UPDATE releases
+                SET metadata_json=?
+                WHERE id=?
+                """,
+                (
+                    json.dumps(
+                        enriched_metadata,
+                        ensure_ascii=False,
+                    ),
+                    release_id,
+                ),
+            )
+            self.backend.append_event(
+                db,
+                "release-provenance-signed",
+                {
+                    "release_id":release_id,
+                    "validator_id":verified_attestation[
+                        "validator_id"
+                    ],
+                    "provenance_signature":provenance["signature"],
+                },
+                repository=release["repository"],
+            )
+
+        return self.get(release_id)
 
     def rollback(
         self,
