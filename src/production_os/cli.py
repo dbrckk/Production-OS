@@ -41,8 +41,8 @@ from .remote_worker import RemoteWorkerClient
 from .reconciliation import reconcile_runtime_state
 from .resources import allocate_resources
 from .runtime_state import RuntimeState
-from .sqlite_backend import SQLiteBackend, SQLiteJobQueue
 from .sqlite_migration import import_json_state
+from .storage import job_queue_for, open_backend
 from .api_auth import token_digest
 from .scheduler import build_schedule
 from .scoring import assess_repository
@@ -702,44 +702,58 @@ def run_reconcile(args: argparse.Namespace) -> int:
 def run_dispatch(args: argparse.Namespace) -> int:
     handoff = json.loads(Path(args.handoff).read_text(encoding="utf-8"))
     if args.database:
-        backend = SQLiteBackend(args.database)
-        queue = SQLiteJobQueue(backend)
+        backend = open_backend(args.database)
+        queue = job_queue_for(backend)
         payload = {
             "schema_version":"production-os/dispatch/v4",
             "handoff":handoff,
             "required_capabilities":args.required_capability,
         }
         job = queue.enqueue(payload)
+        backend_name = (
+            "postgres"
+            if args.database.startswith(("postgresql://","postgres://"))
+            else "sqlite"
+        )
         print(json.dumps({
             "schema_version":"production-os/dispatch-result/v3",
-            "backend":"sqlite",
+            "backend":backend_name,
             "job":job,
         }, indent=2, ensure_ascii=False))
         return 0
+
     if not args.runtime_state:
-        raise SystemExit("--runtime-state is required unless --database is used")
+        raise SystemExit(
+            "--runtime-state is required unless --database is used"
+        )
+
     state = RuntimeState(args.runtime_state)
-    worker_registry = WorkerRegistry(args.worker_registry) if args.worker_registry else None
-    rate_limit_store = RateLimitStore(args.rate_limit_state) if args.rate_limit_state else None
-    approval_store = ApprovalStore(args.approvals) if args.approvals else None
+    worker_registry = (
+        WorkerRegistry(args.worker_registry)
+        if args.worker_registry
+        else None
+    )
+    rate_limit_store = (
+        RateLimitStore(args.rate_limit_state)
+        if args.rate_limit_state
+        else None
+    )
+    approval_store = (
+        ApprovalStore(args.approvals)
+        if args.approvals
+        else None
+    )
     policy_set = PolicySet.load(args.policy)
-    budget_ledger = BudgetLedger(args.budgets) if args.budgets else None
-    quarantine_store = QuarantineStore(args.quarantine) if args.quarantine else None
-    if args.database:
-        backend = SQLiteBackend(args.database)
-        queue = SQLiteJobQueue(backend)
-        payload = {
-            "schema_version":"production-os/dispatch/v4",
-            "handoff":handoff,
-            "required_capabilities":args.required_capability,
-        }
-        job = queue.enqueue(payload)
-        print(json.dumps({
-            "schema_version":"production-os/dispatch-result/v3",
-            "backend":"sqlite",
-            "job":job,
-        }, indent=2, ensure_ascii=False))
-        return 0
+    budget_ledger = (
+        BudgetLedger(args.budgets)
+        if args.budgets
+        else None
+    )
+    quarantine_store = (
+        QuarantineStore(args.quarantine)
+        if args.quarantine
+        else None
+    )
 
     result = dispatch_handoff(
         handoff,
@@ -758,8 +772,9 @@ def run_dispatch(args: argparse.Namespace) -> int:
         quarantine_store=quarantine_store,
     )
     print(json.dumps({
-        "schema_version": "production-os/dispatch-result/v2",
-        "result": result.to_dict(),
+        "schema_version":"production-os/dispatch-result/v2",
+        "backend":"json-files",
+        "result":result.to_dict(),
     }, indent=2, ensure_ascii=False))
     return 0
 
@@ -1188,17 +1203,23 @@ def run_policy_check(args: argparse.Namespace) -> int:
 
 
 def run_db_init(args: argparse.Namespace) -> int:
-    backend = SQLiteBackend(args.database)
+    backend = open_backend(args.database)
+    backend_name = (
+        "postgres"
+        if args.database.startswith(("postgresql://","postgres://"))
+        else "sqlite"
+    )
     print(json.dumps({
-        "schema_version":"production-os/sqlite-init/v1",
-        "database":str(backend.path),
+        "schema_version":"production-os/database-init/v2",
+        "database":args.database,
+        "backend":backend_name,
         "version":backend.SCHEMA_VERSION,
     }, indent=2, ensure_ascii=False))
     return 0
 
 
 def run_db_import(args: argparse.Namespace) -> int:
-    backend = SQLiteBackend(args.database)
+    backend = open_backend(args.database)
     payload = import_json_state(
         backend,
         runtime_state=args.runtime_state,
