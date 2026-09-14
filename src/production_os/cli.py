@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Iterable
 
 from .approvals import ApprovalStore
+from .audit_checkpoint import create_audit_checkpoint, verify_audit_checkpoint
 from .audit_integrity import verify_hash_chain
 from .backup import create_backup, restore_backup
 from .claims import ClaimStore
@@ -24,10 +25,12 @@ from .health_server import serve_health
 from .history import build_snapshot, detect_regressions, load_snapshot, save_snapshot
 from .journal import ExecutionJournal
 from .learning import build_learning_signals
+from .migration_registry import migrate_many
 from .migrations import migrate_state_file
 from .models import ActionCandidate, RepoAssessment
 from .reuse import detect_reuse
 from .preemption import confirm_checkpoint_and_release, request_preemption
+from .queue_maintenance import compact_queue, retry_dead_letters
 from .rate_limit import RateLimitStore
 from .reconciliation import reconcile_runtime_state
 from .resources import allocate_resources
@@ -225,6 +228,28 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
     migrate = sub.add_parser("migrate-state", help="Migrate a persistent state file to the current schema")
     migrate.add_argument("--path", required=True)
+
+    migratebatch = sub.add_parser("migrate-many", help="Migrate multiple persistent state files")
+    migratebatch.add_argument("paths", nargs="+")
+
+    qcompact = sub.add_parser("queue-compact", help="Remove/archive completed queue entries")
+    qcompact.add_argument("--queue-dir", required=True)
+    qcompact.add_argument("--claims", required=True)
+    qcompact.add_argument("--archive-dir")
+
+    dlretry = sub.add_parser("dead-letter-retry", help="Requeue dead-letter jobs within retry budget")
+    dlretry.add_argument("--dead-letter-dir", required=True)
+    dlretry.add_argument("--queue-dir", required=True)
+    dlretry.add_argument("--max-attempts", type=int, default=3)
+
+    acreate = sub.add_parser("audit-checkpoint-create", help="Create signed HMAC audit checkpoint")
+    acreate.add_argument("--journal", required=True)
+    acreate.add_argument("--checkpoint", required=True)
+    acreate.add_argument("--secret", required=True)
+
+    averify = sub.add_parser("audit-checkpoint-verify", help="Verify signed HMAC audit checkpoint")
+    averify.add_argument("--checkpoint", required=True)
+    averify.add_argument("--secret", required=True)
 
     return parser.parse_args(argv)
 
@@ -930,6 +955,62 @@ def run_migrate_state(args: argparse.Namespace) -> int:
     print(json.dumps(payload, indent=2, ensure_ascii=False))
     return 0
 
+
+
+def run_migrate_many(args: argparse.Namespace) -> int:
+    payload = {
+        "schema_version":"production-os/migration-batch/v1",
+        "results":[item.to_dict() for item in migrate_many(args.paths)],
+    }
+    print(json.dumps(payload, indent=2, ensure_ascii=False))
+    return 0
+
+
+def run_queue_compact(args: argparse.Namespace) -> int:
+    claims = ClaimStore(args.claims)
+    rows = compact_queue(
+        queue_dir=args.queue_dir,
+        claims=claims,
+        archive_dir=args.archive_dir,
+    )
+    print(json.dumps({
+        "schema_version":"production-os/queue-compaction/v1",
+        "actions":rows,
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
+def run_dead_letter_retry(args: argparse.Namespace) -> int:
+    rows = retry_dead_letters(
+        dead_letter_dir=args.dead_letter_dir,
+        queue_dir=args.queue_dir,
+        max_attempts=args.max_attempts,
+    )
+    print(json.dumps({
+        "schema_version":"production-os/dead-letter-retry/v1",
+        "actions":rows,
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
+def run_audit_checkpoint_create(args: argparse.Namespace) -> int:
+    payload = create_audit_checkpoint(
+        args.journal,
+        args.checkpoint,
+        secret=args.secret,
+    )
+    print(json.dumps(payload, indent=2, ensure_ascii=False))
+    return 0
+
+
+def run_audit_checkpoint_verify(args: argparse.Namespace) -> int:
+    payload = verify_audit_checkpoint(
+        args.checkpoint,
+        secret=args.secret,
+    )
+    print(json.dumps(payload, indent=2, ensure_ascii=False))
+    return 0 if payload.get("valid") else 6
+
 def run_health_server(args: argparse.Namespace) -> int:
     serve_health(args.health, host=args.host, port=args.port)
     return 0
@@ -991,6 +1072,16 @@ def main(argv: list[str] | None = None) -> int:
         return run_revoke(args)
     if args.command == "migrate-state":
         return run_migrate_state(args)
+    if args.command == "migrate-many":
+        return run_migrate_many(args)
+    if args.command == "queue-compact":
+        return run_queue_compact(args)
+    if args.command == "dead-letter-retry":
+        return run_dead_letter_retry(args)
+    if args.command == "audit-checkpoint-create":
+        return run_audit_checkpoint_create(args)
+    if args.command == "audit-checkpoint-verify":
+        return run_audit_checkpoint_verify(args)
     return 1
 
 
