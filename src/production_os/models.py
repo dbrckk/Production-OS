@@ -32,6 +32,7 @@ class RepoEvidence:
     has_roadmap: bool = False
     readme_text: str = ""
     detected_files: list[str] = field(default_factory=list)
+    workflow_names: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -89,6 +90,7 @@ class RepoAssessment:
     profile: str = "generic"
     profile_confidence: float = 0.0
     profile_signals: list[str] = field(default_factory=list)
+    capabilities: list[Any] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -99,5 +101,6 @@ class RepoAssessment:
                 "confidence": self.profile_confidence,
                 "signals": self.profile_signals,
             },
+            "capabilities": [cap.to_dict() for cap in self.capabilities],
             "actions": [action.to_dict() for action in self.actions],
         }
