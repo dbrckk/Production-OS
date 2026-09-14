@@ -22,6 +22,7 @@ from .journal import ExecutionJournal
 from .learning import build_learning_signals
 from .models import ActionCandidate, RepoAssessment
 from .reuse import detect_reuse
+from .preemption import confirm_checkpoint_and_release, request_preemption
 from .reconciliation import reconcile_runtime_state
 from .resources import allocate_resources
 from .runtime_state import RuntimeState
@@ -166,6 +167,19 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     deliveryrecover.add_argument("--runtime-state", required=True)
     deliveryrecover.add_argument("--queue-dir", required=True)
     deliveryrecover.add_argument("--dead-letter-dir")
+
+    preempt = sub.add_parser("preempt-request", help="Request cooperative preemption of an interruptible running task")
+    preempt.add_argument("--runtime-state", required=True)
+    preempt.add_argument("--repository", required=True)
+    preempt.add_argument("--task", required=True)
+
+    checkpoint = sub.add_parser("preempt-checkpoint", help="Confirm checkpoint and release a preempted task slot")
+    checkpoint.add_argument("--runtime-state", required=True)
+    checkpoint.add_argument("--registry", required=True)
+    checkpoint.add_argument("--repository", required=True)
+    checkpoint.add_argument("--task", required=True)
+    checkpoint.add_argument("--worker-id", required=True)
+    checkpoint.add_argument("--checkpoint-ref", required=True)
 
     return parser.parse_args(argv)
 
@@ -765,6 +779,35 @@ def run_delivery_recover(args: argparse.Namespace) -> int:
     }, indent=2, ensure_ascii=False))
     return 0
 
+
+
+def run_preempt_request(args: argparse.Namespace) -> int:
+    state = RuntimeState(args.runtime_state)
+    record = request_preemption(state, args.repository, args.task)
+    print(json.dumps({
+        "schema_version":"production-os/preempt-request/v1",
+        "record":record,
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
+def run_preempt_checkpoint(args: argparse.Namespace) -> int:
+    state = RuntimeState(args.runtime_state)
+    registry = WorkerRegistry(args.registry)
+    record = confirm_checkpoint_and_release(
+        state,
+        registry,
+        args.repository,
+        args.task,
+        args.worker_id,
+        args.checkpoint_ref,
+    )
+    print(json.dumps({
+        "schema_version":"production-os/preempt-checkpoint/v1",
+        "record":record,
+    }, indent=2, ensure_ascii=False))
+    return 0
+
 def run_health_server(args: argparse.Namespace) -> int:
     serve_health(args.health, host=args.host, port=args.port)
     return 0
@@ -806,6 +849,10 @@ def main(argv: list[str] | None = None) -> int:
         return run_job_complete(args)
     if args.command == "delivery-recover":
         return run_delivery_recover(args)
+    if args.command == "preempt-request":
+        return run_preempt_request(args)
+    if args.command == "preempt-checkpoint":
+        return run_preempt_checkpoint(args)
     return 1
 
 
