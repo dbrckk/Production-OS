@@ -100,13 +100,15 @@ def dispatch_handoff(
     worker = None
     if worker_registry is not None:
         worker_registry.detect_dead()
-        worker = select_worker(worker_registry, required_capabilities)
+        worker = select_worker(
+            worker_registry,
+            required_capabilities,
+            policy_decision.allowed_worker_classes,
+        )
         if worker is None:
+            if policy_decision.allowed_worker_classes:
+                raise RuntimeError("backpressure: no allowed capable worker available")
             raise RuntimeError("backpressure: no capable worker available")
-        if policy_decision.allowed_worker_classes:
-            worker_caps = set(worker.capabilities)
-            if not worker_caps.intersection(set(policy_decision.allowed_worker_classes)):
-                raise RuntimeError("policy blocked worker class")
 
     if rate_limit_store is not None:
         repo_decision = rate_limit_store.check_and_record(
