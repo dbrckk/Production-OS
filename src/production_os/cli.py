@@ -6,11 +6,14 @@ import sys
 from pathlib import Path
 from typing import Iterable
 
+from .audit_integrity import verify_hash_chain
+from .backup import create_backup, restore_backup
 from .claims import ClaimStore
 from .control_surface import write_control_surface
 from .controller import run_controller
 from .delivery import recover_unacked_jobs
 from .dispatch import dispatch_handoff
+from .emergency import clear_emergency_stop, set_emergency_stop
 from .execution_feedback import decide_execution_outcome
 from .feedback import summarize_validation_results
 from .github_client import GitHubAPIError, GitHubClient
@@ -23,6 +26,7 @@ from .learning import build_learning_signals
 from .models import ActionCandidate, RepoAssessment
 from .reuse import detect_reuse
 from .preemption import confirm_checkpoint_and_release, request_preemption
+from .rate_limit import RateLimitStore
 from .reconciliation import reconcile_runtime_state
 from .resources import allocate_resources
 from .runtime_state import RuntimeState
@@ -96,6 +100,8 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     dispatch.add_argument("--worker-registry")
     dispatch.add_argument("--required-capability", action="append", default=[])
     dispatch.add_argument("--receipt-dir")
+    dispatch.add_argument("--emergency-stop")
+    dispatch.add_argument("--rate-limit-state")
 
     ghrec = sub.add_parser("github-reconcile", help="Reconcile runtime tasks from explicit GitHub issue/PR mappings")
     ghrec.add_argument("--mapping", required=True, help="JSON list of repository/task/issue_number/pr_number mappings")
@@ -122,6 +128,8 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     controller.add_argument("--receipt-dir", help="Dispatch receipt directory")
     controller.add_argument("--claims", help="Persistent claim store JSON")
     controller.add_argument("--dead-letter-dir", help="Directory for expired unacked jobs")
+    controller.add_argument("--emergency-stop", help="Global emergency stop state JSON")
+    controller.add_argument("--rate-limit-state", help="Persistent rate-limit state JSON")
 
     healthserver = sub.add_parser("health-server", help="Serve the health JSON over HTTP")
     healthserver.add_argument("--health", required=True)
@@ -180,6 +188,24 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     checkpoint.add_argument("--task", required=True)
     checkpoint.add_argument("--worker-id", required=True)
     checkpoint.add_argument("--checkpoint-ref", required=True)
+
+    estop = sub.add_parser("emergency-stop", help="Activate global emergency stop")
+    estop.add_argument("--state", required=True)
+    estop.add_argument("--reason", required=True)
+
+    eresume = sub.add_parser("emergency-resume", help="Clear global emergency stop")
+    eresume.add_argument("--state", required=True)
+
+    auditverify = sub.add_parser("audit-verify", help="Verify execution journal hash chain")
+    auditverify.add_argument("--journal", required=True)
+
+    backup = sub.add_parser("backup", help="Backup critical state files")
+    backup.add_argument("--destination-dir", required=True)
+    backup.add_argument("paths", nargs="+")
+
+    restore = sub.add_parser("restore", help="Restore or verify a backup manifest")
+    restore.add_argument("--manifest", required=True)
+    restore.add_argument("--verify-only", action="store_true")
 
     return parser.parse_args(argv)
 
@@ -565,6 +591,7 @@ def run_dispatch(args: argparse.Namespace) -> int:
     handoff = json.loads(Path(args.handoff).read_text(encoding="utf-8"))
     state = RuntimeState(args.runtime_state)
     worker_registry = WorkerRegistry(args.worker_registry) if args.worker_registry else None
+    rate_limit_store = RateLimitStore(args.rate_limit_state) if args.rate_limit_state else None
     result = dispatch_handoff(
         handoff,
         args.queue_dir,
@@ -574,8 +601,8 @@ def run_dispatch(args: argparse.Namespace) -> int:
         worker_registry=worker_registry,
         required_capabilities=args.required_capability,
         receipt_dir=args.receipt_dir,
-        claims_path=args.claims,
-        dead_letter_dir=args.dead_letter_dir,
+        emergency_stop_path=args.emergency_stop,
+        rate_limit_store=rate_limit_store,
     )
     print(json.dumps({
         "schema_version": "production-os/dispatch-result/v2",
@@ -772,6 +799,8 @@ def run_delivery_recover(args: argparse.Namespace) -> int:
         workers=registry,
         queue_dir=args.queue_dir,
         dead_letter_dir=args.dead_letter_dir,
+        emergency_stop_path=args.emergency_stop,
+        rate_limit_path=args.rate_limit_state,
     )
     print(json.dumps({
         "schema_version":"production-os/delivery-recovery/v1",
@@ -806,6 +835,37 @@ def run_preempt_checkpoint(args: argparse.Namespace) -> int:
         "schema_version":"production-os/preempt-checkpoint/v1",
         "record":record,
     }, indent=2, ensure_ascii=False))
+    return 0
+
+
+
+def run_emergency_stop(args: argparse.Namespace) -> int:
+    payload = set_emergency_stop(args.state, reason=args.reason)
+    print(json.dumps(payload, indent=2, ensure_ascii=False))
+    return 0
+
+
+def run_emergency_resume(args: argparse.Namespace) -> int:
+    payload = clear_emergency_stop(args.state)
+    print(json.dumps(payload, indent=2, ensure_ascii=False))
+    return 0
+
+
+def run_audit_verify(args: argparse.Namespace) -> int:
+    payload = verify_hash_chain(args.journal)
+    print(json.dumps(payload, indent=2, ensure_ascii=False))
+    return 0 if payload.get("valid") else 5
+
+
+def run_backup(args: argparse.Namespace) -> int:
+    payload = create_backup(args.paths, args.destination_dir)
+    print(json.dumps(payload, indent=2, ensure_ascii=False))
+    return 0
+
+
+def run_restore(args: argparse.Namespace) -> int:
+    payload = restore_backup(args.manifest, verify_only=args.verify_only)
+    print(json.dumps(payload, indent=2, ensure_ascii=False))
     return 0
 
 def run_health_server(args: argparse.Namespace) -> int:
@@ -853,6 +913,16 @@ def main(argv: list[str] | None = None) -> int:
         return run_preempt_request(args)
     if args.command == "preempt-checkpoint":
         return run_preempt_checkpoint(args)
+    if args.command == "emergency-stop":
+        return run_emergency_stop(args)
+    if args.command == "emergency-resume":
+        return run_emergency_resume(args)
+    if args.command == "audit-verify":
+        return run_audit_verify(args)
+    if args.command == "backup":
+        return run_backup(args)
+    if args.command == "restore":
+        return run_restore(args)
     return 1
 
 
