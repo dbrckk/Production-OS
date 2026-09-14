@@ -1030,10 +1030,12 @@ def serve_control_plane(
     *,
     host: str = "127.0.0.1",
     port: int = 8787,
+    github_webhook_secret: str | None = None,
 ) -> None:
     control = ControlPlane(
         database,
         authorizer=TokenAuthorizer.load(auth_config),
+        github_webhook_secret=github_webhook_secret,
     )
     server = ThreadingHTTPServer(
         (host, port),
