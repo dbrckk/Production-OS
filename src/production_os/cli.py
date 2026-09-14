@@ -6,8 +6,10 @@ import sys
 from pathlib import Path
 from typing import Iterable
 
+from .claims import ClaimStore
 from .control_surface import write_control_surface
 from .controller import run_controller
+from .delivery import recover_unacked_jobs
 from .dispatch import dispatch_handoff
 from .execution_feedback import decide_execution_outcome
 from .feedback import summarize_validation_results
@@ -137,6 +139,31 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     workerlist = sub.add_parser("worker-list", help="List worker registry state")
     workerlist.add_argument("--registry", required=True)
     workerlist.add_argument("--dead-timeout-seconds", type=int, default=120)
+
+    jobclaim = sub.add_parser("job-claim", help="Claim a dispatched job")
+    jobclaim.add_argument("--claims", required=True)
+    jobclaim.add_argument("--queue-file", required=True)
+    jobclaim.add_argument("--worker-id", required=True)
+    jobclaim.add_argument("--ack-timeout-seconds", type=int, default=120)
+
+    joback = sub.add_parser("job-ack", help="Acknowledge a claimed job")
+    joback.add_argument("--claims", required=True)
+    joback.add_argument("--key", required=True)
+    joback.add_argument("--worker-id", required=True)
+
+    jobcomplete = sub.add_parser("job-complete", help="Mark a job complete and release worker/runtime accounting")
+    jobcomplete.add_argument("--claims", required=True)
+    jobcomplete.add_argument("--key", required=True)
+    jobcomplete.add_argument("--worker-id", required=True)
+    jobcomplete.add_argument("--registry", required=True)
+    jobcomplete.add_argument("--runtime-state", required=True)
+
+    deliveryrecover = sub.add_parser("delivery-recover", help="Recover expired unacked deliveries")
+    deliveryrecover.add_argument("--claims", required=True)
+    deliveryrecover.add_argument("--registry", required=True)
+    deliveryrecover.add_argument("--runtime-state", required=True)
+    deliveryrecover.add_argument("--queue-dir", required=True)
+    deliveryrecover.add_argument("--dead-letter-dir")
 
     return parser.parse_args(argv)
 
@@ -654,6 +681,86 @@ def run_worker_list(args: argparse.Namespace) -> int:
     return 0
 
 
+
+
+def run_job_claim(args: argparse.Namespace) -> int:
+    payload = json.loads(Path(args.queue_file).read_text(encoding="utf-8"))
+    handoff = payload.get("handoff", {})
+    key = str(payload.get("idempotency_key", ""))
+    repository = str(handoff.get("repository", ""))
+    task = str(handoff.get("task", ""))
+    assigned_worker = payload.get("worker_id")
+    if assigned_worker and assigned_worker != args.worker_id:
+        raise SystemExit("job assigned to a different worker")
+    if not key or not repository or not task:
+        raise SystemExit("invalid dispatch payload")
+
+    store = ClaimStore(args.claims)
+    claim = store.claim(
+        key=key,
+        worker_id=args.worker_id,
+        repository=repository,
+        task=task,
+        ack_timeout_seconds=args.ack_timeout_seconds,
+    )
+    print(json.dumps({
+        "schema_version":"production-os/job-claim/v1",
+        "claim":claim.to_dict(),
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
+def run_job_ack(args: argparse.Namespace) -> int:
+    store = ClaimStore(args.claims)
+    claim = store.ack(args.key, args.worker_id)
+    print(json.dumps({
+        "schema_version":"production-os/job-ack/v1",
+        "claim":claim.to_dict(),
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
+def run_job_complete(args: argparse.Namespace) -> int:
+    store = ClaimStore(args.claims)
+    claim = store.complete(args.key, args.worker_id)
+
+    registry = WorkerRegistry(args.registry)
+    worker = registry.workers.get(args.worker_id)
+    if worker is not None and worker.active_tasks > 0:
+        worker.active_tasks -= 1
+        registry.save()
+
+    state = RuntimeState(args.runtime_state)
+    record = state.get(claim.repository, claim.task)
+    if record.lease_owner == args.worker_id:
+        state.release_lease(claim.repository, claim.task)
+
+    print(json.dumps({
+        "schema_version":"production-os/job-complete/v1",
+        "claim":claim.to_dict(),
+        "worker":worker.to_dict() if worker else None,
+        "runtime":state.get(claim.repository, claim.task).to_dict(),
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
+def run_delivery_recover(args: argparse.Namespace) -> int:
+    claims = ClaimStore(args.claims)
+    registry = WorkerRegistry(args.registry)
+    state = RuntimeState(args.runtime_state)
+    rows = recover_unacked_jobs(
+        claims=claims,
+        runtime_state=state,
+        workers=registry,
+        queue_dir=args.queue_dir,
+        dead_letter_dir=args.dead_letter_dir,
+    )
+    print(json.dumps({
+        "schema_version":"production-os/delivery-recovery/v1",
+        "recovered":rows,
+    }, indent=2, ensure_ascii=False))
+    return 0
+
 def run_health_server(args: argparse.Namespace) -> int:
     serve_health(args.health, host=args.host, port=args.port)
     return 0
@@ -687,6 +794,14 @@ def main(argv: list[str] | None = None) -> int:
         return run_worker_heartbeat(args)
     if args.command == "worker-list":
         return run_worker_list(args)
+    if args.command == "job-claim":
+        return run_job_claim(args)
+    if args.command == "job-ack":
+        return run_job_ack(args)
+    if args.command == "job-complete":
+        return run_job_complete(args)
+    if args.command == "delivery-recover":
+        return run_delivery_recover(args)
     return 1
 
 
