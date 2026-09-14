@@ -1137,6 +1137,63 @@ class PostgresJobQueue:
                 rows = cur.fetchall()
         return [self._job_dict(row) for row in rows]
 
+
+    def claim_key(
+        self,
+        key: str,
+        worker_id: str,
+        *,
+        ack_timeout_seconds: int = 120,
+    ) -> dict | None:
+        now = datetime.now(timezone.utc)
+        deadline = (
+            now + timedelta(seconds=ack_timeout_seconds)
+        ).isoformat()
+        with self.backend.transaction() as db:
+            with db.cursor() as cur:
+                cur.execute(
+                    """
+                    SELECT * FROM jobs
+                    WHERE key=%s AND status='queued'
+                      AND (assigned_worker IS NULL OR assigned_worker=%s)
+                    FOR UPDATE SKIP LOCKED
+                    """,
+                    (key, worker_id),
+                )
+                row = cur.fetchone()
+                if row is None:
+                    return None
+                cur.execute(
+                    """
+                    UPDATE jobs
+                    SET status='claimed', claimed_by=%s, claimed_at=%s,
+                        ack_deadline=%s,
+                        delivery_attempt=delivery_attempt+1,
+                        updated_at=%s
+                    WHERE key=%s AND status='queued'
+                    """,
+                    (
+                        worker_id,
+                        now.isoformat(),
+                        deadline,
+                        now.isoformat(),
+                        key,
+                    ),
+                )
+                self.backend.append_event(
+                    db,
+                    "job-claimed",
+                    {"worker_id":worker_id},
+                    repository=row["repository"],
+                    task_key_value=key,
+                )
+                cur.execute(
+                    "SELECT * FROM jobs WHERE key=%s",
+                    (key,),
+                )
+                claimed = cur.fetchone()
+        return self._job_dict(claimed)
+
     def claim_next(
         self,
         worker_id: str,
