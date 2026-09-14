@@ -39,6 +39,7 @@ from .quarantine import QuarantineStore
 from .queue_maintenance import compact_queue, retry_dead_letters
 from .rate_limit import RateLimitStore
 from .remote_worker import RemoteWorkerClient
+from .release_ledger import ReleaseLedger
 from .reconciliation import reconcile_runtime_state
 from .resources import allocate_resources
 from .runtime_state import RuntimeState
@@ -404,6 +405,25 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     artifactadd.add_argument("--name", required=True)
     artifactadd.add_argument("--uri", required=True)
     artifactadd.add_argument("--sha256")
+
+    releasepromote = sub.add_parser(
+        "release-promote",
+        help="Atomically promote a validated workflow artifact",
+    )
+    releasepromote.add_argument("--database", required=True)
+    releasepromote.add_argument("--workflow-id", required=True)
+    releasepromote.add_argument("--artifact-id", required=True)
+    releasepromote.add_argument("--validation", required=True)
+    releasepromote.add_argument("--metadata")
+
+    releaserollback = sub.add_parser(
+        "release-rollback",
+        help="Append an immutable rollback record for a release",
+    )
+    releaserollback.add_argument("--database", required=True)
+    releaserollback.add_argument("--release-id", required=True)
+    releaserollback.add_argument("--reason", required=True)
+    releaserollback.add_argument("--metadata")
 
     return parser.parse_args(argv)
 
@@ -1594,6 +1614,51 @@ def run_artifact_add(args: argparse.Namespace) -> int:
     }, indent=2, ensure_ascii=False))
     return 0
 
+def _release_ledger(database: str) -> ReleaseLedger:
+    engine = _workflow_engine(database)
+    return ReleaseLedger(engine.backend, engine)
+
+
+def run_release_promote(args: argparse.Namespace) -> int:
+    validation = json.loads(
+        Path(args.validation).read_text(encoding="utf-8")
+    )
+    metadata = (
+        json.loads(Path(args.metadata).read_text(encoding="utf-8"))
+        if args.metadata
+        else {}
+    )
+    release = _release_ledger(args.database).promote(
+        workflow_id=args.workflow_id,
+        artifact_id=args.artifact_id,
+        validation=dict(validation),
+        metadata=dict(metadata),
+    )
+    print(json.dumps({
+        "schema_version":"production-os/release/v1",
+        "release":release,
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
+def run_release_rollback(args: argparse.Namespace) -> int:
+    metadata = (
+        json.loads(Path(args.metadata).read_text(encoding="utf-8"))
+        if args.metadata
+        else {}
+    )
+    release = _release_ledger(args.database).rollback(
+        args.release_id,
+        reason=args.reason,
+        metadata=dict(metadata),
+    )
+    print(json.dumps({
+        "schema_version":"production-os/release/v1",
+        "release":release,
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
 def run_health_server(args: argparse.Namespace) -> int:
     serve_health(args.health, host=args.host, port=args.port)
     return 0
@@ -1709,6 +1774,10 @@ def main(argv: list[str] | None = None) -> int:
         return run_workflow_cancel(args)
     if args.command == "artifact-add":
         return run_artifact_add(args)
+    if args.command == "release-promote":
+        return run_release_promote(args)
+    if args.command == "release-rollback":
+        return run_release_rollback(args)
     return 1
 
 
