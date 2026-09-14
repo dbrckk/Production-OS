@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
+from .approvals import ApprovalStore
 from .atomic_io import atomic_write_json
 from .emergency import emergency_stop_active
 from .rate_limit import RateLimitStore
@@ -47,6 +48,7 @@ def dispatch_handoff(
     receipt_dir: str | Path | None = None,
     emergency_stop_path: str | Path | None = None,
     rate_limit_store: RateLimitStore | None = None,
+    approval_store: ApprovalStore | None = None,
     repo_rate_limit: int = 20,
     worker_rate_limit: int = 60,
     rate_window_seconds: int = 3600,
@@ -83,6 +85,12 @@ def dispatch_handoff(
                 raise RuntimeError("rate limit exceeded for worker")
 
     record = runtime_state.get(repository, task)
+    requires_approval = bool(
+        handoff.get("constraints", {}).get("requires_human_approval", False)
+    )
+    if requires_approval:
+        if approval_store is None or not approval_store.is_approved(record.key):
+            raise RuntimeError("human approval required")
     if runtime_state.is_leased(record):
         raise RuntimeError("task already leased")
     if runtime_state.in_cooldown(record):
