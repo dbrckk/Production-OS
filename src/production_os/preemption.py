@@ -55,10 +55,14 @@ def choose_preemption_victim(
         gap = incoming_priority - current_priority
         if gap < minimum_priority_gap:
             continue
-        candidates.append((current_priority, -gap, record.repository, record.task, record))
+        candidates.append(
+            (current_priority, -gap, record.repository, record.task, record)
+        )
 
     if not candidates:
-        return PreemptionDecision(False, None, None, None, "no safe lower-priority victim")
+        return PreemptionDecision(
+            False, None, None, None, "no safe lower-priority victim"
+        )
 
     candidates.sort(key=lambda row: (row[0], row[1], row[2], row[3]))
     victim = candidates[0][-1]
@@ -108,11 +112,9 @@ def confirm_checkpoint_and_release(
     record.preempt_requested = False
     record.lease_owner = None
     record.lease_expires_at = None
-
-    worker = workers.workers.get(worker_id)
-    if worker is not None and worker.active_tasks > 0:
-        worker.active_tasks -= 1
-        workers.save()
-
     runtime_state.save()
-    return record.to_dict()
+
+    if worker_id in workers.workers:
+        workers.adjust_active_tasks(worker_id, -1)
+
+    return runtime_state.get(repository, task).to_dict()
