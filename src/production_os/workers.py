@@ -127,11 +127,15 @@ class WorkerRegistry:
 def select_worker(
     registry: WorkerRegistry,
     required_capabilities: list[str] | None = None,
+    allowed_worker_classes: list[str] | tuple[str, ...] | None = None,
 ) -> Worker | None:
     required = set(required_capabilities or [])
+    allowed = set(allowed_worker_classes or [])
     candidates = []
     for worker in registry.available():
         caps = set(worker.capabilities)
+        if allowed and not caps.intersection(allowed):
+            continue
         missing = len(required - caps)
         load = worker.active_tasks / max(worker.max_concurrency, 1)
         candidates.append(
