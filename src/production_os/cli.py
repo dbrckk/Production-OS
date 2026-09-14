@@ -49,6 +49,7 @@ from .scoring import assess_repository
 from .starlist import suggest_external_references
 from .trends import build_trends
 from .workers import WorkerRegistry
+from .workflow_engine import WorkflowEngine, WorkflowTaskSpec
 
 
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -318,6 +319,35 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     remotepoll.add_argument("--cycles", type=int, default=1)
     remotepoll.add_argument("--interval-seconds", type=int, default=5)
     remotepoll.add_argument("--ack-timeout-seconds", type=int, default=120)
+
+    workflowcreate = sub.add_parser("workflow-create", help="Create a persistent DAG workflow")
+    workflowcreate.add_argument("--database", required=True)
+    workflowcreate.add_argument("--spec", required=True)
+
+    workflowstatus = sub.add_parser("workflow-status", help="Inspect a persistent workflow")
+    workflowstatus.add_argument("--database", required=True)
+    workflowstatus.add_argument("--workflow-id", required=True)
+
+    workflowdispatch = sub.add_parser("workflow-dispatch", help="Dispatch ready workflow tasks")
+    workflowdispatch.add_argument("--database", required=True)
+    workflowdispatch.add_argument("--workflow-id", required=True)
+    workflowdispatch.add_argument("--limit", type=int, default=10)
+
+    workflowcritical = sub.add_parser("workflow-critical-path", help="Calculate workflow critical path")
+    workflowcritical.add_argument("--database", required=True)
+    workflowcritical.add_argument("--workflow-id", required=True)
+
+    workflowcancel = sub.add_parser("workflow-cancel", help="Cancel a workflow")
+    workflowcancel.add_argument("--database", required=True)
+    workflowcancel.add_argument("--workflow-id", required=True)
+
+    artifactadd = sub.add_parser("artifact-add", help="Register a workflow artifact")
+    artifactadd.add_argument("--database", required=True)
+    artifactadd.add_argument("--workflow-id", required=True)
+    artifactadd.add_argument("--task-id")
+    artifactadd.add_argument("--name", required=True)
+    artifactadd.add_argument("--uri", required=True)
+    artifactadd.add_argument("--sha256")
 
     return parser.parse_args(argv)
 
@@ -1268,6 +1298,88 @@ def run_remote_worker_poll(args: argparse.Namespace) -> int:
     }, indent=2, ensure_ascii=False))
     return 0
 
+
+
+def _workflow_engine(database: str) -> WorkflowEngine:
+    backend = open_backend(database)
+    return WorkflowEngine(backend, job_queue_for(backend))
+
+
+def run_workflow_create(args: argparse.Namespace) -> int:
+    payload = json.loads(Path(args.spec).read_text(encoding="utf-8"))
+    engine = _workflow_engine(args.database)
+    workflow = engine.create(
+        name=str(payload["name"]),
+        repository=str(payload["repository"]),
+        tasks=[
+            WorkflowTaskSpec.from_dict(item)
+            for item in payload.get("tasks", [])
+        ],
+        metadata=dict(payload.get("metadata") or {}),
+        workflow_id=(
+            str(payload["workflow_id"])
+            if payload.get("workflow_id")
+            else None
+        ),
+    )
+    print(json.dumps({
+        "schema_version":"production-os/workflow/v1",
+        "workflow":workflow,
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
+def run_workflow_status(args: argparse.Namespace) -> int:
+    workflow = _workflow_engine(args.database).get(args.workflow_id)
+    print(json.dumps({
+        "schema_version":"production-os/workflow/v1",
+        "workflow":workflow,
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
+def run_workflow_dispatch(args: argparse.Namespace) -> int:
+    engine = _workflow_engine(args.database)
+    jobs = engine.dispatch_ready(args.workflow_id, limit=args.limit)
+    print(json.dumps({
+        "schema_version":"production-os/workflow-dispatch/v1",
+        "jobs":jobs,
+        "workflow":engine.get(args.workflow_id),
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
+def run_workflow_critical_path(args: argparse.Namespace) -> int:
+    payload = _workflow_engine(args.database).critical_path(
+        args.workflow_id
+    )
+    print(json.dumps(payload, indent=2, ensure_ascii=False))
+    return 0
+
+
+def run_workflow_cancel(args: argparse.Namespace) -> int:
+    workflow = _workflow_engine(args.database).cancel(args.workflow_id)
+    print(json.dumps({
+        "schema_version":"production-os/workflow/v1",
+        "workflow":workflow,
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
+def run_artifact_add(args: argparse.Namespace) -> int:
+    artifact = _workflow_engine(args.database).add_artifact(
+        args.workflow_id,
+        task_id=args.task_id,
+        name=args.name,
+        uri=args.uri,
+        sha256=args.sha256,
+    )
+    print(json.dumps({
+        "schema_version":"production-os/artifact/v1",
+        "artifact":artifact,
+    }, indent=2, ensure_ascii=False))
+    return 0
+
 def run_health_server(args: argparse.Namespace) -> int:
     serve_health(args.health, host=args.host, port=args.port)
     return 0
@@ -1359,6 +1471,18 @@ def main(argv: list[str] | None = None) -> int:
         return run_control_plane(args)
     if args.command == "remote-worker-poll":
         return run_remote_worker_poll(args)
+    if args.command == "workflow-create":
+        return run_workflow_create(args)
+    if args.command == "workflow-status":
+        return run_workflow_status(args)
+    if args.command == "workflow-dispatch":
+        return run_workflow_dispatch(args)
+    if args.command == "workflow-critical-path":
+        return run_workflow_critical_path(args)
+    if args.command == "workflow-cancel":
+        return run_workflow_cancel(args)
+    if args.command == "artifact-add":
+        return run_artifact_add(args)
     return 1
 
 
