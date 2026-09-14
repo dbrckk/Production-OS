@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 from typing import Iterable
 
+from .execution_feedback import decide_execution_outcome
 from .feedback import summarize_validation_results
 from .github_client import GitHubAPIError, GitHubClient
 from .graph import build_knowledge_graph
@@ -16,6 +17,7 @@ from .resources import allocate_resources
 from .scheduler import build_schedule
 from .scoring import assess_repository
 from .starlist import suggest_external_references
+from .trends import build_trends
 
 
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -46,6 +48,15 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     validation.add_argument("--plan", required=True, help="JSON file containing an adaptation plan or validation plan")
     validation.add_argument("--results", required=True, help="JSON file containing validation results")
     validation.add_argument("--output", help="Optional path to write the summary JSON")
+
+    feedback = sub.add_parser("execution-feedback", help="Decide promote/retry/rollback/replan from before/after snapshots and validation")
+    feedback.add_argument("--before", required=True)
+    feedback.add_argument("--after", required=True)
+    feedback.add_argument("--repository", required=True)
+    feedback.add_argument("--validation-summary", required=True)
+
+    trends = sub.add_parser("trends", help="Build long-term repository score trends from snapshot JSON files")
+    trends.add_argument("snapshots", nargs="+")
 
     return parser.parse_args(argv)
 
@@ -333,12 +344,50 @@ def run_validation_results(args: argparse.Namespace) -> int:
     return 0 if summary.status == "passed" else 3
 
 
+def run_execution_feedback(args: argparse.Namespace) -> int:
+    before = json.loads(Path(args.before).read_text(encoding="utf-8"))
+    after = json.loads(Path(args.after).read_text(encoding="utf-8"))
+    validation_payload = json.loads(Path(args.validation_summary).read_text(encoding="utf-8"))
+
+    before_score = int(before.get("repositories", {}).get(args.repository, {}).get("score", 0))
+    after_score = int(after.get("repositories", {}).get(args.repository, {}).get("score", 0))
+    summary = validation_payload.get("summary", validation_payload)
+
+    decision = decide_execution_outcome(before_score, after_score, summary)
+    payload = {
+        "schema_version": "production-os/execution-feedback/v1",
+        "repository": args.repository,
+        "before_score": before_score,
+        "after_score": after_score,
+        "decision": decision.to_dict(),
+    }
+    print(json.dumps(payload, indent=2, ensure_ascii=False))
+    return 0 if decision.decision in {"promote", "replan"} else 4
+
+
+def run_trends(args: argparse.Namespace) -> int:
+    snapshots = [
+        json.loads(Path(path).read_text(encoding="utf-8"))
+        for path in args.snapshots
+    ]
+    payload = {
+        "schema_version": "production-os/trends/v1",
+        "trends": [trend.to_dict() for trend in build_trends(snapshots)],
+    }
+    print(json.dumps(payload, indent=2, ensure_ascii=False))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
     if args.command == "scan":
         return run_scan(args)
     if args.command == "validation-results":
         return run_validation_results(args)
+    if args.command == "execution-feedback":
+        return run_execution_feedback(args)
+    if args.command == "trends":
+        return run_trends(args)
     return 1
 
 
