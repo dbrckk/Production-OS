@@ -225,6 +225,56 @@ class SQLiteRuntimeState:
             rows = db.execute("SELECT * FROM runtime_records").fetchall()
         self.records = {row["key"]: self._row(row) for row in rows}
 
+    def save(self) -> None:
+        with self.backend.transaction() as db:
+            for record in self.records.values():
+                db.execute(
+                    """
+                    INSERT INTO runtime_records(
+                        key, repository, task, status, attempts,
+                        consecutive_failures, lease_owner, lease_expires_at,
+                        cooldown_until, last_decision, updated_at, priority,
+                        interruptible, preempt_requested, checkpoint_ref,
+                        started_at
+                    )
+                    VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                    ON CONFLICT(key) DO UPDATE SET
+                        repository=excluded.repository,
+                        task=excluded.task,
+                        status=excluded.status,
+                        attempts=excluded.attempts,
+                        consecutive_failures=excluded.consecutive_failures,
+                        lease_owner=excluded.lease_owner,
+                        lease_expires_at=excluded.lease_expires_at,
+                        cooldown_until=excluded.cooldown_until,
+                        last_decision=excluded.last_decision,
+                        updated_at=excluded.updated_at,
+                        priority=excluded.priority,
+                        interruptible=excluded.interruptible,
+                        preempt_requested=excluded.preempt_requested,
+                        checkpoint_ref=excluded.checkpoint_ref,
+                        started_at=excluded.started_at
+                    """,
+                    (
+                        record.key,
+                        record.repository,
+                        record.task,
+                        record.status,
+                        record.attempts,
+                        record.consecutive_failures,
+                        record.lease_owner,
+                        record.lease_expires_at,
+                        record.cooldown_until,
+                        record.last_decision,
+                        record.updated_at,
+                        record.priority,
+                        int(record.interruptible),
+                        int(record.preempt_requested),
+                        record.checkpoint_ref,
+                        record.started_at,
+                    ),
+                )
+
     def get(self, repository: str, task: str) -> RuntimeRecord:
         key = task_key(repository, task)
         with self.backend.transaction() as db:
@@ -491,6 +541,33 @@ class SQLiteWorkerRegistry:
             rows = db.execute("SELECT * FROM workers").fetchall()
         self.workers = {row["worker_id"]: self._row(row) for row in rows}
 
+    def save(self) -> None:
+        with self.backend.transaction() as db:
+            for worker in self.workers.values():
+                db.execute(
+                    """
+                    INSERT INTO workers(
+                        worker_id, capabilities_json, max_concurrency,
+                        active_tasks, status, last_heartbeat
+                    )
+                    VALUES(?,?,?,?,?,?)
+                    ON CONFLICT(worker_id) DO UPDATE SET
+                        capabilities_json=excluded.capabilities_json,
+                        max_concurrency=excluded.max_concurrency,
+                        active_tasks=excluded.active_tasks,
+                        status=excluded.status,
+                        last_heartbeat=excluded.last_heartbeat
+                    """,
+                    (
+                        worker.worker_id,
+                        json.dumps(worker.capabilities),
+                        worker.max_concurrency,
+                        worker.active_tasks,
+                        worker.status,
+                        worker.last_heartbeat,
+                    ),
+                )
+
     def register(
         self,
         worker_id: str,
@@ -637,6 +714,37 @@ class SQLiteClaimStore:
         with self.backend.connect() as db:
             rows = db.execute("SELECT * FROM claims").fetchall()
         self.claims = {row["key"]: self._row(row) for row in rows}
+
+    def save(self) -> None:
+        with self.backend.transaction() as db:
+            for claim in self.claims.values():
+                db.execute(
+                    """
+                    INSERT INTO claims(
+                        key, worker_id, repository, task, status,
+                        claimed_at, ack_deadline, completed_at
+                    )
+                    VALUES(?,?,?,?,?,?,?,?)
+                    ON CONFLICT(key) DO UPDATE SET
+                        worker_id=excluded.worker_id,
+                        repository=excluded.repository,
+                        task=excluded.task,
+                        status=excluded.status,
+                        claimed_at=excluded.claimed_at,
+                        ack_deadline=excluded.ack_deadline,
+                        completed_at=excluded.completed_at
+                    """,
+                    (
+                        claim.key,
+                        claim.worker_id,
+                        claim.repository,
+                        claim.task,
+                        claim.status,
+                        claim.claimed_at,
+                        claim.ack_deadline,
+                        claim.completed_at,
+                    ),
+                )
 
     def claim(
         self,
