@@ -50,7 +50,11 @@ def test_signed_pr_webhook_refreshes_and_dispatches(tmp_path, monkeypatch):
     workflow=control.workflows.create(
         name="pr-12",
         repository="o/a",
-        metadata={"github_pr_number":12},
+        metadata={
+            "github_pr_number":12,
+            "github_pr_head_sha":"oldsha",
+            "github_pr_generation":1,
+        },
         tasks=[
             control_plane.WorkflowTaskSpec(
                 "src-tests",
@@ -85,7 +89,10 @@ def test_signed_pr_webhook_refreshes_and_dispatches(tmp_path, monkeypatch):
     payload={
         "action":"synchronize",
         "repository":{"full_name":"o/a"},
-        "pull_request":{"number":12},
+        "pull_request":{
+            "number":12,
+            "head":{"sha":"newsha"},
+        },
     }
     try:
         status,result=signed_request(
@@ -95,10 +102,17 @@ def test_signed_pr_webhook_refreshes_and_dispatches(tmp_path, monkeypatch):
         assert status==200
         assert result["status"]=="processed"
         assert result["refreshed"]==1
+        assert result["head_sha"]=="newsha"
+        assert result["superseded_workflows"]==[workflow["id"]]
         assert len(result["dispatched_jobs"])==1
+        new_workflow_id=result["workflows"][0]["workflow_id"]
+        assert new_workflow_id!=workflow["id"]
         assert result["dispatched_jobs"][0]["payload"][
             "workflow_id"
-        ]==workflow["id"]
+        ]==new_workflow_id
+        old=control.workflows.get(workflow["id"])
+        assert old["status"]=="cancelled"
+        assert old["metadata"]["superseded"] is True
 
         status,duplicate=signed_request(
             base+"/v1/github/webhook",
