@@ -318,7 +318,7 @@ Repeated failures eventually open a circuit and start a cooldown instead of retr
 - [x] circuit breakers
 - [x] cooldowns
 - [x] duplicate-execution guards
-- [ ] GitHub issue/PR state ingestion
+- [x] GitHub issue/PR state ingestion
 - [x] automatic dispatch to ai-dev-server
 - [x] lease renewal/heartbeat
 - [x] crash recovery reconciliation
@@ -354,3 +354,65 @@ production-os dispatch \
 ```
 
 Dispatch is guarded by the same idempotency key, lease, cooldown and circuit-breaker state used by the scheduler. Expired running leases are reconciled to `replan` rather than silently duplicated.
+
+
+### GitHub work-state reconciliation
+
+Production-OS can now reconcile runtime tasks against explicitly linked GitHub issues and pull requests.
+
+Example mapping:
+
+```json
+{
+  "mappings": [
+    {
+      "repository": "dbrckk/deadline-zero",
+      "task": "Restore the default branch CI to green",
+      "issue_number": 42,
+      "pr_number": 57
+    }
+  ]
+}
+```
+
+Run:
+
+```bash
+production-os github-reconcile \
+  --mapping artifacts/github-mapping.json \
+  --runtime-state artifacts/runtime-state.json \
+  --journal artifacts/execution.jsonl
+```
+
+The reconciler reads:
+
+```text
+issue state
+PR state
+merged state
+draft state
+review state
+head SHA
+GitHub Actions state for the PR head
+```
+
+Decision mapping:
+
+```text
+PR merged
+→ promote
+
+CI failed
+→ retry
+
+review changes requested
+→ retry
+
+PR closed without merge
+→ replan
+
+PR still open / CI running
+→ keep running
+```
+
+Mappings are explicit by design; Production-OS does not guess that an unrelated PR belongs to a runtime task.
