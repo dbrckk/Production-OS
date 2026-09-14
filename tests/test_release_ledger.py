@@ -230,3 +230,19 @@ def test_promoted_release_contains_signed_provenance(tmp_path):
     assert release["metadata"]["provenance"]["validator_id"]=="validator-1"
     assert len(release["metadata"]["provenance"]["signature"])==64
 
+
+def test_release_verification_checks_full_chain(tmp_path):
+    _,_,releases,workflow,artifact=setup_release(tmp_path)
+    release=releases.promote(
+        workflow_id=workflow["id"],
+        artifact_id=artifact["id"],
+        validation=passed_validation(),
+        attestation=signed_attestation(workflow,artifact),
+    )
+
+    verification=releases.verify(release["id"])
+
+    assert verification["valid"] is True
+    assert verification["validator_id"]=="validator-1"
+    assert verification["artifact_sha256"]==artifact["sha256"]
+
