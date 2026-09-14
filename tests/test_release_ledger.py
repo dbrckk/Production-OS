@@ -54,6 +54,14 @@ def passed_validation():
     }
 
 
+def approval():
+    return {
+        "approved":True,
+        "approved_by":"operator-1",
+        "role":"operator",
+    }
+
+
 def signed_attestation(workflow, artifact, validation=None):
     validation=validation or passed_validation()
     return create_validation_attestation(
@@ -78,6 +86,7 @@ def test_promote_creates_immutable_release_record(tmp_path):
         artifact_id=artifact["id"],
         validation=passed_validation(),
         attestation=signed_attestation(workflow, artifact),
+        approval=approval(),
         metadata={"channel":"internal"},
     )
 
@@ -102,6 +111,7 @@ def test_promotion_rejects_failed_validation(tmp_path):
                 "blocking_failures":["tests"],
             },
             attestation={},
+            approval=approval(),
         )
 
 
@@ -112,6 +122,7 @@ def test_promotion_rejects_duplicate_artifact(tmp_path):
         artifact_id=artifact["id"],
         validation=passed_validation(),
         attestation=signed_attestation(workflow, artifact),
+        approval=approval(),
     )
 
     with pytest.raises(RuntimeError,match="already promoted"):
@@ -120,6 +131,7 @@ def test_promotion_rejects_duplicate_artifact(tmp_path):
             artifact_id=artifact["id"],
             validation=passed_validation(),
             attestation=signed_attestation(workflow, artifact),
+            approval=approval(),
         )
 
 
@@ -148,6 +160,7 @@ def test_release_rollback_is_append_only(tmp_path):
         artifact_id=artifact["id"],
         validation=passed_validation(),
         attestation=signed_attestation(workflow,artifact),
+        approval=approval(),
     )
 
     rollback=releases.rollback(
@@ -214,6 +227,7 @@ def test_promotion_rejects_invalid_attestation_signature(tmp_path):
             artifact_id=artifact["id"],
             validation=passed_validation(),
             attestation=attestation,
+            approval=approval(),
         )
 
 
@@ -245,4 +259,17 @@ def test_release_verification_checks_full_chain(tmp_path):
     assert verification["valid"] is True
     assert verification["validator_id"]=="validator-1"
     assert verification["artifact_sha256"]==artifact["sha256"]
+
+
+def test_promotion_requires_operator_approval(tmp_path):
+    _,_,releases,workflow,artifact=setup_release(tmp_path)
+
+    with pytest.raises(RuntimeError,match="release approval is required"):
+        releases.promote(
+            workflow_id=workflow["id"],
+            artifact_id=artifact["id"],
+            validation=passed_validation(),
+            attestation=signed_attestation(workflow,artifact),
+            approval={},
+        )
 
