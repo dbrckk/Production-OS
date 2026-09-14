@@ -31,7 +31,7 @@ def setup_release(tmp_path):
         workflow["id"],
         name="app.aab",
         uri="artifact://app.aab",
-        sha256="abc123",
+        sha256="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         metadata={
             "source_revision":"sha-1",
             "workflow_generation":1,
@@ -63,7 +63,7 @@ def test_promote_creates_immutable_release_record(tmp_path):
     assert release["source_revision"]=="sha-1"
     assert release["workflow_generation"]==1
     assert release["validation"]["status"]=="passed"
-    assert release["metadata"]["artifact_sha256"]=="abc123"
+    assert release["metadata"]["artifact_sha256"]=="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 
 
 def test_promotion_rejects_failed_validation(tmp_path):
