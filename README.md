@@ -219,14 +219,42 @@ flat
 regressing
 ```
 
-These trend signals are the basis for the next scheduler upgrade: favor work patterns that produce measured improvements and deprioritize repeated low-yield loops.
+These trend signals now feed the learning scheduler.
+
+## Learning scheduler
+
+Execution history can be supplied to scheduling:
+
+```bash
+production-os scan \
+  --owner dbrckk \
+  --schedule \
+  --learning-events execution-events.json \
+  --capacity 3 \
+  --slots 3
+```
+
+Historical `promote / retry / rollback / replan` outcomes and measured score deltas produce a bounded learning weight. Successful high-yield work is favored; repeated rollbacks and low-yield loops are penalized.
+
+## Control surface
+
+The same scheduling command can emit a standalone HTML dashboard:
+
+```bash
+production-os scan \
+  --owner dbrckk \
+  --schedule \
+  --dashboard artifacts/control.html
+```
+
+The control surface shows execution lanes, repository/task priorities, blockers, slot allocation, and the raw machine-readable payload. It has no runtime web-framework dependency.
 
 ### P2
 - [x] autonomous scheduling
 - [x] portfolio resource allocation
 - [x] long-term trend history
 - [x] automatic execution feedback loop
-- [ ] mobile/dashboard control surface
+- [x] mobile/dashboard control surface
 
 ## Design principles
 
