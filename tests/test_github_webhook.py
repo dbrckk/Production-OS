@@ -34,21 +34,27 @@ def test_parse_and_target_supported_pr_event():
     payload={
         "action":"synchronize",
         "repository":{"full_name":"o/a"},
-        "pull_request":{"number":42},
+        "pull_request":{
+            "number":42,
+            "head":{"sha":"abc123"},
+        },
     }
     body=json.dumps(payload).encode()
     parsed=parse_github_webhook(body)
     assert pull_request_event_target(
         "pull_request",
         parsed,
-    ) == ("o/a",42,"synchronize")
+    ) == ("o/a",42,"synchronize","abc123")
 
 
 def test_unsupported_pr_action_is_ignored():
     payload={
         "action":"closed",
         "repository":{"full_name":"o/a"},
-        "pull_request":{"number":42},
+        "pull_request":{
+            "number":42,
+            "head":{"sha":"abc123"},
+        },
     }
     assert pull_request_event_target(
         "pull_request",
