@@ -81,6 +81,40 @@ class GitHubClient:
             return []
         return payload if isinstance(payload, list) else []
 
+
+    def list_pull_request_files(
+        self,
+        full_name: str,
+        pr_number: int,
+    ) -> list[str]:
+        """Return every changed path in a pull request.
+
+        Unlike informational GitHub reads, this method intentionally propagates
+        API failures. Incremental pruning must fail closed when the changed-file
+        set cannot be established reliably.
+        """
+        files: list[str] = []
+        page = 1
+        while True:
+            payload = self._get(
+                f"/repos/{full_name}/pulls/{pr_number}/files"
+                f"?per_page=100&page={page}"
+            )
+            if not isinstance(payload, list):
+                raise GitHubAPIError(
+                    "GitHub PR files response was not a list"
+                )
+            for item in payload:
+                if not isinstance(item, dict):
+                    continue
+                filename = str(item.get("filename") or "").strip()
+                if filename:
+                    files.append(filename)
+            if len(payload) < 100:
+                break
+            page += 1
+        return sorted(set(files))
+
     def get_commit_workflow_runs(self, full_name: str, commit_sha: str) -> list[dict[str, Any]]:
         try:
             payload = self._get(
