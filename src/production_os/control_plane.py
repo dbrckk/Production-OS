@@ -426,6 +426,14 @@ def make_handler(control: ControlPlane):
                             head_sha,
                         )
                     )
+                    if generation is None:
+                        generation = (
+                            control.workflows.create_from_pr_template(
+                                repository,
+                                pr_number,
+                                head_sha,
+                            )
+                        )
                     workflows = [generation] if generation else []
                     refreshable = [
                         workflow
