@@ -332,3 +332,50 @@ def test_dispatched_job_carries_pr_generation_and_revision(tmp_path):
     assert payload["workflow_generation"]==4
     assert payload["source_revision"]=="sha-9"
 
+
+def test_create_unseen_pr_from_repository_template(tmp_path):
+    wf=engine(tmp_path)
+    template=wf.create(
+        name="pr-template",
+        repository="o/a",
+        metadata={"github_pr_template":True},
+        tasks=[
+            WorkflowTaskSpec(
+                "tests",
+                "Tests",
+                {
+                    "impact":{
+                        "paths":["src/**"],
+                        "skip_when_unaffected":True,
+                    }
+                },
+            ),
+        ],
+    )
+
+    created=wf.create_from_pr_template(
+        "o/a",
+        77,
+        "sha-77",
+    )
+
+    assert created is not None
+    assert created["id"]!=template["id"]
+    assert created["metadata"]["github_pr_number"]==77
+    assert created["metadata"]["github_pr_head_sha"]=="sha-77"
+    assert created["metadata"]["github_pr_generation"]==1
+    assert created["metadata"][
+        "github_pr_template_workflow_id"
+    ]==template["id"]
+    assert "github_pr_template" not in created["metadata"]
+
+
+def test_create_unseen_pr_without_template_returns_none(tmp_path):
+    wf=engine(tmp_path)
+
+    assert wf.create_from_pr_template(
+        "o/a",
+        77,
+        "sha-77",
+    ) is None
+
