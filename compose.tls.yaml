@@ -4,6 +4,8 @@ services:
     restart: unless-stopped
     expose:
       - "8787"
+    environment:
+      PRODUCTION_OS_GITHUB_WEBHOOK_SECRET: ${PRODUCTION_OS_GITHUB_WEBHOOK_SECRET:-}
     volumes:
       - ./artifacts:/data
     command:
