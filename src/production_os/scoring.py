@@ -27,22 +27,16 @@ def score_repository(e: RepoEvidence) -> ScoreBreakdown:
     documentation = 10 if e.has_readme else 0
     tests = 15 if e.has_tests else 0
     ci = 15 if e.has_ci else 0
+    if e.has_ci and e.latest_ci_conclusion in {"failure", "cancelled", "timed_out", "action_required"}:
+        ci = 5
     release = 15 if e.has_release_workflow else 0
     build = 10 if e.has_manifest else 0
 
-    security = 0
-    if e.has_security_policy:
-        security += 5
-    if e.has_dependency_automation:
-        security += 5
-
+    security = (5 if e.has_security_policy else 0) + (5 if e.has_dependency_automation else 0)
     license_points = 5 if e.has_license else 0
     activity = _recent_activity_points(e.pushed_at)
 
-    total = (
-        documentation + tests + ci + release + build
-        + security + license_points + activity
-    )
+    total = documentation + tests + ci + release + build + security + license_points + activity
     return ScoreBreakdown(
         total=min(total, 100),
         documentation=documentation,
@@ -59,18 +53,7 @@ def score_repository(e: RepoEvidence) -> ScoreBreakdown:
 def generate_actions(e: RepoEvidence, score: ScoreBreakdown, profile: str) -> list[ActionCandidate]:
     actions: list[ActionCandidate] = []
 
-    def add(
-        task: str,
-        rationale: str,
-        criteria: list[str],
-        evidence: list[str],
-        *,
-        impact: int,
-        urgency: int,
-        risk: int,
-        release: int,
-        effort: int,
-    ) -> None:
+    def add(task, rationale, criteria, evidence, *, impact, urgency, risk, release, effort):
         action = ActionCandidate(
             repository=e.full_name,
             task=task,
@@ -87,6 +70,15 @@ def generate_actions(e: RepoEvidence, score: ScoreBreakdown, profile: str) -> li
         actions.append(action)
 
     release_weight = 10 if profile in {"android-app", "android-game"} else 8
+
+    if e.has_ci and e.latest_ci_conclusion in {"failure", "cancelled", "timed_out", "action_required"}:
+        add(
+            "Restore the default branch CI to green",
+            "The latest GitHub Actions run on the default branch is not successful. Broken verification blocks trustworthy autonomous production.",
+            ["Latest required CI run succeeds", "Root cause is fixed rather than bypassed", "No verification gate is weakened"],
+            [f"latest_ci_status={e.latest_ci_status}", f"latest_ci_conclusion={e.latest_ci_conclusion}", f"latest_ci_url={e.latest_ci_url}"],
+            impact=10, urgency=10, risk=10, release=10, effort=2,
+        )
 
     if not e.has_tests:
         add(
