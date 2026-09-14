@@ -57,5 +57,5 @@ def test_cross_repo_reuse_detection():
     )
     opportunities = detect_reuse([source, target])
     capabilities = {item.capability for item in opportunities}
-    assert "CI workflow" in capabilities
-    assert "test baseline" in capabilities
+    assert "github-actions-ci" in capabilities
+    assert "automated-tests" in capabilities
