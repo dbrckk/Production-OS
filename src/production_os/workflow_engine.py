@@ -392,6 +392,39 @@ class WorkflowEngine:
         self.refresh(workflow_id)
         return [item.to_dict() for item in decisions]
 
+    def find_by_github_pr(
+        self,
+        repository: str,
+        pr_number: int,
+    ) -> list[dict]:
+        matches: list[dict] = []
+        with self.backend.connect() as db:
+            rows = _execute(
+                db,
+                self.backend,
+                """
+                SELECT id, metadata_json
+                FROM workflows
+                WHERE repository=?
+                ORDER BY created_at DESC
+                """,
+                (repository,),
+            ).fetchall()
+
+        for row in rows:
+            metadata = json.loads(row["metadata_json"])
+            value = metadata.get("github_pr_number")
+            if value is None:
+                continue
+            try:
+                bound_pr = int(value)
+            except (TypeError, ValueError):
+                continue
+            if bound_pr != int(pr_number):
+                continue
+            matches.append(self.get(str(row["id"])))
+        return matches
+
     def get(self, workflow_id: str) -> dict:
         with self.backend.connect() as db:
             workflow = _execute(
