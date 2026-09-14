@@ -57,12 +57,28 @@ class RemoteWorkerClient:
         except urllib.error.URLError as exc:
             raise RuntimeError(f"control-plane unavailable: {exc}") from exc
 
-    def heartbeat(self, active_tasks: int | None = None) -> dict:
+    def heartbeat(
+        self,
+        active_tasks: int | None = None,
+        *,
+        active_job_keys: list[str] | None = None,
+    ) -> dict:
         payload = {"worker_id":self.worker_id}
         if active_tasks is not None:
             payload["active_tasks"] = active_tasks
+        if active_job_keys is not None:
+            payload["active_job_keys"] = [
+                str(key)
+                for key in active_job_keys
+            ]
         _, result = self._request("/v1/workers/heartbeat", payload)
-        return result["worker"]
+        return {
+            "worker":result["worker"],
+            "stale_job_keys":[
+                str(key)
+                for key in result.get("stale_job_keys", [])
+            ],
+        }
 
     def claim(self, ack_timeout_seconds: int = 120) -> RemoteJob | None:
         status, result = self._request(
