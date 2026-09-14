@@ -11,6 +11,7 @@ from .workflow_engine import WorkflowEngine, WorkflowTaskSpec
 from .execution_optimizer import ExecutionOptimizer
 from .speculation import SpeculationManager
 from .portfolio_optimizer import PortfolioOptimizer
+from .github_client import GitHubClient
 
 
 class ControlPlane:
@@ -435,6 +436,30 @@ def make_handler(control: ControlPlane):
                             self._send(
                                 HTTPStatus.OK,
                                 {
+                                    "decisions":decisions,
+                                    "workflow":control.workflows.get(
+                                        workflow_id
+                                    ),
+                                },
+                            )
+                            return
+                        if action == "impact-pr":
+                            repository = str(body["repository"])
+                            pr_number = int(body["pr_number"])
+                            changed_paths = GitHubClient().list_pull_request_files(
+                                repository,
+                                pr_number,
+                            )
+                            decisions = control.workflows.apply_change_impact(
+                                workflow_id,
+                                changed_paths,
+                            )
+                            self._send(
+                                HTTPStatus.OK,
+                                {
+                                    "repository":repository,
+                                    "pr_number":pr_number,
+                                    "changed_paths":changed_paths,
                                     "decisions":decisions,
                                     "workflow":control.workflows.get(
                                         workflow_id
