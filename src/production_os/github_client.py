@@ -42,6 +42,40 @@ class GitHubClient:
         except urllib.error.URLError as exc:
             raise GitHubAPIError(f"GitHub API unavailable: {exc}") from exc
 
+
+    def get_issue(self, full_name: str, issue_number: int) -> dict[str, Any] | None:
+        try:
+            payload = self._get(f"/repos/{full_name}/issues/{issue_number}")
+        except GitHubAPIError:
+            return None
+        return payload if isinstance(payload, dict) else None
+
+    def get_pull_request(self, full_name: str, pr_number: int) -> dict[str, Any] | None:
+        try:
+            payload = self._get(f"/repos/{full_name}/pulls/{pr_number}")
+        except GitHubAPIError:
+            return None
+        return payload if isinstance(payload, dict) else None
+
+    def get_pull_request_reviews(self, full_name: str, pr_number: int) -> list[dict[str, Any]]:
+        try:
+            payload = self._get(f"/repos/{full_name}/pulls/{pr_number}/reviews")
+        except GitHubAPIError:
+            return []
+        return payload if isinstance(payload, list) else []
+
+    def get_commit_workflow_runs(self, full_name: str, commit_sha: str) -> list[dict[str, Any]]:
+        try:
+            payload = self._get(
+                f"/repos/{full_name}/actions/runs?head_sha={urllib.parse.quote(commit_sha)}&per_page=100"
+            )
+        except GitHubAPIError:
+            return []
+        if not isinstance(payload, dict):
+            return []
+        runs = payload.get("workflow_runs", [])
+        return runs if isinstance(runs, list) else []
+
     def list_repositories(self, owner: str) -> list[dict[str, Any]]:
         repos: list[dict[str, Any]] = []
         page = 1
