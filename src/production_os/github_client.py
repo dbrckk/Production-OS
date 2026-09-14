@@ -28,7 +28,7 @@ class GitHubClient:
             headers={
                 "Accept": "application/vnd.github+json",
                 "X-GitHub-Api-Version": "2022-11-28",
-                "User-Agent": "Production-OS/0.2",
+                "User-Agent": "Production-OS/0.3",
                 **({"Authorization": f"Bearer {self.token}"} if self.token else {}),
             },
         )
@@ -92,9 +92,7 @@ class GitHubClient:
         except GitHubAPIError:
             return None
         runs = payload.get("workflow_runs", []) if isinstance(payload, dict) else []
-        if not runs:
-            return None
-        return runs[0]
+        return runs[0] if runs else None
 
     def collect_evidence(self, repo: dict[str, Any]) -> RepoEvidence:
         full_name = repo["full_name"]
@@ -104,7 +102,10 @@ class GitHubClient:
         lower = {name.lower() for name in names}
 
         workflow_entries = self._contents(full_name, ".github/workflows")
-        workflow_names = {item.get("name", "").lower() for item in workflow_entries}
+        workflow_names = sorted(
+            item.get("name", "") for item in workflow_entries if item.get("name")
+        )
+        workflow_lower = {name.lower() for name in workflow_names}
         github_entries = self._contents(full_name, ".github")
         github_names = {item.get("name", "").lower() for item in github_entries}
         latest_run = self._latest_workflow_run(full_name, default_branch) if workflow_names else None
@@ -146,7 +147,7 @@ class GitHubClient:
             latest_ci_url=latest_run.get("html_url") if latest_run else None,
             has_release_workflow=any(
                 any(word in workflow for word in release_words)
-                for workflow in workflow_names
+                for workflow in workflow_lower
             ),
             has_manifest=bool(manifest_names & lower),
             has_license=any(name.startswith("license") for name in lower),
@@ -156,4 +157,5 @@ class GitHubClient:
             or any(word in readme_lower for word in roadmap_words),
             readme_text=readme[:12000],
             detected_files=sorted(names),
+            workflow_names=workflow_names,
         )
