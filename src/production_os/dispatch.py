@@ -6,8 +6,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from .approvals import ApprovalStore
+from .budgets import BudgetLedger
 from .atomic_io import atomic_write_json
 from .emergency import emergency_stop_active
+from .policy import PolicySet, evaluate_policy
+from .quarantine import QuarantineStore
 from .rate_limit import RateLimitStore
 from .receipts import write_dispatch_receipt
 from .runtime_state import RuntimeState
@@ -49,6 +52,9 @@ def dispatch_handoff(
     emergency_stop_path: str | Path | None = None,
     rate_limit_store: RateLimitStore | None = None,
     approval_store: ApprovalStore | None = None,
+    policy_set: PolicySet | None = None,
+    budget_ledger: BudgetLedger | None = None,
+    quarantine_store: QuarantineStore | None = None,
     repo_rate_limit: int = 20,
     worker_rate_limit: int = 60,
     rate_window_seconds: int = 3600,
@@ -60,12 +66,47 @@ def dispatch_handoff(
     if emergency_stop_active(emergency_stop_path):
         raise RuntimeError("emergency stop active")
 
+    policy_decision = evaluate_policy(policy_set or PolicySet({}), handoff)
+    if quarantine_store is not None:
+        quarantined, quarantine_reason = quarantine_store.active(repository)
+        if quarantined:
+            raise RuntimeError(f"repository quarantined: {quarantine_reason or 'policy'}")
+    if not policy_decision.allowed:
+        raise RuntimeError(
+            "policy blocked dispatch: " + "; ".join(policy_decision.reasons)
+        )
+
+    constraints = dict(handoff.get("constraints", {}) or {})
+    if policy_decision.requires_approval:
+        constraints["requires_human_approval"] = True
+    handoff = {**handoff, "risk_class": policy_decision.risk_class, "constraints": constraints}
+
+    resource_request = handoff.get("resource_request", {}) or {}
+    if budget_ledger is not None and policy_decision.budgets:
+        budget_decision = budget_ledger.check(
+            repository,
+            policy_decision.budgets,
+            {
+                str(k): float(v)
+                for k, v in resource_request.items()
+                if isinstance(v, (int, float))
+            },
+        )
+        if not budget_decision.allowed:
+            raise RuntimeError(
+                "budget blocked dispatch: " + "; ".join(budget_decision.reasons)
+            )
+
     worker = None
     if worker_registry is not None:
         worker_registry.detect_dead()
         worker = select_worker(worker_registry, required_capabilities)
         if worker is None:
             raise RuntimeError("backpressure: no capable worker available")
+        if policy_decision.allowed_worker_classes:
+            worker_caps = set(worker.capabilities)
+            if not worker_caps.intersection(set(policy_decision.allowed_worker_classes)):
+                raise RuntimeError("policy blocked worker class")
 
     if rate_limit_store is not None:
         repo_decision = rate_limit_store.check_and_record(
@@ -140,6 +181,16 @@ def dispatch_handoff(
                 worker_id=worker.worker_id,
                 repository=repository,
                 task=task,
+            )
+
+        if budget_ledger is not None and resource_request:
+            budget_ledger.record(
+                repository,
+                {
+                    str(k): float(v)
+                    for k, v in resource_request.items()
+                    if isinstance(v, (int, float))
+                },
             )
 
         return DispatchResult(
