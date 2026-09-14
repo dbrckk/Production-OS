@@ -90,6 +90,7 @@ class RemoteWorkerClient:
         key: str,
         *,
         result_payload: dict | None = None,
+        duration_seconds: float | None = None,
     ) -> dict:
         _, result = self._request(
             "/v1/jobs/complete",
@@ -97,6 +98,11 @@ class RemoteWorkerClient:
                 "key":key,
                 "worker_id":self.worker_id,
                 "result":result_payload or {},
+                **(
+                    {"duration_seconds":float(duration_seconds)}
+                    if duration_seconds is not None else {}
+                ),
+                "capabilities":self.capabilities,
             },
         )
         return result["job"]
@@ -107,6 +113,7 @@ class RemoteWorkerClient:
         reason: str,
         *,
         result_payload: dict | None = None,
+        duration_seconds: float | None = None,
     ) -> dict:
         _, result = self._request(
             "/v1/jobs/fail",
@@ -115,6 +122,11 @@ class RemoteWorkerClient:
                 "worker_id":self.worker_id,
                 "reason":reason,
                 "result":result_payload or {},
+                **(
+                    {"duration_seconds":float(duration_seconds)}
+                    if duration_seconds is not None else {}
+                ),
+                "capabilities":self.capabilities,
             },
         )
         return result["job"]
