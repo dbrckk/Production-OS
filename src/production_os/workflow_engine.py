@@ -270,6 +270,34 @@ class WorkflowEngine:
         changed_paths: list[str],
     ) -> list[dict]:
         workflow = self.get(workflow_id)
+
+        # Impact can be recomputed only before real execution starts.
+        # Prior impact-skips and virtual barriers are reversible because they
+        # have not consumed worker capacity or produced execution side effects.
+        for task in workflow["tasks"]:
+            result = dict(task.get("result") or {})
+            reversible_success = (
+                task["status"] == "succeeded"
+                and (
+                    bool(result.get("skipped", False))
+                    or bool(
+                        task.get("payload", {}).get(
+                            "virtual_barrier",
+                            False,
+                        )
+                    )
+                )
+            )
+            if (
+                task["status"] not in {"pending", "ready"}
+                and not reversible_success
+            ):
+                raise RuntimeError(
+                    "change impact cannot be recomputed after "
+                    f"workflow execution started: {task['task_id']} "
+                    f"is {task['status']}"
+                )
+
         decisions = analyze_change_impact(
             workflow["tasks"],
             changed_paths,
@@ -281,6 +309,29 @@ class WorkflowEngine:
         now = _now()
 
         with self.backend.transaction() as db:
+            # Reopen tasks skipped by a previous impact evaluation before
+            # applying the new decision set.
+            for task in workflow["tasks"]:
+                result = dict(task.get("result") or {})
+                if not bool(result.get("skipped", False)):
+                    continue
+                _execute(
+                    db,
+                    self.backend,
+                    """
+                    UPDATE workflow_tasks
+                    SET status='pending', result_json=NULL,
+                        claimed_job_key=NULL, updated_at=?
+                    WHERE workflow_id=? AND task_id=?
+                      AND status='succeeded'
+                    """,
+                    (
+                        now,
+                        workflow_id,
+                        task["task_id"],
+                    ),
+                )
+
             for decision in decisions:
                 if decision.affected:
                     continue
