@@ -9,6 +9,12 @@ from .asymmetric_attestations import (
     verify_release_provenance as verify_release_provenance_v2,
     verify_validation_attestation as verify_validation_attestation_v2,
 )
+from .supply_chain import (
+    create_slsa_statement,
+    sign_slsa_statement,
+    statement_digest,
+    verify_signed_slsa_statement,
+)
 from .attestations import (
     AttestationError,
     create_release_provenance,
@@ -388,6 +394,14 @@ class ReleaseLedger:
                     release=release_preview,
                     attestation=verified_attestation,
                 )
+                statement = create_slsa_statement(
+                    release=release_preview,
+                    provenance=provenance,
+                )
+                signed_statement = sign_slsa_statement(
+                    statement=statement,
+                    private_key_pem=self.provenance_private_key,
+                )
             else:
                 provenance = create_release_provenance(
                     secret=self.provenance_secret,
@@ -398,6 +412,15 @@ class ReleaseLedger:
                 **base_metadata,
                 "validation_attestation":verified_attestation,
                 "provenance":provenance,
+                **(
+                    {
+                        "slsa_provenance":signed_statement,
+                        "slsa_statement_sha256":
+                            statement_digest(statement),
+                    }
+                    if asymmetric
+                    else {}
+                ),
             }
 
             _execute(
@@ -541,6 +564,32 @@ class ReleaseLedger:
                 "valid":False,
                 "reason":str(exc),
             }
+
+        if asymmetric:
+            signed_statement = dict(
+                metadata.get("slsa_provenance") or {}
+            )
+            if not verify_signed_slsa_statement(
+                signed_statement,
+                public_key_pem=self.provenance_public_key,
+                expected_sha256=metadata["artifact_sha256"],
+            ):
+                return {
+                    "release_id":release_id,
+                    "valid":False,
+                    "reason":"invalid SLSA provenance statement",
+                }
+            expected_statement_digest = statement_digest(
+                dict(signed_statement.get("statement") or {})
+            )
+            if metadata.get("slsa_statement_sha256") != (
+                expected_statement_digest
+            ):
+                return {
+                    "release_id":release_id,
+                    "valid":False,
+                    "reason":"SLSA statement digest mismatch",
+                }
 
         if not provenance_valid:
             return {
