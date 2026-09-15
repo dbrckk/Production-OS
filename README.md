@@ -2750,3 +2750,33 @@ Recommended production configuration combines:
     PRODUCTION_OS_REQUIRE_TRUSTED_BUILDER=true
 
 This makes public-key validator identity and repository-scoped builder identity mandatory for newly verified production releases.
+
+### Builder / provenance key separation
+
+Production deployments can now use distinct Ed25519 keys for two separate trust domains:
+
+    PRODUCTION_OS_RELEASE_PROVENANCE_PRIVATE_KEY
+        signs the immutable Production-OS release provenance
+
+    PRODUCTION_OS_BUILDER_PRIVATE_KEY
+        signs the SLSA/in-toto builder statement
+
+When trusted builder enforcement is enabled, a dedicated builder private key is mandatory. Production-OS no longer falls back to the release provenance key for SLSA signing in that mode.
+
+Recommended production topology:
+
+    validator key
+        validation identity only
+
+    builder key
+        SLSA build identity only
+
+    release provenance key
+        ReleaseLedger provenance only
+
+    witness key
+        external transparency checkpoint only
+
+This reduces cross-domain key reuse and limits the blast radius of a compromised signing credential.
+
+Legacy/non-strict deployments retain the previous provenance-key fallback for compatibility.
