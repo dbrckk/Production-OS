@@ -144,3 +144,46 @@ def test_incident_snapshot_records_changed_blast_radius(tmp_path, monkeypatch):
     assert second["previous_hash"] == first["report_hash"]
     assert len(item.incident_history()) == 2
     assert item.verify_incident_history()["valid"] is True
+
+
+def test_concurrent_identical_incident_snapshots_preserve_single_chain_entry(tmp_path, monkeypatch):
+    import threading
+
+    item = ledger(tmp_path)
+    report = {
+        "schema_version": "production-os/trust-incident-report/v1",
+        "incident_id": "trust-concurrent",
+        "generated_at": "2026-09-15T12:00:00+00:00",
+        "severity": "medium",
+        "valid": False,
+        "scope": {"key_id": "sha256:abc"},
+        "counts": {"total_releases": 1, "matched_releases": 1, "affected_releases": 1},
+        "summary": {"affected_repositories": ["org/a"], "affected_validators": ["v1"], "affected_builders": [], "reasons": {"compromised": 1}},
+        "affected_releases": [{"release_id": "r1", "valid": False}],
+    }
+    monkeypatch.setattr(item, "incident_report", lambda **kwargs: dict(report))
+
+    barrier = threading.Barrier(4)
+    results = []
+    errors = []
+
+    def worker():
+        try:
+            barrier.wait(timeout=5)
+            results.append(item.record_incident_report(key_id="sha256:abc"))
+        except Exception as exc:
+            errors.append(exc)
+
+    threads = [threading.Thread(target=worker) for _ in range(4)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join(timeout=10)
+
+    assert not errors
+    assert len(results) == 4
+    assert sum(1 for result in results if result["recorded"]) == 1
+    assert sum(1 for result in results if result["deduplicated"]) == 3
+    history = item.incident_history()
+    assert len(history) == 1
+    assert item.verify_incident_history()["valid"] is True
