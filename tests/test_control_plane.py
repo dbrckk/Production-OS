@@ -71,3 +71,57 @@ def test_control_plane_worker_and_queue(tmp_path):
     finally:
         server.shutdown()
         server.server_close()
+
+
+def test_trust_status_endpoint_requires_auth_and_forwards_filters(tmp_path):
+    auth=TokenAuthorizer([
+        {"name":"viewer","role":"viewer","sha256":token_digest("viewer")},
+    ])
+    control=ControlPlane(str(tmp_path/"db.sqlite"),authorizer=auth)
+    captured={}
+
+    def trust_status(**kwargs):
+        captured.update(kwargs)
+        return {
+            "valid":True,
+            "total_releases":0,
+            "matched_releases":0,
+            "affected_releases":0,
+            "severity":"none",
+            "filters":kwargs,
+            "releases":[],
+        }
+
+    control.releases.trust_status=trust_status
+    server=ThreadingHTTPServer(("127.0.0.1",0),make_handler(control))
+    thread=threading.Thread(target=server.serve_forever,daemon=True)
+    thread.start()
+    base=f"http://127.0.0.1:{server.server_port}"
+    try:
+        url=(
+            base+"/v1/trust-status"
+            "?validator_id=validator-prod"
+            "&builder_id=https%3A%2F%2Fbuilder.example%2Fprod"
+            "&key_id=sha256%3Aabc"
+        )
+        status,body=request(url,"viewer")
+        assert status==200
+        assert body["schema_version"]=="production-os/trust-status/v1"
+        assert body["valid"] is True
+        assert captured=={
+            "validator_id":"validator-prod",
+            "builder_id":"https://builder.example/prod",
+            "key_id":"sha256:abc",
+        }
+
+        req=urllib.request.Request(base+"/v1/trust-status",method="GET")
+        try:
+            urllib.request.urlopen(req,timeout=3)
+            assert False, "unauthenticated trust-status request must fail"
+        except urllib.error.HTTPError as exc:
+            assert exc.code==401
+            payload=json.loads(exc.read())
+            assert payload["error"]=="unauthorized"
+    finally:
+        server.shutdown()
+        server.server_close()
