@@ -374,6 +374,23 @@ def verify_rekor_v1_receipt(
         return False
 
 
+def _private_key_signer(private_key: Any) -> Callable[[bytes], bytes]:
+    if isinstance(private_key, ed25519.Ed25519PrivateKey):
+        return private_key.sign
+    if isinstance(private_key, ec.EllipticCurvePrivateKey):
+        return lambda payload: private_key.sign(
+            payload,
+            ec.ECDSA(hashes.SHA256()),
+        )
+    if isinstance(private_key, rsa.RSAPrivateKey):
+        return lambda payload: private_key.sign(
+            payload,
+            padding.PKCS1v15(),
+            hashes.SHA256(),
+        )
+    raise TransparencyReceiptError("unsupported Rekor signing key type")
+
+
 class RekorV1Publisher:
     """Publish a checkpoint envelope through Rekor's stable v1 API.
 
@@ -388,6 +405,7 @@ class RekorV1Publisher:
         signer: Callable[[bytes], bytes],
         public_key_pem: str,
         timeout_seconds: float = 10.0,
+        log_public_key_pem: str | None = None,
     ) -> None:
         url = str(base_url).rstrip("/")
         if not url:
@@ -400,6 +418,38 @@ class RekorV1Publisher:
         self.signer = signer
         self.public_key_pem = public_key_pem
         self.timeout_seconds = float(timeout_seconds)
+        self.log_public_key_pem = log_public_key_pem
+
+    @classmethod
+    def from_private_key(
+        cls,
+        base_url: str,
+        *,
+        private_key_pem: str,
+        timeout_seconds: float = 10.0,
+        log_public_key_pem: str | None = None,
+    ) -> "RekorV1Publisher":
+        try:
+            private_key = serialization.load_pem_private_key(
+                private_key_pem.encode("ascii"),
+                password=None,
+            )
+        except (TypeError, ValueError, UnicodeEncodeError) as exc:
+            raise TransparencyReceiptError(
+                "invalid Rekor signing private key"
+            ) from exc
+        signer = _private_key_signer(private_key)
+        public_key_pem = private_key.public_key().public_bytes(
+            serialization.Encoding.PEM,
+            serialization.PublicFormat.SubjectPublicKeyInfo,
+        ).decode("ascii")
+        return cls(
+            base_url,
+            signer=signer,
+            public_key_pem=public_key_pem,
+            timeout_seconds=timeout_seconds,
+            log_public_key_pem=log_public_key_pem,
+        )
 
     def publish(self, envelope: dict[str, Any]) -> dict[str, Any]:
         payload = _canonical_json_bytes(envelope)
@@ -439,7 +489,16 @@ class RekorV1Publisher:
             raise TransparencyReceiptError(
                 "Rekor returned invalid JSON"
             ) from exc
-        return parse_rekor_v1_receipt(
+        receipt = parse_rekor_v1_receipt(
             decoded,
             envelope=envelope,
         )
+        if self.log_public_key_pem is not None and not verify_rekor_v1_receipt(
+            receipt,
+            envelope=envelope,
+            log_public_key_pem=self.log_public_key_pem,
+        ):
+            raise TransparencyReceiptError(
+                "invalid Rekor signed entry timestamp"
+            )
+        return receipt
