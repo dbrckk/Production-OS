@@ -1030,79 +1030,59 @@ def make_handler(control: ControlPlane):
                     return
 
                 if parsed.path == "/v1/incident-snapshot":
-                principal = self._require("operator")
-                if principal is None:
-                    return
-                try:
-                    payload = self._read_json()
-                except RequestBodyTooLarge as exc:
-                    self._send(
-                        HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
-                        {"error": str(exc)},
-                    )
-                    return
-                except ValueError as exc:
-                    self._send(
-                        HTTPStatus.BAD_REQUEST,
-                        {"error": str(exc)},
-                    )
-                    return
-                if not isinstance(payload, dict):
-                    self._send(
-                        HTTPStatus.BAD_REQUEST,
-                        {"error": "request body must be a JSON object"},
-                    )
-                    return
-                allowed = {"validator_id", "builder_id", "key_id"}
-                unknown = sorted(set(payload) - allowed)
-                if unknown:
-                    self._send(
-                        HTTPStatus.BAD_REQUEST,
-                        {
-                            "error": "unknown incident snapshot fields",
-                            "fields": unknown,
-                        },
-                    )
-                    return
-                filters = {}
-                for name in allowed:
-                    value = payload.get(name)
-                    if value is None:
-                        filters[name] = None
-                        continue
-                    if not isinstance(value, str) or not value.strip():
+                    principal = self._require("operator")
+                    if principal is None:
+                        return
+                    allowed = {"validator_id", "builder_id", "key_id"}
+                    unknown = sorted(set(body) - allowed)
+                    if unknown:
                         self._send(
                             HTTPStatus.BAD_REQUEST,
                             {
-                                "error":
-                                    f"{name} must be a non-empty string",
+                                "error": "unknown incident snapshot fields",
+                                "fields": unknown,
                             },
                         )
                         return
-                    if len(value) > 512:
-                        self._send(
-                            HTTPStatus.BAD_REQUEST,
-                            {"error": f"{name} is too long"},
-                        )
-                        return
-                    filters[name] = value.strip()
-                result = control.releases.record_incident_report(
-                    validator_id=filters["validator_id"],
-                    builder_id=filters["builder_id"],
-                    key_id=filters["key_id"],
-                )
-                self._send(
-                    HTTPStatus.CREATED if result["recorded"]
-                    else HTTPStatus.OK,
-                    {
-                        "schema_version":
-                            "production-os/trust-incident-snapshot/v1",
-                        **result,
-                    },
-                )
-                return
+                    filters = {}
+                    for name in allowed:
+                        value = body.get(name)
+                        if value is None:
+                            filters[name] = None
+                            continue
+                        if not isinstance(value, str) or not value.strip():
+                            self._send(
+                                HTTPStatus.BAD_REQUEST,
+                                {
+                                    "error":
+                                        f"{name} must be a non-empty string",
+                                },
+                            )
+                            return
+                        if len(value) > 512:
+                            self._send(
+                                HTTPStatus.BAD_REQUEST,
+                                {"error": f"{name} is too long"},
+                            )
+                            return
+                        filters[name] = value.strip()
+                    result = control.releases.record_incident_report(
+                        validator_id=filters["validator_id"],
+                        builder_id=filters["builder_id"],
+                        key_id=filters["key_id"],
+                    )
+                    self._send(
+                        HTTPStatus.CREATED if result["recorded"]
+                        else HTTPStatus.OK,
+                        {
+                            "schema_version":
+                                "production-os/trust-incident-snapshot/v1",
+                            **result,
+                        },
+                    )
+                    return
 
-            if parsed.path.startswith("/v1/releases/"):
+                if parsed.path.startswith("/v1/releases/"):
                     parts = [
                         part
                         for part in parsed.path.split("/")
