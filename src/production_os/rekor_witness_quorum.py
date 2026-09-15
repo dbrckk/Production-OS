@@ -1,15 +1,226 @@
 from __future__ import annotations
 
+import json
+import uuid
+from datetime import datetime, timezone
 from typing import Any
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 
 from .signing import SigningError, verify_payload
 
 
 REKOR_WITNESS_SCHEMA = "production-os/rekor-witness-observation/v1"
+REKOR_WITNESS_REQUEST_SCHEMA = "production-os/rekor-witness-request/v1"
 
 
 class RekorWitnessQuorumError(RuntimeError):
     pass
+
+
+def _utcnow() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+class RekorWitnessClient:
+    def __init__(
+        self,
+        url: str,
+        *,
+        timeout_seconds: float = 10.0,
+    ) -> None:
+        self.url = str(url).strip()
+        if not self.url:
+            raise ValueError("Rekor witness URL is required")
+        self.timeout_seconds = float(timeout_seconds)
+
+    def observe(
+        self,
+        *,
+        log_id: str,
+        origin: str,
+        tree_size: int,
+        root_hash: str,
+    ) -> dict[str, Any]:
+        payload = {
+            "schema_version": REKOR_WITNESS_REQUEST_SCHEMA,
+            "log_id": str(log_id).lower(),
+            "origin": str(origin),
+            "tree_size": int(tree_size),
+            "root_hash": str(root_hash).lower(),
+        }
+        request = Request(
+            self.url,
+            data=json.dumps(
+                payload,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8"),
+            headers={
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+            },
+            method="POST",
+        )
+        try:
+            with urlopen(request, timeout=self.timeout_seconds) as response:
+                status = int(response.status)
+                raw = response.read()
+        except (HTTPError, URLError, TimeoutError) as exc:
+            raise RekorWitnessQuorumError(
+                f"Rekor witness request failed: {exc}"
+            ) from exc
+        if status < 200 or status >= 300:
+            raise RekorWitnessQuorumError(
+                f"Rekor witness returned HTTP {status}"
+            )
+        try:
+            decoded = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            raise RekorWitnessQuorumError(
+                "Rekor witness returned invalid JSON"
+            ) from exc
+        if not isinstance(decoded, dict):
+            raise RekorWitnessQuorumError(
+                "Rekor witness response must be an object"
+            )
+        return decoded
+
+
+class RekorWitnessObservationStore:
+    def __init__(self, backend: Any) -> None:
+        self.backend = backend
+        self._initialize()
+
+    def _is_postgres(self) -> bool:
+        return self.backend.__class__.__name__.startswith("Postgres")
+
+    def _sql(self, statement: str) -> str:
+        return statement.replace("?", "%s") if self._is_postgres() else statement
+
+    def _initialize(self) -> None:
+        with self.backend.connect() as db:
+            db.execute(
+                """
+                CREATE TABLE IF NOT EXISTS rekor_witness_observations (
+                    id TEXT PRIMARY KEY,
+                    witness_id TEXT NOT NULL,
+                    log_id TEXT NOT NULL,
+                    origin TEXT NOT NULL,
+                    tree_size BIGINT NOT NULL,
+                    root_hash TEXT NOT NULL,
+                    verdict TEXT NOT NULL,
+                    response_json TEXT NOT NULL,
+                    observed_at TEXT NOT NULL
+                )
+                """
+            )
+            db.execute(
+                """
+                CREATE INDEX IF NOT EXISTS idx_rekor_witness_tree
+                ON rekor_witness_observations(
+                    log_id, origin, tree_size, observed_at
+                )
+                """
+            )
+
+    def record(
+        self,
+        *,
+        response: dict[str, Any],
+        verdict: str,
+    ) -> dict[str, Any]:
+        observation = response.get("observation")
+        if not isinstance(observation, dict):
+            raise RekorWitnessQuorumError(
+                "Rekor witness observation is required"
+            )
+        witness_id = str(observation.get("witness_id") or "")
+        log_id = str(observation.get("log_id") or "").lower()
+        origin = str(observation.get("origin") or "")
+        root_hash = str(observation.get("root_hash") or "").lower()
+        try:
+            tree_size = int(observation.get("tree_size"))
+        except (TypeError, ValueError) as exc:
+            raise RekorWitnessQuorumError(
+                "invalid Rekor witness tree size"
+            ) from exc
+        if not witness_id or not log_id or not origin or tree_size <= 0 or not root_hash:
+            raise RekorWitnessQuorumError("invalid Rekor witness observation")
+        row = {
+            "id": str(uuid.uuid4()),
+            "witness_id": witness_id,
+            "log_id": log_id,
+            "origin": origin,
+            "tree_size": tree_size,
+            "root_hash": root_hash,
+            "verdict": str(verdict),
+            "response": response,
+            "observed_at": _utcnow(),
+        }
+        with self.backend.transaction() as db:
+            db.execute(
+                self._sql(
+                    """
+                    INSERT INTO rekor_witness_observations(
+                        id, witness_id, log_id, origin, tree_size,
+                        root_hash, verdict, response_json, observed_at
+                    ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """
+                ),
+                (
+                    row["id"],
+                    row["witness_id"],
+                    row["log_id"],
+                    row["origin"],
+                    row["tree_size"],
+                    row["root_hash"],
+                    row["verdict"],
+                    json.dumps(
+                        response,
+                        sort_keys=True,
+                        separators=(",", ":"),
+                        ensure_ascii=False,
+                    ),
+                    row["observed_at"],
+                ),
+            )
+        return row
+
+    def list_for_tree(
+        self,
+        *,
+        log_id: str,
+        origin: str,
+        tree_size: int,
+    ) -> list[dict[str, Any]]:
+        with self.backend.connect() as db:
+            rows = db.execute(
+                self._sql(
+                    """
+                    SELECT id, witness_id, log_id, origin, tree_size,
+                           root_hash, verdict, response_json, observed_at
+                    FROM rekor_witness_observations
+                    WHERE log_id=? AND origin=? AND tree_size=?
+                    ORDER BY observed_at ASC, id ASC
+                    """
+                ),
+                (str(log_id).lower(), str(origin), int(tree_size)),
+            ).fetchall()
+        return [
+            {
+                "id": row["id"],
+                "witness_id": row["witness_id"],
+                "log_id": row["log_id"],
+                "origin": row["origin"],
+                "tree_size": int(row["tree_size"]),
+                "root_hash": row["root_hash"],
+                "verdict": row["verdict"],
+                "response": json.loads(row["response_json"]),
+                "observed_at": row["observed_at"],
+            }
+            for row in rows
+        ]
 
 
 def _observation_matches_expected(
