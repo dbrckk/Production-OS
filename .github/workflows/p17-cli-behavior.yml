@@ -85,17 +85,6 @@ jobs:
                       "--receipt-output requires --rekor-url"
                   )
           '''
-          # YAML removes the common indentation from the embedded script, so
-          # normalize the generated block back to Python's four-space level.
-          lines = rekor_block.splitlines()
-          if lines:
-              base = len(lines[1]) - len(lines[1].lstrip()) if len(lines) > 1 else 0
-              normalized = [lines[0]]
-              normalized.extend(
-                  line[base:] if line.strip() else ""
-                  for line in lines[1:]
-              )
-              rekor_block = "\n".join(normalized) + "\n"
           block = block.replace(
               render_anchor,
               rekor_block + render_anchor,
@@ -155,15 +144,6 @@ jobs:
               print(json.dumps(result,indent=2,ensure_ascii=False))
               return 0 if valid else 9
           '''
-          lines = new_verify.splitlines()
-          if lines:
-              base = len(lines[1]) - len(lines[1].lstrip()) if len(lines) > 1 else 0
-              normalized = [lines[0]]
-              normalized.extend(
-                  line[base:] if line.strip() else ""
-                  for line in lines[1:]
-              )
-              new_verify = "\n".join(normalized) + "\n"
           text = text[:verify_start] + new_verify + text[verify_end:]
           path.write_text(text)
           PY
