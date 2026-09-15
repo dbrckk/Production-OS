@@ -173,3 +173,93 @@ def test_incident_history_endpoints_require_auth_and_forward_filter(tmp_path):
     finally:
         server.shutdown()
         server.server_close()
+
+
+def test_incident_snapshot_requires_operator_and_reports_dedup(tmp_path):
+    auth=TokenAuthorizer([
+        {"name":"viewer","role":"viewer","sha256":token_digest("viewer")},
+        {"name":"operator","role":"operator","sha256":token_digest("operator")},
+    ])
+    control=ControlPlane(str(tmp_path/"db.sqlite"),authorizer=auth)
+    calls=[]
+    def snapshot(**kwargs):
+        calls.append(kwargs)
+        return {
+            "incident_id":"trust-test",
+            "report_hash":"abc",
+            "recorded":len(calls)==1,
+            "deduplicated":len(calls)>1,
+            "report":{"valid":False},
+        }
+    control.releases.record_incident_report=snapshot
+    server=ThreadingHTTPServer(("127.0.0.1",0),make_handler(control))
+    thread=threading.Thread(target=server.serve_forever,daemon=True)
+    thread.start()
+    base=f"http://127.0.0.1:{server.server_port}"
+    payload=json.dumps({
+        "validator_id":"validator-prod",
+        "builder_id":"https://builder.example/prod",
+        "key_id":"sha256:abc",
+    }).encode()
+    try:
+        req=urllib.request.Request(
+            base+"/v1/incident-snapshot",
+            data=payload,
+            headers={
+                "Authorization":"Bearer operator",
+                "Content-Type":"application/json",
+            },
+            method="POST",
+        )
+        with urllib.request.urlopen(req,timeout=3) as response:
+            body=json.loads(response.read())
+            assert response.status==201
+        assert body["schema_version"]==(
+            "production-os/trust-incident-snapshot/v1"
+        )
+        assert body["recorded"] is True
+        assert calls[0]["key_id"]=="sha256:abc"
+
+        req=urllib.request.Request(
+            base+"/v1/incident-snapshot",
+            data=payload,
+            headers={
+                "Authorization":"Bearer operator",
+                "Content-Type":"application/json",
+            },
+            method="POST",
+        )
+        with urllib.request.urlopen(req,timeout=3) as response:
+            body=json.loads(response.read())
+            assert response.status==200
+        assert body["deduplicated"] is True
+
+        req=urllib.request.Request(
+            base+"/v1/incident-snapshot",
+            data=payload,
+            headers={
+                "Authorization":"Bearer viewer",
+                "Content-Type":"application/json",
+            },
+            method="POST",
+        )
+        try:
+            urllib.request.urlopen(req,timeout=3)
+            assert False, "viewer must not write incident ledger"
+        except urllib.error.HTTPError as exc:
+            assert exc.code==403
+
+        req=urllib.request.Request(
+            base+"/v1/incident-snapshot",
+            data=payload,
+            headers={"Content-Type":"application/json"},
+            method="POST",
+        )
+        try:
+            urllib.request.urlopen(req,timeout=3)
+            assert False, "anonymous incident snapshot must fail"
+        except urllib.error.HTTPError as exc:
+            assert exc.code==401
+    finally:
+        server.shutdown()
+        server.server_close()
