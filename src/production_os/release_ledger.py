@@ -434,27 +434,51 @@ class ReleaseLedger:
                 "previous_hash": previous_hash,
             }
             report_hash = _canonical_sha256(entry_payload)
-            _execute(
-                db,
-                self.backend,
-                """
-                INSERT INTO trust_incident_reports(
-                    incident_id, report_json, report_hash,
-                    previous_hash, created_at
-                ) VALUES(?, ?, ?, ?, ?)
-                """,
-                (
-                    report["incident_id"],
-                    json.dumps(
-                        report,
-                        ensure_ascii=False,
-                        sort_keys=True,
+            try:
+                _execute(
+                    db,
+                    self.backend,
+                    """
+                    INSERT INTO trust_incident_reports(
+                        incident_id, report_json, report_hash,
+                        previous_hash, created_at
+                    ) VALUES(?, ?, ?, ?, ?)
+                    """,
+                    (
+                        report["incident_id"],
+                        json.dumps(
+                            report,
+                            ensure_ascii=False,
+                            sort_keys=True,
+                        ),
+                        report_hash,
+                        previous_hash,
+                        now,
                     ),
-                    report_hash,
-                    previous_hash,
-                    now,
-                ),
-            )
+                )
+            except Exception as exc:
+                # A concurrent writer may have persisted the exact same
+                # snapshot after our read. Resolve that race as a normal
+                # deduplication event; preserve all other failures.
+                existing = _execute(
+                    db,
+                    self.backend,
+                    """
+                    SELECT report_json, report_hash
+                    FROM trust_incident_reports
+                    WHERE report_hash=?
+                    """,
+                    (report_hash,),
+                ).fetchone()
+                if existing is None:
+                    raise
+                return {
+                    "incident_id": report["incident_id"],
+                    "report_hash": existing["report_hash"],
+                    "recorded": False,
+                    "deduplicated": True,
+                    "report": json.loads(existing["report_json"]),
+                }
         return {
             "incident_id": report["incident_id"],
             "report_hash": report_hash,
