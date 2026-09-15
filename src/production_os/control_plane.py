@@ -135,7 +135,10 @@ class RequestBodyTooLarge(ValueError):
 
 def make_handler(control: ControlPlane):
     class Handler(BaseHTTPRequestHandler):
-        server_version = "ProductionOS/0.8"
+        server_version = "ProductionOS"
+
+        def version_string(self) -> str:
+            return self.server_version
 
         def log_message(self, format: str, *args) -> None:
             return
@@ -159,6 +162,8 @@ def make_handler(control: ControlPlane):
             self,
             status: int,
             payload: dict | list,
+            *,
+            headers: dict[str, str] | None = None,
         ) -> None:
             body = _json_bytes(payload)
             self.send_response(status)
@@ -168,11 +173,30 @@ def make_handler(control: ControlPlane):
             self.send_header("X-Content-Type-Options", "nosniff")
             self.send_header("X-Frame-Options", "DENY")
             self.send_header("Referrer-Policy", "no-referrer")
+            if headers:
+                for name, value in headers.items():
+                    self.send_header(name, value)
             self.end_headers()
             try:
                 self.wfile.write(body)
             except (BrokenPipeError, ConnectionResetError):
                 return
+
+        def _method_not_allowed(self) -> None:
+            self._send(
+                HTTPStatus.METHOD_NOT_ALLOWED,
+                {"error": "method not allowed"},
+                headers={"Allow": "GET, POST"},
+            )
+
+        def do_PUT(self) -> None:
+            self._method_not_allowed()
+
+        def do_PATCH(self) -> None:
+            self._method_not_allowed()
+
+        def do_DELETE(self) -> None:
+            self._method_not_allowed()
 
         def _read_body(self) -> bytes:
             raw_length = self.headers.get("Content-Length", "0")
