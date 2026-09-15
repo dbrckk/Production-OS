@@ -2657,3 +2657,32 @@ Post-release verification repeats both validation checks and reports:
 This provides an explicit migration period where existing P15 HMAC validators and P16 public-key infrastructure must agree before a release can be promoted.
 
 Once all validators and auditors have migrated, deployments can stop producing dual-sign bundles and use pure v2 Ed25519 attestations without changing the release provenance format.
+
+### Cryptographic migration policy
+
+Deployments can now explicitly control which validation signature generation is accepted:
+
+    PRODUCTION_OS_VALIDATION_SIGNATURE_POLICY=compatible
+    PRODUCTION_OS_VALIDATION_SIGNATURE_POLICY=dual-required
+    PRODUCTION_OS_VALIDATION_SIGNATURE_POLICY=ed25519-only
+
+Modes:
+
+    compatible
+        Accept legacy HMAC, strict dual-sign, and pure Ed25519.
+
+    dual-required
+        Reject legacy HMAC and pure Ed25519.
+        Both HMAC and Ed25519 must independently verify.
+
+    ed25519-only
+        Reject HMAC and dual-sign bundles.
+        Only validation-attestation/v2 is accepted.
+
+Recommended staged migration:
+
+    Stage 1  compatible
+    Stage 2  dual-required
+    Stage 3  ed25519-only
+
+This turns HMAC retirement into an enforceable deployment policy rather than an operational convention. Historical releases remain verifiable with the cryptographic material required by their original signature scheme.
