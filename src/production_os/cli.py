@@ -358,6 +358,15 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--release-provenance-public-key-env",
         default="PRODUCTION_OS_RELEASE_PROVENANCE_PUBLIC_KEY",
     )
+    controlplane.add_argument(
+        "--validation-signature-policy",
+        choices=("compatible", "dual-required", "ed25519-only"),
+        default=os.getenv(
+            "PRODUCTION_OS_VALIDATION_SIGNATURE_POLICY",
+            "compatible",
+        ),
+        help="Accepted validation signature migration stage",
+    )
 
     remotepoll = sub.add_parser("remote-worker-poll", help="Poll the P8 control plane for remote jobs")
     remotepoll.add_argument("--url", required=True)
@@ -1507,6 +1516,7 @@ def run_control_plane(args: argparse.Namespace) -> int:
         provenance_public_key=os.getenv(
             args.release_provenance_public_key_env
         ),
+        validation_signature_policy=args.validation_signature_policy,
     )
     return 0
 
@@ -1803,6 +1813,10 @@ def _release_ledger(
         ),
         provenance_public_key=os.getenv(
             "PRODUCTION_OS_RELEASE_PROVENANCE_PUBLIC_KEY"
+        ),
+        validation_signature_policy=os.getenv(
+            "PRODUCTION_OS_VALIDATION_SIGNATURE_POLICY",
+            "compatible",
         ),
     )
 
