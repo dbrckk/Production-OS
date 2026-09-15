@@ -1518,6 +1518,9 @@ def run_control_plane(args: argparse.Namespace) -> int:
         ),
         validation_signature_policy=args.validation_signature_policy,
         builder_id=args.builder_id,
+        builder_private_key=os.getenv(
+            args.builder_private_key_env
+        ),
         trusted_builders=_trusted_validation_keys_from_env(
             args.trusted_builders_env
         ),
@@ -1829,6 +1832,9 @@ def _release_ledger(
         builder_id=os.getenv(
             "PRODUCTION_OS_BUILDER_ID",
             "https://production-os.local/builder",
+        ),
+        builder_private_key=os.getenv(
+            "PRODUCTION_OS_BUILDER_PRIVATE_KEY"
         ),
         trusted_builders=_trusted_validation_keys_from_env(
             "PRODUCTION_OS_TRUSTED_BUILDERS"
@@ -2250,6 +2256,10 @@ if __name__ == "__main__":
             "PRODUCTION_OS_BUILDER_ID",
             "https://production-os.local/builder",
         ),
+    )
+    controlplane.add_argument(
+        "--builder-private-key-env",
+        default="PRODUCTION_OS_BUILDER_PRIVATE_KEY",
     )
     controlplane.add_argument(
         "--trusted-builders-env",
