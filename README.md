@@ -2414,7 +2414,7 @@ No database, control-plane access, validator private key, or shared HMAC secret 
 - [x] trusted public-key registry in control plane
 - [ ] dual-sign migration from P15 HMAC to P16 Ed25519
 - [x] key validity windows and revocation metadata
-- [ ] SLSA/in-toto compatible statement envelope
+- [x] SLSA/in-toto compatible statement envelope
 - [ ] external transparency-log anchoring
 
 ### Integrated v2 promotion
@@ -2502,3 +2502,43 @@ Legacy shorthand remains valid:
     }
 
 The registry therefore supports staged migration without invalidating existing configuration.
+
+### SLSA / in-toto provenance
+
+Every Ed25519-promoted release now carries a signed supply-chain statement using:
+
+    _type = https://in-toto.io/Statement/v1
+    predicateType = https://slsa.dev/provenance/v1
+
+The statement subject binds the released artifact name and SHA-256 digest.
+
+The build definition records:
+
+    repository
+    workflow_id
+    workflow_generation
+    source revision as a resolved dependency
+
+Run details bind the Production-OS builder and the immutable release provenance through byproducts containing:
+
+    release_id
+    provenance schema
+    provenance signing key ID
+    approval key
+    validator ID
+
+The statement is independently signed with the release Ed25519 private key and its canonical SHA-256 digest is stored beside the release.
+
+Release verification checks both:
+
+    Production-OS release provenance signature
+    SLSA/in-toto statement signature + artifact digest
+
+Offline verification:
+
+    production-os slsa-verify \
+      --statement signed-slsa.json \
+      --public-key release-public.pem \
+      --artifact-sha256 <64-char-sha256>
+
+This does not require access to the Production-OS database or control plane.
