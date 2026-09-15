@@ -73,6 +73,11 @@ from .transparency_receipts import (
     RekorV1Publisher,
     verify_rekor_v1_receipt,
 )
+from .rekor_checkpoint_state import (
+    RekorCheckpointMonitor,
+    RekorCheckpointStateStore,
+    RekorV1ConsistencyClient,
+)
 from .asymmetric_attestations import (
     create_validation_attestation as create_validation_attestation_v2,
     verify_release_provenance as verify_release_provenance_v2,
@@ -2119,6 +2124,13 @@ def run_transparency_checkpoint(
             ).read_text(encoding="ascii"),
         )
         receipt=publisher.publish(envelope)
+        checkpoint_state=RekorCheckpointMonitor(
+            RekorCheckpointStateStore(ledger.backend),
+            proof_fetcher=RekorV1ConsistencyClient(
+                rekor_url
+            ).fetch,
+        ).observe_verified_receipt(receipt)
+        result["rekor_checkpoint_state"]=checkpoint_state
         result["rekor_receipt"]=receipt
         if receipt_output:
             Path(receipt_output).write_text(
