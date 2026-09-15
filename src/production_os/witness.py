@@ -6,6 +6,7 @@ from typing import Any
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
+from .signers import Signer
 from .signing import sign_payload, verify_payload
 
 
@@ -125,3 +126,15 @@ def publish_checkpoint(
             "witness response must be an object"
         )
     return {"status":status, "response":payload}
+
+
+
+def sign_checkpoint_with_signer(
+    checkpoint: dict[str, Any],
+    *,
+    signer: Signer,
+) -> dict[str, Any]:
+    return {
+        "checkpoint":checkpoint,
+        "signature":signer.sign(checkpoint),
+    }
