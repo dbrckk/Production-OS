@@ -2994,3 +2994,47 @@ Example factory configuration:
     )
 
 The same backend can be supplied as builder_signer, provenance_signer or witness_signer, while TrustPolicy continues to enforce distinct key IDs between those domains.
+
+### Dynamic Vault authentication
+
+Vault-backed signers no longer require a long-lived static Vault token.
+
+SignerFactory supports three Vault authentication modes:
+
+    token
+        existing compatibility mode
+
+    approle
+        exchanges role_id + secret_id for a Vault client token
+
+    kubernetes
+        exchanges a Kubernetes service-account JWT + Vault role
+        for a Vault client token
+
+Both dynamic flows use Vault's HTTPS auth endpoints and fail closed when credentials are missing, the auth method is unknown, Vault is unavailable, or no client token is returned.
+
+Relevant factory options:
+
+    vault_auth_method
+    vault_role_id
+    vault_secret_id
+    vault_kubernetes_role
+    vault_kubernetes_jwt
+    vault_auth_mount
+    vault_namespace
+
+The resulting short-lived Vault token is passed only to VaultTransitSigner and is not exposed through the common Signer interface.
+
+Recommended Kubernetes deployment:
+
+    Pod service account
+          ↓
+    Kubernetes JWT
+          ↓
+    Vault Kubernetes auth
+          ↓
+    short-lived Vault token
+          ↓
+    Transit Ed25519 signing
+
+This removes the need to provision a permanent Vault token into the Production-OS container.
