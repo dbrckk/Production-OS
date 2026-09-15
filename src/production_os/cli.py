@@ -58,6 +58,11 @@ from .workers import WorkerRegistry
 from .workflow_engine import WorkflowEngine, WorkflowTaskSpec
 from .execution_optimizer import ExecutionOptimizer
 from .speculation import SpeculationManager
+from .signing import generate_keypair
+from .asymmetric_attestations import (
+    create_validation_attestation as create_validation_attestation_v2,
+    verify_release_provenance as verify_release_provenance_v2,
+)
 
 
 def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -435,6 +440,32 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     releasepromote.add_argument("--approval-role", default="operator")
     releasepromote.add_argument("--approval-reason")
     releasepromote.add_argument("--metadata")
+
+    keygen = sub.add_parser(
+        "signing-keygen",
+        help="Generate an Ed25519 signing key pair",
+    )
+    keygen.add_argument("--private-key", required=True)
+    keygen.add_argument("--public-key", required=True)
+
+    validationattestv2 = sub.add_parser(
+        "validation-attest-v2",
+        help="Create an Ed25519 validation attestation",
+    )
+    validationattestv2.add_argument("--database", required=True)
+    validationattestv2.add_argument("--workflow-id", required=True)
+    validationattestv2.add_argument("--artifact-id", required=True)
+    validationattestv2.add_argument("--validation", required=True)
+    validationattestv2.add_argument("--validator-id", required=True)
+    validationattestv2.add_argument("--private-key", required=True)
+    validationattestv2.add_argument("--output")
+
+    provenanceverifyv2 = sub.add_parser(
+        "provenance-verify-v2",
+        help="Offline verify an Ed25519 release provenance file",
+    )
+    provenanceverifyv2.add_argument("--provenance", required=True)
+    provenanceverifyv2.add_argument("--public-key", required=True)
 
     validationattest = sub.add_parser(
         "validation-attest",
@@ -1712,6 +1743,72 @@ def _release_ledger(
     )
 
 
+def run_signing_keygen(args: argparse.Namespace) -> int:
+    private_key,public_key=generate_keypair()
+    Path(args.private_key).write_text(private_key,encoding="ascii")
+    Path(args.public_key).write_text(public_key,encoding="ascii")
+    print(json.dumps({
+        "schema_version":"production-os/signing-keypair/v1",
+        "private_key":args.private_key,
+        "public_key":args.public_key,
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
+def run_validation_attest_v2(args: argparse.Namespace) -> int:
+    engine=_workflow_engine(args.database)
+    workflow=engine.get(args.workflow_id)
+    artifact=next(
+        (
+            item for item in workflow.get("artifacts", [])
+            if item["id"]==args.artifact_id
+        ),
+        None,
+    )
+    if artifact is None:
+        raise KeyError(f"artifact {args.artifact_id}")
+    validation=json.loads(
+        Path(args.validation).read_text(encoding="utf-8")
+    )
+    metadata=dict(artifact.get("metadata") or {})
+    attestation=create_validation_attestation_v2(
+        validator_id=args.validator_id,
+        private_key_pem=Path(args.private_key).read_text(
+            encoding="ascii"
+        ),
+        workflow_id=args.workflow_id,
+        artifact_id=args.artifact_id,
+        artifact_sha256=str(artifact.get("sha256") or ""),
+        source_revision=metadata.get("source_revision"),
+        workflow_generation=metadata.get("workflow_generation"),
+        validation=dict(validation),
+    )
+    rendered=json.dumps(attestation,indent=2,ensure_ascii=False)
+    if args.output:
+        Path(args.output).write_text(
+            rendered+"\n",encoding="utf-8"
+        )
+    print(rendered)
+    return 0
+
+
+def run_provenance_verify_v2(args: argparse.Namespace) -> int:
+    provenance=json.loads(
+        Path(args.provenance).read_text(encoding="utf-8")
+    )
+    valid=verify_release_provenance_v2(
+        dict(provenance),
+        public_key_pem=Path(args.public_key).read_text(
+            encoding="ascii"
+        ),
+    )
+    print(json.dumps({
+        "schema_version":"production-os/provenance-verification/v2",
+        "valid":valid,
+    },indent=2,ensure_ascii=False))
+    return 0 if valid else 9
+
+
 def run_validation_attest(args: argparse.Namespace) -> int:
     secret = os.getenv(args.secret_env, "")
     if not secret:
@@ -1941,6 +2038,12 @@ def main(argv: list[str] | None = None) -> int:
         return run_workflow_cancel(args)
     if args.command == "artifact-add":
         return run_artifact_add(args)
+    if args.command == "signing-keygen":
+        return run_signing_keygen(args)
+    if args.command == "validation-attest-v2":
+        return run_validation_attest_v2(args)
+    if args.command == "provenance-verify-v2":
+        return run_provenance_verify_v2(args)
     if args.command == "validation-attest":
         return run_validation_attest(args)
     if args.command == "release-verify":
