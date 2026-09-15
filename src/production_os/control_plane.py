@@ -1003,10 +1003,49 @@ def make_handler(control: ControlPlane):
                         {"error": str(exc)},
                     )
                     return
+                if not isinstance(payload, dict):
+                    self._send(
+                        HTTPStatus.BAD_REQUEST,
+                        {"error": "request body must be a JSON object"},
+                    )
+                    return
+                allowed = {"validator_id", "builder_id", "key_id"}
+                unknown = sorted(set(payload) - allowed)
+                if unknown:
+                    self._send(
+                        HTTPStatus.BAD_REQUEST,
+                        {
+                            "error": "unknown incident snapshot fields",
+                            "fields": unknown,
+                        },
+                    )
+                    return
+                filters = {}
+                for name in allowed:
+                    value = payload.get(name)
+                    if value is None:
+                        filters[name] = None
+                        continue
+                    if not isinstance(value, str) or not value.strip():
+                        self._send(
+                            HTTPStatus.BAD_REQUEST,
+                            {
+                                "error":
+                                    f"{name} must be a non-empty string",
+                            },
+                        )
+                        return
+                    if len(value) > 512:
+                        self._send(
+                            HTTPStatus.BAD_REQUEST,
+                            {"error": f"{name} is too long"},
+                        )
+                        return
+                    filters[name] = value.strip()
                 result = control.releases.record_incident_report(
-                    validator_id=payload.get("validator_id"),
-                    builder_id=payload.get("builder_id"),
-                    key_id=payload.get("key_id"),
+                    validator_id=filters["validator_id"],
+                    builder_id=filters["builder_id"],
+                    key_id=filters["key_id"],
                 )
                 self._send(
                     HTTPStatus.CREATED if result["recorded"]
