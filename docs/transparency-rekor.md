@@ -48,6 +48,8 @@ production-os transparency-checkpoint-verify \
   --rekor-log-public-key rekor-log.pub.pem
 ```
 
+The offline CLI invokes the same signed-tree-checkpoint verification as the receipt API, so a pinned Rekor log key authenticates both the SET and the tree state carried by the inclusion proof.
+
 For an additional identity pin, supply the expected 64-character Rekor log ID:
 
 ```bash
