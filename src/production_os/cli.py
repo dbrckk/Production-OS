@@ -1434,7 +1434,7 @@ def run_token_hash(args: argparse.Namespace) -> int:
     return 0
 
 
-def _trusted_validation_keys_from_env(name: str) -> dict[str, str]:
+def _trusted_validation_keys_from_env(name: str) -> dict:
     raw = os.getenv(name, "").strip()
     if not raw:
         return {}
@@ -1444,9 +1444,9 @@ def _trusted_validation_keys_from_env(name: str) -> dict[str, str]:
             f"{name} must contain a JSON object"
         )
     return {
-        str(key):str(value)
+        str(key):value
         for key, value in payload.items()
-        if str(key).strip() and str(value).strip()
+        if str(key).strip()
     }
 
 
