@@ -445,6 +445,14 @@ def verify_rekor_v1_receipt(
                 public_key_pem=log_public_key_pem,
             ):
                 return False
+            checkpoint = proof.get("checkpoint")
+            if not isinstance(checkpoint, str) or not verify_rekor_signed_checkpoint(
+                checkpoint,
+                public_key_pem=log_public_key_pem,
+                expected_tree_size=int(proof["treeSize"]),
+                expected_root_hash=str(proof["rootHash"]),
+            ):
+                return False
         return True
     except (
         KeyError,
