@@ -2847,3 +2847,21 @@ This creates the integration boundary required for future:
 Those backends can implement Signer without exposing private key bytes to ReleaseLedger or SLSA code.
 
 The local PEM backend remains appropriate for development and migration, while production can progressively move signing authority outside the Production-OS process.
+
+### Signer-backed release provenance
+
+Release provenance v2 signing now supports the same Signer boundary as SLSA builder and witness signing.
+
+The strict cryptographic path is therefore:
+
+    builder statement -> Signer
+    release provenance -> Signer
+    transparency checkpoint -> Signer
+
+ReleaseLedger accepts a provenance_signer and no longer requires direct private-key access for v2 provenance creation when a signer is supplied.
+
+TrustPolicy can evaluate signer key IDs directly, so domain separation remains enforceable even when the underlying private key is held by a remote KMS/HSM implementation and no PEM material exists in the Production-OS process.
+
+PEM configuration remains supported through automatic PemSigner wrapping.
+
+This completes the core abstraction needed to move builder and release-provenance private keys out of process. Witness already exposes the same signing boundary; the remaining deployment work is adding concrete remote signer providers and configuration/factory support.
