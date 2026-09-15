@@ -2932,3 +2932,30 @@ A local --private-key remains supported for witness migration and is wrapped as 
 With remote signers configured, the Production-OS control plane no longer needs the builder or release-provenance private key material. Witness checkpoint signing can likewise be performed without loading its private key.
 
 TrustPolicy continues to enforce domain separation from Signer.key_id values.
+
+### Remote signer transport hardening
+
+RemoteHttpSigner now defaults to HTTPS-only operation and fails configuration when a plain HTTP endpoint is supplied.
+
+Transport controls include:
+
+    system or custom CA validation
+    optional client certificate + private key for mTLS
+    bounded request timeout
+    bounded retries
+    exponential retry backoff
+    circuit breaker after repeated failed signing operations
+    automatic circuit reset window
+
+Default retry policy:
+
+    retries = 2
+    backoff = 0.25 seconds
+    circuit failure threshold = 3
+    circuit reset = 30 seconds
+
+All terminal failures remain fail-closed: Production-OS does not create a substitute signature or silently fall back to a local signing key.
+
+Plain HTTP can only be enabled explicitly through the Python signer configuration and is intended for isolated development environments.
+
+Remote response validation still requires Ed25519, the exact configured key ID, and a non-empty signature.
