@@ -4,7 +4,7 @@ import json
 
 import pytest
 from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives.asymmetric import ec, utils
 
 from production_os.signing import generate_keypair
 from production_os.transparency_receipts import (
@@ -177,6 +177,24 @@ def _signed_rekor_response(envelope):
     log_id = hashlib.sha256(public_der).hexdigest()
     response = _rekor_response(envelope, log_id=log_id)
     entry = response["b" * 64]
+    proof = entry["verification"]["inclusionProof"]
+    note = (
+        "rekor.example - 1\n"
+        f"{proof['treeSize']}\n"
+        f"{base64.b64encode(bytes.fromhex(proof['rootHash'])).decode('ascii')}\n"
+    )
+    key_hint = hashlib.sha256(public_der).digest()[:4]
+    checkpoint_digest = hashlib.sha256(note.encode("utf-8")).digest()
+    checkpoint_signature = private_key.sign(
+        checkpoint_digest,
+        ec.ECDSA(utils.Prehashed(hashes.SHA256())),
+    )
+    checkpoint_encoded = base64.b64encode(
+        key_hint + checkpoint_signature
+    ).decode("ascii")
+    proof["checkpoint"] = (
+        f"{note}\n— rekor.example {checkpoint_encoded}\n"
+    )
     signed_payload = {
         key: value
         for key, value in entry.items()

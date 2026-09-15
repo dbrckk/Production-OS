@@ -10,7 +10,7 @@ from urllib.request import Request, urlopen
 
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import ec, ed25519, padding, rsa
+from cryptography.hazmat.primitives.asymmetric import ec, ed25519, padding, rsa, utils
 
 
 RECEIPT_SCHEMA = "production-os/transparency-receipt/v1"
@@ -214,6 +214,87 @@ def verify_rekor_signed_entry_timestamp(
         return False
 
 
+def verify_rekor_signed_checkpoint(
+    checkpoint: str,
+    *,
+    public_key_pem: str,
+    expected_tree_size: int,
+    expected_root_hash: str,
+) -> bool:
+    """Verify a Rekor v1 signed tree checkpoint and bind it to a proof."""
+    try:
+        if not isinstance(checkpoint, str) or not checkpoint:
+            return False
+        split = checkpoint.rfind("\n\n")
+        if split < 0:
+            return False
+        note = checkpoint[: split + 1]
+        signature_block = checkpoint[split + 2 :]
+        if not signature_block or not signature_block.endswith("\n"):
+            return False
+
+        lines = note.splitlines()
+        if len(lines) < 3 or not lines[0]:
+            return False
+        tree_size = int(lines[1])
+        if tree_size != int(expected_tree_size):
+            return False
+        expected_root = str(expected_root_hash).lower()
+        if not _HEX_64.fullmatch(expected_root):
+            return False
+        root = base64.b64decode(lines[2], validate=True)
+        if len(root) != 32 or root.hex() != expected_root:
+            return False
+
+        public_key = serialization.load_pem_public_key(
+            public_key_pem.encode("ascii")
+        )
+        der = public_key.public_bytes(
+            serialization.Encoding.DER,
+            serialization.PublicFormat.SubjectPublicKeyInfo,
+        )
+        key_hint = hashlib.sha256(der).digest()[:4]
+        note_bytes = note.encode("utf-8")
+        digest = hashlib.sha256(note_bytes).digest()
+        signature_lines = signature_block.splitlines()
+        if not signature_lines:
+            return False
+
+        for signature_line in signature_lines:
+            parts = signature_line.split(" ", 2)
+            if len(parts) != 3 or parts[0] != "—" or not parts[1]:
+                return False
+            encoded = base64.b64decode(parts[2], validate=True)
+            if len(encoded) < 5 or encoded[:4] != key_hint:
+                return False
+            signature = encoded[4:]
+            if isinstance(public_key, ec.EllipticCurvePublicKey):
+                public_key.verify(
+                    signature,
+                    digest,
+                    ec.ECDSA(utils.Prehashed(hashes.SHA256())),
+                )
+            elif isinstance(public_key, rsa.RSAPublicKey):
+                public_key.verify(
+                    signature,
+                    digest,
+                    padding.PKCS1v15(),
+                    utils.Prehashed(hashes.SHA256()),
+                )
+            elif isinstance(public_key, ed25519.Ed25519PublicKey):
+                public_key.verify(signature, note_bytes)
+            else:
+                return False
+        return True
+    except (
+        InvalidSignature,
+        TypeError,
+        ValueError,
+        UnicodeEncodeError,
+    ):
+        return False
+
+
 def parse_rekor_v1_receipt(
     response: dict[str, Any],
     *,
@@ -362,6 +443,14 @@ def verify_rekor_v1_receipt(
             if not verify_rekor_signed_entry_timestamp(
                 set_entry,
                 public_key_pem=log_public_key_pem,
+            ):
+                return False
+            checkpoint = proof.get("checkpoint")
+            if not isinstance(checkpoint, str) or not verify_rekor_signed_checkpoint(
+                checkpoint,
+                public_key_pem=log_public_key_pem,
+                expected_tree_size=int(proof["treeSize"]),
+                expected_root_hash=str(proof["rootHash"]),
             ):
                 return False
         return True

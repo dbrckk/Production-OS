@@ -14,6 +14,7 @@ Receipt verification is fail-closed when a trusted Rekor log public key is suppl
 - the receipt log index matches the inclusion proof index;
 - the Rekor `logID` matches SHA-256 of the pinned log public key SubjectPublicKeyInfo DER;
 - the Rekor signed entry timestamp authenticates the immutable log entry metadata;
+- the Rekor signed tree checkpoint authenticates the proof tree size and root hash with the same pinned log key;
 - an optional explicit `--rekor-log-id` pin matches the receipt.
 
 The existing generic `--publish-url` witness mechanism remains available and can be used together with Rekor publication.
@@ -47,6 +48,8 @@ production-os transparency-checkpoint-verify \
   --rekor-log-public-key rekor-log.pub.pem
 ```
 
+The offline CLI invokes the same signed-tree-checkpoint verification as the receipt API, so a pinned Rekor log key authenticates both the SET and the tree state carried by the inclusion proof.
+
 For an additional identity pin, supply the expected 64-character Rekor log ID:
 
 ```bash
@@ -58,7 +61,13 @@ production-os transparency-checkpoint-verify \
   --rekor-log-id <expected-log-id>
 ```
 
-The command exits with status `0` only when both the Production OS checkpoint signature and the Rekor receipt are valid. A receipt mismatch, altered entry, invalid Merkle path, wrong log identity, or invalid SET returns verification failure.
+The command exits with status `0` only when both the Production OS checkpoint signature and the Rekor receipt are valid. A receipt mismatch, altered entry, invalid Merkle path, wrong log identity, invalid SET, or invalid signed tree checkpoint returns verification failure.
+
+## Signed tree checkpoints
+
+Production OS parses the Rekor signed-note format and verifies the tree checkpoint using the pinned Rekor log public key. It validates the four-byte public-key hint derived from SubjectPublicKeyInfo, authenticates ECDSA, RSA, or Ed25519 note signatures, and requires the signed tree size and root hash to match the RFC6962 inclusion proof exactly.
+
+Receipt parsing remains independent of trust configuration, but receipt verification requires this signed checkpoint whenever `log_public_key_pem` is supplied. This means a valid SET plus a mathematically valid inclusion proof is no longer enough if the signed tree state has been altered.
 
 ## Versioning
 
@@ -66,4 +75,4 @@ This adapter is explicitly named `rekor-v1`. Rekor v1 remains the stable public 
 
 ## Remaining hardening
 
-The receipt validates entry inclusion and the Rekor SET against a pinned log key. Production OS currently stores the checkpoint text delivered with the inclusion proof but does not yet independently verify the signed tree checkpoint/note or require a quorum of independent witnesses. Those are the next steps for stronger split-view resistance.
+The remaining split-view hardening is checkpoint consistency checking across observations and/or a quorum of independent witnesses. Those mechanisms can build on the now-authenticated signed tree checkpoints without changing the receipt format.
