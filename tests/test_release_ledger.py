@@ -462,3 +462,100 @@ def test_dual_required_policy_rejects_pure_ed25519(tmp_path):
             approval=approval(),
         )
 
+
+def test_release_verify_enforces_trusted_builder_repository(tmp_path):
+    backend,workflows,_,workflow,artifact=setup_release(tmp_path)
+    validator_private,validator_public=generate_keypair()
+    release_private,release_public=generate_keypair()
+    builder_id="https://builder.example/prod"
+    releases=ReleaseLedger(
+        backend,
+        workflows,
+        trusted_validation_public_keys={
+            "validator-v2":validator_public
+        },
+        provenance_private_key=release_private,
+        provenance_public_key=release_public,
+        builder_id=builder_id,
+        trusted_builders={
+            builder_id:{
+                "key_owner":"release-builder",
+                "allowed_repositories":[workflow["repository"]],
+            }
+        },
+        trusted_builder_keys={
+            "release-builder":{"public_key":release_public}
+        },
+        require_trusted_builder=True,
+    )
+    attestation=create_validation_attestation_v2(
+        validator_id="validator-v2",
+        private_key_pem=validator_private,
+        workflow_id=workflow["id"],
+        artifact_id=artifact["id"],
+        artifact_sha256=artifact["sha256"],
+        source_revision=artifact["metadata"]["source_revision"],
+        workflow_generation=artifact["metadata"][
+            "workflow_generation"
+        ],
+        validation=passed_validation(),
+    )
+    release=releases.promote(
+        workflow_id=workflow["id"],
+        artifact_id=artifact["id"],
+        validation=passed_validation(),
+        attestation=attestation,
+        approval=approval(),
+    )
+    verification=releases.verify(release["id"])
+    assert verification["valid"] is True
+
+
+def test_release_verify_rejects_untrusted_builder_repository(tmp_path):
+    backend,workflows,_,workflow,artifact=setup_release(tmp_path)
+    validator_private,validator_public=generate_keypair()
+    release_private,release_public=generate_keypair()
+    builder_id="https://builder.example/prod"
+    releases=ReleaseLedger(
+        backend,
+        workflows,
+        trusted_validation_public_keys={
+            "validator-v2":validator_public
+        },
+        provenance_private_key=release_private,
+        provenance_public_key=release_public,
+        builder_id=builder_id,
+        trusted_builders={
+            builder_id:{
+                "key_owner":"release-builder",
+                "allowed_repositories":["other/repo"],
+            }
+        },
+        trusted_builder_keys={
+            "release-builder":{"public_key":release_public}
+        },
+        require_trusted_builder=True,
+    )
+    attestation=create_validation_attestation_v2(
+        validator_id="validator-v2",
+        private_key_pem=validator_private,
+        workflow_id=workflow["id"],
+        artifact_id=artifact["id"],
+        artifact_sha256=artifact["sha256"],
+        source_revision=artifact["metadata"]["source_revision"],
+        workflow_generation=artifact["metadata"][
+            "workflow_generation"
+        ],
+        validation=passed_validation(),
+    )
+    release=releases.promote(
+        workflow_id=workflow["id"],
+        artifact_id=artifact["id"],
+        validation=passed_validation(),
+        attestation=attestation,
+        approval=approval(),
+    )
+    verification=releases.verify(release["id"])
+    assert verification["valid"] is False
+    assert "untrusted SLSA" in verification["reason"]
+
