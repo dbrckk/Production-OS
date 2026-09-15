@@ -59,6 +59,7 @@ from .workflow_engine import WorkflowEngine, WorkflowTaskSpec
 from .execution_optimizer import ExecutionOptimizer
 from .speculation import SpeculationManager
 from .signing import generate_keypair
+from .supply_chain import verify_signed_slsa_statement
 from .asymmetric_attestations import (
     create_validation_attestation as create_validation_attestation_v2,
     verify_release_provenance as verify_release_provenance_v2,
@@ -472,6 +473,14 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     validationattestv2.add_argument("--validator-id", required=True)
     validationattestv2.add_argument("--private-key", required=True)
     validationattestv2.add_argument("--output")
+
+    slsaverify = sub.add_parser(
+        "slsa-verify",
+        help="Offline verify a signed SLSA provenance statement",
+    )
+    slsaverify.add_argument("--statement", required=True)
+    slsaverify.add_argument("--public-key", required=True)
+    slsaverify.add_argument("--artifact-sha256")
 
     provenanceverifyv2 = sub.add_parser(
         "provenance-verify-v2",
@@ -1823,6 +1832,24 @@ def run_validation_attest_v2(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_slsa_verify(args: argparse.Namespace) -> int:
+    envelope=json.loads(
+        Path(args.statement).read_text(encoding="utf-8")
+    )
+    valid=verify_signed_slsa_statement(
+        dict(envelope),
+        public_key_pem=Path(args.public_key).read_text(
+            encoding="ascii"
+        ),
+        expected_sha256=args.artifact_sha256,
+    )
+    print(json.dumps({
+        "schema_version":"production-os/slsa-verification/v1",
+        "valid":valid,
+    },indent=2,ensure_ascii=False))
+    return 0 if valid else 9
+
+
 def run_provenance_verify_v2(args: argparse.Namespace) -> int:
     provenance=json.loads(
         Path(args.provenance).read_text(encoding="utf-8")
@@ -2073,6 +2100,8 @@ def main(argv: list[str] | None = None) -> int:
         return run_signing_keygen(args)
     if args.command == "validation-attest-v2":
         return run_validation_attest_v2(args)
+    if args.command == "slsa-verify":
+        return run_slsa_verify(args)
     if args.command == "provenance-verify-v2":
         return run_provenance_verify_v2(args)
     if args.command == "validation-attest":
