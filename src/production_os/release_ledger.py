@@ -390,7 +390,31 @@ class ReleaseLedger:
             key_id=key_id,
         )
         now = _now()
+        stable_report = dict(report)
+        stable_report.pop("generated_at", None)
+        report_state_hash = _canonical_sha256(stable_report)
         with self.backend.transaction() as db:
+            latest = _execute(
+                db,
+                self.backend,
+                """
+                SELECT report_json, report_hash
+                FROM trust_incident_reports
+                ORDER BY sequence DESC LIMIT 1
+                """,
+            ).fetchone()
+            if latest is not None:
+                latest_report = json.loads(latest["report_json"])
+                latest_stable = dict(latest_report)
+                latest_stable.pop("generated_at", None)
+                if _canonical_sha256(latest_stable) == report_state_hash:
+                    return {
+                        "incident_id": report["incident_id"],
+                        "report_hash": latest["report_hash"],
+                        "recorded": False,
+                        "deduplicated": True,
+                        "report": latest_report,
+                    }
             previous = _execute(
                 db,
                 self.backend,
@@ -436,6 +460,8 @@ class ReleaseLedger:
             "report_hash": report_hash,
             "previous_hash": previous_hash,
             "recorded_at": now,
+            "recorded": True,
+            "deduplicated": False,
             "report": report,
         }
 
