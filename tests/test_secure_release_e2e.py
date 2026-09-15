@@ -127,3 +127,119 @@ def test_secure_release_pipeline_end_to_end(tmp_path):
         "https://slsa.dev/provenance/v1"
     )
     assert len(metadata["slsa_statement_sha256"]) == 64
+
+
+def test_secure_release_rejects_attestation_bound_to_other_artifact(tmp_path):
+    backend = SQLiteBackend(tmp_path / "production-os.sqlite")
+    workflows = WorkflowEngine(backend, SQLiteJobQueue(backend))
+    validator_private, validator_public = generate_keypair()
+    provenance_private, provenance_public = generate_keypair()
+
+    releases = ReleaseLedger(
+        backend,
+        workflows,
+        trusted_validation_public_keys={"validator-prod": validator_public},
+        provenance_private_key=provenance_private,
+        provenance_public_key=provenance_public,
+        validation_signature_policy="ed25519-only",
+    )
+    workflow = workflows.create(
+        name="tamper-test",
+        repository="dbrckk/example",
+        tasks=[WorkflowTaskSpec("build", "Build", {})],
+    )
+    workflows.dispatch_ready(workflow["id"])
+    workflows.record_result(workflow["id"], "build", succeeded=True)
+    artifact = workflows.add_artifact(
+        workflow["id"],
+        name="release.bin",
+        uri="artifact://release.bin",
+        sha256="c" * 64,
+    )
+    validation = {
+        "status": "passed",
+        "promotion_allowed": True,
+        "blocking_failures": [],
+    }
+    attestation = create_validation_attestation(
+        validator_id="validator-prod",
+        private_key_pem=validator_private,
+        workflow_id=workflow["id"],
+        artifact_id="attacker-substituted-artifact",
+        artifact_sha256=artifact["sha256"],
+        source_revision=None,
+        workflow_generation=None,
+        validation=validation,
+    )
+
+    import pytest
+    with pytest.raises(RuntimeError, match="binding mismatch: artifact_id"):
+        releases.promote(
+            workflow_id=workflow["id"],
+            artifact_id=artifact["id"],
+            validation=validation,
+            attestation=attestation,
+            approval={
+                "approved": True,
+                "approved_by": "release-operator",
+                "role": "operator",
+            },
+        )
+
+
+def test_secure_release_rejects_tampered_artifact_digest(tmp_path):
+    backend = SQLiteBackend(tmp_path / "production-os.sqlite")
+    workflows = WorkflowEngine(backend, SQLiteJobQueue(backend))
+    validator_private, validator_public = generate_keypair()
+    provenance_private, provenance_public = generate_keypair()
+
+    releases = ReleaseLedger(
+        backend,
+        workflows,
+        trusted_validation_public_keys={"validator-prod": validator_public},
+        provenance_private_key=provenance_private,
+        provenance_public_key=provenance_public,
+        validation_signature_policy="ed25519-only",
+    )
+    workflow = workflows.create(
+        name="digest-test",
+        repository="dbrckk/example",
+        tasks=[WorkflowTaskSpec("build", "Build", {})],
+    )
+    workflows.dispatch_ready(workflow["id"])
+    workflows.record_result(workflow["id"], "build", succeeded=True)
+    artifact = workflows.add_artifact(
+        workflow["id"],
+        name="release.bin",
+        uri="artifact://release.bin",
+        sha256="d" * 64,
+    )
+    validation = {
+        "status": "passed",
+        "promotion_allowed": True,
+        "blocking_failures": [],
+    }
+    attestation = create_validation_attestation(
+        validator_id="validator-prod",
+        private_key_pem=validator_private,
+        workflow_id=workflow["id"],
+        artifact_id=artifact["id"],
+        artifact_sha256="e" * 64,
+        source_revision=None,
+        workflow_generation=None,
+        validation=validation,
+    )
+
+    import pytest
+    with pytest.raises(RuntimeError, match="binding mismatch: artifact_sha256"):
+        releases.promote(
+            workflow_id=workflow["id"],
+            artifact_id=artifact["id"],
+            validation=validation,
+            attestation=attestation,
+            approval={
+                "approved": True,
+                "approved_by": "release-operator",
+                "role": "operator",
+            },
+        )
