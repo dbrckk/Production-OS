@@ -2415,7 +2415,7 @@ No database, control-plane access, validator private key, or shared HMAC secret 
 - [x] artifact/source/generation approval binding retained
 - [x] integrate v2 signatures into ReleaseLedger promotion path
 - [x] trusted public-key registry in control plane
-- [ ] dual-sign migration from P15 HMAC to P16 Ed25519
+- [x] strict dual-sign migration from P15 HMAC to P16 Ed25519
 - [x] key validity windows and revocation metadata
 - [x] SLSA/in-toto compatible statement envelope
 - [ ] external transparency-log anchoring
@@ -2627,3 +2627,33 @@ The HTTP body is the complete signed checkpoint envelope.
 This closes the local-only trust gap when the receiving witness stores checkpoints independently. A later full database rewrite can then be detected by comparing its recomputed root against a previously published checkpoint.
 
 The generic witness protocol deliberately avoids coupling Production-OS to one provider. Provider-specific Rekor or equivalent transparency integrations remain a separate milestone.
+
+### Dual-sign migration
+
+Production-OS now supports a strict migration bundle containing both legacy HMAC-SHA256 and Ed25519 validation attestations for the same validation decision.
+
+Schema:
+
+    production-os/validation-attestation-bundle/v1
+
+A dual-sign bundle is accepted only when both signatures independently verify against their configured trust stores.
+
+The two attestations must bind the same:
+
+    validator identity
+    workflow
+    artifact
+    artifact SHA-256
+    source revision
+    workflow generation
+    validation result
+
+The ReleaseLedger uses the verified Ed25519 attestation as the canonical input for v2 release provenance and SLSA generation, while retaining the complete dual-sign bundle in immutable release metadata.
+
+Post-release verification repeats both validation checks and reports:
+
+    signature_scheme = hmac-sha256+ed25519
+
+This provides an explicit migration period where existing P15 HMAC validators and P16 public-key infrastructure must agree before a release can be promoted.
+
+Once all validators and auditors have migrated, deployments can stop producing dual-sign bundles and use pure v2 Ed25519 attestations without changing the release provenance format.
