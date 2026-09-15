@@ -213,6 +213,42 @@ class ReleaseLedger:
             ).fetchall()
         return [self._row(row) for row in rows]
 
+    def trust_status(self) -> dict:
+        """Re-evaluate every promoted release against current trust policy."""
+        with self.backend.connect() as db:
+            rows = _execute(
+                db,
+                self.backend,
+                """
+                SELECT id FROM releases
+                WHERE status='promoted'
+                ORDER BY created_at ASC, id ASC
+                """,
+            ).fetchall()
+
+        releases = []
+        affected = []
+        for row in rows:
+            release_id = row["id"]
+            verification = self.verify(release_id)
+            item = {
+                "release_id": release_id,
+                "valid": bool(verification.get("valid")),
+            }
+            if not item["valid"]:
+                item["reason"] = str(
+                    verification.get("reason") or "verification failed"
+                )
+                affected.append(item)
+            releases.append(item)
+
+        return {
+            "valid": not affected,
+            "total_releases": len(releases),
+            "affected_releases": len(affected),
+            "releases": releases,
+        }
+
     def promote(
         self,
         *,
