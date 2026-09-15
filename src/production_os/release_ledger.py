@@ -9,6 +9,11 @@ from .asymmetric_attestations import (
     verify_release_provenance as verify_release_provenance_v2,
     verify_validation_attestation as verify_validation_attestation_v2,
 )
+from .transparency import (
+    GENESIS_HASH,
+    create_entry as create_transparency_entry,
+    verify_chain as verify_transparency_chain,
+)
 from .supply_chain import (
     create_slsa_statement,
     sign_slsa_statement,
@@ -39,6 +44,17 @@ def _sql(backend, statement: str) -> str:
 
 def _execute(db, backend, statement: str, params: tuple = ()):
     return db.execute(_sql(backend, statement), params)
+
+
+def _canonical_sha256(value: dict) -> str:
+    import hashlib
+    encoded = json.dumps(
+        value,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
 
 
 def _valid_sha256(value: str | None) -> bool:
@@ -451,6 +467,63 @@ class ReleaseLedger:
                     now,
                 ),
             )
+            previous_row = _execute(
+                db,
+                self.backend,
+                """
+                SELECT sequence, entry_hash
+                FROM transparency_log
+                ORDER BY sequence DESC
+                LIMIT 1
+                """,
+            ).fetchone()
+            sequence = (
+                int(previous_row["sequence"]) + 1
+                if previous_row is not None
+                else 1
+            )
+            previous_hash = (
+                previous_row["entry_hash"]
+                if previous_row is not None
+                else GENESIS_HASH
+            )
+            transparency_entry = create_transparency_entry(
+                sequence=sequence,
+                release_id=release_id,
+                release_provenance_sha256=_canonical_sha256(
+                    provenance
+                ),
+                slsa_statement_sha256=(
+                    release_metadata.get(
+                        "slsa_statement_sha256"
+                    )
+                ),
+                previous_hash=previous_hash,
+                created_at=now,
+            )
+            _execute(
+                db,
+                self.backend,
+                """
+                INSERT INTO transparency_log(
+                    sequence, release_id, entry_json,
+                    entry_hash, previous_hash, created_at
+                )
+                VALUES(?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    sequence,
+                    release_id,
+                    json.dumps(
+                        transparency_entry,
+                        ensure_ascii=False,
+                        sort_keys=True,
+                    ),
+                    transparency_entry["entry_hash"],
+                    previous_hash,
+                    now,
+                ),
+            )
             self.backend.append_event(
                 db,
                 "release-promoted",
@@ -485,6 +558,27 @@ class ReleaseLedger:
             ).fetchone()
 
         return self._row(row)
+
+    def transparency_log(self) -> list[dict]:
+        with self.backend.connect() as db:
+            rows = _execute(
+                db,
+                self.backend,
+                """
+                SELECT entry_json
+                FROM transparency_log
+                ORDER BY sequence ASC
+                """,
+            ).fetchall()
+        return [
+            json.loads(row["entry_json"])
+            for row in rows
+        ]
+
+    def verify_transparency(self) -> dict:
+        return verify_transparency_chain(
+            self.transparency_log()
+        )
 
     def verify(self, release_id: str) -> dict:
         release = self.get(release_id)
@@ -633,6 +727,39 @@ class ReleaseLedger:
                         f"release provenance binding mismatch: {key}",
                 }
 
+        chain = self.verify_transparency()
+        if not chain.get("valid"):
+            return {
+                "release_id":release_id,
+                "valid":False,
+                "reason":chain.get(
+                    "reason",
+                    "invalid transparency log",
+                ),
+            }
+        entries = self.transparency_log()
+        transparency_entry = next(
+            (
+                item for item in entries
+                if item.get("release_id") == release_id
+            ),
+            None,
+        )
+        if transparency_entry is None:
+            return {
+                "release_id":release_id,
+                "valid":False,
+                "reason":"release missing from transparency log",
+            }
+        if transparency_entry.get(
+            "release_provenance_sha256"
+        ) != _canonical_sha256(provenance):
+            return {
+                "release_id":release_id,
+                "valid":False,
+                "reason":"transparency provenance digest mismatch",
+            }
+
         signature = provenance["signature"]
         return {
             "release_id":release_id,
@@ -645,6 +772,11 @@ class ReleaseLedger:
             "workflow_generation":release["workflow_generation"],
             "artifact_sha256":metadata["artifact_sha256"],
             "provenance_signature":signature,
+            "transparency_sequence":
+                transparency_entry["sequence"],
+            "transparency_entry_hash":
+                transparency_entry["entry_hash"],
+            "transparency_root_hash":chain["root_hash"],
         }
 
     def rollback(
