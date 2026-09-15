@@ -8,14 +8,14 @@ def test_trust_status_aggregates_affected_entities_and_reasons(monkeypatch):
             "id": "r1", "workflow_id": "w1", "artifact_id": "a1",
             "repository": "org/repo-a", "source_revision": "s1",
             "workflow_generation": 1, "validation_json": "{}",
-            "metadata_json": '{"validation_attestation":{"validator_id":"v1"},"slsa_provenance":{"statement":{"predicate":{"runDetails":{"builder":{"id":"b1"}}}}}}',
+            "metadata_json": '{"validation_attestation":{"validator_id":"v1","signature":{"key_id":"sha256:deadbeef"}},"slsa_provenance":{"statement":{"predicate":{"runDetails":{"builder":{"id":"b1"}}}}}}',
             "status": "promoted", "rollback_of": None, "created_at": "2026-09-15T10:00:00+00:00",
         },
         {
             "id": "r2", "workflow_id": "w2", "artifact_id": "a2",
             "repository": "org/repo-a", "source_revision": "s2",
             "workflow_generation": 1, "validation_json": "{}",
-            "metadata_json": '{"validation_attestation":{"validator_id":"v1"},"slsa_provenance":{"statement":{"predicate":{"runDetails":{"builder":{"id":"b1"}}}}}}',
+            "metadata_json": '{"validation_attestation":{"validator_id":"v1","signature":{"key_id":"sha256:deadbeef"}},"slsa_provenance":{"statement":{"predicate":{"runDetails":{"builder":{"id":"b1"}}}}}}',
             "status": "promoted", "rollback_of": None, "created_at": "2026-09-15T10:01:00+00:00",
         },
         {
@@ -74,7 +74,7 @@ def test_incident_report_id_is_stable_for_same_blast_radius(monkeypatch):
         "id": "r1", "workflow_id": "w1", "artifact_id": "a1",
         "repository": "org/repo", "source_revision": "s1",
         "workflow_generation": 1, "validation_json": "{}",
-        "metadata_json": '{"validation_attestation":{"validator_id":"v1"},"slsa_provenance":{"statement":{"predicate":{"runDetails":{"builder":{"id":"b1"}}}}}}',
+        "metadata_json": '{"validation_attestation":{"validator_id":"v1","signature":{"key_id":"sha256:deadbeef"}},"slsa_provenance":{"statement":{"predicate":{"runDetails":{"builder":{"id":"b1"}}}}}}',
         "status": "promoted", "rollback_of": None,
         "created_at": "2026-09-15T10:00:00+00:00",
     }
