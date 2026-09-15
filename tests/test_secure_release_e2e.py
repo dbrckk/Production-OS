@@ -243,3 +243,137 @@ def test_secure_release_rejects_tampered_artifact_digest(tmp_path):
                 "role": "operator",
             },
         )
+
+
+def test_secure_release_rejects_attestation_replay_across_workflows(tmp_path):
+    backend = SQLiteBackend(tmp_path / "production-os.sqlite")
+    workflows = WorkflowEngine(backend, SQLiteJobQueue(backend))
+    validator_private, validator_public = generate_keypair()
+    provenance_private, provenance_public = generate_keypair()
+    releases = ReleaseLedger(
+        backend,
+        workflows,
+        trusted_validation_public_keys={"validator-prod": validator_public},
+        provenance_private_key=provenance_private,
+        provenance_public_key=provenance_public,
+        validation_signature_policy="ed25519-only",
+    )
+
+    first = workflows.create(
+        name="first",
+        repository="dbrckk/example",
+        tasks=[WorkflowTaskSpec("build", "Build", {})],
+    )
+    workflows.dispatch_ready(first["id"])
+    workflows.record_result(first["id"], "build", succeeded=True)
+    first_artifact = workflows.add_artifact(
+        first["id"], name="release.bin", uri="artifact://first", sha256="f" * 64
+    )
+    validation = {
+        "status": "passed",
+        "promotion_allowed": True,
+        "blocking_failures": [],
+    }
+    replayed = create_validation_attestation(
+        validator_id="validator-prod",
+        private_key_pem=validator_private,
+        workflow_id=first["id"],
+        artifact_id=first_artifact["id"],
+        artifact_sha256=first_artifact["sha256"],
+        source_revision=None,
+        workflow_generation=None,
+        validation=validation,
+    )
+
+    second = workflows.create(
+        name="second",
+        repository="dbrckk/example",
+        tasks=[WorkflowTaskSpec("build", "Build", {})],
+    )
+    workflows.dispatch_ready(second["id"])
+    workflows.record_result(second["id"], "build", succeeded=True)
+    second_artifact = workflows.add_artifact(
+        second["id"], name="release.bin", uri="artifact://second", sha256="f" * 64
+    )
+
+    import pytest
+    with pytest.raises(RuntimeError, match="binding mismatch"):
+        releases.promote(
+            workflow_id=second["id"],
+            artifact_id=second_artifact["id"],
+            validation=validation,
+            attestation=replayed,
+            approval={
+                "approved": True,
+                "approved_by": "release-operator",
+                "role": "operator",
+            },
+        )
+
+
+def test_secure_release_verification_detects_provenance_tampering(tmp_path):
+    backend = SQLiteBackend(tmp_path / "production-os.sqlite")
+    workflows = WorkflowEngine(backend, SQLiteJobQueue(backend))
+    validator_private, validator_public = generate_keypair()
+    provenance_private, provenance_public = generate_keypair()
+    releases = ReleaseLedger(
+        backend,
+        workflows,
+        trusted_validation_public_keys={"validator-prod": validator_public},
+        provenance_private_key=provenance_private,
+        provenance_public_key=provenance_public,
+        validation_signature_policy="ed25519-only",
+    )
+    workflow = workflows.create(
+        name="provenance-tamper",
+        repository="dbrckk/example",
+        tasks=[WorkflowTaskSpec("build", "Build", {})],
+    )
+    workflows.dispatch_ready(workflow["id"])
+    workflows.record_result(workflow["id"], "build", succeeded=True)
+    artifact = workflows.add_artifact(
+        workflow["id"], name="release.bin", uri="artifact://release", sha256="1" * 64
+    )
+    validation = {
+        "status": "passed",
+        "promotion_allowed": True,
+        "blocking_failures": [],
+    }
+    attestation = create_validation_attestation(
+        validator_id="validator-prod",
+        private_key_pem=validator_private,
+        workflow_id=workflow["id"],
+        artifact_id=artifact["id"],
+        artifact_sha256=artifact["sha256"],
+        source_revision=None,
+        workflow_generation=None,
+        validation=validation,
+    )
+    release = releases.promote(
+        workflow_id=workflow["id"],
+        artifact_id=artifact["id"],
+        validation=validation,
+        attestation=attestation,
+        approval={
+            "approved": True,
+            "approved_by": "release-operator",
+            "role": "operator",
+        },
+    )
+
+    with backend.transaction() as db:
+        row = db.execute(
+            "SELECT metadata_json FROM releases WHERE id=?",
+            (release["id"],),
+        ).fetchone()
+        import json
+        metadata = json.loads(row["metadata_json"])
+        metadata["provenance"]["repository"] = "attacker/repository"
+        db.execute(
+            "UPDATE releases SET metadata_json=? WHERE id=?",
+            (json.dumps(metadata), release["id"]),
+        )
+
+    verification = releases.verify(release["id"])
+    assert verification["valid"] is False
+    assert "provenance" in verification["reason"].lower()
