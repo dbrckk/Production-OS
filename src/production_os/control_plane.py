@@ -129,6 +129,10 @@ async function refresh(){
 </html>"""
 
 
+class RequestBodyTooLarge(ValueError):
+    pass
+
+
 def make_handler(control: ControlPlane):
     class Handler(BaseHTTPRequestHandler):
         server_version = "ProductionOS/0.8"
@@ -167,7 +171,7 @@ def make_handler(control: ControlPlane):
             if length < 0:
                 raise ValueError("invalid Content-Length")
             if length > 1024 * 1024:
-                raise ValueError("request body too large")
+                raise RequestBodyTooLarge("request body too large")
             if not length:
                 return b""
             body = self.rfile.read(length)
@@ -1007,6 +1011,12 @@ def make_handler(control: ControlPlane):
                     return
                 try:
                     payload = self._read_json()
+                except RequestBodyTooLarge as exc:
+                    self._send(
+                        HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+                        {"error": str(exc)},
+                    )
+                    return
                 except ValueError as exc:
                     self._send(
                         HTTPStatus.BAD_REQUEST,
