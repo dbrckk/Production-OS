@@ -61,3 +61,37 @@ def test_trust_status_requires_database():
         _parse_args(["trust-status"])
 
     assert exc.value.code == 2
+
+
+def test_transparency_checkpoint_parser_accepts_rekor_publication_options():
+    args = _parse_args([
+        "transparency-checkpoint",
+        "--database", "state.sqlite",
+        "--private-key", "witness.pem",
+        "--rekor-url", "https://rekor.example",
+        "--rekor-private-key", "rekor.pem",
+        "--rekor-log-public-key", "rekor-log.pem",
+        "--receipt-output", "receipt.json",
+    ])
+
+    assert args.command == "transparency-checkpoint"
+    assert args.rekor_url == "https://rekor.example"
+    assert args.rekor_private_key == "rekor.pem"
+    assert args.rekor_log_public_key == "rekor-log.pem"
+    assert args.receipt_output == "receipt.json"
+
+
+def test_transparency_checkpoint_verify_parser_accepts_rekor_receipt():
+    args = _parse_args([
+        "transparency-checkpoint-verify",
+        "--checkpoint", "checkpoint.json",
+        "--public-key", "witness.pub.pem",
+        "--receipt", "receipt.json",
+        "--rekor-log-public-key", "rekor-log.pem",
+        "--rekor-log-id", "a" * 64,
+    ])
+
+    assert args.command == "transparency-checkpoint-verify"
+    assert args.receipt == "receipt.json"
+    assert args.rekor_log_public_key == "rekor-log.pem"
+    assert args.rekor_log_id == "a" * 64
