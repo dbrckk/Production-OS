@@ -3038,3 +3038,49 @@ Recommended Kubernetes deployment:
     Transit Ed25519 signing
 
 This removes the need to provision a permanent Vault token into the Production-OS container.
+
+
+## Trust incident response
+
+Production-OS can re-evaluate promoted releases against the current validator
+and builder trust policy. This is intended for key compromise, emergency
+revocation, and supply-chain incident response.
+
+Inspect the current blast radius:
+
+```bash
+production-os trust-status --database production.db --key-id sha256:...
+```
+
+Generate a machine-readable report without mutating audit history:
+
+```bash
+production-os incident-report --database production.db --key-id sha256:...
+```
+
+Persist a deduplicated snapshot in the immutable incident ledger:
+
+```bash
+production-os incident-snapshot --database production.db --key-id sha256:...
+```
+
+`incident-snapshot` exits with 0 for a healthy scope, 2 when a new active
+incident state was recorded, and 3 when the active state was already recorded.
+
+The authenticated control plane exposes the same incident surfaces:
+
+```text
+GET  /v1/trust-status
+GET  /v1/incident-report
+GET  /v1/incident-history
+GET  /v1/incident-history/verify
+POST /v1/incident-snapshot
+```
+
+Read endpoints require an authenticated viewer. The snapshot endpoint mutates
+the append-only audit ledger and therefore requires the `operator` role.
+
+Incident history entries are SHA-256 hash chained. Rewriting a persisted report
+or breaking the previous-hash chain causes verification to fail. Unchanged
+snapshots are deduplicated while genuine blast-radius changes append a new
+entry.
