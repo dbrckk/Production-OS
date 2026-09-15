@@ -360,6 +360,16 @@ def make_handler(control: ControlPlane):
                         )
                         return
 
+            if parsed.path == "/v1/incident-report":
+                query = parse_qs(parsed.query)
+                report = control.releases.incident_report(
+                    validator_id=(query.get("validator_id") or [None])[0],
+                    builder_id=(query.get("builder_id") or [None])[0],
+                    key_id=(query.get("key_id") or [None])[0],
+                )
+                self._send(HTTPStatus.OK, report)
+                return
+
             if parsed.path == "/v1/trust-status":
                 query = parse_qs(parsed.query)
                 result = control.releases.trust_status(
