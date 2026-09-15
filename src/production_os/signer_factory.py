@@ -8,6 +8,7 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 from .signers import PemSigner, Signer
+from .vault_auth import login_approle, login_kubernetes
 from .vault_signer import VaultTransitSigner
 
 
@@ -168,6 +169,12 @@ def create_signer(
     vault_token: str | None = None,
     vault_namespace: str | None = None,
     vault_mount: str = "transit",
+    vault_auth_method: str = "token",
+    vault_role_id: str | None = None,
+    vault_secret_id: str | None = None,
+    vault_kubernetes_role: str | None = None,
+    vault_kubernetes_jwt: str | None = None,
+    vault_auth_mount: str | None = None,
 ) -> Signer:
     value=str(uri or "").strip()
     if value == "pem:":
@@ -188,11 +195,35 @@ def create_signer(
             raise SignerConfigurationError(
                 "Vault transit key is required"
             )
+        auth_method=str(vault_auth_method or "token").lower()
+        token=str(vault_token or bearer_token or "")
+        if auth_method == "approle":
+            token=login_approle(
+                address=address,
+                role_id=str(vault_role_id or ""),
+                secret_id=str(vault_secret_id or ""),
+                mount=vault_auth_mount or "approle",
+                namespace=vault_namespace,
+                timeout_seconds=timeout_seconds,
+            ).token
+        elif auth_method == "kubernetes":
+            token=login_kubernetes(
+                address=address,
+                role=str(vault_kubernetes_role or ""),
+                jwt=str(vault_kubernetes_jwt or ""),
+                mount=vault_auth_mount or "kubernetes",
+                namespace=vault_namespace,
+                timeout_seconds=timeout_seconds,
+            ).token
+        elif auth_method != "token":
+            raise SignerConfigurationError(
+                f"unsupported Vault auth method: {auth_method}"
+            )
         return VaultTransitSigner(
             address=address,
             transit_key=key_name,
             signing_key_id=str(key_id or ""),
-            token=str(vault_token or bearer_token or ""),
+            token=token,
             mount=vault_mount,
             namespace=vault_namespace,
             timeout_seconds=timeout_seconds,
