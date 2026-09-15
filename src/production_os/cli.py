@@ -1517,6 +1517,14 @@ def run_control_plane(args: argparse.Namespace) -> int:
             args.release_provenance_public_key_env
         ),
         validation_signature_policy=args.validation_signature_policy,
+        builder_id=args.builder_id,
+        trusted_builders=_trusted_validation_keys_from_env(
+            args.trusted_builders_env
+        ),
+        trusted_builder_keys=_trusted_validation_keys_from_env(
+            args.trusted_builder_keys_env
+        ),
+        require_trusted_builder=args.require_trusted_builder,
     )
     return 0
 
@@ -1818,6 +1826,20 @@ def _release_ledger(
             "PRODUCTION_OS_VALIDATION_SIGNATURE_POLICY",
             "compatible",
         ),
+        builder_id=os.getenv(
+            "PRODUCTION_OS_BUILDER_ID",
+            "https://production-os.local/builder",
+        ),
+        trusted_builders=_trusted_validation_keys_from_env(
+            "PRODUCTION_OS_TRUSTED_BUILDERS"
+        ),
+        trusted_builder_keys=_trusted_validation_keys_from_env(
+            "PRODUCTION_OS_TRUSTED_BUILDER_KEYS"
+        ),
+        require_trusted_builder=os.getenv(
+            "PRODUCTION_OS_REQUIRE_TRUSTED_BUILDER",
+            "",
+        ).lower() in {"1", "true", "yes"},
     )
 
 
@@ -2222,4 +2244,28 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(main())    controlplane.add_argument(
+        "--builder-id",
+        default=os.getenv(
+            "PRODUCTION_OS_BUILDER_ID",
+            "https://production-os.local/builder",
+        ),
+    )
+    controlplane.add_argument(
+        "--trusted-builders-env",
+        default="PRODUCTION_OS_TRUSTED_BUILDERS",
+    )
+    controlplane.add_argument(
+        "--trusted-builder-keys-env",
+        default="PRODUCTION_OS_TRUSTED_BUILDER_KEYS",
+    )
+    controlplane.add_argument(
+        "--require-trusted-builder",
+        action="store_true",
+        default=os.getenv(
+            "PRODUCTION_OS_REQUIRE_TRUSTED_BUILDER",
+            "",
+        ).lower() in {"1", "true", "yes"},
+    )
+
+
