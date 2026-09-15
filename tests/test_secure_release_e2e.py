@@ -377,3 +377,151 @@ def test_secure_release_verification_detects_provenance_tampering(tmp_path):
     verification = releases.verify(release["id"])
     assert verification["valid"] is False
     assert "provenance" in verification["reason"].lower()
+
+
+def test_release_becomes_untrusted_after_validator_key_compromise(tmp_path):
+    backend = SQLiteBackend(tmp_path / "production-os.sqlite")
+    workflows = WorkflowEngine(backend, SQLiteJobQueue(backend))
+    validator_private, validator_public = generate_keypair()
+    provenance_private, provenance_public = generate_keypair()
+    workflow = workflows.create(
+        name="validator-compromise",
+        repository="dbrckk/example",
+        tasks=[WorkflowTaskSpec("build", "Build", {})],
+    )
+    workflows.dispatch_ready(workflow["id"])
+    workflows.record_result(workflow["id"], "build", succeeded=True)
+    artifact = workflows.add_artifact(
+        workflow["id"], name="release.bin", uri="artifact://release", sha256="2" * 64
+    )
+    validation = {
+        "status": "passed",
+        "promotion_allowed": True,
+        "blocking_failures": [],
+    }
+    attestation = create_validation_attestation(
+        validator_id="validator-prod",
+        private_key_pem=validator_private,
+        workflow_id=workflow["id"],
+        artifact_id=artifact["id"],
+        artifact_sha256=artifact["sha256"],
+        source_revision=None,
+        workflow_generation=None,
+        validation=validation,
+    )
+    initial = ReleaseLedger(
+        backend,
+        workflows,
+        trusted_validation_public_keys={"validator-prod": validator_public},
+        provenance_private_key=provenance_private,
+        provenance_public_key=provenance_public,
+        validation_signature_policy="ed25519-only",
+    )
+    release = initial.promote(
+        workflow_id=workflow["id"],
+        artifact_id=artifact["id"],
+        validation=validation,
+        attestation=attestation,
+        approval={"approved": True, "approved_by": "operator", "role": "operator"},
+    )
+    assert initial.verify(release["id"])["valid"] is True
+
+    compromised = ReleaseLedger(
+        backend,
+        workflows,
+        trusted_validation_public_keys={
+            "validator-prod": {
+                "public_key": validator_public,
+                "compromised": True,
+            }
+        },
+        provenance_private_key=provenance_private,
+        provenance_public_key=provenance_public,
+        validation_signature_policy="ed25519-only",
+    )
+    verification = compromised.verify(release["id"])
+    assert verification["valid"] is False
+    assert "compromised" in verification["reason"].lower()
+
+
+def test_release_becomes_untrusted_after_builder_key_compromise(tmp_path):
+    backend = SQLiteBackend(tmp_path / "production-os.sqlite")
+    workflows = WorkflowEngine(backend, SQLiteJobQueue(backend))
+    validator_private, validator_public = generate_keypair()
+    provenance_private, provenance_public = generate_keypair()
+    builder_private, builder_public = generate_keypair()
+    builder_id = "https://builder.example/prod"
+    repository = "dbrckk/example"
+    workflow = workflows.create(
+        name="builder-compromise",
+        repository=repository,
+        tasks=[WorkflowTaskSpec("build", "Build", {})],
+    )
+    workflows.dispatch_ready(workflow["id"])
+    workflows.record_result(workflow["id"], "build", succeeded=True)
+    artifact = workflows.add_artifact(
+        workflow["id"], name="release.bin", uri="artifact://release", sha256="3" * 64
+    )
+    validation = {
+        "status": "passed",
+        "promotion_allowed": True,
+        "blocking_failures": [],
+    }
+    attestation = create_validation_attestation(
+        validator_id="validator-prod",
+        private_key_pem=validator_private,
+        workflow_id=workflow["id"],
+        artifact_id=artifact["id"],
+        artifact_sha256=artifact["sha256"],
+        source_revision=None,
+        workflow_generation=None,
+        validation=validation,
+    )
+    builders = {
+        builder_id: {
+            "key_owner": "production-builder",
+            "allowed_repositories": [repository],
+        }
+    }
+    initial = ReleaseLedger(
+        backend,
+        workflows,
+        trusted_validation_public_keys={"validator-prod": validator_public},
+        provenance_private_key=provenance_private,
+        provenance_public_key=provenance_public,
+        builder_id=builder_id,
+        builder_private_key=builder_private,
+        trusted_builders=builders,
+        trusted_builder_keys={"production-builder": {"public_key": builder_public}},
+        require_trusted_builder=True,
+        validation_signature_policy="ed25519-only",
+    )
+    release = initial.promote(
+        workflow_id=workflow["id"],
+        artifact_id=artifact["id"],
+        validation=validation,
+        attestation=attestation,
+        approval={"approved": True, "approved_by": "operator", "role": "operator"},
+    )
+    assert initial.verify(release["id"])["valid"] is True
+
+    compromised = ReleaseLedger(
+        backend,
+        workflows,
+        trusted_validation_public_keys={"validator-prod": validator_public},
+        provenance_private_key=provenance_private,
+        provenance_public_key=provenance_public,
+        builder_id=builder_id,
+        trusted_builders=builders,
+        trusted_builder_keys={
+            "production-builder": {
+                "public_key": builder_public,
+                "compromised": True,
+            }
+        },
+        require_trusted_builder=True,
+        validation_signature_policy="ed25519-only",
+    )
+    verification = compromised.verify(release["id"])
+    assert verification["valid"] is False
+    assert "slsa" in verification["reason"].lower()
