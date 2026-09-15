@@ -35,6 +35,10 @@ class ControlPlane:
         provenance_private_key: str | None = None,
         provenance_public_key: str | None = None,
         validation_signature_policy: str = "compatible",
+        builder_id: str = "https://production-os.local/builder",
+        trusted_builders: dict | None = None,
+        trusted_builder_keys: dict | None = None,
+        require_trusted_builder: bool = False,
     ):
         self.backend = open_backend(database)
         self.queue = job_queue_for(self.backend)
@@ -54,6 +58,10 @@ class ControlPlane:
             provenance_private_key=provenance_private_key,
             provenance_public_key=provenance_public_key,
             validation_signature_policy=validation_signature_policy,
+            builder_id=builder_id,
+            trusted_builders=trusted_builders,
+            trusted_builder_keys=trusted_builder_keys,
+            require_trusted_builder=require_trusted_builder,
         )
         self.authorizer = authorizer
         self.github_webhook_secret = github_webhook_secret
@@ -1350,6 +1358,10 @@ def serve_control_plane(
     provenance_private_key: str | None = None,
     provenance_public_key: str | None = None,
     validation_signature_policy: str = "compatible",
+    builder_id: str = "https://production-os.local/builder",
+    trusted_builders: dict | None = None,
+    trusted_builder_keys: dict | None = None,
+    require_trusted_builder: bool = False,
 ) -> None:
     control = ControlPlane(
         database,
