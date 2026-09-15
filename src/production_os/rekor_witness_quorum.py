@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import uuid
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
@@ -223,6 +224,75 @@ class RekorWitnessObservationStore:
         ]
 
 
+def load_rekor_witness_config(path: str | Path) -> dict[str, Any]:
+    config_path = Path(path)
+    try:
+        payload = json.loads(config_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise RekorWitnessQuorumError(
+            f"invalid Rekor witness configuration: {exc}"
+        ) from exc
+    if not isinstance(payload, dict):
+        raise RekorWitnessQuorumError(
+            "Rekor witness configuration must be an object"
+        )
+    try:
+        threshold = int(payload.get("threshold"))
+    except (TypeError, ValueError) as exc:
+        raise RekorWitnessQuorumError(
+            "invalid Rekor witness threshold"
+        ) from exc
+    raw_witnesses = payload.get("witnesses")
+    if threshold <= 0 or not isinstance(raw_witnesses, list) or not raw_witnesses:
+        raise RekorWitnessQuorumError("invalid Rekor witness configuration")
+
+    witnesses: list[dict[str, str]] = []
+    seen_ids: set[str] = set()
+    for item in raw_witnesses:
+        if not isinstance(item, dict):
+            raise RekorWitnessQuorumError("invalid Rekor witness configuration")
+        witness_id = str(item.get("id") or "").strip()
+        url = str(item.get("url") or "").strip()
+        if not witness_id or witness_id in seen_ids or not url:
+            raise RekorWitnessQuorumError("invalid Rekor witness configuration")
+        seen_ids.add(witness_id)
+        inline_key = item.get("public_key")
+        key_path_value = item.get("public_key_path")
+        if inline_key is not None:
+            public_key = str(inline_key)
+        elif key_path_value:
+            key_path = Path(str(key_path_value))
+            if not key_path.is_absolute():
+                key_path = config_path.parent / key_path
+            try:
+                public_key = key_path.read_text(encoding="ascii")
+            except (OSError, UnicodeError) as exc:
+                raise RekorWitnessQuorumError(
+                    f"cannot read Rekor witness public key for {witness_id}: {exc}"
+                ) from exc
+        else:
+            raise RekorWitnessQuorumError(
+                f"Rekor witness public key is required for {witness_id}"
+            )
+        if not public_key.strip():
+            raise RekorWitnessQuorumError(
+                f"Rekor witness public key is required for {witness_id}"
+            )
+        witnesses.append(
+            {
+                "id": witness_id,
+                "url": url,
+                "public_key": public_key,
+            }
+        )
+
+    if threshold > len(witnesses):
+        raise RekorWitnessQuorumError(
+            "witness threshold exceeds configured witnesses"
+        )
+    return {"threshold": threshold, "witnesses": witnesses}
+
+
 def _observation_matches_expected(
     observation: dict[str, Any],
     *,
@@ -346,3 +416,87 @@ def evaluate_rekor_witness_quorum(
         "conflicting_witnesses": [],
         "reason": None if valid else "witness quorum not reached",
     }
+
+
+def collect_rekor_witness_quorum(
+    config: dict[str, Any],
+    *,
+    log_id: str,
+    origin: str,
+    tree_size: int,
+    root_hash: str,
+    store: RekorWitnessObservationStore | None = None,
+) -> dict[str, Any]:
+    raw_witnesses = config.get("witnesses")
+    if not isinstance(raw_witnesses, list) or not raw_witnesses:
+        raise RekorWitnessQuorumError("invalid Rekor witness configuration")
+    try:
+        threshold = int(config.get("threshold"))
+    except (TypeError, ValueError) as exc:
+        raise RekorWitnessQuorumError("invalid Rekor witness threshold") from exc
+
+    public_keys: dict[str, str] = {}
+    responses: list[dict[str, Any]] = []
+    responses_by_id: dict[str, dict[str, Any]] = {}
+    errors: dict[str, str] = {}
+
+    for item in raw_witnesses:
+        if not isinstance(item, dict):
+            raise RekorWitnessQuorumError("invalid Rekor witness configuration")
+        witness_id = str(item.get("id") or "").strip()
+        url = str(item.get("url") or "").strip()
+        public_key = str(item.get("public_key") or "")
+        if not witness_id or not url or not public_key:
+            raise RekorWitnessQuorumError("invalid Rekor witness configuration")
+        if witness_id in public_keys:
+            raise RekorWitnessQuorumError("duplicate Rekor witness ID")
+        public_keys[witness_id] = public_key
+        try:
+            response = RekorWitnessClient(url).observe(
+                log_id=log_id,
+                origin=origin,
+                tree_size=tree_size,
+                root_hash=root_hash,
+            )
+        except RekorWitnessQuorumError as exc:
+            errors[witness_id] = str(exc)
+            continue
+        observation = response.get("observation")
+        returned_id = (
+            str(observation.get("witness_id") or "")
+            if isinstance(observation, dict)
+            else ""
+        )
+        if returned_id != witness_id:
+            errors[witness_id] = "Rekor witness identity mismatch"
+            continue
+        responses.append(response)
+        responses_by_id[witness_id] = response
+
+    result = evaluate_rekor_witness_quorum(
+        responses,
+        public_keys=public_keys,
+        threshold=threshold,
+        expected_log_id=log_id,
+        expected_origin=origin,
+        expected_tree_size=tree_size,
+        expected_root_hash=root_hash,
+    )
+    result["errors"] = errors
+
+    if store is not None:
+        valid_ids = set(result["valid_witnesses"])
+        rejected_ids = set(result["rejected_witnesses"])
+        conflicting_ids = set(result["conflicting_witnesses"])
+        for witness_id, response in responses_by_id.items():
+            if witness_id in valid_ids:
+                verdict = "valid"
+            elif witness_id in conflicting_ids:
+                verdict = "conflicting"
+            elif witness_id in rejected_ids:
+                verdict = "rejected"
+            else:
+                verdict = "rejected"
+            store.record(response=response, verdict=verdict)
+
+    return result
