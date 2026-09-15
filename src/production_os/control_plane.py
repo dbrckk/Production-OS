@@ -360,6 +360,23 @@ def make_handler(control: ControlPlane):
                         )
                         return
 
+            if parsed.path == "/v1/trust-status":
+                query = parse_qs(parsed.query)
+                result = control.releases.trust_status(
+                    validator_id=(query.get("validator_id") or [None])[0],
+                    builder_id=(query.get("builder_id") or [None])[0],
+                    key_id=(query.get("key_id") or [None])[0],
+                )
+                self._send(
+                    HTTPStatus.OK,
+                    {
+                        "schema_version":
+                            "production-os/trust-status/v1",
+                        **result,
+                    },
+                )
+                return
+
             if parsed.path == "/v1/transparency":
                 self._send(
                     HTTPStatus.OK,
