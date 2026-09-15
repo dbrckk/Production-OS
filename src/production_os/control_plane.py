@@ -34,6 +34,7 @@ class ControlPlane:
         trusted_validation_public_keys: dict[str, str] | None = None,
         provenance_private_key: str | None = None,
         provenance_public_key: str | None = None,
+        validation_signature_policy: str = "compatible",
     ):
         self.backend = open_backend(database)
         self.queue = job_queue_for(self.backend)
@@ -52,6 +53,7 @@ class ControlPlane:
             ),
             provenance_private_key=provenance_private_key,
             provenance_public_key=provenance_public_key,
+            validation_signature_policy=validation_signature_policy,
         )
         self.authorizer = authorizer
         self.github_webhook_secret = github_webhook_secret
@@ -1347,6 +1349,7 @@ def serve_control_plane(
     trusted_validation_public_keys: dict[str, str] | None = None,
     provenance_private_key: str | None = None,
     provenance_public_key: str | None = None,
+    validation_signature_policy: str = "compatible",
 ) -> None:
     control = ControlPlane(
         database,
