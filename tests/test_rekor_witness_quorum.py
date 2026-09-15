@@ -6,7 +6,9 @@ from production_os.rekor_witness_quorum import (
     REKOR_WITNESS_SCHEMA,
     RekorWitnessClient,
     RekorWitnessObservationStore,
+    collect_rekor_witness_quorum,
     evaluate_rekor_witness_quorum,
+    load_rekor_witness_config,
 )
 
 
@@ -193,3 +195,96 @@ def test_witness_observation_store_persists_signed_audit_record(tmp_path):
     assert len(rows) == 1
     assert rows[0]["root_hash"] == "b" * 64
     assert rows[0]["response"] == response
+
+
+def test_load_witness_config_resolves_relative_public_key_paths(tmp_path):
+    _, public1 = generate_keypair()
+    _, public2 = generate_keypair()
+    (tmp_path / "w1.pub.pem").write_text(public1, encoding="ascii")
+    (tmp_path / "w2.pub.pem").write_text(public2, encoding="ascii")
+    config_path = tmp_path / "witnesses.json"
+    config_path.write_text(
+        json.dumps(
+            {
+                "threshold": 2,
+                "witnesses": [
+                    {
+                        "id": "w1",
+                        "url": "https://w1.example/observe",
+                        "public_key_path": "w1.pub.pem",
+                    },
+                    {
+                        "id": "w2",
+                        "url": "https://w2.example/observe",
+                        "public_key_path": "w2.pub.pem",
+                    },
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    config = load_rekor_witness_config(config_path)
+
+    assert config["threshold"] == 2
+    assert [item["id"] for item in config["witnesses"]] == ["w1", "w2"]
+    assert config["witnesses"][0]["public_key"] == public1
+    assert config["witnesses"][1]["public_key"] == public2
+
+
+def test_collect_witness_quorum_queries_all_witnesses_and_persists_verdicts(
+    tmp_path, monkeypatch
+):
+    private1, public1 = generate_keypair()
+    private2, public2 = generate_keypair()
+    signed = {
+        "https://w1.example/observe": _signed_observation("w1", private1),
+        "https://w2.example/observe": _signed_observation("w2", private2),
+    }
+
+    def fake_observe(self, **kwargs):
+        assert kwargs == {
+            "log_id": "a" * 64,
+            "origin": "rekor.example - 42",
+            "tree_size": 17,
+            "root_hash": "b" * 64,
+        }
+        return signed[self.url]
+
+    monkeypatch.setattr(RekorWitnessClient, "observe", fake_observe)
+    store = RekorWitnessObservationStore(
+        SQLiteBackend(tmp_path / "state.db")
+    )
+    config = {
+        "threshold": 2,
+        "witnesses": [
+            {
+                "id": "w1",
+                "url": "https://w1.example/observe",
+                "public_key": public1,
+            },
+            {
+                "id": "w2",
+                "url": "https://w2.example/observe",
+                "public_key": public2,
+            },
+        ],
+    }
+
+    result = collect_rekor_witness_quorum(
+        config,
+        log_id="a" * 64,
+        origin="rekor.example - 42",
+        tree_size=17,
+        root_hash="b" * 64,
+        store=store,
+    )
+
+    assert result["valid"] is True
+    assert result["valid_witnesses"] == ["w1", "w2"]
+    rows = store.list_for_tree(
+        log_id="a" * 64,
+        origin="rekor.example - 42",
+        tree_size=17,
+    )
+    assert [row["verdict"] for row in rows] == ["valid", "valid"]
