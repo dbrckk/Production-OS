@@ -4,7 +4,7 @@ import hashlib
 import json
 
 from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives.asymmetric import ec, utils
 
 from production_os import cli
 from production_os.signing import generate_keypair
@@ -23,10 +23,11 @@ def _signed_rekor_receipt(envelope):
         serialization.Encoding.PEM,
         serialization.PublicFormat.SubjectPublicKeyInfo,
     ).decode("ascii")
-    log_id = hashlib.sha256(log_public.public_bytes(
+    log_public_der = log_public.public_bytes(
         serialization.Encoding.DER,
         serialization.PublicFormat.SubjectPublicKeyInfo,
-    )).hexdigest()
+    )
+    log_id = hashlib.sha256(log_public_der).hexdigest()
 
     proposed = build_rekor_v1_hashedrekord(
         envelope,
@@ -44,6 +45,22 @@ def _signed_rekor_receipt(envelope):
         "integratedTime": 1_789_490_000,
         "body": base64.b64encode(body).decode("ascii"),
     }
+    root_hash = hashlib.sha256(b"\x00" + body).hexdigest()
+    note = (
+        "rekor.example - 1\n"
+        "1\n"
+        f"{base64.b64encode(bytes.fromhex(root_hash)).decode('ascii')}\n"
+    )
+    key_hint = hashlib.sha256(log_public_der).digest()[:4]
+    note_digest = hashlib.sha256(note.encode("utf-8")).digest()
+    checkpoint_signature = log_private.sign(
+        note_digest,
+        ec.ECDSA(utils.Prehashed(hashes.SHA256())),
+    )
+    checkpoint = (
+        f"{note}\n— rekor.example "
+        f"{base64.b64encode(key_hint + checkpoint_signature).decode('ascii')}\n"
+    )
     canonical = json.dumps(
         entry,
         sort_keys=True,
@@ -57,10 +74,10 @@ def _signed_rekor_receipt(envelope):
     entry["verification"] = {
         "inclusionProof": {
             "logIndex": 0,
-            "rootHash": hashlib.sha256(b"\x00" + body).hexdigest(),
+            "rootHash": root_hash,
             "treeSize": 1,
             "hashes": [],
-            "checkpoint": "rekor.example\n1\nroot\n\n— rekor.example signature\n",
+            "checkpoint": checkpoint,
         },
         "signedEntryTimestamp": base64.b64encode(
             set_signature
