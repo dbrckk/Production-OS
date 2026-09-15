@@ -8,6 +8,7 @@ from .builder_identity import (
     BuilderIdentityError,
     BuilderTrustPolicy,
 )
+from .signers import PemSigner, Signer
 from .signing import sign_payload, verify_payload
 
 
@@ -205,3 +206,23 @@ def verify_trusted_slsa_statement(
         public_key_pem=public_key,
         expected_sha256=expected_sha256,
     )
+
+
+
+def sign_slsa_statement_with_signer(
+    *,
+    statement: dict[str, Any],
+    signer: Signer,
+) -> dict[str, Any]:
+    return {
+        "schema_version":
+            "production-os/signed-slsa-provenance/v1",
+        "statement":statement,
+        "signature":signer.sign(statement),
+        "signed_at":(
+            statement.get("predicate", {})
+            .get("runDetails", {})
+            .get("metadata", {})
+            .get("finishedOn")
+        ),
+    }
