@@ -4,6 +4,10 @@ import hashlib
 import json
 from typing import Any
 
+from .builder_identity import (
+    BuilderIdentityError,
+    BuilderTrustPolicy,
+)
 from .signing import sign_payload, verify_payload
 
 
@@ -104,6 +108,12 @@ def sign_slsa_statement(
             "production-os/signed-slsa-provenance/v1",
         "statement":statement,
         "signature":sign_payload(private_key_pem, statement),
+        "signed_at":(
+            statement.get("predicate", {})
+            .get("runDetails", {})
+            .get("metadata", {})
+            .get("finishedOn")
+        ),
     }
 
 
@@ -151,3 +161,47 @@ def statement_digest(statement: dict[str, Any]) -> str:
         ensure_ascii=False,
     ).encode("utf-8")
     return hashlib.sha256(encoded).hexdigest()
+
+
+
+def verify_trusted_slsa_statement(
+    envelope: dict[str, Any],
+    *,
+    builder_policy: BuilderTrustPolicy,
+    expected_repository: str,
+    expected_sha256: str | None = None,
+) -> bool:
+    statement = envelope.get("statement")
+    signature = envelope.get("signature")
+    signed_at = str(envelope.get("signed_at") or "")
+    if not isinstance(statement, dict) or not isinstance(
+        signature, dict
+    ):
+        return False
+    predicate = dict(statement.get("predicate") or {})
+    run_details = dict(predicate.get("runDetails") or {})
+    builder = dict(run_details.get("builder") or {})
+    builder_id = str(builder.get("id") or "")
+    build_definition = dict(
+        predicate.get("buildDefinition") or {}
+    )
+    external = dict(
+        build_definition.get("externalParameters") or {}
+    )
+    repository = str(external.get("repository") or "")
+    if repository != expected_repository or not signed_at:
+        return False
+    try:
+        public_key = builder_policy.resolve(
+            builder_id=builder_id,
+            key_id=str(signature.get("key_id") or ""),
+            repository=repository,
+            signed_at=signed_at,
+        )
+    except (BuilderIdentityError, ValueError):
+        return False
+    return verify_signed_slsa_statement(
+        envelope,
+        public_key_pem=public_key,
+        expected_sha256=expected_sha256,
+    )
