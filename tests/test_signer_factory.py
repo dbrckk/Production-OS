@@ -38,3 +38,20 @@ def test_remote_signer_exposes_configured_public_identity():
     )
     assert isinstance(signer,RemoteHttpSigner)
     assert signer.key_id=="sha256:abc"
+
+
+def test_remote_signer_rejects_non_https_endpoint_shape():
+    with pytest.raises(SignerConfigurationError,match="HTTP"):
+        RemoteHttpSigner(
+            endpoint="unix:///signer.sock",
+            signing_key_id="sha256:abc",
+        )
+
+
+def test_pem_factory_fails_closed_without_key_material():
+    with pytest.raises(
+        SignerConfigurationError,
+        match="private key material",
+    ):
+        create_signer("pem:")
+
