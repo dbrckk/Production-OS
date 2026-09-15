@@ -595,6 +595,15 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     validationattest.add_argument("--output")
 
+    truststatus = sub.add_parser(
+        "trust-status",
+        help="Analyze release trust blast radius using current trust policy",
+    )
+    truststatus.add_argument("--database", required=True)
+    truststatus.add_argument("--validator-id")
+    truststatus.add_argument("--builder-id")
+    truststatus.add_argument("--key-id")
+
     releaseverify = sub.add_parser(
         "release-verify",
         help="Verify the signed provenance stored on a release",
@@ -2172,6 +2181,19 @@ def run_validation_attest(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_trust_status(args: argparse.Namespace) -> int:
+    result = _release_ledger(args.database).trust_status(
+        validator_id=args.validator_id,
+        builder_id=args.builder_id,
+        key_id=args.key_id,
+    )
+    print(json.dumps({
+        "schema_version": "production-os/trust-status/v1",
+        **result,
+    }, ensure_ascii=False, sort_keys=True))
+    return 0 if result["valid"] else 2
+
+
 def run_release_verify(args: argparse.Namespace) -> int:
     result = _release_ledger(
         args.database,
@@ -2367,6 +2389,8 @@ def main(argv: list[str] | None = None) -> int:
         return run_provenance_verify_v2(args)
     if args.command == "validation-attest":
         return run_validation_attest(args)
+    if args.command == "trust-status":
+        return run_trust_status(args)
     if args.command == "release-verify":
         return run_release_verify(args)
     if args.command == "release-promote":
