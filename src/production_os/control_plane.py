@@ -360,6 +360,35 @@ def make_handler(control: ControlPlane):
                         )
                         return
 
+            if parsed.path == "/v1/incident-history/verify":
+                self._send(
+                    HTTPStatus.OK,
+                    {
+                        "schema_version":
+                            "production-os/trust-incident-history-verification/v1",
+                        **control.releases.verify_incident_history(),
+                    },
+                )
+                return
+
+            if parsed.path == "/v1/incident-history":
+                query = parse_qs(parsed.query)
+                incident_id = (
+                    query.get("incident_id") or [None]
+                )[0]
+                self._send(
+                    HTTPStatus.OK,
+                    {
+                        "schema_version":
+                            "production-os/trust-incident-history/v1",
+                        "incident_id": incident_id,
+                        "entries": control.releases.incident_history(
+                            incident_id=incident_id
+                        ),
+                    },
+                )
+                return
+
             if parsed.path == "/v1/incident-report":
                 query = parse_qs(parsed.query)
                 report = control.releases.incident_report(
