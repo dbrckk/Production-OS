@@ -53,5 +53,20 @@ jobs:
       - name: Production E2E
         run: pytest -q -m e2e
 
+      - name: Build distribution
+        run: python -m build
+
+      - name: Verify wheel install
+        run: |
+          python -m venv /tmp/production-os-wheel
+          /tmp/production-os-wheel/bin/python -m pip install --upgrade pip
+          /tmp/production-os-wheel/bin/python -m pip install dist/*.whl
+          /tmp/production-os-wheel/bin/production-os --help
+
+      - name: Docker image smoke test
+        run: |
+          docker build -t production-os:ci .
+          docker run --rm production-os:ci --help
+
       - name: CLI smoke test
         run: production-os --help
