@@ -383,6 +383,46 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Accepted validation signature migration stage",
     )
 
+    controlplane.add_argument(
+        "--builder-id",
+        default=os.getenv(
+            "PRODUCTION_OS_BUILDER_ID",
+            "https://production-os.local/builder",
+        ),
+    )
+    controlplane.add_argument(
+        "--builder-private-key-env",
+        default="PRODUCTION_OS_BUILDER_PRIVATE_KEY",
+    )
+    controlplane.add_argument(
+        "--builder-signer-uri",
+        default=os.getenv("PRODUCTION_OS_BUILDER_SIGNER_URI", ""),
+    )
+    controlplane.add_argument(
+        "--builder-signer-key-id",
+        default=os.getenv("PRODUCTION_OS_BUILDER_SIGNER_KEY_ID", ""),
+    )
+    controlplane.add_argument(
+        "--builder-signer-token-env",
+        default="PRODUCTION_OS_BUILDER_SIGNER_TOKEN",
+    )
+    controlplane.add_argument(
+        "--trusted-builders-env",
+        default="PRODUCTION_OS_TRUSTED_BUILDERS",
+    )
+    controlplane.add_argument(
+        "--trusted-builder-keys-env",
+        default="PRODUCTION_OS_TRUSTED_BUILDER_KEYS",
+    )
+    controlplane.add_argument(
+        "--require-trusted-builder",
+        action="store_true",
+        default=os.getenv(
+            "PRODUCTION_OS_REQUIRE_TRUSTED_BUILDER",
+            "",
+        ).lower() in {"1", "true", "yes"},
+    )
+
     remotepoll = sub.add_parser("remote-worker-poll", help="Poll the P8 control plane for remote jobs")
     remotepoll.add_argument("--url", required=True)
     remotepoll.add_argument("--token", required=True)
@@ -2337,44 +2377,4 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())    controlplane.add_argument(
-        "--builder-id",
-        default=os.getenv(
-            "PRODUCTION_OS_BUILDER_ID",
-            "https://production-os.local/builder",
-        ),
-    )
-    controlplane.add_argument(
-        "--builder-private-key-env",
-        default="PRODUCTION_OS_BUILDER_PRIVATE_KEY",
-    )
-    controlplane.add_argument(
-        "--builder-signer-uri",
-        default=os.getenv("PRODUCTION_OS_BUILDER_SIGNER_URI", ""),
-    )
-    controlplane.add_argument(
-        "--builder-signer-key-id",
-        default=os.getenv("PRODUCTION_OS_BUILDER_SIGNER_KEY_ID", ""),
-    )
-    controlplane.add_argument(
-        "--builder-signer-token-env",
-        default="PRODUCTION_OS_BUILDER_SIGNER_TOKEN",
-    )
-    controlplane.add_argument(
-        "--trusted-builders-env",
-        default="PRODUCTION_OS_TRUSTED_BUILDERS",
-    )
-    controlplane.add_argument(
-        "--trusted-builder-keys-env",
-        default="PRODUCTION_OS_TRUSTED_BUILDER_KEYS",
-    )
-    controlplane.add_argument(
-        "--require-trusted-builder",
-        action="store_true",
-        default=os.getenv(
-            "PRODUCTION_OS_REQUIRE_TRUSTED_BUILDER",
-            "",
-        ).lower() in {"1", "true", "yes"},
-    )
-
-
+    raise SystemExit(main())
