@@ -2959,3 +2959,38 @@ All terminal failures remain fail-closed: Production-OS does not create a substi
 Plain HTTP can only be enabled explicitly through the Python signer configuration and is intended for isolated development environments.
 
 Remote response validation still requires Ed25519, the exact configured key ID, and a non-empty signature.
+
+### Vault Transit signer
+
+Production-OS now has a native HashiCorp Vault Transit signing backend behind the existing Signer interface.
+
+Signer URI:
+
+    vault+https://vault.example/keys/<transit-key>
+
+Required configuration:
+
+    key_id
+    Vault token
+
+Optional controls:
+
+    Vault namespace
+    custom Transit mount
+    custom CA
+    mTLS client certificate/key
+    request timeout
+
+The signer canonicalizes the Production-OS payload, base64-encodes it, and asks Vault Transit to sign with Ed25519. Production-OS never receives the Transit private key.
+
+The returned Vault signature is validated structurally and normalized to the common Signer response while preserving the original provider signature for audit metadata.
+
+Example factory configuration:
+
+    create_signer(
+        "vault+https://vault.example/keys/production-builder",
+        key_id="sha256:<public-key-fingerprint>",
+        vault_token="<token>",
+    )
+
+The same backend can be supplied as builder_signer, provenance_signer or witness_signer, while TrustPolicy continues to enforce distinct key IDs between those domains.
