@@ -2865,3 +2865,40 @@ TrustPolicy can evaluate signer key IDs directly, so domain separation remains e
 PEM configuration remains supported through automatic PemSigner wrapping.
 
 This completes the core abstraction needed to move builder and release-provenance private keys out of process. Witness already exposes the same signing boundary; the remaining deployment work is adding concrete remote signer providers and configuration/factory support.
+
+### Remote signer factory
+
+Production-OS now includes a fail-closed Signer factory.
+
+Supported signer URIs:
+
+    pem:
+        local compatibility backend
+
+    remote+https://host/path
+        generic remote Ed25519 signing service
+
+Remote signing requests contain only:
+
+    key_id
+    canonical payload object
+
+The configured private key never needs to enter the Production-OS process.
+
+Remote signer responses must contain:
+
+    algorithm = ed25519
+    matching key_id
+    signature
+
+Algorithm mismatch, key-ID mismatch, malformed JSON, network errors and timeouts fail closed.
+
+Builder configuration:
+
+    PRODUCTION_OS_BUILDER_SIGNER_URI=remote+https://signer.example/sign
+    PRODUCTION_OS_BUILDER_SIGNER_KEY_ID=sha256:<fingerprint>
+    PRODUCTION_OS_BUILDER_SIGNER_TOKEN=<secret>
+
+The existing PRODUCTION_OS_BUILDER_PRIVATE_KEY remains available for the local PemSigner migration path.
+
+The generic remote backend is intentionally provider-neutral. Future KMS, Vault Transit and PKCS#11 adapters can be registered behind the same factory without changing ReleaseLedger.
