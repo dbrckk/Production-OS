@@ -125,3 +125,51 @@ def test_trust_status_endpoint_requires_auth_and_forwards_filters(tmp_path):
     finally:
         server.shutdown()
         server.server_close()
+
+
+def test_incident_history_endpoints_require_auth_and_forward_filter(tmp_path):
+    auth=TokenAuthorizer([
+        {"name":"viewer","role":"viewer","sha256":token_digest("viewer")},
+    ])
+    control=ControlPlane(str(tmp_path/"db.sqlite"),authorizer=auth)
+    captured={}
+    control.releases.incident_history=lambda incident_id=None: (
+        captured.update({"incident_id":incident_id}) or
+        [{"sequence":1,"incident_id":incident_id or "trust-one"}]
+    )
+    control.releases.verify_incident_history=lambda: {
+        "valid":True,"entries":1,"head_hash":"abc"
+    }
+    server=ThreadingHTTPServer(("127.0.0.1",0),make_handler(control))
+    thread=threading.Thread(target=server.serve_forever,daemon=True)
+    thread.start()
+    base=f"http://127.0.0.1:{server.server_port}"
+    try:
+        status,body=request(
+            base+"/v1/incident-history?incident_id=trust-one","viewer"
+        )
+        assert status==200
+        assert body["schema_version"]==(
+            "production-os/trust-incident-history/v1"
+        )
+        assert captured["incident_id"]=="trust-one"
+        assert body["entries"][0]["sequence"]==1
+
+        status,body=request(base+"/v1/incident-history/verify","viewer")
+        assert status==200
+        assert body["schema_version"]==(
+            "production-os/trust-incident-history-verification/v1"
+        )
+        assert body["valid"] is True
+        assert body["head_hash"]=="abc"
+
+        for path in ("/v1/incident-history","/v1/incident-history/verify"):
+            req=urllib.request.Request(base+path,method="GET")
+            try:
+                urllib.request.urlopen(req,timeout=3)
+                assert False, "unauthenticated incident history must fail"
+            except urllib.error.HTTPError as exc:
+                assert exc.code==401
+    finally:
+        server.shutdown()
+        server.server_close()
