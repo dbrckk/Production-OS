@@ -263,3 +263,46 @@ def test_incident_snapshot_requires_operator_and_reports_dedup(tmp_path):
     finally:
         server.shutdown()
         server.server_close()
+
+
+def test_incident_snapshot_rejects_invalid_payload_shapes(tmp_path):
+    auth=TokenAuthorizer([
+        {"name":"operator","role":"operator","sha256":token_digest("operator")},
+    ])
+    control=ControlPlane(str(tmp_path/"db.sqlite"),authorizer=auth)
+    calls=[]
+    control.releases.record_incident_report=lambda **kwargs: calls.append(kwargs)
+    server=ThreadingHTTPServer(("127.0.0.1",0),make_handler(control))
+    thread=threading.Thread(target=server.serve_forever,daemon=True)
+    thread.start()
+    base=f"http://127.0.0.1:{server.server_port}"
+
+    def post(payload):
+        req=urllib.request.Request(
+            base+"/v1/incident-snapshot",
+            data=json.dumps(payload).encode(),
+            headers={
+                "Authorization":"Bearer operator",
+                "Content-Type":"application/json",
+            },
+            method="POST",
+        )
+        try:
+            urllib.request.urlopen(req,timeout=3)
+            assert False, "invalid payload must fail"
+        except urllib.error.HTTPError as exc:
+            assert exc.code==400
+            return json.loads(exc.read())
+
+    try:
+        assert "JSON object" in post([])["error"]
+        body=post({"unexpected":"value"})
+        assert body["error"]=="unknown incident snapshot fields"
+        assert body["fields"]==["unexpected"]
+        assert "non-empty string" in post({"key_id":42})["error"]
+        assert "non-empty string" in post({"validator_id":"   "})["error"]
+        assert "too long" in post({"builder_id":"x"*513})["error"]
+        assert calls==[]
+    finally:
+        server.shutdown()
+        server.server_close()
