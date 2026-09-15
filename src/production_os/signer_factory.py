@@ -8,6 +8,7 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 from .signers import PemSigner, Signer
+from .vault_signer import VaultTransitSigner
 
 
 class SignerConfigurationError(ValueError):
@@ -164,6 +165,9 @@ def create_signer(
     ca_file: str | None = None,
     client_cert_file: str | None = None,
     client_key_file: str | None = None,
+    vault_token: str | None = None,
+    vault_namespace: str | None = None,
+    vault_mount: str = "transit",
 ) -> Signer:
     value=str(uri or "").strip()
     if value == "pem:":
@@ -172,6 +176,30 @@ def create_signer(
                 "pem signer requires private key material"
             )
         return PemSigner(pem_value)
+    if value.startswith("vault+https://"):
+        target=value.removeprefix("vault+")
+        marker="/keys/"
+        if marker not in target:
+            raise SignerConfigurationError(
+                "Vault signer URI must end with /keys/<transit-key>"
+            )
+        address,key_name=target.rsplit(marker,1)
+        if not key_name:
+            raise SignerConfigurationError(
+                "Vault transit key is required"
+            )
+        return VaultTransitSigner(
+            address=address,
+            transit_key=key_name,
+            signing_key_id=str(key_id or ""),
+            token=str(vault_token or bearer_token or ""),
+            mount=vault_mount,
+            namespace=vault_namespace,
+            timeout_seconds=timeout_seconds,
+            ca_file=ca_file,
+            client_cert_file=client_cert_file,
+            client_key_file=client_key_file,
+        )
     if value.startswith("remote+https://") or value.startswith(
         "remote+http://"
     ):
