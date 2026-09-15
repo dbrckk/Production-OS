@@ -510,6 +510,12 @@ def make_handler(control: ControlPlane):
                     return
                 try:
                     raw = self._read_body()
+                except RequestBodyTooLarge as exc:
+                    self._send(
+                        HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+                        {"error":str(exc)},
+                    )
+                    return
                 except ValueError as exc:
                     self._send(
                         HTTPStatus.BAD_REQUEST,
@@ -681,7 +687,13 @@ def make_handler(control: ControlPlane):
 
             try:
                 body = self._read_json()
-            except (ValueError, json.JSONDecodeError) as exc:
+            except RequestBodyTooLarge as exc:
+                self._send(
+                    HTTPStatus.REQUEST_ENTITY_TOO_LARGE,
+                    {"error":str(exc)},
+                )
+                return
+            except ValueError as exc:
                 self._send(
                     HTTPStatus.BAD_REQUEST,
                     {"error":str(exc)},
