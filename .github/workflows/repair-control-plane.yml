@@ -14,9 +14,96 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Harden HTTP method handling and server fingerprint
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("src/production_os/control_plane.py")
+          text = path.read_text()
+
+          old_version = '        server_version = "ProductionOS/0.8"\n'
+          new_version = '''        server_version = "ProductionOS"
+
+        def version_string(self) -> str:
+            return self.server_version
+'''
+          if old_version not in text:
+              raise SystemExit("server version marker not found")
+          text = text.replace(old_version, new_version, 1)
+
+          old_signature = '''        def _send(
+            self,
+            status: int,
+            payload: dict | list,
+        ) -> None:
+'''
+          new_signature = '''        def _send(
+            self,
+            status: int,
+            payload: dict | list,
+            *,
+            headers: dict[str, str] | None = None,
+        ) -> None:
+'''
+          if old_signature not in text:
+              raise SystemExit("_send signature marker not found")
+          text = text.replace(old_signature, new_signature, 1)
+
+          old_headers = '''            self.send_header("X-Frame-Options", "DENY")
+            self.send_header("Referrer-Policy", "no-referrer")
+            self.end_headers()
+            try:
+                self.wfile.write(body)
+            except (BrokenPipeError, ConnectionResetError):
+                return
+
+        def _read_body(self) -> bytes:
+'''
+          new_headers = '''            self.send_header("X-Frame-Options", "DENY")
+            self.send_header("Referrer-Policy", "no-referrer")
+            if headers:
+                for name, value in headers.items():
+                    self.send_header(name, value)
+            self.end_headers()
+            try:
+                self.wfile.write(body)
+            except (BrokenPipeError, ConnectionResetError):
+                return
+
+        def _method_not_allowed(self) -> None:
+            self._send(
+                HTTPStatus.METHOD_NOT_ALLOWED,
+                {"error": "method not allowed"},
+                headers={"Allow": "GET, POST"},
+            )
+
+        def do_PUT(self) -> None:
+            self._method_not_allowed()
+
+        def do_PATCH(self) -> None:
+            self._method_not_allowed()
+
+        def do_DELETE(self) -> None:
+            self._method_not_allowed()
+
+        def _read_body(self) -> bytes:
+'''
+          if old_headers not in text:
+              raise SystemExit("JSON response tail marker not found")
+          text = text.replace(old_headers, new_headers, 1)
+          path.write_text(text)
+          PY
       - name: Compile check
         run: python -m compileall -q src
       - name: Install test dependencies
         run: python -m pip install -e ".[dev]"
-      - name: Verify HTTP hardening tests are RED
+      - name: Verify HTTP hardening tests are GREEN
         run: pytest -q tests/test_http_security_headers.py
+      - name: Commit HTTP hardening
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/production_os/control_plane.py
+          git diff --cached --quiet || git commit -m "fix(api): return 405 and minimize server fingerprint"
+          git push
