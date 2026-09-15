@@ -352,3 +352,61 @@ def test_http_body_parser_rejects_invalid_json_and_oversized_payload(tmp_path):
     finally:
         server.shutdown()
         server.server_close()
+
+
+def test_github_webhook_returns_413_for_oversized_body(tmp_path):
+    control=ControlPlane(
+        str(tmp_path/"db.sqlite"),
+        github_webhook_secret="secret",
+    )
+    server=ThreadingHTTPServer(("127.0.0.1",0),make_handler(control))
+    thread=threading.Thread(target=server.serve_forever,daemon=True)
+    thread.start()
+    try:
+        req=urllib.request.Request(
+            f"http://127.0.0.1:{server.server_port}/v1/github/webhook",
+            data=b"x"*(1024*1024+1),
+            headers={
+                "Content-Type":"application/json",
+                "X-Hub-Signature-256":"sha256=invalid",
+            },
+            method="POST",
+        )
+        try:
+            urllib.request.urlopen(req,timeout=3)
+            assert False, "oversized webhook must fail"
+        except urllib.error.HTTPError as exc:
+            assert exc.code==413
+            assert json.loads(exc.read())["error"]=="request body too large"
+    finally:
+        server.shutdown()
+        server.server_close()
+
+
+def test_generic_post_returns_413_before_endpoint_processing(tmp_path):
+    auth=TokenAuthorizer([
+        {"name":"operator","role":"operator","sha256":token_digest("operator")},
+    ])
+    control=ControlPlane(str(tmp_path/"db.sqlite"),authorizer=auth)
+    server=ThreadingHTTPServer(("127.0.0.1",0),make_handler(control))
+    thread=threading.Thread(target=server.serve_forever,daemon=True)
+    thread.start()
+    try:
+        req=urllib.request.Request(
+            f"http://127.0.0.1:{server.server_port}/v1/stragglers/speculate",
+            data=b"x"*(1024*1024+1),
+            headers={
+                "Authorization":"Bearer operator",
+                "Content-Type":"application/json",
+            },
+            method="POST",
+        )
+        try:
+            urllib.request.urlopen(req,timeout=3)
+            assert False, "oversized generic POST must fail"
+        except urllib.error.HTTPError as exc:
+            assert exc.code==413
+            assert json.loads(exc.read())["error"]=="request body too large"
+    finally:
+        server.shutdown()
+        server.server_close()
