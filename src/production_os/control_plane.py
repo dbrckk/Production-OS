@@ -164,15 +164,25 @@ def make_handler(control: ControlPlane):
                 length = int(raw_length)
             except ValueError as exc:
                 raise ValueError("invalid Content-Length") from exc
-            if length < 0 or length > 1024 * 1024:
+            if length < 0:
+                raise ValueError("invalid Content-Length")
+            if length > 1024 * 1024:
                 raise ValueError("request body too large")
-            return self.rfile.read(length) if length else b""
+            if not length:
+                return b""
+            body = self.rfile.read(length)
+            if len(body) != length:
+                raise ValueError("truncated request body")
+            return body
 
         def _read_json(self) -> dict:
             raw = self._read_body()
             if not raw:
                 return {}
-            payload = json.loads(raw.decode("utf-8"))
+            try:
+                payload = json.loads(raw.decode("utf-8"))
+            except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+                raise ValueError("invalid JSON body") from exc
             if not isinstance(payload, dict):
                 raise ValueError("JSON body must be an object")
             return payload
