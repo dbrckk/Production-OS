@@ -22,70 +22,72 @@ jobs:
           path = Path("src/production_os/control_plane.py")
           text = path.read_text()
           start_marker = '                if parsed.path == "/v1/incident-snapshot":\n'
-          release_markers = (
+          release_candidates = [
               '            if parsed.path.startswith("/v1/releases/"):\n',
               '                if parsed.path.startswith("/v1/releases/"):\n',
-          )
+          ]
           start = text.index(start_marker)
           end = min(
               text.index(marker, start + len(start_marker))
-              for marker in release_markers
+              for marker in release_candidates
               if marker in text[start + len(start_marker):]
           )
-          block = '''                if parsed.path == "/v1/incident-snapshot":
-                    principal = self._require("operator")
-                    if principal is None:
-                        return
-                    allowed = {"validator_id", "builder_id", "key_id"}
-                    unknown = sorted(set(body) - allowed)
-                    if unknown:
-                        self._send(
-                            HTTPStatus.BAD_REQUEST,
-                            {
-                                "error": "unknown incident snapshot fields",
-                                "fields": unknown,
-                            },
-                        )
-                        return
-                    filters = {}
-                    for name in allowed:
-                        value = body.get(name)
-                        if value is None:
-                            filters[name] = None
-                            continue
-                        if not isinstance(value, str) or not value.strip():
-                            self._send(
-                                HTTPStatus.BAD_REQUEST,
-                                {
-                                    "error":
-                                        f"{name} must be a non-empty string",
-                                },
-                            )
-                            return
-                        if len(value) > 512:
-                            self._send(
-                                HTTPStatus.BAD_REQUEST,
-                                {"error": f"{name} is too long"},
-                            )
-                            return
-                        filters[name] = value.strip()
-                    result = control.releases.record_incident_report(
-                        validator_id=filters["validator_id"],
-                        builder_id=filters["builder_id"],
-                        key_id=filters["key_id"],
-                    )
-                    self._send(
-                        HTTPStatus.CREATED if result["recorded"]
-                        else HTTPStatus.OK,
-                        {
-                            "schema_version":
-                                "production-os/trust-incident-snapshot/v1",
-                            **result,
-                        },
-                    )
-                    return
-
-'''
+          block_lines = [
+              '                if parsed.path == "/v1/incident-snapshot":',
+              '                    principal = self._require("operator")',
+              '                    if principal is None:',
+              '                        return',
+              '                    allowed = {"validator_id", "builder_id", "key_id"}',
+              '                    unknown = sorted(set(body) - allowed)',
+              '                    if unknown:',
+              '                        self._send(',
+              '                            HTTPStatus.BAD_REQUEST,',
+              '                            {',
+              '                                "error": "unknown incident snapshot fields",',
+              '                                "fields": unknown,',
+              '                            },',
+              '                        )',
+              '                        return',
+              '                    filters = {}',
+              '                    for name in allowed:',
+              '                        value = body.get(name)',
+              '                        if value is None:',
+              '                            filters[name] = None',
+              '                            continue',
+              '                        if not isinstance(value, str) or not value.strip():',
+              '                            self._send(',
+              '                                HTTPStatus.BAD_REQUEST,',
+              '                                {',
+              '                                    "error":',
+              '                                        f"{name} must be a non-empty string",',
+              '                                },',
+              '                            )',
+              '                            return',
+              '                        if len(value) > 512:',
+              '                            self._send(',
+              '                                HTTPStatus.BAD_REQUEST,',
+              '                                {"error": f"{name} is too long"},',
+              '                            )',
+              '                            return',
+              '                        filters[name] = value.strip()',
+              '                    result = control.releases.record_incident_report(',
+              '                        validator_id=filters["validator_id"],',
+              '                        builder_id=filters["builder_id"],',
+              '                        key_id=filters["key_id"],',
+              '                    )',
+              '                    self._send(',
+              '                        HTTPStatus.CREATED if result["recorded"]',
+              '                        else HTTPStatus.OK,',
+              '                        {',
+              '                            "schema_version":',
+              '                                "production-os/trust-incident-snapshot/v1",',
+              '                            **result,',
+              '                        },',
+              '                    )',
+              '                    return',
+              '',
+          ]
+          block = "\n".join(block_lines) + "\n"
           text = text[:start] + block + text[end:]
           text = text.replace(
               '\n            if parsed.path.startswith("/v1/releases/"):\n',
