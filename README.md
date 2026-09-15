@@ -2341,3 +2341,78 @@ The example Docker, PostgreSQL and TLS compose configurations pass both variable
 - [ ] asymmetric signing / offline public-key verification
 - [ ] key rotation metadata and key IDs
 - [ ] external transparency-log anchoring
+
+## P16 asymmetric signing and offline verification
+
+P16 introduces Ed25519 public-key signatures alongside the P15 HMAC compatibility path.
+
+The security boundary changes from:
+
+    shared secret -> sign + verify
+
+to:
+
+    private key -> sign
+    public key  -> verify
+
+This allows validators and external auditors to verify evidence without receiving a signing secret.
+
+### Generate a signing key pair
+
+    production-os signing-keygen \
+      --private-key validator-private.pem \
+      --public-key validator-public.pem
+
+Private keys must remain restricted to the signer. Public keys may be distributed to control planes and auditors.
+
+### Ed25519 validation attestation
+
+    production-os validation-attest-v2 \
+      --database artifacts/production.db \
+      --workflow-id <workflow-id> \
+      --artifact-id <artifact-id> \
+      --validation validation-summary.json \
+      --validator-id validator-1 \
+      --private-key validator-private.pem \
+      --output validation-attestation-v2.json
+
+The v2 signature envelope contains:
+
+    algorithm = ed25519
+    key_id = sha256:<public-key-digest>
+    signature = base64(...)
+
+The key ID makes future key rotation and historical verification deterministic.
+
+### Offline provenance verification
+
+A v2 provenance envelope can be verified with only its public key:
+
+    production-os provenance-verify-v2 \
+      --provenance release-provenance-v2.json \
+      --public-key release-public.pem
+
+No database, control-plane access, validator private key, or shared HMAC secret is required for cryptographic signature verification.
+
+### P16 progress
+
+- [x] Ed25519 signing primitives
+- [x] PEM PKCS8 private keys
+- [x] PEM SubjectPublicKeyInfo public keys
+- [x] deterministic SHA-256 key IDs
+- [x] canonical JSON signing
+- [x] v2 validation attestation schema
+- [x] validator public-key verification
+- [x] v2 release provenance schema
+- [x] offline public-key provenance verification
+- [x] key-pair generation CLI
+- [x] Ed25519 validation-attest CLI
+- [x] offline provenance verification CLI
+- [x] tamper-detection tests
+- [x] artifact/source/generation approval binding retained
+- [ ] integrate v2 signatures into ReleaseLedger promotion path
+- [ ] trusted public-key registry in control plane
+- [ ] dual-sign migration from P15 HMAC to P16 Ed25519
+- [ ] key validity windows and revocation metadata
+- [ ] SLSA/in-toto compatible statement envelope
+- [ ] external transparency-log anchoring
