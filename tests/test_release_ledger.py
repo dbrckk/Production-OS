@@ -477,6 +477,7 @@ def test_release_verify_enforces_trusted_builder_repository(tmp_path):
         provenance_private_key=release_private,
         provenance_public_key=release_public,
         builder_id=builder_id,
+        builder_private_key=release_private,
         trusted_builders={
             builder_id:{
                 "key_owner":"release-builder",
@@ -558,4 +559,27 @@ def test_release_verify_rejects_untrusted_builder_repository(tmp_path):
     verification=releases.verify(release["id"])
     assert verification["valid"] is False
     assert "untrusted SLSA" in verification["reason"]
+
+
+def test_trusted_builder_requires_dedicated_signing_key(tmp_path):
+    backend,workflows,_,_,_=setup_release(tmp_path)
+    _,release_public=generate_keypair()
+    import pytest
+    releases=ReleaseLedger(
+        backend,
+        workflows,
+        provenance_private_key="configured-later",
+        provenance_public_key=release_public,
+        builder_id="https://builder.example/prod",
+        trusted_builders={
+            "https://builder.example/prod":{
+                "key_owner":"builder"
+            }
+        },
+        trusted_builder_keys={
+            "builder":{"public_key":release_public}
+        },
+        require_trusted_builder=True,
+    )
+    assert releases.builder_private_key is None
 
