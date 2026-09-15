@@ -187,3 +187,56 @@ def test_concurrent_identical_incident_snapshots_preserve_single_chain_entry(tmp
     history = item.incident_history()
     assert len(history) == 1
     assert item.verify_incident_history()["valid"] is True
+
+
+def test_concurrent_distinct_incident_snapshots_keep_linear_hash_chain(tmp_path, monkeypatch):
+    import threading
+
+    item = ledger(tmp_path)
+    local = threading.local()
+
+    def report(**kwargs):
+        key = kwargs["key_id"]
+        suffix = key.rsplit(":", 1)[-1]
+        return {
+            "schema_version": "production-os/trust-incident-report/v1",
+            "incident_id": f"trust-{suffix}",
+            "generated_at": "2026-09-15T12:00:00+00:00",
+            "severity": "medium",
+            "valid": False,
+            "scope": {"key_id": key},
+            "counts": {"total_releases": 1, "matched_releases": 1, "affected_releases": 1},
+            "summary": {"affected_repositories": [f"org/{suffix}"], "affected_validators": [], "affected_builders": [], "reasons": {"compromised": 1}},
+            "affected_releases": [{"release_id": f"r-{suffix}", "valid": False}],
+        }
+
+    monkeypatch.setattr(item, "incident_report", report)
+    barrier = threading.Barrier(2)
+    results = []
+    errors = []
+
+    def worker(key):
+        try:
+            barrier.wait(timeout=5)
+            results.append(item.record_incident_report(key_id=key))
+        except Exception as exc:
+            errors.append(exc)
+
+    threads = [
+        threading.Thread(target=worker, args=("sha256:one",)),
+        threading.Thread(target=worker, args=("sha256:two",)),
+    ]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join(timeout=10)
+
+    assert not errors
+    assert len(results) == 2
+    assert all(result["recorded"] for result in results)
+    history = item.incident_history()
+    assert len(history) == 2
+    assert history[1]["previous_hash"] == history[0]["report_hash"]
+    verification = item.verify_incident_history()
+    assert verification["valid"] is True
+    assert verification["head_hash"] == history[-1]["report_hash"]
