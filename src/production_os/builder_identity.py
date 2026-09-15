@@ -11,6 +11,27 @@ class BuilderIdentityError(ValueError):
     pass
 
 
+def _parse_identity_time(
+    value: str | None,
+    field: str,
+) -> datetime | None:
+    if not value:
+        return None
+    try:
+        parsed = datetime.fromisoformat(
+            str(value).replace("Z", "+00:00")
+        )
+    except ValueError as exc:
+        raise BuilderIdentityError(
+            f"invalid builder identity {field}"
+        ) from exc
+    if parsed.tzinfo is None:
+        raise BuilderIdentityError(
+            f"builder identity {field} must be timezone-aware"
+        )
+    return parsed
+
+
 @dataclass(frozen=True)
 class BuilderIdentity:
     builder_id: str
@@ -30,12 +51,20 @@ class BuilderIdentity:
             str(item)
             for item in value.get("allowed_repositories", [])
         )
+        not_before = value.get("not_before")
+        not_after = value.get("not_after")
+        start = _parse_identity_time(not_before, "not_before")
+        end = _parse_identity_time(not_after, "not_after")
+        if start is not None and end is not None and start > end:
+            raise BuilderIdentityError(
+                "builder identity not_before must not be after not_after"
+            )
         return cls(
             builder_id=str(builder_id),
             key_owner=owner,
             allowed_repositories=repositories,
-            not_before=value.get("not_before"),
-            not_after=value.get("not_after"),
+            not_before=not_before,
+            not_after=not_after,
         )
 
     def allows_repository(self, repository: str) -> bool:
@@ -75,20 +104,20 @@ class BuilderTrustPolicy:
             raise BuilderIdentityError(
                 "builder is not authorized for repository"
             )
-        when = datetime.fromisoformat(
-            signed_at.replace("Z", "+00:00")
-        )
+        when = _parse_identity_time(signed_at, "signed_at")
+        if when is None:
+            raise BuilderIdentityError("builder identity signed_at is required")
         if identity.not_before:
-            start = datetime.fromisoformat(
-                identity.not_before.replace("Z", "+00:00")
+            start = _parse_identity_time(
+                identity.not_before, "not_before"
             )
             if when < start:
                 raise BuilderIdentityError(
                     "builder identity is not active yet"
                 )
         if identity.not_after:
-            end = datetime.fromisoformat(
-                identity.not_after.replace("Z", "+00:00")
+            end = _parse_identity_time(
+                identity.not_after, "not_after"
             )
             if when > end:
                 raise BuilderIdentityError(
