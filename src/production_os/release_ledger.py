@@ -330,6 +330,53 @@ class ReleaseLedger:
             "releases": releases,
         }
 
+    def incident_report(
+        self,
+        *,
+        validator_id: str | None = None,
+        builder_id: str | None = None,
+        key_id: str | None = None,
+    ) -> dict:
+        """Build a stable, machine-readable trust incident report."""
+        status = self.trust_status(
+            validator_id=validator_id,
+            builder_id=builder_id,
+            key_id=key_id,
+        )
+        generated_at = _now()
+        fingerprint_payload = {
+            "filters": status["filters"],
+            "affected_release_ids": sorted(
+                item["release_id"]
+                for item in status["releases"]
+                if not item["valid"]
+            ),
+            "summary": status["summary"],
+        }
+        incident_id = "trust-" + _canonical_sha256(
+            fingerprint_payload
+        )[:16]
+        return {
+            "schema_version":
+                "production-os/trust-incident-report/v1",
+            "incident_id": incident_id,
+            "generated_at": generated_at,
+            "severity": status["severity"],
+            "valid": status["valid"],
+            "scope": status["filters"],
+            "counts": {
+                "total_releases": status["total_releases"],
+                "matched_releases": status["matched_releases"],
+                "affected_releases": status["affected_releases"],
+            },
+            "summary": status["summary"],
+            "affected_releases": [
+                item
+                for item in status["releases"]
+                if not item["valid"]
+            ],
+        }
+
     def promote(
         self,
         *,
