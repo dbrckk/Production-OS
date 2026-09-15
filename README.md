@@ -2722,3 +2722,31 @@ Trusted SLSA verification resolves the public key from the builder identity and 
 This prevents a cryptographically valid builder key from being reused to attest an unauthorized repository.
 
 Signed SLSA envelopes now also carry the statement signing timestamp, allowing builder/key validity policy to be evaluated at signing time.
+
+### Production builder enforcement
+
+Trusted builder identity can now be made mandatory in the ReleaseLedger and control plane.
+
+Configuration:
+
+    PRODUCTION_OS_BUILDER_ID=https://builder.example/prod
+    PRODUCTION_OS_TRUSTED_BUILDERS=<JSON>
+    PRODUCTION_OS_TRUSTED_BUILDER_KEYS=<JSON>
+    PRODUCTION_OS_REQUIRE_TRUSTED_BUILDER=true
+
+When enforcement is enabled, release verification fails unless the SLSA statement:
+
+    has a trusted builder ID
+    is signed by a key assigned to that builder
+    uses a currently valid/non-revoked key
+    targets a repository authorized for that builder
+    retains a valid artifact SHA-256 binding
+
+The builder ID used during SLSA statement creation is configurable rather than hard-coded.
+
+Recommended production configuration combines:
+
+    PRODUCTION_OS_VALIDATION_SIGNATURE_POLICY=ed25519-only
+    PRODUCTION_OS_REQUIRE_TRUSTED_BUILDER=true
+
+This makes public-key validator identity and repository-scoped builder identity mandatory for newly verified production releases.
