@@ -18,7 +18,7 @@ def _utcnow() -> str:
 
 
 class SQLiteBackend:
-    SCHEMA_VERSION = 7
+    SCHEMA_VERSION = 8
 
     def __init__(self, path: str | Path):
         self.path = Path(path)
@@ -216,6 +216,20 @@ class SQLiteBackend:
 
                 CREATE INDEX IF NOT EXISTS idx_releases_workflow
                 ON releases(workflow_id, created_at);
+
+                CREATE TABLE IF NOT EXISTS transparency_log (
+                    sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+                    release_id TEXT NOT NULL UNIQUE,
+                    entry_json TEXT NOT NULL,
+                    entry_hash TEXT NOT NULL UNIQUE,
+                    previous_hash TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    FOREIGN KEY(release_id) REFERENCES releases(id)
+                        ON DELETE RESTRICT
+                );
+
+                CREATE INDEX IF NOT EXISTS idx_transparency_release
+                ON transparency_log(release_id);
 
                 CREATE UNIQUE INDEX IF NOT EXISTS idx_release_single_rollback
                 ON releases(rollback_of)
