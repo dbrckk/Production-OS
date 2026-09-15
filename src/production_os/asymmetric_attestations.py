@@ -4,6 +4,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from .attestations import release_approval_key
+from .key_registry import KeyRegistryError, TrustedKeyRegistry
 from .signing import SigningError, sign_payload, verify_payload
 
 
@@ -48,7 +49,7 @@ def create_validation_attestation(
 def verify_validation_attestation(
     attestation: dict[str, Any],
     *,
-    trusted_public_keys: dict[str, str],
+    trusted_public_keys: dict[str, Any],
     workflow_id: str,
     artifact_id: str,
     artifact_sha256: str,
@@ -65,8 +66,7 @@ def verify_validation_attestation(
             "unsupported asymmetric validation attestation schema"
         )
     validator_id = str(payload.get("validator_id") or "")
-    public_key = trusted_public_keys.get(validator_id)
-    if not validator_id or not public_key:
+    if not validator_id:
         raise AsymmetricAttestationError(
             "untrusted validation attestation producer"
         )
@@ -96,6 +96,16 @@ def verify_validation_attestation(
         raise AsymmetricAttestationError(
             "validation attestation expired"
         )
+
+    try:
+        registry = TrustedKeyRegistry(trusted_public_keys)
+        public_key = registry.resolve(
+            validator_id,
+            str(signature.get("key_id") or ""),
+            signed_at=issued_raw,
+        )
+    except KeyRegistryError as exc:
+        raise AsymmetricAttestationError(str(exc)) from exc
 
     expected = {
         "workflow_id":str(workflow_id),
