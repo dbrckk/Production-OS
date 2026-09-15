@@ -5,6 +5,7 @@ from typing import Any
 
 from .attestations import release_approval_key
 from .key_registry import KeyRegistryError, TrustedKeyRegistry
+from .signers import Signer
 from .signing import SigningError, sign_payload, verify_payload
 
 
@@ -191,3 +192,47 @@ def verify_release_provenance(
         return verify_payload(public_key_pem, payload, signature)
     except SigningError:
         return False
+
+
+
+def create_release_provenance_with_signer(
+    *,
+    signer: Signer,
+    release: dict[str, Any],
+    attestation: dict[str, Any],
+) -> dict[str, Any]:
+    approval = release["metadata"]["approval"]
+    expected_key = release_approval_key(
+        workflow_id=release["workflow_id"],
+        artifact_id=release["artifact_id"],
+        artifact_sha256=release["metadata"]["artifact_sha256"],
+        source_revision=release.get("source_revision"),
+        workflow_generation=release.get("workflow_generation"),
+    )
+    if approval["approval_key"] != expected_key:
+        raise AsymmetricAttestationError(
+            "release approval binding mismatch"
+        )
+    payload = {
+        "schema_version":PROVENANCE_SCHEMA,
+        "release_id":release["id"],
+        "workflow_id":release["workflow_id"],
+        "artifact_id":release["artifact_id"],
+        "repository":release["repository"],
+        "artifact_sha256":release["metadata"]["artifact_sha256"],
+        "source_revision":release.get("source_revision"),
+        "workflow_generation":release.get("workflow_generation"),
+        "validator_id":attestation["validator_id"],
+        "validation_attestation_key_id":
+            attestation["signature"]["key_id"],
+        "validation_attestation_signature":
+            attestation["signature"]["signature"],
+        "approval_key":approval["approval_key"],
+        "approved_by":approval["approved_by"],
+        "approval_role":approval["role"],
+        "created_at":release["created_at"],
+    }
+    return {
+        **payload,
+        "signature":signer.sign(payload),
+    }
