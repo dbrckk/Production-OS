@@ -397,3 +397,68 @@ def test_release_ledger_promotes_strict_dual_sign_bundle(tmp_path):
         "schema_version"
     ]=="production-os/validation-attestation-bundle/v1"
 
+
+def test_ed25519_only_policy_rejects_legacy_hmac(tmp_path):
+    backend,workflows,_,workflow,artifact=setup_release(tmp_path)
+    releases=ReleaseLedger(
+        backend,
+        workflows,
+        trusted_validation_secrets={
+            "validator-1":"validation-secret"
+        },
+        provenance_secret="provenance-secret",
+        validation_signature_policy="ed25519-only",
+    )
+    import pytest
+    with pytest.raises(
+        RuntimeError,
+        match="requires Ed25519-only",
+    ):
+        releases.promote(
+            workflow_id=workflow["id"],
+            artifact_id=artifact["id"],
+            validation=passed_validation(),
+            attestation=signed_attestation(workflow,artifact),
+            approval=approval(),
+        )
+
+
+def test_dual_required_policy_rejects_pure_ed25519(tmp_path):
+    backend,workflows,_,workflow,artifact=setup_release(tmp_path)
+    validator_private,validator_public=generate_keypair()
+    release_private,release_public=generate_keypair()
+    releases=ReleaseLedger(
+        backend,
+        workflows,
+        trusted_validation_public_keys={
+            "validator-v2":validator_public
+        },
+        provenance_private_key=release_private,
+        provenance_public_key=release_public,
+        validation_signature_policy="dual-required",
+    )
+    attestation=create_validation_attestation_v2(
+        validator_id="validator-v2",
+        private_key_pem=validator_private,
+        workflow_id=workflow["id"],
+        artifact_id=artifact["id"],
+        artifact_sha256=artifact["sha256"],
+        source_revision=artifact["metadata"]["source_revision"],
+        workflow_generation=artifact["metadata"][
+            "workflow_generation"
+        ],
+        validation=passed_validation(),
+    )
+    import pytest
+    with pytest.raises(
+        RuntimeError,
+        match="requires dual-sign",
+    ):
+        releases.promote(
+            workflow_id=workflow["id"],
+            artifact_id=artifact["id"],
+            validation=passed_validation(),
+            attestation=attestation,
+            approval=approval(),
+        )
+
