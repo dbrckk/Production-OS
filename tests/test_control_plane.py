@@ -347,7 +347,7 @@ def test_http_body_parser_rejects_invalid_json_and_oversized_payload(tmp_path):
             urllib.request.urlopen(req,timeout=3)
             assert False, "oversized body must fail"
         except urllib.error.HTTPError as exc:
-            assert exc.code==400
+            assert exc.code==413
             assert json.loads(exc.read())["error"]=="request body too large"
     finally:
         server.shutdown()
