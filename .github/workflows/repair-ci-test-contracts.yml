@@ -66,9 +66,9 @@ jobs:
 
           path = Path("tests/test_trust_status_summary.py")
           text = path.read_text()
-          old = '\\"validation_attestation\\":{\\"validator_id\\":\\"v1\\"}'
-          new = ('\\"validation_attestation\\":{\\"validator_id\\":\\"v1\\",'
-                 '\\"signature\\":{\\"key_id\\":\\"sha256:deadbeef\\"}}')
+          old = '"validation_attestation":{"validator_id":"v1"}'
+          new = ('"validation_attestation":{"validator_id":"v1",'
+                 '"signature":{"key_id":"sha256:deadbeef"}}')
           if old not in text:
               raise SystemExit("incident key-id fixture: expected block not found")
           text = text.replace(old, new)
