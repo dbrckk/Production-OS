@@ -2780,3 +2780,19 @@ Recommended production topology:
 This reduces cross-domain key reuse and limits the blast radius of a compromised signing credential.
 
 Legacy/non-strict deployments retain the previous provenance-key fallback for compatibility.
+
+### Key-purpose invariant
+
+Strict trusted-builder deployments now enforce key-purpose separation by fingerprint.
+
+Production-OS computes the Ed25519 key ID for configured validator, builder and release-provenance credentials and rejects startup/configuration when the same key appears in multiple trust domains.
+
+Rejected examples:
+
+    validator key == builder key
+    builder key == release provenance key
+    validator key == release provenance key
+
+The comparison uses the public-key SHA-256 fingerprint, so re-encoding the same underlying private/public key does not bypass the invariant.
+
+This converts key separation from a deployment recommendation into an enforced cryptographic property whenever trusted builder enforcement is enabled.
