@@ -23,75 +23,80 @@ jobs:
           text = path.read_text()
 
           old_version = '        server_version = "ProductionOS/0.8"\n'
-          new_version = '''        server_version = "ProductionOS"
-
-        def version_string(self) -> str:
-            return self.server_version
-'''
+          new_version = (
+              '        server_version = "ProductionOS"\n'
+              '\n'
+              '        def version_string(self) -> str:\n'
+              '            return self.server_version\n'
+          )
           if old_version not in text:
               raise SystemExit("server version marker not found")
           text = text.replace(old_version, new_version, 1)
 
-          old_signature = '''        def _send(
-            self,
-            status: int,
-            payload: dict | list,
-        ) -> None:
-'''
-          new_signature = '''        def _send(
-            self,
-            status: int,
-            payload: dict | list,
-            *,
-            headers: dict[str, str] | None = None,
-        ) -> None:
-'''
+          old_signature = (
+              '        def _send(\n'
+              '            self,\n'
+              '            status: int,\n'
+              '            payload: dict | list,\n'
+              '        ) -> None:\n'
+          )
+          new_signature = (
+              '        def _send(\n'
+              '            self,\n'
+              '            status: int,\n'
+              '            payload: dict | list,\n'
+              '            *,\n'
+              '            headers: dict[str, str] | None = None,\n'
+              '        ) -> None:\n'
+          )
           if old_signature not in text:
               raise SystemExit("_send signature marker not found")
           text = text.replace(old_signature, new_signature, 1)
 
-          old_headers = '''            self.send_header("X-Frame-Options", "DENY")
-            self.send_header("Referrer-Policy", "no-referrer")
-            self.end_headers()
-            try:
-                self.wfile.write(body)
-            except (BrokenPipeError, ConnectionResetError):
-                return
-
-        def _read_body(self) -> bytes:
-'''
-          new_headers = '''            self.send_header("X-Frame-Options", "DENY")
-            self.send_header("Referrer-Policy", "no-referrer")
-            if headers:
-                for name, value in headers.items():
-                    self.send_header(name, value)
-            self.end_headers()
-            try:
-                self.wfile.write(body)
-            except (BrokenPipeError, ConnectionResetError):
-                return
-
-        def _method_not_allowed(self) -> None:
-            self._send(
-                HTTPStatus.METHOD_NOT_ALLOWED,
-                {"error": "method not allowed"},
-                headers={"Allow": "GET, POST"},
-            )
-
-        def do_PUT(self) -> None:
-            self._method_not_allowed()
-
-        def do_PATCH(self) -> None:
-            self._method_not_allowed()
-
-        def do_DELETE(self) -> None:
-            self._method_not_allowed()
-
-        def _read_body(self) -> bytes:
-'''
-          if old_headers not in text:
+          old_tail = (
+              '            self.send_header("X-Frame-Options", "DENY")\n'
+              '            self.send_header("Referrer-Policy", "no-referrer")\n'
+              '            self.end_headers()\n'
+              '            try:\n'
+              '                self.wfile.write(body)\n'
+              '            except (BrokenPipeError, ConnectionResetError):\n'
+              '                return\n'
+              '\n'
+              '        def _read_body(self) -> bytes:\n'
+          )
+          new_tail = (
+              '            self.send_header("X-Frame-Options", "DENY")\n'
+              '            self.send_header("Referrer-Policy", "no-referrer")\n'
+              '            if headers:\n'
+              '                for name, value in headers.items():\n'
+              '                    self.send_header(name, value)\n'
+              '            self.end_headers()\n'
+              '            try:\n'
+              '                self.wfile.write(body)\n'
+              '            except (BrokenPipeError, ConnectionResetError):\n'
+              '                return\n'
+              '\n'
+              '        def _method_not_allowed(self) -> None:\n'
+              '            self._send(\n'
+              '                HTTPStatus.METHOD_NOT_ALLOWED,\n'
+              '                {"error": "method not allowed"},\n'
+              '                headers={"Allow": "GET, POST"},\n'
+              '            )\n'
+              '\n'
+              '        def do_PUT(self) -> None:\n'
+              '            self._method_not_allowed()\n'
+              '\n'
+              '        def do_PATCH(self) -> None:\n'
+              '            self._method_not_allowed()\n'
+              '\n'
+              '        def do_DELETE(self) -> None:\n'
+              '            self._method_not_allowed()\n'
+              '\n'
+              '        def _read_body(self) -> bytes:\n'
+          )
+          if old_tail not in text:
               raise SystemExit("JSON response tail marker not found")
-          text = text.replace(old_headers, new_headers, 1)
+          text = text.replace(old_tail, new_tail, 1)
           path.write_text(text)
           PY
       - name: Compile check
