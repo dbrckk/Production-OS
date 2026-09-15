@@ -582,17 +582,16 @@ class ReleaseLedger:
             ).fetchone()
             if workflow_row is None:
                 raise KeyError(workflow_id)
-            if workflow_row["status"] != "succeeded":
-                raise RuntimeError(
-                    "workflow must be succeeded before promotion"
-                )
-
             workflow_metadata = json.loads(
                 workflow_row["metadata_json"]
-            )
+            ) or {}
             if bool(workflow_metadata.get("superseded", False)):
                 raise RuntimeError(
                     "stale workflow generation: workflow is superseded"
+                )
+            if workflow_row["status"] != "succeeded":
+                raise RuntimeError(
+                    "workflow must be succeeded before promotion"
                 )
 
             artifact_row = _execute(
@@ -613,7 +612,7 @@ class ReleaseLedger:
 
             artifact_metadata = json.loads(
                 artifact_row["metadata_json"]
-            )
+            ) or {}
             artifact_sha256 = artifact_row["sha256"]
             if not _valid_sha256(artifact_sha256):
                 raise RuntimeError(
