@@ -8,8 +8,8 @@ The release commit must pass all of the following on GitHub Actions:
 
 1. install the development and PostgreSQL dependency sets;
 2. compile every module under `src`;
-3. pass the complete non-E2E pytest suite;
-4. pass the production-stack E2E test against PostgreSQL 16;
+3. pass the complete non-E2E pytest suite on Python 3.11 and Python 3.12;
+4. pass the production-stack E2E test against PostgreSQL 16 on Python 3.12;
 5. build both Python wheel and source distribution artifacts;
 6. install the wheel into an isolated virtual environment and run the installed CLI;
 7. build the production Docker image and run the image CLI smoke test;
@@ -19,8 +19,8 @@ The E2E test uses an isolated PostgreSQL database and exercises a real HTTP cont
 
 ## Supported runtime paths
 
-- Python 3.11+
-- Python 3.12 in canonical CI and the production container
+- Python 3.11 and 3.12, both covered by the compatibility gate
+- Python 3.12 in the production container and production-stack E2E gate
 - SQLite for local/single-node durable state
 - PostgreSQL for distributed/production state
 - Docker / Docker Compose deployment
