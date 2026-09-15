@@ -2340,6 +2340,7 @@ The example Docker, PostgreSQL and TLS compose configurations pass both variable
 - [x] API approval identity test
 - [ ] asymmetric signing / offline public-key verification
 - [ ] key rotation metadata and key IDs
+- [x] internal append-only transparency hash-chain anchoring
 - [ ] external transparency-log anchoring
 
 ## P16 asymmetric signing and offline verification
@@ -2542,3 +2543,44 @@ Offline verification:
       --artifact-sha256 <64-char-sha256>
 
 This does not require access to the Production-OS database or control plane.
+
+### Append-only transparency log
+
+Every promoted release is now atomically appended to the Production-OS transparency log in the same database transaction as release creation.
+
+Each entry contains:
+
+    sequence
+    release_id
+    release_provenance_sha256
+    slsa_statement_sha256
+    previous_hash
+    created_at
+    entry_hash
+
+The first entry is linked to a 64-zero genesis hash. Every later entry commits to the previous entry hash.
+
+This provides deletion, insertion, reordering and mutation detection for the local release history.
+
+Release verification now checks:
+
+    cryptographic validation attestation
+    release provenance
+    SLSA statement
+    transparency-chain integrity
+    release inclusion
+    release provenance digest
+
+The verification result includes:
+
+    transparency_sequence
+    transparency_entry_hash
+    transparency_root_hash
+
+Audit endpoint:
+
+    GET /v1/transparency
+
+It returns the ordered append-only entries and current chain verification/root hash.
+
+The internal chain is intentionally separate from the remaining external anchoring milestone. A database administrator who can rewrite the complete database could still replace the entire local history and recompute the chain. The next stage therefore publishes periodic roots to an independent external transparency service or immutable witness.
