@@ -344,6 +344,18 @@ def make_handler(control: ControlPlane):
                         )
                         return
 
+            if parsed.path == "/v1/transparency":
+                self._send(
+                    HTTPStatus.OK,
+                    {
+                        "verification":
+                            control.releases.verify_transparency(),
+                        "entries":
+                            control.releases.transparency_log(),
+                    },
+                )
+                return
+
             if parsed.path.startswith("/v1/releases/"):
                 parts = [
                     part
