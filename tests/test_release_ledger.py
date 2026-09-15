@@ -329,3 +329,24 @@ def test_release_ledger_promotes_ed25519_attestation(tmp_path):
     ]=="https://slsa.dev/provenance/v1"
     assert len(release["metadata"]["slsa_statement_sha256"])==64
 
+
+def test_release_is_anchored_in_transparency_chain(tmp_path):
+    _,_,releases,workflow,artifact=setup_release(tmp_path)
+    release=releases.promote(
+        workflow_id=workflow["id"],
+        artifact_id=artifact["id"],
+        validation=passed_validation(),
+        attestation=signed_attestation(workflow,artifact),
+        approval=approval(),
+    )
+
+    chain=releases.verify_transparency()
+    verification=releases.verify(release["id"])
+
+    assert chain["valid"] is True
+    assert chain["entries"]==1
+    assert verification["valid"] is True
+    assert verification["transparency_sequence"]==1
+    assert len(verification["transparency_entry_hash"])==64
+    assert verification["transparency_root_hash"]==chain["root_hash"]
+
