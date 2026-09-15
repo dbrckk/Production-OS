@@ -60,10 +60,16 @@ production-os transparency-checkpoint-verify \
 
 The command exits with status `0` only when both the Production OS checkpoint signature and the Rekor receipt are valid. A receipt mismatch, altered entry, invalid Merkle path, wrong log identity, or invalid SET returns verification failure.
 
+## Signed tree checkpoints
+
+Production OS includes a Rekor v1 signed-checkpoint verifier. It parses the signed-note format, validates the four-byte public-key hint derived from the pinned Rekor key, authenticates ECDSA, RSA, or Ed25519 note signatures, and requires the signed tree size and root hash to match the corresponding inclusion proof.
+
+The verifier is intentionally separate from parsing a receipt because receipt parsing does not have a trusted log key. Receipt verification can therefore remain offline and fail closed once a pinned Rekor log public key is supplied.
+
 ## Versioning
 
 This adapter is explicitly named `rekor-v1`. Rekor v1 remains the stable public API while Rekor v2 evolves separately, so the provider-specific protocol is kept behind the `TransparencyPublisher` abstraction. A future Rekor v2 publisher can be added without changing the Production OS receipt consumer contract.
 
 ## Remaining hardening
 
-The receipt validates entry inclusion and the Rekor SET against a pinned log key. Production OS currently stores the checkpoint text delivered with the inclusion proof but does not yet independently verify the signed tree checkpoint/note or require a quorum of independent witnesses. Those are the next steps for stronger split-view resistance.
+The next step is to make receipt verification require the signed tree checkpoint whenever a Rekor log key is pinned. After that, stronger split-view resistance requires checkpoint consistency checking and/or a quorum of independent witnesses.
