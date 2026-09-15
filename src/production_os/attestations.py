@@ -79,6 +79,7 @@ def verify_validation_attestation(
 ) -> dict[str, Any]:
     payload = dict(attestation)
     signature = str(payload.pop("signature", ""))
+    payload.pop("verified", None)
     if payload.get("schema_version") != ATTESTATION_SCHEMA:
         raise AttestationError("unsupported validation attestation schema")
 
