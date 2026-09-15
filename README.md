@@ -2686,3 +2686,39 @@ Recommended staged migration:
     Stage 3  ed25519-only
 
 This turns HMAC retirement into an enforceable deployment policy rather than an operational convention. Historical releases remain verifiable with the cryptographic material required by their original signature scheme.
+
+### Trusted builder identities
+
+SLSA verification can now enforce builder identity independently from the artifact and release signature.
+
+A builder trust policy binds:
+
+    builder ID
+    signing key owner
+    signing key ID
+    repository allowlist
+    builder validity window
+    signing-key validity / revocation policy
+
+Example policy:
+
+    builders = {
+      "https://builder.example/prod": {
+        "key_owner": "prod-builder",
+        "allowed_repositories": ["owner/repo"]
+      }
+    }
+
+    signing_keys = {
+      "prod-builder": {
+        "public_key": "<PEM>",
+        "not_before": "2026-09-01T00:00:00+00:00",
+        "not_after": "2027-09-01T00:00:00+00:00"
+      }
+    }
+
+Trusted SLSA verification resolves the public key from the builder identity and signature key ID, then checks repository authorization before accepting the statement.
+
+This prevents a cryptographically valid builder key from being reused to attest an unauthorized repository.
+
+Signed SLSA envelopes now also carry the statement signing timestamp, allowing builder/key validity policy to be evaluated at signing time.
