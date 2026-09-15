@@ -3,6 +3,11 @@ from __future__ import annotations
 import json
 import uuid
 
+from .dual_sign import (
+    DUAL_SCHEMA,
+    DualSignError,
+    verify_dual_attestation,
+)
 from .asymmetric_attestations import (
     AsymmetricAttestationError,
     create_release_provenance as create_release_provenance_v2,
@@ -230,11 +235,52 @@ class ReleaseLedger:
             attestation_schema = str(
                 dict(attestation or {}).get("schema_version") or ""
             )
-            asymmetric = attestation_schema.endswith(
-                "/validation-attestation/v2"
+            dual_signed = attestation_schema == DUAL_SCHEMA
+            asymmetric = (
+                dual_signed
+                or attestation_schema.endswith(
+                    "/validation-attestation/v2"
+                )
             )
             try:
-                if asymmetric:
+                if dual_signed:
+                    if not self.trusted_validation_secrets:
+                        raise RuntimeError(
+                            "trusted validation HMAC keys "
+                            "are not configured"
+                        )
+                    if not self.trusted_validation_public_keys:
+                        raise RuntimeError(
+                            "trusted validation public keys "
+                            "are not configured"
+                        )
+                    if not self.provenance_private_key:
+                        raise RuntimeError(
+                            "release provenance private key "
+                            "is not configured"
+                        )
+                    verified_bundle = verify_dual_attestation(
+                        dict(attestation or {}),
+                        trusted_secrets=(
+                            self.trusted_validation_secrets
+                        ),
+                        trusted_public_keys=(
+                            self.trusted_validation_public_keys
+                        ),
+                        workflow_id=workflow_id,
+                        artifact_id=artifact_id,
+                        artifact_sha256=artifact_sha256,
+                        source_revision=source_revision,
+                        workflow_generation=workflow_generation,
+                        validation=validation,
+                        max_age_seconds=(
+                            self.attestation_max_age_seconds
+                        ),
+                    )
+                    verified_attestation = (
+                        verified_bundle["ed25519"]
+                    )
+                elif asymmetric:
                     if not self.trusted_validation_public_keys:
                         raise RuntimeError(
                             "trusted validation public keys are not configured"
@@ -291,6 +337,7 @@ class ReleaseLedger:
             except (
                 AttestationError,
                 AsymmetricAttestationError,
+                DualSignError,
             ) as exc:
                 raise RuntimeError(str(exc)) from exc
 
@@ -426,7 +473,11 @@ class ReleaseLedger:
                 )
             release_metadata = {
                 **base_metadata,
-                "validation_attestation":verified_attestation,
+                "validation_attestation":(
+                    dict(attestation)
+                    if dual_signed
+                    else verified_attestation
+                ),
                 "provenance":provenance,
                 **(
                     {
