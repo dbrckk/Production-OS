@@ -60,6 +60,12 @@ from .execution_optimizer import ExecutionOptimizer
 from .speculation import SpeculationManager
 from .signing import generate_keypair
 from .supply_chain import verify_signed_slsa_statement
+from .witness import (
+    create_checkpoint,
+    publish_checkpoint,
+    sign_checkpoint,
+    verify_checkpoint,
+)
 from .asymmetric_attestations import (
     create_validation_attestation as create_validation_attestation_v2,
     verify_release_provenance as verify_release_provenance_v2,
@@ -473,6 +479,24 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     validationattestv2.add_argument("--validator-id", required=True)
     validationattestv2.add_argument("--private-key", required=True)
     validationattestv2.add_argument("--output")
+
+    checkpoint = sub.add_parser(
+        "transparency-checkpoint",
+        help="Create and optionally publish a signed transparency root",
+    )
+    checkpoint.add_argument("--database", required=True)
+    checkpoint.add_argument("--private-key", required=True)
+    checkpoint.add_argument("--output")
+    checkpoint.add_argument("--publish-url")
+    checkpoint.add_argument("--bearer-token-env")
+
+    checkpointverify = sub.add_parser(
+        "transparency-checkpoint-verify",
+        help="Offline verify a signed transparency checkpoint",
+    )
+    checkpointverify.add_argument("--checkpoint", required=True)
+    checkpointverify.add_argument("--public-key", required=True)
+    checkpointverify.add_argument("--root-hash")
 
     slsaverify = sub.add_parser(
         "slsa-verify",
@@ -1832,6 +1856,70 @@ def run_validation_attest_v2(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_transparency_checkpoint(
+    args: argparse.Namespace,
+) -> int:
+    ledger=_release_ledger(args.database)
+    chain=ledger.verify_transparency()
+    if not chain.get("valid"):
+        raise RuntimeError(
+            chain.get("reason") or "invalid transparency log"
+        )
+    checkpoint=create_checkpoint(
+        root_hash=chain["root_hash"],
+        entries=chain["entries"],
+    )
+    envelope=sign_checkpoint(
+        checkpoint,
+        private_key_pem=Path(args.private_key).read_text(
+            encoding="ascii"
+        ),
+    )
+    result={"envelope":envelope}
+    if args.publish_url:
+        token=(
+            os.getenv(args.bearer_token_env)
+            if args.bearer_token_env
+            else None
+        )
+        result["publication"]=publish_checkpoint(
+            url=args.publish_url,
+            envelope=envelope,
+            bearer_token=token,
+        )
+    rendered=json.dumps(result,indent=2,ensure_ascii=False)
+    if args.output:
+        Path(args.output).write_text(
+            json.dumps(
+                envelope,indent=2,ensure_ascii=False
+            )+"\n",
+            encoding="utf-8",
+        )
+    print(rendered)
+    return 0
+
+
+def run_transparency_checkpoint_verify(
+    args: argparse.Namespace,
+) -> int:
+    envelope=json.loads(
+        Path(args.checkpoint).read_text(encoding="utf-8")
+    )
+    valid=verify_checkpoint(
+        dict(envelope),
+        public_key_pem=Path(args.public_key).read_text(
+            encoding="ascii"
+        ),
+        expected_root_hash=args.root_hash,
+    )
+    print(json.dumps({
+        "schema_version":
+            "production-os/transparency-witness-verification/v1",
+        "valid":valid,
+    },indent=2,ensure_ascii=False))
+    return 0 if valid else 9
+
+
 def run_slsa_verify(args: argparse.Namespace) -> int:
     envelope=json.loads(
         Path(args.statement).read_text(encoding="utf-8")
@@ -2100,6 +2188,10 @@ def main(argv: list[str] | None = None) -> int:
         return run_signing_keygen(args)
     if args.command == "validation-attest-v2":
         return run_validation_attest_v2(args)
+    if args.command == "transparency-checkpoint":
+        return run_transparency_checkpoint(args)
+    if args.command == "transparency-checkpoint-verify":
+        return run_transparency_checkpoint_verify(args)
     if args.command == "slsa-verify":
         return run_slsa_verify(args)
     if args.command == "provenance-verify-v2":
