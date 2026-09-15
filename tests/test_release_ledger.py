@@ -219,6 +219,7 @@ def test_promotion_requires_artifact_sha256(tmp_path):
             artifact_id=artifact["id"],
             validation=passed_validation(),
             attestation={},
+            approval=approval(),
         )
 
 
@@ -259,6 +260,7 @@ def test_release_verification_checks_full_chain(tmp_path):
         artifact_id=artifact["id"],
         validation=passed_validation(),
         attestation=signed_attestation(workflow,artifact),
+        approval=approval(),
     )
 
     verification=releases.verify(release["id"])
@@ -467,6 +469,7 @@ def test_release_verify_enforces_trusted_builder_repository(tmp_path):
     backend,workflows,_,workflow,artifact=setup_release(tmp_path)
     validator_private,validator_public=generate_keypair()
     release_private,release_public=generate_keypair()
+    builder_private,builder_public=generate_keypair()
     builder_id="https://builder.example/prod"
     releases=ReleaseLedger(
         backend,
@@ -477,7 +480,7 @@ def test_release_verify_enforces_trusted_builder_repository(tmp_path):
         provenance_private_key=release_private,
         provenance_public_key=release_public,
         builder_id=builder_id,
-        builder_private_key=release_private,
+        builder_private_key=builder_private,
         trusted_builders={
             builder_id:{
                 "key_owner":"release-builder",
@@ -485,7 +488,7 @@ def test_release_verify_enforces_trusted_builder_repository(tmp_path):
             }
         },
         trusted_builder_keys={
-            "release-builder":{"public_key":release_public}
+            "release-builder":{"public_key":builder_public}
         },
         require_trusted_builder=True,
     )
@@ -516,6 +519,7 @@ def test_release_verify_rejects_untrusted_builder_repository(tmp_path):
     backend,workflows,_,workflow,artifact=setup_release(tmp_path)
     validator_private,validator_public=generate_keypair()
     release_private,release_public=generate_keypair()
+    builder_private,builder_public=generate_keypair()
     builder_id="https://builder.example/prod"
     releases=ReleaseLedger(
         backend,
@@ -526,6 +530,7 @@ def test_release_verify_rejects_untrusted_builder_repository(tmp_path):
         provenance_private_key=release_private,
         provenance_public_key=release_public,
         builder_id=builder_id,
+        builder_private_key=builder_private,
         trusted_builders={
             builder_id:{
                 "key_owner":"release-builder",
@@ -533,7 +538,7 @@ def test_release_verify_rejects_untrusted_builder_repository(tmp_path):
             }
         },
         trusted_builder_keys={
-            "release-builder":{"public_key":release_public}
+            "release-builder":{"public_key":builder_public}
         },
         require_trusted_builder=True,
     )
@@ -563,13 +568,13 @@ def test_release_verify_rejects_untrusted_builder_repository(tmp_path):
 
 def test_trusted_builder_requires_dedicated_signing_key(tmp_path):
     backend,workflows,_,_,_=setup_release(tmp_path)
-    _,release_public=generate_keypair()
-    import pytest
+    provenance_private,provenance_public=generate_keypair()
+    _,builder_public=generate_keypair()
     releases=ReleaseLedger(
         backend,
         workflows,
-        provenance_private_key="configured-later",
-        provenance_public_key=release_public,
+        provenance_private_key=provenance_private,
+        provenance_public_key=provenance_public,
         builder_id="https://builder.example/prod",
         trusted_builders={
             "https://builder.example/prod":{
@@ -577,7 +582,7 @@ def test_trusted_builder_requires_dedicated_signing_key(tmp_path):
             }
         },
         trusted_builder_keys={
-            "builder":{"public_key":release_public}
+            "builder":{"public_key":builder_public}
         },
         require_trusted_builder=True,
     )
