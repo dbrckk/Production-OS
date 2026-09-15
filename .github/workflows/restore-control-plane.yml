@@ -1,0 +1,61 @@
+name: Restore control-plane
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/restore-control-plane.yml
+
+permissions:
+  contents: write
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Restore complete control-plane and apply compatibility fixes
+        run: |
+          git checkout 4a694a5de51d5d6bf87499a904329efd2ed1036e -- src/production_os/control_plane.py
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("src/production_os/control_plane.py")
+          text = path.read_text()
+          text = text.replace(
+              "        authorizer: TokenAuthorizer,\n",
+              "        authorizer: TokenAuthorizer | None = None,\n",
+              1,
+          )
+          text = text.replace(
+              "        self.authorizer = authorizer\n",
+              "        self.authorizer = authorizer or TokenAuthorizer([])\n",
+              1,
+          )
+          text = text.replace(
+              "            if length > 1024 * 1024:\n                raise RequestBodyTooLarge(\"request body too large\")\n",
+              "            max_body = 1024 * 1024\n            if length > max_body:\n                self.rfile.read(min(length, max_body + 1))\n                raise RequestBodyTooLarge(\"request body too large\")\n",
+              1,
+          )
+          text = text.replace(
+              '                raise ValueError("JSON body must be an object")\n',
+              '                raise ValueError("JSON object body required")\n',
+              1,
+          )
+          path.write_text(text)
+          PY
+      - name: Compile
+        run: python -m compileall -q src
+      - name: Install
+        run: python -m pip install -e ".[dev]"
+      - name: Targeted tests
+        run: pytest -q tests/test_control_plane.py tests/test_http_security_headers.py
+      - name: Commit restoration
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/production_os/control_plane.py
+          git commit -m "fix(api): restore complete control-plane handler"
+          git push
