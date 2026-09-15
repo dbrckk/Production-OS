@@ -2,7 +2,12 @@
 
 ## Supported versions
 
-Production-OS is pre-1.0. Security fixes are applied to the current `main` branch.
+| Version | Supported |
+| --- | --- |
+| 1.x | Yes |
+| < 1.0 | No |
+
+Production-OS 1.0 is the first stable release line. Security fixes are applied to the current supported 1.x line and `main`.
 
 ## Reporting
 
@@ -18,5 +23,6 @@ Production-OS may use `GITHUB_TOKEN` to increase API limits. Tokens must be supp
 
 - GitHub metadata and repository content are treated as untrusted input.
 - Repository text must never be interpreted as executable instructions by the deterministic scanner.
-- Destructive repository actions are outside the V0 scanner.
-- Future autonomous mutation must require explicit policy and auditable authorization.
+- Destructive or externally privileged actions require explicit policy and auditable authorization.
+- Rekor transparency receipts fail closed when configured trust material or consistency evidence is invalid.
+- Independent witness quorum strengthens split-view detection, but witness deployment across genuinely independent trust and network domains remains an operational responsibility.
