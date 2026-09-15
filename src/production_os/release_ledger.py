@@ -84,6 +84,7 @@ class ReleaseLedger:
         trusted_validation_public_keys: dict[str, str] | None = None,
         provenance_private_key: str | None = None,
         provenance_public_key: str | None = None,
+        validation_signature_policy: str = "compatible",
     ):
         self.backend = backend
         self.workflows = workflows
@@ -99,6 +100,17 @@ class ReleaseLedger:
         )
         self.provenance_private_key = provenance_private_key
         self.provenance_public_key = provenance_public_key
+        policy = str(validation_signature_policy).strip().lower()
+        if policy not in {
+            "compatible",
+            "dual-required",
+            "ed25519-only",
+        }:
+            raise ValueError(
+                "validation_signature_policy must be compatible, "
+                "dual-required, or ed25519-only"
+            )
+        self.validation_signature_policy = policy
 
     @staticmethod
     def _validation_passed(validation: dict) -> bool:
@@ -236,6 +248,22 @@ class ReleaseLedger:
                 dict(attestation or {}).get("schema_version") or ""
             )
             dual_signed = attestation_schema == DUAL_SCHEMA
+            if (
+                self.validation_signature_policy == "dual-required"
+                and not dual_signed
+            ):
+                raise RuntimeError(
+                    "validation signature policy requires dual-sign"
+                )
+            if (
+                self.validation_signature_policy == "ed25519-only"
+                and not attestation_schema.endswith(
+                    "/validation-attestation/v2"
+                )
+            ):
+                raise RuntimeError(
+                    "validation signature policy requires Ed25519-only"
+                )
             asymmetric = (
                 dual_signed
                 or attestation_schema.endswith(
