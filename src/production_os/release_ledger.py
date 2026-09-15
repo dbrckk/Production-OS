@@ -3,6 +3,12 @@ from __future__ import annotations
 import json
 import uuid
 
+from .asymmetric_attestations import (
+    AsymmetricAttestationError,
+    create_release_provenance as create_release_provenance_v2,
+    verify_release_provenance as verify_release_provenance_v2,
+    verify_validation_attestation as verify_validation_attestation_v2,
+)
 from .attestations import (
     AttestationError,
     create_release_provenance,
@@ -48,6 +54,9 @@ class ReleaseLedger:
         trusted_validation_secrets: dict[str, str] | None = None,
         provenance_secret: str | None = None,
         attestation_max_age_seconds: int = 3600,
+        trusted_validation_public_keys: dict[str, str] | None = None,
+        provenance_private_key: str | None = None,
+        provenance_public_key: str | None = None,
     ):
         self.backend = backend
         self.workflows = workflows
@@ -58,6 +67,11 @@ class ReleaseLedger:
         self.attestation_max_age_seconds = int(
             attestation_max_age_seconds
         )
+        self.trusted_validation_public_keys = dict(
+            trusted_validation_public_keys or {}
+        )
+        self.provenance_private_key = provenance_private_key
+        self.provenance_public_key = provenance_public_key
 
     @staticmethod
     def _validation_passed(validation: dict) -> bool:
@@ -191,28 +205,71 @@ class ReleaseLedger:
                 "workflow_generation"
             )
 
-            if not self.trusted_validation_secrets:
-                raise RuntimeError(
-                    "trusted validation attestation keys are not configured"
-                )
-            if not self.provenance_secret:
-                raise RuntimeError(
-                    "release provenance signing secret is not configured"
-                )
-
+            attestation_schema = str(
+                dict(attestation or {}).get("schema_version") or ""
+            )
+            asymmetric = attestation_schema.endswith(
+                "/validation-attestation/v2"
+            )
             try:
-                verified_attestation = verify_validation_attestation(
-                    dict(attestation or {}),
-                    trusted_secrets=self.trusted_validation_secrets,
-                    workflow_id=workflow_id,
-                    artifact_id=artifact_id,
-                    artifact_sha256=artifact_sha256,
-                    source_revision=source_revision,
-                    workflow_generation=workflow_generation,
-                    validation=validation,
-                    max_age_seconds=self.attestation_max_age_seconds,
-                )
-            except AttestationError as exc:
+                if asymmetric:
+                    if not self.trusted_validation_public_keys:
+                        raise RuntimeError(
+                            "trusted validation public keys are not configured"
+                        )
+                    if not self.provenance_private_key:
+                        raise RuntimeError(
+                            "release provenance private key is not configured"
+                        )
+                    verified_attestation = (
+                        verify_validation_attestation_v2(
+                            dict(attestation or {}),
+                            trusted_public_keys=(
+                                self.trusted_validation_public_keys
+                            ),
+                            workflow_id=workflow_id,
+                            artifact_id=artifact_id,
+                            artifact_sha256=artifact_sha256,
+                            source_revision=source_revision,
+                            workflow_generation=workflow_generation,
+                            validation=validation,
+                            max_age_seconds=(
+                                self.attestation_max_age_seconds
+                            ),
+                        )
+                    )
+                else:
+                    if not self.trusted_validation_secrets:
+                        raise RuntimeError(
+                            "trusted validation attestation keys "
+                            "are not configured"
+                        )
+                    if not self.provenance_secret:
+                        raise RuntimeError(
+                            "release provenance signing secret "
+                            "is not configured"
+                        )
+                    verified_attestation = (
+                        verify_validation_attestation(
+                            dict(attestation or {}),
+                            trusted_secrets=(
+                                self.trusted_validation_secrets
+                            ),
+                            workflow_id=workflow_id,
+                            artifact_id=artifact_id,
+                            artifact_sha256=artifact_sha256,
+                            source_revision=source_revision,
+                            workflow_generation=workflow_generation,
+                            validation=validation,
+                            max_age_seconds=(
+                                self.attestation_max_age_seconds
+                            ),
+                        )
+                    )
+            except (
+                AttestationError,
+                AsymmetricAttestationError,
+            ) as exc:
                 raise RuntimeError(str(exc)) from exc
 
             approval = dict(approval or {})
@@ -325,11 +382,18 @@ class ReleaseLedger:
                 "metadata":base_metadata,
                 "created_at":now,
             }
-            provenance = create_release_provenance(
-                secret=self.provenance_secret,
-                release=release_preview,
-                attestation=verified_attestation,
-            )
+            if asymmetric:
+                provenance = create_release_provenance_v2(
+                    private_key_pem=self.provenance_private_key,
+                    release=release_preview,
+                    attestation=verified_attestation,
+                )
+            else:
+                provenance = create_release_provenance(
+                    secret=self.provenance_secret,
+                    release=release_preview,
+                    attestation=verified_attestation,
+                )
             release_metadata = {
                 **base_metadata,
                 "validation_attestation":verified_attestation,
@@ -386,6 +450,7 @@ class ReleaseLedger:
                         "validator_id"
                     ],
                     "provenance_signature":provenance["signature"],
+                    "signature_schema":provenance["schema_version"],
                 },
                 repository=workflow_row["repository"],
             )
