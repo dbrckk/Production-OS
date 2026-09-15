@@ -78,3 +78,42 @@ def test_slow_observer_cannot_overwrite_newer_checkpoint_state(tmp_path):
     assert persisted is not None
     assert persisted["tree_size"] == 3
     assert persisted["root_hash"] == size_three_root.hex()
+
+
+def test_concurrent_first_observation_cannot_replace_bootstrap_state(tmp_path):
+    backend = SQLiteBackend(tmp_path / "state.db")
+    trusted_root = _leaf(b"trusted").hex()
+    competing_root = _leaf(b"competing").hex()
+
+    class RacingStore(RekorCheckpointStateStore):
+        raced = False
+
+        def get(self, log_id, origin):
+            current = super().get(log_id, origin)
+            if not self.raced and current is None:
+                self.raced = True
+                super().put(
+                    log_id=log_id,
+                    origin=origin,
+                    tree_id="42",
+                    tree_size=1,
+                    root_hash=competing_root,
+                    checkpoint=_checkpoint(competing_root, 1),
+                )
+            return current
+
+    store = RacingStore(backend)
+    monitor = RekorCheckpointMonitor(
+        store,
+        proof_fetcher=lambda **_: pytest.fail("bootstrap must not fetch proof"),
+    )
+
+    with pytest.raises(RekorCheckpointStateError, match="concurrent"):
+        monitor.observe_verified_receipt(_receipt(trusted_root, 1))
+
+    persisted = RekorCheckpointStateStore(backend).get(
+        "a" * 64,
+        "rekor.example - 42",
+    )
+    assert persisted is not None
+    assert persisted["root_hash"] == competing_root
