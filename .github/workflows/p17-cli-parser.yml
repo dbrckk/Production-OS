@@ -21,58 +21,30 @@ jobs:
 
           path = Path("src/production_os/cli.py")
           text = path.read_text()
-          old = '''    checkpoint = sub.add_parser(
-              "transparency-checkpoint",
-              help="Create and optionally publish a signed transparency root",
-          )
-          checkpoint.add_argument("--database", required=True)
-          checkpoint.add_argument("--private-key")
-          checkpoint.add_argument("--witness-signer-uri")
-          checkpoint.add_argument("--witness-signer-key-id")
-          checkpoint.add_argument("--witness-signer-token-env")
-          checkpoint.add_argument("--output")
-          checkpoint.add_argument("--publish-url")
-          checkpoint.add_argument("--bearer-token-env")
 
-          checkpointverify = sub.add_parser(
-              "transparency-checkpoint-verify",
-              help="Offline verify a signed transparency checkpoint",
+          publish_anchor = '    checkpoint.add_argument("--bearer-token-env")\n'
+          publish_extra = (
+              publish_anchor
+              + '    checkpoint.add_argument("--rekor-url")\n'
+              + '    checkpoint.add_argument("--rekor-private-key")\n'
+              + '    checkpoint.add_argument("--rekor-log-public-key")\n'
+              + '    checkpoint.add_argument("--receipt-output")\n'
           )
-          checkpointverify.add_argument("--checkpoint", required=True)
-          checkpointverify.add_argument("--public-key", required=True)
-          checkpointverify.add_argument("--root-hash")
-          '''
-          new = '''    checkpoint = sub.add_parser(
-              "transparency-checkpoint",
-              help="Create and optionally publish a signed transparency root",
-          )
-          checkpoint.add_argument("--database", required=True)
-          checkpoint.add_argument("--private-key")
-          checkpoint.add_argument("--witness-signer-uri")
-          checkpoint.add_argument("--witness-signer-key-id")
-          checkpoint.add_argument("--witness-signer-token-env")
-          checkpoint.add_argument("--output")
-          checkpoint.add_argument("--publish-url")
-          checkpoint.add_argument("--bearer-token-env")
-          checkpoint.add_argument("--rekor-url")
-          checkpoint.add_argument("--rekor-private-key")
-          checkpoint.add_argument("--rekor-log-public-key")
-          checkpoint.add_argument("--receipt-output")
+          if publish_anchor not in text:
+              raise SystemExit("checkpoint publication parser anchor not found")
+          text = text.replace(publish_anchor, publish_extra, 1)
 
-          checkpointverify = sub.add_parser(
-              "transparency-checkpoint-verify",
-              help="Offline verify a signed transparency checkpoint",
+          verify_anchor = '    checkpointverify.add_argument("--root-hash")\n'
+          verify_extra = (
+              verify_anchor
+              + '    checkpointverify.add_argument("--receipt")\n'
+              + '    checkpointverify.add_argument("--rekor-log-public-key")\n'
+              + '    checkpointverify.add_argument("--rekor-log-id")\n'
           )
-          checkpointverify.add_argument("--checkpoint", required=True)
-          checkpointverify.add_argument("--public-key", required=True)
-          checkpointverify.add_argument("--root-hash")
-          checkpointverify.add_argument("--receipt")
-          checkpointverify.add_argument("--rekor-log-public-key")
-          checkpointverify.add_argument("--rekor-log-id")
-          '''
-          if old not in text:
-              raise SystemExit("checkpoint parser block not found")
-          path.write_text(text.replace(old, new, 1))
+          if verify_anchor not in text:
+              raise SystemExit("checkpoint verification parser anchor not found")
+          text = text.replace(verify_anchor, verify_extra, 1)
+          path.write_text(text)
           PY
       - name: Verify parser change
         run: |
