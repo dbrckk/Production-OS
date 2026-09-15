@@ -2,9 +2,13 @@ from __future__ import annotations
 
 import base64
 import hashlib
+import json
 import re
 from datetime import datetime, timezone
 from typing import Any, Callable
+from urllib.error import HTTPError, URLError
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
 
 
 _HEX_64 = re.compile(r"^[0-9a-fA-F]{64}$")
@@ -118,6 +122,83 @@ def verify_consistency_proof(
         and first_hash == first_root
         and second_hash == second_root
     )
+
+
+class RekorV1ConsistencyClient:
+    """Fetch Rekor v1 Merkle consistency proofs."""
+
+    def __init__(
+        self,
+        base_url: str,
+        *,
+        timeout_seconds: float = 10.0,
+    ) -> None:
+        url = str(base_url).rstrip("/")
+        if not url:
+            raise ValueError("Rekor base URL is required")
+        entries_suffix = "/api/v1/log/entries"
+        log_suffix = "/api/v1/log"
+        if url.endswith(entries_suffix):
+            url = url[: -len("/entries")]
+        elif not url.endswith(log_suffix):
+            url += log_suffix
+        self.proof_endpoint = url + "/proof"
+        self.timeout_seconds = float(timeout_seconds)
+
+    def fetch(
+        self,
+        *,
+        first_size: int,
+        last_size: int,
+        tree_id: str | None = None,
+    ) -> dict[str, Any]:
+        params = {
+            "firstSize": int(first_size),
+            "lastSize": int(last_size),
+        }
+        if tree_id is not None:
+            params["treeID"] = str(tree_id)
+        request = Request(
+            self.proof_endpoint + "?" + urlencode(params),
+            headers={"Accept": "application/json"},
+            method="GET",
+        )
+        try:
+            with urlopen(request, timeout=self.timeout_seconds) as response:
+                status = int(response.status)
+                raw = response.read()
+        except (HTTPError, URLError, TimeoutError) as exc:
+            raise RekorCheckpointStateError(
+                f"Rekor consistency proof request failed: {exc}"
+            ) from exc
+        if status < 200 or status >= 300:
+            raise RekorCheckpointStateError(
+                f"Rekor consistency proof returned HTTP {status}"
+            )
+        try:
+            payload = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            raise RekorCheckpointStateError(
+                "Rekor consistency proof returned invalid JSON"
+            ) from exc
+        if not isinstance(payload, dict):
+            raise RekorCheckpointStateError(
+                "Rekor consistency proof must be an object"
+            )
+        root_hash = str(payload.get("rootHash") or "").lower()
+        hashes = payload.get("hashes")
+        if (
+            not _HEX_64.fullmatch(root_hash)
+            or not isinstance(hashes, list)
+            or any(not _HEX_64.fullmatch(str(item)) for item in hashes)
+        ):
+            raise RekorCheckpointStateError(
+                "invalid Rekor consistency proof response"
+            )
+        return {
+            "rootHash": root_hash,
+            "hashes": [str(item).lower() for item in hashes],
+        }
 
 
 class RekorCheckpointStateStore:
