@@ -31,6 +31,9 @@ class ControlPlane:
         github_webhook_secret: str | None = None,
         trusted_validation_secrets: dict[str, str] | None = None,
         provenance_secret: str | None = None,
+        trusted_validation_public_keys: dict[str, str] | None = None,
+        provenance_private_key: str | None = None,
+        provenance_public_key: str | None = None,
     ):
         self.backend = open_backend(database)
         self.queue = job_queue_for(self.backend)
@@ -44,6 +47,11 @@ class ControlPlane:
             self.workflows,
             trusted_validation_secrets=trusted_validation_secrets,
             provenance_secret=provenance_secret,
+            trusted_validation_public_keys=(
+                trusted_validation_public_keys
+            ),
+            provenance_private_key=provenance_private_key,
+            provenance_public_key=provenance_public_key,
         )
         self.authorizer = authorizer
         self.github_webhook_secret = github_webhook_secret
@@ -1324,6 +1332,9 @@ def serve_control_plane(
     github_webhook_secret: str | None = None,
     trusted_validation_secrets: dict[str, str] | None = None,
     provenance_secret: str | None = None,
+    trusted_validation_public_keys: dict[str, str] | None = None,
+    provenance_private_key: str | None = None,
+    provenance_public_key: str | None = None,
 ) -> None:
     control = ControlPlane(
         database,
@@ -1331,6 +1342,9 @@ def serve_control_plane(
         github_webhook_secret=github_webhook_secret,
         trusted_validation_secrets=trusted_validation_secrets,
         provenance_secret=provenance_secret,
+        trusted_validation_public_keys=trusted_validation_public_keys,
+        provenance_private_key=provenance_private_key,
+        provenance_public_key=provenance_public_key,
     )
     server = ThreadingHTTPServer(
         (host, port),
