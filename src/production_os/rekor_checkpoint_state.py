@@ -252,6 +252,34 @@ class RekorCheckpointStateStore:
             "observed_at": row["observed_at"],
         }
 
+    def _validated_values(
+        self,
+        *,
+        log_id: str,
+        origin: str,
+        tree_size: int,
+        root_hash: str,
+        checkpoint: str,
+        tree_id: str | None,
+    ) -> tuple[str, str, str | None, int, str, str, str]:
+        log_id_value = str(log_id).lower()
+        root_hash_value = str(root_hash).lower()
+        if not _HEX_64.fullmatch(log_id_value):
+            raise RekorCheckpointStateError("invalid Rekor log ID")
+        if not _HEX_64.fullmatch(root_hash_value):
+            raise RekorCheckpointStateError("invalid Rekor root hash")
+        if int(tree_size) <= 0:
+            raise RekorCheckpointStateError("invalid Rekor tree size")
+        return (
+            log_id_value,
+            str(origin),
+            tree_id,
+            int(tree_size),
+            root_hash_value,
+            str(checkpoint),
+            _utcnow(),
+        )
+
     def put(
         self,
         *,
@@ -262,15 +290,14 @@ class RekorCheckpointStateStore:
         checkpoint: str,
         tree_id: str | None = None,
     ) -> dict[str, Any]:
-        log_id_value = str(log_id).lower()
-        root_hash_value = str(root_hash).lower()
-        if not _HEX_64.fullmatch(log_id_value):
-            raise RekorCheckpointStateError("invalid Rekor log ID")
-        if not _HEX_64.fullmatch(root_hash_value):
-            raise RekorCheckpointStateError("invalid Rekor root hash")
-        if int(tree_size) <= 0:
-            raise RekorCheckpointStateError("invalid Rekor tree size")
-        observed_at = _utcnow()
+        values = self._validated_values(
+            log_id=log_id,
+            origin=origin,
+            tree_id=tree_id,
+            tree_size=tree_size,
+            root_hash=root_hash,
+            checkpoint=checkpoint,
+        )
         with self.backend.transaction() as db:
             db.execute(
                 self._sql(
@@ -288,17 +315,107 @@ class RekorCheckpointStateStore:
                         observed_at=excluded.observed_at
                     """
                 ),
+                values,
+            )
+        stored = self.get(values[0], values[1])
+        if stored is None:
+            raise RekorCheckpointStateError("failed to persist Rekor checkpoint")
+        return stored
+
+    def bootstrap(
+        self,
+        *,
+        log_id: str,
+        origin: str,
+        tree_size: int,
+        root_hash: str,
+        checkpoint: str,
+        tree_id: str | None = None,
+    ) -> dict[str, Any]:
+        values = self._validated_values(
+            log_id=log_id,
+            origin=origin,
+            tree_id=tree_id,
+            tree_size=tree_size,
+            root_hash=root_hash,
+            checkpoint=checkpoint,
+        )
+        with self.backend.transaction() as db:
+            cursor = db.execute(
+                self._sql(
+                    """
+                    INSERT INTO rekor_checkpoint_state(
+                        log_id, origin, tree_id, tree_size, root_hash,
+                        checkpoint, observed_at
+                    )
+                    VALUES(?, ?, ?, ?, ?, ?, ?)
+                    ON CONFLICT(log_id, origin) DO NOTHING
+                    """
+                ),
+                values,
+            )
+            inserted = cursor.rowcount == 1
+        stored = self.get(values[0], values[1])
+        if stored is None:
+            raise RekorCheckpointStateError("failed to persist Rekor checkpoint")
+        if not inserted and (
+            int(stored["tree_size"]) != values[3]
+            or str(stored["root_hash"]).lower() != values[4]
+        ):
+            raise RekorCheckpointStateError(
+                "concurrent Rekor checkpoint bootstrap conflict"
+            )
+        return stored
+
+    def advance(
+        self,
+        *,
+        log_id: str,
+        origin: str,
+        expected_tree_size: int,
+        expected_root_hash: str,
+        tree_size: int,
+        root_hash: str,
+        checkpoint: str,
+        tree_id: str | None = None,
+    ) -> dict[str, Any]:
+        values = self._validated_values(
+            log_id=log_id,
+            origin=origin,
+            tree_id=tree_id,
+            tree_size=tree_size,
+            root_hash=root_hash,
+            checkpoint=checkpoint,
+        )
+        expected_root = str(expected_root_hash).lower()
+        if not _HEX_64.fullmatch(expected_root):
+            raise RekorCheckpointStateError("invalid previous Rekor root hash")
+        with self.backend.transaction() as db:
+            cursor = db.execute(
+                self._sql(
+                    """
+                    UPDATE rekor_checkpoint_state
+                    SET tree_id=?, tree_size=?, root_hash=?, checkpoint=?, observed_at=?
+                    WHERE log_id=? AND origin=? AND tree_size=? AND root_hash=?
+                    """
+                ),
                 (
-                    log_id_value,
-                    str(origin),
-                    tree_id,
-                    int(tree_size),
-                    root_hash_value,
-                    str(checkpoint),
-                    observed_at,
+                    values[2],
+                    values[3],
+                    values[4],
+                    values[5],
+                    values[6],
+                    values[0],
+                    values[1],
+                    int(expected_tree_size),
+                    expected_root,
                 ),
             )
-        stored = self.get(log_id_value, str(origin))
+            if cursor.rowcount != 1:
+                raise RekorCheckpointStateError(
+                    "concurrent Rekor checkpoint state change detected"
+                )
+        stored = self.get(values[0], values[1])
         if stored is None:
             raise RekorCheckpointStateError("failed to persist Rekor checkpoint")
         return stored
@@ -341,7 +458,7 @@ class RekorCheckpointMonitor:
         origin = str(identity["origin"])
         previous = self.store.get(log_id, origin)
         if previous is None:
-            current = self.store.put(
+            current = self.store.bootstrap(
                 log_id=log_id,
                 origin=origin,
                 tree_id=identity["tree_id"],
@@ -382,9 +499,11 @@ class RekorCheckpointMonitor:
         ):
             raise RekorCheckpointStateError("invalid Rekor consistency proof")
 
-        current = self.store.put(
+        current = self.store.advance(
             log_id=log_id,
             origin=origin,
+            expected_tree_size=previous_size,
+            expected_root_hash=previous_root,
             tree_id=identity["tree_id"],
             tree_size=proof_size,
             root_hash=proof_root,
