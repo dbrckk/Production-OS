@@ -29,6 +29,11 @@ def canonical_bytes(payload: dict[str, Any]) -> bytes:
     ).encode("utf-8")
 
 
+def canonical_json(payload: dict[str, Any]) -> str:
+    """Return the canonical UTF-8 JSON representation used for signing."""
+    return canonical_bytes(payload).decode("utf-8")
+
+
 def key_id(public_key: Ed25519PublicKey) -> str:
     raw = public_key.public_bytes(
         encoding=serialization.Encoding.Raw,
