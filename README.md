@@ -2817,3 +2817,33 @@ Witness checkpoint creation validates this policy before signing, preventing a w
 ReleaseLedger uses the same centralized policy for validator/builder/provenance separation.
 
 This removes duplicated domain-separation logic and establishes one reusable trust-policy boundary for future KMS/HSM and external transparency integrations.
+
+### Pluggable signing boundary
+
+Production-OS now has a Signer interface for operations that require private-key signatures.
+
+Current backend:
+
+    PemSigner
+        local Ed25519 PEM compatibility backend
+
+Signer exposes only:
+
+    key_id
+    sign(payload)
+
+SLSA builder statements and transparency witness checkpoints can now be signed through this interface instead of requiring direct access to PEM key material.
+
+Strict trusted-builder ReleaseLedger operation uses the Signer boundary for builder signing. Existing PEM configuration is automatically wrapped in PemSigner, preserving deployment compatibility.
+
+This creates the integration boundary required for future:
+
+    cloud KMS
+    HSM
+    Vault Transit
+    PKCS#11
+    remote signing services
+
+Those backends can implement Signer without exposing private key bytes to ReleaseLedger or SLSA code.
+
+The local PEM backend remains appropriate for development and migration, while production can progressively move signing authority outside the Production-OS process.
