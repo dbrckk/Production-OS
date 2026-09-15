@@ -49,13 +49,32 @@ class TrustedKey:
         supplied = str(payload.get("key_id") or computed)
         if supplied != computed:
             raise KeyRegistryError("key_id does not match public key")
+        not_before = _parse_time(payload.get("not_before"))
+        not_after = _parse_time(payload.get("not_after"))
+        revoked_at = _parse_time(payload.get("revoked_at"))
+        if (
+            not_before is not None
+            and not_after is not None
+            and not_before > not_after
+        ):
+            raise KeyRegistryError(
+                "key not_before must not be after not_after"
+            )
+        if (
+            revoked_at is not None
+            and not_before is not None
+            and revoked_at < not_before
+        ):
+            raise KeyRegistryError(
+                "key revoked_at must not be before not_before"
+            )
         return cls(
             owner=str(owner),
             public_key=public_key,
             key_id=computed,
-            not_before=_parse_time(payload.get("not_before")),
-            not_after=_parse_time(payload.get("not_after")),
-            revoked_at=_parse_time(payload.get("revoked_at")),
+            not_before=not_before,
+            not_after=not_after,
+            revoked_at=revoked_at,
         )
 
     def usable_at(self, when: datetime) -> tuple[bool, str | None]:
@@ -81,9 +100,14 @@ class TrustedKeyRegistry:
                         "key registry entries must be objects"
                     )
                 item = TrustedKey.from_dict(str(owner), row)
-                self.by_owner.setdefault(
+                owner_keys = self.by_owner.setdefault(
                     str(owner), {}
-                )[item.key_id] = item
+                )
+                if item.key_id in owner_keys:
+                    raise KeyRegistryError(
+                        "duplicate signing key for owner"
+                    )
+                owner_keys[item.key_id] = item
 
     def resolve(
         self,
