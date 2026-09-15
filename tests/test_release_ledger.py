@@ -321,4 +321,11 @@ def test_release_ledger_promotes_ed25519_attestation(tmp_path):
     assert verification["valid"] is True
     assert verification["signature_scheme"]=="ed25519"
     assert verification["validator_id"]=="validator-v2"
+    assert release["metadata"]["slsa_provenance"]["statement"][
+        "_type"
+    ]=="https://in-toto.io/Statement/v1"
+    assert release["metadata"]["slsa_provenance"]["statement"][
+        "predicateType"
+    ]=="https://slsa.dev/provenance/v1"
+    assert len(release["metadata"]["slsa_statement_sha256"])==64
 
