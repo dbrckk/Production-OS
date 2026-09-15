@@ -2341,7 +2341,9 @@ The example Docker, PostgreSQL and TLS compose configurations pass both variable
 - [ ] asymmetric signing / offline public-key verification
 - [ ] key rotation metadata and key IDs
 - [x] internal append-only transparency hash-chain anchoring
-- [ ] external transparency-log anchoring
+- [x] signed external transparency checkpoints
+- [x] generic HTTP witness publication
+- [ ] provider-specific transparency service integration
 
 ## P16 asymmetric signing and offline verification
 
@@ -2584,3 +2586,44 @@ Audit endpoint:
 It returns the ordered append-only entries and current chain verification/root hash.
 
 The internal chain is intentionally separate from the remaining external anchoring milestone. A database administrator who can rewrite the complete database could still replace the entire local history and recompute the chain. The next stage therefore publishes periodic roots to an independent external transparency service or immutable witness.
+
+### External transparency witness
+
+Production-OS can now export the current append-only transparency root as an independently signed checkpoint.
+
+Create a checkpoint:
+
+    production-os transparency-checkpoint \
+      --database artifacts/production.db \
+      --private-key witness-private.pem \
+      --output checkpoint.json
+
+The signed checkpoint commits to:
+
+    schema version
+    transparency root hash
+    number of entries
+    checkpoint timestamp
+
+It is signed with Ed25519 and can be archived outside the Production-OS database.
+
+Offline verification:
+
+    production-os transparency-checkpoint-verify \
+      --checkpoint checkpoint.json \
+      --public-key witness-public.pem \
+      --root-hash <expected-root>
+
+A checkpoint may also be published to an independent HTTP witness:
+
+    production-os transparency-checkpoint \
+      --database artifacts/production.db \
+      --private-key witness-private.pem \
+      --publish-url https://witness.example/checkpoints \
+      --bearer-token-env WITNESS_TOKEN
+
+The HTTP body is the complete signed checkpoint envelope.
+
+This closes the local-only trust gap when the receiving witness stores checkpoints independently. A later full database rewrite can then be detected by comparing its recomputed root against a previously published checkpoint.
+
+The generic witness protocol deliberately avoids coupling Production-OS to one provider. Provider-specific Rekor or equivalent transparency integrations remain a separate milestone.
