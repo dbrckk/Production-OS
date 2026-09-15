@@ -991,7 +991,35 @@ def make_handler(control: ControlPlane):
                     )
                     return
 
-                if parsed.path.startswith("/v1/releases/"):
+                if parsed.path == "/v1/incident-snapshot":
+                principal = self._require("operator")
+                if principal is None:
+                    return
+                try:
+                    payload = self._read_json()
+                except ValueError as exc:
+                    self._send(
+                        HTTPStatus.BAD_REQUEST,
+                        {"error": str(exc)},
+                    )
+                    return
+                result = control.releases.record_incident_report(
+                    validator_id=payload.get("validator_id"),
+                    builder_id=payload.get("builder_id"),
+                    key_id=payload.get("key_id"),
+                )
+                self._send(
+                    HTTPStatus.CREATED if result["recorded"]
+                    else HTTPStatus.OK,
+                    {
+                        "schema_version":
+                            "production-os/trust-incident-snapshot/v1",
+                        **result,
+                    },
+                )
+                return
+
+            if parsed.path.startswith("/v1/releases/"):
                     parts = [
                         part
                         for part in parsed.path.split("/")
