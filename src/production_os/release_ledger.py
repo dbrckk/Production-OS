@@ -377,6 +377,128 @@ class ReleaseLedger:
             ],
         }
 
+    def record_incident_report(
+        self,
+        *,
+        validator_id: str | None = None,
+        builder_id: str | None = None,
+        key_id: str | None = None,
+    ) -> dict:
+        report = self.incident_report(
+            validator_id=validator_id,
+            builder_id=builder_id,
+            key_id=key_id,
+        )
+        now = _now()
+        with self.backend.transaction() as db:
+            previous = _execute(
+                db,
+                self.backend,
+                """
+                SELECT report_hash FROM trust_incident_reports
+                ORDER BY sequence DESC LIMIT 1
+                """,
+            ).fetchone()
+            previous_hash = (
+                str(previous["report_hash"])
+                if previous is not None
+                else GENESIS_HASH
+            )
+            entry_payload = {
+                "incident_id": report["incident_id"],
+                "report": report,
+                "previous_hash": previous_hash,
+            }
+            report_hash = _canonical_sha256(entry_payload)
+            _execute(
+                db,
+                self.backend,
+                """
+                INSERT INTO trust_incident_reports(
+                    incident_id, report_json, report_hash,
+                    previous_hash, created_at
+                ) VALUES(?, ?, ?, ?, ?)
+                """,
+                (
+                    report["incident_id"],
+                    json.dumps(
+                        report,
+                        ensure_ascii=False,
+                        sort_keys=True,
+                    ),
+                    report_hash,
+                    previous_hash,
+                    now,
+                ),
+            )
+        return {
+            "incident_id": report["incident_id"],
+            "report_hash": report_hash,
+            "previous_hash": previous_hash,
+            "recorded_at": now,
+            "report": report,
+        }
+
+    def incident_history(
+        self,
+        incident_id: str | None = None,
+    ) -> list[dict]:
+        statement = """
+            SELECT sequence, incident_id, report_json, report_hash,
+                   previous_hash, created_at
+            FROM trust_incident_reports
+        """
+        params: tuple = ()
+        if incident_id:
+            statement += " WHERE incident_id=?"
+            params = (incident_id,)
+        statement += " ORDER BY sequence ASC"
+        with self.backend.connect() as db:
+            rows = _execute(
+                db, self.backend, statement, params
+            ).fetchall()
+        return [
+            {
+                "sequence": row["sequence"],
+                "incident_id": row["incident_id"],
+                "report": json.loads(row["report_json"]),
+                "report_hash": row["report_hash"],
+                "previous_hash": row["previous_hash"],
+                "created_at": row["created_at"],
+            }
+            for row in rows
+        ]
+
+    def verify_incident_history(self) -> dict:
+        entries = self.incident_history()
+        previous_hash = GENESIS_HASH
+        for entry in entries:
+            if entry["previous_hash"] != previous_hash:
+                return {
+                    "valid": False,
+                    "entries": len(entries),
+                    "reason": "incident history chain mismatch",
+                    "sequence": entry["sequence"],
+                }
+            expected = _canonical_sha256({
+                "incident_id": entry["incident_id"],
+                "report": entry["report"],
+                "previous_hash": previous_hash,
+            })
+            if entry["report_hash"] != expected:
+                return {
+                    "valid": False,
+                    "entries": len(entries),
+                    "reason": "incident report hash mismatch",
+                    "sequence": entry["sequence"],
+                }
+            previous_hash = entry["report_hash"]
+        return {
+            "valid": True,
+            "entries": len(entries),
+            "head_hash": previous_hash,
+        }
+
     def promote(
         self,
         *,
