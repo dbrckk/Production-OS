@@ -6,6 +6,7 @@ import pytest
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import ec
 
+from production_os.signing import generate_keypair
 from production_os.transparency_receipts import (
     RECEIPT_SCHEMA,
     RekorV1Publisher,
@@ -346,3 +347,89 @@ def test_rekor_v1_publisher_posts_hashedrekord_and_returns_receipt(monkeypatch):
     assert observed["url"] == "https://rekor.example/api/v1/log/entries"
     assert observed["proposed"]["kind"] == "hashedrekord"
     assert receipt["proof_verified"] is True
+
+
+def test_rekor_v1_publisher_from_private_key_derives_signing_identity():
+    private_pem, public_pem = generate_keypair()
+    publisher = RekorV1Publisher.from_private_key(
+        "https://rekor.example",
+        private_key_pem=private_pem,
+    )
+
+    signature = publisher.signer(b"checkpoint")
+    public_key = serialization.load_pem_public_key(
+        public_pem.encode("ascii")
+    )
+    public_key.verify(signature, b"checkpoint")
+    assert publisher.public_key_pem == public_pem
+
+
+def test_rekor_v1_publisher_with_log_key_fails_closed_on_bad_set(monkeypatch):
+    envelope = _envelope()
+    log_private = ec.generate_private_key(ec.SECP256R1())
+    log_public = log_private.public_key()
+    log_public_pem = log_public.public_bytes(
+        serialization.Encoding.PEM,
+        serialization.PublicFormat.SubjectPublicKeyInfo,
+    ).decode("ascii")
+    log_id = hashlib.sha256(log_public.public_bytes(
+        serialization.Encoding.DER,
+        serialization.PublicFormat.SubjectPublicKeyInfo,
+    )).hexdigest()
+    private_pem, _ = generate_keypair()
+
+    class Response:
+        status = 201
+        def __enter__(self):
+            return self
+        def __exit__(self, *args):
+            return False
+        def read(self):
+            proposed = json.loads(self.request.data)
+            body = json.dumps(
+                proposed,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+            payload = {
+                "b" * 64: {
+                    "logID": log_id,
+                    "logIndex": 0,
+                    "integratedTime": 1_789_490_000,
+                    "body": base64.b64encode(body).decode("ascii"),
+                    "verification": {
+                        "inclusionProof": {
+                            "logIndex": 0,
+                            "rootHash": _leaf_hash(body),
+                            "treeSize": 1,
+                            "hashes": [],
+                            "checkpoint": "checkpoint",
+                        },
+                        "signedEntryTimestamp": base64.b64encode(
+                            b"forged"
+                        ).decode("ascii"),
+                    },
+                }
+            }
+            return json.dumps(payload).encode("utf-8")
+
+    def fake_urlopen(request, timeout):
+        response = Response()
+        response.request = request
+        return response
+
+    monkeypatch.setattr(
+        "production_os.transparency_receipts.urlopen",
+        fake_urlopen,
+    )
+    publisher = RekorV1Publisher.from_private_key(
+        "https://rekor.example",
+        private_key_pem=private_pem,
+        log_public_key_pem=log_public_pem,
+    )
+
+    with pytest.raises(
+        TransparencyReceiptError,
+        match="signed entry timestamp",
+    ):
+        publisher.publish(envelope)
