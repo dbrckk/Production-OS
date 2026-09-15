@@ -19,11 +19,13 @@ from .transparency import (
     create_entry as create_transparency_entry,
     verify_chain as verify_transparency_chain,
 )
+from .builder_identity import BuilderTrustPolicy
 from .supply_chain import (
     create_slsa_statement,
     sign_slsa_statement,
     statement_digest,
     verify_signed_slsa_statement,
+    verify_trusted_slsa_statement,
 )
 from .attestations import (
     AttestationError,
@@ -85,6 +87,10 @@ class ReleaseLedger:
         provenance_private_key: str | None = None,
         provenance_public_key: str | None = None,
         validation_signature_policy: str = "compatible",
+        builder_id: str = "https://production-os.local/builder",
+        trusted_builders: dict | None = None,
+        trusted_builder_keys: dict | None = None,
+        require_trusted_builder: bool = False,
     ):
         self.backend = backend
         self.workflows = workflows
@@ -111,6 +117,23 @@ class ReleaseLedger:
                 "dual-required, or ed25519-only"
             )
         self.validation_signature_policy = policy
+        self.builder_id = str(builder_id)
+        self.require_trusted_builder = bool(require_trusted_builder)
+        self.builder_trust_policy = (
+            BuilderTrustPolicy(
+                builders=dict(trusted_builders or {}),
+                signing_keys=dict(trusted_builder_keys or {}),
+            )
+            if trusted_builders or trusted_builder_keys
+            else None
+        )
+        if (
+            self.require_trusted_builder
+            and self.builder_trust_policy is None
+        ):
+            raise ValueError(
+                "trusted builder policy is required"
+            )
 
     @staticmethod
     def _validation_passed(validation: dict) -> bool:
@@ -488,6 +511,7 @@ class ReleaseLedger:
                 statement = create_slsa_statement(
                     release=release_preview,
                     provenance=provenance,
+                    builder_id=self.builder_id,
                 )
                 signed_statement = sign_slsa_statement(
                     statement=statement,
@@ -784,15 +808,30 @@ class ReleaseLedger:
             signed_statement = dict(
                 metadata.get("slsa_provenance") or {}
             )
-            if not verify_signed_slsa_statement(
-                signed_statement,
-                public_key_pem=self.provenance_public_key,
-                expected_sha256=metadata["artifact_sha256"],
-            ):
+            if self.require_trusted_builder:
+                if self.builder_trust_policy is None:
+                    return {
+                        "release_id":release_id,
+                        "valid":False,
+                        "reason":"trusted builder policy not configured",
+                    }
+                slsa_valid = verify_trusted_slsa_statement(
+                    signed_statement,
+                    builder_policy=self.builder_trust_policy,
+                    expected_repository=release["repository"],
+                    expected_sha256=metadata["artifact_sha256"],
+                )
+            else:
+                slsa_valid = verify_signed_slsa_statement(
+                    signed_statement,
+                    public_key_pem=self.provenance_public_key,
+                    expected_sha256=metadata["artifact_sha256"],
+                )
+            if not slsa_valid:
                 return {
                     "release_id":release_id,
                     "valid":False,
-                    "reason":"invalid SLSA provenance statement",
+                    "reason":"invalid or untrusted SLSA provenance statement",
                 }
             expected_statement_digest = statement_digest(
                 dict(signed_statement.get("statement") or {})
