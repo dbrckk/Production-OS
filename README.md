@@ -2410,9 +2410,49 @@ No database, control-plane access, validator private key, or shared HMAC secret 
 - [x] offline provenance verification CLI
 - [x] tamper-detection tests
 - [x] artifact/source/generation approval binding retained
-- [ ] integrate v2 signatures into ReleaseLedger promotion path
-- [ ] trusted public-key registry in control plane
+- [x] integrate v2 signatures into ReleaseLedger promotion path
+- [x] trusted public-key registry in control plane
 - [ ] dual-sign migration from P15 HMAC to P16 Ed25519
 - [ ] key validity windows and revocation metadata
 - [ ] SLSA/in-toto compatible statement envelope
 - [ ] external transparency-log anchoring
+
+### Integrated v2 promotion
+
+The ReleaseLedger now selects the verification path from the attestation schema.
+
+For `production-os/validation-attestation/v2`:
+
+    validator private key
+        ↓
+    Ed25519 validation attestation
+        ↓
+    trusted validator public-key registry
+        ↓
+    ReleaseLedger freshness + binding checks
+        ↓
+    operator approval binding
+        ↓
+    Ed25519 release provenance
+        ↓
+    immutable release record
+
+Control-plane trust configuration:
+
+    PRODUCTION_OS_VALIDATION_PUBLIC_KEYS
+    PRODUCTION_OS_RELEASE_PROVENANCE_PRIVATE_KEY
+    PRODUCTION_OS_RELEASE_PROVENANCE_PUBLIC_KEY
+
+`PRODUCTION_OS_VALIDATION_PUBLIC_KEYS` is a JSON object mapping validator IDs to PEM public keys.
+
+The legacy P15 HMAC path remains accepted for migration compatibility. A v2 attestation never falls back to HMAC if its public-key verification fails.
+
+`GET /v1/releases/<release-id>/verify` automatically verifies the correct chain and reports:
+
+    signature_scheme = ed25519
+
+or:
+
+    signature_scheme = hmac-sha256
+
+This allows controlled migration without making existing P15 releases unverifiable.
