@@ -2796,3 +2796,24 @@ Rejected examples:
 The comparison uses the public-key SHA-256 fingerprint, so re-encoding the same underlying private/public key does not bypass the invariant.
 
 This converts key separation from a deployment recommendation into an enforced cryptographic property whenever trusted builder enforcement is enabled.
+
+### Unified trust policy
+
+Cryptographic domain separation is now centralized in TrustPolicy.
+
+The policy covers four independent signing authorities:
+
+    validator
+    builder
+    release provenance
+    transparency witness
+
+With strict key domains enabled, the same Ed25519 fingerprint cannot appear in more than one authority.
+
+    PRODUCTION_OS_STRICT_KEY_DOMAINS=true
+
+Witness checkpoint creation validates this policy before signing, preventing a witness credential from reusing a configured builder, validator or release-provenance key.
+
+ReleaseLedger uses the same centralized policy for validator/builder/provenance separation.
+
+This removes duplicated domain-separation logic and establishes one reusable trust-policy boundary for future KMS/HSM and external transparency integrations.
