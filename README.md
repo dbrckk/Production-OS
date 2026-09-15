@@ -2902,3 +2902,33 @@ Builder configuration:
 The existing PRODUCTION_OS_BUILDER_PRIVATE_KEY remains available for the local PemSigner migration path.
 
 The generic remote backend is intentionally provider-neutral. Future KMS, Vault Transit and PKCS#11 adapters can be registered behind the same factory without changing ReleaseLedger.
+
+### Out-of-process signing for all release authorities
+
+The SignerFactory path now covers builder, release-provenance and transparency-witness signing.
+
+Builder:
+
+    PRODUCTION_OS_BUILDER_SIGNER_URI=remote+https://signer.example/builder
+    PRODUCTION_OS_BUILDER_SIGNER_KEY_ID=sha256:<builder>
+    PRODUCTION_OS_BUILDER_SIGNER_TOKEN=<secret>
+
+Release provenance:
+
+    PRODUCTION_OS_PROVENANCE_SIGNER_URI=remote+https://signer.example/provenance
+    PRODUCTION_OS_PROVENANCE_SIGNER_KEY_ID=sha256:<provenance>
+    PRODUCTION_OS_PROVENANCE_SIGNER_TOKEN=<secret>
+
+Witness CLI:
+
+    production-os transparency-checkpoint \
+      --database artifacts/production.db \
+      --witness-signer-uri remote+https://signer.example/witness \
+      --witness-signer-key-id sha256:<witness> \
+      --witness-signer-token-env WITNESS_SIGNER_TOKEN
+
+A local --private-key remains supported for witness migration and is wrapped as a PemSigner.
+
+With remote signers configured, the Production-OS control plane no longer needs the builder or release-provenance private key material. Witness checkpoint signing can likewise be performed without loading its private key.
+
+TrustPolicy continues to enforce domain separation from Signer.key_id values.
