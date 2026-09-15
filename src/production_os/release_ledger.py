@@ -290,6 +290,26 @@ class ReleaseLedger:
             else "medium" if affected_count >= 1
             else "none"
         )
+        affected_repositories = sorted({
+            str(item["repository"])
+            for item in affected
+            if item.get("repository")
+        })
+        affected_validators = sorted({
+            str(item["validator_id"])
+            for item in affected
+            if item.get("validator_id")
+        })
+        affected_builders = sorted({
+            str(item["builder_id"])
+            for item in affected
+            if item.get("builder_id")
+        })
+        reasons: dict[str, int] = {}
+        for item in affected:
+            reason = str(item.get("reason") or "verification failed")
+            reasons[reason] = reasons.get(reason, 0) + 1
+
         return {
             "valid": affected_count == 0,
             "total_releases": len(rows),
@@ -300,6 +320,12 @@ class ReleaseLedger:
                 "validator_id": validator_id,
                 "builder_id": builder_id,
                 "key_id": key_id,
+            },
+            "summary": {
+                "affected_repositories": affected_repositories,
+                "affected_validators": affected_validators,
+                "affected_builders": affected_builders,
+                "reasons": reasons,
             },
             "releases": releases,
         }
