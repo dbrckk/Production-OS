@@ -121,6 +121,13 @@ class ReleaseLedger:
         self.builder_id = str(builder_id)
         self.builder_private_key = builder_private_key
         self.require_trusted_builder = bool(require_trusted_builder)
+        if self.require_trusted_builder:
+            assert_separate_key_domains(
+                validator_keys=trusted_validation_public_keys,
+                builder_keys=trusted_builder_keys,
+                builder_private_key=builder_private_key,
+                provenance_private_key=provenance_private_key,
+            )
         self.builder_trust_policy = (
             BuilderTrustPolicy(
                 builders=dict(trusted_builders or {}),
