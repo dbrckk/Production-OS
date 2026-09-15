@@ -20,7 +20,7 @@ The existing generic `--publish-url` witness mechanism remains available and can
 
 ## Publish a checkpoint
 
-Provide a witness signing key, a dedicated key used to submit the `hashedrekord`, and a trusted Rekor log public key:
+Provide a witness signing key, a dedicated PKIX-compatible ECDSA or RSA private key used to submit the `hashedrekord`, and a trusted Rekor log public key. Rekor v1 `hashedrekord` does not support Ed25519 submission signatures because only the artifact digest, not the original message, is sent to Rekor; Production OS rejects Ed25519 for this path instead of allowing a request Rekor cannot verify.
 
 ```bash
 production-os transparency-checkpoint \
