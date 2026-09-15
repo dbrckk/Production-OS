@@ -470,45 +470,78 @@ class ReleaseLedger:
             metadata.get("validation_attestation") or {}
         )
         provenance = dict(metadata.get("provenance") or {})
-
-        if not self.trusted_validation_secrets:
-            return {
-                "release_id":release_id,
-                "valid":False,
-                "reason":"trusted validation attestation keys not configured",
-            }
-        if not self.provenance_secret:
-            return {
-                "release_id":release_id,
-                "valid":False,
-                "reason":"release provenance signing secret not configured",
-            }
+        asymmetric = str(
+            attestation.get("schema_version") or ""
+        ).endswith("/validation-attestation/v2")
 
         try:
-            verified = verify_validation_attestation(
-                attestation,
-                trusted_secrets=self.trusted_validation_secrets,
-                workflow_id=release["workflow_id"],
-                artifact_id=release["artifact_id"],
-                artifact_sha256=release["metadata"][
-                    "artifact_sha256"
-                ],
-                source_revision=release["source_revision"],
-                workflow_generation=release["workflow_generation"],
-                validation=release["validation"],
-                max_age_seconds=-1,
-            )
-        except AttestationError as exc:
+            if asymmetric:
+                if not self.trusted_validation_public_keys:
+                    raise RuntimeError(
+                        "trusted validation public keys not configured"
+                    )
+                if not self.provenance_public_key:
+                    raise RuntimeError(
+                        "release provenance public key not configured"
+                    )
+                verified = verify_validation_attestation_v2(
+                    attestation,
+                    trusted_public_keys=(
+                        self.trusted_validation_public_keys
+                    ),
+                    workflow_id=release["workflow_id"],
+                    artifact_id=release["artifact_id"],
+                    artifact_sha256=metadata["artifact_sha256"],
+                    source_revision=release["source_revision"],
+                    workflow_generation=release[
+                        "workflow_generation"
+                    ],
+                    validation=release["validation"],
+                    max_age_seconds=-1,
+                )
+                provenance_valid = verify_release_provenance_v2(
+                    provenance,
+                    public_key_pem=self.provenance_public_key,
+                )
+            else:
+                if not self.trusted_validation_secrets:
+                    raise RuntimeError(
+                        "trusted validation attestation keys "
+                        "not configured"
+                    )
+                if not self.provenance_secret:
+                    raise RuntimeError(
+                        "release provenance signing secret "
+                        "not configured"
+                    )
+                verified = verify_validation_attestation(
+                    attestation,
+                    trusted_secrets=self.trusted_validation_secrets,
+                    workflow_id=release["workflow_id"],
+                    artifact_id=release["artifact_id"],
+                    artifact_sha256=metadata["artifact_sha256"],
+                    source_revision=release["source_revision"],
+                    workflow_generation=release[
+                        "workflow_generation"
+                    ],
+                    validation=release["validation"],
+                    max_age_seconds=-1,
+                )
+                provenance_valid = verify_release_provenance(
+                    provenance,
+                    secret=self.provenance_secret,
+                )
+        except (
+            AttestationError,
+            AsymmetricAttestationError,
+            RuntimeError,
+        ) as exc:
             return {
                 "release_id":release_id,
                 "valid":False,
                 "reason":str(exc),
             }
 
-        provenance_valid = verify_release_provenance(
-            provenance,
-            secret=self.provenance_secret,
-        )
         if not provenance_valid:
             return {
                 "release_id":release_id,
@@ -521,41 +554,48 @@ class ReleaseLedger:
             "workflow_id":release["workflow_id"],
             "artifact_id":release["artifact_id"],
             "repository":release["repository"],
-            "artifact_sha256":release["metadata"][
-                "artifact_sha256"
-            ],
+            "artifact_sha256":metadata["artifact_sha256"],
             "source_revision":release["source_revision"],
             "workflow_generation":release["workflow_generation"],
             "validator_id":verified["validator_id"],
-            "validation_attestation_signature":
-                verified["signature"],
-            "approval_key":release["metadata"]["approval"][
-                "approval_key"
-            ],
-            "approved_by":release["metadata"]["approval"][
-                "approved_by"
-            ],
-            "approval_role":release["metadata"]["approval"][
-                "role"
-            ],
+            "approval_key":metadata["approval"]["approval_key"],
+            "approved_by":metadata["approval"]["approved_by"],
+            "approval_role":metadata["approval"]["role"],
             "created_at":release["created_at"],
         }
+        if asymmetric:
+            expected.update({
+                "validation_attestation_key_id":
+                    verified["signature"]["key_id"],
+                "validation_attestation_signature":
+                    verified["signature"]["signature"],
+            })
+        else:
+            expected["validation_attestation_signature"] = (
+                verified["signature"]
+            )
+
         for key, value in expected.items():
             if provenance.get(key) != value:
                 return {
                     "release_id":release_id,
                     "valid":False,
-                    "reason":f"release provenance binding mismatch: {key}",
+                    "reason":
+                        f"release provenance binding mismatch: {key}",
                 }
 
+        signature = provenance["signature"]
         return {
             "release_id":release_id,
             "valid":True,
+            "signature_scheme":(
+                "ed25519" if asymmetric else "hmac-sha256"
+            ),
             "validator_id":verified["validator_id"],
             "source_revision":release["source_revision"],
             "workflow_generation":release["workflow_generation"],
-            "artifact_sha256":release["metadata"]["artifact_sha256"],
-            "provenance_signature":provenance["signature"],
+            "artifact_sha256":metadata["artifact_sha256"],
+            "provenance_signature":signature,
         }
 
     def rollback(
