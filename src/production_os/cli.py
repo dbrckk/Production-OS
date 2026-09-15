@@ -77,6 +77,12 @@ from .rekor_checkpoint_state import (
     RekorCheckpointMonitor,
     RekorCheckpointStateStore,
     RekorV1ConsistencyClient,
+    parse_checkpoint_identity,
+)
+from .rekor_witness_quorum import (
+    RekorWitnessObservationStore,
+    collect_rekor_witness_quorum,
+    load_rekor_witness_config,
 )
 from .asymmetric_attestations import (
     create_validation_attestation as create_validation_attestation_v2,
@@ -568,6 +574,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     checkpoint.add_argument("--rekor-url")
     checkpoint.add_argument("--rekor-private-key")
     checkpoint.add_argument("--rekor-log-public-key")
+    checkpoint.add_argument("--rekor-witness-config")
     checkpoint.add_argument("--receipt-output")
 
     checkpointverify = sub.add_parser(
@@ -2101,6 +2108,11 @@ def run_transparency_checkpoint(
         )
     rekor_url=getattr(args,"rekor_url",None)
     receipt_output=getattr(args,"receipt_output",None)
+    rekor_witness_config=getattr(args,"rekor_witness_config",None)
+    if rekor_witness_config and not rekor_url:
+        raise RuntimeError(
+            "--rekor-witness-config requires --rekor-url"
+        )
     if rekor_url:
         rekor_private_key=getattr(args,"rekor_private_key",None)
         rekor_log_public_key=getattr(
@@ -2124,6 +2136,27 @@ def run_transparency_checkpoint(
             ).read_text(encoding="ascii"),
         )
         receipt=publisher.publish(envelope)
+        if rekor_witness_config:
+            proof=receipt.get("inclusion_proof")
+            if not isinstance(proof,dict):
+                raise RuntimeError("Rekor inclusion proof is required")
+            identity=parse_checkpoint_identity(
+                str(proof.get("checkpoint") or "")
+            )
+            quorum=collect_rekor_witness_quorum(
+                load_rekor_witness_config(rekor_witness_config),
+                log_id=str(receipt.get("log_id") or ""),
+                origin=identity["origin"],
+                tree_size=int(proof["treeSize"]),
+                root_hash=str(proof["rootHash"]),
+                store=RekorWitnessObservationStore(ledger.backend),
+            )
+            result["rekor_witness_quorum"]=quorum
+            if not quorum["valid"]:
+                raise RuntimeError(
+                    "Rekor witness quorum failed: "
+                    + str(quorum.get("reason") or "invalid quorum")
+                )
         checkpoint_state=RekorCheckpointMonitor(
             RekorCheckpointStateStore(ledger.backend),
             proof_fetcher=RekorV1ConsistencyClient(
