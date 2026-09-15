@@ -117,11 +117,7 @@ def verify_consistency_proof(
         fn >>= 1
         sn >>= 1
 
-    return (
-        sn == 0
-        and first_hash == first_root
-        and second_hash == second_root
-    )
+    return sn == 0 and first_hash == first_root and second_hash == second_root
 
 
 class RekorV1ConsistencyClient:
@@ -208,6 +204,12 @@ class RekorCheckpointStateStore:
         self.backend = backend
         self._initialize()
 
+    def _is_postgres(self) -> bool:
+        return self.backend.__class__.__name__.startswith("Postgres")
+
+    def _sql(self, statement: str) -> str:
+        return statement.replace("?", "%s") if self._is_postgres() else statement
+
     def _initialize(self) -> None:
         with self.backend.connect() as db:
             db.execute(
@@ -216,7 +218,7 @@ class RekorCheckpointStateStore:
                     log_id TEXT NOT NULL,
                     origin TEXT NOT NULL,
                     tree_id TEXT,
-                    tree_size INTEGER NOT NULL,
+                    tree_size BIGINT NOT NULL,
                     root_hash TEXT NOT NULL,
                     checkpoint TEXT NOT NULL,
                     observed_at TEXT NOT NULL,
@@ -228,12 +230,14 @@ class RekorCheckpointStateStore:
     def get(self, log_id: str, origin: str) -> dict[str, Any] | None:
         with self.backend.connect() as db:
             row = db.execute(
-                """
-                SELECT log_id, origin, tree_id, tree_size, root_hash,
-                       checkpoint, observed_at
-                FROM rekor_checkpoint_state
-                WHERE log_id=? AND origin=?
-                """,
+                self._sql(
+                    """
+                    SELECT log_id, origin, tree_id, tree_size, root_hash,
+                           checkpoint, observed_at
+                    FROM rekor_checkpoint_state
+                    WHERE log_id=? AND origin=?
+                    """
+                ),
                 (str(log_id).lower(), str(origin)),
             ).fetchone()
         if row is None:
@@ -269,19 +273,21 @@ class RekorCheckpointStateStore:
         observed_at = _utcnow()
         with self.backend.transaction() as db:
             db.execute(
-                """
-                INSERT INTO rekor_checkpoint_state(
-                    log_id, origin, tree_id, tree_size, root_hash,
-                    checkpoint, observed_at
-                )
-                VALUES(?, ?, ?, ?, ?, ?, ?)
-                ON CONFLICT(log_id, origin) DO UPDATE SET
-                    tree_id=excluded.tree_id,
-                    tree_size=excluded.tree_size,
-                    root_hash=excluded.root_hash,
-                    checkpoint=excluded.checkpoint,
-                    observed_at=excluded.observed_at
-                """,
+                self._sql(
+                    """
+                    INSERT INTO rekor_checkpoint_state(
+                        log_id, origin, tree_id, tree_size, root_hash,
+                        checkpoint, observed_at
+                    )
+                    VALUES(?, ?, ?, ?, ?, ?, ?)
+                    ON CONFLICT(log_id, origin) DO UPDATE SET
+                        tree_id=excluded.tree_id,
+                        tree_size=excluded.tree_size,
+                        root_hash=excluded.root_hash,
+                        checkpoint=excluded.checkpoint,
+                        observed_at=excluded.observed_at
+                    """
+                ),
                 (
                     log_id_value,
                     str(origin),
