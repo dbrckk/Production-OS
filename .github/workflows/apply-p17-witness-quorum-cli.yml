@@ -27,90 +27,94 @@ jobs:
           path = Path("src/production_os/cli.py")
           text = path.read_text()
 
-          old_import = '''from .rekor_checkpoint_state import (
-              RekorCheckpointMonitor,
-              RekorCheckpointStateStore,
-              RekorV1ConsistencyClient,
+          state_import = "    RekorV1ConsistencyClient,\n)\n"
+          state_replacement = (
+              "    RekorV1ConsistencyClient,\n"
+              "    parse_checkpoint_identity,\n"
+              ")\n"
           )
-          from .asymmetric_attestations import (
-          '''
-          new_import = '''from .rekor_checkpoint_state import (
-              RekorCheckpointMonitor,
-              RekorCheckpointStateStore,
-              RekorV1ConsistencyClient,
+          if "    parse_checkpoint_identity,\n" not in text:
+              if state_import not in text:
+                  raise SystemExit("checkpoint-state import anchor not found")
+              text = text.replace(state_import, state_replacement, 1)
+
+          asymmetric_anchor = "from .asymmetric_attestations import (\n"
+          quorum_import = (
+              "from .rekor_witness_quorum import (\n"
+              "    RekorWitnessObservationStore,\n"
+              "    collect_rekor_witness_quorum,\n"
+              "    load_rekor_witness_config,\n"
+              ")\n"
           )
-          from .rekor_witness_quorum import (
-              RekorWitnessObservationStore,
-              collect_rekor_witness_quorum,
-              load_rekor_witness_config,
+          if "from .rekor_witness_quorum import (\n" not in text:
+              if asymmetric_anchor not in text:
+                  raise SystemExit("asymmetric import anchor not found")
+              text = text.replace(
+                  asymmetric_anchor,
+                  quorum_import + asymmetric_anchor,
+                  1,
+              )
+
+          parser_anchor = '    checkpoint.add_argument("--rekor-log-public-key")\n'
+          parser_line = '    checkpoint.add_argument("--rekor-witness-config")\n'
+          if parser_line not in text:
+              if parser_anchor not in text:
+                  raise SystemExit("checkpoint parser anchor not found")
+              text = text.replace(
+                  parser_anchor,
+                  parser_anchor + parser_line,
+                  1,
+              )
+
+          receipt_anchor = '    receipt_output=getattr(args,"receipt_output",None)\n'
+          guard = (
+              '    rekor_witness_config=getattr(args,"rekor_witness_config",None)\n'
+              '    if rekor_witness_config and not rekor_url:\n'
+              '        raise RuntimeError(\n'
+              '            "--rekor-witness-config requires --rekor-url"\n'
+              '        )\n'
           )
-          from .asymmetric_attestations import (
-          '''
-          if old_import not in text:
-              raise SystemExit("rekor import anchor not found")
-          text = text.replace(old_import, new_import, 1)
+          if '    rekor_witness_config=getattr(args,"rekor_witness_config",None)\n' not in text:
+              if receipt_anchor not in text:
+                  raise SystemExit("receipt config anchor not found")
+              text = text.replace(
+                  receipt_anchor,
+                  receipt_anchor + guard,
+                  1,
+              )
 
-          old_parser = '''    checkpoint.add_argument("--rekor-log-public-key")
-              checkpoint.add_argument("--receipt-output")
-          '''
-          new_parser = '''    checkpoint.add_argument("--rekor-log-public-key")
-              checkpoint.add_argument("--rekor-witness-config")
-              checkpoint.add_argument("--receipt-output")
-          '''
-          if old_parser not in text:
-              raise SystemExit("checkpoint parser anchor not found")
-          text = text.replace(old_parser, new_parser, 1)
-
-          old_flow = '''        result["rekor_checkpoint_state"]=checkpoint_state
-              result["rekor_receipt"]=receipt
-              if receipt_output:
-          '''
-          new_flow = '''        result["rekor_checkpoint_state"]=checkpoint_state
-              result["rekor_receipt"]=receipt
-              rekor_witness_config=getattr(
-                  args,"rekor_witness_config",None
+          publish_anchor = '        receipt=publisher.publish(envelope)\n'
+          quorum_flow = (
+              '        if rekor_witness_config:\n'
+              '            proof=receipt.get("inclusion_proof")\n'
+              '            if not isinstance(proof,dict):\n'
+              '                raise RuntimeError("Rekor inclusion proof is required")\n'
+              '            identity=parse_checkpoint_identity(\n'
+              '                str(proof.get("checkpoint") or "")\n'
+              '            )\n'
+              '            quorum=collect_rekor_witness_quorum(\n'
+              '                load_rekor_witness_config(rekor_witness_config),\n'
+              '                log_id=str(receipt.get("log_id") or ""),\n'
+              '                origin=identity["origin"],\n'
+              '                tree_size=int(proof["treeSize"]),\n'
+              '                root_hash=str(proof["rootHash"]),\n'
+              '                store=RekorWitnessObservationStore(ledger.backend),\n'
+              '            )\n'
+              '            result["rekor_witness_quorum"]=quorum\n'
+              '            if not quorum["valid"]:\n'
+              '                raise RuntimeError(\n'
+              '                    "Rekor witness quorum failed: "\n'
+              '                    + str(quorum.get("reason") or "invalid quorum")\n'
+              '                )\n'
+          )
+          if '            quorum=collect_rekor_witness_quorum(\n' not in text:
+              if publish_anchor not in text:
+                  raise SystemExit("Rekor publish anchor not found")
+              text = text.replace(
+                  publish_anchor,
+                  publish_anchor + quorum_flow,
+                  1,
               )
-              if rekor_witness_config:
-                  current=checkpoint_state["checkpoint"]
-                  quorum=collect_rekor_witness_quorum(
-                      load_rekor_witness_config(rekor_witness_config),
-                      log_id=current["log_id"],
-                      origin=current["origin"],
-                      tree_size=current["tree_size"],
-                      root_hash=current["root_hash"],
-                      store=RekorWitnessObservationStore(ledger.backend),
-                  )
-                  result["rekor_witness_quorum"]=quorum
-                  if not quorum["valid"]:
-                      raise RuntimeError(
-                          "Rekor witness quorum failed: "
-                          + str(quorum.get("reason") or "invalid quorum")
-                      )
-              if receipt_output:
-          '''
-          if old_flow not in text:
-              raise SystemExit("Rekor publication flow anchor not found")
-          text = text.replace(old_flow, new_flow, 1)
-
-          old_tail = '''    elif receipt_output:
-              raise RuntimeError(
-                  "--receipt-output requires --rekor-url"
-              )
-              rendered=json.dumps(result,indent=2,ensure_ascii=False)
-          '''
-          new_tail = '''    elif receipt_output:
-              raise RuntimeError(
-                  "--receipt-output requires --rekor-url"
-              )
-              elif getattr(args,"rekor_witness_config",None):
-              raise RuntimeError(
-                  "--rekor-witness-config requires --rekor-url"
-              )
-              rendered=json.dumps(result,indent=2,ensure_ascii=False)
-          '''
-          if old_tail not in text:
-              raise SystemExit("Rekor publication tail anchor not found")
-          text = text.replace(old_tail, new_tail, 1)
 
           path.write_text(text)
           PY
