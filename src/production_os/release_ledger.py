@@ -88,6 +88,7 @@ class ReleaseLedger:
         provenance_public_key: str | None = None,
         validation_signature_policy: str = "compatible",
         builder_id: str = "https://production-os.local/builder",
+        builder_private_key: str | None = None,
         trusted_builders: dict | None = None,
         trusted_builder_keys: dict | None = None,
         require_trusted_builder: bool = False,
@@ -118,6 +119,7 @@ class ReleaseLedger:
             )
         self.validation_signature_policy = policy
         self.builder_id = str(builder_id)
+        self.builder_private_key = builder_private_key
         self.require_trusted_builder = bool(require_trusted_builder)
         self.builder_trust_policy = (
             BuilderTrustPolicy(
@@ -513,9 +515,20 @@ class ReleaseLedger:
                     provenance=provenance,
                     builder_id=self.builder_id,
                 )
+                slsa_signing_key = (
+                    self.builder_private_key
+                    or self.provenance_private_key
+                )
+                if self.require_trusted_builder and not (
+                    self.builder_private_key
+                ):
+                    raise RuntimeError(
+                        "dedicated builder private key is required "
+                        "when trusted builder enforcement is enabled"
+                    )
                 signed_statement = sign_slsa_statement(
                     statement=statement,
-                    private_key_pem=self.provenance_private_key,
+                    private_key_pem=slsa_signing_key,
                 )
             else:
                 provenance = create_release_provenance(
