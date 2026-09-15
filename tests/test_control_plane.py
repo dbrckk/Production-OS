@@ -306,3 +306,49 @@ def test_incident_snapshot_rejects_invalid_payload_shapes(tmp_path):
     finally:
         server.shutdown()
         server.server_close()
+
+
+def test_http_body_parser_rejects_invalid_json_and_oversized_payload(tmp_path):
+    auth=TokenAuthorizer([
+        {"name":"operator","role":"operator","sha256":token_digest("operator")},
+    ])
+    control=ControlPlane(str(tmp_path/"db.sqlite"),authorizer=auth)
+    server=ThreadingHTTPServer(("127.0.0.1",0),make_handler(control))
+    thread=threading.Thread(target=server.serve_forever,daemon=True)
+    thread.start()
+    base=f"http://127.0.0.1:{server.server_port}"
+    try:
+        req=urllib.request.Request(
+            base+"/v1/incident-snapshot",
+            data=b'{"key_id":',
+            headers={
+                "Authorization":"Bearer operator",
+                "Content-Type":"application/json",
+            },
+            method="POST",
+        )
+        try:
+            urllib.request.urlopen(req,timeout=3)
+            assert False, "invalid JSON must fail"
+        except urllib.error.HTTPError as exc:
+            assert exc.code==400
+            assert json.loads(exc.read())["error"]=="invalid JSON body"
+
+        req=urllib.request.Request(
+            base+"/v1/incident-snapshot",
+            data=b"x"*(1024*1024+1),
+            headers={
+                "Authorization":"Bearer operator",
+                "Content-Type":"application/json",
+            },
+            method="POST",
+        )
+        try:
+            urllib.request.urlopen(req,timeout=3)
+            assert False, "oversized body must fail"
+        except urllib.error.HTTPError as exc:
+            assert exc.code==400
+            assert json.loads(exc.read())["error"]=="request body too large"
+    finally:
+        server.shutdown()
+        server.server_close()
