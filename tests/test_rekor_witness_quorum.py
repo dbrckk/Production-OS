@@ -1,6 +1,11 @@
+import json
+
 from production_os.signing import generate_keypair, sign_payload
+from production_os.sqlite_backend import SQLiteBackend
 from production_os.rekor_witness_quorum import (
     REKOR_WITNESS_SCHEMA,
+    RekorWitnessClient,
+    RekorWitnessObservationStore,
     evaluate_rekor_witness_quorum,
 )
 
@@ -110,3 +115,81 @@ def test_quorum_fails_closed_on_valid_same_size_conflicting_root():
     assert result["valid_witnesses"] == ["w1", "w2"]
     assert result["conflicting_witnesses"] == ["w3"]
     assert result["reason"] == "conflicting Rekor witness observation"
+
+
+def test_witness_client_posts_rekor_tree_request_and_returns_signed_observation(
+    monkeypatch,
+):
+    private_key, _ = generate_keypair()
+    signed = _signed_observation("w1", private_key)
+    observed = {}
+
+    class Response:
+        status = 200
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def read(self):
+            return json.dumps(signed).encode("utf-8")
+
+    def fake_urlopen(request, timeout):
+        observed["url"] = request.full_url
+        observed["timeout"] = timeout
+        observed["method"] = request.get_method()
+        observed["body"] = json.loads(request.data)
+        return Response()
+
+    monkeypatch.setattr(
+        "production_os.rekor_witness_quorum.urlopen",
+        fake_urlopen,
+    )
+
+    result = RekorWitnessClient(
+        "https://w1.example/observe",
+        timeout_seconds=4.5,
+    ).observe(
+        log_id="a" * 64,
+        origin="rekor.example - 42",
+        tree_size=17,
+        root_hash="b" * 64,
+    )
+
+    assert observed["url"] == "https://w1.example/observe"
+    assert observed["method"] == "POST"
+    assert observed["timeout"] == 4.5
+    assert observed["body"] == {
+        "schema_version": "production-os/rekor-witness-request/v1",
+        "log_id": "a" * 64,
+        "origin": "rekor.example - 42",
+        "tree_size": 17,
+        "root_hash": "b" * 64,
+    }
+    assert result == signed
+
+
+def test_witness_observation_store_persists_signed_audit_record(tmp_path):
+    private_key, _ = generate_keypair()
+    response = _signed_observation("w1", private_key)
+    store = RekorWitnessObservationStore(
+        SQLiteBackend(tmp_path / "state.db")
+    )
+
+    stored = store.record(
+        response=response,
+        verdict="valid",
+    )
+    rows = store.list_for_tree(
+        log_id="a" * 64,
+        origin="rekor.example - 42",
+        tree_size=17,
+    )
+
+    assert stored["witness_id"] == "w1"
+    assert stored["verdict"] == "valid"
+    assert len(rows) == 1
+    assert rows[0]["root_hash"] == "b" * 64
+    assert rows[0]["response"] == response
