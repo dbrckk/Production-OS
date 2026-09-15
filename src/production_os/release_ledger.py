@@ -213,14 +213,20 @@ class ReleaseLedger:
             ).fetchall()
         return [self._row(row) for row in rows]
 
-    def trust_status(self) -> dict:
-        """Re-evaluate every promoted release against current trust policy."""
+    def trust_status(
+        self,
+        *,
+        validator_id: str | None = None,
+        builder_id: str | None = None,
+        key_id: str | None = None,
+    ) -> dict:
+        """Re-evaluate promoted releases and report trust blast radius."""
         with self.backend.connect() as db:
             rows = _execute(
                 db,
                 self.backend,
                 """
-                SELECT id FROM releases
+                SELECT * FROM releases
                 WHERE status='promoted'
                 ORDER BY created_at ASC, id ASC
                 """,
@@ -228,11 +234,46 @@ class ReleaseLedger:
 
         releases = []
         affected = []
+        matched = 0
         for row in rows:
-            release_id = row["id"]
-            verification = self.verify(release_id)
+            release = self._row(row)
+            metadata = dict(release.get("metadata") or {})
+            attestation = dict(
+                metadata.get("validation_attestation") or {}
+            )
+            slsa = dict(metadata.get("slsa_provenance") or {})
+            statement = dict(slsa.get("statement") or {})
+            predicate = dict(statement.get("predicate") or {})
+            run_details = dict(predicate.get("runDetails") or {})
+            builder = dict(run_details.get("builder") or {})
+            attestation_signature = dict(
+                attestation.get("signature") or {}
+            )
+            slsa_signature = dict(slsa.get("signature") or {})
+
+            release_validator = str(
+                attestation.get("validator_id") or ""
+            )
+            release_builder = str(builder.get("id") or "")
+            release_keys = {
+                str(attestation_signature.get("key_id") or ""),
+                str(slsa_signature.get("key_id") or ""),
+            }
+
+            if validator_id and release_validator != validator_id:
+                continue
+            if builder_id and release_builder != builder_id:
+                continue
+            if key_id and key_id not in release_keys:
+                continue
+            matched += 1
+
+            verification = self.verify(release["id"])
             item = {
-                "release_id": release_id,
+                "release_id": release["id"],
+                "repository": release["repository"],
+                "validator_id": release_validator or None,
+                "builder_id": release_builder or None,
                 "valid": bool(verification.get("valid")),
             }
             if not item["valid"]:
@@ -242,10 +283,24 @@ class ReleaseLedger:
                 affected.append(item)
             releases.append(item)
 
+        affected_count = len(affected)
+        severity = (
+            "critical" if affected_count >= 10
+            else "high" if affected_count >= 3
+            else "medium" if affected_count >= 1
+            else "none"
+        )
         return {
-            "valid": not affected,
-            "total_releases": len(releases),
-            "affected_releases": len(affected),
+            "valid": affected_count == 0,
+            "total_releases": len(rows),
+            "matched_releases": matched,
+            "affected_releases": affected_count,
+            "severity": severity,
+            "filters": {
+                "validator_id": validator_id,
+                "builder_id": builder_id,
+                "key_id": key_id,
+            },
             "releases": releases,
         }
 
