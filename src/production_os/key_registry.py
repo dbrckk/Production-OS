@@ -35,6 +35,7 @@ class TrustedKey:
     not_before: datetime | None = None
     not_after: datetime | None = None
     revoked_at: datetime | None = None
+    compromised: bool = False
 
     @classmethod
     def from_dict(
@@ -52,6 +53,7 @@ class TrustedKey:
         not_before = _parse_time(payload.get("not_before"))
         not_after = _parse_time(payload.get("not_after"))
         revoked_at = _parse_time(payload.get("revoked_at"))
+        compromised = bool(payload.get("compromised", False))
         if (
             not_before is not None
             and not_after is not None
@@ -75,9 +77,12 @@ class TrustedKey:
             not_before=not_before,
             not_after=not_after,
             revoked_at=revoked_at,
+            compromised=compromised,
         )
 
     def usable_at(self, when: datetime) -> tuple[bool, str | None]:
+        if self.compromised:
+            return False, "signing key is compromised"
         if self.not_before and when < self.not_before:
             return False, "signing key is not active yet"
         if self.not_after and when > self.not_after:
