@@ -14,19 +14,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Restore release signer imports
+      - name: Restore release security imports
         run: |
           python - <<'PY'
           from pathlib import Path
 
           path = Path("src/production_os/release_ledger.py")
           text = path.read_text()
-          import_line = "from .signers import Signer, coerce_signer\n"
-          if import_line not in text:
-              marker = "import uuid\n\n"
-              if marker not in text:
-                  raise SystemExit("release_ledger import marker not found")
-              text = text.replace(marker, marker + import_line, 1)
+          marker = "import uuid\n\n"
+          if marker not in text:
+              raise SystemExit("release_ledger import marker not found")
+          imports = (
+              "from .signers import Signer, coerce_signer\n"
+              "from .trust_policy import TrustPolicy\n"
+          )
+          for line in imports.splitlines(keepends=True):
+              if line not in text:
+                  text = text.replace(marker, marker + line, 1)
           path.write_text(text)
           PY
       - name: Compile check
@@ -47,10 +51,10 @@ jobs:
                   authorizer=TokenAuthorizer([]),
               )
           PY
-      - name: Commit signer import repair
+      - name: Commit security import repair
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add src/production_os/release_ledger.py
-          git diff --cached --quiet || git commit -m "fix(release): restore signer coercion imports"
+          git diff --cached --quiet || git commit -m "fix(release): restore security helper imports"
           git push
