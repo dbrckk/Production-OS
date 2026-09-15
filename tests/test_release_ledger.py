@@ -1,6 +1,10 @@
 import pytest
 
 from production_os.attestations import create_validation_attestation
+from production_os.asymmetric_attestations import (
+    create_validation_attestation as create_validation_attestation_v2,
+)
+from production_os.signing import generate_keypair
 from production_os.release_ledger import ReleaseLedger
 from production_os.sqlite_backend import SQLiteBackend, SQLiteJobQueue
 from production_os.workflow_engine import WorkflowEngine, WorkflowTaskSpec
@@ -274,4 +278,47 @@ def test_promotion_requires_operator_approval(tmp_path):
             attestation=signed_attestation(workflow,artifact),
             approval={},
         )
+
+
+def test_release_ledger_promotes_ed25519_attestation(tmp_path):
+    backend,workflows,_,workflow,artifact=setup_release(tmp_path)
+    validator_private,validator_public=generate_keypair()
+    release_private,release_public=generate_keypair()
+    releases=ReleaseLedger(
+        backend,
+        workflows,
+        trusted_validation_public_keys={
+            "validator-v2":validator_public
+        },
+        provenance_private_key=release_private,
+        provenance_public_key=release_public,
+    )
+    attestation=create_validation_attestation_v2(
+        validator_id="validator-v2",
+        private_key_pem=validator_private,
+        workflow_id=workflow["id"],
+        artifact_id=artifact["id"],
+        artifact_sha256=artifact["sha256"],
+        source_revision=artifact["metadata"]["source_revision"],
+        workflow_generation=artifact["metadata"][
+            "workflow_generation"
+        ],
+        validation=passed_validation(),
+    )
+
+    release=releases.promote(
+        workflow_id=workflow["id"],
+        artifact_id=artifact["id"],
+        validation=passed_validation(),
+        attestation=attestation,
+        approval=approval(),
+    )
+
+    assert release["metadata"]["provenance"][
+        "schema_version"
+    ]=="production-os/release-provenance/v2"
+    verification=releases.verify(release["id"])
+    assert verification["valid"] is True
+    assert verification["signature_scheme"]=="ed25519"
+    assert verification["validator_id"]=="validator-v2"
 
