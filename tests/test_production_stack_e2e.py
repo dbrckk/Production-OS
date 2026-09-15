@@ -135,7 +135,7 @@ def test_postgres_http_worker_workflow_release_pipeline_end_to_end():
 
         build_job = worker.claim()
         assert build_job is not None
-        assert build_job.payload["workflow_task_id"] == "build"
+        assert build_job.payload["payload"]["workflow_task_id"] == "build"
         assert worker.ack(build_job.key)["status"] == "acked"
         assert worker.complete(
             build_job.key,
@@ -145,7 +145,7 @@ def test_postgres_http_worker_workflow_release_pipeline_end_to_end():
 
         package_job = worker.claim()
         assert package_job is not None
-        assert package_job.payload["workflow_task_id"] == "package"
+        assert package_job.payload["payload"]["workflow_task_id"] == "package"
         assert worker.ack(package_job.key)["status"] == "acked"
         assert worker.complete(
             package_job.key,
