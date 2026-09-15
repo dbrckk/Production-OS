@@ -638,12 +638,53 @@ class ReleaseLedger:
             metadata.get("validation_attestation") or {}
         )
         provenance = dict(metadata.get("provenance") or {})
-        asymmetric = str(
+        attestation_schema = str(
             attestation.get("schema_version") or ""
-        ).endswith("/validation-attestation/v2")
+        )
+        dual_signed = attestation_schema == DUAL_SCHEMA
+        asymmetric = (
+            dual_signed
+            or attestation_schema.endswith(
+                "/validation-attestation/v2"
+            )
+        )
 
         try:
-            if asymmetric:
+            if dual_signed:
+                if not self.trusted_validation_secrets:
+                    raise RuntimeError(
+                        "trusted validation HMAC keys not configured"
+                    )
+                if not self.trusted_validation_public_keys:
+                    raise RuntimeError(
+                        "trusted validation public keys not configured"
+                    )
+                if not self.provenance_public_key:
+                    raise RuntimeError(
+                        "release provenance public key not configured"
+                    )
+                verified_bundle = verify_dual_attestation(
+                    attestation,
+                    trusted_secrets=self.trusted_validation_secrets,
+                    trusted_public_keys=(
+                        self.trusted_validation_public_keys
+                    ),
+                    workflow_id=release["workflow_id"],
+                    artifact_id=release["artifact_id"],
+                    artifact_sha256=metadata["artifact_sha256"],
+                    source_revision=release["source_revision"],
+                    workflow_generation=release[
+                        "workflow_generation"
+                    ],
+                    validation=release["validation"],
+                    max_age_seconds=-1,
+                )
+                verified = verified_bundle["ed25519"]
+                provenance_valid = verify_release_provenance_v2(
+                    provenance,
+                    public_key_pem=self.provenance_public_key,
+                )
+            elif asymmetric:
                 if not self.trusted_validation_public_keys:
                     raise RuntimeError(
                         "trusted validation public keys not configured"
@@ -702,6 +743,7 @@ class ReleaseLedger:
         except (
             AttestationError,
             AsymmetricAttestationError,
+            DualSignError,
             RuntimeError,
         ) as exc:
             return {
@@ -816,7 +858,13 @@ class ReleaseLedger:
             "release_id":release_id,
             "valid":True,
             "signature_scheme":(
-                "ed25519" if asymmetric else "hmac-sha256"
+                "hmac-sha256+ed25519"
+                if dual_signed
+                else (
+                    "ed25519"
+                    if asymmetric
+                    else "hmac-sha256"
+                )
             ),
             "validator_id":verified["validator_id"],
             "source_revision":release["source_revision"],
