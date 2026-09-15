@@ -15,6 +15,7 @@ Receipt verification is fail-closed when a trusted Rekor log public key is suppl
 - the Rekor `logID` matches SHA-256 of the pinned log public key SubjectPublicKeyInfo DER;
 - the Rekor signed entry timestamp authenticates the immutable log entry metadata;
 - the Rekor signed tree checkpoint authenticates the proof tree size and root hash with the same pinned log key;
+- the current signed tree is consistent with the last authenticated tree state stored by Production OS;
 - an optional explicit `--rekor-log-id` pin matches the receipt.
 
 The existing generic `--publish-url` witness mechanism remains available and can be used together with Rekor publication.
@@ -36,7 +37,22 @@ production-os transparency-checkpoint \
 
 `--rekor-log-public-key` is intentionally required when publishing through the CLI. The key should be obtained and pinned through a trusted channel rather than learned from the publication response itself. This prevents a forged endpoint from returning a self-consistent Merkle proof under an attacker-controlled identity.
 
-The command prints the signed checkpoint envelope and the verified Rekor receipt. `--output` stores the checkpoint envelope; `--receipt-output` stores the Rekor receipt separately.
+The command prints the signed checkpoint envelope, the verified Rekor receipt, and the checkpoint-state result. `--output` stores the checkpoint envelope; `--receipt-output` stores the Rekor receipt separately.
+
+## Persistent checkpoint consistency
+
+When Rekor publication succeeds, Production OS stores the latest authenticated Rekor tree checkpoint in the database selected by `--database`. The checkpoint state is keyed by Rekor log identity and signed-note origin, and works with both SQLite and PostgreSQL backends.
+
+The state transition is fail-closed:
+
+- the first authenticated tree is inserted as the bootstrap state;
+- observing the same tree size again requires exactly the same root hash;
+- observing a smaller tree size is rejected as a rollback;
+- observing a larger tree size triggers a Rekor v1 `/api/v1/log/proof` request and RFC6962 consistency verification from the stored tree to the new tree;
+- a mismatched root or invalid consistency path is rejected;
+- database updates use conditional writes so a slow observer cannot overwrite a newer checkpoint written concurrently.
+
+Checkpoint-state validation happens before `--receipt-output` is written. Therefore a split view, rollback, invalid consistency proof, or concurrent stale write prevents the new receipt from becoming persisted output.
 
 ## Verify offline
 
@@ -75,4 +91,4 @@ This adapter is explicitly named `rekor-v1`. Rekor v1 remains the stable public 
 
 ## Remaining hardening
 
-The remaining split-view hardening is checkpoint consistency checking across observations and/or a quorum of independent witnesses. Those mechanisms can build on the now-authenticated signed tree checkpoints without changing the receipt format.
+Production OS now authenticates each Rekor tree and verifies append-only consistency across locally observed checkpoints. The remaining split-view hardening is cross-observer gossip and/or a quorum of independent witnesses, so inconsistent views served to different Production OS installations can be detected externally.

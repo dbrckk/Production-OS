@@ -8,6 +8,7 @@ from cryptography.hazmat.primitives.asymmetric import ec, utils
 
 from production_os import cli
 from production_os.signing import generate_keypair
+from production_os.sqlite_backend import SQLiteBackend
 from production_os.transparency_receipts import (
     RECEIPT_SCHEMA,
     build_rekor_v1_hashedrekord,
@@ -176,11 +177,14 @@ def test_checkpoint_publication_writes_rekor_receipt(tmp_path, monkeypatch, caps
     rekor_key_path = tmp_path / "rekor.pem"
     log_key_path = tmp_path / "rekor-log.pem"
     receipt_path = tmp_path / "receipt.json"
+    publication_state = SQLiteBackend(tmp_path / "publication-state.db")
     witness_key_path.write_text(witness_private, encoding="ascii")
     rekor_key_path.write_text(rekor_private, encoding="ascii")
     log_key_path.write_text("log-public-key", encoding="ascii")
 
     class Ledger:
+        backend = publication_state
+
         def verify_transparency(self):
             return {
                 "valid": True,
@@ -207,6 +211,15 @@ def test_checkpoint_publication_writes_rekor_receipt(tmp_path, monkeypatch, caps
 
         def publish(self, envelope):
             observed["envelope"] = envelope
+            root_hash = hashlib.sha256(b"fake-rekor-root").hexdigest()
+            root_b64 = base64.b64encode(bytes.fromhex(root_hash)).decode("ascii")
+            checkpoint = (
+                "rekor.example - 42\n"
+                "1\n"
+                f"{root_b64}\n"
+                "\n"
+                "— rekor.example already-verified\n"
+            )
             return {
                 "schema_version": RECEIPT_SCHEMA,
                 "provider": "rekor-v1",
@@ -216,6 +229,11 @@ def test_checkpoint_publication_writes_rekor_receipt(tmp_path, monkeypatch, caps
                 "log_index": 4,
                 "integrated_time": 1_789_490_000,
                 "proof_verified": True,
+                "inclusion_proof": {
+                    "treeSize": 1,
+                    "rootHash": root_hash,
+                    "checkpoint": checkpoint,
+                },
             }
 
     monkeypatch.setattr(cli, "_release_ledger", lambda database: Ledger())
