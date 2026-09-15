@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 import uuid
 
+from .trust_policy import TrustPolicy
+from .signers import Signer, coerce_signer
 from .dual_sign import (
     DUAL_SCHEMA,
     DualSignError,
