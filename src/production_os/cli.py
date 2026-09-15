@@ -338,6 +338,19 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default="PRODUCTION_OS_RELEASE_PROVENANCE_SECRET",
         help="Environment variable containing release provenance secret",
     )
+    controlplane.add_argument(
+        "--validation-public-keys-env",
+        default="PRODUCTION_OS_VALIDATION_PUBLIC_KEYS",
+        help="Environment variable containing validator_id->PEM JSON",
+    )
+    controlplane.add_argument(
+        "--release-provenance-private-key-env",
+        default="PRODUCTION_OS_RELEASE_PROVENANCE_PRIVATE_KEY",
+    )
+    controlplane.add_argument(
+        "--release-provenance-public-key-env",
+        default="PRODUCTION_OS_RELEASE_PROVENANCE_PUBLIC_KEY",
+    )
 
     remotepoll = sub.add_parser("remote-worker-poll", help="Poll the P8 control plane for remote jobs")
     remotepoll.add_argument("--url", required=True)
@@ -1452,6 +1465,15 @@ def run_control_plane(args: argparse.Namespace) -> int:
         provenance_secret=os.getenv(
             args.release_provenance_secret_env
         ),
+        trusted_validation_public_keys=_trusted_validation_keys_from_env(
+            args.validation_public_keys_env
+        ),
+        provenance_private_key=os.getenv(
+            args.release_provenance_private_key_env
+        ),
+        provenance_public_key=os.getenv(
+            args.release_provenance_public_key_env
+        ),
     )
     return 0
 
@@ -1740,6 +1762,15 @@ def _release_ledger(
             "PRODUCTION_OS_VALIDATION_ATTESTATION_KEYS"
         ),
         provenance_secret=os.getenv(provenance_secret_env),
+        trusted_validation_public_keys=_trusted_validation_keys_from_env(
+            "PRODUCTION_OS_VALIDATION_PUBLIC_KEYS"
+        ),
+        provenance_private_key=os.getenv(
+            "PRODUCTION_OS_RELEASE_PROVENANCE_PRIVATE_KEY"
+        ),
+        provenance_public_key=os.getenv(
+            "PRODUCTION_OS_RELEASE_PROVENANCE_PUBLIC_KEY"
+        ),
     )
 
 
