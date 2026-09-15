@@ -23,6 +23,7 @@ from .builder_identity import BuilderTrustPolicy
 from .supply_chain import (
     create_slsa_statement,
     sign_slsa_statement,
+    sign_slsa_statement_with_signer,
     statement_digest,
     verify_signed_slsa_statement,
     verify_trusted_slsa_statement,
@@ -89,6 +90,7 @@ class ReleaseLedger:
         validation_signature_policy: str = "compatible",
         builder_id: str = "https://production-os.local/builder",
         builder_private_key: str | None = None,
+        builder_signer: Signer | None = None,
         trusted_builders: dict | None = None,
         trusted_builder_keys: dict | None = None,
         require_trusted_builder: bool = False,
@@ -120,6 +122,10 @@ class ReleaseLedger:
         self.validation_signature_policy = policy
         self.builder_id = str(builder_id)
         self.builder_private_key = builder_private_key
+        self.builder_signer = coerce_signer(
+            signer=builder_signer,
+            private_key_pem=builder_private_key,
+        )
         self.require_trusted_builder = bool(require_trusted_builder)
         self.trust_policy = TrustPolicy.create(
             validator_keys=trusted_validation_public_keys,
@@ -522,21 +528,24 @@ class ReleaseLedger:
                     provenance=provenance,
                     builder_id=self.builder_id,
                 )
-                slsa_signing_key = (
-                    self.builder_private_key
-                    or self.provenance_private_key
-                )
-                if self.require_trusted_builder and not (
-                    self.builder_private_key
-                ):
-                    raise RuntimeError(
-                        "dedicated builder private key is required "
-                        "when trusted builder enforcement is enabled"
+                if self.require_trusted_builder:
+                    if self.builder_signer is None:
+                        raise RuntimeError(
+                            "dedicated builder signer is required "
+                            "when trusted builder enforcement is enabled"
+                        )
+                    signed_statement = sign_slsa_statement_with_signer(
+                        statement=statement,
+                        signer=self.builder_signer,
                     )
-                signed_statement = sign_slsa_statement(
-                    statement=statement,
-                    private_key_pem=slsa_signing_key,
-                )
+                else:
+                    signed_statement = sign_slsa_statement(
+                        statement=statement,
+                        private_key_pem=(
+                            self.builder_private_key
+                            or self.provenance_private_key
+                        ),
+                    )
             else:
                 provenance = create_release_provenance(
                     secret=self.provenance_secret,
