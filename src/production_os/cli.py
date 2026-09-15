@@ -69,6 +69,10 @@ from .witness import (
     sign_checkpoint_with_signer,
     verify_checkpoint,
 )
+from .transparency_receipts import (
+    RekorV1Publisher,
+    verify_rekor_v1_receipt,
+)
 from .asymmetric_attestations import (
     create_validation_attestation as create_validation_attestation_v2,
     verify_release_provenance as verify_release_provenance_v2,
@@ -2090,6 +2094,45 @@ def run_transparency_checkpoint(
             envelope=envelope,
             bearer_token=token,
         )
+    rekor_url=getattr(args,"rekor_url",None)
+    receipt_output=getattr(args,"receipt_output",None)
+    if rekor_url:
+        rekor_private_key=getattr(args,"rekor_private_key",None)
+        rekor_log_public_key=getattr(
+            args,"rekor_log_public_key",None
+        )
+        if not rekor_private_key:
+            raise RuntimeError(
+                "Rekor signing private key is required"
+            )
+        if not rekor_log_public_key:
+            raise RuntimeError(
+                "Rekor log public key is required"
+            )
+        publisher=RekorV1Publisher.from_private_key(
+            rekor_url,
+            private_key_pem=Path(rekor_private_key).read_text(
+                encoding="ascii"
+            ),
+            log_public_key_pem=Path(
+                rekor_log_public_key
+            ).read_text(encoding="ascii"),
+        )
+        receipt=publisher.publish(envelope)
+        result["rekor_receipt"]=receipt
+        if receipt_output:
+            Path(receipt_output).write_text(
+                json.dumps(
+                    receipt,
+                    indent=2,
+                    ensure_ascii=False,
+                )+"\n",
+                encoding="utf-8",
+            )
+    elif receipt_output:
+        raise RuntimeError(
+            "--receipt-output requires --rekor-url"
+        )
     rendered=json.dumps(result,indent=2,ensure_ascii=False)
     if args.output:
         Path(args.output).write_text(
@@ -2108,20 +2151,47 @@ def run_transparency_checkpoint_verify(
     envelope=json.loads(
         Path(args.checkpoint).read_text(encoding="utf-8")
     )
-    valid=verify_checkpoint(
+    checkpoint_valid=verify_checkpoint(
         dict(envelope),
         public_key_pem=Path(args.public_key).read_text(
             encoding="ascii"
         ),
         expected_root_hash=args.root_hash,
     )
-    print(json.dumps({
+    receipt_path=getattr(args,"receipt",None)
+    receipt_valid=None
+    if receipt_path:
+        log_key_path=getattr(
+            args,"rekor_log_public_key",None
+        )
+        if not log_key_path:
+            raise RuntimeError(
+                "Rekor log public key is required to verify a receipt"
+            )
+        receipt=json.loads(
+            Path(receipt_path).read_text(encoding="utf-8")
+        )
+        receipt_valid=verify_rekor_v1_receipt(
+            dict(receipt),
+            envelope=dict(envelope),
+            expected_log_id=getattr(
+                args,"rekor_log_id",None
+            ),
+            log_public_key_pem=Path(
+                log_key_path
+            ).read_text(encoding="ascii"),
+        )
+    valid=bool(checkpoint_valid) and receipt_valid is not False
+    result={
         "schema_version":
             "production-os/transparency-witness-verification/v1",
         "valid":valid,
-    },indent=2,ensure_ascii=False))
+    }
+    if receipt_valid is not None:
+        result["checkpoint_valid"]=bool(checkpoint_valid)
+        result["receipt_valid"]=bool(receipt_valid)
+    print(json.dumps(result,indent=2,ensure_ascii=False))
     return 0 if valid else 9
-
 
 def run_slsa_verify(args: argparse.Namespace) -> int:
     envelope=json.loads(
