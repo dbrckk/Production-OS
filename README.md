@@ -2413,7 +2413,7 @@ No database, control-plane access, validator private key, or shared HMAC secret 
 - [x] integrate v2 signatures into ReleaseLedger promotion path
 - [x] trusted public-key registry in control plane
 - [ ] dual-sign migration from P15 HMAC to P16 Ed25519
-- [ ] key validity windows and revocation metadata
+- [x] key validity windows and revocation metadata
 - [ ] SLSA/in-toto compatible statement envelope
 - [ ] external transparency-log anchoring
 
@@ -2456,3 +2456,49 @@ or:
     signature_scheme = hmac-sha256
 
 This allows controlled migration without making existing P15 releases unverifiable.
+
+### Key rotation and revocation
+
+The Ed25519 validator trust registry supports multiple simultaneous keys per validator.
+
+Example:
+
+    {
+      "validator-1": [
+        {
+          "public_key": "<old PEM>",
+          "not_after": "2026-10-01T00:00:00+00:00"
+        },
+        {
+          "public_key": "<new PEM>",
+          "not_before": "2026-09-15T00:00:00+00:00"
+        }
+      ]
+    }
+
+Each key is addressed by the SHA-256 key ID already embedded in the Ed25519 signature envelope.
+
+Optional policy fields:
+
+    key_id
+    not_before
+    not_after
+    revoked_at
+
+If key_id is supplied in configuration, it must exactly match the public key fingerprint.
+
+Verification resolves the exact signing key from:
+
+    validator_id + signature.key_id
+
+and evaluates the key policy at the attestation's signed issued_at timestamp.
+
+This permits overlap during planned rotation while preventing an expired or revoked key from signing new accepted validation evidence.
+
+Legacy shorthand remains valid:
+
+    {
+      "validator-1": "<PEM public key>"
+    }
+
+The registry therefore supports staged migration without invalidating existing configuration.
