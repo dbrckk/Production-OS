@@ -235,6 +235,18 @@ class SQLiteBackend:
                 ON releases(rollback_of)
                 WHERE rollback_of IS NOT NULL;
 
+                CREATE TABLE IF NOT EXISTS trust_incident_reports (
+                    sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+                    incident_id TEXT NOT NULL,
+                    report_json TEXT NOT NULL,
+                    report_hash TEXT NOT NULL UNIQUE,
+                    previous_hash TEXT NOT NULL,
+                    created_at TEXT NOT NULL
+                );
+
+                CREATE INDEX IF NOT EXISTS idx_trust_incident_id
+                ON trust_incident_reports(incident_id, sequence);
+
                 CREATE TABLE IF NOT EXISTS execution_history (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     repository TEXT NOT NULL,
