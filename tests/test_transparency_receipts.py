@@ -3,6 +3,8 @@ import hashlib
 import json
 
 import pytest
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import ec
 
 from production_os.transparency_receipts import (
     RECEIPT_SCHEMA,
@@ -12,6 +14,7 @@ from production_os.transparency_receipts import (
     checkpoint_digest,
     parse_rekor_v1_receipt,
     verify_inclusion_proof,
+    verify_rekor_signed_entry_timestamp,
     verify_rekor_v1_receipt,
 )
 
@@ -148,6 +151,41 @@ def _rekor_response(envelope, *, digest=None, log_id=None):
     }
 
 
+def _signed_rekor_response(envelope):
+    private_key = ec.generate_private_key(ec.SECP256R1())
+    public_key = private_key.public_key()
+    public_pem = public_key.public_bytes(
+        serialization.Encoding.PEM,
+        serialization.PublicFormat.SubjectPublicKeyInfo,
+    ).decode("ascii")
+    public_der = public_key.public_bytes(
+        serialization.Encoding.DER,
+        serialization.PublicFormat.SubjectPublicKeyInfo,
+    )
+    log_id = hashlib.sha256(public_der).hexdigest()
+    response = _rekor_response(envelope, log_id=log_id)
+    entry = response["b" * 64]
+    signed_payload = {
+        key: value
+        for key, value in entry.items()
+        if key != "verification"
+    }
+    canonical = json.dumps(
+        signed_payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+    ).encode("utf-8")
+    signature = private_key.sign(
+        canonical,
+        ec.ECDSA(hashes.SHA256()),
+    )
+    entry["verification"]["signedEntryTimestamp"] = (
+        base64.b64encode(signature).decode("ascii")
+    )
+    return response, public_pem, log_id
+
+
 def test_parse_rekor_v1_receipt_requires_bound_inclusion_proof():
     envelope = _envelope()
     receipt = parse_rekor_v1_receipt(
@@ -175,6 +213,22 @@ def test_parse_rekor_v1_receipt_rejects_wrong_checkpoint_digest():
         )
 
 
+def test_verify_rekor_signed_entry_timestamp_binds_log_identity_and_entry():
+    response, public_pem, _ = _signed_rekor_response(_envelope())
+    entry = response["b" * 64]
+
+    assert verify_rekor_signed_entry_timestamp(
+        entry,
+        public_key_pem=public_pem,
+    ) is True
+
+    entry["logIndex"] = 1
+    assert verify_rekor_signed_entry_timestamp(
+        entry,
+        public_key_pem=public_pem,
+    ) is False
+
+
 def test_verify_rekor_v1_receipt_rejects_wrong_log_id_or_envelope():
     envelope = _envelope()
     receipt = parse_rekor_v1_receipt(
@@ -199,6 +253,30 @@ def test_verify_rekor_v1_receipt_rejects_wrong_log_id_or_envelope():
         receipt,
         envelope=tampered,
         expected_log_id="a" * 64,
+    ) is False
+
+
+def test_verify_rekor_v1_receipt_can_authenticate_rekor_set():
+    envelope = _envelope()
+    response, public_pem, log_id = _signed_rekor_response(envelope)
+    receipt = parse_rekor_v1_receipt(
+        response,
+        envelope=envelope,
+    )
+
+    assert verify_rekor_v1_receipt(
+        receipt,
+        envelope=envelope,
+        expected_log_id=log_id,
+        log_public_key_pem=public_pem,
+    ) is True
+
+    receipt["integrated_time"] += 1
+    assert verify_rekor_v1_receipt(
+        receipt,
+        envelope=envelope,
+        expected_log_id=log_id,
+        log_public_key_pem=public_pem,
     ) is False
 
 
