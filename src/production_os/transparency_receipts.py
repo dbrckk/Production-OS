@@ -8,6 +8,10 @@ from typing import Any, Callable, Protocol
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
+from cryptography.exceptions import InvalidSignature
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import ec, ed25519, padding, rsa
+
 
 RECEIPT_SCHEMA = "production-os/transparency-receipt/v1"
 _HEX_64 = re.compile(r"^[0-9a-fA-F]{64}$")
@@ -148,6 +152,68 @@ def _entry_checkpoint_digest(body: dict[str, Any]) -> str:
     return value
 
 
+def _rekor_log_id(public_key: Any) -> str:
+    der = public_key.public_bytes(
+        serialization.Encoding.DER,
+        serialization.PublicFormat.SubjectPublicKeyInfo,
+    )
+    return hashlib.sha256(der).hexdigest()
+
+
+def verify_rekor_signed_entry_timestamp(
+    entry: dict[str, Any],
+    *,
+    public_key_pem: str,
+) -> bool:
+    """Authenticate Rekor's SET and bind it to the configured log key."""
+    try:
+        verification = entry.get("verification")
+        if not isinstance(verification, dict):
+            return False
+        encoded = verification.get("signedEntryTimestamp")
+        if not isinstance(encoded, str) or not encoded:
+            return False
+        signature = base64.b64decode(encoded, validate=True)
+        public_key = serialization.load_pem_public_key(
+            public_key_pem.encode("ascii")
+        )
+        if str(entry.get("logID") or "").lower() != _rekor_log_id(
+            public_key
+        ):
+            return False
+        payload = {
+            key: value
+            for key, value in entry.items()
+            if key != "verification"
+        }
+        canonical = _canonical_json_bytes(payload)
+        if isinstance(public_key, ec.EllipticCurvePublicKey):
+            public_key.verify(
+                signature,
+                canonical,
+                ec.ECDSA(hashes.SHA256()),
+            )
+        elif isinstance(public_key, ed25519.Ed25519PublicKey):
+            public_key.verify(signature, canonical)
+        elif isinstance(public_key, rsa.RSAPublicKey):
+            public_key.verify(
+                signature,
+                canonical,
+                padding.PKCS1v15(),
+                hashes.SHA256(),
+            )
+        else:
+            return False
+        return True
+    except (
+        InvalidSignature,
+        TypeError,
+        ValueError,
+        UnicodeEncodeError,
+    ):
+        return False
+
+
 def parse_rekor_v1_receipt(
     response: dict[str, Any],
     *,
@@ -235,6 +301,7 @@ def verify_rekor_v1_receipt(
     *,
     envelope: dict[str, Any],
     expected_log_id: str | None = None,
+    log_public_key_pem: str | None = None,
 ) -> bool:
     try:
         if receipt.get("schema_version") != RECEIPT_SCHEMA:
@@ -270,13 +337,34 @@ def verify_rekor_v1_receipt(
         hashes = proof.get("hashes")
         if not isinstance(hashes, list):
             return False
-        return verify_inclusion_proof(
+        proof_valid = verify_inclusion_proof(
             leaf_body=body_raw,
             log_index=int(proof["logIndex"]),
             tree_size=int(proof["treeSize"]),
             hashes=[str(item) for item in hashes],
             root_hash=str(proof["rootHash"]),
         )
+        if not proof_valid:
+            return False
+
+        if log_public_key_pem is not None:
+            set_entry = {
+                "logID": log_id,
+                "logIndex": int(receipt["log_index"]),
+                "integratedTime": int(receipt["integrated_time"]),
+                "body": body_encoded,
+                "verification": {
+                    "signedEntryTimestamp": str(
+                        receipt.get("signed_entry_timestamp") or ""
+                    )
+                },
+            }
+            if not verify_rekor_signed_entry_timestamp(
+                set_entry,
+                public_key_pem=log_public_key_pem,
+            ):
+                return False
+        return True
     except (
         KeyError,
         TypeError,
