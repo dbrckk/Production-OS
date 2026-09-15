@@ -58,6 +58,7 @@ from .workers import WorkerRegistry
 from .workflow_engine import WorkflowEngine, WorkflowTaskSpec
 from .execution_optimizer import ExecutionOptimizer
 from .speculation import SpeculationManager
+from .signer_factory import create_signer
 from .signing import generate_keypair
 from .supply_chain import verify_signed_slsa_statement
 from .trust_policy import TrustPolicy
@@ -1522,6 +1523,18 @@ def run_control_plane(args: argparse.Namespace) -> int:
         builder_private_key=os.getenv(
             args.builder_private_key_env
         ),
+        builder_signer=(
+            create_signer(
+                args.builder_signer_uri,
+                pem_value=os.getenv(args.builder_private_key_env),
+                key_id=args.builder_signer_key_id,
+                bearer_token=os.getenv(
+                    args.builder_signer_token_env
+                ),
+            )
+            if args.builder_signer_uri
+            else None
+        ),
         trusted_builders=_trusted_validation_keys_from_env(
             args.trusted_builders_env
         ),
@@ -2281,6 +2294,18 @@ if __name__ == "__main__":
     controlplane.add_argument(
         "--builder-private-key-env",
         default="PRODUCTION_OS_BUILDER_PRIVATE_KEY",
+    )
+    controlplane.add_argument(
+        "--builder-signer-uri",
+        default=os.getenv("PRODUCTION_OS_BUILDER_SIGNER_URI", ""),
+    )
+    controlplane.add_argument(
+        "--builder-signer-key-id",
+        default=os.getenv("PRODUCTION_OS_BUILDER_SIGNER_KEY_ID", ""),
+    )
+    controlplane.add_argument(
+        "--builder-signer-token-env",
+        default="PRODUCTION_OS_BUILDER_SIGNER_TOKEN",
     )
     controlplane.add_argument(
         "--trusted-builders-env",
