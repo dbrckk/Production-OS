@@ -66,6 +66,7 @@ from .witness import (
     create_checkpoint,
     publish_checkpoint,
     sign_checkpoint,
+    sign_checkpoint_with_signer,
     verify_checkpoint,
 )
 from .asymmetric_attestations import (
@@ -361,6 +362,18 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default="PRODUCTION_OS_RELEASE_PROVENANCE_PUBLIC_KEY",
     )
     controlplane.add_argument(
+        "--provenance-signer-uri",
+        default=os.getenv("PRODUCTION_OS_PROVENANCE_SIGNER_URI", ""),
+    )
+    controlplane.add_argument(
+        "--provenance-signer-key-id",
+        default=os.getenv("PRODUCTION_OS_PROVENANCE_SIGNER_KEY_ID", ""),
+    )
+    controlplane.add_argument(
+        "--provenance-signer-token-env",
+        default="PRODUCTION_OS_PROVENANCE_SIGNER_TOKEN",
+    )
+    controlplane.add_argument(
         "--validation-signature-policy",
         choices=("compatible", "dual-required", "ed25519-only"),
         default=os.getenv(
@@ -496,7 +509,10 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Create and optionally publish a signed transparency root",
     )
     checkpoint.add_argument("--database", required=True)
-    checkpoint.add_argument("--private-key", required=True)
+    checkpoint.add_argument("--private-key")
+    checkpoint.add_argument("--witness-signer-uri")
+    checkpoint.add_argument("--witness-signer-key-id")
+    checkpoint.add_argument("--witness-signer-token-env")
     checkpoint.add_argument("--output")
     checkpoint.add_argument("--publish-url")
     checkpoint.add_argument("--bearer-token-env")
@@ -1518,6 +1534,20 @@ def run_control_plane(args: argparse.Namespace) -> int:
         provenance_public_key=os.getenv(
             args.release_provenance_public_key_env
         ),
+        provenance_signer=(
+            create_signer(
+                args.provenance_signer_uri,
+                pem_value=os.getenv(
+                    args.release_provenance_private_key_env
+                ),
+                key_id=args.provenance_signer_key_id,
+                bearer_token=os.getenv(
+                    args.provenance_signer_token_env
+                ),
+            )
+            if args.provenance_signer_uri
+            else None
+        ),
         validation_signature_policy=args.validation_signature_policy,
         builder_id=args.builder_id,
         builder_private_key=os.getenv(
@@ -1925,9 +1955,31 @@ def run_transparency_checkpoint(
         root_hash=chain["root_hash"],
         entries=chain["entries"],
     )
-    private_key_pem=Path(args.private_key).read_text(
-        encoding="ascii"
+    private_key_pem=(
+        Path(args.private_key).read_text(encoding="ascii")
+        if args.private_key
+        else None
     )
+    witness_signer=(
+        create_signer(
+            args.witness_signer_uri,
+            pem_value=private_key_pem,
+            key_id=args.witness_signer_key_id,
+            bearer_token=(
+                os.getenv(args.witness_signer_token_env)
+                if args.witness_signer_token_env
+                else None
+            ),
+        )
+        if args.witness_signer_uri
+        else (
+            create_signer("pem:",pem_value=private_key_pem)
+            if private_key_pem
+            else None
+        )
+    )
+    if witness_signer is None:
+        raise RuntimeError("witness signer is not configured")
     TrustPolicy.create(
         validator_keys=_trusted_validation_keys_from_env(
             "PRODUCTION_OS_TRUSTED_VALIDATION_PUBLIC_KEYS"
@@ -1942,14 +1994,15 @@ def run_transparency_checkpoint(
             "PRODUCTION_OS_RELEASE_PROVENANCE_PRIVATE_KEY"
         ),
         witness_private_key=private_key_pem,
+        witness_signer=witness_signer,
         strict_key_domains=os.getenv(
             "PRODUCTION_OS_STRICT_KEY_DOMAINS",
             "true",
         ).lower() in {"1", "true", "yes"},
     )
-    envelope=sign_checkpoint(
+    envelope=sign_checkpoint_with_signer(
         checkpoint,
-        private_key_pem=private_key_pem,
+        signer=witness_signer,
     )
     result={"envelope":envelope}
     if args.publish_url:
