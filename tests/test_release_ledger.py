@@ -5,6 +5,7 @@ from production_os.asymmetric_attestations import (
     create_validation_attestation as create_validation_attestation_v2,
 )
 from production_os.signing import generate_keypair
+from production_os.dual_sign import create_dual_attestation
 from production_os.release_ledger import ReleaseLedger
 from production_os.sqlite_backend import SQLiteBackend, SQLiteJobQueue
 from production_os.workflow_engine import WorkflowEngine, WorkflowTaskSpec
@@ -349,4 +350,50 @@ def test_release_is_anchored_in_transparency_chain(tmp_path):
     assert verification["transparency_sequence"]==1
     assert len(verification["transparency_entry_hash"])==64
     assert verification["transparency_root_hash"]==chain["root_hash"]
+
+
+def test_release_ledger_promotes_strict_dual_sign_bundle(tmp_path):
+    backend,workflows,_,workflow,artifact=setup_release(tmp_path)
+    validator_private,validator_public=generate_keypair()
+    release_private,release_public=generate_keypair()
+    releases=ReleaseLedger(
+        backend,
+        workflows,
+        trusted_validation_secrets={
+            "validator-1":"validation-secret"
+        },
+        trusted_validation_public_keys={
+            "validator-1":validator_public
+        },
+        provenance_private_key=release_private,
+        provenance_public_key=release_public,
+    )
+    attestation=create_dual_attestation(
+        validator_id="validator-1",
+        hmac_secret="validation-secret",
+        private_key_pem=validator_private,
+        workflow_id=workflow["id"],
+        artifact_id=artifact["id"],
+        artifact_sha256=artifact["sha256"],
+        source_revision=artifact["metadata"]["source_revision"],
+        workflow_generation=artifact["metadata"][
+            "workflow_generation"
+        ],
+        validation=passed_validation(),
+    )
+    release=releases.promote(
+        workflow_id=workflow["id"],
+        artifact_id=artifact["id"],
+        validation=passed_validation(),
+        attestation=attestation,
+        approval=approval(),
+    )
+    verification=releases.verify(release["id"])
+    assert verification["valid"] is True
+    assert verification["signature_scheme"]==(
+        "hmac-sha256+ed25519"
+    )
+    assert release["metadata"]["validation_attestation"][
+        "schema_version"
+    ]=="production-os/validation-attestation-bundle/v1"
 
