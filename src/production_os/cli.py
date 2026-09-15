@@ -595,6 +595,15 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     validationattest.add_argument("--output")
 
+    incidentreport = sub.add_parser(
+        "incident-report",
+        help="Generate a versioned trust incident report",
+    )
+    incidentreport.add_argument("--database", required=True)
+    incidentreport.add_argument("--validator-id")
+    incidentreport.add_argument("--builder-id")
+    incidentreport.add_argument("--key-id")
+
     truststatus = sub.add_parser(
         "trust-status",
         help="Analyze release trust blast radius using current trust policy",
@@ -2181,6 +2190,16 @@ def run_validation_attest(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_incident_report(args: argparse.Namespace) -> int:
+    report = _release_ledger(args.database).incident_report(
+        validator_id=args.validator_id,
+        builder_id=args.builder_id,
+        key_id=args.key_id,
+    )
+    print(json.dumps(report, ensure_ascii=False, sort_keys=True))
+    return 0 if report["valid"] else 2
+
+
 def run_trust_status(args: argparse.Namespace) -> int:
     result = _release_ledger(args.database).trust_status(
         validator_id=args.validator_id,
@@ -2389,6 +2408,8 @@ def main(argv: list[str] | None = None) -> int:
         return run_provenance_verify_v2(args)
     if args.command == "validation-attest":
         return run_validation_attest(args)
+    if args.command == "incident-report":
+        return run_incident_report(args)
     if args.command == "trust-status":
         return run_trust_status(args)
     if args.command == "release-verify":
