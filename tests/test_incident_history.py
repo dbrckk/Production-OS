@@ -240,3 +240,65 @@ def test_concurrent_distinct_incident_snapshots_keep_linear_hash_chain(tmp_path,
     verification = item.verify_incident_history()
     assert verification["valid"] is True
     assert verification["head_hash"] == history[-1]["report_hash"]
+
+
+def test_failed_incident_insert_rolls_back_without_corrupting_chain(tmp_path, monkeypatch):
+    item = ledger(tmp_path)
+    reports = {
+        "sha256:one": {
+            "schema_version": "production-os/trust-incident-report/v1",
+            "incident_id": "trust-one",
+            "generated_at": "2026-09-15T12:00:00+00:00",
+            "severity": "medium",
+            "valid": False,
+            "scope": {"key_id": "sha256:one"},
+            "counts": {"total_releases": 1, "matched_releases": 1, "affected_releases": 1},
+            "summary": {"affected_repositories": ["org/one"], "affected_validators": [], "affected_builders": [], "reasons": {"compromised": 1}},
+            "affected_releases": [{"release_id": "r-one", "valid": False}],
+        },
+        "sha256:two": {
+            "schema_version": "production-os/trust-incident-report/v1",
+            "incident_id": "trust-two",
+            "generated_at": "2026-09-15T12:01:00+00:00",
+            "severity": "medium",
+            "valid": False,
+            "scope": {"key_id": "sha256:two"},
+            "counts": {"total_releases": 2, "matched_releases": 1, "affected_releases": 1},
+            "summary": {"affected_repositories": ["org/two"], "affected_validators": [], "affected_builders": [], "reasons": {"compromised": 1}},
+            "affected_releases": [{"release_id": "r-two", "valid": False}],
+        },
+    }
+    monkeypatch.setattr(
+        item, "incident_report", lambda **kwargs: reports[kwargs["key_id"]]
+    )
+    first = item.record_incident_report(key_id="sha256:one")
+
+    import production_os.release_ledger as module
+    original_execute = module._execute
+    failed = {"done": False}
+
+    def fail_insert(db, backend, statement, params=()):
+        if (
+            not failed["done"]
+            and "INSERT INTO trust_incident_reports" in statement
+        ):
+            failed["done"] = True
+            raise RuntimeError("simulated storage failure")
+        return original_execute(db, backend, statement, params)
+
+    monkeypatch.setattr(module, "_execute", fail_insert)
+    import pytest
+    with pytest.raises(RuntimeError, match="simulated storage failure"):
+        item.record_incident_report(key_id="sha256:two")
+
+    monkeypatch.setattr(module, "_execute", original_execute)
+    history = item.incident_history()
+    assert len(history) == 1
+    assert history[0]["report_hash"] == first["report_hash"]
+    assert item.verify_incident_history()["valid"] is True
+
+    second = item.record_incident_report(key_id="sha256:two")
+    history = item.incident_history()
+    assert len(history) == 2
+    assert second["previous_hash"] == first["report_hash"]
+    assert item.verify_incident_history()["valid"] is True
