@@ -1,0 +1,82 @@
+from production_os.release_ledger import ReleaseLedger
+from production_os.sqlite_backend import SQLiteBackend, SQLiteJobQueue
+from production_os.workflow_engine import WorkflowEngine
+
+
+def ledger(tmp_path):
+    backend = SQLiteBackend(tmp_path / "state.sqlite")
+    return ReleaseLedger(
+        backend,
+        WorkflowEngine(backend, SQLiteJobQueue(backend)),
+    )
+
+
+def test_incident_history_is_hash_chained_and_verifiable(tmp_path, monkeypatch):
+    item = ledger(tmp_path)
+    reports = iter([
+        {
+            "schema_version": "production-os/trust-incident-report/v1",
+            "incident_id": "trust-one",
+            "generated_at": "2026-09-15T12:00:00+00:00",
+            "severity": "medium",
+            "valid": False,
+            "scope": {},
+            "counts": {"total_releases": 1, "matched_releases": 1, "affected_releases": 1},
+            "summary": {"affected_repositories": ["org/a"], "affected_validators": [], "affected_builders": [], "reasons": {"compromised": 1}},
+            "affected_releases": [{"release_id": "r1", "valid": False}],
+        },
+        {
+            "schema_version": "production-os/trust-incident-report/v1",
+            "incident_id": "trust-two",
+            "generated_at": "2026-09-15T12:01:00+00:00",
+            "severity": "medium",
+            "valid": False,
+            "scope": {},
+            "counts": {"total_releases": 2, "matched_releases": 1, "affected_releases": 1},
+            "summary": {"affected_repositories": ["org/b"], "affected_validators": [], "affected_builders": [], "reasons": {"revoked": 1}},
+            "affected_releases": [{"release_id": "r2", "valid": False}],
+        },
+    ])
+    monkeypatch.setattr(item, "incident_report", lambda **kwargs: next(reports))
+
+    first = item.record_incident_report()
+    second = item.record_incident_report()
+
+    assert second["previous_hash"] == first["report_hash"]
+    verification = item.verify_incident_history()
+    assert verification["valid"] is True
+    assert verification["entries"] == 2
+    assert verification["head_hash"] == second["report_hash"]
+
+
+def test_incident_history_detects_report_tampering(tmp_path, monkeypatch):
+    item = ledger(tmp_path)
+    report = {
+        "schema_version": "production-os/trust-incident-report/v1",
+        "incident_id": "trust-one",
+        "generated_at": "2026-09-15T12:00:00+00:00",
+        "severity": "medium",
+        "valid": False,
+        "scope": {},
+        "counts": {"total_releases": 1, "matched_releases": 1, "affected_releases": 1},
+        "summary": {"affected_repositories": ["org/a"], "affected_validators": [], "affected_builders": [], "reasons": {"compromised": 1}},
+        "affected_releases": [{"release_id": "r1", "valid": False}],
+    }
+    monkeypatch.setattr(item, "incident_report", lambda **kwargs: report)
+    item.record_incident_report()
+
+    with item.backend.transaction() as db:
+        row = db.execute(
+            "SELECT sequence, report_json FROM trust_incident_reports LIMIT 1"
+        ).fetchone()
+        import json
+        payload = json.loads(row["report_json"])
+        payload["severity"] = "none"
+        db.execute(
+            "UPDATE trust_incident_reports SET report_json=? WHERE sequence=?",
+            (json.dumps(payload), row["sequence"]),
+        )
+
+    verification = item.verify_incident_history()
+    assert verification["valid"] is False
+    assert verification["reason"] == "incident report hash mismatch"
