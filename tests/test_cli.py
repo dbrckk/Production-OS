@@ -38,3 +38,26 @@ def test_builder_trust_options_are_scoped_to_control_plane():
         ])
 
     assert exc.value.code == 2
+
+
+def test_trust_status_parser_accepts_incident_filters():
+    args = _parse_args([
+        "trust-status",
+        "--database", "state.sqlite",
+        "--validator-id", "validator-prod",
+        "--builder-id", "https://builder.example/prod",
+        "--key-id", "sha256:abc",
+    ])
+
+    assert args.command == "trust-status"
+    assert args.database == "state.sqlite"
+    assert args.validator_id == "validator-prod"
+    assert args.builder_id == "https://builder.example/prod"
+    assert args.key_id == "sha256:abc"
+
+
+def test_trust_status_requires_database():
+    with pytest.raises(SystemExit) as exc:
+        _parse_args(["trust-status"])
+
+    assert exc.value.code == 2
