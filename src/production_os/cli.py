@@ -595,6 +595,15 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     validationattest.add_argument("--output")
 
+    incidentsnapshot = sub.add_parser(
+        "incident-snapshot",
+        help="Persist a deduplicated trust incident snapshot",
+    )
+    incidentsnapshot.add_argument("--database", required=True)
+    incidentsnapshot.add_argument("--validator-id")
+    incidentsnapshot.add_argument("--builder-id")
+    incidentsnapshot.add_argument("--key-id")
+
     incidentreport = sub.add_parser(
         "incident-report",
         help="Generate a versioned trust incident report",
@@ -2190,6 +2199,21 @@ def run_validation_attest(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_incident_snapshot(args: argparse.Namespace) -> int:
+    result = _release_ledger(args.database).record_incident_report(
+        validator_id=args.validator_id,
+        builder_id=args.builder_id,
+        key_id=args.key_id,
+    )
+    print(json.dumps({
+        "schema_version": "production-os/trust-incident-snapshot/v1",
+        **result,
+    }, ensure_ascii=False, sort_keys=True))
+    if result["report"]["valid"]:
+        return 0
+    return 2 if result["recorded"] else 3
+
+
 def run_incident_report(args: argparse.Namespace) -> int:
     report = _release_ledger(args.database).incident_report(
         validator_id=args.validator_id,
@@ -2408,6 +2432,8 @@ def main(argv: list[str] | None = None) -> int:
         return run_provenance_verify_v2(args)
     if args.command == "validation-attest":
         return run_validation_attest(args)
+    if args.command == "incident-snapshot":
+        return run_incident_snapshot(args)
     if args.command == "incident-report":
         return run_incident_report(args)
     if args.command == "trust-status":
