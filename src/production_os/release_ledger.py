@@ -11,6 +11,7 @@ from .dual_sign import (
 from .asymmetric_attestations import (
     AsymmetricAttestationError,
     create_release_provenance as create_release_provenance_v2,
+    create_release_provenance_with_signer,
     verify_release_provenance as verify_release_provenance_v2,
     verify_validation_attestation as verify_validation_attestation_v2,
 )
@@ -87,6 +88,7 @@ class ReleaseLedger:
         trusted_validation_public_keys: dict[str, str] | None = None,
         provenance_private_key: str | None = None,
         provenance_public_key: str | None = None,
+        provenance_signer: Signer | None = None,
         validation_signature_policy: str = "compatible",
         builder_id: str = "https://production-os.local/builder",
         builder_private_key: str | None = None,
@@ -108,6 +110,10 @@ class ReleaseLedger:
             trusted_validation_public_keys or {}
         )
         self.provenance_private_key = provenance_private_key
+        self.provenance_signer = coerce_signer(
+            signer=provenance_signer,
+            private_key_pem=provenance_private_key,
+        )
         self.provenance_public_key = provenance_public_key
         policy = str(validation_signature_policy).strip().lower()
         if policy not in {
@@ -320,9 +326,9 @@ class ReleaseLedger:
                             "trusted validation public keys "
                             "are not configured"
                         )
-                    if not self.provenance_private_key:
+                    if self.provenance_signer is None:
                         raise RuntimeError(
-                            "release provenance private key "
+                            "release provenance signer "
                             "is not configured"
                         )
                     verified_bundle = verify_dual_attestation(
@@ -518,8 +524,12 @@ class ReleaseLedger:
                 "created_at":now,
             }
             if asymmetric:
-                provenance = create_release_provenance_v2(
-                    private_key_pem=self.provenance_private_key,
+                if self.provenance_signer is None:
+                    raise RuntimeError(
+                        "release provenance signer is not configured"
+                    )
+                provenance = create_release_provenance_with_signer(
+                    signer=self.provenance_signer,
                     release=release_preview,
                     attestation=verified_attestation,
                 )
