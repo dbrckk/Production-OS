@@ -16,6 +16,7 @@ Receipt verification is fail-closed when a trusted Rekor log public key is suppl
 - the Rekor signed entry timestamp authenticates the immutable log entry metadata;
 - the Rekor signed tree checkpoint authenticates the proof tree size and root hash with the same pinned log key;
 - the current signed tree is consistent with the last authenticated tree state stored by Production OS;
+- when an independent witness quorum is configured, enough pinned witnesses sign the exact same Rekor log identity, note origin, tree size, and root hash;
 - an optional explicit `--rekor-log-id` pin matches the receipt.
 
 The existing generic `--publish-url` witness mechanism remains available and can be used together with Rekor publication.
@@ -54,6 +55,56 @@ The state transition is fail-closed:
 
 Checkpoint-state validation happens before `--receipt-output` is written. Therefore a split view, rollback, invalid consistency proof, or concurrent stale write prevents the new receipt from becoming persisted output.
 
+## Independent witness quorum
+
+Local consistency can prove that one Production OS installation is being shown an append-only history, but it cannot by itself detect a log that presents different append-only histories to different observers. `--rekor-witness-config` adds an optional quorum of independently operated witnesses.
+
+Example `witnesses.json`:
+
+```json
+{
+  "threshold": 2,
+  "witnesses": [
+    {
+      "id": "witness-eu-1",
+      "url": "https://w1.example/observe",
+      "public_key_path": "keys/w1.pub.pem"
+    },
+    {
+      "id": "witness-us-1",
+      "url": "https://w2.example/observe",
+      "public_key_path": "keys/w2.pub.pem"
+    },
+    {
+      "id": "witness-ap-1",
+      "url": "https://w3.example/observe",
+      "public_key_path": "keys/w3.pub.pem"
+    }
+  ]
+}
+```
+
+Public-key paths are resolved relative to the configuration file. An inline `public_key` value is also accepted. Witness IDs must be unique, and the threshold must be between one and the number of configured witnesses.
+
+Enable the quorum when publishing:
+
+```bash
+production-os transparency-checkpoint \
+  --database state.sqlite \
+  --private-key witness.pem \
+  --rekor-url https://rekor.sigstore.dev \
+  --rekor-private-key rekor-submit.pem \
+  --rekor-log-public-key rekor-log.pub.pem \
+  --rekor-witness-config witnesses.json \
+  --receipt-output receipt.json
+```
+
+For each configured endpoint, Production OS sends a `production-os/rekor-witness-request/v1` JSON request containing the Rekor log ID, signed-note origin, tree size, and root hash. A compatible endpoint returns an Ed25519-signed `production-os/rekor-witness-observation/v1` object carrying the same fields plus its configured witness ID.
+
+The client verifies each response against the public key pinned for that witness ID. Unreachable endpoints, malformed responses, unknown identities, duplicate identities, and invalid signatures do not count toward the threshold. A cryptographically valid observation for the same log, origin, and tree size but a different root is treated as a split-view conflict and fails closed even if the numerical threshold would otherwise be satisfied.
+
+When quorum mode is enabled, quorum validation runs before the local Rekor checkpoint state is advanced and before `--receipt-output` is written. A failed quorum therefore cannot poison the trusted local checkpoint state or persist a newly accepted receipt. Received signed observations and their verdicts are stored in `rekor_witness_observations` for audit.
+
 ## Verify offline
 
 ```bash
@@ -91,4 +142,4 @@ This adapter is explicitly named `rekor-v1`. Rekor v1 remains the stable public 
 
 ## Remaining hardening
 
-Production OS now authenticates each Rekor tree and verifies append-only consistency across locally observed checkpoints. The remaining split-view hardening is cross-observer gossip and/or a quorum of independent witnesses, so inconsistent views served to different Production OS installations can be detected externally.
+Production OS now authenticates each Rekor tree, verifies append-only consistency across local observations, and can require an independent signed quorum before accepting a newly published tree. Further hardening is operational rather than required for the receipt format: deploy witnesses across genuinely independent trust and network domains, monitor witness availability and disagreement, and add gossip between witness operators where stronger ecosystem-wide split-view detection is required.
