@@ -556,6 +556,10 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     checkpoint.add_argument("--output")
     checkpoint.add_argument("--publish-url")
     checkpoint.add_argument("--bearer-token-env")
+    checkpoint.add_argument("--rekor-url")
+    checkpoint.add_argument("--rekor-private-key")
+    checkpoint.add_argument("--rekor-log-public-key")
+    checkpoint.add_argument("--receipt-output")
 
     checkpointverify = sub.add_parser(
         "transparency-checkpoint-verify",
@@ -564,6 +568,9 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     checkpointverify.add_argument("--checkpoint", required=True)
     checkpointverify.add_argument("--public-key", required=True)
     checkpointverify.add_argument("--root-hash")
+    checkpointverify.add_argument("--receipt")
+    checkpointverify.add_argument("--rekor-log-public-key")
+    checkpointverify.add_argument("--rekor-log-id")
 
     slsaverify = sub.add_parser(
         "slsa-verify",
