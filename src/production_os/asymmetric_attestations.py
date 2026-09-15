@@ -62,6 +62,7 @@ def verify_validation_attestation(
 ) -> dict[str, Any]:
     payload = dict(attestation)
     signature = dict(payload.pop("signature", {}) or {})
+    payload.pop("verified", None)
     if payload.get("schema_version") != ATTESTATION_SCHEMA:
         raise AsymmetricAttestationError(
             "unsupported asymmetric validation attestation schema"
