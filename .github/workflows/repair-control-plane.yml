@@ -27,11 +27,12 @@ jobs:
               '                if parsed.path.startswith("/v1/releases/"):\n',
           ]
           start = text.index(start_marker)
-          end = min(
-              text.index(marker, start + len(start_marker))
+          matches = [
+              (text.index(marker, start + len(start_marker)), marker)
               for marker in release_candidates
               if marker in text[start + len(start_marker):]
-          )
+          ]
+          end, release_marker = min(matches)
           block_lines = [
               '                if parsed.path == "/v1/incident-snapshot":',
               '                    principal = self._require("operator")',
@@ -88,12 +89,11 @@ jobs:
               '',
           ]
           block = "\n".join(block_lines) + "\n"
-          text = text[:start] + block + text[end:]
-          text = text.replace(
-              '\n            if parsed.path.startswith("/v1/releases/"):\n',
-              '\n                if parsed.path.startswith("/v1/releases/"):\n',
-              1,
-          )
+          tail = text[end:]
+          expected_release = '                if parsed.path.startswith("/v1/releases/"):\n'
+          if release_marker != expected_release:
+              tail = expected_release + tail[len(release_marker):]
+          text = text[:start] + block + tail
           path.write_text(text)
           PY
       - name: Compile check
