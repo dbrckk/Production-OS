@@ -40,6 +40,17 @@ def _leaf_hash(payload: bytes) -> str:
     return hashlib.sha256(b"\x00" + payload).hexdigest()
 
 
+def _rekor_signing_private_pem() -> str:
+    private_key = ec.generate_private_key(ec.SECP256R1())
+    return private_key.private_bytes(
+        serialization.Encoding.PEM,
+        serialization.PrivateFormat.PKCS8,
+        serialization.NoEncryption(),
+    ).decode("ascii")
+
+
+
+
 def test_checkpoint_digest_is_deterministic():
     envelope = _envelope()
     reordered = {
@@ -350,7 +361,7 @@ def test_rekor_v1_publisher_posts_hashedrekord_and_returns_receipt(monkeypatch):
 
 
 def test_rekor_v1_publisher_from_private_key_derives_signing_identity():
-    private_pem, public_pem = generate_keypair()
+    private_pem = _rekor_signing_private_pem()
     publisher = RekorV1Publisher.from_private_key(
         "https://rekor.example",
         private_key_pem=private_pem,
@@ -358,10 +369,13 @@ def test_rekor_v1_publisher_from_private_key_derives_signing_identity():
 
     signature = publisher.signer(b"checkpoint")
     public_key = serialization.load_pem_public_key(
-        public_pem.encode("ascii")
+        publisher.public_key_pem.encode("ascii")
     )
-    public_key.verify(signature, b"checkpoint")
-    assert publisher.public_key_pem == public_pem
+    public_key.verify(
+        signature,
+        b"checkpoint",
+        ec.ECDSA(hashes.SHA256()),
+    )
 
 
 def test_rekor_v1_publisher_with_log_key_fails_closed_on_bad_set(monkeypatch):
@@ -376,7 +390,7 @@ def test_rekor_v1_publisher_with_log_key_fails_closed_on_bad_set(monkeypatch):
         serialization.Encoding.DER,
         serialization.PublicFormat.SubjectPublicKeyInfo,
     )).hexdigest()
-    private_pem, _ = generate_keypair()
+    private_pem = _rekor_signing_private_pem()
 
     class Response:
         status = 201

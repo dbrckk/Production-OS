@@ -375,8 +375,6 @@ def verify_rekor_v1_receipt(
 
 
 def _private_key_signer(private_key: Any) -> Callable[[bytes], bytes]:
-    if isinstance(private_key, ed25519.Ed25519PrivateKey):
-        return private_key.sign
     if isinstance(private_key, ec.EllipticCurvePrivateKey):
         return lambda payload: private_key.sign(
             payload,
@@ -388,7 +386,9 @@ def _private_key_signer(private_key: Any) -> Callable[[bytes], bytes]:
             padding.PKCS1v15(),
             hashes.SHA256(),
         )
-    raise TransparencyReceiptError("unsupported Rekor signing key type")
+    raise TransparencyReceiptError(
+        "Rekor v1 hashedrekord requires a PKIX ECDSA or RSA signing key"
+    )
 
 
 class RekorV1Publisher:
