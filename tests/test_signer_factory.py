@@ -55,3 +55,28 @@ def test_pem_factory_fails_closed_without_key_material():
     ):
         create_signer("pem:")
 
+
+def test_remote_signer_requires_https_by_default():
+    with pytest.raises(SignerConfigurationError,match="HTTPS"):
+        RemoteHttpSigner(
+            endpoint="http://signer.example/sign",
+            signing_key_id="sha256:abc",
+        )
+
+
+def test_remote_http_can_be_explicitly_enabled_for_development():
+    signer=RemoteHttpSigner(
+        endpoint="http://localhost:9000/sign",
+        signing_key_id="sha256:abc",
+        require_https=False,
+    )
+    assert signer.key_id=="sha256:abc"
+
+
+def test_factory_requires_https_for_remote_backend():
+    with pytest.raises(SignerConfigurationError,match="HTTPS"):
+        create_signer(
+            "remote+http://signer.example/sign",
+            key_id="sha256:abc",
+        )
+
