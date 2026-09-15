@@ -60,6 +60,7 @@ from .execution_optimizer import ExecutionOptimizer
 from .speculation import SpeculationManager
 from .signing import generate_keypair
 from .supply_chain import verify_signed_slsa_statement
+from .trust_policy import TrustPolicy
 from .witness import (
     create_checkpoint,
     publish_checkpoint,
@@ -1911,11 +1912,31 @@ def run_transparency_checkpoint(
         root_hash=chain["root_hash"],
         entries=chain["entries"],
     )
+    private_key_pem=Path(args.private_key).read_text(
+        encoding="ascii"
+    )
+    TrustPolicy.create(
+        validator_keys=_trusted_validation_keys_from_env(
+            "PRODUCTION_OS_TRUSTED_VALIDATION_PUBLIC_KEYS"
+        ),
+        builder_keys=_trusted_validation_keys_from_env(
+            "PRODUCTION_OS_TRUSTED_BUILDER_KEYS"
+        ),
+        builder_private_key=os.getenv(
+            "PRODUCTION_OS_BUILDER_PRIVATE_KEY"
+        ),
+        provenance_private_key=os.getenv(
+            "PRODUCTION_OS_RELEASE_PROVENANCE_PRIVATE_KEY"
+        ),
+        witness_private_key=private_key_pem,
+        strict_key_domains=os.getenv(
+            "PRODUCTION_OS_STRICT_KEY_DOMAINS",
+            "true",
+        ).lower() in {"1", "true", "yes"},
+    )
     envelope=sign_checkpoint(
         checkpoint,
-        private_key_pem=Path(args.private_key).read_text(
-            encoding="ascii"
-        ),
+        private_key_pem=private_key_pem,
     )
     result={"envelope":envelope}
     if args.publish_url:
