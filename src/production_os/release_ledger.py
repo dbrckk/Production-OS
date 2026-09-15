@@ -138,6 +138,8 @@ class ReleaseLedger:
             builder_keys=trusted_builder_keys,
             builder_private_key=builder_private_key,
             provenance_private_key=provenance_private_key,
+            builder_signer=self.builder_signer,
+            provenance_signer=self.provenance_signer,
             strict_key_domains=self.require_trusted_builder,
         )
         self.builder_trust_policy = (
