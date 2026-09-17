@@ -28,13 +28,26 @@ Rejected because it would duplicate provider routing, process supervision, verif
 
 Rejected for V1 because it adds deployment, persistence and failure modes without a capability that AI Dev Server cannot own directly. The provider interface must remain separable so it can become a service later if required.
 
+## Agent and capacity-source separation
+
+The coding **agent** and the inference **capacity source** are separate decisions.
+
+Default coding agent: `codex` when the Codex CLI is available and supports the required task. AI Dev Server's existing meta-router can still select another registered agent when Codex is unavailable or a different capability is required.
+
+For Codex, V1 supports two isolated execution profiles:
+
+- `codex-omniroute`: Codex CLI remains the coding agent, but its custom model provider points to OmniRoute's OpenAI-compatible `/v1` endpoint using the Responses API. This is the preferred path because it consumes OmniRoute's free pool.
+- `codex-chatgpt`: Codex CLI uses its normal ChatGPT sign-in and therefore consumes the Codex allowance included in the user's ChatGPT plan. It is a fallback, not an API-key route.
+
+The two profiles must use separate configuration/auth contexts so configuring OmniRoute never overwrites or corrupts the user's normal ChatGPT-authenticated Codex configuration. A dedicated `CODEX_HOME` (or equivalent supported isolated config directory) is preferred for the OmniRoute profile.
+
 ## Capacity sources and routing order
 
 Default route order:
 
-1. `omniroute-free`
+1. `omniroute-free`, normally executed through `codex-omniroute`
 2. `codex-chatgpt`
-3. other free providers already registered in AI Dev Server
+3. other free providers/agents already registered in AI Dev Server
 4. paid providers only when an explicit project/user policy enables them
 
 `omniroute-free` must not hardcode a 1.5B value. OmniRoute currently documents about 1.53B recurring free tokens/month, but the catalog changes. AI Dev Server should read the local OmniRoute free-tier summary when reachable and cache the latest successful snapshot with timestamp and source metadata.
@@ -45,12 +58,13 @@ If both OmniRoute and ChatGPT/Codex are unavailable, the router may use another 
 
 ## OmniRoute integration
 
-OmniRoute runs as a local or network-reachable gateway. Its OpenAI-compatible endpoint is expected at a configurable base URL, defaulting to `http://localhost:20128` only when the process is local.
+OmniRoute runs as a local or network-reachable gateway. Its OpenAI-compatible endpoint is expected at a configurable base URL, defaulting to `http://localhost:20128/v1` only when the process is local. Codex should use OmniRoute through a custom model-provider profile with the Responses wire API; provider secrets are supplied via environment/secret storage, not committed configuration.
 
 Required adapter responsibilities:
 
 - health/probe without consuming meaningful inference;
-- OpenAI-compatible request execution using model/combo `auto` by default;
+- configure/launch an isolated Codex+OmniRoute execution profile;
+- OpenAI-compatible request execution using model/combo `auto` by default when direct gateway access is needed;
 - capture provider/model chosen when OmniRoute exposes it;
 - normalized token usage per request/run;
 - read free-tier budget/usage summary from OmniRoute when available;
@@ -71,7 +85,7 @@ Production-OS adds a persistent `ManagedProject` record with at least:
 - goal revision;
 - user-selected priority;
 - execution policy (`free_only` by default);
-- preferred agent (`auto` by default);
+- preferred agent (`auto` by default, with Codex preferred by routing policy);
 - project token budget or `null` for global-policy-only;
 - lifecycle state;
 - latest AI Dev Server run ID;
@@ -104,7 +118,7 @@ A completed project can later receive a new goal revision and become active agai
 
 Production-OS sends a versioned execution contract to AI Dev Server containing repository, target revision, goal revision, final goal, priority, execution policy, budget envelope and required verification profile.
 
-AI Dev Server executes against an isolated workspace/worktree and returns a versioned status contract containing run ID, project state, current phase, selected agent/provider, Git revision, verification results, blockers and usage telemetry.
+AI Dev Server executes against an isolated workspace/worktree and returns a versioned status contract containing run ID, project state, current phase, selected agent, capacity source/provider, Git revision, verification results, blockers and usage telemetry.
 
 Contracts must be JSON-serializable and backward-compatible for at least one previous schema version during migration.
 
@@ -118,8 +132,9 @@ Two different numbers must never be conflated:
 Per-run usage events include:
 
 - project ID and run ID;
-- provider (`omniroute`, `codex-chatgpt`, etc.);
-- model when known;
+- agent (`codex`, `opencode`, etc.);
+- capacity source (`omniroute-free`, `codex-chatgpt`, etc.);
+- underlying provider/model when known;
 - input tokens;
 - cached input tokens when known;
 - output tokens;
@@ -133,7 +148,7 @@ Unknown counts remain unknown rather than being fabricated.
 
 ### OmniRoute global capacity
 
-Production-OS displays the current OmniRoute recurring-free capacity snapshot and used/remaining values when the gateway reports them. Because free-tier grants can change, the UI shows the snapshot timestamp and never treats ~1.53B as a guaranteed contractual quota.
+Production-OS displays the current OmniRoute recurring-free capacity snapshot and used/remaining values when the gateway reports them. The snapshot should originate from OmniRoute's own free-tier summary/catalog endpoint rather than a Production-OS constant. Because free-tier grants can change, the UI shows the snapshot timestamp and never treats ~1.53B as a guaranteed contractual quota.
 
 ### ChatGPT/Codex capacity
 
@@ -154,13 +169,14 @@ The global visual must make clear whether a value is measured usage, a provider 
 
 Production-OS continues to decide which projects are eligible and their portfolio priority. AI Dev Server continues to allocate execution capacity.
 
-Before starting a run, AI Dev Server requests a provider route from the capacity router. The route decision considers:
+Before starting a run, AI Dev Server requests an agent + capacity-source route. The route decision considers:
 
 - project execution policy;
+- agent capability/availability;
 - provider health;
 - remaining known free capacity;
 - current rate/concurrency limits;
-- model/agent capability requirements;
+- model capability requirements;
 - verification reserve;
 - recent success/failure/cost telemetry.
 
@@ -204,6 +220,7 @@ The layout remains usable on Android/mobile widths.
 - Agent workspaces continue to receive no repository publishing credentials.
 - OmniRoute credentials stay in OmniRoute/trusted secrets.
 - Codex ChatGPT authentication stays in the Codex client auth store supported by that client.
+- The isolated OmniRoute Codex profile references only an environment-variable name for its gateway credential, never the credential value.
 - Paid provider routes require explicit enablement; absence of a free route never implies permission to spend money.
 - Logs redact values associated with key/token/secret/password environment variables.
 - Repository writes continue through trusted Git/GitHub paths after verification.
@@ -216,7 +233,7 @@ The layout remains usable on Android/mobile widths.
 - Provider rate limit: bounded backoff, then reroute.
 - All free routes unavailable: project becomes `BLOCKED` with a capacity reason, preserving checkpoint state.
 - Verification failure: remain active/retry according to existing bounded policies; never enter `REVIEW_REQUIRED`.
-- Telemetry unavailable: execution may continue if policy allows, but usage is recorded as unknown and the UI indicates incomplete accounting.
+- Telemetry unavailable: execution may continue if policy allows, but usage is recorded as unknown and the UI indicates incomplete accounting. A hard project token budget cannot be enforced from unknown usage alone, so the scheduler must use provider quota/rate boundaries and conservative run limits until accounting resumes.
 
 ## Persistence
 
@@ -236,6 +253,7 @@ V1 should use the persistence mechanism already native to each repository rather
 ### AI Dev Server
 
 - OmniRoute adapter probe/request/timeout/rate-limit behavior using a local fake HTTP server, not paid external inference;
+- isolated `codex-omniroute` configuration generation without modifying normal Codex/ChatGPT auth;
 - free-only routing never selects paid providers;
 - Codex ChatGPT fallback selection;
 - exhaustion/reroute behavior;
@@ -251,8 +269,8 @@ A contract fixture shared by tests in both repos verifies that Production-OS han
 ## Rollout sequence
 
 1. Define and test versioned project/capacity/usage contracts.
-2. Add AI Dev Server OmniRoute capacity adapter and routing policy.
-3. Add normalized usage telemetry and Codex/ChatGPT fallback state.
+2. Add AI Dev Server OmniRoute capacity adapter plus isolated `codex-omniroute` profile and routing policy.
+3. Add normalized usage telemetry and direct Codex/ChatGPT fallback state.
 4. Add Production-OS ManagedProject persistence and lifecycle.
 5. Connect handoff/status ingestion.
 6. Extend the Production-OS control surface for multi-repo goals, state icons and token/capacity views.
@@ -265,8 +283,10 @@ The feature is ready for initial use when all of the following are true:
 
 - multiple GitHub repositories can be selected and assigned independent final goals;
 - each project can execute through AI Dev Server without writing directly to `main` from the agent workspace;
-- OmniRoute is the first free capacity route when healthy;
+- Codex is the preferred coding agent when available and suitable for the task;
+- OmniRoute is the first free capacity source when healthy, normally through the isolated Codex+OmniRoute profile;
 - Codex authenticated by ChatGPT can be used as an included-capacity fallback without requiring an OpenAI API key;
+- configuring OmniRoute does not overwrite or invalidate normal ChatGPT-authenticated Codex configuration;
 - paid API inference cannot occur unless explicitly enabled;
 - project state, phase, verification and measured token usage are visible in Production-OS;
 - the OmniRoute capacity view is sourced dynamically and timestamped;
