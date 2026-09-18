@@ -620,7 +620,7 @@ def make_handler(control: ControlPlane):
                     )
                     return
                 try:
-                    repositories = GitHubClient().list_repositories(owner)
+                    repositories = GitHubClient().list_accessible_repositories(owner)
                 except GitHubAPIError as exc:
                     self._send(
                         HTTPStatus.BAD_GATEWAY,
