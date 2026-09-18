@@ -8,7 +8,7 @@ from urllib.parse import parse_qs, urlparse
 from .api_auth import Principal, TokenAuthorizer
 from .storage import job_queue_for, open_backend, worker_registry_for
 from .workflow_engine import WorkflowEngine, WorkflowTaskSpec
-from .managed_projects import ManagedProjectService
+from .managed_projects import ManagedProjectService, global_token_capacity
 from .execution_optimizer import ExecutionOptimizer
 from .speculation import SpeculationManager
 from .portfolio_optimizer import PortfolioOptimizer
@@ -143,6 +143,7 @@ progress{width:100%;height:16px}
  <div id="stats" class="grid"></div>
  <div class="card">
   <div class="project-head"><strong>Global token budget</strong><span id="global-token-text">0 / 0</span></div>
+  <div id="global-token-source" class="muted">Managed project budgets</div>
   <progress id="global-token-progress" value="0" max="1"></progress>
  </div>
 </section>
@@ -217,14 +218,14 @@ function element(tag,text,className){
  return node;
 }
 
-function renderStats(projects){
+function renderStats(projects,capacity){
  const counts={RUNNING:0,REVIEW_REQUIRED:0,BLOCKED:0,FAILED:0,DONE:0,PAUSED:0};
- let used=0,budget=0;
  projects.forEach(function(project){
   counts[project.state]=(counts[project.state]||0)+1;
-  used+=Number((project.usage||{}).total_tokens||0);
-  budget+=Number(project.token_budget||0);
  });
+ const globalCapacity=capacity||{};
+ const used=Number(globalCapacity.used||0);
+ const budget=Number(globalCapacity.monthly_budget||0);
  const stats=document.getElementById('stats');
  stats.replaceChildren();
  [
@@ -242,6 +243,8 @@ function renderStats(projects){
  bar.value=Math.min(used,Math.max(1,budget));
  document.getElementById('global-token-text').textContent=
   formatTokens(used)+' / '+formatTokens(budget)+' tokens';
+ document.getElementById('global-token-source').textContent=
+  String(globalCapacity.label||'Managed project budgets');
 }
 
 function projectCard(project){
@@ -346,7 +349,7 @@ async function refreshProjects(){
   }else{
    projects.forEach(function(project){container.append(projectCard(project))});
   }
-  renderStats(projects);
+  renderStats(projects,data.capacity);
   const runtime=await Promise.all([
    api('/v1/workers'),
    api('/v1/events?limit=20')
@@ -649,9 +652,21 @@ def make_handler(control: ControlPlane):
                 return
 
             if parsed.path == "/v1/managed-projects":
+                projects = control.managed_projects.list()
+                control.workers.load()
+                workers = [
+                    worker.to_dict()
+                    for worker in control.workers.workers.values()
+                ]
                 self._send(
                     HTTPStatus.OK,
-                    {"projects": control.managed_projects.list()},
+                    {
+                        "projects": projects,
+                        "capacity": global_token_capacity(
+                            projects,
+                            workers,
+                        ),
+                    },
                 )
                 return
 
