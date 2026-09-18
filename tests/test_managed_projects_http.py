@@ -114,3 +114,54 @@ def test_viewer_cannot_create_managed_project(tmp_path):
     finally:
         server.shutdown()
         server.server_close()
+
+
+def test_managed_project_http_accepts_instruction_and_retest(tmp_path):
+    auth = TokenAuthorizer([
+        {"name": "operator", "role": "operator", "sha256": token_digest("operator")},
+    ])
+    control = ControlPlane(str(tmp_path / "db.sqlite"), authorizer=auth)
+    server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    base = f"http://127.0.0.1:{server.server_port}"
+    try:
+        _, created = request(base + "/v1/managed-projects", "operator", {
+            "repository": "dbrckk/example",
+            "final_goal": "Ship it",
+            "token_budget": 10000,
+            "agent_preference": "codex",
+        })
+        workflow_id = created["project"]["workflow_id"]
+        assert control.workflows.get(workflow_id)["tasks"][0]["status"] == "queued"
+
+        control.workflows.record_result(workflow_id, "goal", succeeded=True)
+
+        status, resumed = request(
+            base + f"/v1/managed-projects/{workflow_id}/instructions",
+            "operator",
+            {"instruction": "Polish the mobile controls"},
+        )
+        assert status == 200
+        assert resumed["project"]["state"] == "RUNNING"
+
+        control.workflows.record_result(
+            workflow_id,
+            "instruction-1",
+            succeeded=True,
+        )
+        status, retest = request(
+            base + f"/v1/managed-projects/{workflow_id}/verify",
+            "operator",
+            {},
+        )
+        assert status == 200
+        assert retest["project"]["state"] == "RUNNING"
+        task = next(
+            item for item in control.workflows.get(workflow_id)["tasks"]
+            if item["task_id"] == "verification-1"
+        )
+        assert task["status"] == "queued"
+    finally:
+        server.shutdown()
+        server.server_close()
