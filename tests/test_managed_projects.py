@@ -69,3 +69,64 @@ def test_managed_project_rejects_invalid_budget(tmp_path):
             final_goal="Finish the project",
             token_budget=0,
         )
+
+
+def test_managed_project_starts_dispatch_and_accepts_follow_up_instruction(tmp_path):
+    projects, workflows = service(tmp_path)
+    created = projects.create(
+        repository="dbrckk/example",
+        final_goal="Ship the release",
+        token_budget=50_000,
+        agent_preference="codex",
+    )
+
+    first = workflows.get(created["workflow_id"])["tasks"][0]
+    assert first["task_id"] == "goal"
+    assert first["status"] == "queued"
+
+    workflows.record_result(
+        created["workflow_id"],
+        "goal",
+        succeeded=True,
+        result={"usage": {"total_tokens": 100}},
+    )
+    assert projects.get(created["workflow_id"])["state"] == "REVIEW_REQUIRED"
+
+    resumed = projects.add_instruction(
+        created["workflow_id"],
+        "Improve the mobile controls before final approval",
+    )
+    assert resumed["state"] == "RUNNING"
+
+    workflow = workflows.get(created["workflow_id"])
+    follow_up = next(
+        task for task in workflow["tasks"]
+        if task["task_id"] == "instruction-1"
+    )
+    assert follow_up["status"] == "queued"
+    assert follow_up["payload"]["handoff"]["task"] == (
+        "Improve the mobile controls before final approval"
+    )
+    assert "goal" in follow_up["dependencies"]
+
+
+def test_managed_project_retest_adds_real_verification_task(tmp_path):
+    projects, workflows = service(tmp_path)
+    created = projects.create(
+        repository="dbrckk/example",
+        final_goal="Ship the release",
+        token_budget=50_000,
+    )
+    workflows.record_result(created["workflow_id"], "goal", succeeded=True)
+
+    running = projects.request_verification(created["workflow_id"])
+    assert running["state"] == "RUNNING"
+
+    workflow = workflows.get(created["workflow_id"])
+    verification = next(
+        task for task in workflow["tasks"]
+        if task["task_id"] == "verification-1"
+    )
+    assert verification["status"] == "queued"
+    assert verification["payload"]["phase"] == "verification"
+    assert verification["payload"]["handoff"]["final_goal"] == "Ship the release"
