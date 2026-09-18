@@ -36,12 +36,20 @@ def test_managed_project_requires_human_completion_after_execution(tmp_path):
         created["workflow_id"],
         "goal",
         succeeded=True,
-        result={"usage": {"total_tokens": 12_345}},
+        result={
+            "usage": {
+                "total_tokens": 12_345,
+                "runs": 2,
+                "agents": {"codex": 2},
+            }
+        },
     )
 
     review = projects.get(created["workflow_id"])
     assert review["state"] == "REVIEW_REQUIRED"
     assert review["usage"]["total_tokens"] == 12_345
+    assert review["usage"]["runs"] == 2
+    assert review["usage"]["agents"] == {"codex": 2}
 
     done = projects.mark_done(created["workflow_id"], approved_by="operator")
     assert done["state"] == "DONE"
