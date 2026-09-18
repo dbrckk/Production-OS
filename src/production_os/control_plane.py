@@ -271,7 +271,48 @@ function projectCard(project){
  card.append(usageText,progress);
 
  if(project.state==='REVIEW_REQUIRED'){
+  const instruction=document.createElement('textarea');
+  instruction.placeholder='Add a new instruction before final approval';
+  instruction.setAttribute('aria-label','New instruction');
+  card.append(instruction);
+
   const actions=element('div',null,'actions');
+  const retest=element('button','Retest');
+  retest.type='button';
+  retest.addEventListener('click',async function(){
+   retest.disabled=true;
+   try{
+    await api(
+     '/v1/managed-projects/'+encodeURIComponent(project.workflow_id)+'/verify',
+     {method:'POST',body:'{}'}
+    );
+    setNotice(project.repository+' verification queued.',false);
+    await refreshProjects();
+   }catch(error){
+    setNotice(String(error),true);
+    retest.disabled=false;
+   }
+  });
+
+  const send=element('button','Send instruction');
+  send.type='button';
+  send.addEventListener('click',async function(){
+   const value=instruction.value.trim();
+   if(!value){setNotice('Enter an instruction first.',true);return}
+   send.disabled=true;
+   try{
+    await api(
+     '/v1/managed-projects/'+encodeURIComponent(project.workflow_id)+'/instructions',
+     {method:'POST',body:JSON.stringify({instruction:value})}
+    );
+    setNotice(project.repository+' instruction queued.',false);
+    await refreshProjects();
+   }catch(error){
+    setNotice(String(error),true);
+    send.disabled=false;
+   }
+  });
+
   const complete=element('button','Mark done');
   complete.type='button';
   complete.addEventListener('click',async function(){
@@ -288,7 +329,7 @@ function projectCard(project){
     complete.disabled=false;
    }
   });
-  actions.append(complete);
+  actions.append(retest,send,complete);
   card.append(actions);
  }
  return card;
@@ -1092,6 +1133,57 @@ def make_handler(control: ControlPlane):
                     )
                     self._send(
                         HTTPStatus.CREATED,
+                        {"project": project},
+                    )
+                    return
+
+                if (
+                    parsed.path.startswith("/v1/managed-projects/")
+                    and parsed.path.endswith("/instructions")
+                ):
+                    principal = self._require("operator")
+                    if principal is None:
+                        return
+                    parts = [
+                        part for part in parsed.path.split("/") if part
+                    ]
+                    if len(parts) != 4:
+                        self._send(
+                            HTTPStatus.NOT_FOUND,
+                            {"error": "not found"},
+                        )
+                        return
+                    project = control.managed_projects.add_instruction(
+                        parts[2],
+                        str(body.get("instruction") or ""),
+                    )
+                    self._send(
+                        HTTPStatus.OK,
+                        {"project": project},
+                    )
+                    return
+
+                if (
+                    parsed.path.startswith("/v1/managed-projects/")
+                    and parsed.path.endswith("/verify")
+                ):
+                    principal = self._require("operator")
+                    if principal is None:
+                        return
+                    parts = [
+                        part for part in parsed.path.split("/") if part
+                    ]
+                    if len(parts) != 4:
+                        self._send(
+                            HTTPStatus.NOT_FOUND,
+                            {"error": "not found"},
+                        )
+                        return
+                    project = control.managed_projects.request_verification(
+                        parts[2]
+                    )
+                    self._send(
+                        HTTPStatus.OK,
                         {"project": project},
                     )
                     return
