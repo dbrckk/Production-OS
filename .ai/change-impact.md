@@ -1,13 +1,13 @@
 # Change impact
 
-Base: 28ed83b584945b07a12a9ebf1d51c64bac88eefe
-Head: 1534f8a3acec5621d2df5b4dac355d274c3c31bf
+Base: 9b9a1aaf1a7ade4c5e4225cd5be50c27156daec2
+Head: 12be045035048133b0997e52f60926ae0d35debf
 
 ## Changed files
-- M AGENTS.md
+- A .github/workflows/semantic-refresh.yml
 
 ## Affected areas
-- (root)
+- .github
 
 ## Related test candidates
 - No direct filename-based test match detected.
