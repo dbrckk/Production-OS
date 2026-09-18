@@ -269,6 +269,10 @@ jobs:
   repo-health:
     needs: ai-context
     uses: dbrckk/repo-standards/.github/workflows/reusable-repo-health.yml@main
+
+  project-state:
+    needs: repo-health
+    uses: dbrckk/repo-standards/.github/workflows/reusable-project-state.yml@main
 ````
 
 ## File: .github/workflows/ci.yml
@@ -7923,6 +7927,7 @@ tasks={task["task_id"]:task for task in current["tasks"]}
 ````yaml
 source: dbrckk/repo-standards
 ref: main
+version: 2
 adopted: true
 ai_context:
   repo_map: .ai/repo-map.md
@@ -7930,6 +7935,9 @@ ai_context:
   project_state: .ai/project-state.md
 workflow:
   file: .github/workflows/ai-repo-map.yml
+  reusable_ai_map: .github/workflows/reusable-ai-repo-map.yml
+  reusable_health: .github/workflows/reusable-repo-health.yml
+  reusable_project_state: .github/workflows/reusable-project-state.yml
 ````
 
 ## File: AGENTS.md
