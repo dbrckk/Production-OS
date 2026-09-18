@@ -8,6 +8,7 @@ from urllib.parse import parse_qs, urlparse
 from .api_auth import Principal, TokenAuthorizer
 from .storage import job_queue_for, open_backend, worker_registry_for
 from .workflow_engine import WorkflowEngine, WorkflowTaskSpec
+from .managed_projects import ManagedProjectService
 from .execution_optimizer import ExecutionOptimizer
 from .speculation import SpeculationManager
 from .portfolio_optimizer import PortfolioOptimizer
@@ -47,6 +48,7 @@ class ControlPlane:
         self.queue = job_queue_for(self.backend)
         self.workers = worker_registry_for(self.backend)
         self.workflows = WorkflowEngine(self.backend, self.queue)
+        self.managed_projects = ManagedProjectService(self.workflows)
         self.optimizer = ExecutionOptimizer(self.backend)
         self.speculation = SpeculationManager(self.backend, self.queue)
         self.portfolio = PortfolioOptimizer(self.workflows, self.optimizer)
@@ -273,6 +275,13 @@ def make_handler(control: ControlPlane):
 
             principal = self._require("viewer")
             if principal is None:
+                return
+
+            if parsed.path == "/v1/managed-projects":
+                self._send(
+                    HTTPStatus.OK,
+                    {"projects": control.managed_projects.list()},
+                )
                 return
 
             if parsed.path == "/v1/stats":
@@ -739,6 +748,50 @@ def make_handler(control: ControlPlane):
                 return
 
             try:
+                if parsed.path == "/v1/managed-projects":
+                    principal = self._require("operator")
+                    if principal is None:
+                        return
+                    project = control.managed_projects.create(
+                        repository=str(body["repository"]),
+                        final_goal=str(body["final_goal"]),
+                        token_budget=body["token_budget"],
+                        agent_preference=str(
+                            body.get("agent_preference") or "auto"
+                        ),
+                    )
+                    self._send(
+                        HTTPStatus.CREATED,
+                        {"project": project},
+                    )
+                    return
+
+                if (
+                    parsed.path.startswith("/v1/managed-projects/")
+                    and parsed.path.endswith("/complete")
+                ):
+                    principal = self._require("operator")
+                    if principal is None:
+                        return
+                    parts = [
+                        part for part in parsed.path.split("/") if part
+                    ]
+                    if len(parts) != 4:
+                        self._send(
+                            HTTPStatus.NOT_FOUND,
+                            {"error": "not found"},
+                        )
+                        return
+                    project = control.managed_projects.mark_done(
+                        parts[2],
+                        approved_by=principal.name,
+                    )
+                    self._send(
+                        HTTPStatus.OK,
+                        {"project": project},
+                    )
+                    return
+
                 if parsed.path == "/v1/stragglers/speculate":
                     principal = self._require("operator")
                     if principal is None:
