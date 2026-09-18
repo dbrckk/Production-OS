@@ -65,6 +65,86 @@ def _usage_from_result(result: dict | None) -> dict[str, int]:
     return normalized
 
 
+def global_token_capacity(
+    projects: list[dict],
+    workers: list[dict],
+) -> dict:
+    """Choose the best trustworthy numeric capacity for the portfolio."""
+    candidates = []
+    for worker in workers:
+        if not isinstance(worker, dict):
+            continue
+        capacity = worker.get("capacity")
+        if not isinstance(capacity, dict):
+            continue
+        if (
+            capacity.get("source") != "omniroute"
+            or capacity.get("status") != "ok"
+            or capacity.get("authenticated_usage") is not True
+        ):
+            continue
+        steady = capacity.get("steady_recurring_tokens")
+        used = capacity.get("used_this_month")
+        remaining = capacity.get("remaining_tokens")
+        if (
+            isinstance(steady, bool)
+            or not isinstance(steady, int)
+            or steady <= 0
+            or isinstance(used, bool)
+            or not isinstance(used, int)
+            or used < 0
+            or isinstance(remaining, bool)
+            or not isinstance(remaining, int)
+            or remaining < 0
+        ):
+            continue
+        candidates.append((
+            str(worker.get("last_heartbeat") or ""),
+            str(worker.get("worker_id") or ""),
+            steady,
+            used,
+            remaining,
+        ))
+
+    if candidates:
+        _, _, steady, used, remaining = max(candidates)
+        return {
+            "source": "omniroute",
+            "label": "OmniRoute monthly",
+            "monthly_budget": steady,
+            "used": used,
+            "remaining": remaining,
+            "authenticated_usage": True,
+        }
+
+    budget = 0
+    used = 0
+    for project in projects:
+        if not isinstance(project, dict):
+            continue
+        try:
+            project_budget = int(project.get("token_budget") or 0)
+        except (TypeError, ValueError):
+            project_budget = 0
+        usage = project.get("usage")
+        total = usage.get("total_tokens", 0) if isinstance(usage, dict) else 0
+        try:
+            project_used = int(total or 0)
+        except (TypeError, ValueError):
+            project_used = 0
+        budget += max(0, project_budget)
+        used += max(0, project_used)
+
+    return {
+        "source": "project-budgets",
+        "label": "Managed project budgets",
+        "monthly_budget": budget,
+        "used": used,
+        "remaining": max(0, budget - used),
+        "authenticated_usage": False,
+    }
+
+
 class ManagedProjectService:
     """Project-level human review state layered over WorkflowEngine."""
 
