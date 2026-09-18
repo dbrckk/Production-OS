@@ -127,6 +127,50 @@ class GitHubClient:
         runs = payload.get("workflow_runs", [])
         return runs if isinstance(runs, list) else []
 
+    def list_accessible_repositories(
+        self,
+        owner: str | None = None,
+    ) -> list[dict[str, Any]]:
+        """List repositories visible to the configured GitHub identity.
+
+        Authenticated clients use /user/repos so private/collaborator/org
+        repositories are included. Anonymous clients fall back to the public
+        owner listing.
+        """
+        owner = str(owner or "").strip()
+        if not self.token:
+            if not owner:
+                raise GitHubAPIError("GitHub owner is required without authentication")
+            return self.list_repositories(owner)
+
+        repos: list[dict[str, Any]] = []
+        page = 1
+        while True:
+            payload = self._get(
+                "/user/repos"
+                f"?per_page=100&page={page}&sort=pushed&direction=desc"
+                "&visibility=all"
+                "&affiliation=owner%2Ccollaborator%2Corganization_member"
+            )
+            if not isinstance(payload, list):
+                raise GitHubAPIError("GitHub repository listing was not a list")
+            repos.extend(payload)
+            if len(payload) < 100:
+                break
+            page += 1
+
+        if not owner:
+            return repos
+
+        wanted = owner.casefold()
+        return [
+            repo
+            for repo in repos
+            if isinstance(repo, dict)
+            and isinstance(repo.get("owner"), dict)
+            and str(repo["owner"].get("login") or "").casefold() == wanted
+        ]
+
     def list_repositories(self, owner: str) -> list[dict[str, Any]]:
         repos: list[dict[str, Any]] = []
         page = 1
