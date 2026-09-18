@@ -1,0 +1,206 @@
+"""Managed autonomous projects built on top of the existing workflow engine."""
+from __future__ import annotations
+
+from datetime import datetime, timezone
+
+from .workflow_engine import WorkflowEngine, WorkflowTaskSpec
+
+
+MANAGED_PROJECT_SCHEMA = "production-os/managed-project/v1"
+USAGE_KEYS = (
+    "input_tokens",
+    "cached_input_tokens",
+    "output_tokens",
+    "reasoning_tokens",
+    "total_tokens",
+)
+
+
+def _now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _clean_positive_int(value, *, field: str) -> int:
+    if isinstance(value, bool):
+        raise ValueError(f"{field} must be a positive integer")
+    try:
+        number = int(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"{field} must be a positive integer") from exc
+    if number <= 0:
+        raise ValueError(f"{field} must be a positive integer")
+    return number
+
+
+def _usage_from_result(result: dict | None) -> dict[str, int]:
+    if not isinstance(result, dict):
+        return {}
+
+    candidates = [result.get("usage")]
+    evidence = result.get("evidence")
+    if isinstance(evidence, dict):
+        candidates.append(evidence.get("usage"))
+
+    usage = next((item for item in candidates if isinstance(item, dict)), None)
+    if usage is None:
+        return {}
+
+    normalized: dict[str, int] = {}
+    for key in USAGE_KEYS:
+        value = usage.get(key)
+        if isinstance(value, bool):
+            continue
+        try:
+            number = int(value)
+        except (TypeError, ValueError):
+            continue
+        if number >= 0:
+            normalized[key] = number
+
+    if "total_tokens" not in normalized:
+        normalized["total_tokens"] = (
+            normalized.get("input_tokens", 0)
+            + normalized.get("output_tokens", 0)
+        )
+    return normalized
+
+
+class ManagedProjectService:
+    """Project-level human review state layered over WorkflowEngine."""
+
+    def __init__(self, workflows: WorkflowEngine):
+        self.workflows = workflows
+
+    def create(
+        self,
+        *,
+        repository: str,
+        final_goal: str,
+        token_budget: int,
+        agent_preference: str = "auto",
+    ) -> dict:
+        repository = str(repository or "").strip()
+        final_goal = str(final_goal or "").strip()
+        agent_preference = str(agent_preference or "auto").strip() or "auto"
+        if not repository:
+            raise ValueError("repository is required")
+        if not final_goal:
+            raise ValueError("final_goal is required")
+        budget = _clean_positive_int(token_budget, field="token_budget")
+
+        metadata = {
+            "managed_project": {
+                "schema_version": MANAGED_PROJECT_SCHEMA,
+                "final_goal": final_goal,
+                "token_budget": budget,
+                "agent_preference": agent_preference,
+                "human_state": "active",
+            }
+        }
+        workflow = self.workflows.create(
+            name=f"Managed project: {repository}",
+            repository=repository,
+            tasks=[
+                WorkflowTaskSpec(
+                    task_id="goal",
+                    title=final_goal,
+                    payload={
+                        "handoff": {
+                            "repository": repository,
+                            "task": final_goal,
+                            "final_goal": final_goal,
+                            "agent_preference": agent_preference,
+                            "token_budget": budget,
+                        }
+                    },
+                    max_attempts=3,
+                )
+            ],
+            metadata=metadata,
+        )
+        return self._project(workflow)
+
+    def get(self, workflow_id: str) -> dict:
+        workflow = self.workflows.get(str(workflow_id))
+        project = self._project(workflow)
+        if project is None:
+            raise KeyError(workflow_id)
+        return project
+
+    def list(self) -> list[dict]:
+        with self.workflows.backend.connect() as db:
+            rows = db.execute(
+                """
+                SELECT id
+                FROM workflows
+                ORDER BY created_at DESC, id DESC
+                """
+            ).fetchall()
+        projects = []
+        for row in rows:
+            workflow = self.workflows.get(str(row["id"]))
+            project = self._project(workflow)
+            if project is not None:
+                projects.append(project)
+        return projects
+
+    def mark_done(self, workflow_id: str, *, approved_by: str) -> dict:
+        current = self.get(workflow_id)
+        if current["state"] != "REVIEW_REQUIRED":
+            raise RuntimeError("managed project must be REVIEW_REQUIRED before DONE")
+
+        workflow = self.workflows.get(str(workflow_id))
+        metadata = dict(workflow.get("metadata") or {})
+        managed = dict(metadata.get("managed_project") or {})
+        managed.update({
+            "human_state": "done",
+            "approved_by": str(approved_by or "").strip() or "operator",
+            "approved_at": _now(),
+        })
+        metadata["managed_project"] = managed
+        self.workflows.update_metadata(str(workflow_id), metadata)
+        return self.get(str(workflow_id))
+
+    def _project(self, workflow: dict) -> dict | None:
+        metadata = dict(workflow.get("metadata") or {})
+        managed = metadata.get("managed_project")
+        if not isinstance(managed, dict):
+            return None
+        if managed.get("schema_version") != MANAGED_PROJECT_SCHEMA:
+            return None
+
+        usage = {key: 0 for key in USAGE_KEYS}
+        for task in workflow.get("tasks", []):
+            item = _usage_from_result(task.get("result"))
+            for key, value in item.items():
+                usage[key] = usage.get(key, 0) + value
+
+        human_state = str(managed.get("human_state") or "active")
+        task_states = {str(task.get("status") or "") for task in workflow.get("tasks", [])}
+        if human_state == "done":
+            state = "DONE"
+        elif workflow.get("status") == "succeeded":
+            state = "REVIEW_REQUIRED"
+        elif workflow.get("status") == "failed":
+            state = "FAILED"
+        elif "blocked" in task_states:
+            state = "BLOCKED"
+        elif workflow.get("status") == "cancelled":
+            state = "PAUSED"
+        else:
+            state = "RUNNING"
+
+        return {
+            "workflow_id": workflow["id"],
+            "repository": workflow["repository"],
+            "final_goal": str(managed.get("final_goal") or ""),
+            "token_budget": int(managed.get("token_budget") or 0),
+            "agent_preference": str(managed.get("agent_preference") or "auto"),
+            "state": state,
+            "workflow_status": workflow.get("status"),
+            "usage": usage,
+            "approved_by": managed.get("approved_by"),
+            "approved_at": managed.get("approved_at"),
+            "created_at": workflow.get("created_at"),
+            "updated_at": workflow.get("updated_at"),
+        }
