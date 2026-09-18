@@ -1,0 +1,1988 @@
+{
+  "files": {
+    "src/production_os/__init__.py": {
+      "dependencies": [],
+      "dependents": [
+        "tests/test_adaptation.py",
+        "tests/test_adaptation_plan.py",
+        "tests/test_api_auth.py",
+        "tests/test_approvals_migrations.py",
+        "tests/test_asymmetric_attestations.py",
+        "tests/test_attestations.py",
+        "tests/test_builder_identity.py",
+        "tests/test_builder_identity_validation.py",
+        "tests/test_builder_trust_rotation.py",
+        "tests/test_callgraph_versioning_feedback.py",
+        "tests/test_capabilities_graph.py",
+        "tests/test_change_impact.py",
+        "tests/test_claims_delivery.py",
+        "tests/test_classification_history_reuse.py",
+        "tests/test_cli.py",
+        "tests/test_compatibility_validation.py",
+        "tests/test_components.py",
+        "tests/test_control_plane.py",
+        "tests/test_control_plane_pr_impact.py",
+        "tests/test_control_plane_release.py",
+        "tests/test_control_plane_webhook.py",
+        "tests/test_deep_fingerprint_starlist.py",
+        "tests/test_emergency_key_revocation.py",
+        "tests/test_execution_feedback_trends.py",
+        "tests/test_execution_optimizer.py",
+        "tests/test_execution_optimizer_postgres.py",
+        "tests/test_fairness.py",
+        "tests/test_github_client_pr_files.py",
+        "tests/test_github_webhook.py",
+        "tests/test_github_work_state.py",
+        "tests/test_governance.py",
+        "tests/test_health_metrics.py",
+        "tests/test_http_security_headers.py",
+        "tests/test_incident_history.py",
+        "tests/test_key_domains.py",
+        "tests/test_key_registry_validation.py",
+        "tests/test_key_rotation.py",
+        "tests/test_learning_control_surface.py",
+        "tests/test_observability.py",
+        "tests/test_p6_hardening.py",
+        "tests/test_policy_budgets.py",
+        "tests/test_policy_validation.py",
+        "tests/test_portfolio_claim_api.py",
+        "tests/test_portfolio_optimizer.py",
+        "tests/test_postgres_backend.py",
+        "tests/test_preemption.py",
+        "tests/test_production_stack_e2e.py",
+        "tests/test_provenance_signer.py",
+        "tests/test_queue_audit_checkpoint.py",
+        "tests/test_reconciliation_dispatch.py",
+        "tests/test_rekor_checkpoint_state.py",
+        "tests/test_rekor_checkpoint_state_cli.py",
+        "tests/test_rekor_checkpoint_state_concurrency.py",
+        "tests/test_rekor_checkpoint_state_postgres.py",
+        "tests/test_rekor_consistency_client.py",
+        "tests/test_rekor_signed_checkpoint.py",
+        "tests/test_rekor_signed_checkpoint_receipt.py",
+        "tests/test_rekor_v1_key_compatibility.py",
+        "tests/test_rekor_witness_quorum.py",
+        "tests/test_rekor_witness_quorum_cli.py",
+        "tests/test_release_ledger.py",
+        "tests/test_remote_worker.py",
+        "tests/test_result_cache.py",
+        "tests/test_runtime_state.py",
+        "tests/test_scheduler.py",
+        "tests/test_scoring.py",
+        "tests/test_secure_release_e2e.py",
+        "tests/test_self_healing_heartbeat.py",
+        "tests/test_signer_factory.py",
+        "tests/test_signers.py",
+        "tests/test_source_tree.py",
+        "tests/test_speculation.py",
+        "tests/test_speculation_api.py",
+        "tests/test_sqlite_backend.py",
+        "tests/test_sqlite_migration.py",
+        "tests/test_stragglers.py",
+        "tests/test_supply_chain.py",
+        "tests/test_transparency_cli.py",
+        "tests/test_transparency_receipts.py",
+        "tests/test_trust_policy.py",
+        "tests/test_trust_status_summary.py",
+        "tests/test_vault_auth.py",
+        "tests/test_vault_signer.py",
+        "tests/test_witness.py",
+        "tests/test_workers.py",
+        "tests/test_workflow_api.py",
+        "tests/test_workflow_cache.py",
+        "tests/test_workflow_change_impact.py",
+        "tests/test_workflow_engine.py",
+        "tests/test_workflow_postgres.py",
+        "tests/test_workflow_splitting.py"
+      ],
+      "in_degree": 91,
+      "out_degree": 0
+    },
+    "src/production_os/adaptation.py": {
+      "dependencies": [
+        "src/production_os/models.py"
+      ],
+      "dependents": [
+        "src/production_os/reuse.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 1
+    },
+    "src/production_os/adaptation_plan.py": {
+      "dependencies": [
+        "src/production_os/models.py"
+      ],
+      "dependents": [
+        "src/production_os/reuse.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 1
+    },
+    "src/production_os/api_auth.py": {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/control_plane.py"
+      ],
+      "in_degree": 2,
+      "out_degree": 0
+    },
+    "src/production_os/approvals.py": {
+      "dependencies": [
+        "src/production_os/atomic_io.py",
+        "src/production_os/locks.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/controller.py",
+        "src/production_os/dispatch.py"
+      ],
+      "in_degree": 3,
+      "out_degree": 2
+    },
+    "src/production_os/asymmetric_attestations.py": {
+      "dependencies": [
+        "src/production_os/attestations.py",
+        "src/production_os/key_registry.py",
+        "src/production_os/signers.py",
+        "src/production_os/signing.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/dual_sign.py",
+        "src/production_os/release_ledger.py"
+      ],
+      "in_degree": 3,
+      "out_degree": 4
+    },
+    "src/production_os/atomic_io.py": {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/approvals.py",
+        "src/production_os/audit_checkpoint.py",
+        "src/production_os/backup.py",
+        "src/production_os/budgets.py",
+        "src/production_os/claims.py",
+        "src/production_os/dispatch.py",
+        "src/production_os/emergency.py",
+        "src/production_os/migrations.py",
+        "src/production_os/quarantine.py",
+        "src/production_os/queue_maintenance.py",
+        "src/production_os/rate_limit.py",
+        "src/production_os/runtime_state.py",
+        "src/production_os/workers.py"
+      ],
+      "in_degree": 13,
+      "out_degree": 0
+    },
+    "src/production_os/attestations.py": {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/asymmetric_attestations.py",
+        "src/production_os/cli.py",
+        "src/production_os/dual_sign.py",
+        "src/production_os/release_ledger.py"
+      ],
+      "in_degree": 4,
+      "out_degree": 0
+    },
+    "src/production_os/audit_checkpoint.py": {
+      "dependencies": [
+        "src/production_os/atomic_io.py",
+        "src/production_os/audit_integrity.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 2
+    },
+    "src/production_os/audit_integrity.py": {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/audit_checkpoint.py",
+        "src/production_os/cli.py",
+        "src/production_os/journal.py"
+      ],
+      "in_degree": 3,
+      "out_degree": 0
+    },
+    "src/production_os/backup.py": {
+      "dependencies": [
+        "src/production_os/atomic_io.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 1
+    },
+    "src/production_os/budgets.py": {
+      "dependencies": [
+        "src/production_os/atomic_io.py",
+        "src/production_os/locks.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/controller.py",
+        "src/production_os/dispatch.py"
+      ],
+      "in_degree": 3,
+      "out_degree": 2
+    },
+    "src/production_os/builder_identity.py": {
+      "dependencies": [
+        "src/production_os/key_registry.py"
+      ],
+      "dependents": [
+        "src/production_os/release_ledger.py",
+        "src/production_os/supply_chain.py"
+      ],
+      "in_degree": 2,
+      "out_degree": 1
+    },
+    "src/production_os/callgraph.py": {
+      "dependencies": [
+        "src/production_os/models.py"
+      ],
+      "dependents": [
+        "src/production_os/graph.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 1
+    },
+    "src/production_os/capabilities.py": {
+      "dependencies": [
+        "src/production_os/models.py"
+      ],
+      "dependents": [
+        "src/production_os/scoring.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 1
+    },
+    "src/production_os/change_impact.py": {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/workflow_engine.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 0
+    },
+    "src/production_os/claims.py": {
+      "dependencies": [
+        "src/production_os/atomic_io.py",
+        "src/production_os/locks.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/controller.py",
+        "src/production_os/delivery.py",
+        "src/production_os/postgres_backend.py",
+        "src/production_os/queue_maintenance.py",
+        "src/production_os/sqlite_backend.py",
+        "src/production_os/sqlite_migration.py"
+      ],
+      "in_degree": 7,
+      "out_degree": 2
+    },
+    "src/production_os/classification.py": {
+      "dependencies": [
+        "src/production_os/models.py"
+      ],
+      "dependents": [
+        "src/production_os/scoring.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 1
+    },
+    "src/production_os/cli.py": {
+      "dependencies": [
+        "src/production_os/api_auth.py",
+        "src/production_os/approvals.py",
+        "src/production_os/asymmetric_attestations.py",
+        "src/production_os/attestations.py",
+        "src/production_os/audit_checkpoint.py",
+        "src/production_os/audit_integrity.py",
+        "src/production_os/backup.py",
+        "src/production_os/budgets.py",
+        "src/production_os/claims.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/control_surface.py",
+        "src/production_os/controller.py",
+        "src/production_os/delivery.py",
+        "src/production_os/dispatch.py",
+        "src/production_os/emergency.py",
+        "src/production_os/execution_feedback.py",
+        "src/production_os/execution_optimizer.py",
+        "src/production_os/feedback.py",
+        "src/production_os/github_client.py",
+        "src/production_os/github_work_state.py",
+        "src/production_os/graph.py",
+        "src/production_os/health_server.py",
+        "src/production_os/history.py",
+        "src/production_os/journal.py",
+        "src/production_os/learning.py",
+        "src/production_os/migration_registry.py",
+        "src/production_os/migrations.py",
+        "src/production_os/models.py",
+        "src/production_os/policy.py",
+        "src/production_os/policy_validation.py",
+        "src/production_os/preemption.py",
+        "src/production_os/quarantine.py",
+        "src/production_os/queue_maintenance.py",
+        "src/production_os/rate_limit.py",
+        "src/production_os/reconciliation.py",
+        "src/production_os/rekor_checkpoint_state.py",
+        "src/production_os/rekor_witness_quorum.py",
+        "src/production_os/release_ledger.py",
+        "src/production_os/remote_worker.py",
+        "src/production_os/resources.py",
+        "src/production_os/reuse.py",
+        "src/production_os/runtime_state.py",
+        "src/production_os/scheduler.py",
+        "src/production_os/scoring.py",
+        "src/production_os/signer_factory.py",
+        "src/production_os/signing.py",
+        "src/production_os/speculation.py",
+        "src/production_os/sqlite_migration.py",
+        "src/production_os/starlist.py",
+        "src/production_os/storage.py",
+        "src/production_os/supply_chain.py",
+        "src/production_os/transparency_receipts.py",
+        "src/production_os/trends.py",
+        "src/production_os/trust_policy.py",
+        "src/production_os/witness.py",
+        "src/production_os/workers.py",
+        "src/production_os/workflow_engine.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 57
+    },
+    "src/production_os/compatibility.py": {
+      "dependencies": [
+        "src/production_os/models.py"
+      ],
+      "dependents": [
+        "src/production_os/reuse.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 1
+    },
+    "src/production_os/components.py": {
+      "dependencies": [
+        "src/production_os/models.py"
+      ],
+      "dependents": [
+        "src/production_os/scoring.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 1
+    },
+    "src/production_os/control_plane.py": {
+      "dependencies": [
+        "src/production_os/api_auth.py",
+        "src/production_os/execution_optimizer.py",
+        "src/production_os/github_client.py",
+        "src/production_os/github_webhook.py",
+        "src/production_os/portfolio_optimizer.py",
+        "src/production_os/release_ledger.py",
+        "src/production_os/speculation.py",
+        "src/production_os/storage.py",
+        "src/production_os/workflow_engine.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 9
+    },
+    "src/production_os/control_surface.py": {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/cli.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 0
+    },
+    "src/production_os/controller.py": {
+      "dependencies": [
+        "src/production_os/approvals.py",
+        "src/production_os/budgets.py",
+        "src/production_os/claims.py",
+        "src/production_os/delivery.py",
+        "src/production_os/dispatch.py",
+        "src/production_os/emergency.py",
+        "src/production_os/github_client.py",
+        "src/production_os/github_work_state.py",
+        "src/production_os/governance.py",
+        "src/production_os/health.py",
+        "src/production_os/heartbeat_manager.py",
+        "src/production_os/history.py",
+        "src/production_os/journal.py",
+        "src/production_os/metrics.py",
+        "src/production_os/observability.py",
+        "src/production_os/policy.py",
+        "src/production_os/quarantine.py",
+        "src/production_os/rate_limit.py",
+        "src/production_os/reconciliation.py",
+        "src/production_os/resources.py",
+        "src/production_os/reuse.py",
+        "src/production_os/runtime_state.py",
+        "src/production_os/scheduler.py",
+        "src/production_os/scoring.py",
+        "src/production_os/self_healing.py",
+        "src/production_os/storage.py",
+        "src/production_os/workers.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 27
+    },
+    "src/production_os/deep_fingerprint.py": {
+      "dependencies": [
+        "src/production_os/models.py"
+      ],
+      "dependents": [
+        "src/production_os/scoring.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 1
+    },
+    "src/production_os/delivery.py": {
+      "dependencies": [
+        "src/production_os/claims.py",
+        "src/production_os/runtime_state.py",
+        "src/production_os/workers.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/controller.py"
+      ],
+      "in_degree": 2,
+      "out_degree": 3
+    },
+    "src/production_os/dispatch.py": {
+      "dependencies": [
+        "src/production_os/approvals.py",
+        "src/production_os/atomic_io.py",
+        "src/production_os/budgets.py",
+        "src/production_os/emergency.py",
+        "src/production_os/policy.py",
+        "src/production_os/quarantine.py",
+        "src/production_os/rate_limit.py",
+        "src/production_os/receipts.py",
+        "src/production_os/runtime_state.py",
+        "src/production_os/sqlite_backend.py",
+        "src/production_os/workers.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/controller.py"
+      ],
+      "in_degree": 2,
+      "out_degree": 11
+    },
+    "src/production_os/dual_sign.py": {
+      "dependencies": [
+        "src/production_os/asymmetric_attestations.py",
+        "src/production_os/attestations.py"
+      ],
+      "dependents": [
+        "src/production_os/release_ledger.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 2
+    },
+    "src/production_os/emergency.py": {
+      "dependencies": [
+        "src/production_os/atomic_io.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/controller.py",
+        "src/production_os/dispatch.py"
+      ],
+      "in_degree": 3,
+      "out_degree": 1
+    },
+    "src/production_os/execution_feedback.py": {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/cli.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 0
+    },
+    "src/production_os/execution_optimizer.py": {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/control_plane.py"
+      ],
+      "in_degree": 2,
+      "out_degree": 0
+    },
+    "src/production_os/fairness.py": {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/scheduler.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 0
+    },
+    "src/production_os/feedback.py": {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/cli.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 0
+    },
+    "src/production_os/github_client.py": {
+      "dependencies": [
+        "src/production_os/models.py",
+        "src/production_os/source_tree.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/controller.py",
+        "src/production_os/github_work_state.py"
+      ],
+      "in_degree": 4,
+      "out_degree": 2
+    },
+    "src/production_os/github_webhook.py": {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/control_plane.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 0
+    },
+    "src/production_os/github_work_state.py": {
+      "dependencies": [
+        "src/production_os/github_client.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/controller.py"
+      ],
+      "in_degree": 2,
+      "out_degree": 1
+    },
+    "src/production_os/governance.py": {
+      "dependencies": [
+        "src/production_os/policy.py",
+        "src/production_os/quarantine.py",
+        "src/production_os/runtime_state.py"
+      ],
+      "dependents": [
+        "src/production_os/controller.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 3
+    },
+    "src/production_os/graph.py": {
+      "dependencies": [
+        "src/production_os/callgraph.py",
+        "src/production_os/models.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 2
+    },
+    "src/production_os/health.py": {
+      "dependencies": [
+        "src/production_os/runtime_state.py"
+      ],
+      "dependents": [
+        "src/production_os/controller.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 1
+    },
+    "src/production_os/health_server.py": {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/cli.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 0
+    },
+    "src/production_os/heartbeat_manager.py": {
+      "dependencies": [
+        "src/production_os/runtime_state.py"
+      ],
+      "dependents": [
+        "src/production_os/controller.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 1
+    },
+    "src/production_os/history.py": {
+      "dependencies": [
+        "src/production_os/models.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/controller.py"
+      ],
+      "in_degree": 2,
+      "out_degree": 1
+    },
+    "src/production_os/journal.py": {
+      "dependencies": [
+        "src/production_os/audit_integrity.py",
+        "src/production_os/locks.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/controller.py"
+      ],
+      "in_degree": 2,
+      "out_degree": 2
+    },
+    "src/production_os/key_domains.py": {
+      "dependencies": [
+        "src/production_os/key_registry.py",
+        "src/production_os/signing.py"
+      ],
+      "dependents": [
+        "src/production_os/trust_policy.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 2
+    },
+    "src/production_os/key_registry.py": {
+      "dependencies": [
+        "src/production_os/signing.py"
+      ],
+      "dependents": [
+        "src/production_os/asymmetric_attestations.py",
+        "src/production_os/builder_identity.py",
+        "src/production_os/key_domains.py"
+      ],
+      "in_degree": 3,
+      "out_degree": 1
+    },
+    "src/production_os/learning.py": {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/scheduler.py"
+      ],
+      "in_degree": 2,
+      "out_degree": 0
+    },
+    "src/production_os/locks.py": {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/approvals.py",
+        "src/production_os/budgets.py",
+        "src/production_os/claims.py",
+        "src/production_os/journal.py",
+        "src/production_os/quarantine.py",
+        "src/production_os/rate_limit.py",
+        "src/production_os/runtime_state.py",
+        "src/production_os/workers.py"
+      ],
+      "in_degree": 8,
+      "out_degree": 0
+    },
+    "src/production_os/metrics.py": {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/controller.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 0
+    },
+    "src/production_os/migration_registry.py": {
+      "dependencies": [
+        "src/production_os/migrations.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 1
+    },
+    "src/production_os/migrations.py": {
+      "dependencies": [
+        "src/production_os/atomic_io.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/migration_registry.py"
+      ],
+      "in_degree": 2,
+      "out_degree": 1
+    },
+    "src/production_os/models.py": {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/adaptation.py",
+        "src/production_os/adaptation_plan.py",
+        "src/production_os/callgraph.py",
+        "src/production_os/capabilities.py",
+        "src/production_os/classification.py",
+        "src/production_os/cli.py",
+        "src/production_os/compatibility.py",
+        "src/production_os/components.py",
+        "src/production_os/deep_fingerprint.py",
+        "src/production_os/github_client.py",
+        "src/production_os/graph.py",
+        "src/production_os/history.py",
+        "src/production_os/reuse.py",
+        "src/production_os/scheduler.py",
+        "src/production_os/scoring.py",
+        "src/production_os/validation.py",
+        "src/production_os/versioning.py"
+      ],
+      "in_degree": 17,
+      "out_degree": 0
+    },
+    "src/production_os/observability.py": {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/controller.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 0
+    },
+    "src/production_os/policy.py": {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/controller.py",
+        "src/production_os/dispatch.py",
+        "src/production_os/governance.py",
+        "src/production_os/policy_validation.py",
+        "src/production_os/scheduler.py"
+      ],
+      "in_degree": 6,
+      "out_degree": 0
+    },
+    "src/production_os/policy_validation.py": {
+      "dependencies": [
+        "src/production_os/policy.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 1
+    },
+    "src/production_os/portfolio_optimizer.py": {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/control_plane.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 0
+    },
+    "src/production_os/postgres_backend.py": {
+      "dependencies": [
+        "src/production_os/claims.py",
+        "src/production_os/runtime_state.py",
+        "src/production_os/workers.py"
+      ],
+      "dependents": [
+        "src/production_os/storage.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 3
+    },
+    "src/production_os/preemption.py": {
+      "dependencies": [
+        "src/production_os/runtime_state.py",
+        "src/production_os/workers.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 2
+    },
+    "src/production_os/quarantine.py": {
+      "dependencies": [
+        "src/production_os/atomic_io.py",
+        "src/production_os/locks.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/controller.py",
+        "src/production_os/dispatch.py",
+        "src/production_os/governance.py",
+        "src/production_os/scheduler.py"
+      ],
+      "in_degree": 5,
+      "out_degree": 2
+    },
+    "src/production_os/queue_maintenance.py": {
+      "dependencies": [
+        "src/production_os/atomic_io.py",
+        "src/production_os/claims.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 2
+    },
+    "src/production_os/rate_limit.py": {
+      "dependencies": [
+        "src/production_os/atomic_io.py",
+        "src/production_os/locks.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/controller.py",
+        "src/production_os/dispatch.py"
+      ],
+      "in_degree": 3,
+      "out_degree": 2
+    },
+    "src/production_os/receipts.py": {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/dispatch.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 0
+    },
+    "src/production_os/reconciliation.py": {
+      "dependencies": [
+        "src/production_os/runtime_state.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/controller.py"
+      ],
+      "in_degree": 2,
+      "out_degree": 1
+    },
+    "src/production_os/rekor_checkpoint_state.py": {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/cli.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 0
+    },
+    "src/production_os/rekor_witness_quorum.py": {
+      "dependencies": [
+        "src/production_os/signing.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 1
+    },
+    "src/production_os/release_ledger.py": {
+      "dependencies": [
+        "src/production_os/asymmetric_attestations.py",
+        "src/production_os/attestations.py",
+        "src/production_os/builder_identity.py",
+        "src/production_os/dual_sign.py",
+        "src/production_os/signers.py",
+        "src/production_os/supply_chain.py",
+        "src/production_os/transparency.py",
+        "src/production_os/trust_policy.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/control_plane.py"
+      ],
+      "in_degree": 2,
+      "out_degree": 8
+    },
+    "src/production_os/remote_worker.py": {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/cli.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 0
+    },
+    "src/production_os/resources.py": {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/controller.py"
+      ],
+      "in_degree": 2,
+      "out_degree": 0
+    },
+    "src/production_os/result_cache.py": {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/workflow_engine.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 0
+    },
+    "src/production_os/reuse.py": {
+      "dependencies": [
+        "src/production_os/adaptation.py",
+        "src/production_os/adaptation_plan.py",
+        "src/production_os/compatibility.py",
+        "src/production_os/models.py",
+        "src/production_os/validation.py",
+        "src/production_os/versioning.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/controller.py"
+      ],
+      "in_degree": 2,
+      "out_degree": 6
+    },
+    "src/production_os/runtime_state.py": {
+      "dependencies": [
+        "src/production_os/atomic_io.py",
+        "src/production_os/locks.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/controller.py",
+        "src/production_os/delivery.py",
+        "src/production_os/dispatch.py",
+        "src/production_os/governance.py",
+        "src/production_os/health.py",
+        "src/production_os/heartbeat_manager.py",
+        "src/production_os/postgres_backend.py",
+        "src/production_os/preemption.py",
+        "src/production_os/reconciliation.py",
+        "src/production_os/scheduler.py",
+        "src/production_os/self_healing.py",
+        "src/production_os/speculation.py",
+        "src/production_os/sqlite_backend.py",
+        "src/production_os/sqlite_migration.py",
+        "src/production_os/workflow_engine.py"
+      ],
+      "in_degree": 16,
+      "out_degree": 2
+    },
+    "src/production_os/scheduler.py": {
+      "dependencies": [
+        "src/production_os/fairness.py",
+        "src/production_os/learning.py",
+        "src/production_os/models.py",
+        "src/production_os/policy.py",
+        "src/production_os/quarantine.py",
+        "src/production_os/runtime_state.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/controller.py"
+      ],
+      "in_degree": 2,
+      "out_degree": 6
+    },
+    "src/production_os/scoring.py": {
+      "dependencies": [
+        "src/production_os/capabilities.py",
+        "src/production_os/classification.py",
+        "src/production_os/components.py",
+        "src/production_os/deep_fingerprint.py",
+        "src/production_os/models.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/controller.py"
+      ],
+      "in_degree": 2,
+      "out_degree": 5
+    },
+    "src/production_os/self_healing.py": {
+      "dependencies": [
+        "src/production_os/runtime_state.py"
+      ],
+      "dependents": [
+        "src/production_os/controller.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 1
+    },
+    "src/production_os/signer_factory.py": {
+      "dependencies": [
+        "src/production_os/signers.py",
+        "src/production_os/vault_auth.py",
+        "src/production_os/vault_signer.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 3
+    },
+    "src/production_os/signers.py": {
+      "dependencies": [
+        "src/production_os/signing.py"
+      ],
+      "dependents": [
+        "src/production_os/asymmetric_attestations.py",
+        "src/production_os/release_ledger.py",
+        "src/production_os/signer_factory.py",
+        "src/production_os/supply_chain.py",
+        "src/production_os/trust_policy.py",
+        "src/production_os/vault_signer.py",
+        "src/production_os/witness.py"
+      ],
+      "in_degree": 7,
+      "out_degree": 1
+    },
+    "src/production_os/signing.py": {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/asymmetric_attestations.py",
+        "src/production_os/cli.py",
+        "src/production_os/key_domains.py",
+        "src/production_os/key_registry.py",
+        "src/production_os/rekor_witness_quorum.py",
+        "src/production_os/signers.py",
+        "src/production_os/supply_chain.py",
+        "src/production_os/vault_signer.py",
+        "src/production_os/witness.py"
+      ],
+      "in_degree": 9,
+      "out_degree": 0
+    },
+    "src/production_os/source_tree.py": {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/github_client.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 0
+    },
+    "src/production_os/speculation.py": {
+      "dependencies": [
+        "src/production_os/runtime_state.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/control_plane.py"
+      ],
+      "in_degree": 2,
+      "out_degree": 1
+    },
+    "src/production_os/sqlite_backend.py": {
+      "dependencies": [
+        "src/production_os/claims.py",
+        "src/production_os/runtime_state.py",
+        "src/production_os/workers.py"
+      ],
+      "dependents": [
+        "src/production_os/dispatch.py",
+        "src/production_os/storage.py"
+      ],
+      "in_degree": 2,
+      "out_degree": 3
+    },
+    "src/production_os/sqlite_migration.py": {
+      "dependencies": [
+        "src/production_os/claims.py",
+        "src/production_os/runtime_state.py",
+        "src/production_os/storage.py",
+        "src/production_os/workers.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 4
+    },
+    "src/production_os/starlist.py": {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/cli.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 0
+    },
+    "src/production_os/storage.py": {
+      "dependencies": [
+        "src/production_os/postgres_backend.py",
+        "src/production_os/sqlite_backend.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/controller.py",
+        "src/production_os/sqlite_migration.py"
+      ],
+      "in_degree": 4,
+      "out_degree": 2
+    },
+    "src/production_os/supply_chain.py": {
+      "dependencies": [
+        "src/production_os/builder_identity.py",
+        "src/production_os/signers.py",
+        "src/production_os/signing.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/release_ledger.py"
+      ],
+      "in_degree": 2,
+      "out_degree": 3
+    },
+    "src/production_os/transparency.py": {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/release_ledger.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 0
+    },
+    "src/production_os/transparency_receipts.py": {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/cli.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 0
+    },
+    "src/production_os/trends.py": {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/cli.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 0
+    },
+    "src/production_os/trust_policy.py": {
+      "dependencies": [
+        "src/production_os/key_domains.py",
+        "src/production_os/signers.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/release_ledger.py"
+      ],
+      "in_degree": 2,
+      "out_degree": 2
+    },
+    "src/production_os/validation.py": {
+      "dependencies": [
+        "src/production_os/models.py"
+      ],
+      "dependents": [
+        "src/production_os/reuse.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 1
+    },
+    "src/production_os/vault_auth.py": {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/signer_factory.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 0
+    },
+    "src/production_os/vault_signer.py": {
+      "dependencies": [
+        "src/production_os/signers.py",
+        "src/production_os/signing.py"
+      ],
+      "dependents": [
+        "src/production_os/signer_factory.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 2
+    },
+    "src/production_os/versioning.py": {
+      "dependencies": [
+        "src/production_os/models.py"
+      ],
+      "dependents": [
+        "src/production_os/reuse.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 1
+    },
+    "src/production_os/witness.py": {
+      "dependencies": [
+        "src/production_os/signers.py",
+        "src/production_os/signing.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 2
+    },
+    "src/production_os/workers.py": {
+      "dependencies": [
+        "src/production_os/atomic_io.py",
+        "src/production_os/locks.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/controller.py",
+        "src/production_os/delivery.py",
+        "src/production_os/dispatch.py",
+        "src/production_os/postgres_backend.py",
+        "src/production_os/preemption.py",
+        "src/production_os/sqlite_backend.py",
+        "src/production_os/sqlite_migration.py"
+      ],
+      "in_degree": 8,
+      "out_degree": 2
+    },
+    "src/production_os/workflow_engine.py": {
+      "dependencies": [
+        "src/production_os/change_impact.py",
+        "src/production_os/result_cache.py",
+        "src/production_os/runtime_state.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/control_plane.py"
+      ],
+      "in_degree": 2,
+      "out_degree": 3
+    },
+    "tests/test_adaptation.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_adaptation_plan.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_api_auth.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_approvals_migrations.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_asymmetric_attestations.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_attestations.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_builder_identity.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_builder_identity_validation.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_builder_trust_rotation.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_callgraph_versioning_feedback.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_capabilities_graph.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_change_impact.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_claims_delivery.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_classification_history_reuse.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_cli.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_compatibility_validation.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_components.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_control_plane.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_control_plane_pr_impact.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_control_plane_release.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_control_plane_webhook.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_deep_fingerprint_starlist.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_emergency_key_revocation.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_execution_feedback_trends.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_execution_optimizer.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_execution_optimizer_postgres.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_fairness.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_github_client_pr_files.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_github_webhook.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_github_work_state.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_governance.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_health_metrics.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_http_security_headers.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_incident_history.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_key_domains.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_key_registry_validation.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_key_rotation.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_learning_control_surface.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_observability.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_p6_hardening.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_policy_budgets.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_policy_validation.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_portfolio_claim_api.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_portfolio_optimizer.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_postgres_backend.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_preemption.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_production_stack_e2e.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_provenance_signer.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_queue_audit_checkpoint.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_reconciliation_dispatch.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_rekor_checkpoint_state.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_rekor_checkpoint_state_cli.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_rekor_checkpoint_state_concurrency.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_rekor_checkpoint_state_postgres.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_rekor_consistency_client.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_rekor_signed_checkpoint.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_rekor_signed_checkpoint_receipt.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_rekor_v1_key_compatibility.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_rekor_witness_quorum.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_rekor_witness_quorum_cli.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_release_ledger.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_remote_worker.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_result_cache.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_runtime_state.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_scheduler.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_scoring.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_secure_release_e2e.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_self_healing_heartbeat.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_signer_factory.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_signers.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_source_tree.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_speculation.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_speculation_api.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_sqlite_backend.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_sqlite_migration.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_stragglers.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_supply_chain.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_transparency_cli.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_transparency_receipts.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_trust_policy.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_trust_status_summary.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_vault_auth.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_vault_signer.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_witness.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_workers.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_workflow_api.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_workflow_cache.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_workflow_change_impact.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_workflow_engine.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_workflow_postgres.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
+    "tests/test_workflow_splitting.py": {
+      "dependencies": [
+        "src/production_os/__init__.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    }
+  },
+  "generated_by": "dbrckk/repo-brain-v7-graph",
+  "schema_version": 1
+}
