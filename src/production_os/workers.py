@@ -17,13 +17,65 @@ class Worker:
     active_tasks: int = 0
     status: str = "online"
     last_heartbeat: str | None = None
+    capacity: dict | None = None
 
     def to_dict(self) -> dict:
         return asdict(self)
 
 
+CAPACITY_KEYS = {
+    "source",
+    "status",
+    "authenticated_usage",
+    "steady_recurring_tokens",
+    "used_this_month",
+    "remaining_tokens",
+    "catalog_updated_at",
+    "catalog_source",
+}
+
+
+def _capacity_snapshot(value: dict) -> dict:
+    if not isinstance(value, dict):
+        raise ValueError("capacity must be an object")
+    unknown = set(value) - CAPACITY_KEYS
+    if unknown:
+        raise ValueError("capacity contains unknown fields")
+
+    source = str(value.get("source") or "").strip()
+    status = str(value.get("status") or "").strip()
+    authenticated = value.get("authenticated_usage")
+    if not source or not status or type(authenticated) is not bool:
+        raise ValueError("capacity source/status/authenticated_usage are required")
+
+    normalized = {
+        "source": source,
+        "status": status,
+        "authenticated_usage": authenticated,
+    }
+    for key in (
+        "steady_recurring_tokens",
+        "used_this_month",
+        "remaining_tokens",
+    ):
+        raw = value.get(key)
+        if raw is None:
+            normalized[key] = None
+            continue
+        if isinstance(raw, bool) or not isinstance(raw, int) or raw < 0:
+            raise ValueError("capacity token values must be non-negative integers or null")
+        normalized[key] = raw
+
+    for key in ("catalog_updated_at", "catalog_source"):
+        raw = value.get(key)
+        if raw is not None and not isinstance(raw, str):
+            raise ValueError("capacity catalog fields must be strings or null")
+        normalized[key] = raw
+    return normalized
+
+
 class WorkerRegistry:
-    SCHEMA_VERSION = "production-os/workers/v2"
+    SCHEMA_VERSION = "production-os/workers/v3"
 
     def __init__(self, path: str | Path):
         self.path = Path(path)
@@ -78,12 +130,25 @@ class WorkerRegistry:
             self._save_unlocked()
             return worker
 
-    def heartbeat(self, worker_id: str, active_tasks: int | None = None) -> Worker:
+    def heartbeat(
+        self,
+        worker_id: str,
+        active_tasks: int | None = None,
+        *,
+        capacity: dict | None = None,
+    ) -> Worker:
+        normalized_capacity = (
+            _capacity_snapshot(capacity)
+            if capacity is not None
+            else None
+        )
         with sidecar_lock(self.path):
             self._load_unlocked()
             worker = self.workers[worker_id]
             if active_tasks is not None:
                 worker.active_tasks = max(0, active_tasks)
+            if normalized_capacity is not None:
+                worker.capacity = normalized_capacity
             worker.status = "online"
             worker.last_heartbeat = datetime.now(timezone.utc).isoformat()
             self._save_unlocked()
