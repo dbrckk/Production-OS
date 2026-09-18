@@ -808,6 +808,42 @@ class WorkflowEngine:
             "created_at":row["created_at"],
         }
 
+    def update_metadata(self, workflow_id: str, metadata: dict) -> dict:
+        """Replace workflow metadata without changing execution state."""
+        if not isinstance(metadata, dict):
+            raise ValueError("workflow metadata must be a JSON object")
+        now = _now()
+        with self.backend.transaction() as db:
+            updated = _execute(
+                db,
+                self.backend,
+                """
+                UPDATE workflows
+                SET metadata_json=?, updated_at=?
+                WHERE id=?
+                """,
+                (
+                    json.dumps(metadata, ensure_ascii=False),
+                    now,
+                    workflow_id,
+                ),
+            )
+            if updated.rowcount != 1:
+                raise KeyError(workflow_id)
+            workflow = _execute(
+                db,
+                self.backend,
+                "SELECT repository FROM workflows WHERE id=?",
+                (workflow_id,),
+            ).fetchone()
+            self.backend.append_event(
+                db,
+                "workflow-metadata-updated",
+                {"workflow_id": workflow_id},
+                repository=workflow["repository"],
+            )
+        return self.get(workflow_id)
+
     def refresh(self, workflow_id: str) -> dict:
         now = _now()
         with self.backend.transaction() as db:
