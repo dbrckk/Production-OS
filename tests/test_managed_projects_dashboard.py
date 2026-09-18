@@ -20,7 +20,7 @@ def get_json(url, token):
 
 def test_github_repository_picker_endpoint_returns_safe_fields(tmp_path, monkeypatch):
     monkeypatch.setattr(
-        "production_os.control_plane.GitHubClient.list_repositories",
+        "production_os.control_plane.GitHubClient.list_accessible_repositories",
         lambda self, owner: [
             {
                 "name": "alpha",
