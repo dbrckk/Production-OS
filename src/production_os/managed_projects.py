@@ -118,7 +118,8 @@ class ManagedProjectService:
             ],
             metadata=metadata,
         )
-        return self._project(workflow)
+        self.workflows.dispatch_ready(workflow["id"])
+        return self.get(workflow["id"])
 
     def get(self, workflow_id: str) -> dict:
         workflow = self.workflows.get(str(workflow_id))
@@ -143,6 +144,89 @@ class ManagedProjectService:
             if project is not None:
                 projects.append(project)
         return projects
+
+    @staticmethod
+    def _next_task_id(workflow: dict, prefix: str) -> str:
+        known = {str(task.get("task_id") or "") for task in workflow.get("tasks", [])}
+        index = 1
+        while f"{prefix}-{index}" in known:
+            index += 1
+        return f"{prefix}-{index}"
+
+    def _resume_with_task(
+        self,
+        workflow_id: str,
+        *,
+        prefix: str,
+        title: str,
+        payload: dict,
+    ) -> dict:
+        current = self.get(workflow_id)
+        if current["state"] != "REVIEW_REQUIRED":
+            raise RuntimeError(
+                "managed project must be REVIEW_REQUIRED before follow-up work"
+            )
+
+        workflow = self.workflows.get(str(workflow_id))
+        task_id = self._next_task_id(workflow, prefix)
+        dependencies = tuple(
+            str(task["task_id"])
+            for task in workflow.get("tasks", [])
+        )
+        self.workflows.add_task(
+            str(workflow_id),
+            WorkflowTaskSpec(
+                task_id=task_id,
+                title=title,
+                payload=payload,
+                dependencies=dependencies,
+                max_attempts=3,
+            ),
+        )
+        self.workflows.dispatch_ready(str(workflow_id))
+        return self.get(str(workflow_id))
+
+    def add_instruction(self, workflow_id: str, instruction: str) -> dict:
+        instruction = str(instruction or "").strip()
+        if not instruction:
+            raise ValueError("instruction is required")
+        current = self.get(workflow_id)
+        return self._resume_with_task(
+            workflow_id,
+            prefix="instruction",
+            title=instruction,
+            payload={
+                "handoff": {
+                    "repository": current["repository"],
+                    "task": instruction,
+                    "final_goal": current["final_goal"],
+                    "agent_preference": current["agent_preference"],
+                    "token_budget": current["token_budget"],
+                }
+            },
+        )
+
+    def request_verification(self, workflow_id: str) -> dict:
+        current = self.get(workflow_id)
+        instruction = (
+            "Verify the repository against the final goal. "
+            "Run the relevant tests, lint, build, and report concrete evidence."
+        )
+        return self._resume_with_task(
+            workflow_id,
+            prefix="verification",
+            title="Retest final goal",
+            payload={
+                "phase": "verification",
+                "handoff": {
+                    "repository": current["repository"],
+                    "task": instruction,
+                    "final_goal": current["final_goal"],
+                    "agent_preference": current["agent_preference"],
+                    "token_budget": current["token_budget"],
+                },
+            },
+        )
 
     def mark_done(self, workflow_id: str, *, approved_by: str) -> dict:
         current = self.get(workflow_id)
