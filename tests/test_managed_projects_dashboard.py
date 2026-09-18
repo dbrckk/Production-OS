@@ -82,6 +82,8 @@ def test_dashboard_contains_managed_project_controls_and_token_bars():
     assert 'id="repo-list"' in DASHBOARD_HTML
     assert 'id="managed-projects"' in DASHBOARD_HTML
     assert 'id="global-token-progress"' in DASHBOARD_HTML
+    assert 'id="global-token-source"' in DASHBOARD_HTML
+    assert "data.capacity" in DASHBOARD_HTML
     assert "REVIEW_REQUIRED" in DASHBOARD_HTML
     assert "Mark done" in DASHBOARD_HTML
     assert "Retest" in DASHBOARD_HTML
