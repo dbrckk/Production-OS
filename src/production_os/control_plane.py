@@ -1501,6 +1501,12 @@ def make_handler(control: ControlPlane):
                             if "active_tasks" in body
                             else None
                         ),
+                        capacity=(
+                            dict(body["capacity"])
+                            if "capacity" in body
+                            and isinstance(body["capacity"], dict)
+                            else None
+                        ),
                     )
                     active_job_keys = body.get(
                         "active_job_keys",
