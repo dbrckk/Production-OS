@@ -268,24 +268,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  ai-context:
-    uses: dbrckk/repo-standards/.github/workflows/reusable-ai-repo-map.yml@v5
-
-  repo-health:
-    needs: ai-context
-    uses: dbrckk/repo-standards/.github/workflows/reusable-repo-health.yml@v5
-
-  project-state:
-    needs: repo-health
-    uses: dbrckk/repo-standards/.github/workflows/reusable-project-state.yml@v5
-
-  context-intelligence:
-    needs: project-state
-    uses: dbrckk/repo-standards/.github/workflows/reusable-context-intelligence.yml@v5
-
-  observability:
-    needs: context-intelligence
-    uses: dbrckk/repo-standards/.github/workflows/reusable-observability.yml@v5
+  repository-standards:
+    uses: dbrckk/repo-standards/.github/workflows/reusable-unified.yml@v6
 ````
 
 ## File: .github/workflows/ci.yml
@@ -7939,9 +7923,10 @@ tasks={task["task_id"]:task for task in current["tasks"]}
 ## File: .repo-standards.yml
 ````yaml
 source: dbrckk/repo-standards
-ref: v5
-version: 5
+ref: v6
+version: 6
 adopted: true
+workflow_mode: unified-single-commit
 ai_context:
   index: .ai/index.md
   project_state: .ai/project-state.md
@@ -7956,11 +7941,7 @@ ai_context:
   segmented_maps: .ai/maps/
 workflow:
   file: .github/workflows/ai-repo-map.yml
-  reusable_ai_map: .github/workflows/reusable-ai-repo-map.yml
-  reusable_health: .github/workflows/reusable-repo-health.yml
-  reusable_project_state: .github/workflows/reusable-project-state.yml
-  reusable_context_intelligence: .github/workflows/reusable-context-intelligence.yml
-  reusable_observability: .github/workflows/reusable-observability.yml
+  reusable_unified: .github/workflows/reusable-unified.yml
 ````
 
 ## File: AGENTS.md
