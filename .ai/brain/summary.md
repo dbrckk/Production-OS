@@ -35,3 +35,12 @@
 - Use code-graph.json to inspect likely internal import relationships.
 - Use imports.json when a changed file crosses module boundaries.
 - Treat graph edges as static hints; verify source before editing.
+
+## ast-grep enrichment
+- ast-grep outline: available
+- outline files: 185
+- top-level items: 1626
+- direct members: 676
+- symbol shards: 25
+- route named symbols via ast-routing.json, then fetch one ast-symbols/<initial>.json shard
+
