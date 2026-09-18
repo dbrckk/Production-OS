@@ -808,6 +808,65 @@ class WorkflowEngine:
             "created_at":row["created_at"],
         }
 
+    def add_task(
+        self,
+        workflow_id: str,
+        task: WorkflowTaskSpec,
+    ) -> dict:
+        """Append one task to an existing workflow and refresh readiness."""
+        workflow = self.get(workflow_id)
+        if workflow["status"] == "cancelled":
+            raise RuntimeError("cannot add task to cancelled workflow")
+
+        combined = [
+            self._spec_from_task(existing)
+            for existing in workflow["tasks"]
+        ] + [task]
+        self._validate(combined)
+
+        now = _now()
+        with self.backend.transaction() as db:
+            _execute(
+                db,
+                self.backend,
+                """
+                INSERT INTO workflow_tasks(
+                    workflow_id, task_id, title, payload_json,
+                    status, priority, dependencies_json,
+                    claimed_job_key, result_json, attempts,
+                    max_attempts, estimated_minutes,
+                    created_at, updated_at
+                )
+                VALUES(
+                    ?, ?, ?, ?, 'pending', ?, ?, NULL, NULL, 0,
+                    ?, ?, ?, ?
+                )
+                """,
+                (
+                    workflow_id,
+                    task.task_id,
+                    task.title,
+                    json.dumps(task.payload, ensure_ascii=False),
+                    task.priority,
+                    json.dumps(list(task.dependencies)),
+                    task.max_attempts,
+                    task.estimated_minutes,
+                    now,
+                    now,
+                ),
+            )
+            self.backend.append_event(
+                db,
+                "workflow-task-added",
+                {
+                    "workflow_id": workflow_id,
+                    "task_id": task.task_id,
+                    "dependencies": list(task.dependencies),
+                },
+                repository=workflow["repository"],
+            )
+        return self.refresh(workflow_id)
+
     def update_metadata(self, workflow_id: str, metadata: dict) -> dict:
         """Replace workflow metadata without changing execution state."""
         if not isinstance(metadata, dict):
