@@ -32,7 +32,7 @@ def _clean_positive_int(value, *, field: str) -> int:
     return number
 
 
-def _usage_from_result(result: dict | None) -> dict[str, int]:
+def _usage_from_result(result: dict | None) -> dict:
     if not isinstance(result, dict):
         return {}
 
@@ -62,6 +62,31 @@ def _usage_from_result(result: dict | None) -> dict[str, int]:
             normalized.get("input_tokens", 0)
             + normalized.get("output_tokens", 0)
         )
+
+    runs = usage.get("runs")
+    if not isinstance(runs, bool):
+        try:
+            run_count = int(runs)
+        except (TypeError, ValueError):
+            run_count = 0
+        if run_count >= 0:
+            normalized["runs"] = run_count
+
+    agents = usage.get("agents")
+    if isinstance(agents, dict):
+        normalized_agents = {}
+        for name, raw_count in agents.items():
+            if not isinstance(name, str) or not name.strip():
+                continue
+            if isinstance(raw_count, bool):
+                continue
+            try:
+                count = int(raw_count)
+            except (TypeError, ValueError):
+                continue
+            if count >= 0:
+                normalized_agents[name] = count
+        normalized["agents"] = normalized_agents
     return normalized
 
 
@@ -333,11 +358,32 @@ class ManagedProjectService:
         if managed.get("schema_version") != MANAGED_PROJECT_SCHEMA:
             return None
 
-        usage = {key: 0 for key in USAGE_KEYS}
+        usage = {
+            **{key: 0 for key in USAGE_KEYS},
+            "runs": 0,
+            "agents": {},
+        }
         for task in workflow.get("tasks", []):
             item = _usage_from_result(task.get("result"))
-            for key, value in item.items():
-                usage[key] = usage.get(key, 0) + value
+            for key in USAGE_KEYS:
+                value = item.get(key)
+                if isinstance(value, int) and not isinstance(value, bool):
+                    usage[key] += max(0, value)
+            runs = item.get("runs")
+            if isinstance(runs, int) and not isinstance(runs, bool):
+                usage["runs"] += max(0, runs)
+            agents = item.get("agents")
+            if isinstance(agents, dict):
+                for name, count in agents.items():
+                    if (
+                        isinstance(name, str)
+                        and isinstance(count, int)
+                        and not isinstance(count, bool)
+                        and count >= 0
+                    ):
+                        usage["agents"][name] = (
+                            int(usage["agents"].get(name, 0)) + count
+                        )
 
         human_state = str(managed.get("human_state") or "active")
         task_states = {str(task.get("status") or "") for task in workflow.get("tasks", [])}
