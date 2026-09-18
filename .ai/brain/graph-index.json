@@ -113,7 +113,9 @@
         "src/production_os/audit_integrity.py",
         "src/production_os/backup.py",
         "src/production_os/budgets.py",
+        "src/production_os/capabilities.py",
         "src/production_os/claims.py",
+        "src/production_os/components.py",
         "src/production_os/control_plane.py",
         "src/production_os/control_surface.py",
         "src/production_os/controller.py",
@@ -150,6 +152,7 @@
         "src/production_os/scheduler.py",
         "src/production_os/scoring.py",
         "src/production_os/signer_factory.py",
+        "src/production_os/signers.py",
         "src/production_os/signing.py",
         "src/production_os/speculation.py",
         "src/production_os/sqlite_migration.py",
@@ -161,14 +164,61 @@
         "src/production_os/trust_policy.py",
         "src/production_os/witness.py",
         "src/production_os/workers.py",
-        "src/production_os/workflow_engine.py"
+        "src/production_os/workflow_engine.py",
+        "tests/test_fairness.py"
       ],
       "dependents": [
         "tests/test_cli.py"
       ],
       "in_degree": 1,
-      "out_degree": 57,
+      "out_degree": 61,
       "path": "src/production_os/cli.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/atomic_io.py",
+        "src/production_os/locks.py"
+      ],
+      "dependents": [
+        "src/production_os/api_auth.py",
+        "src/production_os/capabilities.py",
+        "src/production_os/cli.py",
+        "src/production_os/components.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/controller.py",
+        "src/production_os/delivery.py",
+        "src/production_os/dispatch.py",
+        "src/production_os/execution_optimizer.py",
+        "src/production_os/postgres_backend.py",
+        "src/production_os/preemption.py",
+        "src/production_os/remote_worker.py",
+        "src/production_os/sqlite_backend.py",
+        "src/production_os/sqlite_migration.py",
+        "src/production_os/starlist.py",
+        "src/production_os/workflow_engine.py",
+        "tests/test_api_auth.py",
+        "tests/test_claims_delivery.py",
+        "tests/test_control_plane.py",
+        "tests/test_execution_optimizer.py",
+        "tests/test_execution_optimizer_postgres.py",
+        "tests/test_incident_history.py",
+        "tests/test_portfolio_claim_api.py",
+        "tests/test_postgres_backend.py",
+        "tests/test_preemption.py",
+        "tests/test_production_stack_e2e.py",
+        "tests/test_reconciliation_dispatch.py",
+        "tests/test_remote_worker.py",
+        "tests/test_runtime_state.py",
+        "tests/test_self_healing_heartbeat.py",
+        "tests/test_speculation_api.py",
+        "tests/test_sqlite_backend.py",
+        "tests/test_stragglers.py",
+        "tests/test_workers.py",
+        "tests/test_workflow_api.py"
+      ],
+      "in_degree": 35,
+      "out_degree": 2,
+      "path": "src/production_os/workers.py"
     },
     {
       "dependencies": [],
@@ -211,43 +261,9 @@
     },
     {
       "dependencies": [
-        "src/production_os/approvals.py",
-        "src/production_os/budgets.py",
-        "src/production_os/claims.py",
-        "src/production_os/delivery.py",
-        "src/production_os/dispatch.py",
-        "src/production_os/emergency.py",
-        "src/production_os/github_client.py",
-        "src/production_os/github_work_state.py",
-        "src/production_os/governance.py",
-        "src/production_os/health.py",
-        "src/production_os/heartbeat_manager.py",
-        "src/production_os/history.py",
-        "src/production_os/journal.py",
-        "src/production_os/metrics.py",
-        "src/production_os/observability.py",
-        "src/production_os/policy.py",
-        "src/production_os/quarantine.py",
-        "src/production_os/rate_limit.py",
-        "src/production_os/reconciliation.py",
-        "src/production_os/resources.py",
-        "src/production_os/reuse.py",
-        "src/production_os/runtime_state.py",
-        "src/production_os/scheduler.py",
-        "src/production_os/scoring.py",
-        "src/production_os/self_healing.py",
-        "src/production_os/storage.py",
-        "src/production_os/workers.py"
+        "src/production_os/components.py",
+        "tests/test_fairness.py"
       ],
-      "dependents": [
-        "src/production_os/cli.py"
-      ],
-      "in_degree": 1,
-      "out_degree": 27,
-      "path": "src/production_os/controller.py"
-    },
-    {
-      "dependencies": [],
       "dependents": [
         "src/production_os/adaptation.py",
         "src/production_os/adaptation_plan.py",
@@ -278,14 +294,53 @@
         "tests/test_scoring.py"
       ],
       "in_degree": 27,
-      "out_degree": 0,
+      "out_degree": 2,
       "path": "src/production_os/models.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/approvals.py",
+        "src/production_os/budgets.py",
+        "src/production_os/claims.py",
+        "src/production_os/delivery.py",
+        "src/production_os/dispatch.py",
+        "src/production_os/emergency.py",
+        "src/production_os/github_client.py",
+        "src/production_os/github_work_state.py",
+        "src/production_os/governance.py",
+        "src/production_os/health.py",
+        "src/production_os/heartbeat_manager.py",
+        "src/production_os/history.py",
+        "src/production_os/journal.py",
+        "src/production_os/metrics.py",
+        "src/production_os/observability.py",
+        "src/production_os/policy.py",
+        "src/production_os/quarantine.py",
+        "src/production_os/rate_limit.py",
+        "src/production_os/reconciliation.py",
+        "src/production_os/resources.py",
+        "src/production_os/reuse.py",
+        "src/production_os/runtime_state.py",
+        "src/production_os/scheduler.py",
+        "src/production_os/scoring.py",
+        "src/production_os/self_healing.py",
+        "src/production_os/storage.py",
+        "src/production_os/workers.py",
+        "tests/test_fairness.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 28,
+      "path": "src/production_os/controller.py"
     },
     {
       "dependencies": [
         "src/production_os/claims.py",
         "src/production_os/runtime_state.py",
-        "src/production_os/workers.py"
+        "src/production_os/workers.py",
+        "tests/test_fairness.py"
       ],
       "dependents": [
         "src/production_os/dispatch.py",
@@ -313,7 +368,7 @@
         "tests/test_workflow_splitting.py"
       ],
       "in_degree": 23,
-      "out_degree": 3,
+      "out_degree": 4,
       "path": "src/production_os/sqlite_backend.py"
     },
     {
@@ -353,6 +408,7 @@
     {
       "dependencies": [
         "src/production_os/api_auth.py",
+        "src/production_os/approvals.py",
         "src/production_os/execution_optimizer.py",
         "src/production_os/github_client.py",
         "src/production_os/github_webhook.py",
@@ -360,10 +416,13 @@
         "src/production_os/release_ledger.py",
         "src/production_os/speculation.py",
         "src/production_os/storage.py",
-        "src/production_os/workflow_engine.py"
+        "src/production_os/workers.py",
+        "src/production_os/workflow_engine.py",
+        "tests/test_fairness.py"
       ],
       "dependents": [
         "src/production_os/cli.py",
+        "src/production_os/health_server.py",
         "tests/test_control_plane.py",
         "tests/test_control_plane_pr_impact.py",
         "tests/test_control_plane_release.py",
@@ -375,9 +434,41 @@
         "tests/test_speculation_api.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 11,
-      "out_degree": 9,
+      "in_degree": 12,
+      "out_degree": 12,
       "path": "src/production_os/control_plane.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/fairness.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/controller.py",
+        "src/production_os/delivery.py",
+        "src/production_os/fairness.py",
+        "src/production_os/github_webhook.py",
+        "src/production_os/governance.py",
+        "src/production_os/models.py",
+        "src/production_os/postgres_backend.py",
+        "src/production_os/queue_maintenance.py",
+        "src/production_os/reconciliation.py",
+        "src/production_os/scheduler.py",
+        "src/production_os/scoring.py",
+        "src/production_os/self_healing.py",
+        "src/production_os/sqlite_backend.py",
+        "tests/test_classification_history_reuse.py",
+        "tests/test_control_plane_webhook.py",
+        "tests/test_github_webhook.py",
+        "tests/test_queue_audit_checkpoint.py",
+        "tests/test_scheduler.py",
+        "tests/test_scoring.py"
+      ],
+      "in_degree": 21,
+      "out_degree": 2,
+      "path": "tests/test_fairness.py"
     },
     {
       "dependencies": [
@@ -385,39 +476,48 @@
         "src/production_os/locks.py"
       ],
       "dependents": [
+        "src/production_os/asymmetric_attestations.py",
+        "src/production_os/attestations.py",
         "src/production_os/cli.py",
+        "src/production_os/control_plane.py",
         "src/production_os/controller.py",
-        "src/production_os/delivery.py",
         "src/production_os/dispatch.py",
-        "src/production_os/postgres_backend.py",
-        "src/production_os/preemption.py",
-        "src/production_os/sqlite_backend.py",
-        "src/production_os/sqlite_migration.py",
-        "tests/test_claims_delivery.py",
-        "tests/test_execution_optimizer.py",
-        "tests/test_execution_optimizer_postgres.py",
-        "tests/test_preemption.py",
-        "tests/test_stragglers.py",
-        "tests/test_workers.py"
+        "src/production_os/policy_validation.py",
+        "src/production_os/release_ledger.py",
+        "tests/test_approvals_migrations.py",
+        "tests/test_asymmetric_attestations.py",
+        "tests/test_attestations.py",
+        "tests/test_builder_identity.py",
+        "tests/test_builder_trust_rotation.py",
+        "tests/test_control_plane_release.py",
+        "tests/test_production_stack_e2e.py",
+        "tests/test_provenance_signer.py",
+        "tests/test_release_ledger.py",
+        "tests/test_secure_release_e2e.py",
+        "tests/test_supply_chain.py"
       ],
-      "in_degree": 14,
+      "in_degree": 19,
       "out_degree": 2,
-      "path": "src/production_os/workers.py"
+      "path": "src/production_os/approvals.py"
     },
     {
       "dependencies": [
         "src/production_os/change_impact.py",
         "src/production_os/result_cache.py",
-        "src/production_os/runtime_state.py"
+        "src/production_os/runtime_state.py",
+        "src/production_os/workers.py"
       ],
       "dependents": [
         "src/production_os/cli.py",
         "src/production_os/control_plane.py",
+        "tests/test_control_plane_pr_impact.py",
         "tests/test_control_plane_release.py",
+        "tests/test_control_plane_webhook.py",
         "tests/test_incident_history.py",
         "tests/test_portfolio_claim_api.py",
         "tests/test_portfolio_optimizer.py",
         "tests/test_release_ledger.py",
+        "tests/test_remote_worker.py",
         "tests/test_secure_release_e2e.py",
         "tests/test_workflow_cache.py",
         "tests/test_workflow_change_impact.py",
@@ -425,9 +525,84 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
+      "in_degree": 16,
+      "out_degree": 4,
+      "path": "src/production_os/workflow_engine.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/signing.py"
+      ],
+      "dependents": [
+        "src/production_os/asymmetric_attestations.py",
+        "src/production_os/cli.py",
+        "src/production_os/release_ledger.py",
+        "src/production_os/signer_factory.py",
+        "src/production_os/supply_chain.py",
+        "src/production_os/transparency_receipts.py",
+        "src/production_os/trust_policy.py",
+        "src/production_os/vault_signer.py",
+        "src/production_os/witness.py",
+        "tests/test_cli.py",
+        "tests/test_provenance_signer.py",
+        "tests/test_rekor_v1_key_compatibility.py",
+        "tests/test_signer_factory.py",
+        "tests/test_signers.py",
+        "tests/test_transparency_receipts.py",
+        "tests/test_vault_signer.py"
+      ],
+      "in_degree": 16,
+      "out_degree": 1,
+      "path": "src/production_os/signers.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/capabilities.py",
+        "src/production_os/models.py",
+        "src/production_os/workers.py"
+      ],
+      "dependents": [
+        "src/production_os/adaptation.py",
+        "src/production_os/adaptation_plan.py",
+        "src/production_os/callgraph.py",
+        "src/production_os/cli.py",
+        "src/production_os/compatibility.py",
+        "src/production_os/graph.py",
+        "src/production_os/models.py",
+        "src/production_os/reuse.py",
+        "src/production_os/scoring.py",
+        "src/production_os/validation.py",
+        "tests/test_adaptation.py",
+        "tests/test_adaptation_plan.py",
+        "tests/test_components.py"
+      ],
       "in_degree": 13,
       "out_degree": 3,
-      "path": "src/production_os/workflow_engine.py"
+      "path": "src/production_os/components.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/approvals.py",
+        "src/production_os/asymmetric_attestations.py",
+        "src/production_os/attestations.py",
+        "src/production_os/builder_identity.py",
+        "src/production_os/dual_sign.py",
+        "src/production_os/signers.py",
+        "src/production_os/supply_chain.py",
+        "src/production_os/transparency.py",
+        "src/production_os/trust_policy.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/control_plane.py",
+        "tests/test_incident_history.py",
+        "tests/test_release_ledger.py",
+        "tests/test_secure_release_e2e.py",
+        "tests/test_trust_status_summary.py"
+      ],
+      "in_degree": 6,
+      "out_degree": 9,
+      "path": "src/production_os/release_ledger.py"
     },
     {
       "dependencies": [],
@@ -453,26 +628,26 @@
     },
     {
       "dependencies": [
-        "src/production_os/asymmetric_attestations.py",
-        "src/production_os/attestations.py",
-        "src/production_os/builder_identity.py",
-        "src/production_os/dual_sign.py",
-        "src/production_os/signers.py",
-        "src/production_os/supply_chain.py",
-        "src/production_os/transparency.py",
-        "src/production_os/trust_policy.py"
+        "src/production_os/workers.py"
       ],
       "dependents": [
         "src/production_os/cli.py",
         "src/production_os/control_plane.py",
-        "tests/test_incident_history.py",
-        "tests/test_release_ledger.py",
-        "tests/test_secure_release_e2e.py",
-        "tests/test_trust_status_summary.py"
+        "tests/test_api_auth.py",
+        "tests/test_control_plane.py",
+        "tests/test_control_plane_pr_impact.py",
+        "tests/test_control_plane_release.py",
+        "tests/test_control_plane_webhook.py",
+        "tests/test_http_security_headers.py",
+        "tests/test_portfolio_claim_api.py",
+        "tests/test_production_stack_e2e.py",
+        "tests/test_remote_worker.py",
+        "tests/test_speculation_api.py",
+        "tests/test_workflow_api.py"
       ],
-      "in_degree": 6,
-      "out_degree": 8,
-      "path": "src/production_os/release_ledger.py"
+      "in_degree": 13,
+      "out_degree": 1,
+      "path": "src/production_os/api_auth.py"
     },
     {
       "dependencies": [
@@ -498,28 +673,30 @@
       "path": "src/production_os/dispatch.py"
     },
     {
-      "dependencies": [],
-      "dependents": [
-        "src/production_os/cli.py",
-        "src/production_os/control_plane.py",
-        "tests/test_api_auth.py",
-        "tests/test_control_plane.py",
-        "tests/test_control_plane_pr_impact.py",
-        "tests/test_control_plane_release.py",
-        "tests/test_control_plane_webhook.py",
-        "tests/test_http_security_headers.py",
-        "tests/test_portfolio_claim_api.py",
-        "tests/test_production_stack_e2e.py",
-        "tests/test_remote_worker.py",
-        "tests/test_speculation_api.py",
-        "tests/test_workflow_api.py"
+      "dependencies": [
+        "src/production_os/models.py",
+        "src/production_os/workers.py"
       ],
-      "in_degree": 13,
-      "out_degree": 0,
-      "path": "src/production_os/api_auth.py"
+      "dependents": [
+        "src/production_os/adaptation.py",
+        "src/production_os/adaptation_plan.py",
+        "src/production_os/cli.py",
+        "src/production_os/components.py",
+        "src/production_os/graph.py",
+        "src/production_os/reuse.py",
+        "src/production_os/scoring.py",
+        "src/production_os/starlist.py",
+        "src/production_os/validation.py",
+        "tests/test_capabilities_graph.py",
+        "tests/test_classification_history_reuse.py"
+      ],
+      "in_degree": 11,
+      "out_degree": 2,
+      "path": "src/production_os/capabilities.py"
     },
     {
       "dependencies": [
+        "src/production_os/approvals.py",
         "src/production_os/attestations.py",
         "src/production_os/key_registry.py",
         "src/production_os/signers.py",
@@ -536,28 +713,28 @@
         "tests/test_secure_release_e2e.py"
       ],
       "in_degree": 8,
-      "out_degree": 4,
+      "out_degree": 5,
       "path": "src/production_os/asymmetric_attestations.py"
     },
     {
       "dependencies": [
-        "src/production_os/signing.py"
+        "src/production_os/approvals.py"
       ],
       "dependents": [
         "src/production_os/asymmetric_attestations.py",
+        "src/production_os/cli.py",
+        "src/production_os/dual_sign.py",
         "src/production_os/release_ledger.py",
-        "src/production_os/signer_factory.py",
-        "src/production_os/supply_chain.py",
-        "src/production_os/trust_policy.py",
-        "src/production_os/vault_signer.py",
-        "src/production_os/witness.py",
+        "tests/test_asymmetric_attestations.py",
+        "tests/test_attestations.py",
+        "tests/test_control_plane_release.py",
+        "tests/test_production_stack_e2e.py",
         "tests/test_provenance_signer.py",
-        "tests/test_signer_factory.py",
-        "tests/test_signers.py"
+        "tests/test_release_ledger.py"
       ],
       "in_degree": 10,
       "out_degree": 1,
-      "path": "src/production_os/signers.py"
+      "path": "src/production_os/attestations.py"
     },
     {
       "dependencies": [
@@ -580,30 +757,13 @@
       "path": "src/production_os/claims.py"
     },
     {
-      "dependencies": [],
-      "dependents": [
-        "src/production_os/asymmetric_attestations.py",
-        "src/production_os/cli.py",
-        "src/production_os/dual_sign.py",
-        "src/production_os/release_ledger.py",
-        "tests/test_asymmetric_attestations.py",
-        "tests/test_attestations.py",
-        "tests/test_control_plane_release.py",
-        "tests/test_production_stack_e2e.py",
-        "tests/test_provenance_signer.py",
-        "tests/test_release_ledger.py"
-      ],
-      "in_degree": 10,
-      "out_degree": 0,
-      "path": "src/production_os/attestations.py"
-    },
-    {
       "dependencies": [
         "src/production_os/capabilities.py",
         "src/production_os/classification.py",
         "src/production_os/components.py",
         "src/production_os/deep_fingerprint.py",
-        "src/production_os/models.py"
+        "src/production_os/models.py",
+        "tests/test_fairness.py"
       ],
       "dependents": [
         "src/production_os/cli.py",
@@ -613,8 +773,65 @@
         "tests/test_scoring.py"
       ],
       "in_degree": 5,
-      "out_degree": 5,
+      "out_degree": 6,
       "path": "src/production_os/scoring.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/adaptation.py",
+        "src/production_os/adaptation_plan.py",
+        "src/production_os/capabilities.py",
+        "src/production_os/compatibility.py",
+        "src/production_os/components.py",
+        "src/production_os/models.py",
+        "src/production_os/validation.py",
+        "src/production_os/versioning.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/controller.py",
+        "tests/test_classification_history_reuse.py"
+      ],
+      "in_degree": 3,
+      "out_degree": 8,
+      "path": "src/production_os/reuse.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/fairness.py",
+        "src/production_os/learning.py",
+        "src/production_os/models.py",
+        "src/production_os/policy.py",
+        "src/production_os/quarantine.py",
+        "src/production_os/runtime_state.py",
+        "tests/test_fairness.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/controller.py",
+        "tests/test_scheduler.py"
+      ],
+      "in_degree": 3,
+      "out_degree": 7,
+      "path": "src/production_os/scheduler.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/approvals.py",
+        "src/production_os/asymmetric_attestations.py",
+        "src/production_os/attestations.py",
+        "src/production_os/dual_sign.py",
+        "src/production_os/history.py",
+        "src/production_os/release_ledger.py",
+        "src/production_os/signing.py",
+        "src/production_os/sqlite_backend.py",
+        "src/production_os/workflow_engine.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 10,
+      "path": "tests/test_release_ledger.py"
     },
     {
       "dependencies": [],
@@ -632,6 +849,42 @@
       "in_degree": 9,
       "out_degree": 0,
       "path": "src/production_os/locks.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/signers.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "tests/test_rekor_checkpoint_state_cli.py",
+        "tests/test_rekor_signed_checkpoint.py",
+        "tests/test_rekor_signed_checkpoint_receipt.py",
+        "tests/test_rekor_v1_key_compatibility.py",
+        "tests/test_rekor_witness_quorum_cli.py",
+        "tests/test_transparency_cli.py",
+        "tests/test_transparency_receipts.py"
+      ],
+      "in_degree": 8,
+      "out_degree": 1,
+      "path": "src/production_os/transparency_receipts.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/models.py",
+        "src/production_os/source_tree.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/controller.py",
+        "src/production_os/github_work_state.py",
+        "tests/test_control_plane_pr_impact.py",
+        "tests/test_control_plane_webhook.py",
+        "tests/test_github_client_pr_files.py"
+      ],
+      "in_degree": 7,
+      "out_degree": 2,
+      "path": "src/production_os/github_client.py"
     },
     {
       "dependencies": [
@@ -653,39 +906,21 @@
     },
     {
       "dependencies": [
-        "src/production_os/adaptation.py",
-        "src/production_os/adaptation_plan.py",
-        "src/production_os/compatibility.py",
-        "src/production_os/models.py",
-        "src/production_os/validation.py",
-        "src/production_os/versioning.py"
+        "src/production_os/claims.py",
+        "src/production_os/runtime_state.py",
+        "src/production_os/workers.py",
+        "tests/test_fairness.py"
       ],
       "dependents": [
-        "src/production_os/cli.py",
-        "src/production_os/controller.py",
-        "tests/test_classification_history_reuse.py"
+        "src/production_os/storage.py",
+        "tests/test_execution_optimizer_postgres.py",
+        "tests/test_postgres_backend.py",
+        "tests/test_rekor_checkpoint_state_postgres.py",
+        "tests/test_workflow_postgres.py"
       ],
-      "in_degree": 3,
-      "out_degree": 6,
-      "path": "src/production_os/reuse.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/fairness.py",
-        "src/production_os/learning.py",
-        "src/production_os/models.py",
-        "src/production_os/policy.py",
-        "src/production_os/quarantine.py",
-        "src/production_os/runtime_state.py"
-      ],
-      "dependents": [
-        "src/production_os/cli.py",
-        "src/production_os/controller.py",
-        "tests/test_scheduler.py"
-      ],
-      "in_degree": 3,
-      "out_degree": 6,
-      "path": "src/production_os/scheduler.py"
+      "in_degree": 5,
+      "out_degree": 4,
+      "path": "src/production_os/postgres_backend.py"
     },
     {
       "dependencies": [],
@@ -702,6 +937,23 @@
       "in_degree": 8,
       "out_degree": 0,
       "path": "src/production_os/policy.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/models.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/controller.py",
+        "src/production_os/validation.py",
+        "tests/test_classification_history_reuse.py",
+        "tests/test_compatibility_validation.py",
+        "tests/test_control_plane_release.py",
+        "tests/test_release_ledger.py"
+      ],
+      "in_degree": 7,
+      "out_degree": 1,
+      "path": "src/production_os/history.py"
     },
     {
       "dependencies": [
@@ -722,52 +974,35 @@
     },
     {
       "dependencies": [
-        "src/production_os/claims.py",
-        "src/production_os/runtime_state.py",
-        "src/production_os/workers.py"
-      ],
-      "dependents": [
-        "src/production_os/storage.py",
-        "tests/test_execution_optimizer_postgres.py",
-        "tests/test_postgres_backend.py",
-        "tests/test_rekor_checkpoint_state_postgres.py",
-        "tests/test_workflow_postgres.py"
-      ],
-      "in_degree": 5,
-      "out_degree": 3,
-      "path": "src/production_os/postgres_backend.py"
-    },
-    {
-      "dependencies": [
         "src/production_os/__init__.py",
-        "src/production_os/asymmetric_attestations.py",
-        "src/production_os/attestations.py",
-        "src/production_os/dual_sign.py",
-        "src/production_os/release_ledger.py",
-        "src/production_os/signing.py",
-        "src/production_os/sqlite_backend.py",
-        "src/production_os/workflow_engine.py"
+        "src/production_os/capabilities.py",
+        "src/production_os/classification.py",
+        "src/production_os/history.py",
+        "src/production_os/models.py",
+        "src/production_os/reuse.py",
+        "src/production_os/scoring.py",
+        "tests/test_fairness.py"
       ],
       "dependents": [],
       "in_degree": 0,
       "out_degree": 8,
-      "path": "tests/test_release_ledger.py"
+      "path": "tests/test_classification_history_reuse.py"
     },
     {
       "dependencies": [
-        "src/production_os/models.py",
-        "src/production_os/source_tree.py"
+        "src/production_os/workers.py"
       ],
       "dependents": [
         "src/production_os/cli.py",
         "src/production_os/control_plane.py",
-        "src/production_os/controller.py",
-        "src/production_os/github_work_state.py",
-        "tests/test_github_client_pr_files.py"
+        "tests/test_execution_optimizer.py",
+        "tests/test_execution_optimizer_postgres.py",
+        "tests/test_portfolio_optimizer.py",
+        "tests/test_stragglers.py"
       ],
-      "in_degree": 5,
-      "out_degree": 2,
-      "path": "src/production_os/github_client.py"
+      "in_degree": 6,
+      "out_degree": 1,
+      "path": "src/production_os/execution_optimizer.py"
     },
     {
       "dependencies": [
@@ -786,18 +1021,65 @@
       "path": "src/production_os/signer_factory.py"
     },
     {
-      "dependencies": [],
+      "dependencies": [
+        "src/production_os/claims.py",
+        "src/production_os/runtime_state.py",
+        "src/production_os/workers.py",
+        "tests/test_fairness.py"
+      ],
       "dependents": [
         "src/production_os/cli.py",
-        "src/production_os/control_plane.py",
-        "tests/test_execution_optimizer.py",
-        "tests/test_execution_optimizer_postgres.py",
-        "tests/test_portfolio_optimizer.py",
-        "tests/test_stragglers.py"
+        "src/production_os/controller.py",
+        "tests/test_claims_delivery.py"
       ],
-      "in_degree": 6,
-      "out_degree": 0,
-      "path": "src/production_os/execution_optimizer.py"
+      "in_degree": 3,
+      "out_degree": 4,
+      "path": "src/production_os/delivery.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/api_auth.py",
+        "src/production_os/approvals.py",
+        "src/production_os/attestations.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/history.py",
+        "src/production_os/workflow_engine.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 7,
+      "path": "tests/test_control_plane_release.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/api_auth.py",
+        "src/production_os/approvals.py",
+        "src/production_os/attestations.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/remote_worker.py",
+        "src/production_os/workers.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 7,
+      "path": "tests/test_production_stack_e2e.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/approvals.py",
+        "src/production_os/asymmetric_attestations.py",
+        "src/production_os/release_ledger.py",
+        "src/production_os/signing.py",
+        "src/production_os/sqlite_backend.py",
+        "src/production_os/workflow_engine.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 7,
+      "path": "tests/test_secure_release_e2e.py"
     },
     {
       "dependencies": [],
@@ -812,20 +1094,6 @@
       "in_degree": 6,
       "out_degree": 0,
       "path": "src/production_os/rekor_checkpoint_state.py"
-    },
-    {
-      "dependencies": [],
-      "dependents": [
-        "src/production_os/cli.py",
-        "tests/test_rekor_signed_checkpoint.py",
-        "tests/test_rekor_signed_checkpoint_receipt.py",
-        "tests/test_rekor_v1_key_compatibility.py",
-        "tests/test_transparency_cli.py",
-        "tests/test_transparency_receipts.py"
-      ],
-      "in_degree": 6,
-      "out_degree": 0,
-      "path": "src/production_os/transparency_receipts.py"
     },
     {
       "dependencies": [
@@ -856,21 +1124,6 @@
       "in_degree": 5,
       "out_degree": 1,
       "path": "src/production_os/key_registry.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/atomic_io.py",
-        "src/production_os/locks.py"
-      ],
-      "dependents": [
-        "src/production_os/cli.py",
-        "src/production_os/controller.py",
-        "src/production_os/dispatch.py",
-        "tests/test_approvals_migrations.py"
-      ],
-      "in_degree": 4,
-      "out_degree": 2,
-      "path": "src/production_os/approvals.py"
     },
     {
       "dependencies": [
@@ -934,18 +1187,33 @@
     },
     {
       "dependencies": [
-        "src/production_os/claims.py",
+        "src/production_os/policy.py",
+        "src/production_os/quarantine.py",
         "src/production_os/runtime_state.py",
-        "src/production_os/workers.py"
+        "tests/test_fairness.py"
+      ],
+      "dependents": [
+        "src/production_os/controller.py",
+        "tests/test_governance.py"
+      ],
+      "in_degree": 2,
+      "out_degree": 4,
+      "path": "src/production_os/governance.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/callgraph.py",
+        "src/production_os/capabilities.py",
+        "src/production_os/components.py",
+        "src/production_os/models.py"
       ],
       "dependents": [
         "src/production_os/cli.py",
-        "src/production_os/controller.py",
-        "tests/test_claims_delivery.py"
+        "tests/test_capabilities_graph.py"
       ],
-      "in_degree": 3,
-      "out_degree": 3,
-      "path": "src/production_os/delivery.py"
+      "in_degree": 2,
+      "out_degree": 4,
+      "path": "src/production_os/graph.py"
     },
     {
       "dependencies": [
@@ -964,17 +1232,32 @@
     },
     {
       "dependencies": [
-        "src/production_os/__init__.py",
-        "src/production_os/classification.py",
+        "src/production_os/capabilities.py",
+        "src/production_os/components.py",
         "src/production_os/history.py",
-        "src/production_os/models.py",
+        "src/production_os/models.py"
+      ],
+      "dependents": [
         "src/production_os/reuse.py",
-        "src/production_os/scoring.py"
+        "tests/test_compatibility_validation.py"
+      ],
+      "in_degree": 2,
+      "out_degree": 4,
+      "path": "src/production_os/validation.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/api_auth.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/github_client.py",
+        "src/production_os/workflow_engine.py",
+        "tests/test_fairness.py"
       ],
       "dependents": [],
       "in_degree": 0,
       "out_degree": 6,
-      "path": "tests/test_classification_history_reuse.py"
+      "path": "tests/test_control_plane_webhook.py"
     },
     {
       "dependencies": [
@@ -993,16 +1276,44 @@
     {
       "dependencies": [
         "src/production_os/__init__.py",
+        "src/production_os/approvals.py",
         "src/production_os/asymmetric_attestations.py",
-        "src/production_os/release_ledger.py",
-        "src/production_os/signing.py",
-        "src/production_os/sqlite_backend.py",
+        "src/production_os/attestations.py",
+        "src/production_os/signers.py",
+        "src/production_os/signing.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 6,
+      "path": "tests/test_provenance_signer.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/audit_checkpoint.py",
+        "src/production_os/claims.py",
+        "src/production_os/journal.py",
+        "src/production_os/queue_maintenance.py",
+        "tests/test_fairness.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 6,
+      "path": "tests/test_queue_audit_checkpoint.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/api_auth.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/remote_worker.py",
+        "src/production_os/workers.py",
         "src/production_os/workflow_engine.py"
       ],
       "dependents": [],
       "in_degree": 0,
       "out_degree": 6,
-      "path": "tests/test_secure_release_e2e.py"
+      "path": "tests/test_remote_worker.py"
     },
     {
       "dependencies": [
@@ -1048,6 +1359,20 @@
     },
     {
       "dependencies": [
+        "src/production_os/runtime_state.py",
+        "tests/test_fairness.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/controller.py",
+        "tests/test_reconciliation_dispatch.py"
+      ],
+      "in_degree": 3,
+      "out_degree": 2,
+      "path": "src/production_os/reconciliation.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/key_domains.py",
         "src/production_os/signers.py"
       ],
@@ -1062,214 +1387,34 @@
     },
     {
       "dependencies": [
-        "src/production_os/policy.py",
-        "src/production_os/quarantine.py",
-        "src/production_os/runtime_state.py"
+        "src/production_os/capabilities.py",
+        "src/production_os/components.py",
+        "src/production_os/models.py"
       ],
       "dependents": [
-        "src/production_os/controller.py",
-        "tests/test_governance.py"
+        "src/production_os/reuse.py",
+        "tests/test_adaptation.py"
       ],
       "in_degree": 2,
       "out_degree": 3,
-      "path": "src/production_os/governance.py"
+      "path": "src/production_os/adaptation.py"
     },
     {
       "dependencies": [
-        "src/production_os/__init__.py",
-        "src/production_os/callgraph.py",
-        "src/production_os/feedback.py",
-        "src/production_os/models.py",
-        "src/production_os/versioning.py"
-      ],
-      "dependents": [],
-      "in_degree": 0,
-      "out_degree": 5,
-      "path": "tests/test_callgraph_versioning_feedback.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/__init__.py",
         "src/production_os/capabilities.py",
-        "src/production_os/graph.py",
-        "src/production_os/models.py",
-        "src/production_os/scoring.py"
-      ],
-      "dependents": [],
-      "in_degree": 0,
-      "out_degree": 5,
-      "path": "tests/test_capabilities_graph.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/__init__.py",
-        "src/production_os/claims.py",
-        "src/production_os/delivery.py",
-        "src/production_os/runtime_state.py",
-        "src/production_os/workers.py"
-      ],
-      "dependents": [],
-      "in_degree": 0,
-      "out_degree": 5,
-      "path": "tests/test_claims_delivery.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/__init__.py",
-        "src/production_os/api_auth.py",
-        "src/production_os/attestations.py",
-        "src/production_os/control_plane.py",
-        "src/production_os/workflow_engine.py"
-      ],
-      "dependents": [],
-      "in_degree": 0,
-      "out_degree": 5,
-      "path": "tests/test_control_plane_release.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/__init__.py",
-        "src/production_os/governance.py",
-        "src/production_os/policy.py",
-        "src/production_os/quarantine.py",
-        "src/production_os/runtime_state.py"
-      ],
-      "dependents": [],
-      "in_degree": 0,
-      "out_degree": 5,
-      "path": "tests/test_governance.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/__init__.py",
-        "src/production_os/execution_optimizer.py",
-        "src/production_os/portfolio_optimizer.py",
-        "src/production_os/sqlite_backend.py",
-        "src/production_os/workflow_engine.py"
-      ],
-      "dependents": [],
-      "in_degree": 0,
-      "out_degree": 5,
-      "path": "tests/test_portfolio_optimizer.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/__init__.py",
-        "src/production_os/api_auth.py",
-        "src/production_os/attestations.py",
-        "src/production_os/control_plane.py",
-        "src/production_os/remote_worker.py"
-      ],
-      "dependents": [],
-      "in_degree": 0,
-      "out_degree": 5,
-      "path": "tests/test_production_stack_e2e.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/__init__.py",
-        "src/production_os/asymmetric_attestations.py",
-        "src/production_os/attestations.py",
-        "src/production_os/signers.py",
-        "src/production_os/signing.py"
-      ],
-      "dependents": [],
-      "in_degree": 0,
-      "out_degree": 5,
-      "path": "tests/test_provenance_signer.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/__init__.py",
-        "src/production_os/audit_checkpoint.py",
-        "src/production_os/claims.py",
-        "src/production_os/journal.py",
-        "src/production_os/queue_maintenance.py"
-      ],
-      "dependents": [],
-      "in_degree": 0,
-      "out_degree": 5,
-      "path": "tests/test_queue_audit_checkpoint.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/__init__.py",
-        "src/production_os/signers.py",
-        "src/production_os/signing.py",
-        "src/production_os/supply_chain.py",
-        "src/production_os/witness.py"
-      ],
-      "dependents": [],
-      "in_degree": 0,
-      "out_degree": 5,
-      "path": "tests/test_signers.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/__init__.py",
-        "src/production_os/signing.py",
-        "src/production_os/sqlite_backend.py",
-        "src/production_os/transparency_receipts.py",
-        "src/production_os/witness.py"
-      ],
-      "dependents": [],
-      "in_degree": 0,
-      "out_degree": 5,
-      "path": "tests/test_transparency_cli.py"
-    },
-    {
-      "dependencies": [],
-      "dependents": [
-        "src/production_os/audit_checkpoint.py",
-        "src/production_os/cli.py",
-        "src/production_os/journal.py",
-        "tests/test_p6_hardening.py"
-      ],
-      "in_degree": 4,
-      "out_degree": 0,
-      "path": "src/production_os/audit_integrity.py"
-    },
-    {
-      "dependencies": [
+        "src/production_os/components.py",
         "src/production_os/models.py"
       ],
       "dependents": [
-        "src/production_os/scoring.py",
-        "tests/test_adaptation.py",
-        "tests/test_components.py"
+        "src/production_os/reuse.py",
+        "tests/test_adaptation_plan.py"
       ],
-      "in_degree": 3,
-      "out_degree": 1,
-      "path": "src/production_os/components.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/github_client.py"
-      ],
-      "dependents": [
-        "src/production_os/cli.py",
-        "src/production_os/controller.py",
-        "tests/test_github_work_state.py"
-      ],
-      "in_degree": 3,
-      "out_degree": 1,
-      "path": "src/production_os/github_work_state.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/models.py"
-      ],
-      "dependents": [
-        "src/production_os/cli.py",
-        "src/production_os/controller.py",
-        "tests/test_classification_history_reuse.py"
-      ],
-      "in_degree": 3,
-      "out_degree": 1,
-      "path": "src/production_os/history.py"
+      "in_degree": 2,
+      "out_degree": 3,
+      "path": "src/production_os/adaptation_plan.py"
     }
   ],
-  "edge_count": 534,
+  "edge_count": 881,
   "generated_by": "dbrckk/repo-brain-v7-graph",
   "node_count": 185,
   "schema_version": 1
