@@ -84,3 +84,7 @@ def test_dashboard_contains_managed_project_controls_and_token_bars():
     assert 'id="global-token-progress"' in DASHBOARD_HTML
     assert "REVIEW_REQUIRED" in DASHBOARD_HTML
     assert "Mark done" in DASHBOARD_HTML
+    assert "Retest" in DASHBOARD_HTML
+    assert "Send instruction" in DASHBOARD_HTML
+    assert "/instructions" in DASHBOARD_HTML
+    assert "/verify" in DASHBOARD_HTML
