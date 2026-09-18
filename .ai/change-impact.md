@@ -1,13 +1,13 @@
 # Change impact
 
-Base: 9b9a1aaf1a7ade4c5e4225cd5be50c27156daec2
-Head: 12be045035048133b0997e52f60926ae0d35debf
+Base: adf8943e6b0b6ce913554695cd0e9332a1f951e7
+Head: 6e642e7e189fe55e098d09aa88fb173a635b8b99
 
 ## Changed files
-- A .github/workflows/semantic-refresh.yml
+- M .repo-standards.yml
 
 ## Affected areas
-- .github
+- (root)
 
 ## Related test candidates
 - No direct filename-based test match detected.
