@@ -22,14 +22,14 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-18T11:17:31Z
+Generated: 2026-09-18T11:55:12Z
 
 ### Git
 - Branch: `main`
-- Head: `1ffdf6512510`
-- Commit date: 2026-09-18T13:16:49+02:00
-- Commit: chore(ai): prefer AST symbol routing
-- Tracked files: 226
+- Head: `6105291c23c1`
+- Commit date: 2026-09-18T13:54:40+02:00
+- Commit: chore(ai): adopt incremental impact routing
+- Tracked files: 255
 
 ### Recently changed files
 - `AGENTS.md`
