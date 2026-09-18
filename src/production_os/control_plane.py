@@ -12,7 +12,7 @@ from .managed_projects import ManagedProjectService
 from .execution_optimizer import ExecutionOptimizer
 from .speculation import SpeculationManager
 from .portfolio_optimizer import PortfolioOptimizer
-from .github_client import GitHubClient
+from .github_client import GitHubAPIError, GitHubClient
 from .release_ledger import ReleaseLedger
 from .github_webhook import (
     WebhookDeliveryStore,
@@ -85,46 +85,338 @@ def _json_bytes(payload: dict | list) -> bytes:
 
 
 DASHBOARD_HTML = """<!doctype html>
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Production-OS</title>
 <style>
-body{font-family:system-ui,sans-serif;max-width:1100px;margin:24px auto;padding:0 16px}
-input,button{font:inherit;padding:8px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
-.card{border:1px solid #ddd;border-radius:10px;padding:14px}
-pre{white-space:pre-wrap;overflow:auto}
+:root{font-family:system-ui,-apple-system,sans-serif;color-scheme:light dark}
+body{max-width:1180px;margin:0 auto;padding:18px;line-height:1.4}
+header,.toolbar,.row,.project-head,.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+header{justify-content:space-between;margin-bottom:16px}
+h1,h2,h3,p{margin-top:0}
+input,textarea,select,button{font:inherit;padding:9px;border-radius:8px;border:1px solid #888}
+input,textarea,select{box-sizing:border-box}
+button{cursor:pointer}
+button:disabled{opacity:.55;cursor:not-allowed}
+.panel,.card{border:1px solid #7776;border-radius:12px;padding:14px;margin:12px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.repo-list,.project-grid,.selected-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.repo,.project,.setup{border:1px solid #7776;border-radius:10px;padding:12px}
+.project-head{justify-content:space-between}
+.badge{font-size:.82rem;border:1px solid #7778;border-radius:999px;padding:3px 8px}
+.muted{opacity:.72;font-size:.9rem}
+label{display:block;margin:7px 0 4px}
+textarea{width:100%;min-height:76px;resize:vertical}
+.setup input,.setup select{width:100%}
+progress{width:100%;height:16px}
+.notice{min-height:1.4em}
+.token-input{min-width:220px;flex:1}
+.owner-input{min-width:150px}
+.metric strong{font-size:1.4rem;display:block}
+.hidden{display:none}
+@media(max-width:600px){
+ body{padding:12px}
+ .toolbar>*{width:100%}
+ .toolbar button{width:auto}
+ .project-grid,.repo-list,.selected-grid{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
-<h1>Production-OS Control Plane</h1>
-<p><input id="token" type="password" placeholder="Bearer token"> <button onclick="refresh()">Refresh</button></p>
-<div id="stats" class="grid"></div>
-<h2>Workflows</h2><pre id="workflows"></pre>
-<h2>Workers</h2><pre id="workers"></pre>
-<h2>Recent events</h2><pre id="events"></pre>
+<header>
+ <div><h1>Production-OS</h1><div class="muted">Managed autonomous projects</div></div>
+ <span class="badge">GitHub + AI Dev Server</span>
+</header>
+
+<section class="panel">
+ <div class="toolbar">
+  <input id="token" class="token-input" type="password" autocomplete="off" placeholder="Production-OS Bearer token">
+  <button type="button" onclick="refreshProjects()">Refresh</button>
+ </div>
+ <p id="notice" class="notice muted"></p>
+</section>
+
+<section class="panel">
+ <h2>Portfolio</h2>
+ <div id="stats" class="grid"></div>
+ <div class="card">
+  <div class="project-head"><strong>Global token budget</strong><span id="global-token-text">0 / 0</span></div>
+  <progress id="global-token-progress" value="0" max="1"></progress>
+ </div>
+</section>
+
+<section class="panel">
+ <h2>Add GitHub repositories</h2>
+ <div class="toolbar">
+  <input id="owner" class="owner-input" placeholder="GitHub owner">
+  <button type="button" onclick="loadRepositories()">Load repositories</button>
+ </div>
+ <p class="muted">Select one or more repositories. Each selected project gets its own final goal, token budget and agent preference.</p>
+ <div id="repo-list" class="repo-list"></div>
+ <div id="selected-projects" class="selected-grid"></div>
+ <div class="actions">
+  <button id="create-selected" type="button" onclick="createSelectedProjects()" disabled>Start selected projects</button>
+ </div>
+</section>
+
+<section class="panel">
+ <h2>Managed projects</h2>
+ <div id="managed-projects" class="project-grid"></div>
+</section>
+
+<section class="panel">
+ <details>
+  <summary>Runtime details</summary>
+  <h3>Workers</h3><pre id="workers"></pre>
+  <h3>Recent events</h3><pre id="events"></pre>
+ </details>
+</section>
+
 <script>
-async function api(path){
- const token=document.getElementById('token').value;
- const r=await fetch(path,{headers:{Authorization:'Bearer '+token}});
- if(!r.ok) throw new Error(await r.text());
- return await r.json();
+const selectedRepos=new Map();
+const stateIcons={
+ RUNNING:'▶', REVIEW_REQUIRED:'✓', DONE:'●', BLOCKED:'!', FAILED:'×', PAUSED:'Ⅱ'
+};
+
+function authHeaders(extra){
+ const token=document.getElementById('token').value.trim();
+ return Object.assign(
+  {'Authorization':'Bearer '+token,'Content-Type':'application/json'},
+  extra||{}
+ );
 }
-async function refresh(){
+
+async function api(path,options){
+ const opts=Object.assign({},options||{});
+ opts.headers=authHeaders(opts.headers);
+ const response=await fetch(path,opts);
+ const text=await response.text();
+ let payload={};
+ if(text){try{payload=JSON.parse(text)}catch(_){payload={error:text}}}
+ if(!response.ok) throw new Error(payload.error||('HTTP '+response.status));
+ return payload;
+}
+
+function setNotice(message,isError){
+ const node=document.getElementById('notice');
+ node.textContent=message||'';
+ node.style.fontWeight=isError?'600':'400';
+}
+
+function formatTokens(value){
+ const number=Number(value||0);
+ return new Intl.NumberFormat().format(number);
+}
+
+function element(tag,text,className){
+ const node=document.createElement(tag);
+ if(text!==undefined && text!==null) node.textContent=String(text);
+ if(className) node.className=className;
+ return node;
+}
+
+function renderStats(projects){
+ const counts={RUNNING:0,REVIEW_REQUIRED:0,BLOCKED:0,FAILED:0,DONE:0,PAUSED:0};
+ let used=0,budget=0;
+ projects.forEach(function(project){
+  counts[project.state]=(counts[project.state]||0)+1;
+  used+=Number((project.usage||{}).total_tokens||0);
+  budget+=Number(project.token_budget||0);
+ });
+ const stats=document.getElementById('stats');
+ stats.replaceChildren();
+ [
+  ['Running',counts.RUNNING],
+  ['Review',counts.REVIEW_REQUIRED],
+  ['Blocked',counts.BLOCKED+counts.FAILED],
+  ['Done',counts.DONE]
+ ].forEach(function(pair){
+  const card=element('div',null,'card metric');
+  card.append(element('span',pair[0]),element('strong',pair[1]));
+  stats.append(card);
+ });
+ const bar=document.getElementById('global-token-progress');
+ bar.max=Math.max(1,budget);
+ bar.value=Math.min(used,Math.max(1,budget));
+ document.getElementById('global-token-text').textContent=
+  formatTokens(used)+' / '+formatTokens(budget)+' tokens';
+}
+
+function projectCard(project){
+ const card=element('article',null,'project');
+ const head=element('div',null,'project-head');
+ const title=element('strong',project.repository);
+ const badge=element(
+  'span',
+  (stateIcons[project.state]||'?')+' '+project.state,
+  'badge'
+ );
+ head.append(title,badge);
+ card.append(head);
+ card.append(element('p',project.final_goal));
+ card.append(element('div','Agent: '+project.agent_preference,'muted'));
+
+ const used=Number((project.usage||{}).total_tokens||0);
+ const budget=Number(project.token_budget||0);
+ const usageText=element(
+  'div',
+  formatTokens(used)+' / '+formatTokens(budget)+' tokens',
+  'muted'
+ );
+ const progress=document.createElement('progress');
+ progress.max=Math.max(1,budget);
+ progress.value=Math.min(used,Math.max(1,budget));
+ card.append(usageText,progress);
+
+ if(project.state==='REVIEW_REQUIRED'){
+  const actions=element('div',null,'actions');
+  const complete=element('button','Mark done');
+  complete.type='button';
+  complete.addEventListener('click',async function(){
+   complete.disabled=true;
+   try{
+    await api(
+     '/v1/managed-projects/'+encodeURIComponent(project.workflow_id)+'/complete',
+     {method:'POST',body:'{}'}
+    );
+    setNotice(project.repository+' marked done.',false);
+    await refreshProjects();
+   }catch(error){
+    setNotice(String(error),true);
+    complete.disabled=false;
+   }
+  });
+  actions.append(complete);
+  card.append(actions);
+ }
+ return card;
+}
+
+async function refreshProjects(){
  try{
-  const [stats,workflows,workers,events]=await Promise.all([
-   api('/v1/stats'),api('/v1/workflows'),api('/v1/workers'),
-   api('/v1/events?limit=30')
+  const data=await api('/v1/managed-projects');
+  const projects=data.projects||[];
+  const container=document.getElementById('managed-projects');
+  container.replaceChildren();
+  if(!projects.length){
+   container.append(element('p','No managed projects yet.','muted'));
+  }else{
+   projects.forEach(function(project){container.append(projectCard(project))});
+  }
+  renderStats(projects);
+  const runtime=await Promise.all([
+   api('/v1/workers'),
+   api('/v1/events?limit=20')
   ]);
-  document.getElementById('stats').innerHTML=Object.entries(stats.jobs||{}).map(
-   ([k,v])=>'<div class="card"><b>'+k+'</b><div>'+v+'</div></div>'
-  ).join('');
-  document.getElementById('workflows').textContent=JSON.stringify(workflows.workflows,null,2);
-  document.getElementById('workers').textContent=JSON.stringify(workers.workers,null,2);
-  document.getElementById('events').textContent=JSON.stringify(events.events,null,2);
- }catch(e){document.getElementById('events').textContent=String(e)}
+  document.getElementById('workers').textContent=JSON.stringify(runtime[0].workers||[],null,2);
+  document.getElementById('events').textContent=JSON.stringify(runtime[1].events||[],null,2);
+  setNotice('Dashboard refreshed.',false);
+ }catch(error){
+  setNotice(String(error),true);
+ }
+}
+
+function renderSelected(){
+ const root=document.getElementById('selected-projects');
+ root.replaceChildren();
+ selectedRepos.forEach(function(repo){
+  const card=element('div',null,'setup');
+  card.dataset.repository=repo.full_name;
+  card.append(element('strong',repo.full_name));
+
+  const goalLabel=element('label','Final goal');
+  const goal=document.createElement('textarea');
+  goal.dataset.role='goal';
+  goal.placeholder='Describe the concrete final result for this repository';
+
+  const budgetLabel=element('label','Token budget');
+  const budget=document.createElement('input');
+  budget.type='number';
+  budget.min='1';
+  budget.step='1';
+  budget.value='250000';
+  budget.dataset.role='budget';
+
+  const agentLabel=element('label','Agent');
+  const agent=document.createElement('select');
+  agent.dataset.role='agent';
+  [['auto','Automatic'],['codex','Codex']].forEach(function(pair){
+   const option=document.createElement('option');
+   option.value=pair[0]; option.textContent=pair[1]; agent.append(option);
+  });
+
+  card.append(goalLabel,goal,budgetLabel,budget,agentLabel,agent);
+  root.append(card);
+ });
+ document.getElementById('create-selected').disabled=selectedRepos.size===0;
+}
+
+async function loadRepositories(){
+ const owner=document.getElementById('owner').value.trim();
+ if(!owner){setNotice('Enter a GitHub owner.',true);return}
+ try{
+  const data=await api('/v1/github/repositories?owner='+encodeURIComponent(owner));
+  const root=document.getElementById('repo-list');
+  root.replaceChildren();
+  selectedRepos.clear();
+  (data.repositories||[]).forEach(function(repo){
+   const label=element('label',null,'repo');
+   const checkbox=document.createElement('input');
+   checkbox.type='checkbox';
+   checkbox.addEventListener('change',function(){
+    if(checkbox.checked) selectedRepos.set(repo.full_name,repo);
+    else selectedRepos.delete(repo.full_name);
+    renderSelected();
+   });
+   label.append(checkbox,document.createTextNode(' '+repo.full_name));
+   if(repo.private) label.append(element('div','Private','muted'));
+   root.append(label);
+  });
+  renderSelected();
+  setNotice('Loaded '+String((data.repositories||[]).length)+' repositories.',false);
+ }catch(error){
+  setNotice(String(error),true);
+ }
+}
+
+async function createSelectedProjects(){
+ const cards=Array.from(document.querySelectorAll('#selected-projects .setup'));
+ if(!cards.length) return;
+ const button=document.getElementById('create-selected');
+ button.disabled=true;
+ try{
+  for(const card of cards){
+   const finalGoal=card.querySelector('[data-role="goal"]').value.trim();
+   const tokenBudget=Number(card.querySelector('[data-role="budget"]').value);
+   const agent=card.querySelector('[data-role="agent"]').value;
+   if(!finalGoal) throw new Error('A final goal is required for '+card.dataset.repository);
+   if(!Number.isInteger(tokenBudget)||tokenBudget<=0){
+    throw new Error('A positive token budget is required for '+card.dataset.repository);
+   }
+   await api('/v1/managed-projects',{
+    method:'POST',
+    body:JSON.stringify({
+     repository:card.dataset.repository,
+     final_goal:finalGoal,
+     token_budget:tokenBudget,
+     agent_preference:agent
+    })
+   });
+  }
+  selectedRepos.clear();
+  document.querySelectorAll('#repo-list input[type="checkbox"]').forEach(function(node){
+   node.checked=false;
+  });
+  renderSelected();
+  setNotice('Selected projects created.',false);
+  await refreshProjects();
+ }catch(error){
+  setNotice(String(error),true);
+ }finally{
+  button.disabled=selectedRepos.size===0;
+ }
 }
 </script>
 </body>
@@ -275,6 +567,44 @@ def make_handler(control: ControlPlane):
 
             principal = self._require("viewer")
             if principal is None:
+                return
+
+            if parsed.path == "/v1/github/repositories":
+                query = parse_qs(parsed.query)
+                owner = str(query.get("owner", [""])[0]).strip()
+                if not owner:
+                    self._send(
+                        HTTPStatus.BAD_REQUEST,
+                        {"error": "owner is required"},
+                    )
+                    return
+                try:
+                    repositories = GitHubClient().list_repositories(owner)
+                except GitHubAPIError as exc:
+                    self._send(
+                        HTTPStatus.BAD_GATEWAY,
+                        {"error": str(exc)},
+                    )
+                    return
+                safe = []
+                for repo in repositories:
+                    if not isinstance(repo, dict):
+                        continue
+                    safe.append({
+                        "name": str(repo.get("name") or ""),
+                        "full_name": str(repo.get("full_name") or ""),
+                        "private": bool(repo.get("private", False)),
+                        "archived": bool(repo.get("archived", False)),
+                        "fork": bool(repo.get("fork", False)),
+                        "default_branch": str(
+                            repo.get("default_branch") or "main"
+                        ),
+                        "pushed_at": repo.get("pushed_at"),
+                    })
+                self._send(
+                    HTTPStatus.OK,
+                    {"owner": owner, "repositories": safe},
+                )
                 return
 
             if parsed.path == "/v1/managed-projects":
