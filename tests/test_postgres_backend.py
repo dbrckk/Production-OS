@@ -59,3 +59,26 @@ def test_postgres_runtime_workers_and_queue():
         queued["key"],"worker-1"
     )["status"]=="completed"
     assert backend.events_after()
+
+
+def test_postgres_worker_capacity_round_trip():
+    backend=PostgresBackend(DSN)
+    reset(backend)
+    workers=PostgresWorkerRegistry(backend)
+    workers.register("ai-dev",["software-development"],1)
+    updated=workers.heartbeat(
+        "ai-dev",
+        capacity={
+            "source":"omniroute",
+            "status":"ok",
+            "authenticated_usage":True,
+            "steady_recurring_tokens":1_500_000_000,
+            "used_this_month":125_000_000,
+            "remaining_tokens":1_375_000_000,
+            "catalog_updated_at":"2026-09-18",
+            "catalog_source":"free-tier-catalog",
+        },
+    )
+    assert updated.capacity["remaining_tokens"]==1_375_000_000
+    reloaded=PostgresWorkerRegistry(backend)
+    assert reloaded.workers["ai-dev"].capacity["source"]=="omniroute"
