@@ -22,19 +22,18 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-18T20:53:47Z
+Generated: 2026-09-18T21:02:13Z
 
 ### Git
 - Branch: `main`
-- Head: `a8d2a4331f68`
-- Commit date: 2026-09-18T22:51:06+02:00
-- Commit: chore(ai): enable same-package symbol graph enrichment
-- Tracked files: 305
+- Head: `ba5602a058c7`
+- Commit date: 2026-09-18T22:59:38+02:00
+- Commit: chore(ai): adopt repo standards v15
+- Tracked files: 306
 
 ### Recently changed files
 - `.repo-standards.yml`
 - `.github/workflows/semantic-refresh.yml`
-- `AGENTS.md`
 
 ### Project signals
 - `pyproject.toml`
