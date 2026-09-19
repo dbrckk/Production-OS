@@ -10,7 +10,7 @@ from typing import Iterator
 
 from .claims import ClaimRecord
 from .runtime_state import RuntimeRecord, task_key
-from .workers import Worker
+from .workers import Worker, _capacity_snapshot
 
 
 def _utcnow() -> str:
@@ -18,7 +18,7 @@ def _utcnow() -> str:
 
 
 class SQLiteBackend:
-    SCHEMA_VERSION = 8
+    SCHEMA_VERSION = 9
 
     def __init__(self, path: str | Path):
         self.path = Path(path)
@@ -88,7 +88,8 @@ class SQLiteBackend:
                     max_concurrency INTEGER NOT NULL,
                     active_tasks INTEGER NOT NULL DEFAULT 0,
                     status TEXT NOT NULL DEFAULT 'online',
-                    last_heartbeat TEXT
+                    last_heartbeat TEXT,
+                    capacity_json TEXT
                 );
 
                 CREATE TABLE IF NOT EXISTS claims (
@@ -300,6 +301,13 @@ class SQLiteBackend:
                 ON speculation_members(job_key);
                 """
             )
+            worker_columns = {
+                str(row["name"])
+                for row in db.execute("PRAGMA table_info(workers)").fetchall()
+            }
+            if "capacity_json" not in worker_columns:
+                db.execute("ALTER TABLE workers ADD COLUMN capacity_json TEXT")
+
             db.execute(
                 """
                 INSERT INTO schema_meta(key, value)
@@ -699,6 +707,12 @@ class SQLiteWorkerRegistry:
             active_tasks=row["active_tasks"],
             status=row["status"],
             last_heartbeat=row["last_heartbeat"],
+            capacity=(
+                json.loads(row["capacity_json"])
+                if "capacity_json" in row.keys()
+                and row["capacity_json"]
+                else None
+            ),
         )
 
     def load(self) -> None:
@@ -713,15 +727,17 @@ class SQLiteWorkerRegistry:
                     """
                     INSERT INTO workers(
                         worker_id, capabilities_json, max_concurrency,
-                        active_tasks, status, last_heartbeat
+                        active_tasks, status, last_heartbeat,
+                        capacity_json
                     )
-                    VALUES(?,?,?,?,?,?)
+                    VALUES(?,?,?,?,?,?,?)
                     ON CONFLICT(worker_id) DO UPDATE SET
                         capabilities_json=excluded.capabilities_json,
                         max_concurrency=excluded.max_concurrency,
                         active_tasks=excluded.active_tasks,
                         status=excluded.status,
-                        last_heartbeat=excluded.last_heartbeat
+                        last_heartbeat=excluded.last_heartbeat,
+                        capacity_json=excluded.capacity_json
                     """,
                     (
                         worker.worker_id,
@@ -730,6 +746,11 @@ class SQLiteWorkerRegistry:
                         worker.active_tasks,
                         worker.status,
                         worker.last_heartbeat,
+                        (
+                            json.dumps(worker.capacity, ensure_ascii=False)
+                            if worker.capacity is not None
+                            else None
+                        ),
                     ),
                 )
 
@@ -776,8 +797,19 @@ class SQLiteWorkerRegistry:
         self.workers[worker_id] = worker
         return worker
 
-    def heartbeat(self, worker_id: str, active_tasks: int | None = None) -> Worker:
+    def heartbeat(
+        self,
+        worker_id: str,
+        active_tasks: int | None = None,
+        *,
+        capacity: dict | None = None,
+    ) -> Worker:
         now = _utcnow()
+        normalized_capacity = (
+            _capacity_snapshot(capacity)
+            if capacity is not None
+            else None
+        )
         with self.backend.transaction() as db:
             row = db.execute(
                 "SELECT * FROM workers WHERE worker_id=?",
@@ -786,13 +818,24 @@ class SQLiteWorkerRegistry:
             if row is None:
                 raise KeyError(worker_id)
             active = row["active_tasks"] if active_tasks is None else max(0, active_tasks)
+            current_capacity = (
+                row["capacity_json"]
+                if "capacity_json" in row.keys()
+                else None
+            )
+            capacity_json = (
+                json.dumps(normalized_capacity, ensure_ascii=False)
+                if normalized_capacity is not None
+                else current_capacity
+            )
             db.execute(
                 """
                 UPDATE workers
-                SET active_tasks=?, status='online', last_heartbeat=?
+                SET active_tasks=?, status='online', last_heartbeat=?,
+                    capacity_json=?
                 WHERE worker_id=?
                 """,
-                (active, now, worker_id),
+                (active, now, capacity_json, worker_id),
             )
             row = db.execute(
                 "SELECT * FROM workers WHERE worker_id=?",
