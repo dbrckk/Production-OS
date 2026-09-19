@@ -28,6 +28,19 @@ def test_3d_validation_only_does_not_require_generation_capability():
     assert VISUAL_3D_CAPABILITY not in required
 
 
+def test_french_visual_and_3d_generation_tasks_are_detected():
+    visual = inferred_required_capabilities(
+        {"task": "Améliore les graphismes et les icônes du jeu"}
+    )
+    assert VISUAL_CAPABILITY in visual
+
+    three_d = inferred_required_capabilities(
+        {"task": "Crée un nouveau modèle 3D de personnage et exporte le GLB"}
+    )
+    assert VISUAL_CAPABILITY in three_d
+    assert VISUAL_3D_CAPABILITY in three_d
+
+
 def test_non_visual_software_task_is_not_misclassified():
     assert not is_visual_asset_task({"task": "Restore CI and update unit tests"})
     assert not is_visual_asset_task({"task": "Refactor repository caching logic"})
