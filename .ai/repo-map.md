@@ -6218,6 +6218,14 @@ handoff = {
 required = _required_capabilities_for(_assessment(), handoff)
 ⋮----
 def test_asset_forge_availability_alone_does_not_require_visual_worker()
+⋮----
+def test_android_visual_job_selects_ai_dev_style_worker()
+⋮----
+handoff = {"task": "Create and integrate new enemy sprites"}
+⋮----
+registry = WorkerRegistry(Path(td) / "workers.json")
+⋮----
+worker = select_worker(registry, required)
 ````
 
 ## File: tests/test_dashboard_launch.py

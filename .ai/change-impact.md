@@ -1,10 +1,10 @@
 # Change impact
 
-Base: 6efeddbc398e28aeffc9599f981d78323d57cfcf
-Head: 144aefae97651fdad7c5c61cf5c44d460caa4277
+Base: 9195d30584ed81f945ddd96661d32bded804c2bc
+Head: 27547fd77ed17b5dc7756367d522ca48e6e74e3c
 
 ## Changed files
-- M tests/test_dashboard_launch.py
+- M tests/test_controller_asset_capabilities.py
 
 ## Affected areas
 - tests
