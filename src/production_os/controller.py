@@ -67,6 +67,37 @@ def _handoff_for_action(action, reuse, *, branch_protected: bool | None = None):
     }
 
 
+def _required_capabilities_for(assessment, handoff: dict) -> list[str]:
+    required: list[str] = []
+    if assessment is not None:
+        if assessment.profile in {"android-app", "android-game"}:
+            required.append("android")
+        elif assessment.evidence.language:
+            lang = assessment.evidence.language.lower()
+            if "python" in lang:
+                required.append("python")
+            elif "javascript" in lang or "typescript" in lang:
+                required.append("node")
+
+    reuse_candidates = handoff.get("reuse_candidates", [])
+    if isinstance(reuse_candidates, list):
+        visual_caps = {
+            "visual-asset-pipeline",
+            "sprite-atlas-pipeline",
+            "gltf-asset-pipeline",
+            "vector-asset-pipeline",
+            "godot-asset-handoff",
+        }
+        if any(
+            isinstance(item, dict)
+            and str(item.get("capability") or "") in visual_caps
+            for item in reuse_candidates
+        ):
+            required.append("visual-asset-production")
+
+    return sorted(set(required))
+
+
 def _load_github_mappings(path: str | None) -> list[dict]:
     if not path:
         return []
@@ -287,16 +318,10 @@ def run_control_cycle(
             reuse,
             branch_protected=branch_protected,
         )
-        required_capabilities = []
-        if assessment is not None:
-            if assessment.profile in {"android-app","android-game"}:
-                required_capabilities.append("android")
-            elif assessment.evidence.language:
-                lang = assessment.evidence.language.lower()
-                if "python" in lang:
-                    required_capabilities.append("python")
-                elif "javascript" in lang or "typescript" in lang:
-                    required_capabilities.append("node")
+        required_capabilities = _required_capabilities_for(
+            assessment,
+            handoff,
+        )
         try:
             result = dispatch_handoff(
                 handoff,
