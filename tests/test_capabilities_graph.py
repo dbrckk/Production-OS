@@ -50,3 +50,24 @@ def test_knowledge_graph_contains_repo_capability_edges():
         and edge["target"] == "capability:android-play-billing"
         for edge in graph["edges"]
     )
+
+
+def test_visual_asset_platform_capabilities_are_extracted():
+    caps = extract_capabilities(
+        evidence(
+            "asset-forge",
+            has_ci=True,
+            has_tests=True,
+            readme_text=(
+                "Central visual-asset production pipeline for Asset Forge with "
+                "sprite sheets, runtime atlas packing, SVG vector sanitization, "
+                "glTF/GLB Blender export and Godot 4 handoff."
+            ),
+        )
+    )
+    names = {cap.name for cap in caps}
+    assert "visual-asset-pipeline" in names
+    assert "sprite-atlas-pipeline" in names
+    assert "gltf-asset-pipeline" in names
+    assert "vector-asset-pipeline" in names
+    assert "godot-asset-handoff" in names
