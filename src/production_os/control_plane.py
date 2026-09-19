@@ -643,6 +643,7 @@ def make_handler(control: ControlPlane):
                     return
 
             if parsed.path == "/v1/workers":
+                control.workers.detect_dead()
                 control.workers.load()
                 self._send(
                     HTTPStatus.OK,
