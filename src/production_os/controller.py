@@ -38,7 +38,7 @@ from .scheduler import build_schedule
 from .scoring import assess_repository
 from .self_healing import apply_self_healing
 from .workers import WorkerRegistry
-from .task_capabilities import inferred_required_capabilities
+from .task_capabilities import asset_forge_tool_contract, inferred_required_capabilities
 
 
 def _rank_actions(assessments):
@@ -66,20 +66,9 @@ def _handoff_for_action(action, reuse, *, branch_protected: bool | None = None):
             "reuse_before_rebuild":True,
         },
     }
-    inferred = set(inferred_required_capabilities(handoff))
-    if "visual-asset-production" in inferred:
-        handoff["tool_contracts"] = {
-            "asset_forge": {
-                "request_schema": "asset-forge/production-request/v1",
-                "report_schema": "asset-forge/production-report/v1",
-                "command": "asset-forge fulfill",
-                "required_capability": (
-                    "visual-asset-3d-production"
-                    if "visual-asset-3d-production" in inferred
-                    else "visual-asset-production"
-                ),
-            }
-        }
+    asset_forge = asset_forge_tool_contract(handoff)
+    if asset_forge is not None:
+        handoff["tool_contracts"] = {"asset_forge": asset_forge}
     return handoff
 
 
