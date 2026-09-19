@@ -35,6 +35,8 @@ class ReuseOpportunity:
 
 
 def _compatible(source: RepoAssessment, target: RepoAssessment) -> bool:
+    if source.profile == "asset-production-platform":
+        return True
     if source.profile == target.profile:
         return True
     if {source.profile, target.profile} <= {"android-app", "android-game"}:
