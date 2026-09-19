@@ -32,6 +32,7 @@
         "tests/test_control_plane_pr_impact.py",
         "tests/test_control_plane_release.py",
         "tests/test_control_plane_webhook.py",
+        "tests/test_controller_asset_capabilities.py",
         "tests/test_deep_fingerprint_starlist.py",
         "tests/test_emergency_key_revocation.py",
         "tests/test_execution_feedback_trends.py",
@@ -103,7 +104,7 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 91,
+      "in_degree": 92,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -327,15 +328,17 @@
         "src/production_os/adaptation_plan.py",
         "src/production_os/cli.py",
         "src/production_os/components.py",
+        "src/production_os/controller.py",
         "src/production_os/graph.py",
         "src/production_os/reuse.py",
         "src/production_os/scoring.py",
         "src/production_os/starlist.py",
         "src/production_os/validation.py",
         "tests/test_capabilities_graph.py",
-        "tests/test_classification_history_reuse.py"
+        "tests/test_classification_history_reuse.py",
+        "tests/test_controller_asset_capabilities.py"
       ],
-      "in_degree": 11,
+      "in_degree": 13,
       "out_degree": 2
     },
     "src/production_os/change_impact.py": {
@@ -528,6 +531,7 @@
       "dependencies": [
         "src/production_os/approvals.py",
         "src/production_os/budgets.py",
+        "src/production_os/capabilities.py",
         "src/production_os/claims.py",
         "src/production_os/delivery.py",
         "src/production_os/dispatch.py",
@@ -556,10 +560,11 @@
         "tests/test_fairness.py"
       ],
       "dependents": [
-        "src/production_os/cli.py"
+        "src/production_os/cli.py",
+        "tests/test_controller_asset_capabilities.py"
       ],
-      "in_degree": 1,
-      "out_degree": 28
+      "in_degree": 2,
+      "out_degree": 29
     },
     "src/production_os/deep_fingerprint.py": {
       "dependencies": [
@@ -1857,6 +1862,16 @@
       "dependents": [],
       "in_degree": 0,
       "out_degree": 6
+    },
+    "tests/test_controller_asset_capabilities.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/capabilities.py",
+        "src/production_os/controller.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 3
     },
     "tests/test_deep_fingerprint_starlist.py": {
       "dependencies": [

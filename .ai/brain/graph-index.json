@@ -29,6 +29,7 @@
         "tests/test_control_plane_pr_impact.py",
         "tests/test_control_plane_release.py",
         "tests/test_control_plane_webhook.py",
+        "tests/test_controller_asset_capabilities.py",
         "tests/test_deep_fingerprint_starlist.py",
         "tests/test_emergency_key_revocation.py",
         "tests/test_execution_feedback_trends.py",
@@ -100,7 +101,7 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 91,
+      "in_degree": 92,
       "out_degree": 0,
       "path": "src/production_os/__init__.py"
     },
@@ -264,6 +265,46 @@
     },
     {
       "dependencies": [
+        "src/production_os/approvals.py",
+        "src/production_os/budgets.py",
+        "src/production_os/capabilities.py",
+        "src/production_os/claims.py",
+        "src/production_os/delivery.py",
+        "src/production_os/dispatch.py",
+        "src/production_os/emergency.py",
+        "src/production_os/github_client.py",
+        "src/production_os/github_work_state.py",
+        "src/production_os/governance.py",
+        "src/production_os/health.py",
+        "src/production_os/heartbeat_manager.py",
+        "src/production_os/history.py",
+        "src/production_os/journal.py",
+        "src/production_os/metrics.py",
+        "src/production_os/observability.py",
+        "src/production_os/policy.py",
+        "src/production_os/quarantine.py",
+        "src/production_os/rate_limit.py",
+        "src/production_os/reconciliation.py",
+        "src/production_os/resources.py",
+        "src/production_os/reuse.py",
+        "src/production_os/runtime_state.py",
+        "src/production_os/scheduler.py",
+        "src/production_os/scoring.py",
+        "src/production_os/self_healing.py",
+        "src/production_os/storage.py",
+        "src/production_os/workers.py",
+        "tests/test_fairness.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "tests/test_controller_asset_capabilities.py"
+      ],
+      "in_degree": 2,
+      "out_degree": 29,
+      "path": "src/production_os/controller.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/components.py",
         "tests/test_fairness.py"
       ],
@@ -299,44 +340,6 @@
       "in_degree": 27,
       "out_degree": 2,
       "path": "src/production_os/models.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/approvals.py",
-        "src/production_os/budgets.py",
-        "src/production_os/claims.py",
-        "src/production_os/delivery.py",
-        "src/production_os/dispatch.py",
-        "src/production_os/emergency.py",
-        "src/production_os/github_client.py",
-        "src/production_os/github_work_state.py",
-        "src/production_os/governance.py",
-        "src/production_os/health.py",
-        "src/production_os/heartbeat_manager.py",
-        "src/production_os/history.py",
-        "src/production_os/journal.py",
-        "src/production_os/metrics.py",
-        "src/production_os/observability.py",
-        "src/production_os/policy.py",
-        "src/production_os/quarantine.py",
-        "src/production_os/rate_limit.py",
-        "src/production_os/reconciliation.py",
-        "src/production_os/resources.py",
-        "src/production_os/reuse.py",
-        "src/production_os/runtime_state.py",
-        "src/production_os/scheduler.py",
-        "src/production_os/scoring.py",
-        "src/production_os/self_healing.py",
-        "src/production_os/storage.py",
-        "src/production_os/workers.py",
-        "tests/test_fairness.py"
-      ],
-      "dependents": [
-        "src/production_os/cli.py"
-      ],
-      "in_degree": 1,
-      "out_degree": 28,
-      "path": "src/production_os/controller.py"
     },
     {
       "dependencies": [
@@ -585,6 +588,30 @@
     },
     {
       "dependencies": [
+        "src/production_os/models.py",
+        "src/production_os/workers.py"
+      ],
+      "dependents": [
+        "src/production_os/adaptation.py",
+        "src/production_os/adaptation_plan.py",
+        "src/production_os/cli.py",
+        "src/production_os/components.py",
+        "src/production_os/controller.py",
+        "src/production_os/graph.py",
+        "src/production_os/reuse.py",
+        "src/production_os/scoring.py",
+        "src/production_os/starlist.py",
+        "src/production_os/validation.py",
+        "tests/test_capabilities_graph.py",
+        "tests/test_classification_history_reuse.py",
+        "tests/test_controller_asset_capabilities.py"
+      ],
+      "in_degree": 13,
+      "out_degree": 2,
+      "path": "src/production_os/capabilities.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/approvals.py",
         "src/production_os/asymmetric_attestations.py",
         "src/production_os/attestations.py",
@@ -674,28 +701,6 @@
       "in_degree": 3,
       "out_degree": 11,
       "path": "src/production_os/dispatch.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/models.py",
-        "src/production_os/workers.py"
-      ],
-      "dependents": [
-        "src/production_os/adaptation.py",
-        "src/production_os/adaptation_plan.py",
-        "src/production_os/cli.py",
-        "src/production_os/components.py",
-        "src/production_os/graph.py",
-        "src/production_os/reuse.py",
-        "src/production_os/scoring.py",
-        "src/production_os/starlist.py",
-        "src/production_os/validation.py",
-        "tests/test_capabilities_graph.py",
-        "tests/test_classification_history_reuse.py"
-      ],
-      "in_degree": 11,
-      "out_degree": 2,
-      "path": "src/production_os/capabilities.py"
     },
     {
       "dependencies": [
@@ -1417,8 +1422,8 @@
       "path": "src/production_os/adaptation_plan.py"
     }
   ],
-  "edge_count": 883,
+  "edge_count": 887,
   "generated_by": "dbrckk/repo-brain-v7-graph",
-  "node_count": 187,
+  "node_count": 188,
   "schema_version": 1
 }

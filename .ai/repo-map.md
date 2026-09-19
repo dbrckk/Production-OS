@@ -170,6 +170,7 @@ tests/
   test_control_plane_release.py
   test_control_plane_webhook.py
   test_control_plane.py
+  test_controller_asset_capabilities.py
   test_deep_fingerprint_starlist.py
   test_emergency_key_revocation.py
   test_execution_feedback_trends.py
@@ -2159,6 +2160,16 @@ def _handoff_for_action(action, reuse, *, branch_protected: bool | None = None)
 ⋮----
 related = [item.to_dict() for item in reuse if item.target == action.repository][:5]
 ⋮----
+def _required_capabilities_for(assessment, handoff: dict) -> list[str]
+⋮----
+required: list[str] = []
+⋮----
+lang = assessment.evidence.language.lower()
+⋮----
+reuse_candidates = handoff.get("reuse_candidates", [])
+⋮----
+visual_caps = {
+⋮----
 def _load_github_mappings(path: str | None) -> list[dict]
 ⋮----
 source = Path(path)
@@ -2241,9 +2252,7 @@ protected_for = set(
 ⋮----
 branch_protected = client.get_branch_protection(
 handoff = _handoff_for_action(
-required_capabilities = []
-⋮----
-lang = assessment.evidence.language.lower()
+required_capabilities = _required_capabilities_for(
 ⋮----
 result = dispatch_handoff(
 ⋮----
@@ -6171,6 +6180,18 @@ def test_github_webhook_returns_413_for_oversized_body(tmp_path)
 control=ControlPlane(
 ⋮----
 def test_generic_post_returns_413_before_endpoint_processing(tmp_path)
+````
+
+## File: tests/test_controller_asset_capabilities.py
+````python
+def _assessment(profile="android-game", language="Kotlin")
+⋮----
+def test_visual_reuse_requires_visual_asset_worker()
+⋮----
+handoff = {
+required = _required_capabilities_for(_assessment(), handoff)
+⋮----
+def test_non_visual_reuse_does_not_require_visual_worker()
 ````
 
 ## File: tests/test_deep_fingerprint_starlist.py

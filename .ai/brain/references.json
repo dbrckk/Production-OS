@@ -5,950 +5,267 @@
   "semantic": false,
   "note": "Occurrences are lexical word matches; verify source/LSP/compiler data before relying on them.",
   "symbols": {
-    "ReuseOpportunity": {
+    "_rank_actions": {
       "definition": {
-        "file": "src/production_os/reuse.py",
-        "line": 14,
-        "kind": "class",
+        "file": "src/production_os/controller.py",
+        "line": 43,
+        "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "src/production_os/reuse.py",
-          "line": 14,
-          "preview": "class ReuseOpportunity:",
+          "file": "src/production_os/cli.py",
+          "line": 671,
+          "preview": "def _rank_actions(assessments: Iterable[RepoAssessment]) -> list[ActionCandidate]:",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 866,
+          "preview": "actions = _rank_actions(assessments)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/controller.py",
+          "line": 43,
+          "preview": "def _rank_actions(assessments):",
           "definition_candidate": true
         },
         {
-          "file": "src/production_os/reuse.py",
-          "line": 81,
-          "preview": "def detect_reuse(assessments: list[RepoAssessment]) -> list[ReuseOpportunity]:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/reuse.py",
-          "line": 82,
-          "preview": "opportunities: list[ReuseOpportunity] = []",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/reuse.py",
-          "line": 177,
-          "preview": "ReuseOpportunity(",
+          "file": "src/production_os/controller.py",
+          "line": 278,
+          "preview": "actions = _rank_actions(assessments)",
           "definition_candidate": false
         }
       ],
       "occurrence_count": 4
     },
-    "to_dict": {
+    "_handoff_for_action": {
       "definition": {
-        "file": "src/production_os/reuse.py",
-        "line": 24,
+        "file": "src/production_os/controller.py",
+        "line": 48,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "src/production_os/adaptation.py",
-          "line": 21,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/adaptation_plan.py",
-          "line": 21,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/approvals.py",
-          "line": 20,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/approvals.py",
-          "line": 51,
-          "preview": "\"approvals\":[item.to_dict() for item in self.approvals.values()],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/budgets.py",
-          "line": 19,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/callgraph.py",
-          "line": 17,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/callgraph.py",
-          "line": 73,
-          "preview": "\"edges\": [edge.to_dict() for edge in edges[:2000]],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 15,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/change_impact.py",
-          "line": 13,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/claims.py",
-          "line": 23,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/claims.py",
-          "line": 50,
-          "preview": "\"claims\": [claim.to_dict() for claim in self.claims.values()],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 688,
-          "preview": "ref.to_dict()",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 695,
-          "preview": "item.to_dict() for item in reuse if item.target == action.repository",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 897,
-          "preview": "\"learning_signals\": [signal.to_dict() for signal in learning_signals],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 919,
-          "preview": "\"repositories\": [a.to_dict() for a in assessments],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 920,
-          "preview": "\"ranked_actions\": [a.to_dict() for a in actions],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 921,
-          "preview": "\"reuse_opportunities\": [item.to_dict() for item in reuse],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 958,
-          "preview": "\"summary\": summary.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 988,
-          "preview": "\"decision\": decision.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 993,
-          "preview": "payload[\"runtime_state\"] = record.to_dict()",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1017,
-          "preview": "\"trends\": [trend.to_dict() for trend in build_trends(snapshots)],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1033,
-          "preview": "\"record\": record.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1043,
-          "preview": "\"actions\": [action.to_dict() for action in actions],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1123,
-          "preview": "\"result\":result.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1154,
-          "preview": "updated = state.record_outcome(repository, task, decision).to_dict()",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1159,
-          "preview": "\"github\": work_state.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1171,
-          "preview": "\"github\": work_state.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1226,
-          "preview": "\"worker\":worker.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1236,
-          "preview": "\"worker\":worker.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1246,
-          "preview": "\"workers\":[w.to_dict() for w in registry.workers.values()],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1276,
-          "preview": "\"claim\":claim.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1286,
-          "preview": "\"claim\":claim.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1307,
-          "preview": "\"claim\":claim.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1308,
-          "preview": "\"worker\":worker.to_dict() if worker else None,",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1309,
-          "preview": "\"runtime\":state.get(claim.repository, claim.task).to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1403,
-          "preview": "\"approval\":item.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1418,
-          "preview": "\"approval\":item.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1433,
-          "preview": "\"results\":[item.to_dict() for item in migrate_many(args.paths)],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1532,
-          "preview": "**result.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1545,
-          "preview": "\"decision\":decision.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1685,
-          "preview": "\"jobs\":[job.to_dict() for job in jobs],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/compatibility.py",
-          "line": 15,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/components.py",
-          "line": 21,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 530,
-          "preview": "worker.to_dict()",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1015,
-          "preview": "self._send(HTTPStatus.OK, {\"worker\":worker.to_dict()})",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1052,
-          "preview": "\"worker\":worker.to_dict(),",
-          "definition_candidate": false
-        },
-        {
           "file": "src/production_os/controller.py",
-          "line": 49,
-          "preview": "related = [item.to_dict() for item in reuse if item.target == action.repository][:5]",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 103,
-          "preview": "updated = state.record_outcome(repository, task, decision).to_dict()",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 109,
-          "preview": "\"github\":work_state.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 210,
-          "preview": "**item.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 318,
-          "preview": "dispatches.append(result.to_dict())",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 323,
-          "preview": "**result.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 343,
-          "preview": "health = build_health(state, metrics_store.metrics.to_dict())",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 348,
-          "preview": "metrics=metrics_store.metrics.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 349,
-          "preview": "runtime_records=[record.to_dict() for record in state.records.values()],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 360,
-          "preview": "\"reconciliation\":[a.to_dict() for a in reconcile_actions],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 361,
-          "preview": "\"self_healing\":[a.to_dict() for a in healing_actions],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 362,
-          "preview": "\"governance\":[a.to_dict() for a in governance_actions],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 363,
-          "preview": "\"heartbeats\":[a.to_dict() for a in heartbeat_results],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 365,
-          "preview": "\"workers\":[w.to_dict() for w in worker_registry.workers.values()] if worker_registry else [],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 403,
-          "preview": "build_health(state, metrics_store.metrics.to_dict()),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/deep_fingerprint.py",
-          "line": 15,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/dispatch.py",
-          "line": 31,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/execution_feedback.py",
-          "line": 13,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/feedback.py",
-          "line": 14,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/github_work_state.py",
-          "line": 22,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/governance.py",
-          "line": 17,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/graph.py",
-          "line": 16,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/graph.py",
-          "line": 117,
-          "preview": "\"edges\": [edge.to_dict() for edge in edges],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/heartbeat_manager.py",
-          "line": 15,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/learning.py",
-          "line": 20,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/metrics.py",
-          "line": 22,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/metrics.py",
-          "line": 47,
-          "preview": "\"metrics\":self.metrics.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/migration_registry.py",
-          "line": 16,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/models.py",
-          "line": 38,
-          "preview": "def to_dict(self) -> dict[str, Any]:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/models.py",
-          "line": 54,
-          "preview": "def to_dict(self) -> dict[str, int]:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/models.py",
-          "line": 82,
-          "preview": "def to_dict(self) -> dict[str, Any]:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/models.py",
-          "line": 98,
-          "preview": "def to_dict(self) -> dict[str, Any]:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/models.py",
-          "line": 100,
-          "preview": "\"evidence\": self.evidence.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/models.py",
-          "line": 101,
-          "preview": "\"score\": self.score.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/models.py",
-          "line": 107,
-          "preview": "\"capabilities\": [cap.to_dict() for cap in self.capabilities],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/models.py",
-          "line": 108,
-          "preview": "\"source_signals\": [signal.to_dict() for signal in self.source_signals],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/models.py",
-          "line": 109,
-          "preview": "\"components\": [component.to_dict() for component in self.components],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/models.py",
-          "line": 110,
-          "preview": "\"actions\": [action.to_dict() for action in self.actions],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/policy.py",
-          "line": 25,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/policy_validation.py",
-          "line": 13,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/preemption.py",
-          "line": 17,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/preemption.py",
-          "line": 91,
-          "preview": "return record.to_dict()",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/preemption.py",
-          "line": 120,
-          "preview": "return runtime_state.get(repository, task).to_dict()",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/rate_limit.py",
-          "line": 19,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/reconciliation.py",
-          "line": 17,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/remote_worker.py",
-          "line": 15,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/reuse.py",
-          "line": 24,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/reuse.py",
-          "line": 95,
-          "preview": "row.to_dict()",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/reuse.py",
-          "line": 125,
-          "preview": ").to_dict()",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/reuse.py",
-          "line": 128,
-          "preview": "item.to_dict()",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/reuse.py",
-          "line": 145,
-          "preview": "step.to_dict()",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/runtime_state.py",
-          "line": 32,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/runtime_state.py",
-          "line": 63,
-          "preview": "\"records\": {k: v.to_dict() for k, v in self.records.items()},",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scheduler.py",
-          "line": 24,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scheduler.py",
-          "line": 194,
-          "preview": "\"work\": [item.to_dict() for item in work],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/self_healing.py",
-          "line": 16,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/starlist.py",
-          "line": 17,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/trends.py",
-          "line": 15,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/validation.py",
-          "line": 15,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/versioning.py",
-          "line": 17,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/workers.py",
-          "line": 21,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/workers.py",
           "line": 48,
-          "preview": "\"workers\": [w.to_dict() for w in self.workers.values()],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/workflow_engine.py",
-          "line": 393,
-          "preview": "return [item.to_dict() for item in decisions]",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 109
-    },
-    "_compatible": {
-      "definition": {
-        "file": "src/production_os/reuse.py",
-        "line": 37,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/reuse.py",
-          "line": 37,
-          "preview": "def _compatible(source: RepoAssessment, target: RepoAssessment) -> bool:",
+          "preview": "def _handoff_for_action(action, reuse, *, branch_protected: bool | None = None):",
           "definition_candidate": true
         },
         {
-          "file": "src/production_os/reuse.py",
-          "line": 91,
-          "preview": "if not _compatible(source, target):",
+          "file": "src/production_os/controller.py",
+          "line": 305,
+          "preview": "base_handoff = _handoff_for_action(action, reuse)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/controller.py",
+          "line": 316,
+          "preview": "handoff = _handoff_for_action(",
           "definition_candidate": false
         }
       ],
-      "occurrence_count": 2
+      "occurrence_count": 3
     },
-    "_component_candidates": {
+    "_required_capabilities_for": {
       "definition": {
-        "file": "src/production_os/reuse.py",
-        "line": 49,
+        "file": "src/production_os/controller.py",
+        "line": 70,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "src/production_os/reuse.py",
-          "line": 49,
-          "preview": "def _component_candidates(source: RepoAssessment, target: RepoAssessment, capability: str) -> tuple[dict, ...]:",
+          "file": "src/production_os/controller.py",
+          "line": 70,
+          "preview": "def _required_capabilities_for(assessment, handoff: dict) -> list[str]:",
           "definition_candidate": true
         },
         {
-          "file": "src/production_os/reuse.py",
-          "line": 111,
-          "preview": "components = _component_candidates(source, target, capability.name)",
+          "file": "src/production_os/controller.py",
+          "line": 321,
+          "preview": "required_capabilities = _required_capabilities_for(",
           "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 2
-    },
-    "detect_reuse": {
-      "definition": {
-        "file": "src/production_os/reuse.py",
-        "line": 81,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
+        },
         {
-          "file": "src/production_os/cli.py",
+          "file": "tests/test_controller_asset_capabilities.py",
+          "line": 3,
+          "preview": "from production_os.controller import _required_capabilities_for",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_controller_asset_capabilities.py",
+          "line": 23,
+          "preview": "required = _required_capabilities_for(_assessment(), handoff)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_controller_asset_capabilities.py",
           "line": 38,
-          "preview": "from .reuse import detect_reuse",
+          "preview": "required = _required_capabilities_for(_assessment(), handoff)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 5
+    },
+    "_load_github_mappings": {
+      "definition": {
+        "file": "src/production_os/controller.py",
+        "line": 101,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/controller.py",
+          "line": 101,
+          "preview": "def _load_github_mappings(path: str | None) -> list[dict]:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/controller.py",
+          "line": 258,
+          "preview": "_load_github_mappings(github_mapping_path),",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "_reconcile_github": {
+      "definition": {
+        "file": "src/production_os/controller.py",
+        "line": 112,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/controller.py",
+          "line": 112,
+          "preview": "def _reconcile_github(",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/controller.py",
+          "line": 254,
+          "preview": "github_results = _reconcile_github(",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_control_cycle": {
+      "definition": {
+        "file": "src/production_os/controller.py",
+        "line": 151,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/controller.py",
+          "line": 151,
+          "preview": "def run_control_cycle(",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/controller.py",
+          "line": 410,
+          "preview": "results.append(run_control_cycle(**kwargs))",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_controller": {
+      "definition": {
+        "file": "src/production_os/controller.py",
+        "line": 399,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 22,
+          "preview": "from .controller import run_controller",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/cli.py",
-          "line": 867,
-          "preview": "reuse = detect_reuse(assessments)",
+          "line": 1182,
+          "preview": "results = run_controller(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/controller.py",
+          "line": 399,
+          "preview": "def run_controller(",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 3
+    },
+    "_assessment": {
+      "definition": {
+        "file": "tests/test_controller_asset_capabilities.py",
+        "line": 6,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "tests/test_controller_asset_capabilities.py",
+          "line": 6,
+          "preview": "def _assessment(profile=\"android-game\", language=\"Kotlin\"):",
+          "definition_candidate": true
+        },
+        {
+          "file": "tests/test_controller_asset_capabilities.py",
+          "line": 23,
+          "preview": "required = _required_capabilities_for(_assessment(), handoff)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_controller_asset_capabilities.py",
+          "line": 38,
+          "preview": "required = _required_capabilities_for(_assessment(), handoff)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 3
+    },
+    "test_visual_reuse_requires_visual_asset_worker": {
+      "definition": {
+        "file": "tests/test_controller_asset_capabilities.py",
+        "line": 13,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "tests/test_controller_asset_capabilities.py",
+          "line": 13,
+          "preview": "def test_visual_reuse_requires_visual_asset_worker():",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 1
+    },
+    "test_non_visual_reuse_does_not_require_visual_worker": {
+      "definition": {
+        "file": "tests/test_controller_asset_capabilities.py",
+        "line": 28,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "tests/test_controller_asset_capabilities.py",
           "line": 28,
-          "preview": "from .reuse import detect_reuse",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 248,
-          "preview": "reuse = detect_reuse(assessments)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/reuse.py",
-          "line": 81,
-          "preview": "def detect_reuse(assessments: list[RepoAssessment]) -> list[ReuseOpportunity]:",
-          "definition_candidate": true
-        },
-        {
-          "file": "tests/test_classification_history_reuse.py",
-          "line": 4,
-          "preview": "from production_os.reuse import detect_reuse",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_classification_history_reuse.py",
-          "line": 58,
-          "preview": "opportunities = detect_reuse([source, target])",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_classification_history_reuse.py",
-          "line": 98,
-          "preview": "opportunities = detect_reuse([source, target])",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 8
-    },
-    "ev": {
-      "definition": {
-        "file": "tests/test_classification_history_reuse.py",
-        "line": 8,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_classification_history_reuse.py",
-          "line": 8,
-          "preview": "def ev(name=\"demo\", **kwargs):",
-          "definition_candidate": true
-        },
-        {
-          "file": "tests/test_classification_history_reuse.py",
-          "line": 21,
-          "preview": "ev(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_classification_history_reuse.py",
-          "line": 32,
-          "preview": "assessment = assess_repository(ev())",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_classification_history_reuse.py",
-          "line": 41,
-          "preview": "ev(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_classification_history_reuse.py",
-          "line": 50,
-          "preview": "ev(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_classification_history_reuse.py",
-          "line": 66,
-          "preview": "ev(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_classification_history_reuse.py",
-          "line": 81,
-          "preview": "ev(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_classification_history_reuse.py",
-          "line": 92,
-          "preview": "ev(",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 8
-    },
-    "test_android_game_classification": {
-      "definition": {
-        "file": "tests/test_classification_history_reuse.py",
-        "line": 19,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_classification_history_reuse.py",
-          "line": 19,
-          "preview": "def test_android_game_classification():",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "test_regression_detection": {
-      "definition": {
-        "file": "tests/test_classification_history_reuse.py",
-        "line": 30,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_classification_history_reuse.py",
-          "line": 30,
-          "preview": "def test_regression_detection():",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "test_cross_repo_reuse_detection": {
-      "definition": {
-        "file": "tests/test_classification_history_reuse.py",
-        "line": 39,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_classification_history_reuse.py",
-          "line": 39,
-          "preview": "def test_cross_repo_reuse_detection():",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "test_asset_production_platform_classification": {
-      "definition": {
-        "file": "tests/test_classification_history_reuse.py",
-        "line": 64,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_classification_history_reuse.py",
-          "line": 64,
-          "preview": "def test_asset_production_platform_classification():",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "test_asset_production_capabilities_are_reusable_cross_profile": {
-      "definition": {
-        "file": "tests/test_classification_history_reuse.py",
-        "line": 79,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_classification_history_reuse.py",
-          "line": 79,
-          "preview": "def test_asset_production_capabilities_are_reusable_cross_profile():",
+          "preview": "def test_non_visual_reuse_does_not_require_visual_worker():",
           "definition_candidate": true
         }
       ],

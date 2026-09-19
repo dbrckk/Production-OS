@@ -1,10 +1,10 @@
 # Change impact
 
-Base: 4def1774322ff35aa5592534bd5335a8eae94305
-Head: 9d089f9af1035747b8248f7b787cdc30546e6c84
+Base: 8a60d17f26d281ab010894b4fe3c4fc6a19c4b26
+Head: d456c556a64668aeda728415bff2c031871af863
 
 ## Changed files
-- M tests/test_classification_history_reuse.py
+- A tests/test_controller_asset_capabilities.py
 
 ## Affected areas
 - tests

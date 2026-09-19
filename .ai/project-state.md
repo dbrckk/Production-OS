@@ -22,20 +22,20 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-19T19:25:20Z
+Generated: 2026-09-19T20:39:33Z
 
 ### Git
 - Branch: `main`
-- Head: `9d089f9af103`
-- Commit date: 2026-09-19T21:25:04+02:00
-- Commit: test: cover cross-profile asset production reuse
-- Tracked files: 319
+- Head: `d456c556a646`
+- Commit date: 2026-09-19T22:39:17+02:00
+- Commit: test: route asset reuse to visual workers
+- Tracked files: 320
 
 ### Recently changed files
+- `tests/test_controller_asset_capabilities.py`
+- `src/production_os/controller.py`
 - `tests/test_classification_history_reuse.py`
 - `src/production_os/reuse.py`
-- `tests/test_capabilities_graph.py`
-- `src/production_os/classification.py`
 
 ### Project signals
 - `pyproject.toml`

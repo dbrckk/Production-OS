@@ -1,28 +1,27 @@
 {
   "schema_version": 1,
   "generated_by": "dbrckk/repo-brain",
-  "base": "15a0918eecbe28776e9eb34c877110bcab6ed489",
-  "head": "9d089f9af1035747b8248f7b787cdc30546e6c84",
+  "base": "9d089f9af1035747b8248f7b787cdc30546e6c84",
+  "head": "d456c556a64668aeda728415bff2c031871af863",
   "index_mode": "incremental",
   "changed_files": [
     {
-      "path": "src/production_os/reuse.py",
+      "path": "src/production_os/controller.py",
       "status": "M"
     },
     {
-      "path": "tests/test_classification_history_reuse.py",
-      "status": "M"
+      "path": "tests/test_controller_asset_capabilities.py",
+      "status": "A"
     }
   ],
   "changed_source_files": [
-    "src/production_os/reuse.py",
-    "tests/test_classification_history_reuse.py"
+    "src/production_os/controller.py",
+    "tests/test_controller_asset_capabilities.py"
   ],
   "impacted_files": [
     "src/production_os/cli.py",
     "src/production_os/controller.py",
-    "src/production_os/reuse.py",
-    "tests/test_classification_history_reuse.py"
+    "tests/test_controller_asset_capabilities.py"
   ],
   "impacted_symbols": [
     {
@@ -494,97 +493,55 @@
       "line": 48
     },
     {
-      "name": "_load_github_mappings",
+      "name": "_required_capabilities_for",
       "kind": "function",
       "file": "src/production_os/controller.py",
       "line": 70
     },
     {
+      "name": "_load_github_mappings",
+      "kind": "function",
+      "file": "src/production_os/controller.py",
+      "line": 101
+    },
+    {
       "name": "_reconcile_github",
       "kind": "function",
       "file": "src/production_os/controller.py",
-      "line": 81
+      "line": 112
     },
     {
       "name": "run_control_cycle",
       "kind": "function",
       "file": "src/production_os/controller.py",
-      "line": 120
+      "line": 151
     },
     {
       "name": "run_controller",
       "kind": "function",
       "file": "src/production_os/controller.py",
-      "line": 374
+      "line": 399
     },
     {
-      "name": "ReuseOpportunity",
-      "kind": "class",
-      "file": "src/production_os/reuse.py",
-      "line": 14
-    },
-    {
-      "name": "to_dict",
+      "name": "_assessment",
       "kind": "function",
-      "file": "src/production_os/reuse.py",
-      "line": 24
+      "file": "tests/test_controller_asset_capabilities.py",
+      "line": 6
     },
     {
-      "name": "_compatible",
+      "name": "test_visual_reuse_requires_visual_asset_worker",
       "kind": "function",
-      "file": "src/production_os/reuse.py",
-      "line": 37
+      "file": "tests/test_controller_asset_capabilities.py",
+      "line": 13
     },
     {
-      "name": "_component_candidates",
+      "name": "test_non_visual_reuse_does_not_require_visual_worker",
       "kind": "function",
-      "file": "src/production_os/reuse.py",
-      "line": 49
-    },
-    {
-      "name": "detect_reuse",
-      "kind": "function",
-      "file": "src/production_os/reuse.py",
-      "line": 81
-    },
-    {
-      "name": "ev",
-      "kind": "function",
-      "file": "tests/test_classification_history_reuse.py",
-      "line": 8
-    },
-    {
-      "name": "test_android_game_classification",
-      "kind": "function",
-      "file": "tests/test_classification_history_reuse.py",
-      "line": 19
-    },
-    {
-      "name": "test_regression_detection",
-      "kind": "function",
-      "file": "tests/test_classification_history_reuse.py",
-      "line": 30
-    },
-    {
-      "name": "test_cross_repo_reuse_detection",
-      "kind": "function",
-      "file": "tests/test_classification_history_reuse.py",
-      "line": 39
-    },
-    {
-      "name": "test_asset_production_platform_classification",
-      "kind": "function",
-      "file": "tests/test_classification_history_reuse.py",
-      "line": 64
-    },
-    {
-      "name": "test_asset_production_capabilities_are_reusable_cross_profile",
-      "kind": "function",
-      "file": "tests/test_classification_history_reuse.py",
-      "line": 79
+      "file": "tests/test_controller_asset_capabilities.py",
+      "line": 28
     }
   ],
   "selected_tests": [
-    "tests/test_classification_history_reuse.py"
+    "tests/test_controller_asset_capabilities.py"
   ]
 }
