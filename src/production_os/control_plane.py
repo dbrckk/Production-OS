@@ -90,23 +90,52 @@ DASHBOARD_HTML = """<!doctype html>
 <title>Production-OS</title>
 <style>
 body{font-family:system-ui,sans-serif;max-width:1100px;margin:24px auto;padding:0 16px}
-input,button{font:inherit;padding:8px}
+input,textarea,select,button{font:inherit;padding:10px;box-sizing:border-box}
+input,textarea,select{width:100%;margin:5px 0 10px}
+button{cursor:pointer}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
-.card{border:1px solid #ddd;border-radius:10px;padding:14px}
+.card{border:1px solid #ddd;border-radius:10px;padding:14px;margin-bottom:16px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.actions button{width:auto}
 pre{white-space:pre-wrap;overflow:auto}
+.status{min-height:24px;font-weight:600}
 </style>
 </head>
 <body>
 <h1>Production-OS Control Plane</h1>
-<p><input id="token" type="password" placeholder="Bearer token"> <button onclick="refresh()">Refresh</button></p>
+<div class="card">
+<label>Operator token</label>
+<input id="token" type="password" placeholder="Bearer token" autocomplete="off">
+<div class="actions"><button onclick="refresh()">Refresh dashboard</button></div>
+</div>
+
+<div class="card">
+<h2>Launch repository work</h2>
+<label>Repository</label>
+<input id="repository" value="dbrckk/Jumpy" placeholder="owner/repository">
+<label>Task</label>
+<textarea id="task" rows="5">Audit the current project, fix the highest-priority blockers, then implement the highest-value improvements required to move it toward a polished production-ready release. Preserve the existing architecture, validate changes, and commit useful working changes.</textarea>
+<label>Agent</label>
+<select id="agent"><option value="codex">Codex</option><option value="auto">Auto</option></select>
+<label>Token budget</label>
+<input id="budget" type="number" min="1000" step="1000" value="30000">
+<div class="actions"><button onclick="launchWorkflow()">Launch workflow</button></div>
+<p id="launch-status" class="status"></p>
+</div>
+
 <div id="stats" class="grid"></div>
 <h2>Workflows</h2><pre id="workflows"></pre>
 <h2>Workers</h2><pre id="workers"></pre>
 <h2>Recent events</h2><pre id="events"></pre>
 <script>
-async function api(path){
- const token=document.getElementById('token').value;
- const r=await fetch(path,{headers:{Authorization:'Bearer '+token}});
+async function api(path,options={}){
+ const token=document.getElementById('token').value.trim();
+ const headers=Object.assign(
+  {Authorization:'Bearer '+token},
+  options.body?{'Content-Type':'application/json'}:{},
+  options.headers||{}
+ );
+ const r=await fetch(path,Object.assign({},options,{headers}));
  if(!r.ok) throw new Error(await r.text());
  return await r.json();
 }
@@ -123,6 +152,49 @@ async function refresh(){
   document.getElementById('workers').textContent=JSON.stringify(workers.workers,null,2);
   document.getElementById('events').textContent=JSON.stringify(events.events,null,2);
  }catch(e){document.getElementById('events').textContent=String(e)}
+}
+async function launchWorkflow(){
+ const status=document.getElementById('launch-status');
+ status.textContent='Launching...';
+ try{
+  const repository=document.getElementById('repository').value.trim();
+  const task=document.getElementById('task').value.trim();
+  const budget=Number(document.getElementById('budget').value);
+  const agent=document.getElementById('agent').value;
+  if(!repository||!task||!Number.isInteger(budget)||budget<=0){
+   throw new Error('Repository, task and a positive token budget are required.');
+  }
+  const created=await api('/v1/workflows',{
+   method:'POST',
+   body:JSON.stringify({
+    name:'Dashboard: '+repository,
+    repository,
+    tasks:[{
+     task_id:'implementation',
+     title:task.slice(0,120),
+     priority:100,
+     max_attempts:2,
+     estimated_minutes:30,
+     payload:{handoff:{
+      repository,
+      task,
+      final_goal:task,
+      agent_preference:agent,
+      token_budget:budget
+     }}
+    }]
+   })
+  });
+  const id=created.workflow.id;
+  const dispatched=await api('/v1/workflows/'+encodeURIComponent(id)+'/dispatch',{
+   method:'POST',
+   body:JSON.stringify({limit:1})
+  });
+  status.textContent='Launched: '+id+' ('+(dispatched.jobs||[]).length+' job dispatched)';
+  await refresh();
+ }catch(e){
+  status.textContent='Launch failed: '+String(e);
+ }
 }
 </script>
 </body>
