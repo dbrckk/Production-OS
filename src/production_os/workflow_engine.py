@@ -9,6 +9,7 @@ from typing import Any
 from .runtime_state import task_key
 from .result_cache import ResultCache, fingerprint
 from .change_impact import analyze_change_impact
+from .task_capabilities import inferred_required_capabilities
 
 
 TERMINAL_TASK_STATES = {"succeeded", "failed", "cancelled", "blocked"}
@@ -1006,6 +1007,7 @@ class WorkflowEngine:
             queue_payload = {
                 **payload,
                 "schema_version":"production-os/workflow-dispatch/v1",
+                "required_capabilities": inferred_required_capabilities(handoff),
                 "workflow_id":workflow_id,
                 "workflow_task_id":task["task_id"],
                 "workflow_attempt":attempt_number,
