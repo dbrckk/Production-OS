@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 
 VISUAL_CAPABILITY = "visual-asset-production"
+VISUAL_3D_CAPABILITY = "visual-asset-3d-production"
 
 _VISUAL_PATTERNS = (
     r"\basset(?:s)?\b",
@@ -48,6 +49,22 @@ def is_visual_asset_task(handoff: dict) -> bool:
     return any(re.search(pattern, text) for pattern in _VISUAL_PATTERNS)
 
 
+def is_3d_generation_task(handoff: dict) -> bool:
+    if not isinstance(handoff, dict):
+        return False
+    text = _handoff_text(handoff)
+    has_3d = bool(
+        re.search(r"\b(?:3d|glb|gltf|mesh(?:es)?)\b", text)
+    )
+    has_generation = bool(
+        re.search(
+            r"\b(?:create|generate|produce|build|make|design|model)\b",
+            text,
+        )
+    )
+    return has_3d and has_generation
+
+
 def inferred_required_capabilities(handoff: dict) -> list[str]:
     explicit = handoff.get("required_capabilities", []) if isinstance(handoff, dict) else []
     required = {
@@ -57,4 +74,6 @@ def inferred_required_capabilities(handoff: dict) -> list[str]:
     }
     if is_visual_asset_task(handoff):
         required.add(VISUAL_CAPABILITY)
+    if is_3d_generation_task(handoff):
+        required.add(VISUAL_3D_CAPABILITY)
     return sorted(required)
