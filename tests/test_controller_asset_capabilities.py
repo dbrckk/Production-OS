@@ -10,30 +10,32 @@ def _assessment(profile="android-game", language="Kotlin"):
     )
 
 
-def test_visual_reuse_requires_visual_asset_worker():
+def test_visual_task_requires_visual_asset_worker():
     handoff = {
+        "task": "Create and integrate new enemy sprites",
         "reuse_candidates": [
             {
                 "source": "dbrckk/asset-forge",
                 "target": "dbrckk/deadline-zero",
                 "capability": "visual-asset-pipeline",
             }
-        ]
+        ],
     }
     required = _required_capabilities_for(_assessment(), handoff)
     assert "android" in required
     assert "visual-asset-production" in required
 
 
-def test_non_visual_reuse_does_not_require_visual_worker():
+def test_asset_forge_availability_alone_does_not_require_visual_worker():
     handoff = {
+        "task": "Restore CI and update unit tests",
         "reuse_candidates": [
             {
-                "source": "dbrckk/example",
+                "source": "dbrckk/asset-forge",
                 "target": "dbrckk/deadline-zero",
-                "capability": "github-actions-ci",
+                "capability": "visual-asset-pipeline",
             }
-        ]
+        ],
     }
     required = _required_capabilities_for(_assessment(), handoff)
     assert required == ["android"]
