@@ -1,20 +1,12 @@
 {
   "schema_version": 1,
   "generated_by": "dbrckk/repo-brain",
-  "base": "fdc13ce04face30cd7de973695d3cfc13dc4a058",
-  "head": "15a0918eecbe28776e9eb34c877110bcab6ed489",
+  "base": "15a0918eecbe28776e9eb34c877110bcab6ed489",
+  "head": "9d089f9af1035747b8248f7b787cdc30546e6c84",
   "index_mode": "incremental",
   "changed_files": [
     {
-      "path": "src/production_os/capabilities.py",
-      "status": "M"
-    },
-    {
-      "path": "src/production_os/classification.py",
-      "status": "M"
-    },
-    {
-      "path": "tests/test_capabilities_graph.py",
+      "path": "src/production_os/reuse.py",
       "status": "M"
     },
     {
@@ -23,114 +15,537 @@
     }
   ],
   "changed_source_files": [
-    "src/production_os/capabilities.py",
-    "src/production_os/classification.py",
-    "tests/test_capabilities_graph.py",
+    "src/production_os/reuse.py",
     "tests/test_classification_history_reuse.py"
   ],
   "impacted_files": [
-    "src/production_os/capabilities.py",
-    "src/production_os/classification.py",
-    "src/production_os/scoring.py",
-    "tests/test_capabilities_graph.py",
+    "src/production_os/cli.py",
+    "src/production_os/controller.py",
+    "src/production_os/reuse.py",
     "tests/test_classification_history_reuse.py"
   ],
   "impacted_symbols": [
     {
-      "name": "Capability",
+      "name": "_parse_args",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 93
+    },
+    {
+      "name": "_rank_actions",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 671
+    },
+    {
+      "name": "_external_refs_for_action",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 676
+    },
+    {
+      "name": "_handoff",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 693
+    },
+    {
+      "name": "_print_human",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 778
+    },
+    {
+      "name": "run_scan",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 828
+    },
+    {
+      "name": "run_validation_results",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 941
+    },
+    {
+      "name": "run_execution_feedback",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 973
+    },
+    {
+      "name": "run_trends",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1010
+    },
+    {
+      "name": "run_heartbeat",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1023
+    },
+    {
+      "name": "run_reconcile",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1038
+    },
+    {
+      "name": "run_dispatch",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1048
+    },
+    {
+      "name": "run_github_reconcile",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1127
+    },
+    {
+      "name": "run_controller_command",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1181
+    },
+    {
+      "name": "run_worker_register",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1217
+    },
+    {
+      "name": "run_worker_heartbeat",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1231
+    },
+    {
+      "name": "run_worker_list",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1241
+    },
+    {
+      "name": "run_job_claim",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1254
+    },
+    {
+      "name": "run_job_ack",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1281
+    },
+    {
+      "name": "run_job_complete",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1291
+    },
+    {
+      "name": "run_delivery_recover",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1314
+    },
+    {
+      "name": "run_preempt_request",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1333
+    },
+    {
+      "name": "run_preempt_checkpoint",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1343
+    },
+    {
+      "name": "run_emergency_stop",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1362
+    },
+    {
+      "name": "run_emergency_resume",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1368
+    },
+    {
+      "name": "run_audit_verify",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1374
+    },
+    {
+      "name": "run_backup",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1380
+    },
+    {
+      "name": "run_restore",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1386
+    },
+    {
+      "name": "run_approve",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1393
+    },
+    {
+      "name": "run_revoke",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1408
+    },
+    {
+      "name": "run_migrate_state",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1423
+    },
+    {
+      "name": "run_migrate_many",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1430
+    },
+    {
+      "name": "run_queue_compact",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1439
+    },
+    {
+      "name": "run_dead_letter_retry",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1453
+    },
+    {
+      "name": "run_audit_checkpoint_create",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1466
+    },
+    {
+      "name": "run_audit_checkpoint_verify",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1476
+    },
+    {
+      "name": "run_quarantine",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1486
+    },
+    {
+      "name": "run_unquarantine",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1497
+    },
+    {
+      "name": "run_budget_record",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1508
+    },
+    {
+      "name": "run_policy_validate",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1527
+    },
+    {
+      "name": "run_policy_check",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1537
+    },
+    {
+      "name": "run_db_init",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1551
+    },
+    {
+      "name": "run_db_import",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1567
+    },
+    {
+      "name": "run_token_hash",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1579
+    },
+    {
+      "name": "_trusted_validation_keys_from_env",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1587
+    },
+    {
+      "name": "run_control_plane",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1603
+    },
+    {
+      "name": "run_remote_worker_poll",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1670
+    },
+    {
+      "name": "_workflow_engine",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1691
+    },
+    {
+      "name": "run_workflow_create",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1696
+    },
+    {
+      "name": "run_workflow_status",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1720
+    },
+    {
+      "name": "run_workflow_dispatch",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1729
+    },
+    {
+      "name": "run_workflow_critical_path",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1740
+    },
+    {
+      "name": "run_workflow_eta",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1748
+    },
+    {
+      "name": "run_stragglers",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1760
+    },
+    {
+      "name": "run_speculate_stragglers",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1778
+    },
+    {
+      "name": "run_workflow_impact",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1823
+    },
+    {
+      "name": "run_workflow_impact_pr",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1837
+    },
+    {
+      "name": "run_pr_refresh",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1859
+    },
+    {
+      "name": "run_workflow_cancel",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1903
+    },
+    {
+      "name": "run_artifact_add",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1912
+    },
+    {
+      "name": "_release_ledger",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1938
+    },
+    {
+      "name": "run_signing_keygen",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1986
+    },
+    {
+      "name": "run_validation_attest_v2",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1998
+    },
+    {
+      "name": "run_transparency_checkpoint",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2035
+    },
+    {
+      "name": "run_transparency_checkpoint_verify",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2193
+    },
+    {
+      "name": "run_slsa_verify",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2241
+    },
+    {
+      "name": "run_provenance_verify_v2",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2259
+    },
+    {
+      "name": "run_validation_attest",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2276
+    },
+    {
+      "name": "run_incident_snapshot",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2324
+    },
+    {
+      "name": "run_incident_report",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2339
+    },
+    {
+      "name": "run_trust_status",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2349
+    },
+    {
+      "name": "run_release_verify",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2362
+    },
+    {
+      "name": "run_release_promote",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2374
+    },
+    {
+      "name": "run_release_rollback",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2410
+    },
+    {
+      "name": "run_health_server",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2428
+    },
+    {
+      "name": "main",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2433
+    },
+    {
+      "name": "_rank_actions",
+      "kind": "function",
+      "file": "src/production_os/controller.py",
+      "line": 43
+    },
+    {
+      "name": "_handoff_for_action",
+      "kind": "function",
+      "file": "src/production_os/controller.py",
+      "line": 48
+    },
+    {
+      "name": "_load_github_mappings",
+      "kind": "function",
+      "file": "src/production_os/controller.py",
+      "line": 70
+    },
+    {
+      "name": "_reconcile_github",
+      "kind": "function",
+      "file": "src/production_os/controller.py",
+      "line": 81
+    },
+    {
+      "name": "run_control_cycle",
+      "kind": "function",
+      "file": "src/production_os/controller.py",
+      "line": 120
+    },
+    {
+      "name": "run_controller",
+      "kind": "function",
+      "file": "src/production_os/controller.py",
+      "line": 374
+    },
+    {
+      "name": "ReuseOpportunity",
       "kind": "class",
-      "file": "src/production_os/capabilities.py",
-      "line": 9
+      "file": "src/production_os/reuse.py",
+      "line": 14
     },
     {
       "name": "to_dict",
       "kind": "function",
-      "file": "src/production_os/capabilities.py",
-      "line": 15
-    },
-    {
-      "name": "_contains",
-      "kind": "function",
-      "file": "src/production_os/capabilities.py",
+      "file": "src/production_os/reuse.py",
       "line": 24
     },
     {
-      "name": "extract_capabilities",
+      "name": "_compatible",
       "kind": "function",
-      "file": "src/production_os/capabilities.py",
-      "line": 28
+      "file": "src/production_os/reuse.py",
+      "line": 37
     },
     {
-      "name": "add",
+      "name": "_component_candidates",
       "kind": "function",
-      "file": "src/production_os/capabilities.py",
-      "line": 34
+      "file": "src/production_os/reuse.py",
+      "line": 49
     },
     {
-      "name": "ProjectProfile",
-      "kind": "class",
-      "file": "src/production_os/classification.py",
-      "line": 9
-    },
-    {
-      "name": "classify_repository",
+      "name": "detect_reuse",
       "kind": "function",
-      "file": "src/production_os/classification.py",
-      "line": 15
-    },
-    {
-      "name": "_recent_activity_points",
-      "kind": "function",
-      "file": "src/production_os/scoring.py",
-      "line": 12
-    },
-    {
-      "name": "score_repository",
-      "kind": "function",
-      "file": "src/production_os/scoring.py",
-      "line": 29
-    },
-    {
-      "name": "generate_actions",
-      "kind": "function",
-      "file": "src/production_os/scoring.py",
-      "line": 55
-    },
-    {
-      "name": "add",
-      "kind": "function",
-      "file": "src/production_os/scoring.py",
-      "line": 58
-    },
-    {
-      "name": "assess_repository",
-      "kind": "function",
-      "file": "src/production_os/scoring.py",
-      "line": 157
-    },
-    {
-      "name": "evidence",
-      "kind": "function",
-      "file": "tests/test_capabilities_graph.py",
-      "line": 7
-    },
-    {
-      "name": "test_android_product_capabilities_are_extracted",
-      "kind": "function",
-      "file": "tests/test_capabilities_graph.py",
-      "line": 18
-    },
-    {
-      "name": "test_knowledge_graph_contains_repo_capability_edges",
-      "kind": "function",
-      "file": "tests/test_capabilities_graph.py",
-      "line": 38
-    },
-    {
-      "name": "test_visual_asset_platform_capabilities_are_extracted",
-      "kind": "function",
-      "file": "tests/test_capabilities_graph.py",
-      "line": 55
+      "file": "src/production_os/reuse.py",
+      "line": 81
     },
     {
       "name": "ev",
@@ -161,10 +576,15 @@
       "kind": "function",
       "file": "tests/test_classification_history_reuse.py",
       "line": 64
+    },
+    {
+      "name": "test_asset_production_capabilities_are_reusable_cross_profile",
+      "kind": "function",
+      "file": "tests/test_classification_history_reuse.py",
+      "line": 79
     }
   ],
   "selected_tests": [
-    "tests/test_capabilities_graph.py",
     "tests/test_classification_history_reuse.py"
   ]
 }

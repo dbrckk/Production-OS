@@ -5962,6 +5962,10 @@ opportunities = detect_reuse([source, target])
 capabilities = {item.capability for item in opportunities}
 ⋮----
 def test_asset_production_platform_classification()
+⋮----
+def test_asset_production_capabilities_are_reusable_cross_profile()
+⋮----
+pairs = {(item.source, item.target, item.capability) for item in opportunities}
 ````
 
 ## File: tests/test_cli.py

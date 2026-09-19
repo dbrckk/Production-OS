@@ -5,36 +5,36 @@
   "semantic": false,
   "note": "Occurrences are lexical word matches; verify source/LSP/compiler data before relying on them.",
   "symbols": {
-    "Capability": {
+    "ReuseOpportunity": {
       "definition": {
-        "file": "src/production_os/capabilities.py",
-        "line": 9,
+        "file": "src/production_os/reuse.py",
+        "line": 14,
         "kind": "class",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "src/production_os/capabilities.py",
-          "line": 9,
-          "preview": "class Capability:",
+          "file": "src/production_os/reuse.py",
+          "line": 14,
+          "preview": "class ReuseOpportunity:",
           "definition_candidate": true
         },
         {
-          "file": "src/production_os/capabilities.py",
-          "line": 28,
-          "preview": "def extract_capabilities(e: RepoEvidence) -> list[Capability]:",
+          "file": "src/production_os/reuse.py",
+          "line": 81,
+          "preview": "def detect_reuse(assessments: list[RepoAssessment]) -> list[ReuseOpportunity]:",
           "definition_candidate": false
         },
         {
-          "file": "src/production_os/capabilities.py",
-          "line": 32,
-          "preview": "caps: dict[str, Capability] = {}",
+          "file": "src/production_os/reuse.py",
+          "line": 82,
+          "preview": "opportunities: list[ReuseOpportunity] = []",
           "definition_candidate": false
         },
         {
-          "file": "src/production_os/capabilities.py",
-          "line": 36,
-          "preview": "candidate = Capability(name, round(confidence, 2), tuple(evidence), portable)",
+          "file": "src/production_os/reuse.py",
+          "line": 177,
+          "preview": "ReuseOpportunity(",
           "definition_candidate": false
         }
       ],
@@ -42,8 +42,8 @@
     },
     "to_dict": {
       "definition": {
-        "file": "src/production_os/capabilities.py",
-        "line": 15,
+        "file": "src/production_os/reuse.py",
+        "line": 24,
         "kind": "function",
         "language": "python"
       },
@@ -94,7 +94,7 @@
           "file": "src/production_os/capabilities.py",
           "line": 15,
           "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": true
+          "definition_candidate": false
         },
         {
           "file": "src/production_os/change_impact.py",
@@ -604,29 +604,29 @@
           "file": "src/production_os/reuse.py",
           "line": 24,
           "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
+          "definition_candidate": true
         },
         {
           "file": "src/production_os/reuse.py",
-          "line": 93,
+          "line": 95,
           "preview": "row.to_dict()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/reuse.py",
-          "line": 123,
+          "line": 125,
           "preview": ").to_dict()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/reuse.py",
-          "line": 126,
+          "line": 128,
           "preview": "item.to_dict()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/reuse.py",
-          "line": 143,
+          "line": 145,
           "preview": "step.to_dict()",
           "definition_candidate": false
         },
@@ -705,1616 +705,110 @@
       ],
       "occurrence_count": 109
     },
-    "_contains": {
+    "_compatible": {
       "definition": {
-        "file": "src/production_os/capabilities.py",
-        "line": 24,
+        "file": "src/production_os/reuse.py",
+        "line": 37,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "src/production_os/capabilities.py",
-          "line": 24,
-          "preview": "def _contains(text: str, *terms: str) -> bool:",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 51,
-          "preview": "if _contains(text, \"google play billing\", \"play billing\", \"billingclient\"):",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 53,
-          "preview": "if _contains(text, \"admob\", \"google mobile ads\"):",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 55,
-          "preview": "if _contains(text, \"ump\", \"user messaging platform\", \"consent\"):",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 57,
-          "preview": "if _contains(text, \"android publisher\", \"play release\", \"play store\", \"publishing tooling\"):",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 59,
-          "preview": "if _contains(text, \"device testing\", \"device qa\", \"emulator\", \"instrumentation\"):",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 61,
-          "preview": "if _contains(text, \"aab\", \"apk\"):",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 63,
-          "preview": "if _contains(text, \"jetpack compose\"):",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 65,
-          "preview": "if _contains(text, \"libgdx\"):",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 67,
-          "preview": "if _contains(text, \"godot\"):",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 69,
-          "preview": "if _contains(text, \"flutter\"):",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 72,
-          "preview": "if _contains(text, \"visual-asset production\", \"visual asset production\", \"sprite atlas\", \"asset-forge\"):",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 74,
-          "preview": "if _contains(text, \"sprite sheets\", \"sprite atlas\", \"atlas packing\", \"runtime atlas\"):",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 76,
-          "preview": "if _contains(text, \"gltf\", \"glb\", \"3d quality\", \"blender export\"):",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 78,
-          "preview": "if _contains(text, \"svg\", \"vector\", \"sanitize-svg\"):",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 80,
-          "preview": "if _contains(text, \"godot handoff\", \"godot 4 handoff\", \"export-godot\"):",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 83,
-          "preview": "if _contains(text, \"multi-agent\", \"multi-agent\", \"agent router\", \"meta-router\"):",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 85,
-          "preview": "if _contains(text, \"autonomous\", \"autonomy\"):",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 87,
-          "preview": "if _contains(text, \"checkpoint\", \"resume\", \"recovery\"):",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 89,
-          "preview": "if _contains(text, \"audit log\", \"audit trail\", \"audit\"):",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 91,
-          "preview": "if _contains(text, \"redis\", \"celery\", \"queue\", \"queued workers\"):",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 93,
-          "preview": "if _contains(text, \"fastapi\"):",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 95,
-          "preview": "if _contains(text, \"docker compose\"):",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 98,
-          "preview": "if _contains(text, \"walk-forward\", \"walk forward\"):",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 100,
-          "preview": "if _contains(text, \"risk engine\", \"risk-aware\"):",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 102,
-          "preview": "if _contains(text, \"paper broker\", \"paper trading\"):",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 104,
-          "preview": "if _contains(text, \"backtest\", \"backtesting\"):",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 106,
-          "preview": "if _contains(text, \"experiment registry\"):",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 108,
-          "preview": "if _contains(text, \"monte carlo\", \"bootstrap robustness\"):",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 29
-    },
-    "extract_capabilities": {
-      "definition": {
-        "file": "src/production_os/capabilities.py",
-        "line": 28,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 28,
-          "preview": "def extract_capabilities(e: RepoEvidence) -> list[Capability]:",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/scoring.py",
-          "line": 5,
-          "preview": "from .capabilities import extract_capabilities",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scoring.py",
-          "line": 160,
-          "preview": "capabilities = extract_capabilities(evidence)",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_capabilities_graph.py",
-          "line": 1,
-          "preview": "from production_os.capabilities import extract_capabilities",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_capabilities_graph.py",
-          "line": 19,
-          "preview": "caps = extract_capabilities(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_capabilities_graph.py",
-          "line": 56,
-          "preview": "caps = extract_capabilities(",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 6
-    },
-    "add": {
-      "definition": {
-        "file": "src/production_os/capabilities.py",
-        "line": 34,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/adaptation_plan.py",
-          "line": 74,
-          "preview": "recreate.add(dep_name)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/adaptation_plan.py",
-          "line": 80,
-          "preview": "target_changes.add(\"replace source package/module namespace with target namespace\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/adaptation_plan.py",
-          "line": 83,
-          "preview": "target_changes.add(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/adaptation_plan.py",
-          "line": 93,
-          "preview": "target_changes.add(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/adaptation_plan.py",
-          "line": 115,
-          "preview": "target_changes.add(\"reimplement capability locally using source architecture only\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/adaptation_plan.py",
-          "line": 118,
-          "preview": "target_changes.add(\"replace app-specific IDs, package names and product configuration\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/adaptation_plan.py",
-          "line": 120,
-          "preview": "target_changes.add(\"bind target storage/configuration explicitly\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 34,
-          "preview": "def add(name: str, confidence: float, evidence: list[str], portable: bool = True) -> None:",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 41,
-          "preview": "add(\"github-actions-ci\", 0.98, [\"github workflows detected\"])",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 43,
-          "preview": "add(\"automated-tests\", 0.95, [\"test evidence detected\"])",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 45,
-          "preview": "add(\"release-automation\", 0.92, [\"release/publish workflow detected\"])",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 47,
-          "preview": "add(\"security-policy\", 0.99, [\"SECURITY.md detected\"])",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 49,
-          "preview": "add(\"dependency-automation\", 0.99, [\"Dependabot/Renovate detected\"])",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 52,
-          "preview": "add(\"android-play-billing\", 0.94, [\"README mentions Google Play Billing\"])",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 54,
-          "preview": "add(\"android-admob\", 0.94, [\"README mentions AdMob/Google Mobile Ads\"])",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 56,
-          "preview": "add(\"android-consent\", 0.78, [\"README mentions consent/UMP\"])",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 58,
-          "preview": "add(\"android-play-release\", 0.90, [\"README mentions Play publishing/release\"])",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 60,
-          "preview": "add(\"android-device-qa\", 0.88, [\"README mentions device/emulator validation\"])",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 62,
-          "preview": "add(\"android-artifact-build\", 0.86, [\"README mentions APK/AAB build\"])",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 64,
-          "preview": "add(\"jetpack-compose\", 0.98, [\"README mentions Jetpack Compose\"], portable=False)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 66,
-          "preview": "add(\"libgdx\", 0.99, [\"README mentions libGDX\"], portable=False)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 68,
-          "preview": "add(\"godot\", 0.99, [\"README mentions Godot\"], portable=False)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 70,
-          "preview": "add(\"flutter\", 0.99, [\"README mentions Flutter\"], portable=False)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 73,
-          "preview": "add(\"visual-asset-pipeline\", 0.97, [\"README describes visual asset production\"])",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 75,
-          "preview": "add(\"sprite-atlas-pipeline\", 0.95, [\"README describes sprite atlas tooling\"])",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 77,
-          "preview": "add(\"gltf-asset-pipeline\", 0.93, [\"README describes glTF/GLB asset tooling\"])",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 79,
-          "preview": "add(\"vector-asset-pipeline\", 0.90, [\"README describes SVG/vector tooling\"])",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 81,
-          "preview": "add(\"godot-asset-handoff\", 0.94, [\"README describes Godot asset handoff\"])",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 84,
-          "preview": "add(\"multi-agent-orchestration\", 0.91, [\"README mentions multi-agent routing\"])",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 86,
-          "preview": "add(\"autonomous-execution\", 0.82, [\"README describes autonomous execution\"])",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 88,
-          "preview": "add(\"checkpoint-recovery\", 0.80, [\"README mentions checkpoints/recovery\"])",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 90,
-          "preview": "add(\"audit-trail\", 0.82, [\"README mentions audit records\"])",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 92,
-          "preview": "add(\"queued-workers\", 0.82, [\"README mentions queue/worker infrastructure\"])",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 94,
-          "preview": "add(\"fastapi-control-plane\", 0.92, [\"README mentions FastAPI\"], portable=False)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 96,
-          "preview": "add(\"docker-compose-deployment\", 0.90, [\"README mentions Docker Compose\"])",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 99,
-          "preview": "add(\"walk-forward-validation\", 0.98, [\"README mentions walk-forward validation\"])",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 101,
-          "preview": "add(\"independent-risk-engine\", 0.93, [\"README mentions independent risk engine\"])",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 103,
-          "preview": "add(\"paper-broker\", 0.95, [\"README mentions paper broker\"])",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 105,
-          "preview": "add(\"backtesting\", 0.88, [\"README mentions backtesting\"])",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 107,
-          "preview": "add(\"experiment-registry\", 0.95, [\"README mentions experiment registry\"])",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 109,
-          "preview": "add(\"robustness-testing\", 0.78, [\"README mentions Monte Carlo/bootstrap\"])",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 112,
-          "preview": "add(\"release-automation\", 0.98, [\"release/publish workflow filename\"])",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 114,
-          "preview": "add(\"docker-compose-deployment\", 0.98, [\"Compose file detected\"])",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/change_impact.py",
-          "line": 77,
-          "preview": "children.setdefault(str(dependency), set()).add(task_id)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/change_impact.py",
-          "line": 90,
-          "preview": "affected.add(task_id)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/change_impact.py",
-          "line": 109,
-          "preview": "affected.add(task_id)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/change_impact.py",
-          "line": 114,
-          "preview": "affected.add(task_id)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/change_impact.py",
-          "line": 122,
-          "preview": "affected.add(task_id)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/change_impact.py",
-          "line": 132,
-          "preview": "affected.add(task_id)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/change_impact.py",
-          "line": 147,
-          "preview": "affected.add(child)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 519,
-          "preview": "artifactadd = sub.add_parser(\"artifact-add\", help=\"Register a workflow artifact\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 2541,
-          "preview": "if args.command == \"artifact-add\":",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/compatibility.py",
-          "line": 27,
-          "preview": "tokens.add(str(signal.value).lower())",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/compatibility.py",
-          "line": 28,
-          "preview": "tokens.add(str(signal.kind).lower())",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/compatibility.py",
-          "line": 30,
-          "preview": "tokens.add(component.name.lower())",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/compatibility.py",
-          "line": 33,
-          "preview": "tokens.add(path.lower())",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/compatibility.py",
-          "line": 36,
-          "preview": "tokens.add(word.strip(\",()[]{}:;\"))",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/components.py",
-          "line": 68,
-          "preview": "imports.add(node.module.split(\".\")[0])",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/components.py",
-          "line": 150,
-          "preview": "seen.add(key)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/deep_fingerprint.py",
-          "line": 28,
-          "preview": "def add(kind: str, value: str, confidence: float, evidence: list[str]) -> None:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/deep_fingerprint.py",
-          "line": 50,
-          "preview": "add(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/key_domains.py",
-          "line": 48,
-          "preview": "domains.setdefault(domain, set()).add(value)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/portfolio_optimizer.py",
-          "line": 19,
-          "preview": "children.setdefault(dependency, set()).add(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/portfolio_optimizer.py",
-          "line": 30,
-          "preview": "result.add(child)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/rekor_witness_quorum.py",
-          "line": 258,
-          "preview": "seen_ids.add(witness_id)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/rekor_witness_quorum.py",
-          "line": 352,
-          "preview": "seen.add(witness_id)",
-          "definition_candidate": false
-        },
-        {
           "file": "src/production_os/reuse.py",
-          "line": 106,
-          "preview": "seen.add(key)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scheduler.py",
-          "line": 166,
-          "preview": "selected_repos.add(action.repository)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scoring.py",
-          "line": 58,
-          "preview": "def add(task, rationale, criteria, evidence, *, impact, urgency, risk, release, effort):",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scoring.py",
-          "line": 77,
-          "preview": "add(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scoring.py",
-          "line": 86,
-          "preview": "add(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scoring.py",
-          "line": 95,
-          "preview": "add(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scoring.py",
-          "line": 104,
-          "preview": "add(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scoring.py",
-          "line": 113,
-          "preview": "add(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scoring.py",
-          "line": 127,
-          "preview": "add(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scoring.py",
-          "line": 136,
-          "preview": "add(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scoring.py",
-          "line": 145,
-          "preview": "add(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/validation.py",
-          "line": 33,
-          "preview": "def add(kind: str, description: str, required: bool = True) -> None:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/validation.py",
-          "line": 45,
-          "preview": "add(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/validation.py",
-          "line": 52,
-          "preview": "add(\"compile\", \"Compile/build the target after component adaptation.\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/validation.py",
-          "line": 56,
-          "preview": "add(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/validation.py",
-          "line": 61,
-          "preview": "add(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/validation.py",
-          "line": 67,
-          "preview": "add(\"android-build\", \"Build a debug APK/AAB successfully.\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/validation.py",
-          "line": 68,
-          "preview": "add(\"device-smoke\", \"Install and run a smoke test on emulator/device.\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/validation.py",
-          "line": 70,
-          "preview": "add(\"billing\", \"Verify purchase, acknowledgement and restore/entitlement behavior.\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/validation.py",
-          "line": 72,
-          "preview": "add(\"ads\", \"Verify ad initialization and no-crash behavior with test configuration.\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/validation.py",
-          "line": 74,
-          "preview": "add(\"consent\", \"Verify consent state transitions and persistence.\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/validation.py",
-          "line": 77,
-          "preview": "add(\"ci\", \"Default-branch/PR CI must be green after the change.\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/validation.py",
-          "line": 79,
-          "preview": "add(\"ci\", \"Add or run an equivalent reproducible verification command before promotion.\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/validation.py",
-          "line": 81,
-          "preview": "add(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/workflow_engine.py",
-          "line": 167,
-          "preview": "visiting.add(task_id)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/workflow_engine.py",
-          "line": 171,
-          "preview": "visited.add(task_id)",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 92
-    },
-    "ProjectProfile": {
-      "definition": {
-        "file": "src/production_os/classification.py",
-        "line": 9,
-        "kind": "class",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/classification.py",
-          "line": 9,
-          "preview": "class ProjectProfile:",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/classification.py",
-          "line": 15,
-          "preview": "def classify_repository(e: RepoEvidence) -> ProjectProfile:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/classification.py",
-          "line": 25,
-          "preview": "return ProjectProfile(\"android-game\", 0.95, tuple(signals))",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/classification.py",
-          "line": 26,
-          "preview": "return ProjectProfile(\"android-app\", 0.92, tuple(signals))",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/classification.py",
-          "line": 32,
-          "preview": "return ProjectProfile(\"asset-production-platform\", 0.96, tuple(signals))",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/classification.py",
-          "line": 33,
-          "preview": "return ProjectProfile(\"asset-production-platform\", 0.88, tuple(signals))",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/classification.py",
-          "line": 39,
-          "preview": "return ProjectProfile(\"quant-research\", 0.92, tuple(signals))",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/classification.py",
-          "line": 42,
-          "preview": "return ProjectProfile(\"automation-platform\", 0.88, tuple(signals))",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/classification.py",
-          "line": 43,
-          "preview": "return ProjectProfile(\"python-service\", 0.72, tuple(signals))",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/classification.py",
-          "line": 47,
-          "preview": "return ProjectProfile(\"node-project\", 0.70, tuple(signals))",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/classification.py",
-          "line": 51,
-          "preview": "return ProjectProfile(\"knowledge-base\", 0.78, tuple(signals))",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/classification.py",
-          "line": 53,
-          "preview": "return ProjectProfile(\"generic\", 0.30, tuple(signals))",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 12
-    },
-    "classify_repository": {
-      "definition": {
-        "file": "src/production_os/classification.py",
-        "line": 15,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/classification.py",
-          "line": 15,
-          "preview": "def classify_repository(e: RepoEvidence) -> ProjectProfile:",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/scoring.py",
-          "line": 6,
-          "preview": "from .classification import classify_repository",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scoring.py",
-          "line": 159,
-          "preview": "profile = classify_repository(evidence)",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_classification_history_reuse.py",
-          "line": 1,
-          "preview": "from production_os.classification import classify_repository",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_classification_history_reuse.py",
-          "line": 20,
-          "preview": "profile = classify_repository(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_classification_history_reuse.py",
-          "line": 65,
-          "preview": "profile = classify_repository(",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 6
-    },
-    "evidence": {
-      "definition": {
-        "file": "tests/test_capabilities_graph.py",
-        "line": 7,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/adaptation.py",
-          "line": 91,
-          "preview": "if component.language and target.evidence.language:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/adaptation.py",
-          "line": 92,
-          "preview": "target_lang = target.evidence.language.lower()",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/adaptation.py",
-          "line": 101,
-          "preview": "f\"language mismatch: component={component.language}, target={target.evidence.language}\"",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/adaptation.py",
-          "line": 146,
-          "preview": "source_repository=source.evidence.full_name,",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/adaptation.py",
-          "line": 147,
-          "preview": "target_repository=target.evidence.full_name,",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/adaptation_plan.py",
-          "line": 79,
-          "preview": "if source.evidence.full_name != target.evidence.full_name:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/adaptation_plan.py",
-          "line": 87,
-          "preview": "if component.get(\"language\") and target.evidence.language:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/adaptation_plan.py",
-          "line": 88,
-          "preview": "target_lang = target.evidence.language.lower()",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/adaptation_plan.py",
-          "line": 94,
-          "preview": "f\"port component language from {component['language']} to {target.evidence.language}\"",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/adaptation_plan.py",
-          "line": 123,
-          "preview": "source_repository=source.evidence.full_name,",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/adaptation_plan.py",
-          "line": 124,
-          "preview": "target_repository=target.evidence.full_name,",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/callgraph.py",
-          "line": 32,
-          "preview": "for path, text in assessment.evidence.source_documents.items():",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 12,
-          "preview": "evidence: tuple[str, ...]",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 19,
-          "preview": "\"evidence\": list(self.evidence),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 34,
-          "preview": "def add(name: str, confidence: float, evidence: list[str], portable: bool = True) -> None:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 36,
-          "preview": "candidate = Capability(name, round(confidence, 2), tuple(evidence), portable)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 43,
-          "preview": "add(\"automated-tests\", 0.95, [\"test evidence detected\"])",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 608,
-          "preview": "help=\"Sign validation evidence for one exact workflow artifact\",",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 753,
-          "preview": "\"trigger_evidence\": action.evidence,",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 785,
-          "preview": "e = assessment.evidence",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 817,
-          "preview": "print(\"No improvement action generated from the current evidence.\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 860,
-          "preview": "evidence = client.collect_evidence(repo)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 864,
-          "preview": "assessments.append(assess_repository(evidence))",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/compatibility.py",
-          "line": 13,
-          "preview": "evidence: tuple[str, ...]",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/compatibility.py",
-          "line": 20,
-          "preview": "\"evidence\": list(self.evidence),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/compatibility.py",
-          "line": 32,
-          "preview": "for path, text in target.evidence.source_documents.items():",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/compatibility.py",
-          "line": 56,
-          "preview": "target.evidence.source_documents.values()",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/compatibility.py",
-          "line": 78,
-          "preview": "evidence=tuple(f\"target contains {alias}\" for alias in matched),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/compatibility.py",
-          "line": 87,
-          "preview": "evidence=(\"no matching target dependency evidence found\",),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 58,
-          "preview": "\"trigger_evidence\":action.evidence,",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 260,
-          "preview": "assessment_lookup = {a.evidence.full_name: a for a in assessments}",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 283,
-          "preview": "assessment.evidence.default_branch,",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 294,
-          "preview": "elif assessment.evidence.language:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 295,
-          "preview": "lang = assessment.evidence.language.lower()",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/deep_fingerprint.py",
-          "line": 13,
-          "preview": "evidence: tuple[str, ...]",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/deep_fingerprint.py",
-          "line": 20,
-          "preview": "\"evidence\": list(self.evidence),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/deep_fingerprint.py",
-          "line": 28,
-          "preview": "def add(kind: str, value: str, confidence: float, evidence: list[str]) -> None:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/deep_fingerprint.py",
-          "line": 30,
-          "preview": "SourceSignal(kind, value, round(confidence, 2), tuple(evidence))",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/execution_feedback.py",
-          "line": 53,
-          "preview": "reasons.append(\"execution produced no promotable evidence\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/graph.py",
-          "line": 30,
-          "preview": "repo_id = f\"repo:{assessment.evidence.full_name}\"",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/graph.py",
-          "line": 34,
-          "preview": "\"name\": assessment.evidence.full_name,",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/graph.py",
-          "line": 60,
-          "preview": "f\"component:{assessment.evidence.full_name}:\"",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/graph.py",
-          "line": 99,
-          "preview": "symbol_id = f\"symbol:{assessment.evidence.full_name}:{call['target_symbol']}\"",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/history.py",
-          "line": 23,
-          "preview": "repos[assessment.evidence.full_name] = {",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/history.py",
-          "line": 26,
-          "preview": "\"evidence\": {",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/history.py",
-          "line": 27,
-          "preview": "\"has_tests\": assessment.evidence.has_tests,",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/history.py",
-          "line": 28,
-          "preview": "\"has_ci\": assessment.evidence.has_ci,",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/history.py",
-          "line": 29,
-          "preview": "\"latest_ci_status\": assessment.evidence.latest_ci_status,",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/history.py",
-          "line": 30,
-          "preview": "\"latest_ci_conclusion\": assessment.evidence.latest_ci_conclusion,",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/history.py",
-          "line": 31,
-          "preview": "\"has_release_workflow\": assessment.evidence.has_release_workflow,",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/history.py",
-          "line": 32,
-          "preview": "\"has_security_policy\": assessment.evidence.has_security_policy,",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/history.py",
-          "line": 33,
-          "preview": "\"has_dependency_automation\": assessment.evidence.has_dependency_automation,",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/models.py",
-          "line": 64,
-          "preview": "evidence: list[str]",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/models.py",
-          "line": 88,
-          "preview": "evidence: RepoEvidence",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/models.py",
-          "line": 100,
-          "preview": "\"evidence\": self.evidence.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/reuse.py",
-          "line": 20,
-          "preview": "evidence: tuple[str, ...] = ()",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/reuse.py",
-          "line": 31,
-          "preview": "\"evidence\": list(self.evidence),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/reuse.py",
-          "line": 87,
-          "preview": "if source.evidence.full_name == target.evidence.full_name:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/reuse.py",
-          "line": 103,
-          "preview": "key = (source.evidence.full_name, target.evidence.full_name, capability.name)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/reuse.py",
-          "line": 176,
-          "preview": "source=source.evidence.full_name,",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/reuse.py",
-          "line": 177,
-          "preview": "target=target.evidence.full_name,",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/reuse.py",
-          "line": 181,
-          "preview": "f\"{source.evidence.full_name} has evidence-backed capability \"",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/reuse.py",
-          "line": 182,
-          "preview": "f\"'{capability.name}' that is absent from {target.evidence.full_name}. \"",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/reuse.py",
-          "line": 185,
-          "preview": "evidence=capability.evidence,",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scheduler.py",
           "line": 37,
-          "preview": "return {a.evidence.full_name: a for a in assessments}",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scheduler.py",
-          "line": 51,
-          "preview": "evidence = assessment.evidence",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scheduler.py",
-          "line": 52,
-          "preview": "if evidence.has_ci and (",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scheduler.py",
-          "line": 53,
-          "preview": "str(evidence.latest_ci_status).lower() in {\"failure\", \"failed\", \"error\"}",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scheduler.py",
-          "line": 54,
-          "preview": "or str(evidence.latest_ci_conclusion).lower() in {\"failure\", \"failed\", \"error\"}",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scheduler.py",
-          "line": 58,
-          "preview": "if action.task != \"Add an executable automated test baseline\" and not evidence.has_tests:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scheduler.py",
-          "line": 99,
-          "preview": "conclusion = str(assessment.evidence.latest_ci_conclusion).lower()",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scoring.py",
-          "line": 58,
-          "preview": "def add(task, rationale, criteria, evidence, *, impact, urgency, risk, release, effort):",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scoring.py",
-          "line": 64,
-          "preview": "evidence=evidence,",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scoring.py",
-          "line": 88,
-          "preview": "\"No automated test evidence was detected. Autonomous changes cannot be promoted safely without a verification gate.\",",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scoring.py",
-          "line": 157,
-          "preview": "def assess_repository(evidence: RepoEvidence) -> RepoAssessment:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scoring.py",
-          "line": 158,
-          "preview": "score = score_repository(evidence)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scoring.py",
-          "line": 159,
-          "preview": "profile = classify_repository(evidence)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scoring.py",
-          "line": 160,
-          "preview": "capabilities = extract_capabilities(evidence)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scoring.py",
-          "line": 161,
-          "preview": "source_signals = analyze_source_evidence(evidence)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scoring.py",
-          "line": 162,
-          "preview": "components = extract_components(evidence)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scoring.py",
-          "line": 164,
-          "preview": "evidence=evidence,",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scoring.py",
-          "line": 166,
-          "preview": "actions=generate_actions(evidence, score, profile.kind),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/validation.py",
-          "line": 76,
-          "preview": "if target.evidence.has_ci:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/versioning.py",
-          "line": 29,
-          "preview": "combined = \"\\n\".join(assessment.evidence.source_documents.values())",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_adaptation.py",
-          "line": 8,
-          "preview": "evidence=RepoEvidence(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_adaptation_plan.py",
-          "line": 7,
-          "preview": "evidence=RepoEvidence(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_callgraph_versioning_feedback.py",
-          "line": 9,
-          "preview": "evidence=RepoEvidence(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_capabilities_graph.py",
-          "line": 7,
-          "preview": "def evidence(name=\"demo\", **kwargs):",
+          "preview": "def _compatible(source: RepoAssessment, target: RepoAssessment) -> bool:",
           "definition_candidate": true
         },
         {
-          "file": "tests/test_capabilities_graph.py",
-          "line": 20,
-          "preview": "evidence(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_capabilities_graph.py",
-          "line": 40,
-          "preview": "evidence(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_capabilities_graph.py",
-          "line": 57,
-          "preview": "evidence(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_compatibility_validation.py",
-          "line": 8,
-          "preview": "evidence=RepoEvidence(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_components.py",
-          "line": 5,
-          "preview": "def evidence(source_documents):",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_components.py",
-          "line": 16,
-          "preview": "evidence({",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_components.py",
-          "line": 36,
-          "preview": "evidence({",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_deep_fingerprint_starlist.py",
-          "line": 7,
-          "preview": "evidence = RepoEvidence(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_deep_fingerprint_starlist.py",
-          "line": 16,
-          "preview": "signals = analyze_source_evidence(evidence)",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_scheduler.py",
-          "line": 12,
-          "preview": "evidence=[],",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_scheduler.py",
-          "line": 24,
-          "preview": "evidence=RepoEvidence(name=repo.split(\"/\")[-1], full_name=repo, html_url=\"x\", has_tests=True),",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_scoring.py",
-          "line": 5,
-          "preview": "def evidence(**overrides):",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_scoring.py",
-          "line": 17,
-          "preview": "assessment = assess_repository(evidence())",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_scoring.py",
-          "line": 27,
-          "preview": "repo = evidence(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_scoring.py",
-          "line": 50,
-          "preview": "evidence(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_scoring.py",
-          "line": 64,
-          "preview": "assessment = assess_repository(evidence(has_readme=True, has_manifest=True))",
+          "file": "src/production_os/reuse.py",
+          "line": 91,
+          "preview": "if not _compatible(source, target):",
           "definition_candidate": false
         }
       ],
-      "occurrence_count": 104
+      "occurrence_count": 2
     },
-    "test_android_product_capabilities_are_extracted": {
+    "_component_candidates": {
       "definition": {
-        "file": "tests/test_capabilities_graph.py",
-        "line": 18,
+        "file": "src/production_os/reuse.py",
+        "line": 49,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "tests/test_capabilities_graph.py",
-          "line": 18,
-          "preview": "def test_android_product_capabilities_are_extracted():",
+          "file": "src/production_os/reuse.py",
+          "line": 49,
+          "preview": "def _component_candidates(source: RepoAssessment, target: RepoAssessment, capability: str) -> tuple[dict, ...]:",
           "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/reuse.py",
+          "line": 111,
+          "preview": "components = _component_candidates(source, target, capability.name)",
+          "definition_candidate": false
         }
       ],
-      "occurrence_count": 1
+      "occurrence_count": 2
     },
-    "test_knowledge_graph_contains_repo_capability_edges": {
+    "detect_reuse": {
       "definition": {
-        "file": "tests/test_capabilities_graph.py",
-        "line": 38,
+        "file": "src/production_os/reuse.py",
+        "line": 81,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "tests/test_capabilities_graph.py",
+          "file": "src/production_os/cli.py",
           "line": 38,
-          "preview": "def test_knowledge_graph_contains_repo_capability_edges():",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "test_visual_asset_platform_capabilities_are_extracted": {
-      "definition": {
-        "file": "tests/test_capabilities_graph.py",
-        "line": 55,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
+          "preview": "from .reuse import detect_reuse",
+          "definition_candidate": false
+        },
         {
-          "file": "tests/test_capabilities_graph.py",
-          "line": 55,
-          "preview": "def test_visual_asset_platform_capabilities_are_extracted():",
+          "file": "src/production_os/cli.py",
+          "line": 867,
+          "preview": "reuse = detect_reuse(assessments)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/controller.py",
+          "line": 28,
+          "preview": "from .reuse import detect_reuse",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/controller.py",
+          "line": 248,
+          "preview": "reuse = detect_reuse(assessments)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/reuse.py",
+          "line": 81,
+          "preview": "def detect_reuse(assessments: list[RepoAssessment]) -> list[ReuseOpportunity]:",
           "definition_candidate": true
+        },
+        {
+          "file": "tests/test_classification_history_reuse.py",
+          "line": 4,
+          "preview": "from production_os.reuse import detect_reuse",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_classification_history_reuse.py",
+          "line": 58,
+          "preview": "opportunities = detect_reuse([source, target])",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_classification_history_reuse.py",
+          "line": 98,
+          "preview": "opportunities = detect_reuse([source, target])",
+          "definition_candidate": false
         }
       ],
-      "occurrence_count": 1
+      "occurrence_count": 8
     },
     "ev": {
       "definition": {
@@ -2359,9 +853,21 @@
           "line": 66,
           "preview": "ev(",
           "definition_candidate": false
+        },
+        {
+          "file": "tests/test_classification_history_reuse.py",
+          "line": 81,
+          "preview": "ev(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_classification_history_reuse.py",
+          "line": 92,
+          "preview": "ev(",
+          "definition_candidate": false
         }
       ],
-      "occurrence_count": 6
+      "occurrence_count": 8
     },
     "test_android_game_classification": {
       "definition": {
@@ -2426,6 +932,23 @@
           "file": "tests/test_classification_history_reuse.py",
           "line": 64,
           "preview": "def test_asset_production_platform_classification():",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 1
+    },
+    "test_asset_production_capabilities_are_reusable_cross_profile": {
+      "definition": {
+        "file": "tests/test_classification_history_reuse.py",
+        "line": 79,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "tests/test_classification_history_reuse.py",
+          "line": 79,
+          "preview": "def test_asset_production_capabilities_are_reusable_cross_profile():",
           "definition_candidate": true
         }
       ],

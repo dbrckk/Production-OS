@@ -9,10 +9,10 @@
     "top_score": 30
   },
   "cache": {
-    "fingerprint": "8686b861b811ea953a6b530e496d631c0580005a323d9eba0cfd92935873b633",
+    "fingerprint": "fd4d6d201031a96ddf63a239162832417c9f2a6b5b71b2642f557700377b4c2d",
     "hit": false
   },
-  "candidate_count": 17,
+  "candidate_count": 16,
   "fallback": "If bounded context is insufficient, expand only to budget.expand_to, then use architecture/segmented maps and targeted source search.",
   "files": [
     {
@@ -30,9 +30,44 @@
       "symbols": [
         "ev",
         "test_android_game_classification",
+        "test_asset_production_capabilities_are_reusable_cross_profile",
         "test_asset_production_platform_classification",
         "test_cross_repo_reuse_detection",
         "test_regression_detection"
+      ]
+    },
+    {
+      "learning_score": 0,
+      "matched_terms": [
+        "engine"
+      ],
+      "path": "src/production_os/cli.py",
+      "reasons": [
+        "impact",
+        "search-index"
+      ],
+      "score": 27,
+      "symbols": [
+        "_external_refs_for_action",
+        "_handoff",
+        "_parse_args",
+        "_print_human",
+        "_rank_actions",
+        "_release_ledger",
+        "_trusted_validation_keys_from_env",
+        "_workflow_engine",
+        "main",
+        "run_approve",
+        "run_artifact_add",
+        "run_audit_checkpoint_create",
+        "run_audit_checkpoint_verify",
+        "run_audit_verify",
+        "run_backup",
+        "run_budget_record",
+        "run_control_plane",
+        "run_controller_command",
+        "run_db_import",
+        "run_db_init"
       ]
     },
     {
@@ -68,9 +103,9 @@
     {
       "learning_score": 0,
       "matched_terms": [
-        "engine"
+        "game"
       ],
-      "path": "src/production_os/capabilities.py",
+      "path": "src/production_os/reuse.py",
       "reasons": [
         "impact",
         "recently-changed",
@@ -78,11 +113,10 @@
       ],
       "score": 26,
       "symbols": [
-        "Capability",
-        "_contains",
-        "add",
-        "extract_capabilities",
-        "to_dict"
+        "ReuseOpportunity",
+        "_compatible",
+        "_component_candidates",
+        "detect_reuse"
       ]
     },
     {
@@ -90,35 +124,19 @@
       "matched_terms": [
         "game"
       ],
-      "path": "src/production_os/classification.py",
-      "reasons": [
-        "impact",
-        "recently-changed",
-        "search-index"
-      ],
-      "score": 26,
-      "symbols": [
-        "ProjectProfile",
-        "classify_repository"
-      ]
-    },
-    {
-      "learning_score": 0,
-      "matched_terms": [
-        "game"
-      ],
-      "path": "src/production_os/scoring.py",
+      "path": "src/production_os/controller.py",
       "reasons": [
         "impact",
         "search-index"
       ],
       "score": 23,
       "symbols": [
-        "_recent_activity_points",
-        "add",
-        "assess_repository",
-        "generate_actions",
-        "score_repository"
+        "_handoff_for_action",
+        "_load_github_mappings",
+        "_rank_actions",
+        "_reconcile_github",
+        "run_control_cycle",
+        "run_controller"
       ]
     },
     {
@@ -126,32 +144,13 @@
       "matched_terms": [
         "engine"
       ],
-      "path": "src/production_os/cli.py",
+      "path": "tests/test_workflow_postgres.py",
       "reasons": [
         "search-index"
       ],
       "score": 21,
       "symbols": [
-        "_external_refs_for_action",
-        "_handoff",
-        "_parse_args",
-        "_print_human",
-        "_rank_actions",
-        "_release_ledger",
-        "_trusted_validation_keys_from_env",
-        "_workflow_engine",
-        "main",
-        "run_approve",
-        "run_artifact_add",
-        "run_audit_checkpoint_create",
-        "run_audit_checkpoint_verify",
-        "run_audit_verify",
-        "run_backup",
-        "run_budget_record",
-        "run_control_plane",
-        "run_controller_command",
-        "run_db_import",
-        "run_db_init"
+        "test_postgres_workflow_engine"
       ]
     }
   ],

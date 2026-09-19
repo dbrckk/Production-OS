@@ -1,7 +1,7 @@
 # Change impact
 
-Base: ec2aeeba9e0f094674c187be9e710746414bd900
-Head: 15a0918eecbe28776e9eb34c877110bcab6ed489
+Base: 4def1774322ff35aa5592534bd5335a8eae94305
+Head: 9d089f9af1035747b8248f7b787cdc30546e6c84
 
 ## Changed files
 - M tests/test_classification_history_reuse.py
