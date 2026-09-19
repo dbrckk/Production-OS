@@ -4,6 +4,8 @@ import re
 
 VISUAL_CAPABILITY = "visual-asset-production"
 VISUAL_3D_CAPABILITY = "visual-asset-3d-production"
+ASSET_FORGE_REQUEST_SCHEMA = "asset-forge/production-request/v1"
+ASSET_FORGE_REPORT_SCHEMA = "asset-forge/production-report/v1"
 
 _VISUAL_PATTERNS = (
     r"\basset(?:s)?\b",
@@ -90,3 +92,19 @@ def inferred_required_capabilities(handoff: dict) -> list[str]:
     if is_3d_generation_task(handoff):
         required.add(VISUAL_3D_CAPABILITY)
     return sorted(required)
+
+
+def asset_forge_tool_contract(handoff: dict) -> dict | None:
+    required = set(inferred_required_capabilities(handoff))
+    if VISUAL_CAPABILITY not in required:
+        return None
+    return {
+        "request_schema": ASSET_FORGE_REQUEST_SCHEMA,
+        "report_schema": ASSET_FORGE_REPORT_SCHEMA,
+        "command": "asset-forge fulfill",
+        "required_capability": (
+            VISUAL_3D_CAPABILITY
+            if VISUAL_3D_CAPABILITY in required
+            else VISUAL_CAPABILITY
+        ),
+    }
