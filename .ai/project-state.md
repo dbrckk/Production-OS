@@ -22,20 +22,20 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-19T20:39:33Z
+Generated: 2026-09-19T21:20:19Z
 
 ### Git
 - Branch: `main`
-- Head: `d456c556a646`
-- Commit date: 2026-09-19T22:39:17+02:00
-- Commit: test: route asset reuse to visual workers
-- Tracked files: 320
+- Head: `144aefae9765`
+- Commit date: 2026-09-19T23:19:58+02:00
+- Commit: test: cover dashboard visual worker readiness
+- Tracked files: 323
 
 ### Recently changed files
-- `tests/test_controller_asset_capabilities.py`
-- `src/production_os/controller.py`
-- `tests/test_classification_history_reuse.py`
-- `src/production_os/reuse.py`
+- `tests/test_dashboard_launch.py`
+- `src/production_os/control_plane.py`
+- `tests/test_task_capabilities.py`
+- `src/production_os/task_capabilities.py`
 
 ### Project signals
 - `pyproject.toml`

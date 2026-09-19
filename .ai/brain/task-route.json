@@ -1,20 +1,54 @@
 {
   "budget": {
-    "confidence": "medium",
+    "confidence": "high",
     "expand_to": 12,
-    "max_files": 6,
+    "max_files": 3,
     "requested_max_files": 12,
-    "score_margin": 0,
-    "tier": "bounded",
-    "top_score": 27
+    "score_margin": 21,
+    "tier": "narrow",
+    "top_score": 48
   },
   "cache": {
-    "fingerprint": "cee7243f85adddee348469105c546ddac95065bb4c77908c7d872b1f039466c1",
+    "fingerprint": "2915186a11cabe5f002e1d738433937f7bfb964006d54a7124905ed7101ed0a8",
     "hit": false
   },
-  "candidate_count": 17,
+  "candidate_count": 35,
   "fallback": "If bounded context is insufficient, expand only to budget.expand_to, then use architecture/segmented maps and targeted source search.",
   "files": [
+    {
+      "learning_score": 0,
+      "matched_terms": [
+        "engine",
+        "game"
+      ],
+      "path": "tests/test_workflow_engine.py",
+      "reasons": [
+        "impact",
+        "recently-changed",
+        "search-index"
+      ],
+      "score": 48,
+      "symbols": [
+        "engine",
+        "test_change_impact_can_be_recomputed_before_execution",
+        "test_change_impact_recompute_rejected_after_dispatch",
+        "test_create_unseen_pr_from_repository_template",
+        "test_create_unseen_pr_without_template_returns_none",
+        "test_critical_path",
+        "test_dispatched_job_carries_pr_generation_and_revision",
+        "test_find_workflows_bound_to_github_pr",
+        "test_find_workflows_bound_to_github_pr_accepts_string_metadata",
+        "test_pr_artifact_requires_current_revision_and_generation",
+        "test_pr_generation_binds_initial_head_in_place",
+        "test_pr_generation_reuses_same_workflow_for_same_head_sha",
+        "test_pr_generation_supersedes_old_workflow_and_jobs",
+        "test_superseded_pr_rejects_artifact_promotion",
+        "test_workflow_dispatch_infers_visual_worker_requirement",
+        "test_workflow_fanout_fanin",
+        "test_workflow_rejects_cycle",
+        "test_workflow_retry_budget"
+      ]
+    },
     {
       "learning_score": 0,
       "matched_terms": [
@@ -54,100 +88,12 @@
       "matched_terms": [
         "engine"
       ],
-      "path": "tests/test_workflow_engine.py",
+      "path": "tests/test_workflow_postgres.py",
       "reasons": [
+        "impact",
         "search-index"
       ],
       "score": 27,
-      "symbols": [
-        "engine",
-        "test_change_impact_can_be_recomputed_before_execution",
-        "test_change_impact_recompute_rejected_after_dispatch",
-        "test_create_unseen_pr_from_repository_template",
-        "test_create_unseen_pr_without_template_returns_none",
-        "test_critical_path",
-        "test_dispatched_job_carries_pr_generation_and_revision",
-        "test_find_workflows_bound_to_github_pr",
-        "test_find_workflows_bound_to_github_pr_accepts_string_metadata",
-        "test_pr_artifact_requires_current_revision_and_generation",
-        "test_pr_generation_binds_initial_head_in_place",
-        "test_pr_generation_reuses_same_workflow_for_same_head_sha",
-        "test_pr_generation_supersedes_old_workflow_and_jobs",
-        "test_superseded_pr_rejects_artifact_promotion",
-        "test_workflow_fanout_fanin",
-        "test_workflow_rejects_cycle",
-        "test_workflow_retry_budget"
-      ]
-    },
-    {
-      "learning_score": 0,
-      "matched_terms": [
-        "game"
-      ],
-      "path": "src/production_os/controller.py",
-      "reasons": [
-        "impact",
-        "recently-changed",
-        "search-index"
-      ],
-      "score": 26,
-      "symbols": [
-        "_handoff_for_action",
-        "_load_github_mappings",
-        "_rank_actions",
-        "_reconcile_github",
-        "_required_capabilities_for",
-        "run_control_cycle",
-        "run_controller"
-      ]
-    },
-    {
-      "learning_score": 0,
-      "matched_terms": [
-        "game"
-      ],
-      "path": "tests/test_controller_asset_capabilities.py",
-      "reasons": [
-        "impact",
-        "recently-changed",
-        "search-index"
-      ],
-      "score": 26,
-      "symbols": [
-        "_assessment",
-        "test_non_visual_reuse_does_not_require_visual_worker",
-        "test_visual_reuse_requires_visual_asset_worker"
-      ]
-    },
-    {
-      "learning_score": 0,
-      "matched_terms": [
-        "game"
-      ],
-      "path": "tests/test_classification_history_reuse.py",
-      "reasons": [
-        "search-index"
-      ],
-      "score": 21,
-      "symbols": [
-        "ev",
-        "test_android_game_classification",
-        "test_asset_production_capabilities_are_reusable_cross_profile",
-        "test_asset_production_platform_classification",
-        "test_cross_repo_reuse_detection",
-        "test_regression_detection"
-      ]
-    },
-    {
-      "learning_score": 0,
-      "matched_terms": [
-        "engine"
-      ],
-      "path": "tests/test_workflow_postgres.py",
-      "reasons": [
-        "search-index"
-      ],
-      "score": 21,
       "symbols": [
         "test_postgres_workflow_engine"
       ]

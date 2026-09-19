@@ -137,6 +137,7 @@ src/
     starlist.py
     storage.py
     supply_chain.py
+    task_capabilities.py
     transparency_receipts.py
     transparency.py
     trends.py
@@ -171,6 +172,7 @@ tests/
   test_control_plane_webhook.py
   test_control_plane.py
   test_controller_asset_capabilities.py
+  test_dashboard_launch.py
   test_deep_fingerprint_starlist.py
   test_emergency_key_revocation.py
   test_execution_feedback_trends.py
@@ -228,6 +230,7 @@ tests/
   test_sqlite_migration.py
   test_stragglers.py
   test_supply_chain.py
+  test_task_capabilities.py
   test_transparency_cli.py
   test_transparency_receipts.py
   test_trust_policy.py
@@ -2165,10 +2168,6 @@ def _required_capabilities_for(assessment, handoff: dict) -> list[str]
 required: list[str] = []
 ⋮----
 lang = assessment.evidence.language.lower()
-⋮----
-reuse_candidates = handoff.get("reuse_candidates", [])
-⋮----
-visual_caps = {
 ⋮----
 def _load_github_mappings(path: str | None) -> list[dict]
 ⋮----
@@ -5018,6 +5017,33 @@ repository = str(external.get("repository") or "")
 public_key = builder_policy.resolve(
 ````
 
+## File: src/production_os/task_capabilities.py
+````python
+VISUAL_CAPABILITY = "visual-asset-production"
+VISUAL_3D_CAPABILITY = "visual-asset-3d-production"
+⋮----
+_VISUAL_PATTERNS = (
+⋮----
+def _handoff_text(handoff: dict) -> str
+⋮----
+fields = [
+acceptance = handoff.get("acceptance_criteria")
+⋮----
+def is_visual_asset_task(handoff: dict) -> bool
+⋮----
+text = _handoff_text(handoff)
+⋮----
+def is_3d_generation_task(handoff: dict) -> bool
+⋮----
+has_3d = bool(
+has_generation = bool(
+⋮----
+def inferred_required_capabilities(handoff: dict) -> list[str]
+⋮----
+explicit = handoff.get("required_capabilities", []) if isinstance(handoff, dict) else []
+required = {
+````
+
 ## File: src/production_os/transparency_receipts.py
 ````python
 RECEIPT_SCHEMA = "production-os/transparency-receipt/v1"
@@ -6186,12 +6212,19 @@ def test_generic_post_returns_413_before_endpoint_processing(tmp_path)
 ````python
 def _assessment(profile="android-game", language="Kotlin")
 ⋮----
-def test_visual_reuse_requires_visual_asset_worker()
+def test_visual_task_requires_visual_asset_worker()
 ⋮----
 handoff = {
 required = _required_capabilities_for(_assessment(), handoff)
 ⋮----
-def test_non_visual_reuse_does_not_require_visual_worker()
+def test_asset_forge_availability_alone_does_not_require_visual_worker()
+````
+
+## File: tests/test_dashboard_launch.py
+````python
+def test_dashboard_daily_surface_is_repo_instruction_only()
+⋮----
+def test_dashboard_pairing_is_hidden_from_normal_surface()
 ````
 
 ## File: tests/test_deep_fingerprint_starlist.py
@@ -7594,6 +7627,27 @@ envelope=sign_slsa_statement(
 def test_slsa_tampering_is_detected()
 ````
 
+## File: tests/test_task_capabilities.py
+````python
+def test_visual_tasks_are_detected_from_task_text()
+⋮----
+def test_3d_generation_requires_dedicated_3d_worker()
+⋮----
+required = inferred_required_capabilities(
+⋮----
+def test_3d_validation_only_does_not_require_generation_capability()
+⋮----
+def test_french_visual_and_3d_generation_tasks_are_detected()
+⋮----
+visual = inferred_required_capabilities(
+⋮----
+three_d = inferred_required_capabilities(
+⋮----
+def test_non_visual_software_task_is_not_misclassified()
+⋮----
+def test_inferred_capabilities_preserve_explicit_requirements()
+````
+
 ## File: tests/test_transparency_cli.py
 ````python
 def _signed_rekor_receipt(envelope)
@@ -7935,6 +7989,8 @@ jobs=wf.dispatch_ready(created["id"])
 ⋮----
 current=wf.get(created["id"])
 ready={
+⋮----
+def test_workflow_dispatch_infers_visual_worker_requirement(tmp_path)
 ⋮----
 def test_workflow_rejects_cycle(tmp_path)
 ⋮----
