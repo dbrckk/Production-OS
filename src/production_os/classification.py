@@ -25,6 +25,13 @@ def classify_repository(e: RepoEvidence) -> ProjectProfile:
                 return ProjectProfile("android-game", 0.95, tuple(signals))
             return ProjectProfile("android-app", 0.92, tuple(signals))
 
+    if any(term in text for term in ("visual-asset production", "visual asset production", "asset-forge")):
+        signals.append("visual-assets")
+        if any(term in text for term in ("sprite", "gltf", "svg", "godot", "atlas")):
+            signals.append("multi-format")
+            return ProjectProfile("asset-production-platform", 0.96, tuple(signals))
+        return ProjectProfile("asset-production-platform", 0.88, tuple(signals))
+
     if "pyproject.toml" in names or "requirements.txt" in names:
         signals.append("python")
         if any(term in text for term in ("trading", "backtest", "walk-forward", "market data")):
