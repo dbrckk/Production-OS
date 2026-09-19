@@ -2162,6 +2162,8 @@ actions = [action for assessment in assessments for action in assessment.actions
 def _handoff_for_action(action, reuse, *, branch_protected: bool | None = None)
 ⋮----
 related = [item.to_dict() for item in reuse if item.target == action.repository][:5]
+handoff = {
+inferred = set(inferred_required_capabilities(handoff))
 ⋮----
 def _required_capabilities_for(assessment, handoff: dict) -> list[str]
 ⋮----
@@ -6218,6 +6220,16 @@ handoff = {
 required = _required_capabilities_for(_assessment(), handoff)
 ⋮----
 def test_asset_forge_availability_alone_does_not_require_visual_worker()
+⋮----
+def test_visual_handoff_declares_asset_forge_machine_contract()
+⋮----
+action = SimpleNamespace(
+⋮----
+handoff = _handoff_for_action(action, [])
+⋮----
+contract = handoff["tool_contracts"]["asset_forge"]
+⋮----
+def test_3d_generation_handoff_declares_3d_worker_capability()
 ⋮----
 def test_android_visual_job_selects_ai_dev_style_worker()
 ⋮----

@@ -22,20 +22,20 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-19T21:21:51Z
+Generated: 2026-09-19T21:33:37Z
 
 ### Git
 - Branch: `main`
-- Head: `27547fd77ed1`
-- Commit date: 2026-09-19T23:21:34+02:00
-- Commit: test: prove Android visual jobs can select AI Dev worker
+- Head: `ce6c2029d302`
+- Commit date: 2026-09-19T23:33:19+02:00
+- Commit: test: cover Asset Forge visual handoff contract
 - Tracked files: 323
 
 ### Recently changed files
 - `tests/test_controller_asset_capabilities.py`
+- `src/production_os/controller.py`
 - `src/production_os/control_plane.py`
 - `tests/test_dashboard_launch.py`
-- `tests/test_task_capabilities.py`
 
 ### Project signals
 - `pyproject.toml`

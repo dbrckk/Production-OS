@@ -4,5 +4,353 @@
   "scope": "symbols defined in changed source files",
   "semantic": false,
   "note": "Occurrences are lexical word matches; verify source/LSP/compiler data before relying on them.",
-  "symbols": {}
+  "symbols": {
+    "_rank_actions": {
+      "definition": {
+        "file": "src/production_os/controller.py",
+        "line": 44,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 671,
+          "preview": "def _rank_actions(assessments: Iterable[RepoAssessment]) -> list[ActionCandidate]:",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 866,
+          "preview": "actions = _rank_actions(assessments)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/controller.py",
+          "line": 44,
+          "preview": "def _rank_actions(assessments):",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/controller.py",
+          "line": 279,
+          "preview": "actions = _rank_actions(assessments)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 4
+    },
+    "_handoff_for_action": {
+      "definition": {
+        "file": "src/production_os/controller.py",
+        "line": 49,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/controller.py",
+          "line": 49,
+          "preview": "def _handoff_for_action(action, reuse, *, branch_protected: bool | None = None):",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/controller.py",
+          "line": 306,
+          "preview": "base_handoff = _handoff_for_action(action, reuse)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/controller.py",
+          "line": 317,
+          "preview": "handoff = _handoff_for_action(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_controller_asset_capabilities.py",
+          "line": 5,
+          "preview": "from production_os.controller import _handoff_for_action, _required_capabilities_for",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_controller_asset_capabilities.py",
+          "line": 57,
+          "preview": "handoff = _handoff_for_action(action, [])",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_controller_asset_capabilities.py",
+          "line": 76,
+          "preview": "handoff = _handoff_for_action(action, [])",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 6
+    },
+    "_required_capabilities_for": {
+      "definition": {
+        "file": "src/production_os/controller.py",
+        "line": 86,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/controller.py",
+          "line": 86,
+          "preview": "def _required_capabilities_for(assessment, handoff: dict) -> list[str]:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/controller.py",
+          "line": 322,
+          "preview": "required_capabilities = _required_capabilities_for(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_controller_asset_capabilities.py",
+          "line": 5,
+          "preview": "from production_os.controller import _handoff_for_action, _required_capabilities_for",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_controller_asset_capabilities.py",
+          "line": 27,
+          "preview": "required = _required_capabilities_for(_assessment(), handoff)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_controller_asset_capabilities.py",
+          "line": 43,
+          "preview": "required = _required_capabilities_for(_assessment(), handoff)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_controller_asset_capabilities.py",
+          "line": 84,
+          "preview": "required = _required_capabilities_for(_assessment(), handoff)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 6
+    },
+    "_load_github_mappings": {
+      "definition": {
+        "file": "src/production_os/controller.py",
+        "line": 102,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/controller.py",
+          "line": 102,
+          "preview": "def _load_github_mappings(path: str | None) -> list[dict]:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/controller.py",
+          "line": 259,
+          "preview": "_load_github_mappings(github_mapping_path),",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "_reconcile_github": {
+      "definition": {
+        "file": "src/production_os/controller.py",
+        "line": 113,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/controller.py",
+          "line": 113,
+          "preview": "def _reconcile_github(",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/controller.py",
+          "line": 255,
+          "preview": "github_results = _reconcile_github(",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_control_cycle": {
+      "definition": {
+        "file": "src/production_os/controller.py",
+        "line": 152,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/controller.py",
+          "line": 152,
+          "preview": "def run_control_cycle(",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/controller.py",
+          "line": 411,
+          "preview": "results.append(run_control_cycle(**kwargs))",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "run_controller": {
+      "definition": {
+        "file": "src/production_os/controller.py",
+        "line": 400,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 22,
+          "preview": "from .controller import run_controller",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1182,
+          "preview": "results = run_controller(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/controller.py",
+          "line": 400,
+          "preview": "def run_controller(",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 3
+    },
+    "_assessment": {
+      "definition": {
+        "file": "tests/test_controller_asset_capabilities.py",
+        "line": 9,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "tests/test_controller_asset_capabilities.py",
+          "line": 9,
+          "preview": "def _assessment(profile=\"android-game\", language=\"Kotlin\"):",
+          "definition_candidate": true
+        },
+        {
+          "file": "tests/test_controller_asset_capabilities.py",
+          "line": 27,
+          "preview": "required = _required_capabilities_for(_assessment(), handoff)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_controller_asset_capabilities.py",
+          "line": 43,
+          "preview": "required = _required_capabilities_for(_assessment(), handoff)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_controller_asset_capabilities.py",
+          "line": 84,
+          "preview": "required = _required_capabilities_for(_assessment(), handoff)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 4
+    },
+    "test_visual_task_requires_visual_asset_worker": {
+      "definition": {
+        "file": "tests/test_controller_asset_capabilities.py",
+        "line": 16,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "tests/test_controller_asset_capabilities.py",
+          "line": 16,
+          "preview": "def test_visual_task_requires_visual_asset_worker():",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 1
+    },
+    "test_asset_forge_availability_alone_does_not_require_visual_worker": {
+      "definition": {
+        "file": "tests/test_controller_asset_capabilities.py",
+        "line": 32,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "tests/test_controller_asset_capabilities.py",
+          "line": 32,
+          "preview": "def test_asset_forge_availability_alone_does_not_require_visual_worker():",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 1
+    },
+    "test_visual_handoff_declares_asset_forge_machine_contract": {
+      "definition": {
+        "file": "tests/test_controller_asset_capabilities.py",
+        "line": 47,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "tests/test_controller_asset_capabilities.py",
+          "line": 47,
+          "preview": "def test_visual_handoff_declares_asset_forge_machine_contract():",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 1
+    },
+    "test_3d_generation_handoff_declares_3d_worker_capability": {
+      "definition": {
+        "file": "tests/test_controller_asset_capabilities.py",
+        "line": 66,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "tests/test_controller_asset_capabilities.py",
+          "line": 66,
+          "preview": "def test_3d_generation_handoff_declares_3d_worker_capability():",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 1
+    },
+    "test_android_visual_job_selects_ai_dev_style_worker": {
+      "definition": {
+        "file": "tests/test_controller_asset_capabilities.py",
+        "line": 82,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "tests/test_controller_asset_capabilities.py",
+          "line": 82,
+          "preview": "def test_android_visual_job_selects_ai_dev_style_worker():",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 1
+    }
+  }
 }
