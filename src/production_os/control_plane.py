@@ -115,6 +115,7 @@ button{cursor:pointer}
 <button onclick="toggleSettings()" aria-label="Settings">⚙</button>
 </div>
 <p id="launch-status" class="status"></p>
+<p id="worker-status" class="small">Capacités worker : vérification...</p>
 </div>
 
 <div id="settings" class="card">
@@ -181,6 +182,24 @@ async function loadRepositories(){
  }catch(_e){}
 }
 
+async function loadWorkerStatus(){
+ const el=document.getElementById('worker-status');
+ try{
+  const r=await fetch('/v1/workers');
+  if(!r.ok) throw new Error('workers unavailable');
+  const data=await r.json();
+  const online=(data.workers||[]).filter(x=>x.status==='online');
+  const capabilities=new Set(online.flatMap(x=>x.capabilities||[]));
+  const visual=capabilities.has('visual-asset-production');
+  const threeD=capabilities.has('visual-asset-3d-production');
+  el.textContent='Worker : code '+(online.length?'✓':'—')
+   +' · assets 2D/SVG '+(visual?'✓':'—')
+   +' · 3D '+(threeD?'✓':'—');
+ }catch(_e){
+  el.textContent='Capacités worker : indisponibles';
+ }
+}
+
 async function launchWorkflow(){
  const status=document.getElementById('launch-status');
  status.textContent='Lancement...';
@@ -225,6 +244,7 @@ async function launchWorkflow(){
 }
 
 loadRepositories();
+loadWorkerStatus();
 </script>
 </body>
 </html>"""
