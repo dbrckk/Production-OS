@@ -74,6 +74,11 @@ def test_workflow_dispatch_infers_visual_worker_requirement(tmp_path):
     assert jobs[0]["payload"]["required_capabilities"] == [
         "visual-asset-production"
     ]
+    contract = jobs[0]["payload"]["handoff"]["tool_contracts"]["asset_forge"]
+    assert contract["request_schema"] == "asset-forge/production-request/v1"
+    assert contract["report_schema"] == "asset-forge/production-report/v1"
+    assert contract["command"] == "asset-forge fulfill"
+    assert contract["required_capability"] == "visual-asset-production"
 
 
 def test_workflow_rejects_cycle(tmp_path):
