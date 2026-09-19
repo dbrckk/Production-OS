@@ -22,20 +22,21 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-19T21:33:37Z
+Generated: 2026-09-19T21:36:56Z
 
 ### Git
 - Branch: `main`
-- Head: `ce6c2029d302`
-- Commit date: 2026-09-19T23:33:19+02:00
-- Commit: test: cover Asset Forge visual handoff contract
+- Head: `050292288c34`
+- Commit date: 2026-09-19T23:36:43+02:00
+- Commit: test: preserve Asset Forge contract through dashboard workflow
 - Tracked files: 323
 
 ### Recently changed files
-- `tests/test_controller_asset_capabilities.py`
+- `tests/test_workflow_engine.py`
+- `src/production_os/workflow_engine.py`
 - `src/production_os/controller.py`
-- `src/production_os/control_plane.py`
-- `tests/test_dashboard_launch.py`
+- `src/production_os/task_capabilities.py`
+- `tests/test_controller_asset_capabilities.py`
 
 ### Project signals
 - `pyproject.toml`

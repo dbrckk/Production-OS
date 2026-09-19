@@ -2163,7 +2163,7 @@ def _handoff_for_action(action, reuse, *, branch_protected: bool | None = None)
 ⋮----
 related = [item.to_dict() for item in reuse if item.target == action.repository][:5]
 handoff = {
-inferred = set(inferred_required_capabilities(handoff))
+asset_forge = asset_forge_tool_contract(handoff)
 ⋮----
 def _required_capabilities_for(assessment, handoff: dict) -> list[str]
 ⋮----
@@ -5023,6 +5023,8 @@ public_key = builder_policy.resolve(
 ````python
 VISUAL_CAPABILITY = "visual-asset-production"
 VISUAL_3D_CAPABILITY = "visual-asset-3d-production"
+ASSET_FORGE_REQUEST_SCHEMA = "asset-forge/production-request/v1"
+ASSET_FORGE_REPORT_SCHEMA = "asset-forge/production-report/v1"
 ⋮----
 _VISUAL_PATTERNS = (
 ⋮----
@@ -5044,6 +5046,10 @@ def inferred_required_capabilities(handoff: dict) -> list[str]
 ⋮----
 explicit = handoff.get("required_capabilities", []) if isinstance(handoff, dict) else []
 required = {
+⋮----
+def asset_forge_tool_contract(handoff: dict) -> dict | None
+⋮----
+required = set(inferred_required_capabilities(handoff))
 ````
 
 ## File: src/production_os/transparency_receipts.py
@@ -5663,6 +5669,10 @@ cached = self.cache.get(cache_key)
 updated = _execute(
 ⋮----
 handoff = dict(payload.get("handoff") or payload)
+⋮----
+asset_forge = asset_forge_tool_contract(handoff)
+⋮----
+contracts = dict(handoff.get("tool_contracts") or {})
 ⋮----
 attempt_number = int(task["attempts"]) + 1
 ⋮----
@@ -8011,6 +8021,8 @@ current=wf.get(created["id"])
 ready={
 ⋮----
 def test_workflow_dispatch_infers_visual_worker_requirement(tmp_path)
+⋮----
+contract = jobs[0]["payload"]["handoff"]["tool_contracts"]["asset_forge"]
 ⋮----
 def test_workflow_rejects_cycle(tmp_path)
 ⋮----

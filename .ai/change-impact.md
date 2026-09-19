@@ -1,10 +1,10 @@
 # Change impact
 
-Base: 60d598369b5f4225b9722aff92115bc5619e35ce
-Head: ce6c2029d3021bfe9cea3532cd40d80f20a16f63
+Base: ec13157b83e239b058d41cc8408e52bbd377d39f
+Head: 050292288c346584d60f74ee73951bb42940d1e5
 
 ## Changed files
-- M tests/test_controller_asset_capabilities.py
+- M tests/test_workflow_engine.py
 
 ## Affected areas
 - tests
