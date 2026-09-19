@@ -59,3 +59,18 @@ def test_cross_repo_reuse_detection():
     capabilities = {item.capability for item in opportunities}
     assert "github-actions-ci" in capabilities
     assert "automated-tests" in capabilities
+
+
+def test_asset_production_platform_classification():
+    profile = classify_repository(
+        ev(
+            "asset-forge",
+            detected_files=["asset_forge.py", "runtime_atlas.py"],
+            readme_text=(
+                "Asset Forge is a central visual-asset production pipeline for "
+                "sprite atlas, SVG, glTF and Godot handoff."
+            ),
+        )
+    )
+    assert profile.kind == "asset-production-platform"
+    assert profile.confidence >= 0.9
