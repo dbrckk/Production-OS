@@ -9,7 +9,7 @@ from typing import Any
 from .runtime_state import task_key
 from .result_cache import ResultCache, fingerprint
 from .change_impact import analyze_change_impact
-from .task_capabilities import inferred_required_capabilities
+from .task_capabilities import asset_forge_tool_contract, inferred_required_capabilities
 
 
 TERMINAL_TASK_STATES = {"succeeded", "failed", "cancelled", "blocked"}
@@ -1002,6 +1002,11 @@ class WorkflowEngine:
             handoff.setdefault("priority", task["priority"])
             handoff["workflow_id"] = workflow_id
             handoff["workflow_task_id"] = task["task_id"]
+            asset_forge = asset_forge_tool_contract(handoff)
+            if asset_forge is not None:
+                contracts = dict(handoff.get("tool_contracts") or {})
+                contracts["asset_forge"] = asset_forge
+                handoff["tool_contracts"] = contracts
             attempt_number = int(task["attempts"]) + 1
             metadata = dict(workflow.get("metadata") or {})
             queue_payload = {
