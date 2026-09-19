@@ -50,6 +50,8 @@ config/
   auth.example.json
   policy.example.json
   workflow.example.json
+scripts/
+  render-start.py
 src/
   production_os/
     __init__.py
@@ -209,6 +211,7 @@ tests/
   test_rekor_witness_quorum.py
   test_release_ledger.py
   test_remote_worker.py
+  test_render_start.py
   test_result_cache.py
   test_runtime_state.py
   test_scheduler.py
@@ -586,6 +589,32 @@ initial_prompt: |
     }
   ]
 }
+````
+
+## File: scripts/render-start.py
+````python
+#!/usr/bin/env python3
+⋮----
+def _required(name: str) -> str
+⋮----
+value = str(os.environ.get(name) or "").strip()
+⋮----
+def _auth_payload(worker_token: str, operator_token: str) -> dict
+⋮----
+def digest(value: str) -> str
+⋮----
+def main() -> None
+⋮----
+database_url = _required("DATABASE_URL")
+worker_token = _required("PRODUCTION_OS_WORKER_TOKEN")
+operator_token = _required("PRODUCTION_OS_OPERATOR_TOKEN")
+port = str(os.environ.get("PORT") or "8787").strip()
+⋮----
+runtime_dir = Path(os.environ.get("PRODUCTION_OS_RUNTIME_DIR") or "/tmp/production-os")
+⋮----
+auth_path = runtime_dir / "auth.json"
+⋮----
+argv = [
 ````
 
 ## File: src/production_os/__init__.py
@@ -7198,6 +7227,32 @@ checkpoint=client.checkpoint_stale(
 ⋮----
 events=control.backend.events_after(0,1000)
 checkpoint_events=[
+````
+
+## File: tests/test_render_start.py
+````python
+ROOT = Path(__file__).resolve().parents[1]
+SCRIPT = ROOT / "scripts" / "render-start.py"
+SPEC = importlib.util.spec_from_file_location("render_start", SCRIPT)
+MODULE = importlib.util.module_from_spec(SPEC)
+⋮----
+class RenderStartTests(unittest.TestCase)
+⋮----
+def test_auth_payload_hashes_tokens_without_storing_plaintext(self)
+⋮----
+payload = MODULE._auth_payload("worker-secret", "operator-secret")
+rendered = json.dumps(payload)
+⋮----
+entries = {entry["role"]: entry for entry in payload["tokens"]}
+⋮----
+def test_main_builds_control_plane_command_from_environment(self)
+⋮----
+argv = execvp.call_args.args[1]
+⋮----
+auth_path = Path(td) / "auth.json"
+payload = json.loads(auth_path.read_text(encoding="utf-8"))
+⋮----
+def test_invalid_port_fails_closed(self)
 ````
 
 ## File: tests/test_result_cache.py

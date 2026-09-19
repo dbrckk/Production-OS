@@ -4,5 +4,190 @@
   "scope": "symbols defined in changed source files",
   "semantic": false,
   "note": "Dependencies are known symbol names lexically present inside the symbol's AST/source range.",
-  "symbols": {}
+  "symbols": {
+    "_required": {
+      "source": {
+        "file": "scripts/render-start.py",
+        "start": 11,
+        "end": 15
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "_auth_payload": {
+      "source": {
+        "file": "scripts/render-start.py",
+        "start": 18,
+        "end": 35
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "digest",
+          "definitions": [
+            {
+              "file": "scripts/render-start.py",
+              "line": 19,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "digest": {
+      "source": {
+        "file": "scripts/render-start.py",
+        "start": 19,
+        "end": 139
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_auth_payload",
+          "definitions": [
+            {
+              "file": "scripts/render-start.py",
+              "line": 18,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_required",
+          "definitions": [
+            {
+              "file": "scripts/render-start.py",
+              "line": 11,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "main",
+          "definitions": [
+            {
+              "file": "scripts/render-start.py",
+              "line": 38,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "main": {
+      "source": {
+        "file": "scripts/render-start.py",
+        "start": 38,
+        "end": 70
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_auth_payload",
+          "definitions": [
+            {
+              "file": "scripts/render-start.py",
+              "line": 18,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_required",
+          "definitions": [
+            {
+              "file": "scripts/render-start.py",
+              "line": 11,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "RenderStartTests": {
+      "source": {
+        "file": "tests/test_render_start.py",
+        "start": 19,
+        "end": 74
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "test_auth_payload_hashes_tokens_without_storing_plaintext",
+          "definitions": [
+            {
+              "file": "tests/test_render_start.py",
+              "line": 20,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "test_invalid_port_fails_closed",
+          "definitions": [
+            {
+              "file": "tests/test_render_start.py",
+              "line": 62,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "test_main_builds_control_plane_command_from_environment",
+          "definitions": [
+            {
+              "file": "tests/test_render_start.py",
+              "line": 36,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "test_auth_payload_hashes_tokens_without_storing_plaintext": {
+      "source": {
+        "file": "tests/test_render_start.py",
+        "start": 20,
+        "end": 34
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "test_main_builds_control_plane_command_from_environment": {
+      "source": {
+        "file": "tests/test_render_start.py",
+        "start": 36,
+        "end": 60
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "test_invalid_port_fails_closed": {
+      "source": {
+        "file": "tests/test_render_start.py",
+        "start": 62,
+        "end": 74
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    }
+  }
 }

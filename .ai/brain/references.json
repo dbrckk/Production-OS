@@ -4,5 +4,556 @@
   "scope": "symbols defined in changed source files",
   "semantic": false,
   "note": "Occurrences are lexical word matches; verify source/LSP/compiler data before relying on them.",
-  "symbols": {}
+  "symbols": {
+    "_required": {
+      "definition": {
+        "file": "scripts/render-start.py",
+        "line": 11,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "scripts/render-start.py",
+          "line": 11,
+          "preview": "def _required(name: str) -> str:",
+          "definition_candidate": true
+        },
+        {
+          "file": "scripts/render-start.py",
+          "line": 39,
+          "preview": "database_url = _required(\"DATABASE_URL\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "scripts/render-start.py",
+          "line": 40,
+          "preview": "worker_token = _required(\"PRODUCTION_OS_WORKER_TOKEN\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "scripts/render-start.py",
+          "line": 41,
+          "preview": "operator_token = _required(\"PRODUCTION_OS_OPERATOR_TOKEN\")",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 4
+    },
+    "_auth_payload": {
+      "definition": {
+        "file": "scripts/render-start.py",
+        "line": 18,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "scripts/render-start.py",
+          "line": 18,
+          "preview": "def _auth_payload(worker_token: str, operator_token: str) -> dict:",
+          "definition_candidate": true
+        },
+        {
+          "file": "scripts/render-start.py",
+          "line": 50,
+          "preview": "json.dumps(_auth_payload(worker_token, operator_token), separators=(\",\", \":\")),",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_render_start.py",
+          "line": 21,
+          "preview": "payload = MODULE._auth_payload(\"worker-secret\", \"operator-secret\")",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 3
+    },
+    "digest": {
+      "definition": {
+        "file": "scripts/render-start.py",
+        "line": 19,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "scripts/render-start.py",
+          "line": 19,
+          "preview": "def digest(value: str) -> str:",
+          "definition_candidate": true
+        },
+        {
+          "file": "scripts/render-start.py",
+          "line": 27,
+          "preview": "\"sha256\": digest(worker_token),",
+          "definition_candidate": false
+        },
+        {
+          "file": "scripts/render-start.py",
+          "line": 32,
+          "preview": "\"sha256\": digest(operator_token),",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/api_auth.py",
+          "line": 51,
+          "preview": "digest = token_digest(token)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/api_auth.py",
+          "line": 54,
+          "preview": "if expected and hmac.compare_digest(digest, expected):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/backup.py",
+          "line": 13,
+          "preview": "digest = hashlib.sha256()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/backup.py",
+          "line": 16,
+          "preview": "digest.update(chunk)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/backup.py",
+          "line": 17,
+          "preview": "return digest.hexdigest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/rekor_checkpoint_state.py",
+          "line": 27,
+          "preview": "return hashlib.sha256(b\"\\x01\" + left + right).digest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/release_ledger.py",
+          "line": 1223,
+          "preview": "\"reason\":\"SLSA statement digest mismatch\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/release_ledger.py",
+          "line": 1298,
+          "preview": "\"reason\":\"transparency provenance digest mismatch\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/supply_chain.py",
+          "line": 24,
+          "preview": "digest = str(value or \"\").lower()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/supply_chain.py",
+          "line": 26,
+          "preview": "len(digest) != 64",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/supply_chain.py",
+          "line": 27,
+          "preview": "or any(ch not in \"0123456789abcdef\" for ch in digest)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/supply_chain.py",
+          "line": 30,
+          "preview": "return digest",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/supply_chain.py",
+          "line": 40,
+          "preview": "digest = _sha256_digest(metadata.get(\"artifact_sha256\"))",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/supply_chain.py",
+          "line": 51,
+          "preview": "\"digest\":{\"gitCommit\":str(source_revision)},",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/supply_chain.py",
+          "line": 58,
+          "preview": "\"digest\":{\"sha256\":digest},",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/supply_chain.py",
+          "line": 145,
+          "preview": "digest = dict(subjects[0].get(\"digest\") or {}).get(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/supply_chain.py",
+          "line": 148,
+          "preview": "if digest != _sha256_digest(expected_sha256):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/transparency_receipts.py",
+          "line": 75,
+          "preview": "return hashlib.sha256(b\"\\x00\" + body).digest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/transparency_receipts.py",
+          "line": 79,
+          "preview": "return hashlib.sha256(b\"\\x01\" + left + right).digest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/transparency_receipts.py",
+          "line": 151,
+          "preview": "raise TransparencyReceiptError(\"invalid Rekor checkpoint digest\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/transparency_receipts.py",
+          "line": 256,
+          "preview": "key_hint = hashlib.sha256(der).digest()[:4]",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/transparency_receipts.py",
+          "line": 258,
+          "preview": "digest = hashlib.sha256(note_bytes).digest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/transparency_receipts.py",
+          "line": 274,
+          "preview": "digest,",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/transparency_receipts.py",
+          "line": 280,
+          "preview": "digest,",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/transparency_receipts.py",
+          "line": 330,
+          "preview": "raise TransparencyReceiptError(\"checkpoint digest mismatch\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_rekor_checkpoint_state.py",
+          "line": 16,
+          "preview": "return hashlib.sha256(b\"\\x00\" + payload).digest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_rekor_checkpoint_state.py",
+          "line": 20,
+          "preview": "return hashlib.sha256(b\"\\x01\" + left + right).digest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_rekor_checkpoint_state_concurrency.py",
+          "line": 15,
+          "preview": "return hashlib.sha256(b\"\\x00\" + payload).digest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_rekor_checkpoint_state_concurrency.py",
+          "line": 19,
+          "preview": "return hashlib.sha256(b\"\\x01\" + left + right).digest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_rekor_signed_checkpoint.py",
+          "line": 21,
+          "preview": "key_hint = hashlib.sha256(public_der).digest()[:4]",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_rekor_signed_checkpoint.py",
+          "line": 38,
+          "preview": "digest = hashlib.sha256(note.encode(\"utf-8\")).digest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_rekor_signed_checkpoint.py",
+          "line": 40,
+          "preview": "digest,",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_rekor_signed_checkpoint_receipt.py",
+          "line": 55,
+          "preview": "key_hint = hashlib.sha256(der).digest()[:4]",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_rekor_signed_checkpoint_receipt.py",
+          "line": 56,
+          "preview": "digest = hashlib.sha256(note.encode(\"utf-8\")).digest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_rekor_signed_checkpoint_receipt.py",
+          "line": 58,
+          "preview": "digest,",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_secure_release_e2e.py",
+          "line": 205,
+          "preview": "name=\"digest-test\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_supply_chain.py",
+          "line": 49,
+          "preview": "assert statement[\"subject\"][0][\"digest\"][\"sha256\"]==\"a\"*64",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_supply_chain.py",
+          "line": 53,
+          "preview": "assert dependency[\"digest\"][\"gitCommit\"]==\"abc123\"",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_supply_chain.py",
+          "line": 84,
+          "preview": "envelope[\"statement\"][\"subject\"][0][\"digest\"][\"sha256\"]=\"b\"*64",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_transparency_cli.py",
+          "line": 55,
+          "preview": "key_hint = hashlib.sha256(log_public_der).digest()[:4]",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_transparency_cli.py",
+          "line": 56,
+          "preview": "note_digest = hashlib.sha256(note.encode(\"utf-8\")).digest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_transparency_receipts.py",
+          "line": 109,
+          "preview": "left_hash = hashlib.sha256(b\"\\x00\" + left).digest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_transparency_receipts.py",
+          "line": 110,
+          "preview": "right_hash = hashlib.sha256(b\"\\x00\" + right).digest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_transparency_receipts.py",
+          "line": 131,
+          "preview": "def _rekor_response(envelope, *, digest=None, log_id=None):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_transparency_receipts.py",
+          "line": 137,
+          "preview": "if digest is not None:",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_transparency_receipts.py",
+          "line": 138,
+          "preview": "proposed[\"spec\"][\"data\"][\"hash\"][\"value\"] = digest",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_transparency_receipts.py",
+          "line": 186,
+          "preview": "key_hint = hashlib.sha256(public_der).digest()[:4]",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_transparency_receipts.py",
+          "line": 187,
+          "preview": "checkpoint_digest = hashlib.sha256(note.encode(\"utf-8\")).digest()",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_transparency_receipts.py",
+          "line": 238,
+          "preview": "match=\"checkpoint digest mismatch\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_transparency_receipts.py",
+          "line": 241,
+          "preview": "_rekor_response(_envelope(), digest=\"0\" * 64),",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_transparency_receipts.py",
+          "line": 370,
+          "preview": "signer=lambda payload: b\"signed:\" + hashlib.sha256(payload).digest(),",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 54
+    },
+    "main": {
+      "definition": {
+        "file": "scripts/render-start.py",
+        "line": 38,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "scripts/render-start.py",
+          "line": 38,
+          "preview": "def main() -> None:",
+          "definition_candidate": true
+        },
+        {
+          "file": "scripts/render-start.py",
+          "line": 74,
+          "preview": "main()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2433,
+          "preview": "def main(argv: list[str] | None = None) -> int:",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2573,
+          "preview": "raise SystemExit(main())",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 257,
+          "preview": "default_branch = repo.get(\"default_branch\") or \"main\"",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/models.py",
+          "line": 12,
+          "preview": "default_branch: str = \"main\"",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/scoring.py",
+          "line": 98,
+          "preview": "[\"CI runs on pull requests and main\", \"Build/test failures block the workflow\", \"Workflow is reproducible\"],",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_render_start.py",
+          "line": 48,
+          "preview": "MODULE.main()",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_render_start.py",
+          "line": 74,
+          "preview": "MODULE.main()",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_render_start.py",
+          "line": 78,
+          "preview": "unittest.main()",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_source_tree.py",
+          "line": 5,
+          "preview": "assert is_candidate_file(\"app/src/main/Foo.kt\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_source_tree.py",
+          "line": 12,
+          "preview": "assert path_priority(\"src/main.py\") < path_priority(\"docs/notes.md\")",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 12
+    },
+    "RenderStartTests": {
+      "definition": {
+        "file": "tests/test_render_start.py",
+        "line": 19,
+        "kind": "class",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "tests/test_render_start.py",
+          "line": 19,
+          "preview": "class RenderStartTests(unittest.TestCase):",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 1
+    },
+    "test_auth_payload_hashes_tokens_without_storing_plaintext": {
+      "definition": {
+        "file": "tests/test_render_start.py",
+        "line": 20,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "tests/test_render_start.py",
+          "line": 20,
+          "preview": "def test_auth_payload_hashes_tokens_without_storing_plaintext(self):",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 1
+    },
+    "test_main_builds_control_plane_command_from_environment": {
+      "definition": {
+        "file": "tests/test_render_start.py",
+        "line": 36,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "tests/test_render_start.py",
+          "line": 36,
+          "preview": "def test_main_builds_control_plane_command_from_environment(self):",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 1
+    },
+    "test_invalid_port_fails_closed": {
+      "definition": {
+        "file": "tests/test_render_start.py",
+        "line": 62,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "tests/test_render_start.py",
+          "line": 62,
+          "preview": "def test_invalid_port_fails_closed(self):",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 1
+    }
+  }
 }

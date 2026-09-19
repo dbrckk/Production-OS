@@ -22,16 +22,18 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-19T07:38:32Z
+Generated: 2026-09-19T15:21:45Z
 
 ### Git
 - Branch: `main`
-- Head: `a165224242e9`
-- Commit date: 2026-09-19T09:38:02+02:00
-- Commit: chore(ai): adopt stable repo standards v20
-- Tracked files: 311
+- Head: `fdc13ce04fac`
+- Commit date: 2026-09-19T17:21:36+02:00
+- Commit: feat: add secure Render deployment bootstrap
+- Tracked files: 314
 
 ### Recently changed files
+- `tests/test_render_start.py`
+- `scripts/render-start.py`
 - `.repo-standards.yml`
 
 ### Project signals

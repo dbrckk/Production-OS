@@ -1,13 +1,15 @@
 # Change impact
 
-Base: 9120751ff85c64109f473023df8ee10656cfb11a
-Head: a165224242e9042a174afcf219940afe01d9a136
+Base: c42ddba5f0ca02aaf076f5ecb634ebd7e27e4844
+Head: fdc13ce04face30cd7de973695d3cfc13dc4a058
 
 ## Changed files
-- M .repo-standards.yml
+- A scripts/render-start.py
+- A tests/test_render_start.py
 
 ## Affected areas
-- (root)
+- scripts
+- tests
 
 ## Related test candidates
 - No direct filename-based test match detected.
