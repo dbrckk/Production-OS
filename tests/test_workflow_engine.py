@@ -54,6 +54,28 @@ def test_workflow_fanout_fanin(tmp_path):
     assert wf.get(created["id"])["status"]=="succeeded"
 
 
+def test_workflow_dispatch_infers_visual_worker_requirement(tmp_path):
+    wf=engine(tmp_path)
+    created=wf.create(
+        name="visual",
+        repository="o/game",
+        tasks=[
+            WorkflowTaskSpec(
+                "art",
+                "Create enemy sprite sheet",
+                {"handoff":{"task":"Create enemy sprite sheet"}},
+            )
+        ],
+    )
+
+    jobs=wf.dispatch_ready(created["id"])
+
+    assert len(jobs)==1
+    assert jobs[0]["payload"]["required_capabilities"] == [
+        "visual-asset-production"
+    ]
+
+
 def test_workflow_rejects_cycle(tmp_path):
     wf=engine(tmp_path)
     with pytest.raises(ValueError):
