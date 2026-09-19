@@ -22,19 +22,21 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-19T15:21:45Z
+Generated: 2026-09-19T19:23:50Z
 
 ### Git
 - Branch: `main`
-- Head: `fdc13ce04fac`
-- Commit date: 2026-09-19T17:21:36+02:00
-- Commit: feat: add secure Render deployment bootstrap
-- Tracked files: 314
+- Head: `15a0918eecbe`
+- Commit date: 2026-09-19T21:23:36+02:00
+- Commit: test: cover asset production classification
+- Tracked files: 319
 
 ### Recently changed files
+- `tests/test_classification_history_reuse.py`
+- `tests/test_capabilities_graph.py`
+- `src/production_os/classification.py`
+- `src/production_os/capabilities.py`
 - `tests/test_render_start.py`
-- `scripts/render-start.py`
-- `.repo-standards.yml`
 
 ### Project signals
 - `pyproject.toml`

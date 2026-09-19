@@ -4,17 +4,37 @@
     "expand_to": 12,
     "max_files": 6,
     "requested_max_files": 12,
-    "score_margin": 6,
+    "score_margin": 3,
     "tier": "bounded",
-    "top_score": 27
+    "top_score": 30
   },
   "cache": {
-    "fingerprint": "f6955c8c2c19a5389fa4169ba5a409196ca525a32fe0ca199c4b3d608915de6f",
+    "fingerprint": "8686b861b811ea953a6b530e496d631c0580005a323d9eba0cfd92935873b633",
     "hit": false
   },
-  "candidate_count": 18,
+  "candidate_count": 17,
   "fallback": "If bounded context is insufficient, expand only to budget.expand_to, then use architecture/segmented maps and targeted source search.",
   "files": [
+    {
+      "learning_score": 0,
+      "matched_terms": [
+        "game"
+      ],
+      "path": "tests/test_classification_history_reuse.py",
+      "reasons": [
+        "impact",
+        "recently-changed",
+        "search-index"
+      ],
+      "score": 30,
+      "symbols": [
+        "ev",
+        "test_android_game_classification",
+        "test_asset_production_platform_classification",
+        "test_cross_repo_reuse_detection",
+        "test_regression_detection"
+      ]
+    },
     {
       "learning_score": 0,
       "matched_terms": [
@@ -50,6 +70,62 @@
       "matched_terms": [
         "engine"
       ],
+      "path": "src/production_os/capabilities.py",
+      "reasons": [
+        "impact",
+        "recently-changed",
+        "search-index"
+      ],
+      "score": 26,
+      "symbols": [
+        "Capability",
+        "_contains",
+        "add",
+        "extract_capabilities",
+        "to_dict"
+      ]
+    },
+    {
+      "learning_score": 0,
+      "matched_terms": [
+        "game"
+      ],
+      "path": "src/production_os/classification.py",
+      "reasons": [
+        "impact",
+        "recently-changed",
+        "search-index"
+      ],
+      "score": 26,
+      "symbols": [
+        "ProjectProfile",
+        "classify_repository"
+      ]
+    },
+    {
+      "learning_score": 0,
+      "matched_terms": [
+        "game"
+      ],
+      "path": "src/production_os/scoring.py",
+      "reasons": [
+        "impact",
+        "search-index"
+      ],
+      "score": 23,
+      "symbols": [
+        "_recent_activity_points",
+        "add",
+        "assess_repository",
+        "generate_actions",
+        "score_repository"
+      ]
+    },
+    {
+      "learning_score": 0,
+      "matched_terms": [
+        "engine"
+      ],
       "path": "src/production_os/cli.py",
       "reasons": [
         "search-index"
@@ -76,70 +152,6 @@
         "run_controller_command",
         "run_db_import",
         "run_db_init"
-      ]
-    },
-    {
-      "learning_score": 0,
-      "matched_terms": [
-        "game"
-      ],
-      "path": "tests/test_classification_history_reuse.py",
-      "reasons": [
-        "search-index"
-      ],
-      "score": 21,
-      "symbols": [
-        "ev",
-        "test_android_game_classification",
-        "test_cross_repo_reuse_detection",
-        "test_regression_detection"
-      ]
-    },
-    {
-      "learning_score": 0,
-      "matched_terms": [
-        "engine"
-      ],
-      "path": "tests/test_workflow_postgres.py",
-      "reasons": [
-        "search-index"
-      ],
-      "score": 21,
-      "symbols": [
-        "test_postgres_workflow_engine"
-      ]
-    },
-    {
-      "learning_score": 0,
-      "matched_terms": [
-        "engine"
-      ],
-      "path": "src/production_os/capabilities.py",
-      "reasons": [
-        "search-index"
-      ],
-      "score": 17,
-      "symbols": [
-        "Capability",
-        "_contains",
-        "add",
-        "extract_capabilities",
-        "to_dict"
-      ]
-    },
-    {
-      "learning_score": 0,
-      "matched_terms": [
-        "game"
-      ],
-      "path": "src/production_os/classification.py",
-      "reasons": [
-        "search-index"
-      ],
-      "score": 17,
-      "symbols": [
-        "ProjectProfile",
-        "classify_repository"
       ]
     }
   ],

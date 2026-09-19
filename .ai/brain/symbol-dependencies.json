@@ -5,28 +5,19 @@
   "semantic": false,
   "note": "Dependencies are known symbol names lexically present inside the symbol's AST/source range.",
   "symbols": {
-    "_required": {
+    "Capability": {
       "source": {
-        "file": "scripts/render-start.py",
-        "start": 11,
-        "end": 15
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "_auth_payload": {
-      "source": {
-        "file": "scripts/render-start.py",
-        "start": 18,
-        "end": 35
+        "file": "src/production_os/capabilities.py",
+        "start": 9,
+        "end": 21
       },
       "symbol_dependencies": [
         {
-          "symbol": "digest",
+          "symbol": "to_dict",
           "definitions": [
             {
-              "file": "scripts/render-start.py",
-              "line": 19,
+              "file": "src/production_os/capabilities.py",
+              "line": 15,
               "kind": "function",
               "language": "python"
             }
@@ -36,19 +27,61 @@
       ],
       "dependency_count": 1
     },
-    "digest": {
+    "to_dict": {
       "source": {
-        "file": "scripts/render-start.py",
-        "start": 19,
-        "end": 139
+        "file": "src/production_os/capabilities.py",
+        "start": 15,
+        "end": 21
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "_contains": {
+      "source": {
+        "file": "src/production_os/capabilities.py",
+        "start": 24,
+        "end": 25
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "extract_capabilities": {
+      "source": {
+        "file": "src/production_os/capabilities.py",
+        "start": 28,
+        "end": 116
       },
       "symbol_dependencies": [
         {
-          "symbol": "_auth_payload",
+          "symbol": "Capability",
           "definitions": [
             {
-              "file": "scripts/render-start.py",
-              "line": 18,
+              "file": "src/production_os/capabilities.py",
+              "line": 9,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "RepoEvidence",
+          "definitions": [
+            {
+              "file": "src/production_os/models.py",
+              "line": 8,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_contains",
+          "definitions": [
+            {
+              "file": "src/production_os/capabilities.py",
+              "line": 24,
               "kind": "function",
               "language": "python"
             }
@@ -56,23 +89,11 @@
           "relation": "same_file"
         },
         {
-          "symbol": "_required",
+          "symbol": "add",
           "definitions": [
             {
-              "file": "scripts/render-start.py",
-              "line": 11,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "main",
-          "definitions": [
-            {
-              "file": "scripts/render-start.py",
-              "line": 38,
+              "file": "src/production_os/capabilities.py",
+              "line": 34,
               "kind": "function",
               "language": "python"
             }
@@ -80,33 +101,33 @@
           "relation": "same_file"
         }
       ],
-      "dependency_count": 3
+      "dependency_count": 4
     },
-    "main": {
+    "add": {
       "source": {
-        "file": "scripts/render-start.py",
-        "start": 38,
-        "end": 70
+        "file": "src/production_os/capabilities.py",
+        "start": 34,
+        "end": 154
       },
       "symbol_dependencies": [
         {
-          "symbol": "_auth_payload",
+          "symbol": "Capability",
           "definitions": [
             {
-              "file": "scripts/render-start.py",
-              "line": 18,
-              "kind": "function",
+              "file": "src/production_os/capabilities.py",
+              "line": 9,
+              "kind": "class",
               "language": "python"
             }
           ],
           "relation": "same_file"
         },
         {
-          "symbol": "_required",
+          "symbol": "_contains",
           "definitions": [
             {
-              "file": "scripts/render-start.py",
-              "line": 11,
+              "file": "src/production_os/capabilities.py",
+              "line": 24,
               "kind": "function",
               "language": "python"
             }
@@ -116,19 +137,84 @@
       ],
       "dependency_count": 2
     },
-    "RenderStartTests": {
+    "ProjectProfile": {
       "source": {
-        "file": "tests/test_render_start.py",
-        "start": 19,
-        "end": 74
+        "file": "src/production_os/classification.py",
+        "start": 9,
+        "end": 12
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "classify_repository": {
+      "source": {
+        "file": "src/production_os/classification.py",
+        "start": 15,
+        "end": 53
       },
       "symbol_dependencies": [
         {
-          "symbol": "test_auth_payload_hashes_tokens_without_storing_plaintext",
+          "symbol": "ProjectProfile",
           "definitions": [
             {
-              "file": "tests/test_render_start.py",
-              "line": 20,
+              "file": "src/production_os/classification.py",
+              "line": 9,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "RepoEvidence",
+          "definitions": [
+            {
+              "file": "src/production_os/models.py",
+              "line": 8,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "evidence": {
+      "source": {
+        "file": "tests/test_capabilities_graph.py",
+        "start": 7,
+        "end": 15
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "RepoEvidence",
+          "definitions": [
+            {
+              "file": "src/production_os/models.py",
+              "line": 8,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "test_android_product_capabilities_are_extracted": {
+      "source": {
+        "file": "tests/test_capabilities_graph.py",
+        "start": 18,
+        "end": 35
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "evidence",
+          "definitions": [
+            {
+              "file": "tests/test_capabilities_graph.py",
+              "line": 7,
               "kind": "function",
               "language": "python"
             }
@@ -136,23 +222,57 @@
           "relation": "same_file"
         },
         {
-          "symbol": "test_invalid_port_fails_closed",
+          "symbol": "extract_capabilities",
           "definitions": [
             {
-              "file": "tests/test_render_start.py",
-              "line": 62,
+              "file": "src/production_os/capabilities.py",
+              "line": 28,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "same_file"
-        },
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "test_knowledge_graph_contains_repo_capability_edges": {
+      "source": {
+        "file": "tests/test_capabilities_graph.py",
+        "start": 38,
+        "end": 52
+      },
+      "symbol_dependencies": [
         {
-          "symbol": "test_main_builds_control_plane_command_from_environment",
+          "symbol": "assess_repository",
           "definitions": [
             {
-              "file": "tests/test_render_start.py",
-              "line": 36,
+              "file": "src/production_os/scoring.py",
+              "line": 157,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "build_knowledge_graph",
+          "definitions": [
+            {
+              "file": "src/production_os/graph.py",
+              "line": 25,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "evidence",
+          "definitions": [
+            {
+              "file": "tests/test_capabilities_graph.py",
+              "line": 7,
               "kind": "function",
               "language": "python"
             }
@@ -162,32 +282,233 @@
       ],
       "dependency_count": 3
     },
-    "test_auth_payload_hashes_tokens_without_storing_plaintext": {
+    "test_visual_asset_platform_capabilities_are_extracted": {
       "source": {
-        "file": "tests/test_render_start.py",
-        "start": 20,
-        "end": 34
+        "file": "tests/test_capabilities_graph.py",
+        "start": 55,
+        "end": 73
       },
-      "symbol_dependencies": [],
-      "dependency_count": 0
+      "symbol_dependencies": [
+        {
+          "symbol": "evidence",
+          "definitions": [
+            {
+              "file": "tests/test_capabilities_graph.py",
+              "line": 7,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "extract_capabilities",
+          "definitions": [
+            {
+              "file": "src/production_os/capabilities.py",
+              "line": 28,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
     },
-    "test_main_builds_control_plane_command_from_environment": {
+    "ev": {
       "source": {
-        "file": "tests/test_render_start.py",
-        "start": 36,
-        "end": 60
+        "file": "tests/test_classification_history_reuse.py",
+        "start": 8,
+        "end": 16
       },
-      "symbol_dependencies": [],
-      "dependency_count": 0
+      "symbol_dependencies": [
+        {
+          "symbol": "RepoEvidence",
+          "definitions": [
+            {
+              "file": "src/production_os/models.py",
+              "line": 8,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
     },
-    "test_invalid_port_fails_closed": {
+    "test_android_game_classification": {
       "source": {
-        "file": "tests/test_render_start.py",
-        "start": 62,
-        "end": 74
+        "file": "tests/test_classification_history_reuse.py",
+        "start": 19,
+        "end": 27
       },
-      "symbol_dependencies": [],
-      "dependency_count": 0
+      "symbol_dependencies": [
+        {
+          "symbol": "classify_repository",
+          "definitions": [
+            {
+              "file": "src/production_os/classification.py",
+              "line": 15,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "ev",
+          "definitions": [
+            {
+              "file": "tests/test_classification_history_reuse.py",
+              "line": 8,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "test_regression_detection": {
+      "source": {
+        "file": "tests/test_classification_history_reuse.py",
+        "start": 30,
+        "end": 36
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "assess_repository",
+          "definitions": [
+            {
+              "file": "src/production_os/scoring.py",
+              "line": 157,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "build_snapshot",
+          "definitions": [
+            {
+              "file": "src/production_os/history.py",
+              "line": 20,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "detect_regressions",
+          "definitions": [
+            {
+              "file": "src/production_os/history.py",
+              "line": 57,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "ev",
+          "definitions": [
+            {
+              "file": "tests/test_classification_history_reuse.py",
+              "line": 8,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "test_cross_repo_reuse_detection": {
+      "source": {
+        "file": "tests/test_classification_history_reuse.py",
+        "start": 39,
+        "end": 61
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "assess_repository",
+          "definitions": [
+            {
+              "file": "src/production_os/scoring.py",
+              "line": 157,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "detect_reuse",
+          "definitions": [
+            {
+              "file": "src/production_os/reuse.py",
+              "line": 79,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "ev",
+          "definitions": [
+            {
+              "file": "tests/test_classification_history_reuse.py",
+              "line": 8,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "test_asset_production_platform_classification": {
+      "source": {
+        "file": "tests/test_classification_history_reuse.py",
+        "start": 64,
+        "end": 76
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "classify_repository",
+          "definitions": [
+            {
+              "file": "src/production_os/classification.py",
+              "line": 15,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "ev",
+          "definitions": [
+            {
+              "file": "tests/test_classification_history_reuse.py",
+              "line": 8,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 2
     }
   }
 }

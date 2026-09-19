@@ -5880,6 +5880,8 @@ def test_knowledge_graph_contains_repo_capability_edges()
 ⋮----
 assessment = assess_repository(
 graph = build_knowledge_graph([assessment])
+⋮----
+def test_visual_asset_platform_capabilities_are_extracted()
 ````
 
 ## File: tests/test_change_impact.py
@@ -5958,6 +5960,8 @@ source = assess_repository(
 target = assess_repository(
 opportunities = detect_reuse([source, target])
 capabilities = {item.capability for item in opportunities}
+⋮----
+def test_asset_production_platform_classification()
 ````
 
 ## File: tests/test_cli.py

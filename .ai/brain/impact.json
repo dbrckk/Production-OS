@@ -1,78 +1,170 @@
 {
   "schema_version": 1,
   "generated_by": "dbrckk/repo-brain",
-  "base": "a165224242e9042a174afcf219940afe01d9a136",
-  "head": "fdc13ce04face30cd7de973695d3cfc13dc4a058",
+  "base": "fdc13ce04face30cd7de973695d3cfc13dc4a058",
+  "head": "15a0918eecbe28776e9eb34c877110bcab6ed489",
   "index_mode": "incremental",
   "changed_files": [
     {
-      "path": "scripts/render-start.py",
-      "status": "A"
+      "path": "src/production_os/capabilities.py",
+      "status": "M"
     },
     {
-      "path": "tests/test_render_start.py",
-      "status": "A"
+      "path": "src/production_os/classification.py",
+      "status": "M"
+    },
+    {
+      "path": "tests/test_capabilities_graph.py",
+      "status": "M"
+    },
+    {
+      "path": "tests/test_classification_history_reuse.py",
+      "status": "M"
     }
   ],
   "changed_source_files": [
-    "scripts/render-start.py",
-    "tests/test_render_start.py"
+    "src/production_os/capabilities.py",
+    "src/production_os/classification.py",
+    "tests/test_capabilities_graph.py",
+    "tests/test_classification_history_reuse.py"
   ],
   "impacted_files": [
-    "scripts/render-start.py",
-    "tests/test_render_start.py"
+    "src/production_os/capabilities.py",
+    "src/production_os/classification.py",
+    "src/production_os/scoring.py",
+    "tests/test_capabilities_graph.py",
+    "tests/test_classification_history_reuse.py"
   ],
   "impacted_symbols": [
     {
-      "name": "_required",
-      "kind": "function",
-      "file": "scripts/render-start.py",
-      "line": 11
+      "name": "Capability",
+      "kind": "class",
+      "file": "src/production_os/capabilities.py",
+      "line": 9
     },
     {
-      "name": "_auth_payload",
+      "name": "to_dict",
       "kind": "function",
-      "file": "scripts/render-start.py",
+      "file": "src/production_os/capabilities.py",
+      "line": 15
+    },
+    {
+      "name": "_contains",
+      "kind": "function",
+      "file": "src/production_os/capabilities.py",
+      "line": 24
+    },
+    {
+      "name": "extract_capabilities",
+      "kind": "function",
+      "file": "src/production_os/capabilities.py",
+      "line": 28
+    },
+    {
+      "name": "add",
+      "kind": "function",
+      "file": "src/production_os/capabilities.py",
+      "line": 34
+    },
+    {
+      "name": "ProjectProfile",
+      "kind": "class",
+      "file": "src/production_os/classification.py",
+      "line": 9
+    },
+    {
+      "name": "classify_repository",
+      "kind": "function",
+      "file": "src/production_os/classification.py",
+      "line": 15
+    },
+    {
+      "name": "_recent_activity_points",
+      "kind": "function",
+      "file": "src/production_os/scoring.py",
+      "line": 12
+    },
+    {
+      "name": "score_repository",
+      "kind": "function",
+      "file": "src/production_os/scoring.py",
+      "line": 29
+    },
+    {
+      "name": "generate_actions",
+      "kind": "function",
+      "file": "src/production_os/scoring.py",
+      "line": 55
+    },
+    {
+      "name": "add",
+      "kind": "function",
+      "file": "src/production_os/scoring.py",
+      "line": 58
+    },
+    {
+      "name": "assess_repository",
+      "kind": "function",
+      "file": "src/production_os/scoring.py",
+      "line": 157
+    },
+    {
+      "name": "evidence",
+      "kind": "function",
+      "file": "tests/test_capabilities_graph.py",
+      "line": 7
+    },
+    {
+      "name": "test_android_product_capabilities_are_extracted",
+      "kind": "function",
+      "file": "tests/test_capabilities_graph.py",
       "line": 18
     },
     {
-      "name": "digest",
+      "name": "test_knowledge_graph_contains_repo_capability_edges",
       "kind": "function",
-      "file": "scripts/render-start.py",
-      "line": 19
-    },
-    {
-      "name": "main",
-      "kind": "function",
-      "file": "scripts/render-start.py",
+      "file": "tests/test_capabilities_graph.py",
       "line": 38
     },
     {
-      "name": "RenderStartTests",
-      "kind": "class",
-      "file": "tests/test_render_start.py",
+      "name": "test_visual_asset_platform_capabilities_are_extracted",
+      "kind": "function",
+      "file": "tests/test_capabilities_graph.py",
+      "line": 55
+    },
+    {
+      "name": "ev",
+      "kind": "function",
+      "file": "tests/test_classification_history_reuse.py",
+      "line": 8
+    },
+    {
+      "name": "test_android_game_classification",
+      "kind": "function",
+      "file": "tests/test_classification_history_reuse.py",
       "line": 19
     },
     {
-      "name": "test_auth_payload_hashes_tokens_without_storing_plaintext",
+      "name": "test_regression_detection",
       "kind": "function",
-      "file": "tests/test_render_start.py",
-      "line": 20
+      "file": "tests/test_classification_history_reuse.py",
+      "line": 30
     },
     {
-      "name": "test_main_builds_control_plane_command_from_environment",
+      "name": "test_cross_repo_reuse_detection",
       "kind": "function",
-      "file": "tests/test_render_start.py",
-      "line": 36
+      "file": "tests/test_classification_history_reuse.py",
+      "line": 39
     },
     {
-      "name": "test_invalid_port_fails_closed",
+      "name": "test_asset_production_platform_classification",
       "kind": "function",
-      "file": "tests/test_render_start.py",
-      "line": 62
+      "file": "tests/test_classification_history_reuse.py",
+      "line": 64
     }
   ],
   "selected_tests": [
-    "tests/test_render_start.py"
+    "tests/test_capabilities_graph.py",
+    "tests/test_classification_history_reuse.py"
   ]
 }
