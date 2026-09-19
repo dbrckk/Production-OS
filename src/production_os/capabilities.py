@@ -69,6 +69,17 @@ def extract_capabilities(e: RepoEvidence) -> list[Capability]:
     if _contains(text, "flutter"):
         add("flutter", 0.99, ["README mentions Flutter"], portable=False)
 
+    if _contains(text, "visual-asset production", "visual asset production", "sprite atlas", "asset-forge"):
+        add("visual-asset-pipeline", 0.97, ["README describes visual asset production"])
+    if _contains(text, "sprite sheets", "sprite atlas", "atlas packing", "runtime atlas"):
+        add("sprite-atlas-pipeline", 0.95, ["README describes sprite atlas tooling"])
+    if _contains(text, "gltf", "glb", "3d quality", "blender export"):
+        add("gltf-asset-pipeline", 0.93, ["README describes glTF/GLB asset tooling"])
+    if _contains(text, "svg", "vector", "sanitize-svg"):
+        add("vector-asset-pipeline", 0.90, ["README describes SVG/vector tooling"])
+    if _contains(text, "godot handoff", "godot 4 handoff", "export-godot"):
+        add("godot-asset-handoff", 0.94, ["README describes Godot asset handoff"])
+
     if _contains(text, "multi-agent", "multi-agent", "agent router", "meta-router"):
         add("multi-agent-orchestration", 0.91, ["README mentions multi-agent routing"])
     if _contains(text, "autonomous", "autonomy"):
