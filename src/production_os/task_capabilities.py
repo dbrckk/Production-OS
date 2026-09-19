@@ -23,6 +23,17 @@ _VISUAL_PATTERNS = (
     r"\bmesh(?:es)?\b",
     r"\bvisual(?:s| design| quality| polish)?\b",
     r"\bui\s+(?:art|design|graphics|assets|icons)\b",
+    r"\bgraphisme(?:s)?\b",
+    r"\bgraphique(?:s)?\b",
+    r"\bic[oô]ne(?:s)?\b",
+    r"\bvecteur(?:s)?\b",
+    r"\bvectoriel(?:le|les|s)?\b",
+    r"\bmod[eè]le(?:s)?\s+3d\b",
+    r"\bpersonnage(?:s)?\s+3d\b",
+    r"\benvironnement(?:s)?\s+3d\b",
+    r"\bobjet(?:s)?\s+3d\b",
+    r"\bmaillage(?:s)?\b",
+    r"\bvisuel(?:s|le|les)?\b",
 )
 
 
@@ -58,7 +69,9 @@ def is_3d_generation_task(handoff: dict) -> bool:
     )
     has_generation = bool(
         re.search(
-            r"\b(?:create|generate|produce|build|make|design|model)\b",
+            r"\b(?:create|generate|produce|build|make|design|model|"
+            r"cr[eé]er|cr[eé]e|g[eé]n[eé]rer|g[eé]n[eè]re|produire|"
+            r"construire|fabriquer|concevoir|mod[eé]liser|mod[eé]lise)\b",
             text,
         )
     )
