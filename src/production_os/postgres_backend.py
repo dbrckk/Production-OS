@@ -7,7 +7,7 @@ from typing import Iterator
 
 from .claims import ClaimRecord
 from .runtime_state import RuntimeRecord, task_key
-from .workers import Worker
+from .workers import Worker, _capacity_snapshot
 
 try:
     import psycopg
@@ -22,7 +22,7 @@ def _utcnow() -> str:
 
 
 class PostgresBackend:
-    SCHEMA_VERSION = 8
+    SCHEMA_VERSION = 9
 
     def __init__(self, dsn: str):
         if psycopg is None:
@@ -95,7 +95,8 @@ class PostgresBackend:
                         max_concurrency INTEGER NOT NULL,
                         active_tasks INTEGER NOT NULL DEFAULT 0,
                         status TEXT NOT NULL DEFAULT 'online',
-                        last_heartbeat TEXT
+                        last_heartbeat TEXT,
+                        capacity_json TEXT
                     )
                 """)
                 cur.execute("""
@@ -292,6 +293,10 @@ class PostgresBackend:
                 cur.execute("""
                     CREATE INDEX IF NOT EXISTS idx_speculation_members_job
                     ON speculation_members(job_key)
+                """)
+                cur.execute("""
+                    ALTER TABLE workers
+                    ADD COLUMN IF NOT EXISTS capacity_json TEXT
                 """)
                 cur.execute("""
                     INSERT INTO schema_meta(key, value)
@@ -699,6 +704,11 @@ class PostgresWorkerRegistry:
             active_tasks=row["active_tasks"],
             status=row["status"],
             last_heartbeat=row["last_heartbeat"],
+            capacity=(
+                json.loads(row["capacity_json"])
+                if row.get("capacity_json")
+                else None
+            ),
         )
 
     def load(self) -> None:
@@ -720,12 +730,19 @@ class PostgresWorkerRegistry:
                     cur.execute(
                         """
                         UPDATE workers
-                        SET active_tasks=%s, status=%s, last_heartbeat=%s
+                        SET active_tasks=%s, status=%s, last_heartbeat=%s,
+                            capacity_json=%s
                         WHERE worker_id=%s
                         """,
                         (
                             worker.active_tasks, worker.status,
-                            worker.last_heartbeat, worker.worker_id,
+                            worker.last_heartbeat,
+                            (
+                                json.dumps(worker.capacity, ensure_ascii=False)
+                                if worker.capacity is not None
+                                else None
+                            ),
+                            worker.worker_id,
                         ),
                     )
 
@@ -777,8 +794,19 @@ class PostgresWorkerRegistry:
         self.workers[worker_id] = worker
         return worker
 
-    def heartbeat(self, worker_id: str, active_tasks: int | None = None) -> Worker:
+    def heartbeat(
+        self,
+        worker_id: str,
+        active_tasks: int | None = None,
+        *,
+        capacity: dict | None = None,
+    ) -> Worker:
         now = _utcnow()
+        normalized_capacity = (
+            _capacity_snapshot(capacity)
+            if capacity is not None
+            else None
+        )
         with self.backend.transaction() as db:
             with db.cursor() as cur:
                 cur.execute(
@@ -793,13 +821,20 @@ class PostgresWorkerRegistry:
                     if active_tasks is None
                     else max(0, active_tasks)
                 )
+                current_capacity = row.get("capacity_json")
+                capacity_json = (
+                    json.dumps(normalized_capacity, ensure_ascii=False)
+                    if normalized_capacity is not None
+                    else current_capacity
+                )
                 cur.execute(
                     """
                     UPDATE workers
-                    SET active_tasks=%s, status='online', last_heartbeat=%s
+                    SET active_tasks=%s, status='online', last_heartbeat=%s,
+                        capacity_json=%s
                     WHERE worker_id=%s
                     """,
-                    (active, now, worker_id),
+                    (active, now, capacity_json, worker_id),
                 )
                 cur.execute(
                     "SELECT * FROM workers WHERE worker_id=%s",
