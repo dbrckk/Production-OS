@@ -48,7 +48,7 @@ def _rank_actions(assessments):
 
 def _handoff_for_action(action, reuse, *, branch_protected: bool | None = None):
     related = [item.to_dict() for item in reuse if item.target == action.repository][:5]
-    return {
+    handoff = {
         "schema_version":"production-os/task-handoff/controller-v2",
         "source":"Production-OS",
         "executor":"ai-dev-server",
@@ -66,6 +66,21 @@ def _handoff_for_action(action, reuse, *, branch_protected: bool | None = None):
             "reuse_before_rebuild":True,
         },
     }
+    inferred = set(inferred_required_capabilities(handoff))
+    if "visual-asset-production" in inferred:
+        handoff["tool_contracts"] = {
+            "asset_forge": {
+                "request_schema": "asset-forge/production-request/v1",
+                "report_schema": "asset-forge/production-report/v1",
+                "command": "asset-forge fulfill",
+                "required_capability": (
+                    "visual-asset-3d-production"
+                    if "visual-asset-3d-production" in inferred
+                    else "visual-asset-production"
+                ),
+            }
+        }
+    return handoff
 
 
 def _required_capabilities_for(assessment, handoff: dict) -> list[str]:
