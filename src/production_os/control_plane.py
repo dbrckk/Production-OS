@@ -89,49 +89,73 @@ DASHBOARD_HTML = """<!doctype html>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Production-OS</title>
 <style>
-body{font-family:system-ui,sans-serif;max-width:1100px;margin:24px auto;padding:0 16px}
-input,textarea,select,button{font:inherit;padding:10px;box-sizing:border-box}
-input,textarea,select{width:100%;margin:5px 0 10px}
+body{font-family:system-ui,sans-serif;max-width:760px;margin:24px auto;padding:0 16px}
+select,textarea,button,input{font:inherit;padding:12px;box-sizing:border-box}
+select,textarea,input{width:100%;margin:6px 0 16px}
 button{cursor:pointer}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
-.card{border:1px solid #ddd;border-radius:10px;padding:14px;margin-bottom:16px}
-.actions{display:flex;gap:8px;flex-wrap:wrap}
-.actions button{width:auto}
-pre{white-space:pre-wrap;overflow:auto}
+.card{border:1px solid #ddd;border-radius:12px;padding:16px;margin-bottom:16px}
+.actions{display:flex;gap:8px;align-items:center}
 .status{min-height:24px;font-weight:600}
+.small{font-size:.9rem;opacity:.75}
+#settings{display:none}
 </style>
 </head>
 <body>
-<h1>Production-OS Control Plane</h1>
-<div class="card">
-<label>Operator token</label>
-<input id="token" type="password" placeholder="Bearer token" autocomplete="off">
-<div class="actions"><button onclick="refresh()">Refresh dashboard</button></div>
-</div>
+<h1>Production-OS</h1>
 
 <div class="card">
-<h2>Launch repository work</h2>
-<label>Repository</label>
-<input id="repository" value="dbrckk/Jumpy" placeholder="owner/repository">
-<label>Task</label>
-<textarea id="task" rows="5">Audit the current project, fix the highest-priority blockers, then implement the highest-value improvements required to move it toward a polished production-ready release. Preserve the existing architecture, validate changes, and commit useful working changes.</textarea>
-<label>Agent</label>
-<select id="agent"><option value="codex">Codex</option><option value="auto">Auto</option></select>
-<label>Token budget</label>
-<input id="budget" type="number" min="1000" step="1000" value="30000">
-<div class="actions"><button onclick="launchWorkflow()">Launch workflow</button></div>
+<label for="repository"><b>Repository</b></label>
+<select id="repository"><option value="dbrckk/Jumpy">dbrckk/Jumpy</option></select>
+
+<label for="instruction"><b>Instruction</b></label>
+<textarea id="instruction" rows="7" placeholder="Ex: Continue le développement et corrige les blocages principaux."></textarea>
+
+<div class="actions">
+<button onclick="launchWorkflow()">Lancer</button>
+<button onclick="toggleSettings()" aria-label="Settings">⚙</button>
+</div>
 <p id="launch-status" class="status"></p>
 </div>
 
-<div id="stats" class="grid"></div>
-<h2>Workflows</h2><pre id="workflows"></pre>
-<h2>Workers</h2><pre id="workers"></pre>
-<h2>Recent events</h2><pre id="events"></pre>
+<div id="settings" class="card">
+<h2>Appairage de cet appareil</h2>
+<p class="small">À faire une seule fois. Le token reste uniquement dans le stockage local de ce navigateur et n'est jamais affiché dans le dashboard normal.</p>
+<input id="pair-token" type="password" placeholder="Operator token" autocomplete="off">
+<div class="actions">
+<button onclick="savePairing()">Enregistrer</button>
+<button onclick="clearPairing()">Oublier cet appareil</button>
+</div>
+</div>
+
 <script>
+const TOKEN_KEY='production_os_operator_token';
+
+function token(){return localStorage.getItem(TOKEN_KEY)||''}
+
+function toggleSettings(){
+ const el=document.getElementById('settings');
+ el.style.display=el.style.display==='block'?'none':'block';
+}
+
+function savePairing(){
+ const value=document.getElementById('pair-token').value.trim();
+ if(!value){return}
+ localStorage.setItem(TOKEN_KEY,value);
+ document.getElementById('pair-token').value='';
+ document.getElementById('settings').style.display='none';
+ document.getElementById('launch-status').textContent='Appareil appairé.';
+}
+
+function clearPairing(){
+ localStorage.removeItem(TOKEN_KEY);
+ document.getElementById('launch-status').textContent='Appairage supprimé.';
+}
+
 async function api(path,options={}){
- const token=document.getElementById('token').value.trim();
+ const secret=token();
+ if(!secret) throw new Error('Cet appareil doit être appairé une seule fois via ⚙.');
  const headers=Object.assign(
-  {Authorization:'Bearer '+token},
+  {Authorization:'Bearer '+secret},
   options.body?{'Content-Type':'application/json'}:{},
   options.headers||{}
  );
@@ -139,31 +163,32 @@ async function api(path,options={}){
  if(!r.ok) throw new Error(await r.text());
  return await r.json();
 }
-async function refresh(){
+
+async function loadRepositories(){
  try{
-  const [stats,workflows,workers,events]=await Promise.all([
-   api('/v1/stats'),api('/v1/workflows'),api('/v1/workers'),
-   api('/v1/events?limit=30')
-  ]);
-  document.getElementById('stats').innerHTML=Object.entries(stats.jobs||{}).map(
-   ([k,v])=>'<div class="card"><b>'+k+'</b><div>'+v+'</div></div>'
-  ).join('');
-  document.getElementById('workflows').textContent=JSON.stringify(workflows.workflows,null,2);
-  document.getElementById('workers').textContent=JSON.stringify(workers.workers,null,2);
-  document.getElementById('events').textContent=JSON.stringify(events.events,null,2);
- }catch(e){document.getElementById('events').textContent=String(e)}
+  const r=await fetch('https://api.github.com/users/dbrckk/repos?per_page=100&sort=pushed');
+  if(!r.ok) return;
+  const repos=await r.json();
+  const select=document.getElementById('repository');
+  select.innerHTML='';
+  repos.filter(x=>!x.archived).sort((a,b)=>a.name.localeCompare(b.name)).forEach(x=>{
+   const option=document.createElement('option');
+   option.value=x.full_name;
+   option.textContent=x.full_name;
+   if(x.full_name==='dbrckk/Jumpy') option.selected=true;
+   select.appendChild(option);
+  });
+ }catch(_e){}
 }
+
 async function launchWorkflow(){
  const status=document.getElementById('launch-status');
- status.textContent='Launching...';
+ status.textContent='Lancement...';
  try{
   const repository=document.getElementById('repository').value.trim();
-  const task=document.getElementById('task').value.trim();
-  const budget=Number(document.getElementById('budget').value);
-  const agent=document.getElementById('agent').value;
-  if(!repository||!task||!Number.isInteger(budget)||budget<=0){
-   throw new Error('Repository, task and a positive token budget are required.');
-  }
+  const task=document.getElementById('instruction').value.trim();
+  if(!repository||!task) throw new Error('Sélectionne un repo et écris une instruction.');
+
   const created=await api('/v1/workflows',{
    method:'POST',
    body:JSON.stringify({
@@ -179,23 +204,27 @@ async function launchWorkflow(){
       repository,
       task,
       final_goal:task,
-      agent_preference:agent,
-      token_budget:budget
+      agent_preference:'codex',
+      token_budget:30000
      }}
     }]
    })
   });
+
   const id=created.workflow.id;
   const dispatched=await api('/v1/workflows/'+encodeURIComponent(id)+'/dispatch',{
    method:'POST',
    body:JSON.stringify({limit:1})
   });
-  status.textContent='Launched: '+id+' ('+(dispatched.jobs||[]).length+' job dispatched)';
-  await refresh();
+  status.textContent=(dispatched.jobs||[]).length
+   ? 'Lancé.'
+   : 'Workflow créé, en attente de capacité.';
  }catch(e){
-  status.textContent='Launch failed: '+String(e);
+  status.textContent=String(e).replace(/^Error:\s*/,'');
  }
 }
+
+loadRepositories();
 </script>
 </body>
 </html>"""
