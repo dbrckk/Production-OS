@@ -38,6 +38,7 @@ from .scheduler import build_schedule
 from .scoring import assess_repository
 from .self_healing import apply_self_healing
 from .workers import WorkerRegistry
+from .task_capabilities import is_visual_asset_task
 
 
 def _rank_actions(assessments):
@@ -79,21 +80,8 @@ def _required_capabilities_for(assessment, handoff: dict) -> list[str]:
             elif "javascript" in lang or "typescript" in lang:
                 required.append("node")
 
-    reuse_candidates = handoff.get("reuse_candidates", [])
-    if isinstance(reuse_candidates, list):
-        visual_caps = {
-            "visual-asset-pipeline",
-            "sprite-atlas-pipeline",
-            "gltf-asset-pipeline",
-            "vector-asset-pipeline",
-            "godot-asset-handoff",
-        }
-        if any(
-            isinstance(item, dict)
-            and str(item.get("capability") or "") in visual_caps
-            for item in reuse_candidates
-        ):
-            required.append("visual-asset-production")
+    if is_visual_asset_task(handoff):
+        required.append("visual-asset-production")
 
     return sorted(set(required))
 
