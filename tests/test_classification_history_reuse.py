@@ -74,3 +74,31 @@ def test_asset_production_platform_classification():
     )
     assert profile.kind == "asset-production-platform"
     assert profile.confidence >= 0.9
+
+
+def test_asset_production_capabilities_are_reusable_cross_profile():
+    source = assess_repository(
+        ev(
+            "asset-forge",
+            readme_text=(
+                "Central visual-asset production pipeline with sprite atlas, "
+                "SVG vector, glTF/GLB and Godot 4 handoff."
+            ),
+            has_ci=True,
+            has_tests=True,
+        )
+    )
+    target = assess_repository(
+        ev(
+            "game",
+            detected_files=["build.gradle.kts"],
+            readme_text="Android action roguelite built with libGDX",
+        )
+    )
+    opportunities = detect_reuse([source, target])
+    pairs = {(item.source, item.target, item.capability) for item in opportunities}
+    assert (
+        "owner/asset-forge",
+        "owner/game",
+        "visual-asset-pipeline",
+    ) in pairs
