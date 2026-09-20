@@ -38,7 +38,7 @@ def test_dashboard_visual_quality_follows_selected_repository():
 def test_dashboard_lists_per_asset_visual_quality_details():
     assert 'id="visual-assets-list"' in DASHBOARD_HTML
     assert "item.cache_hit?' · cache':''" in DASHBOARD_HTML
-    assert "score '+score+' · essais '+attempts" in DASHBOARD_HTML
+    assert "cohérence '+score+semantic+' · essais '+attempts" in DASHBOARD_HTML
 
 
 def test_dashboard_visual_quality_has_previews_and_history():
@@ -48,3 +48,8 @@ def test_dashboard_visual_quality_has_previews_and_history():
     assert "Promise.all(" in DASHBOARD_HTML
     assert "workflows.slice(0,5)" in DASHBOARD_HTML
     assert 'target="_blank"' in DASHBOARD_HTML
+
+
+def test_dashboard_lists_semantic_art_score_per_asset():
+    assert "item.semantic_score" in DASHBOARD_HTML
+    assert "' · art '+Number(item.semantic_score).toFixed(2)" in DASHBOARD_HTML
