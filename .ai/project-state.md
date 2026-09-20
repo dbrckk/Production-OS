@@ -22,16 +22,17 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-20T15:59:57Z
+Generated: 2026-09-20T16:00:46Z
 
 ### Git
 - Branch: `main`
-- Head: `7e65d4cca93b`
-- Commit date: 2026-09-20T17:59:48+02:00
-- Commit: feat: retrieve correlated workflow artifacts securely
+- Head: `40e6480c7197`
+- Commit date: 2026-09-20T18:00:35+02:00
+- Commit: feat: add remote transactional Asset Forge fallback
 - Tracked files: 326
 
 ### Recently changed files
+- `src/production_os/asset_forge.py`
 - `src/production_os/github_client.py`
 - `tests/test_dashboard_launch.py`
 - `src/production_os/control_plane.py`

@@ -5,40 +5,117 @@
   "semantic": false,
   "note": "Dependencies are known symbol names lexically present inside the symbol's AST/source range.",
   "symbols": {
-    "GitHubAPIError": {
+    "AssetForgeDispatch": {
       "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 16,
-        "end": 17
+        "file": "src/production_os/asset_forge.py",
+        "start": 24,
+        "end": 47
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 35,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "to_dict": {
+      "source": {
+        "file": "src/production_os/asset_forge.py",
+        "start": 35,
+        "end": 155
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "GitHubClient",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 20,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_deliver_artifact",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 147,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_validated_artifact",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 129,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "build_asset_forge_request",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 50,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "build_asset_forge_request": {
+      "source": {
+        "file": "src/production_os/asset_forge.py",
+        "start": 50,
+        "end": 124
       },
       "symbol_dependencies": [],
       "dependency_count": 0
     },
-    "GitHubClient": {
+    "_validated_artifact": {
       "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 20,
-        "end": 601
+        "file": "src/production_os/asset_forge.py",
+        "start": 129,
+        "end": 144
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "_deliver_artifact": {
+      "source": {
+        "file": "src/production_os/asset_forge.py",
+        "start": 147,
+        "end": 180
       },
       "symbol_dependencies": [
         {
-          "symbol": "GitHubAPIError",
+          "symbol": "GitHubClient",
           "definitions": [
             {
               "file": "src/production_os/github_client.py",
-              "line": 16,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "RepoEvidence",
-          "definitions": [
-            {
-              "file": "src/production_os/models.py",
-              "line": 8,
+              "line": 20,
               "kind": "class",
               "language": "python"
             }
@@ -46,11 +123,33 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "StripCredentialRedirect",
+          "symbol": "put_file",
           "definitions": [
             {
               "file": "src/production_os/github_client.py",
-              "line": 288,
+              "line": 157,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "execute_asset_forge": {
+      "source": {
+        "file": "src/production_os/asset_forge.py",
+        "start": 183,
+        "end": 294
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "AssetForgeDispatch",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 24,
               "kind": "class",
               "language": "python"
             }
@@ -58,11 +157,11 @@
           "relation": "same_file"
         },
         {
-          "symbol": "TreeSamplePolicy",
+          "symbol": "GitHubClient",
           "definitions": [
             {
-              "file": "src/production_os/source_tree.py",
-              "line": 18,
+              "file": "src/production_os/github_client.py",
+              "line": 20,
               "kind": "class",
               "language": "python"
             }
@@ -70,11 +169,11 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "__init__",
+          "symbol": "_deliver_artifact",
           "definitions": [
             {
-              "file": "src/production_os/github_client.py",
-              "line": 23,
+              "file": "src/production_os/asset_forge.py",
+              "line": 147,
               "kind": "function",
               "language": "python"
             }
@@ -82,11 +181,11 @@
           "relation": "same_file"
         },
         {
-          "symbol": "_collect_source_documents",
+          "symbol": "_validated_artifact",
           "definitions": [
             {
-              "file": "src/production_os/github_client.py",
-              "line": 477,
+              "file": "src/production_os/asset_forge.py",
+              "line": 129,
               "kind": "function",
               "language": "python"
             }
@@ -94,95 +193,85 @@
           "relation": "same_file"
         },
         {
-          "symbol": "_contents",
+          "symbol": "dispatch_asset_forge",
           "definitions": [
             {
-              "file": "src/production_os/github_client.py",
-              "line": 415,
+              "file": "src/production_os/asset_forge.py",
+              "line": 784,
               "kind": "function",
               "language": "python"
             }
           ],
           "relation": "same_file"
-        },
+        }
+      ],
+      "dependency_count": 5
+    },
+    "_batch_item_id": {
+      "source": {
+        "file": "src/production_os/asset_forge.py",
+        "start": 296,
+        "end": 303
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "_order_asset_batch": {
+      "source": {
+        "file": "src/production_os/asset_forge.py",
+        "start": 306,
+        "end": 359
+      },
+      "symbol_dependencies": [
         {
-          "symbol": "_get",
+          "symbol": "_batch_item_id",
           "definitions": [
             {
-              "file": "src/production_os/github_client.py",
-              "line": 27,
+              "file": "src/production_os/asset_forge.py",
+              "line": 296,
               "kind": "function",
               "language": "python"
             }
           ],
           "relation": "same_file"
-        },
+        }
+      ],
+      "dependency_count": 1
+    },
+    "_extract_remote_batch_bundle": {
+      "source": {
+        "file": "src/production_os/asset_forge.py",
+        "start": 363,
+        "end": 392
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "_produce_asset_forge_batch_remote": {
+      "source": {
+        "file": "src/production_os/asset_forge.py",
+        "start": 395,
+        "end": 557
+      },
+      "symbol_dependencies": [
         {
-          "symbol": "_latest_workflow_run",
+          "symbol": "GitHubClient",
           "definitions": [
             {
               "file": "src/production_os/github_client.py",
-              "line": 452,
-              "kind": "function",
+              "line": 20,
+              "kind": "class",
               "language": "python"
             }
           ],
-          "relation": "same_file"
+          "relation": "imported_module"
         },
         {
-          "symbol": "_read_text",
+          "symbol": "_extract_remote_batch_bundle",
           "definitions": [
             {
-              "file": "src/production_os/github_client.py",
-              "line": 426,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_recursive_tree_paths",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 463,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 46,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "collect_evidence",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 524,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "commit_files",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 72,
+              "file": "src/production_os/asset_forge.py",
+              "line": 363,
               "kind": "function",
               "language": "python"
             }
@@ -199,7 +288,7 @@
               "language": "python"
             }
           ],
-          "relation": "same_file"
+          "relation": "imported_module"
         },
         {
           "symbol": "download_workflow_artifact",
@@ -211,151 +300,7 @@
               "language": "python"
             }
           ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_branch_protection",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 316,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_commit_workflow_runs",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 387,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_issue",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 332,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_pull_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 339,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_pull_request_reviews",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 346,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "is_candidate_file",
-          "definitions": [
-            {
-              "file": "src/production_os/source_tree.py",
-              "line": 24,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
           "relation": "imported_module"
-        },
-        {
-          "symbol": "list_pull_request_files",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 354,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "list_repositories",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 399,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "path_priority",
-          "definitions": [
-            {
-              "file": "src/production_os/source_tree.py",
-              "line": 39,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "put_file",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 157,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "read_json_file",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 442,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "redirect_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 289,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
         },
         {
           "symbol": "wait_for_workflow_run",
@@ -367,7 +312,7 @@
               "language": "python"
             }
           ],
-          "relation": "same_file"
+          "relation": "imported_module"
         },
         {
           "symbol": "workflow_run_artifacts",
@@ -379,48 +324,36 @@
               "language": "python"
             }
           ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "workflow_runs",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 218,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
+          "relation": "imported_module"
         }
       ],
-      "dependency_count": 31
+      "dependency_count": 6
     },
-    "__init__": {
+    "execute_asset_forge_batch": {
       "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 23,
-        "end": 143
+        "file": "src/production_os/asset_forge.py",
+        "start": 560,
+        "end": 781
       },
       "symbol_dependencies": [
         {
-          "symbol": "GitHubAPIError",
+          "symbol": "GitHubClient",
           "definitions": [
             {
               "file": "src/production_os/github_client.py",
-              "line": 16,
+              "line": 20,
               "kind": "class",
               "language": "python"
             }
           ],
-          "relation": "same_file"
+          "relation": "imported_module"
         },
         {
-          "symbol": "_get",
+          "symbol": "_order_asset_batch",
           "definitions": [
             {
-              "file": "src/production_os/github_client.py",
-              "line": 27,
+              "file": "src/production_os/asset_forge.py",
+              "line": 306,
               "kind": "function",
               "language": "python"
             }
@@ -428,11 +361,23 @@
           "relation": "same_file"
         },
         {
-          "symbol": "_request",
+          "symbol": "_produce_asset_forge_batch_remote",
           "definitions": [
             {
-              "file": "src/production_os/github_client.py",
-              "line": 46,
+              "file": "src/production_os/asset_forge.py",
+              "line": 395,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_validated_artifact",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 129,
               "kind": "function",
               "language": "python"
             }
@@ -449,1080 +394,48 @@
               "language": "python"
             }
           ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "_get": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 27,
-        "end": 44
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 16,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "_request": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 46,
-        "end": 70
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 16,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "commit_files": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 72,
-        "end": 154
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 16,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 27,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 46,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "put_file": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 157,
-        "end": 195
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 16,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 27,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 46,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "dispatch_workflow": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 198,
-        "end": 213
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 16,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 46,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "workflow_runs": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 218,
-        "end": 232
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 27,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "wait_for_workflow_run": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 234,
-        "end": 256
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 16,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "workflow_runs",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 218,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "workflow_run_artifacts": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 258,
-        "end": 267
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 27,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "download_workflow_artifact": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 269,
-        "end": 314
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 16,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "StripCredentialRedirect",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 288,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "redirect_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 289,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "StripCredentialRedirect": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 288,
-        "end": 408
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 16,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 27,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_branch_protection",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 316,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_commit_workflow_runs",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 387,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_issue",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 332,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_pull_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 339,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_pull_request_reviews",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 346,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "list_pull_request_files",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 354,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "list_repositories",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 399,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "redirect_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 289,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "workflow_runs",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 218,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 11
-    },
-    "redirect_request": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 289,
-        "end": 409
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 16,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "StripCredentialRedirect",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 288,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 27,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_branch_protection",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 316,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_commit_workflow_runs",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 387,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_issue",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 332,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_pull_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 339,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_pull_request_reviews",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 346,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "list_pull_request_files",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 354,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "list_repositories",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 399,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "workflow_runs",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 218,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 11
-    },
-    "get_branch_protection": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 316,
-        "end": 330
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 16,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 27,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "get_issue": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 332,
-        "end": 337
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 16,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 27,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "get_pull_request": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 339,
-        "end": 344
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 16,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 27,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "get_pull_request_reviews": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 346,
-        "end": 351
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 16,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 27,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "list_pull_request_files": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 354,
-        "end": 385
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 16,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 27,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "get_commit_workflow_runs": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 387,
-        "end": 397
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 16,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 27,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "workflow_runs",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 218,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "list_repositories": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 399,
-        "end": 413
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 27,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "_contents": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 415,
-        "end": 424
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 16,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 27,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "_read_text": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 426,
-        "end": 440
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 16,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 27,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "read_json_file": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 442,
-        "end": 450
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_read_text",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 426,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "_latest_workflow_run": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 452,
-        "end": 461
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 16,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 27,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "workflow_runs",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 218,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "_recursive_tree_paths": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 463,
-        "end": 475
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 16,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 27,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "_collect_source_documents": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 477,
-        "end": 522
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "TreeSamplePolicy",
-          "definitions": [
-            {
-              "file": "src/production_os/source_tree.py",
-              "line": 18,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
           "relation": "imported_module"
         },
         {
-          "symbol": "_read_text",
+          "symbol": "execute_asset_forge",
           "definitions": [
             {
-              "file": "src/production_os/github_client.py",
-              "line": 426,
+              "file": "src/production_os/asset_forge.py",
+              "line": 183,
               "kind": "function",
               "language": "python"
             }
           ],
           "relation": "same_file"
-        },
+        }
+      ],
+      "dependency_count": 6
+    },
+    "dispatch_asset_forge": {
+      "source": {
+        "file": "src/production_os/asset_forge.py",
+        "start": 784,
+        "end": 819
+      },
+      "symbol_dependencies": [
         {
-          "symbol": "_recursive_tree_paths",
+          "symbol": "AssetForgeDispatch",
           "definitions": [
             {
-              "file": "src/production_os/github_client.py",
-              "line": 463,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "is_candidate_file",
-          "definitions": [
-            {
-              "file": "src/production_os/source_tree.py",
+              "file": "src/production_os/asset_forge.py",
               "line": 24,
-              "kind": "function",
+              "kind": "class",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
+          "relation": "same_file"
         },
         {
-          "symbol": "path_priority",
+          "symbol": "GitHubClient",
           "definitions": [
             {
-              "file": "src/production_os/source_tree.py",
-              "line": 39,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 5
-    },
-    "collect_evidence": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 524,
-        "end": 601
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "RepoEvidence",
-          "definitions": [
-            {
-              "file": "src/production_os/models.py",
-              "line": 8,
+              "file": "src/production_os/github_client.py",
+              "line": 20,
               "kind": "class",
               "language": "python"
             }
@@ -1530,55 +443,19 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "_collect_source_documents",
+          "symbol": "dispatch_workflow",
           "definitions": [
             {
               "file": "src/production_os/github_client.py",
-              "line": 477,
+              "line": 198,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_contents",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 415,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_latest_workflow_run",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 452,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_read_text",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 426,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
+          "relation": "imported_module"
         }
       ],
-      "dependency_count": 5
+      "dependency_count": 3
     }
   }
 }

@@ -1,88 +1,95 @@
 {
   "schema_version": 1,
   "generated_by": "dbrckk/repo-brain",
-  "base": "a98356bcdf8425aef0d78a7e146d065be2ec152e",
-  "head": "7e65d4cca93b4c400df13d1bdf56d17458433638",
+  "base": "7e65d4cca93b4c400df13d1bdf56d17458433638",
+  "head": "40e6480c719704c1213ebf2809aa48c38a799e08",
   "index_mode": "incremental",
   "changed_files": [
     {
-      "path": "src/production_os/github_client.py",
+      "path": "src/production_os/asset_forge.py",
       "status": "M"
     }
   ],
   "changed_source_files": [
-    "src/production_os/github_client.py"
+    "src/production_os/asset_forge.py"
   ],
   "impacted_files": [
     "src/production_os/asset_forge.py",
     "src/production_os/cli.py",
-    "src/production_os/control_plane.py",
-    "src/production_os/controller.py",
-    "src/production_os/github_client.py",
-    "src/production_os/github_work_state.py",
-    "tests/test_github_client_pr_files.py",
-    "tests/test_github_client_put_file.py"
+    "tests/test_asset_forge.py"
   ],
   "impacted_symbols": [
     {
       "name": "AssetForgeDispatch",
       "kind": "class",
       "file": "src/production_os/asset_forge.py",
-      "line": 20
+      "line": 24
     },
     {
       "name": "to_dict",
       "kind": "function",
       "file": "src/production_os/asset_forge.py",
-      "line": 31
+      "line": 35
     },
     {
       "name": "build_asset_forge_request",
       "kind": "function",
       "file": "src/production_os/asset_forge.py",
-      "line": 46
+      "line": 50
     },
     {
       "name": "_validated_artifact",
       "kind": "function",
       "file": "src/production_os/asset_forge.py",
-      "line": 125
+      "line": 129
     },
     {
       "name": "_deliver_artifact",
       "kind": "function",
       "file": "src/production_os/asset_forge.py",
-      "line": 143
+      "line": 147
     },
     {
       "name": "execute_asset_forge",
       "kind": "function",
       "file": "src/production_os/asset_forge.py",
-      "line": 179
+      "line": 183
     },
     {
       "name": "_batch_item_id",
       "kind": "function",
       "file": "src/production_os/asset_forge.py",
-      "line": 292
+      "line": 296
     },
     {
       "name": "_order_asset_batch",
       "kind": "function",
       "file": "src/production_os/asset_forge.py",
-      "line": 302
+      "line": 306
+    },
+    {
+      "name": "_extract_remote_batch_bundle",
+      "kind": "function",
+      "file": "src/production_os/asset_forge.py",
+      "line": 363
+    },
+    {
+      "name": "_produce_asset_forge_batch_remote",
+      "kind": "function",
+      "file": "src/production_os/asset_forge.py",
+      "line": 395
     },
     {
       "name": "execute_asset_forge_batch",
       "kind": "function",
       "file": "src/production_os/asset_forge.py",
-      "line": 358
+      "line": 560
     },
     {
       "name": "dispatch_asset_forge",
       "kind": "function",
       "file": "src/production_os/asset_forge.py",
-      "line": 556
+      "line": 784
     },
     {
       "name": "_parse_args",
@@ -565,459 +572,235 @@
       "line": 2587
     },
     {
-      "name": "ControlPlane",
+      "name": "FakeGitHub",
       "kind": "class",
-      "file": "src/production_os/control_plane.py",
-      "line": 25
+      "file": "tests/test_asset_forge.py",
+      "line": 7
     },
     {
       "name": "__init__",
       "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 26
-    },
-    {
-      "name": "_json_bytes",
-      "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 77
-    },
-    {
-      "name": "RequestBodyTooLarge",
-      "kind": "class",
-      "file": "src/production_os/control_plane.py",
-      "line": 336
-    },
-    {
-      "name": "make_handler",
-      "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 340
-    },
-    {
-      "name": "Handler",
-      "kind": "class",
-      "file": "src/production_os/control_plane.py",
-      "line": 341
-    },
-    {
-      "name": "version_string",
-      "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 344
-    },
-    {
-      "name": "log_message",
-      "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 347
-    },
-    {
-      "name": "_send_html",
-      "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 350
-    },
-    {
-      "name": "_send",
-      "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 365
-    },
-    {
-      "name": "_method_not_allowed",
-      "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 389
-    },
-    {
-      "name": "do_PUT",
-      "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 396
-    },
-    {
-      "name": "do_PATCH",
-      "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 399
-    },
-    {
-      "name": "do_DELETE",
-      "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 402
-    },
-    {
-      "name": "_read_body",
-      "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 405
-    },
-    {
-      "name": "_read_json",
-      "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 424
-    },
-    {
-      "name": "_principal",
-      "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 436
-    },
-    {
-      "name": "_require",
-      "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 442
-    },
-    {
-      "name": "do_GET",
-      "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 462
-    },
-    {
-      "name": "do_POST",
-      "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 744
-    },
-    {
-      "name": "serve_control_plane",
-      "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 1732
-    },
-    {
-      "name": "_rank_actions",
-      "kind": "function",
-      "file": "src/production_os/controller.py",
-      "line": 44
-    },
-    {
-      "name": "_handoff_for_action",
-      "kind": "function",
-      "file": "src/production_os/controller.py",
-      "line": 49
-    },
-    {
-      "name": "_required_capabilities_for",
-      "kind": "function",
-      "file": "src/production_os/controller.py",
-      "line": 75
-    },
-    {
-      "name": "_load_github_mappings",
-      "kind": "function",
-      "file": "src/production_os/controller.py",
-      "line": 91
-    },
-    {
-      "name": "_reconcile_github",
-      "kind": "function",
-      "file": "src/production_os/controller.py",
-      "line": 102
-    },
-    {
-      "name": "run_control_cycle",
-      "kind": "function",
-      "file": "src/production_os/controller.py",
-      "line": 141
-    },
-    {
-      "name": "run_controller",
-      "kind": "function",
-      "file": "src/production_os/controller.py",
-      "line": 389
-    },
-    {
-      "name": "GitHubAPIError",
-      "kind": "class",
-      "file": "src/production_os/github_client.py",
-      "line": 16
-    },
-    {
-      "name": "GitHubClient",
-      "kind": "class",
-      "file": "src/production_os/github_client.py",
-      "line": 20
-    },
-    {
-      "name": "__init__",
-      "kind": "function",
-      "file": "src/production_os/github_client.py",
-      "line": 23
-    },
-    {
-      "name": "_get",
-      "kind": "function",
-      "file": "src/production_os/github_client.py",
-      "line": 27
-    },
-    {
-      "name": "_request",
-      "kind": "function",
-      "file": "src/production_os/github_client.py",
-      "line": 46
-    },
-    {
-      "name": "commit_files",
-      "kind": "function",
-      "file": "src/production_os/github_client.py",
-      "line": 72
-    },
-    {
-      "name": "put_file",
-      "kind": "function",
-      "file": "src/production_os/github_client.py",
-      "line": 157
+      "file": "tests/test_asset_forge.py",
+      "line": 8
     },
     {
       "name": "dispatch_workflow",
       "kind": "function",
-      "file": "src/production_os/github_client.py",
-      "line": 198
+      "file": "tests/test_asset_forge.py",
+      "line": 11
     },
     {
-      "name": "workflow_runs",
+      "name": "put_file",
       "kind": "function",
-      "file": "src/production_os/github_client.py",
-      "line": 218
-    },
-    {
-      "name": "wait_for_workflow_run",
-      "kind": "function",
-      "file": "src/production_os/github_client.py",
-      "line": 234
-    },
-    {
-      "name": "workflow_run_artifacts",
-      "kind": "function",
-      "file": "src/production_os/github_client.py",
-      "line": 258
-    },
-    {
-      "name": "download_workflow_artifact",
-      "kind": "function",
-      "file": "src/production_os/github_client.py",
-      "line": 269
-    },
-    {
-      "name": "StripCredentialRedirect",
-      "kind": "class",
-      "file": "src/production_os/github_client.py",
-      "line": 288
-    },
-    {
-      "name": "redirect_request",
-      "kind": "function",
-      "file": "src/production_os/github_client.py",
-      "line": 289
-    },
-    {
-      "name": "get_branch_protection",
-      "kind": "function",
-      "file": "src/production_os/github_client.py",
-      "line": 316
-    },
-    {
-      "name": "get_issue",
-      "kind": "function",
-      "file": "src/production_os/github_client.py",
-      "line": 332
-    },
-    {
-      "name": "get_pull_request",
-      "kind": "function",
-      "file": "src/production_os/github_client.py",
-      "line": 339
-    },
-    {
-      "name": "get_pull_request_reviews",
-      "kind": "function",
-      "file": "src/production_os/github_client.py",
-      "line": 346
-    },
-    {
-      "name": "list_pull_request_files",
-      "kind": "function",
-      "file": "src/production_os/github_client.py",
-      "line": 354
-    },
-    {
-      "name": "get_commit_workflow_runs",
-      "kind": "function",
-      "file": "src/production_os/github_client.py",
-      "line": 387
-    },
-    {
-      "name": "list_repositories",
-      "kind": "function",
-      "file": "src/production_os/github_client.py",
-      "line": 399
-    },
-    {
-      "name": "_contents",
-      "kind": "function",
-      "file": "src/production_os/github_client.py",
-      "line": 415
-    },
-    {
-      "name": "_read_text",
-      "kind": "function",
-      "file": "src/production_os/github_client.py",
-      "line": 426
-    },
-    {
-      "name": "read_json_file",
-      "kind": "function",
-      "file": "src/production_os/github_client.py",
-      "line": 442
-    },
-    {
-      "name": "_latest_workflow_run",
-      "kind": "function",
-      "file": "src/production_os/github_client.py",
-      "line": 452
-    },
-    {
-      "name": "_recursive_tree_paths",
-      "kind": "function",
-      "file": "src/production_os/github_client.py",
-      "line": 463
-    },
-    {
-      "name": "_collect_source_documents",
-      "kind": "function",
-      "file": "src/production_os/github_client.py",
-      "line": 477
-    },
-    {
-      "name": "collect_evidence",
-      "kind": "function",
-      "file": "src/production_os/github_client.py",
-      "line": 524
-    },
-    {
-      "name": "GitHubWorkState",
-      "kind": "class",
-      "file": "src/production_os/github_work_state.py",
-      "line": 10
-    },
-    {
-      "name": "to_dict",
-      "kind": "function",
-      "file": "src/production_os/github_work_state.py",
-      "line": 22
-    },
-    {
-      "name": "_review_state",
-      "kind": "function",
-      "file": "src/production_os/github_work_state.py",
-      "line": 37
-    },
-    {
-      "name": "_ci_state",
-      "kind": "function",
-      "file": "src/production_os/github_work_state.py",
-      "line": 50
-    },
-    {
-      "name": "fetch_github_work_state",
-      "kind": "function",
-      "file": "src/production_os/github_work_state.py",
-      "line": 64
-    },
-    {
-      "name": "runtime_decision_from_github",
-      "kind": "function",
-      "file": "src/production_os/github_work_state.py",
-      "line": 113
-    },
-    {
-      "name": "FakeGitHubClient",
-      "kind": "class",
-      "file": "tests/test_github_client_pr_files.py",
-      "line": 4
-    },
-    {
-      "name": "__init__",
-      "kind": "function",
-      "file": "tests/test_github_client_pr_files.py",
-      "line": 5
-    },
-    {
-      "name": "_get",
-      "kind": "function",
-      "file": "tests/test_github_client_pr_files.py",
-      "line": 10
-    },
-    {
-      "name": "test_list_pull_request_files_collects_and_deduplicates",
-      "kind": "function",
-      "file": "tests/test_github_client_pr_files.py",
+      "file": "tests/test_asset_forge.py",
       "line": 19
     },
     {
-      "name": "test_list_pull_request_files_ignores_empty_rows",
+      "name": "commit_files",
       "kind": "function",
-      "file": "tests/test_github_client_pr_files.py",
+      "file": "tests/test_asset_forge.py",
+      "line": 29
+    },
+    {
+      "name": "test_build_asset_forge_request",
+      "kind": "function",
+      "file": "tests/test_asset_forge.py",
       "line": 39
     },
     {
-      "name": "test_list_pull_request_files_fails_closed_on_api_error",
+      "name": "test_dispatch_asset_forge_uses_existing_workflow_contract",
       "kind": "function",
-      "file": "tests/test_github_client_pr_files.py",
-      "line": 50
+      "file": "tests/test_asset_forge.py",
+      "line": 55
     },
     {
-      "name": "test_list_pull_request_files_rejects_invalid_payload",
+      "name": "test_execute_asset_forge_auto_prefers_local_cli",
       "kind": "function",
-      "file": "tests/test_github_client_pr_files.py",
-      "line": 63
+      "file": "tests/test_asset_forge.py",
+      "line": 75
     },
     {
-      "name": "FakeWriteClient",
+      "name": "fake_run",
+      "kind": "function",
+      "file": "tests/test_asset_forge.py",
+      "line": 86
+    },
+    {
+      "name": "Result",
       "kind": "class",
-      "file": "tests/test_github_client_put_file.py",
-      "line": 4
+      "file": "tests/test_asset_forge.py",
+      "line": 94
     },
     {
-      "name": "__init__",
+      "name": "test_execute_asset_forge_auto_falls_back_to_github",
       "kind": "function",
-      "file": "tests/test_github_client_put_file.py",
-      "line": 5
+      "file": "tests/test_asset_forge.py",
+      "line": 109
     },
     {
-      "name": "_get",
+      "name": "test_execute_asset_forge_delivers_to_worktree",
       "kind": "function",
-      "file": "tests/test_github_client_put_file.py",
-      "line": 10
+      "file": "tests/test_asset_forge.py",
+      "line": 125
     },
     {
-      "name": "_request",
+      "name": "fake_run",
       "kind": "function",
-      "file": "tests/test_github_client_put_file.py",
-      "line": 16
+      "file": "tests/test_asset_forge.py",
+      "line": 137
     },
     {
-      "name": "test_put_file_creates_new_content_without_sha",
-      "kind": "function",
-      "file": "tests/test_github_client_put_file.py",
-      "line": 21
+      "name": "Result",
+      "kind": "class",
+      "file": "tests/test_asset_forge.py",
+      "line": 145
     },
     {
-      "name": "test_put_file_updates_existing_content_with_sha",
+      "name": "test_execute_asset_forge_delivers_with_existing_github_client",
       "kind": "function",
-      "file": "tests/test_github_client_put_file.py",
-      "line": 40
+      "file": "tests/test_asset_forge.py",
+      "line": 166
+    },
+    {
+      "name": "fake_run",
+      "kind": "function",
+      "file": "tests/test_asset_forge.py",
+      "line": 178
+    },
+    {
+      "name": "Result",
+      "kind": "class",
+      "file": "tests/test_asset_forge.py",
+      "line": 186
+    },
+    {
+      "name": "test_execute_asset_forge_batch_delivers_only_after_all_validate",
+      "kind": "function",
+      "file": "tests/test_asset_forge.py",
+      "line": 209
+    },
+    {
+      "name": "fake_run",
+      "kind": "function",
+      "file": "tests/test_asset_forge.py",
+      "line": 237
+    },
+    {
+      "name": "Result",
+      "kind": "class",
+      "file": "tests/test_asset_forge.py",
+      "line": 248
+    },
+    {
+      "name": "test_execute_asset_forge_batch_aborts_delivery_when_one_asset_fails",
+      "kind": "function",
+      "file": "tests/test_asset_forge.py",
+      "line": 268
+    },
+    {
+      "name": "fake_run",
+      "kind": "function",
+      "file": "tests/test_asset_forge.py",
+      "line": 300
+    },
+    {
+      "name": "Failed",
+      "kind": "class",
+      "file": "tests/test_asset_forge.py",
+      "line": 306
+    },
+    {
+      "name": "Result",
+      "kind": "class",
+      "file": "tests/test_asset_forge.py",
+      "line": 315
+    },
+    {
+      "name": "test_execute_asset_forge_batch_uses_single_github_commit",
+      "kind": "function",
+      "file": "tests/test_asset_forge.py",
+      "line": 338
+    },
+    {
+      "name": "fake_run",
+      "kind": "function",
+      "file": "tests/test_asset_forge.py",
+      "line": 356
+    },
+    {
+      "name": "Result",
+      "kind": "class",
+      "file": "tests/test_asset_forge.py",
+      "line": 368
+    },
+    {
+      "name": "test_execute_asset_forge_batch_respects_dependency_order",
+      "kind": "function",
+      "file": "tests/test_asset_forge.py",
+      "line": 390
+    },
+    {
+      "name": "fake_run",
+      "kind": "function",
+      "file": "tests/test_asset_forge.py",
+      "line": 416
+    },
+    {
+      "name": "Result",
+      "kind": "class",
+      "file": "tests/test_asset_forge.py",
+      "line": 429
+    },
+    {
+      "name": "test_execute_asset_forge_batch_rejects_dependency_cycles",
+      "kind": "function",
+      "file": "tests/test_asset_forge.py",
+      "line": 452
+    },
+    {
+      "name": "test_execute_asset_forge_batch_rejects_unknown_dependency",
+      "kind": "function",
+      "file": "tests/test_asset_forge.py",
+      "line": 496
+    },
+    {
+      "name": "test_dependent_raster_asset_receives_validated_parent_reference",
+      "kind": "function",
+      "file": "tests/test_asset_forge.py",
+      "line": 525
+    },
+    {
+      "name": "fake_run",
+      "kind": "function",
+      "file": "tests/test_asset_forge.py",
+      "line": 557
+    },
+    {
+      "name": "Result",
+      "kind": "class",
+      "file": "tests/test_asset_forge.py",
+      "line": 570
+    },
+    {
+      "name": "test_batch_receipt_surfaces_visual_similarity_quality_summary",
+      "kind": "function",
+      "file": "tests/test_asset_forge.py",
+      "line": 591
+    },
+    {
+      "name": "fake_run",
+      "kind": "function",
+      "file": "tests/test_asset_forge.py",
+      "line": 607
+    },
+    {
+      "name": "Result",
+      "kind": "class",
+      "file": "tests/test_asset_forge.py",
+      "line": 629
     }
   ],
   "selected_tests": [
-    "tests/test_cli.py",
-    "tests/test_github_client_pr_files.py",
-    "tests/test_github_client_put_file.py"
+    "tests/test_asset_forge.py"
   ]
 }

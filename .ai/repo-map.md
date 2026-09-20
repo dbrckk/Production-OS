@@ -803,6 +803,7 @@ item = self.approvals.get(key)
 ````python
 ASSET_FORGE_REPOSITORY = "dbrckk/asset-forge"
 ASSET_FORGE_WORKFLOW = "production-os-dispatch.yml"
+ASSET_FORGE_BATCH_WORKFLOW = "production-os-batch.yml"
 ⋮----
 @dataclass(frozen=True)
 class AssetForgeDispatch
@@ -914,15 +915,86 @@ current = ready.pop(0)
 ⋮----
 blocked = [item_id for item_id in order_hint if indegree[item_id] > 0]
 ⋮----
-root = Path(output_root)
+def _extract_remote_batch_bundle(data: bytes, destination: Path) -> Path
 ⋮----
+root = destination.resolve()
+max_files = 5000
+max_uncompressed = 512 * 1024 * 1024
+total = 0
+⋮----
+infos = archive.infolist()
+⋮----
+name = info.filename.replace("\\", "/")
+⋮----
+parts = [part for part in name.split("/") if part]
+⋮----
+mode = (info.external_attr >> 16) & 0o170000
+⋮----
+target = (root / "/".join(parts)).resolve()
+⋮----
+serializable_items = []
+⋮----
+spec_json = json.dumps(
+⋮----
+correlation = "pos-" + uuid.uuid4().hex
+⋮----
+title = f"Asset Forge batch {correlation}"
+run = gh.wait_for_workflow_run(
+⋮----
+run_id = int(run.get("id") or 0)
+⋮----
+artifacts = gh.workflow_run_artifacts(repository, run_id)
+expected_name = f"asset-forge-batch-{correlation}"
+artifact = next(
+⋮----
+artifact_id = int(artifact.get("id") or 0)
+⋮----
+zip_bytes = gh.download_workflow_artifact(repository, artifact_id)
+⋮----
+remote_root = _extract_remote_batch_bundle(
+result_path = remote_root / "batch-result.json"
+⋮----
+result = json.loads(result_path.read_text(encoding="utf-8"))
+⋮----
+rows = result.get("items")
+⋮----
+expected_by_id = {
 produced: list[dict[str, Any]] = []
 produced_by_id: dict[str, dict[str, Any]] = {}
-ordered_items = _order_asset_batch(items)
+⋮----
+item_id = str(row.get("id") or "")
+expected = expected_by_id.get(item_id)
+⋮----
+target_path = str(row.get("target_path") or "")
+⋮----
+relative = Path(str(row.get("artifact") or ""))
+artifact_path = (remote_root / relative).resolve()
+⋮----
+digest = hashlib.sha256(artifact_path.read_bytes()).hexdigest()
+⋮----
+dependencies = [str(value) for value in row.get("depends_on") or []]
 ⋮----
 dependency_artifacts = []
 ⋮----
 dependency = produced_by_id.get(dependency_id)
+⋮----
+visual_references = [
+request_id = str(row.get("request_id") or "")
+report_path = remote_root / "jobs" / request_id / "production-report.json"
+produced_item = {
+⋮----
+root = Path(output_root)
+⋮----
+ordered_items = _order_asset_batch(items)
+⋮----
+target_paths = [
+⋮----
+effective_mode = mode
+⋮----
+effective_mode = "local" if shutil.which("asset-forge") else "github"
+⋮----
+produced = _produce_asset_forge_batch_remote(
+produced_by_id = {
 ⋮----
 dependency_path = Path(dependency["artifact"])
 current_sha256 = hashlib.sha256(dependency_path.read_bytes()).hexdigest()
@@ -945,7 +1017,6 @@ report_path = Path(str(receipt.report_path))
 artifact = _validated_artifact(report, out)
 generation = report.get("generation") if isinstance(report.get("generation"), dict) else {}
 visual_similarity = (
-produced_item = {
 ⋮----
 delivered_to: list[str] = []
 ⋮----
