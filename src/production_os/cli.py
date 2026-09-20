@@ -26,6 +26,7 @@ from .emergency import clear_emergency_stop, set_emergency_stop
 from .execution_feedback import decide_execution_outcome
 from .feedback import summarize_validation_results
 from .github_client import GitHubAPIError, GitHubClient
+from .asset_forge import build_asset_forge_request, dispatch_asset_forge
 from .github_work_state import fetch_github_work_state, runtime_decision_from_github
 from .graph import build_knowledge_graph
 from .health_server import serve_health
@@ -160,6 +161,23 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     dispatch.add_argument("--budgets")
     dispatch.add_argument("--quarantine")
     dispatch.add_argument("--database", help="Use durable SQLite queue instead of file queue")
+
+    assetforge = sub.add_parser(
+        "asset-forge-dispatch",
+        help="Dispatch a visual asset production request to asset-forge",
+    )
+    assetforge.add_argument("--request-id", required=True)
+    assetforge.add_argument("--project", required=True)
+    assetforge.add_argument("--asset-id", required=True)
+    assetforge.add_argument("--asset-type", required=True)
+    assetforge.add_argument("--instruction", required=True)
+    assetforge.add_argument("--format", required=True, dest="target_format")
+    assetforge.add_argument("--importance", choices=["primary", "secondary"], default="primary")
+    assetforge.add_argument("--engine")
+    assetforge.add_argument("--output-dir")
+    assetforge.add_argument("--backend", choices=["auto", "pollinations", "imagen-codex"], default="auto")
+    assetforge.add_argument("--model")
+    assetforge.add_argument("--ref", default="main")
 
     ghrec = sub.add_parser("github-reconcile", help="Reconcile runtime tasks from explicit GitHub issue/PR mappings")
     ghrec.add_argument("--mapping", required=True, help="JSON list of repository/task/issue_number/pr_number mappings")
@@ -1123,6 +1141,31 @@ def run_dispatch(args: argparse.Namespace) -> int:
         "result":result.to_dict(),
     }, indent=2, ensure_ascii=False))
     return 0
+
+def run_asset_forge_dispatch(args: argparse.Namespace) -> int:
+    request = build_asset_forge_request(
+        request_id=args.request_id,
+        project=args.project,
+        asset_id=args.asset_id,
+        asset_type=args.asset_type,
+        instruction=args.instruction,
+        target_format=args.target_format,
+        importance=args.importance,
+        engine=args.engine,
+        output_dir=args.output_dir,
+    )
+    receipt = dispatch_asset_forge(
+        request,
+        ref=args.ref,
+        backend=args.backend,
+        model=args.model,
+    )
+    print(json.dumps({
+        **receipt.to_dict(),
+        "request": request,
+    }, indent=2, ensure_ascii=False))
+    return 0
+
 
 def run_github_reconcile(args: argparse.Namespace) -> int:
     payload = json.loads(Path(args.mapping).read_text(encoding="utf-8"))
@@ -2446,6 +2489,8 @@ def main(argv: list[str] | None = None) -> int:
         return run_reconcile(args)
     if args.command == "dispatch":
         return run_dispatch(args)
+    if args.command == "asset-forge-dispatch":
+        return run_asset_forge_dispatch(args)
     if args.command == "github-reconcile":
         return run_github_reconcile(args)
     if args.command == "controller":
