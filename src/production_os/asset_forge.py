@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import shutil
 import subprocess
@@ -369,9 +370,22 @@ def execute_asset_forge_batch(
     root = Path(output_root)
     root.mkdir(parents=True, exist_ok=True)
     produced: list[dict[str, Any]] = []
+    produced_by_id: dict[str, dict[str, Any]] = {}
     ordered_items = _order_asset_batch(items)
 
     for index, item in enumerate(ordered_items):
+        dependency_artifacts = []
+        for dependency_id in item.get("_depends_on") or []:
+            dependency = produced_by_id.get(dependency_id)
+            if dependency is None:
+                raise RuntimeError(
+                    f"asset dependency was not validated before execution: {dependency_id}"
+                )
+            dependency_artifacts.append({
+                "id": dependency_id,
+                "artifact": str(dependency["artifact"]),
+                "sha256": dependency["sha256"],
+            })
         request = item.get("request")
         if not isinstance(request, dict):
             raise ValueError("asset-forge batch item request is required")
@@ -400,14 +414,18 @@ def execute_asset_forge_batch(
         report_path = Path(str(receipt.report_path))
         report = json.loads(report_path.read_text(encoding="utf-8"))
         artifact = _validated_artifact(report, out)
-        produced.append({
+        produced_item = {
             "batch_id": item["_batch_id"],
             "depends_on": list(item.get("_depends_on") or []),
+            "dependency_artifacts": dependency_artifacts,
             "request_id": request_id,
             "target_path": target_path,
             "artifact": artifact,
+            "sha256": hashlib.sha256(artifact.read_bytes()).hexdigest(),
             "report_path": report_path,
-        })
+        }
+        produced.append(produced_item)
+        produced_by_id[item["_batch_id"]] = produced_item
 
     delivery_mode = None
     delivered_to: list[str] = []
@@ -477,6 +495,8 @@ def execute_asset_forge_batch(
             {
                 "id": item["batch_id"],
                 "depends_on": item["depends_on"],
+                "dependency_artifacts": item["dependency_artifacts"],
+                "sha256": item["sha256"],
                 "request_id": item["request_id"],
                 "target_path": item["target_path"],
                 "report_path": str(item["report_path"]),
