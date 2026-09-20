@@ -177,6 +177,10 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     assetforge.add_argument("--output-dir")
     assetforge.add_argument("--source")
     assetforge.add_argument("--source-mode", choices=["generated", "custom", "external"], default="generated")
+    assetforge.add_argument("--target-repository")
+    assetforge.add_argument("--target-path")
+    assetforge.add_argument("--target-worktree")
+    assetforge.add_argument("--target-ref", default="main")
     assetforge.add_argument("--backend", choices=["auto", "pollinations", "imagen-codex"], default="auto")
     assetforge.add_argument("--model")
     assetforge.add_argument("--mode", choices=["auto", "local", "github"], default="auto")
@@ -1166,6 +1170,10 @@ def run_asset_forge_dispatch(args: argparse.Namespace) -> int:
         mode=args.mode,
         output_dir=args.output_dir,
         source_path=args.source,
+        target_repository=args.target_repository,
+        target_path=args.target_path,
+        target_worktree=args.target_worktree,
+        target_ref=args.target_ref,
     )
     print(json.dumps({
         **receipt.to_dict(),
