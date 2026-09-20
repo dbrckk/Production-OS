@@ -102,6 +102,10 @@ button{cursor:pointer}
 .quality-regenerated{background:#fff4d6;color:#7a5600}
 .quality-low{background:#fde8e8;color:#9b1c1c}
 .quality-unknown{background:#eef1f5;color:#4b5563}
+.asset-row{display:flex;gap:10px;align-items:center;padding:8px 0;border-top:1px solid #eee}
+.asset-thumb{width:48px;height:48px;object-fit:contain;border-radius:8px;background:#f5f5f5}
+.asset-meta{min-width:0;overflow-wrap:anywhere}
+.history-row{padding:6px 0;border-top:1px solid #eee}
 #settings{display:none}
 </style>
 </head>
@@ -128,6 +132,8 @@ button{cursor:pointer}
 <p><span id="visual-quality" class="quality-badge quality-unknown">Inconnu</span></p>
 <p id="visual-quality-detail" class="small">Aucun résultat visuel chargé.</p>
 <div id="visual-assets-list" class="small"></div>
+<h3>Historique</h3>
+<div id="visual-quality-history" class="small"></div>
 </div>
 
 <div id="settings" class="card">
@@ -218,6 +224,23 @@ function escapeHtml(value){
  }[ch]));
 }
 
+function githubAssetUrls(repository,path){
+ const repo=String(repository||'').trim();
+ const value=String(path||'').replace(/^\/+/, '');
+ if(!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repo)||!value||value.includes('..')){
+  return null;
+ }
+ const encoded=value.split('/').map(encodeURIComponent).join('/');
+ return {
+  view:'https://github.com/'+repo+'/blob/main/'+encoded,
+  raw:'https://raw.githubusercontent.com/'+repo+'/main/'+encoded
+ };
+}
+
+function isPreviewableAsset(path){
+ return /\.(png|webp|jpe?g|gif|svg)$/i.test(String(path||''));
+}
+
 function qualityView(status){
  if(status==='ok') return ['OK','quality-ok'];
  if(status==='regenerated') return ['Régénéré','quality-regenerated'];
@@ -261,7 +284,10 @@ async function loadVisualQuality(){
    detail.textContent='Aucun workflow visuel pour ce repository.';
    return;
   }
-  const latest=await api('/v1/workflows/'+encodeURIComponent(workflows[0].id));
+  const recent=await Promise.all(
+   workflows.slice(0,5).map(item=>api('/v1/workflows/'+encodeURIComponent(item.id)))
+  );
+  const latest=recent[0];
   const visual=extractVisualQuality(latest.workflow);
   if(!visual){
    const view=qualityView('unknown');
@@ -282,12 +308,36 @@ async function loadVisualQuality(){
   detail.textContent=parts.length?parts.join(' · '):'Contrôle visuel disponible.';
   const assetList=document.getElementById('visual-assets-list');
   const rows=Array.isArray(visual.items)?visual.items:[];
-  assetList.innerHTML=rows.slice(0,8).map(item=>{
+  assetList.innerHTML=rows.slice(0,12).map(item=>{
    const score=item.score===null||item.score===undefined?'—':Number(item.score).toFixed(2);
    const attempts=Number(item.attempts||0);
    const cache=item.cache_hit?' · cache':'';
+   const regenerated=item.regenerated?' · régénéré':'';
    const target=String(item.target_path||item.id||'asset');
-   return '<div><b>'+escapeHtml(target)+'</b> · score '+score+' · essais '+attempts+cache+'</div>';
+   const sha=String(item.sha256||'').slice(0,10);
+   const urls=githubAssetUrls(selectedRepository,target);
+   const thumb=urls&&isPreviewableAsset(target)
+    ? '<a href="'+escapeHtml(urls.view)+'" target="_blank" rel="noreferrer"><img class="asset-thumb" loading="lazy" src="'+escapeHtml(urls.raw)+'" alt=""></a>'
+    : '';
+   const link=urls
+    ? '<a href="'+escapeHtml(urls.view)+'" target="_blank" rel="noreferrer">'+escapeHtml(target)+'</a>'
+    : '<b>'+escapeHtml(target)+'</b>';
+   return '<div class="asset-row">'+thumb+'<div class="asset-meta">'+link
+    +'<div>score '+score+' · essais '+attempts+cache+regenerated+(sha?' · '+escapeHtml(sha):'')+'</div></div></div>';
+  }).join('');
+
+  const history=document.getElementById('visual-quality-history');
+  history.innerHTML=recent.map(entry=>{
+   const workflow=entry.workflow||{};
+   const itemVisual=extractVisualQuality(workflow);
+   const status=itemVisual?itemVisual.quality_status:'unknown';
+   const view=qualityView(status);
+   const when=String(workflow.updated_at||workflow.created_at||'').replace('T',' ').replace('Z','');
+   const min=itemVisual&&itemVisual.minimum_score!==null&&itemVisual.minimum_score!==undefined
+    ? ' · score '+Number(itemVisual.minimum_score).toFixed(2)
+    : '';
+   return '<div class="history-row"><span class="quality-badge '+view[1]+'">'+view[0]+'</span> '
+    +escapeHtml(when)+min+'</div>';
   }).join('');
  }catch(_e){
   const view=qualityView('unknown');
@@ -295,6 +345,7 @@ async function loadVisualQuality(){
   badge.className='quality-badge '+view[1];
   detail.textContent='Qualité visuelle indisponible.';
   document.getElementById('visual-assets-list').innerHTML='';
+  document.getElementById('visual-quality-history').innerHTML='';
  }
 }
 
