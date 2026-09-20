@@ -246,7 +246,7 @@ def execute_asset_forge(
             text=True,
         )
         if completed.returncode != 0:
-            detail = (completed.stderr or completed.stdout or "").strip()
+            detail = (getattr(completed, "stderr", "") or getattr(completed, "stdout", "") or "").strip()
             suffix = f": {detail}" if detail else ""
             raise RuntimeError(
                 f"asset-forge local execution failed with exit code {completed.returncode}{suffix}"
