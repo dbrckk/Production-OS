@@ -53,3 +53,11 @@ def test_dashboard_visual_quality_has_previews_and_history():
 def test_dashboard_lists_semantic_art_score_per_asset():
     assert "item.semantic_score" in DASHBOARD_HTML
     assert "' · art '+Number(item.semantic_score).toFixed(2)" in DASHBOARD_HTML
+
+
+def test_dashboard_surfaces_asset_library_version_and_preference():
+    assert "libraryVersion" in DASHBOARD_HTML
+    assert "libraryQuality" in DASHBOARD_HTML
+    assert "library_preferred" in DASHBOARD_HTML
+    assert "lib v" in DASHBOARD_HTML
+    assert "qualité lib" in DASHBOARD_HTML
