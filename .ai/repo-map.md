@@ -6402,6 +6402,22 @@ def test_trust_status_requires_database()
 def test_transparency_checkpoint_parser_accepts_rekor_publication_options()
 ⋮----
 def test_transparency_checkpoint_verify_parser_accepts_rekor_receipt()
+⋮----
+def test_asset_forge_batch_parser_accepts_result_file()
+⋮----
+def test_asset_forge_batch_writes_visual_quality_failure_receipt()
+⋮----
+root = Path(td)
+spec = root / "batch.json"
+receipt = root / "receipt.json"
+⋮----
+rc = run_asset_forge_batch(args)
+⋮----
+payload = json.loads(receipt.read_text())
+⋮----
+def test_asset_forge_batch_writes_success_receipt()
+⋮----
+expected = {
 ````
 
 ## File: tests/test_compatibility_validation.py

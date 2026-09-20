@@ -22,19 +22,19 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-20T15:05:49Z
+Generated: 2026-09-20T15:07:17Z
 
 ### Git
 - Branch: `main`
-- Head: `d44ed1601e12`
-- Commit date: 2026-09-20T17:05:35+02:00
-- Commit: feat: persist structured asset-forge failure receipts
+- Head: `5bf5b367aeee`
+- Commit date: 2026-09-20T17:07:06+02:00
+- Commit: test: cover persisted asset-forge CLI receipts
 - Tracked files: 326
 
 ### Recently changed files
+- `tests/test_cli.py`
 - `src/production_os/cli.py`
 - `tests/test_asset_forge.py`
-- `src/production_os/asset_forge.py`
 
 ### Project signals
 - `pyproject.toml`
