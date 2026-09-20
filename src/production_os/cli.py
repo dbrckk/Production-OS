@@ -26,7 +26,7 @@ from .emergency import clear_emergency_stop, set_emergency_stop
 from .execution_feedback import decide_execution_outcome
 from .feedback import summarize_validation_results
 from .github_client import GitHubAPIError, GitHubClient
-from .asset_forge import build_asset_forge_request, execute_asset_forge
+from .asset_forge import build_asset_forge_request, execute_asset_forge, execute_asset_forge_batch
 from .github_work_state import fetch_github_work_state, runtime_decision_from_github
 from .graph import build_knowledge_graph
 from .health_server import serve_health
@@ -185,6 +185,19 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     assetforge.add_argument("--model")
     assetforge.add_argument("--mode", choices=["auto", "local", "github"], default="auto")
     assetforge.add_argument("--ref", default="main")
+
+    assetforgebatch = sub.add_parser(
+        "asset-forge-batch",
+        help="Produce and transactionally deliver a batch of visual assets",
+    )
+    assetforgebatch.add_argument("--spec", required=True)
+    assetforgebatch.add_argument("--backend", choices=["auto", "pollinations", "imagen-codex"], default="auto")
+    assetforgebatch.add_argument("--model")
+    assetforgebatch.add_argument("--mode", choices=["auto", "local", "github"], default="auto")
+    assetforgebatch.add_argument("--output-root", default="build/asset-forge-batch")
+    assetforgebatch.add_argument("--target-repository")
+    assetforgebatch.add_argument("--target-worktree")
+    assetforgebatch.add_argument("--target-ref", default="main")
 
     ghrec = sub.add_parser("github-reconcile", help="Reconcile runtime tasks from explicit GitHub issue/PR mappings")
     ghrec.add_argument("--mapping", required=True, help="JSON list of repository/task/issue_number/pr_number mappings")
@@ -1179,6 +1192,25 @@ def run_asset_forge_dispatch(args: argparse.Namespace) -> int:
         **receipt.to_dict(),
         "request": request,
     }, indent=2, ensure_ascii=False))
+    return 0
+
+
+def run_asset_forge_batch(args: argparse.Namespace) -> int:
+    payload = json.loads(Path(args.spec).read_text(encoding="utf-8"))
+    items = payload.get("items", payload) if isinstance(payload, dict) else payload
+    if not isinstance(items, list):
+        raise SystemExit("asset-forge batch spec must be a list or contain items")
+    result = execute_asset_forge_batch(
+        items,
+        backend=args.backend,
+        model=args.model,
+        mode=args.mode,
+        output_root=args.output_root,
+        target_repository=args.target_repository,
+        target_worktree=args.target_worktree,
+        target_ref=args.target_ref,
+    )
+    print(json.dumps(result, indent=2, ensure_ascii=False))
     return 0
 
 
@@ -2506,6 +2538,8 @@ def main(argv: list[str] | None = None) -> int:
         return run_dispatch(args)
     if args.command == "asset-forge-dispatch":
         return run_asset_forge_dispatch(args)
+    if args.command == "asset-forge-batch":
+        return run_asset_forge_batch(args)
     if args.command == "github-reconcile":
         return run_github_reconcile(args)
     if args.command == "controller":
