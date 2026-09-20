@@ -311,6 +311,9 @@ async function loadVisualQuality(){
   assetList.innerHTML=rows.slice(0,12).map(item=>{
    const score=item.score===null||item.score===undefined?'—':Number(item.score).toFixed(2);
    const attempts=Number(item.attempts||0);
+   const semantic=item.semantic_score===null||item.semantic_score===undefined
+    ? ''
+    : ' · art '+Number(item.semantic_score).toFixed(2);
    const cache=item.cache_hit?' · cache':'';
    const regenerated=item.regenerated?' · régénéré':'';
    const target=String(item.target_path||item.id||'asset');
@@ -323,7 +326,7 @@ async function loadVisualQuality(){
     ? '<a href="'+escapeHtml(urls.view)+'" target="_blank" rel="noreferrer">'+escapeHtml(target)+'</a>'
     : '<b>'+escapeHtml(target)+'</b>';
    return '<div class="asset-row">'+thumb+'<div class="asset-meta">'+link
-    +'<div>score '+score+' · essais '+attempts+cache+regenerated+(sha?' · '+escapeHtml(sha):'')+'</div></div></div>';
+    +'<div>cohérence '+score+semantic+' · essais '+attempts+cache+regenerated+(sha?' · '+escapeHtml(sha):'')+'</div></div></div>';
   }).join('');
 
   const history=document.getElementById('visual-quality-history');
