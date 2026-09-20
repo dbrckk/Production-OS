@@ -943,6 +943,8 @@ receipt = execute_asset_forge(
 report_path = Path(str(receipt.report_path))
 ⋮----
 artifact = _validated_artifact(report, out)
+generation = report.get("generation") if isinstance(report.get("generation"), dict) else {}
+visual_similarity = (
 produced_item = {
 ⋮----
 delivered_to: list[str] = []
@@ -6128,6 +6130,10 @@ artifact = output / f"{asset_id}.png"
 child = commands[1]
 ⋮----
 reference = Path(child[child.index("--reference") + 1])
+⋮----
+def test_batch_receipt_surfaces_visual_similarity_quality_summary(tmp_path)
+⋮----
+artifact = output / "character.png"
 ````
 
 ## File: tests/test_asymmetric_attestations.py
