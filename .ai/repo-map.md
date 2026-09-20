@@ -6378,6 +6378,10 @@ def test_dedup_summary_ignores_parent_child_visual_similarity()
 ⋮----
 art = {
 result = _dedup_summary([
+⋮----
+def test_batch_receipt_preserves_asset_library_version_metadata(tmp_path)
+⋮----
+library = result["items"][0]["library"]
 ````
 
 ## File: tests/test_asymmetric_attestations.py
