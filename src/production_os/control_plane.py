@@ -243,9 +243,15 @@ async function loadVisualQuality(){
  }
  try{
   const list=await api('/v1/workflows');
-  const workflows=(list.workflows||[]);
+  const selectedRepository=document.getElementById('repository').value.trim();
+  const workflows=(list.workflows||[]).filter(
+   item=>!selectedRepository||item.repository===selectedRepository
+  );
   if(!workflows.length){
-   detail.textContent='Aucun workflow disponible.';
+   const view=qualityView('unknown');
+   badge.textContent=view[0];
+   badge.className='quality-badge '+view[1];
+   detail.textContent='Aucun workflow visuel pour ce repository.';
    return;
   }
   const latest=await api('/v1/workflows/'+encodeURIComponent(workflows[0].id));
@@ -318,9 +324,9 @@ async function launchWorkflow(){
  }
 }
 
-loadRepositories();
+loadRepositories().then(loadVisualQuality);
 loadWorkerStatus();
-loadVisualQuality();
+document.getElementById('repository').addEventListener('change',loadVisualQuality);
 setInterval(loadVisualQuality,10000);
 </script>
 </body>
