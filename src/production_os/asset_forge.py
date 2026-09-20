@@ -867,7 +867,7 @@ def execute_asset_forge_batch(
                 backups.append((destination, backup))
                 if isinstance(artifact, (bytes, bytearray)):
                     destination.write_bytes(bytes(artifact))
-                else:
+                elif Path(artifact).resolve() != destination.resolve():
                     shutil.copyfile(artifact, destination)
                 if not destination.name.endswith(".asset-forge.json"):
                     delivered_to.append(str(destination))
