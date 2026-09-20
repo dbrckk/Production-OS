@@ -22,19 +22,20 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-20T15:07:17Z
+Generated: 2026-09-20T15:09:09Z
 
 ### Git
 - Branch: `main`
-- Head: `5bf5b367aeee`
-- Commit date: 2026-09-20T17:07:06+02:00
-- Commit: test: cover persisted asset-forge CLI receipts
+- Head: `192abd685a6b`
+- Commit date: 2026-09-20T17:08:46+02:00
+- Commit: test: cover dashboard visual quality status
 - Tracked files: 326
 
 ### Recently changed files
+- `tests/test_dashboard_launch.py`
+- `src/production_os/control_plane.py`
 - `tests/test_cli.py`
 - `src/production_os/cli.py`
-- `tests/test_asset_forge.py`
 
 ### Project signals
 - `pyproject.toml`

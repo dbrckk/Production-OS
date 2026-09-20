@@ -1,10 +1,10 @@
 # Change impact
 
-Base: d671917b088da00e2fd0992d45f2240ee3da89bc
-Head: 5bf5b367aeee7f244a7e05f7c758e2c6ac4dd7c2
+Base: 7b3750df92898a5822eea2b61e22503f96a729c7
+Head: 192abd685a6b3808b74ee0920e0631174ecb9138
 
 ## Changed files
-- M tests/test_cli.py
+- M tests/test_dashboard_launch.py
 
 ## Affected areas
 - tests
