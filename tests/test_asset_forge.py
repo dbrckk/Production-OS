@@ -586,3 +586,63 @@ def test_dependent_raster_asset_receives_validated_parent_reference(tmp_path):
     reference = Path(child[child.index("--reference") + 1])
     assert reference.name == "character.png"
     assert result["items"][1]["visual_references"] == [str(reference)]
+
+
+def test_batch_receipt_surfaces_visual_similarity_quality_summary(tmp_path):
+    out = tmp_path / "batch"
+    worktree = tmp_path / "repo"
+    item = {
+        "id": "character",
+        "request": build_asset_forge_request(
+            request_id="quality-character",
+            project="deadline-zero",
+            asset_id="character",
+            asset_type="sprite-sheet",
+            instruction="premium character sprite",
+            target_format="png",
+        ),
+        "target_path": "assets/art/character.png",
+    }
+
+    def fake_run(cmd, check=False, **kwargs):
+        output = Path(cmd[cmd.index("--output-dir") + 1])
+        output.mkdir(parents=True, exist_ok=True)
+        artifact = output / "character.png"
+        artifact.write_bytes(b"character")
+        (output / "production-report.json").write_text(
+            __import__("json").dumps({
+                "success": True,
+                "artifact": str(artifact),
+                "generation": {
+                    "visualSimilarity": {
+                        "threshold": 0.55,
+                        "passed": True,
+                        "attempts": [
+                            {"score": 0.31, "passed": False},
+                            {"score": 0.82, "passed": True},
+                        ],
+                    }
+                },
+            }),
+            encoding="utf-8",
+        )
+        class Result:
+            returncode = 0
+        return Result()
+
+    with patch("production_os.asset_forge.shutil.which", return_value="/usr/bin/asset-forge"), patch(
+        "production_os.asset_forge.subprocess.run", side_effect=fake_run
+    ):
+        result = execute_asset_forge_batch(
+            [item],
+            output_root=str(out),
+            target_worktree=str(worktree),
+            mode="local",
+        )
+
+    assert result["quality_summary"] == {
+        "checked": 1,
+        "regenerated": 1,
+        "minimum_score": 0.82,
+    }
+    assert result["items"][0]["visual_similarity"]["passed"] is True
