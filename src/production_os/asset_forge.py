@@ -285,6 +285,72 @@ def execute_asset_forge(
         delivered_to=delivered_to,
     )
 
+def _batch_item_id(item: dict[str, Any], index: int) -> str:
+    explicit = str(item.get("id") or "").strip()
+    request = item.get("request")
+    request_id = str(request.get("requestId") or "").strip() if isinstance(request, dict) else ""
+    value = explicit or request_id or f"item-{index + 1}"
+    if not value:
+        raise ValueError("asset-forge batch item id is required")
+    return value
+
+
+def _order_asset_batch(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    indexed: dict[str, dict[str, Any]] = {}
+    order_hint: list[str] = []
+    for index, item in enumerate(items):
+        if not isinstance(item, dict):
+            raise ValueError("asset-forge batch item must be an object")
+        item_id = _batch_item_id(item, index)
+        if item_id in indexed:
+            raise ValueError(f"duplicate asset-forge batch item id: {item_id}")
+        copy = dict(item)
+        copy["_batch_id"] = item_id
+        indexed[item_id] = copy
+        order_hint.append(item_id)
+
+    indegree = {item_id: 0 for item_id in indexed}
+    dependents: dict[str, list[str]] = {item_id: [] for item_id in indexed}
+    for item_id, item in indexed.items():
+        raw = item.get("depends_on") or []
+        if isinstance(raw, str):
+            raw = [raw]
+        if not isinstance(raw, list):
+            raise ValueError(f"depends_on for {item_id} must be a list")
+        dependencies = []
+        for dep in raw:
+            dep_id = str(dep).strip()
+            if not dep_id:
+                continue
+            if dep_id == item_id:
+                raise ValueError(f"asset-forge batch item cannot depend on itself: {item_id}")
+            if dep_id not in indexed:
+                raise ValueError(f"unknown asset-forge batch dependency for {item_id}: {dep_id}")
+            if dep_id not in dependencies:
+                dependencies.append(dep_id)
+        item["_depends_on"] = dependencies
+        indegree[item_id] = len(dependencies)
+        for dep_id in dependencies:
+            dependents[dep_id].append(item_id)
+
+    ready = [item_id for item_id in order_hint if indegree[item_id] == 0]
+    sorted_ids: list[str] = []
+    while ready:
+        current = ready.pop(0)
+        sorted_ids.append(current)
+        for dependent in dependents[current]:
+            indegree[dependent] -= 1
+            if indegree[dependent] == 0:
+                ready.append(dependent)
+
+    if len(sorted_ids) != len(indexed):
+        blocked = [item_id for item_id in order_hint if indegree[item_id] > 0]
+        raise ValueError(
+            "cyclic asset-forge batch dependencies: " + ", ".join(blocked)
+        )
+    return [indexed[item_id] for item_id in sorted_ids]
+
+
 def execute_asset_forge_batch(
     items: list[dict[str, Any]],
     *,
@@ -303,10 +369,9 @@ def execute_asset_forge_batch(
     root = Path(output_root)
     root.mkdir(parents=True, exist_ok=True)
     produced: list[dict[str, Any]] = []
+    ordered_items = _order_asset_batch(items)
 
-    for index, item in enumerate(items):
-        if not isinstance(item, dict):
-            raise ValueError("asset-forge batch item must be an object")
+    for index, item in enumerate(ordered_items):
         request = item.get("request")
         if not isinstance(request, dict):
             raise ValueError("asset-forge batch item request is required")
@@ -336,6 +401,8 @@ def execute_asset_forge_batch(
         report = json.loads(report_path.read_text(encoding="utf-8"))
         artifact = _validated_artifact(report, out)
         produced.append({
+            "batch_id": item["_batch_id"],
+            "depends_on": list(item.get("_depends_on") or []),
             "request_id": request_id,
             "target_path": target_path,
             "artifact": artifact,
@@ -403,10 +470,13 @@ def execute_asset_forge_batch(
         "schema_version": "production-os/asset-forge-batch/v1",
         "success": True,
         "count": len(produced),
+        "execution_order": [item["batch_id"] for item in produced],
         "delivery_mode": delivery_mode,
         "delivered_to": delivered_to,
         "items": [
             {
+                "id": item["batch_id"],
+                "depends_on": item["depends_on"],
                 "request_id": item["request_id"],
                 "target_path": item["target_path"],
                 "report_path": str(item["report_path"]),
