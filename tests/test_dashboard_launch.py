@@ -39,3 +39,12 @@ def test_dashboard_lists_per_asset_visual_quality_details():
     assert 'id="visual-assets-list"' in DASHBOARD_HTML
     assert "item.cache_hit?' · cache':''" in DASHBOARD_HTML
     assert "score '+score+' · essais '+attempts" in DASHBOARD_HTML
+
+
+def test_dashboard_visual_quality_has_previews_and_history():
+    assert 'id="visual-quality-history"' in DASHBOARD_HTML
+    assert "githubAssetUrls" in DASHBOARD_HTML
+    assert "asset-thumb" in DASHBOARD_HTML
+    assert "Promise.all(" in DASHBOARD_HTML
+    assert "workflows.slice(0,5)" in DASHBOARD_HTML
+    assert "target="_blank"" in DASHBOARD_HTML
