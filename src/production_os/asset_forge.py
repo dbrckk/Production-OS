@@ -224,6 +224,7 @@ def _version_sidecar(
         "cache_hit": bool(item.get("cache_hit")),
         "visual_similarity": item.get("visual_similarity"),
         "technical_art": item.get("technical_art"),
+        "semantic_art": item.get("semantic_art"),
         "history": history,
     }
 
@@ -653,6 +654,11 @@ def _produce_asset_forge_batch_remote(
                 if isinstance(row.get("technical_art"), dict)
                 else None
             ),
+            "semantic_art": (
+                row.get("semantic_art")
+                if isinstance(row.get("semantic_art"), dict)
+                else None
+            ),
             "request_id": request_id,
             "target_path": target_path,
             "artifact": artifact_path,
@@ -878,6 +884,7 @@ def execute_asset_forge_batch(
                     ][:4],
                     "visual_similarity": cached_metadata.get("visual_similarity"),
                     "technical_art": cached_metadata.get("technical_art"),
+                    "semantic_art": cached_metadata.get("semantic_art"),
                     "request_id": request_id,
                     "target_path": target_path,
                     "artifact": cached_artifact,
@@ -934,6 +941,11 @@ def execute_asset_forge_batch(
                 "technical_art": (
                     validation.get("technicalArt")
                     if isinstance(validation.get("technicalArt"), dict)
+                    else None
+                ),
+                "semantic_art": (
+                    validation.get("semanticArt")
+                    if isinstance(validation.get("semanticArt"), dict)
                     else None
                 ),
                 "request_id": request_id,
@@ -1066,6 +1078,7 @@ def execute_asset_forge_batch(
                 "visual_references": item["visual_references"],
                 "visual_similarity": item["visual_similarity"],
                 "technical_art": item.get("technical_art"),
+                "semantic_art": item.get("semantic_art"),
                 "sha256": item["sha256"],
                 "request_id": item["request_id"],
                 "target_path": item["target_path"],
