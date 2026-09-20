@@ -19,3 +19,12 @@ def test_dashboard_pairing_is_hidden_from_normal_surface():
     assert 'id="settings"' in DASHBOARD_HTML
     assert "localStorage.setItem(TOKEN_KEY,value)" in DASHBOARD_HTML
     assert 'style.display' in DASHBOARD_HTML
+
+
+def test_dashboard_surfaces_visual_quality_without_extra_controls():
+    assert 'id="visual-quality"' in DASHBOARD_HTML
+    assert 'id="visual-quality-detail"' in DASHBOARD_HTML
+    assert "Régénéré" in DASHBOARD_HTML
+    assert "Qualité faible" in DASHBOARD_HTML
+    assert "loadVisualQuality()" in DASHBOARD_HTML
+    assert "setInterval(loadVisualQuality,10000)" in DASHBOARD_HTML
