@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -212,6 +213,105 @@ class GitHubClient:
         )
 
 
+
+
+    def workflow_runs(
+        self,
+        full_name: str,
+        workflow: str,
+        *,
+        event: str = "workflow_dispatch",
+        per_page: int = 30,
+    ) -> list[dict[str, Any]]:
+        encoded = urllib.parse.quote(workflow, safe="")
+        payload = self._get(
+            f"/repos/{full_name}/actions/workflows/{encoded}/runs"
+            f"?event={urllib.parse.quote(event)}&per_page={max(1, min(100, int(per_page)))}"
+        )
+        runs = payload.get("workflow_runs", []) if isinstance(payload, dict) else []
+        return runs if isinstance(runs, list) else []
+
+    def wait_for_workflow_run(
+        self,
+        full_name: str,
+        workflow: str,
+        *,
+        display_title: str,
+        timeout_seconds: float = 2100.0,
+        poll_seconds: float = 5.0,
+        sleeper=time.sleep,
+        clock=time.monotonic,
+    ) -> dict[str, Any]:
+        deadline = clock() + float(timeout_seconds)
+        while clock() < deadline:
+            for run in self.workflow_runs(full_name, workflow):
+                if str(run.get("display_title") or "") != display_title:
+                    continue
+                status = str(run.get("status") or "")
+                if status == "completed":
+                    return run
+            sleeper(max(0.1, float(poll_seconds)))
+        raise GitHubAPIError(
+            f"timed out waiting for workflow run: {display_title}"
+        )
+
+    def workflow_run_artifacts(
+        self,
+        full_name: str,
+        run_id: int,
+    ) -> list[dict[str, Any]]:
+        payload = self._get(
+            f"/repos/{full_name}/actions/runs/{int(run_id)}/artifacts?per_page=100"
+        )
+        artifacts = payload.get("artifacts", []) if isinstance(payload, dict) else []
+        return artifacts if isinstance(artifacts, list) else []
+
+    def download_workflow_artifact(
+        self,
+        full_name: str,
+        artifact_id: int,
+        *,
+        max_bytes: int = 128 * 1024 * 1024,
+    ) -> bytes:
+        if not self.token:
+            raise GitHubAPIError("GITHUB_TOKEN is required to download workflow artifacts")
+        request = urllib.request.Request(
+            f"{self.API}/repos/{full_name}/actions/artifacts/{int(artifact_id)}/zip",
+            headers={
+                "Accept": "application/vnd.github+json",
+                "X-GitHub-Api-Version": "2022-11-28",
+                "User-Agent": "Production-OS/1.0",
+                "Authorization": f"Bearer {self.token}",
+            },
+        )
+
+        class StripCredentialRedirect(urllib.request.HTTPRedirectHandler):
+            def redirect_request(self, req, fp, code, msg, headers, newurl):
+                redirected = super().redirect_request(
+                    req, fp, code, msg, headers, newurl
+                )
+                if redirected is not None:
+                    redirected.remove_header("Authorization")
+                return redirected
+
+        try:
+            with urllib.request.build_opener(StripCredentialRedirect).open(
+                request,
+                timeout=max(self.timeout, 60.0),
+            ) as response:
+                data = response.read(max_bytes + 1)
+        except urllib.error.HTTPError as exc:
+            body = exc.read().decode("utf-8", errors="replace")
+            raise GitHubAPIError(
+                f"GitHub artifact download {exc.code}: {body}"
+            ) from exc
+        except urllib.error.URLError as exc:
+            raise GitHubAPIError(
+                f"GitHub artifact download unavailable: {exc}"
+            ) from exc
+        if len(data) > max_bytes:
+            raise GitHubAPIError("GitHub workflow artifact exceeds download limit")
+        return data
 
     def get_branch_protection(
         self,
