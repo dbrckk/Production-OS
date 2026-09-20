@@ -182,6 +182,7 @@ tests/
   test_execution_optimizer.py
   test_fairness.py
   test_github_client_pr_files.py
+  test_github_client_put_file.py
   test_github_webhook.py
   test_github_work_state.py
   test_governance.py
@@ -5924,6 +5925,8 @@ out = tmp_path / "out"
 ⋮----
 def fake_run(cmd, check=False)
 ⋮----
+artifact = out / "hud-icon.svg"
+⋮----
 class Result
 ⋮----
 returncode = 0
@@ -5937,8 +5940,6 @@ receipt = execute_asset_forge(request, client=fake, mode="auto")
 def test_execute_asset_forge_delivers_to_worktree(tmp_path)
 ⋮----
 worktree = tmp_path / "repo"
-⋮----
-artifact = out / "hud-icon.svg"
 ⋮----
 receipt = execute_asset_forge(
 ⋮----
@@ -6537,6 +6538,28 @@ client = FakeGitHubClient([
 def test_list_pull_request_files_rejects_invalid_payload()
 ⋮----
 client = FakeGitHubClient([{"files":[]}])
+````
+
+## File: tests/test_github_client_put_file.py
+````python
+class FakeWriteClient(GitHubClient)
+⋮----
+def __init__(self, existing=None)
+⋮----
+def _get(self, path)
+⋮----
+def _request(self, method, path, payload=None)
+⋮----
+def test_put_file_creates_new_content_without_sha()
+⋮----
+client = FakeWriteClient()
+result = client.put_file(
+⋮----
+def test_put_file_updates_existing_content_with_sha()
+⋮----
+client = FakeWriteClient({"sha": "existing-sha"})
+⋮----
+payload = client.requests[0][2]
 ````
 
 ## File: tests/test_github_webhook.py

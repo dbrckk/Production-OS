@@ -22,20 +22,20 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-20T11:31:06Z
+Generated: 2026-09-20T11:37:49Z
 
 ### Git
 - Branch: `main`
-- Head: `5ff32afb990a`
-- Commit date: 2026-09-20T13:30:47+02:00
-- Commit: test: cover automatic asset delivery
-- Tracked files: 325
+- Head: `c5d5cf34bd3f`
+- Commit date: 2026-09-20T13:32:39+02:00
+- Commit: test: cover authenticated GitHub asset delivery
+- Tracked files: 326
 
 ### Recently changed files
+- `tests/test_github_client_put_file.py`
 - `tests/test_asset_forge.py`
 - `src/production_os/cli.py`
 - `src/production_os/asset_forge.py`
-- `src/production_os/github_client.py`
 
 ### Project signals
 - `pyproject.toml`
