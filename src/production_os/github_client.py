@@ -68,6 +68,91 @@ class GitHubClient:
         except urllib.error.URLError as exc:
             raise GitHubAPIError(f"GitHub API unavailable: {exc}") from exc
 
+    def commit_files(
+        self,
+        full_name: str,
+        files: dict[str, bytes],
+        *,
+        message: str,
+        branch: str = "main",
+    ) -> dict[str, Any]:
+        if not self.token:
+            raise GitHubAPIError("GITHUB_TOKEN is required to write repository contents")
+        if not files:
+            raise ValueError("at least one file is required")
+        ref_name = branch.removeprefix("refs/heads/")
+        ref = self._get(
+            f"/repos/{full_name}/git/ref/heads/{urllib.parse.quote(ref_name, safe='')}"
+        )
+        base_commit_sha = str(ref.get("object", {}).get("sha") or "")
+        if not base_commit_sha:
+            raise GitHubAPIError("GitHub branch ref has no commit sha")
+        base_commit = self._get(f"/repos/{full_name}/git/commits/{base_commit_sha}")
+        base_tree_sha = str(base_commit.get("tree", {}).get("sha") or "")
+        if not base_tree_sha:
+            raise GitHubAPIError("GitHub base commit has no tree sha")
+
+        tree = []
+        for path, content in sorted(files.items()):
+            normalized = path.strip().replace("\\", "/").lstrip("/")
+            if (
+                not normalized
+                or normalized in {".", ".."}
+                or any(part in {"", ".", ".."} for part in normalized.split("/"))
+            ):
+                raise ValueError("repository file path must be safe and relative")
+            blob = self._request(
+                "POST",
+                f"/repos/{full_name}/git/blobs",
+                {
+                    "content": b64encode(content).decode("ascii"),
+                    "encoding": "base64",
+                },
+            )
+            blob_sha = str(blob.get("sha") or "") if isinstance(blob, dict) else ""
+            if not blob_sha:
+                raise GitHubAPIError("GitHub blob creation returned no sha")
+            tree.append({
+                "path": normalized,
+                "mode": "100644",
+                "type": "blob",
+                "sha": blob_sha,
+            })
+
+        created_tree = self._request(
+            "POST",
+            f"/repos/{full_name}/git/trees",
+            {"base_tree": base_tree_sha, "tree": tree},
+        )
+        tree_sha = str(created_tree.get("sha") or "") if isinstance(created_tree, dict) else ""
+        if not tree_sha:
+            raise GitHubAPIError("GitHub tree creation returned no sha")
+
+        created_commit = self._request(
+            "POST",
+            f"/repos/{full_name}/git/commits",
+            {
+                "message": message,
+                "tree": tree_sha,
+                "parents": [base_commit_sha],
+            },
+        )
+        commit_sha = str(created_commit.get("sha") or "") if isinstance(created_commit, dict) else ""
+        if not commit_sha:
+            raise GitHubAPIError("GitHub commit creation returned no sha")
+
+        self._request(
+            "PATCH",
+            f"/repos/{full_name}/git/refs/heads/{urllib.parse.quote(ref_name, safe='')}",
+            {"sha": commit_sha, "force": False},
+        )
+        return {
+            "commit_sha": commit_sha,
+            "branch": ref_name,
+            "files": sorted(files),
+        }
+
+
     def put_file(
         self,
         full_name: str,
