@@ -127,6 +127,7 @@ button{cursor:pointer}
 <h2>Visual Quality</h2>
 <p><span id="visual-quality" class="quality-badge quality-unknown">Inconnu</span></p>
 <p id="visual-quality-detail" class="small">Aucun résultat visuel chargé.</p>
+<div id="visual-assets-list" class="small"></div>
 </div>
 
 <div id="settings" class="card">
@@ -211,6 +212,12 @@ async function loadWorkerStatus(){
  }
 }
 
+function escapeHtml(value){
+ return String(value).replace(/[&<>"']/g,ch=>({
+  '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+ }[ch]));
+}
+
 function qualityView(status){
  if(status==='ok') return ['OK','quality-ok'];
  if(status==='regenerated') return ['Régénéré','quality-regenerated'];
@@ -273,11 +280,21 @@ async function loadVisualQuality(){
    parts.push('score min '+Number(visual.minimum_score).toFixed(2));
   }
   detail.textContent=parts.length?parts.join(' · '):'Contrôle visuel disponible.';
+  const assetList=document.getElementById('visual-assets-list');
+  const rows=Array.isArray(visual.items)?visual.items:[];
+  assetList.innerHTML=rows.slice(0,8).map(item=>{
+   const score=item.score===null||item.score===undefined?'—':Number(item.score).toFixed(2);
+   const attempts=Number(item.attempts||0);
+   const cache=item.cache_hit?' · cache':'';
+   const target=String(item.target_path||item.id||'asset');
+   return '<div><b>'+escapeHtml(target)+'</b> · score '+score+' · essais '+attempts+cache+'</div>';
+  }).join('');
  }catch(_e){
   const view=qualityView('unknown');
   badge.textContent=view[0];
   badge.className='quality-badge '+view[1];
   detail.textContent='Qualité visuelle indisponible.';
+  document.getElementById('visual-assets-list').innerHTML='';
  }
 }
 
