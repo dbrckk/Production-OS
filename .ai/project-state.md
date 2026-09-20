@@ -22,19 +22,19 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-20T16:46:03Z
+Generated: 2026-09-20T16:55:39Z
 
 ### Git
 - Branch: `main`
-- Head: `bfdd18070269`
-- Commit date: 2026-09-20T18:44:47+02:00
-- Commit: fix: avoid Python escape warning in dashboard JavaScript
+- Head: `b31e8bedc90c`
+- Commit date: 2026-09-20T18:52:43+02:00
+- Commit: fix: escape repository regex cleanly in Python HTML literal
 - Tracked files: 326
 
 ### Recently changed files
 - `src/production_os/control_plane.py`
 - `tests/test_dashboard_launch.py`
-- `tests/test_asset_forge.py`
+- `src/production_os/asset_forge.py`
 
 ### Project signals
 - `pyproject.toml`
