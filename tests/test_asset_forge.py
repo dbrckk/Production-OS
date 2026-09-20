@@ -52,6 +52,9 @@ class FakeGitHub:
         })
         return {"content": {"path": path}}
 
+    def read_json_file(self, repository, path):
+        return None
+
     def commit_files(self, repository, files, *, message, branch):
         self.calls.append({
             "repository": repository,
@@ -409,7 +412,12 @@ def test_execute_asset_forge_batch_uses_single_github_commit(tmp_path):
 
     commits = [call for call in fake.calls if "files" in call]
     assert len(commits) == 1
-    assert sorted(commits[0]["files"]) == ["assets/art/a.svg", "assets/art/b.svg"]
+    assert sorted(commits[0]["files"]) == [
+        "assets/art/a.svg",
+        "assets/art/a.svg.asset-forge.json",
+        "assets/art/b.svg",
+        "assets/art/b.svg.asset-forge.json",
+    ]
     assert result["delivery_mode"] == "github"
 
 
@@ -764,3 +772,131 @@ def test_execute_asset_forge_batch_rejects_duplicate_target_paths(tmp_path):
         assert "target_path values must be unique" in str(exc)
     else:
         raise AssertionError("expected duplicate target path rejection")
+
+
+def test_asset_batch_reuses_identical_worktree_asset_from_version_sidecar(tmp_path):
+    out = tmp_path / "batch"
+    worktree = tmp_path / "repo"
+    request = build_asset_forge_request(
+        request_id="cache-first",
+        project="deadline-zero",
+        asset_id="cache-hero",
+        asset_type="sprite-sheet",
+        instruction="premium cache hero",
+        target_format="png",
+    )
+    item = {
+        "id": "cache-hero",
+        "request": request,
+        "target_path": "assets/art/cache-hero.png",
+    }
+    calls = []
+
+    def fake_run(cmd, check=False, **kwargs):
+        calls.append(list(cmd))
+        output = Path(cmd[cmd.index("--output-dir") + 1])
+        output.mkdir(parents=True, exist_ok=True)
+        artifact = output / "cache-hero.png"
+        artifact.write_bytes(b"stable-hero")
+        (output / "production-report.json").write_text(
+            json.dumps({"success": True, "artifact": str(artifact)}),
+            encoding="utf-8",
+        )
+        class Result:
+            returncode = 0
+        return Result()
+
+    with patch("production_os.asset_forge.shutil.which", return_value="/usr/bin/asset-forge"), patch(
+        "production_os.asset_forge.subprocess.run", side_effect=fake_run
+    ):
+        first = execute_asset_forge_batch(
+            [item],
+            output_root=str(out / "one"),
+            target_worktree=str(worktree),
+            mode="local",
+        )
+        request2 = build_asset_forge_request(
+            request_id="cache-second",
+            project="deadline-zero",
+            asset_id="cache-hero",
+            asset_type="sprite-sheet",
+            instruction="premium cache hero",
+            target_format="png",
+        )
+        second = execute_asset_forge_batch(
+            [{**item, "request": request2}],
+            output_root=str(out / "two"),
+            target_worktree=str(worktree),
+            mode="local",
+        )
+
+    assert len(calls) == 1
+    assert first["quality_summary"]["cache_hits"] == 0
+    assert second["quality_summary"]["cache_hits"] == 1
+    assert second["items"][0]["cache_hit"] is True
+    sidecar = json.loads(
+        (worktree / "assets/art/cache-hero.png.asset-forge.json").read_text()
+    )
+    assert sidecar["version"] == 1
+    assert sidecar["cache_hit"] is True
+    assert len(sidecar["sha256"]) == 64
+
+
+def test_asset_version_sidecar_increments_when_semantic_request_changes(tmp_path):
+    out = tmp_path / "batch"
+    worktree = tmp_path / "repo"
+    calls = []
+
+    def fake_run(cmd, check=False, **kwargs):
+        calls.append(list(cmd))
+        request_path = Path(cmd[cmd.index("fulfill") + 1])
+        payload = json.loads(request_path.read_text())
+        output = Path(cmd[cmd.index("--output-dir") + 1])
+        output.mkdir(parents=True, exist_ok=True)
+        artifact = output / "hero.png"
+        artifact.write_bytes(payload["instruction"].encode("utf-8"))
+        (output / "production-report.json").write_text(
+            json.dumps({"success": True, "artifact": str(artifact)}),
+            encoding="utf-8",
+        )
+        class Result:
+            returncode = 0
+        return Result()
+
+    def make(instruction, rid):
+        return [{
+            "id": "hero",
+            "request": build_asset_forge_request(
+                request_id=rid,
+                project="deadline-zero",
+                asset_id="hero",
+                asset_type="sprite-sheet",
+                instruction=instruction,
+                target_format="png",
+            ),
+            "target_path": "assets/art/hero.png",
+        }]
+
+    with patch("production_os.asset_forge.shutil.which", return_value="/usr/bin/asset-forge"), patch(
+        "production_os.asset_forge.subprocess.run", side_effect=fake_run
+    ):
+        execute_asset_forge_batch(
+            make("premium hero v1", "version-a"),
+            output_root=str(out / "one"),
+            target_worktree=str(worktree),
+            mode="local",
+        )
+        execute_asset_forge_batch(
+            make("premium hero v2", "version-b"),
+            output_root=str(out / "two"),
+            target_worktree=str(worktree),
+            mode="local",
+        )
+
+    assert len(calls) == 2
+    sidecar = json.loads(
+        (worktree / "assets/art/hero.png.asset-forge.json").read_text()
+    )
+    assert sidecar["version"] == 2
+    assert len(sidecar["history"]) == 1
+    assert sidecar["history"][0]["version"] == 1
