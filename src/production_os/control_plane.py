@@ -323,6 +323,14 @@ async function loadVisualQuality(){
     : ' · art '+Number(item.semantic_score).toFixed(2);
    const cache=item.cache_hit?' · cache':'';
    const regenerated=item.regenerated?' · régénéré':'';
+   const libraryVersion=item.library_version===null||item.library_version===undefined
+    ? ''
+    : ' · lib v'+Number(item.library_version);
+   const libraryQuality=item.library_quality===null||item.library_quality===undefined
+    ? ''
+    : ' · qualité lib '+Number(item.library_quality).toFixed(2);
+   const preferred=item.library_preferred===true?' · préférée':'';
+   const duplicate=item.library_duplicate_of?' · doublon':'';
    const target=String(item.target_path||item.id||'asset');
    const sha=String(item.sha256||'').slice(0,10);
    const urls=githubAssetUrls(selectedRepository,target);
@@ -333,7 +341,9 @@ async function loadVisualQuality(){
     ? '<a href="'+escapeHtml(urls.view)+'" target="_blank" rel="noreferrer">'+escapeHtml(target)+'</a>'
     : '<b>'+escapeHtml(target)+'</b>';
    return '<div class="asset-row">'+thumb+'<div class="asset-meta">'+link
-    +'<div>cohérence '+score+semantic+' · essais '+attempts+cache+regenerated+(sha?' · '+escapeHtml(sha):'')+'</div></div></div>';
+    +'<div>cohérence '+score+semantic+' · essais '+attempts+cache+regenerated
+    +libraryVersion+libraryQuality+preferred+duplicate+(sha?' · '+escapeHtml(sha):'')
+    +'</div></div></div>';
   }).join('');
 
   const history=document.getElementById('visual-quality-history');
