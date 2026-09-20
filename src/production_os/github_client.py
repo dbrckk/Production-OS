@@ -42,6 +42,49 @@ class GitHubClient:
         except urllib.error.URLError as exc:
             raise GitHubAPIError(f"GitHub API unavailable: {exc}") from exc
 
+    def _request(self, method: str, path: str, payload: dict[str, Any] | None = None) -> Any:
+        data = None
+        if payload is not None:
+            data = json.dumps(payload, separators=(",", ":")).encode("utf-8")
+        request = urllib.request.Request(
+            f"{self.API}{path}",
+            data=data,
+            method=method.upper(),
+            headers={
+                "Accept": "application/vnd.github+json",
+                "Content-Type": "application/json",
+                "X-GitHub-Api-Version": "2022-11-28",
+                "User-Agent": "Production-OS/1.0",
+                **({"Authorization": f"Bearer {self.token}"} if self.token else {}),
+            },
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=self.timeout) as response:
+                body = response.read()
+                return json.loads(body.decode("utf-8")) if body else None
+        except urllib.error.HTTPError as exc:
+            body = exc.read().decode("utf-8", errors="replace")
+            raise GitHubAPIError(f"GitHub API {exc.code}: {body}") from exc
+        except urllib.error.URLError as exc:
+            raise GitHubAPIError(f"GitHub API unavailable: {exc}") from exc
+
+    def dispatch_workflow(
+        self,
+        full_name: str,
+        workflow: str,
+        *,
+        ref: str = "main",
+        inputs: dict[str, str] | None = None,
+    ) -> None:
+        if not self.token:
+            raise GitHubAPIError("GITHUB_TOKEN is required to dispatch a workflow")
+        encoded = urllib.parse.quote(workflow, safe="")
+        self._request(
+            "POST",
+            f"/repos/{full_name}/actions/workflows/{encoded}/dispatches",
+            {"ref": ref, "inputs": dict(inputs or {})},
+        )
+
 
 
     def get_branch_protection(
