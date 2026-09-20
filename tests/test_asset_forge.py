@@ -83,7 +83,7 @@ def test_execute_asset_forge_auto_prefers_local_cli(tmp_path):
     )
     out = tmp_path / "out"
 
-    def fake_run(cmd, check=False):
+    def fake_run(cmd, check=False, **kwargs):
         out.mkdir(parents=True, exist_ok=True)
         artifact = out / "hud-icon.svg"
         artifact.write_text("<svg/>", encoding="utf-8")
@@ -134,7 +134,7 @@ def test_execute_asset_forge_delivers_to_worktree(tmp_path):
     out = tmp_path / "out"
     worktree = tmp_path / "repo"
 
-    def fake_run(cmd, check=False):
+    def fake_run(cmd, check=False, **kwargs):
         out.mkdir(parents=True, exist_ok=True)
         artifact = out / "hud-icon.svg"
         artifact.write_text("<svg/>", encoding="utf-8")
@@ -175,7 +175,7 @@ def test_execute_asset_forge_delivers_with_existing_github_client(tmp_path):
     )
     out = tmp_path / "out"
 
-    def fake_run(cmd, check=False):
+    def fake_run(cmd, check=False, **kwargs):
         out.mkdir(parents=True, exist_ok=True)
         artifact = out / "hud-icon.svg"
         artifact.write_bytes(b"<svg/>")
@@ -234,7 +234,7 @@ def test_execute_asset_forge_batch_delivers_only_after_all_validate(tmp_path):
         },
     ]
 
-    def fake_run(cmd, check=False):
+    def fake_run(cmd, check=False, **kwargs):
         request_path = Path(cmd[cmd.index("fulfill") + 1])
         request = __import__("json").loads(request_path.read_text())
         output = Path(cmd[cmd.index("--output-dir") + 1])
@@ -297,7 +297,7 @@ def test_execute_asset_forge_batch_aborts_delivery_when_one_asset_fails(tmp_path
     ]
 
     calls = 0
-    def fake_run(cmd, check=False):
+    def fake_run(cmd, check=False, **kwargs):
         nonlocal calls
         calls += 1
         output = Path(cmd[cmd.index("--output-dir") + 1])
@@ -353,7 +353,7 @@ def test_execute_asset_forge_batch_uses_single_github_commit(tmp_path):
         for name in ("a", "b")
     ]
 
-    def fake_run(cmd, check=False):
+    def fake_run(cmd, check=False, **kwargs):
         request_path = Path(cmd[cmd.index("fulfill") + 1])
         request = __import__("json").loads(request_path.read_text())
         output = Path(cmd[cmd.index("--output-dir") + 1])
