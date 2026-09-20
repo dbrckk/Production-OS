@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 import shutil
 import subprocess
 import tempfile
+import uuid
+import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -14,6 +17,7 @@ from .github_client import GitHubClient
 
 ASSET_FORGE_REPOSITORY = "dbrckk/asset-forge"
 ASSET_FORGE_WORKFLOW = "production-os-dispatch.yml"
+ASSET_FORGE_BATCH_WORKFLOW = "production-os-batch.yml"
 
 
 @dataclass(frozen=True)
@@ -355,6 +359,204 @@ def _order_asset_batch(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return [indexed[item_id] for item_id in sorted_ids]
 
 
+
+def _extract_remote_batch_bundle(data: bytes, destination: Path) -> Path:
+    destination.mkdir(parents=True, exist_ok=True)
+    root = destination.resolve()
+    max_files = 5000
+    max_uncompressed = 512 * 1024 * 1024
+    total = 0
+    with zipfile.ZipFile(io.BytesIO(data)) as archive:
+        infos = archive.infolist()
+        if len(infos) > max_files:
+            raise RuntimeError("asset-forge remote batch artifact has too many files")
+        for info in infos:
+            name = info.filename.replace("\\", "/")
+            if not name or name.endswith("/"):
+                continue
+            parts = [part for part in name.split("/") if part]
+            if not parts or any(part in {".", ".."} for part in parts):
+                raise RuntimeError("asset-forge remote batch artifact contains unsafe path")
+            mode = (info.external_attr >> 16) & 0o170000
+            if mode == 0o120000:
+                raise RuntimeError("asset-forge remote batch artifact contains symlink")
+            total += int(info.file_size)
+            if total > max_uncompressed:
+                raise RuntimeError("asset-forge remote batch artifact exceeds extraction limit")
+            target = (root / "/".join(parts)).resolve()
+            if not target.is_relative_to(root):
+                raise RuntimeError("asset-forge remote batch artifact escapes extraction root")
+            target.parent.mkdir(parents=True, exist_ok=True)
+            with archive.open(info) as source, target.open("wb") as output:
+                shutil.copyfileobj(source, output)
+    return root
+
+
+def _produce_asset_forge_batch_remote(
+    ordered_items: list[dict[str, Any]],
+    *,
+    root: Path,
+    backend: str,
+    model: str | None,
+    client: GitHubClient | None,
+    repository: str = ASSET_FORGE_REPOSITORY,
+    workflow: str = ASSET_FORGE_BATCH_WORKFLOW,
+    ref: str = "main",
+) -> list[dict[str, Any]]:
+    for item in ordered_items:
+        if str(item.get("source_path") or "").strip():
+            raise RuntimeError(
+                "remote transactional batch does not accept local source_path inputs"
+            )
+
+    serializable_items = []
+    for item in ordered_items:
+        serializable_items.append({
+            key: value
+            for key, value in item.items()
+            if not key.startswith("_")
+        })
+    spec_json = json.dumps(
+        {"items": serializable_items},
+        separators=(",", ":"),
+        sort_keys=True,
+    )
+    if len(spec_json.encode("utf-8")) > 60_000:
+        raise RuntimeError("asset-forge remote batch spec exceeds workflow input limit")
+
+    correlation = "pos-" + uuid.uuid4().hex
+    gh = client or GitHubClient()
+    gh.dispatch_workflow(
+        repository,
+        workflow,
+        ref=ref,
+        inputs={
+            "correlation_id": correlation,
+            "spec_json": spec_json,
+            "backend": backend,
+            "model": model or "",
+        },
+    )
+    title = f"Asset Forge batch {correlation}"
+    run = gh.wait_for_workflow_run(
+        repository,
+        workflow,
+        display_title=title,
+        timeout_seconds=2100.0,
+        poll_seconds=5.0,
+    )
+    if str(run.get("conclusion") or "") != "success":
+        raise RuntimeError(
+            "asset-forge remote batch workflow failed: "
+            + str(run.get("html_url") or run.get("id") or title)
+        )
+    run_id = int(run.get("id") or 0)
+    if run_id <= 0:
+        raise RuntimeError("asset-forge remote batch workflow returned no run id")
+    artifacts = gh.workflow_run_artifacts(repository, run_id)
+    expected_name = f"asset-forge-batch-{correlation}"
+    artifact = next(
+        (
+            value for value in artifacts
+            if isinstance(value, dict)
+            and str(value.get("name") or "") == expected_name
+            and value.get("expired") is not True
+        ),
+        None,
+    )
+    if not artifact:
+        raise RuntimeError("asset-forge remote batch workflow produced no correlated artifact")
+    artifact_id = int(artifact.get("id") or 0)
+    if artifact_id <= 0:
+        raise RuntimeError("asset-forge remote batch artifact has no id")
+    zip_bytes = gh.download_workflow_artifact(repository, artifact_id)
+
+    remote_root = _extract_remote_batch_bundle(
+        zip_bytes,
+        root / f"remote-{correlation}",
+    )
+    result_path = remote_root / "batch-result.json"
+    if not result_path.is_file():
+        raise RuntimeError("asset-forge remote batch result is missing")
+    result = json.loads(result_path.read_text(encoding="utf-8"))
+    if (
+        result.get("schema_version") != "asset-forge/remote-batch-result/v1"
+        or result.get("success") is not True
+    ):
+        raise RuntimeError("asset-forge remote batch result is invalid")
+    rows = result.get("items")
+    if not isinstance(rows, list) or len(rows) != len(ordered_items):
+        raise RuntimeError("asset-forge remote batch result item count mismatch")
+
+    expected_by_id = {
+        str(item["_batch_id"]): item
+        for item in ordered_items
+    }
+    produced: list[dict[str, Any]] = []
+    produced_by_id: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        if not isinstance(row, dict):
+            raise RuntimeError("asset-forge remote batch item is invalid")
+        item_id = str(row.get("id") or "")
+        expected = expected_by_id.get(item_id)
+        if expected is None:
+            raise RuntimeError(f"unexpected remote batch item: {item_id}")
+        target_path = str(row.get("target_path") or "")
+        if target_path != str(expected.get("target_path") or ""):
+            raise RuntimeError(f"remote batch target mismatch for {item_id}")
+        relative = Path(str(row.get("artifact") or ""))
+        artifact_path = (remote_root / relative).resolve()
+        if not artifact_path.is_relative_to(remote_root):
+            raise RuntimeError(f"remote batch artifact escapes root for {item_id}")
+        if not artifact_path.is_file():
+            raise RuntimeError(f"remote batch artifact missing for {item_id}")
+        digest = hashlib.sha256(artifact_path.read_bytes()).hexdigest()
+        if digest != str(row.get("sha256") or ""):
+            raise RuntimeError(f"remote batch artifact sha256 mismatch for {item_id}")
+        dependencies = [str(value) for value in row.get("depends_on") or []]
+        if dependencies != list(expected.get("_depends_on") or []):
+            raise RuntimeError(f"remote batch dependency mismatch for {item_id}")
+        dependency_artifacts = []
+        for dependency_id in dependencies:
+            dependency = produced_by_id.get(dependency_id)
+            if dependency is None:
+                raise RuntimeError(
+                    f"remote batch dependency was not produced first: {dependency_id}"
+                )
+            dependency_artifacts.append({
+                "id": dependency_id,
+                "artifact": str(dependency["artifact"]),
+                "sha256": dependency["sha256"],
+            })
+        visual_references = [
+            str(Path(value["artifact"]))
+            for value in dependency_artifacts
+            if Path(str(value["artifact"])).suffix.lower()
+            in {".png", ".webp", ".jpg", ".jpeg"}
+        ][:4]
+        request_id = str(row.get("request_id") or "")
+        report_path = remote_root / "jobs" / request_id / "production-report.json"
+        produced_item = {
+            "batch_id": item_id,
+            "depends_on": dependencies,
+            "dependency_artifacts": dependency_artifacts,
+            "visual_references": visual_references,
+            "visual_similarity": (
+                row.get("visual_similarity")
+                if isinstance(row.get("visual_similarity"), dict)
+                else None
+            ),
+            "request_id": request_id,
+            "target_path": target_path,
+            "artifact": artifact_path,
+            "sha256": digest,
+            "report_path": report_path,
+        }
+        produced.append(produced_item)
+        produced_by_id[item_id] = produced_item
+    return produced
+
+
 def execute_asset_forge_batch(
     items: list[dict[str, Any]],
     *,
@@ -376,83 +578,109 @@ def execute_asset_forge_batch(
     produced_by_id: dict[str, dict[str, Any]] = {}
     ordered_items = _order_asset_batch(items)
 
-    for index, item in enumerate(ordered_items):
-        dependency_artifacts = []
-        for dependency_id in item.get("_depends_on") or []:
-            dependency = produced_by_id.get(dependency_id)
-            if dependency is None:
-                raise RuntimeError(
-                    f"asset dependency was not validated before execution: {dependency_id}"
-                )
-            dependency_path = Path(dependency["artifact"])
-            current_sha256 = hashlib.sha256(dependency_path.read_bytes()).hexdigest()
-            if current_sha256 != dependency["sha256"]:
-                raise RuntimeError(
-                    f"validated asset dependency changed before use: {dependency_id}"
-                )
-            dependency_artifacts.append({
-                "id": dependency_id,
-                "artifact": str(dependency_path),
-                "sha256": dependency["sha256"],
-            })
-        request = item.get("request")
-        if not isinstance(request, dict):
-            raise ValueError("asset-forge batch item request is required")
-        target_path = str(item.get("target_path") or "").strip()
-        if not target_path:
-            raise ValueError("asset-forge batch item target_path is required")
-        source_path = str(item.get("source_path") or "").strip() or None
-        request_id = str(request.get("requestId") or f"item-{index+1}")
-        out = root / request_id
+    target_paths = [
+        str(item.get("target_path") or "").strip().replace("\\", "/").lstrip("/")
+        for item in ordered_items
+    ]
+    if len(target_paths) != len(set(target_paths)):
+        raise ValueError("asset-forge batch target_path values must be unique")
 
-        raster_reference_suffixes = {".png", ".webp", ".jpg", ".jpeg"}
-        visual_reference_paths = []
-        if source_path is None:
-            visual_reference_paths = [
-                str(Path(dep["artifact"]))
-                for dep in dependency_artifacts
-                if Path(str(dep["artifact"])).suffix.lower() in raster_reference_suffixes
-            ][:4]
-
-        receipt = execute_asset_forge(
-            request,
+    effective_mode = mode
+    if mode == "auto":
+        effective_mode = "local" if shutil.which("asset-forge") else "github"
+    if effective_mode == "github":
+        produced = _produce_asset_forge_batch_remote(
+            ordered_items,
+            root=root,
             backend=backend,
             model=model,
-            mode=mode,
-            output_dir=str(out),
-            source_path=source_path,
-            reference_paths=visual_reference_paths,
-            target_repository=None,
-            target_path=None,
-            target_worktree=None,
-            target_ref=target_ref,
             client=client,
         )
-        if receipt.mode != "local":
-            raise RuntimeError("transactional batch currently requires local asset-forge execution")
-        report_path = Path(str(receipt.report_path))
-        report = json.loads(report_path.read_text(encoding="utf-8"))
-        artifact = _validated_artifact(report, out)
-        generation = report.get("generation") if isinstance(report.get("generation"), dict) else {}
-        visual_similarity = (
-            generation.get("visualSimilarity")
-            if isinstance(generation.get("visualSimilarity"), dict)
-            else None
-        )
-        produced_item = {
-            "batch_id": item["_batch_id"],
-            "depends_on": list(item.get("_depends_on") or []),
-            "dependency_artifacts": dependency_artifacts,
-            "visual_references": visual_reference_paths,
-            "visual_similarity": visual_similarity,
-            "request_id": request_id,
-            "target_path": target_path,
-            "artifact": artifact,
-            "sha256": hashlib.sha256(artifact.read_bytes()).hexdigest(),
-            "report_path": report_path,
+        produced_by_id = {
+            item["batch_id"]: item
+            for item in produced
         }
-        produced.append(produced_item)
-        produced_by_id[item["_batch_id"]] = produced_item
+    else:
+        if effective_mode != "local":
+            raise ValueError("asset-forge mode must be auto, local, or github")
+
+        for index, item in enumerate(ordered_items):
+            dependency_artifacts = []
+            for dependency_id in item.get("_depends_on") or []:
+                dependency = produced_by_id.get(dependency_id)
+                if dependency is None:
+                    raise RuntimeError(
+                        f"asset dependency was not validated before execution: {dependency_id}"
+                    )
+                dependency_path = Path(dependency["artifact"])
+                current_sha256 = hashlib.sha256(dependency_path.read_bytes()).hexdigest()
+                if current_sha256 != dependency["sha256"]:
+                    raise RuntimeError(
+                        f"validated asset dependency changed before use: {dependency_id}"
+                    )
+                dependency_artifacts.append({
+                    "id": dependency_id,
+                    "artifact": str(dependency_path),
+                    "sha256": dependency["sha256"],
+                })
+            request = item.get("request")
+            if not isinstance(request, dict):
+                raise ValueError("asset-forge batch item request is required")
+            target_path = str(item.get("target_path") or "").strip()
+            if not target_path:
+                raise ValueError("asset-forge batch item target_path is required")
+            source_path = str(item.get("source_path") or "").strip() or None
+            request_id = str(request.get("requestId") or f"item-{index+1}")
+            out = root / request_id
+
+            raster_reference_suffixes = {".png", ".webp", ".jpg", ".jpeg"}
+            visual_reference_paths = []
+            if source_path is None:
+                visual_reference_paths = [
+                    str(Path(dep["artifact"]))
+                    for dep in dependency_artifacts
+                    if Path(str(dep["artifact"])).suffix.lower() in raster_reference_suffixes
+                ][:4]
+
+            receipt = execute_asset_forge(
+                request,
+                backend=backend,
+                model=model,
+                mode=mode,
+                output_dir=str(out),
+                source_path=source_path,
+                reference_paths=visual_reference_paths,
+                target_repository=None,
+                target_path=None,
+                target_worktree=None,
+                target_ref=target_ref,
+                client=client,
+            )
+            if receipt.mode != "local":
+                raise RuntimeError("transactional batch currently requires local asset-forge execution")
+            report_path = Path(str(receipt.report_path))
+            report = json.loads(report_path.read_text(encoding="utf-8"))
+            artifact = _validated_artifact(report, out)
+            generation = report.get("generation") if isinstance(report.get("generation"), dict) else {}
+            visual_similarity = (
+                generation.get("visualSimilarity")
+                if isinstance(generation.get("visualSimilarity"), dict)
+                else None
+            )
+            produced_item = {
+                "batch_id": item["_batch_id"],
+                "depends_on": list(item.get("_depends_on") or []),
+                "dependency_artifacts": dependency_artifacts,
+                "visual_references": visual_reference_paths,
+                "visual_similarity": visual_similarity,
+                "request_id": request_id,
+                "target_path": target_path,
+                "artifact": artifact,
+                "sha256": hashlib.sha256(artifact.read_bytes()).hexdigest(),
+                "report_path": report_path,
+            }
+            produced.append(produced_item)
+            produced_by_id[item["_batch_id"]] = produced_item
 
     delivery_mode = None
     delivered_to: list[str] = []
