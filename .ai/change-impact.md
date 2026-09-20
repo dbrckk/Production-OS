@@ -1,16 +1,16 @@
 # Change impact
 
-Base: a8e418234f1bca10a6c36a88c8dbf615d49042ef
-Head: e11adaac87c426325720e8b7520a4ec6d27ea8eb
+Base: 02748cd9e90fa3a845a5586f62c71268ddfcc772
+Head: bfdd180702693a269b9e564f99dc12dbd625194b
 
 ## Changed files
-- M tests/test_dashboard_launch.py
+- M src/production_os/control_plane.py
 
 ## Affected areas
-- tests
+- src
 
 ## Related test candidates
-- No direct filename-based test match detected.
+- tests/test_control_plane.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

@@ -3,8 +3,8 @@
 - Index mode: incremental
 - Files indexed: 194
 - Files reparsed this run: 2
-- Symbols: 1335
-- Internal import edges: 547
+- Symbols: 1341
+- Internal import edges: 549
 - Impacted files: 13
 - Selected tests: 11
 

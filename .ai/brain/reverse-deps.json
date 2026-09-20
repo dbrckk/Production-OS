@@ -34,6 +34,7 @@
         "tests/test_control_plane_release.py",
         "tests/test_control_plane_webhook.py",
         "tests/test_controller_asset_capabilities.py",
+        "tests/test_dashboard_launch.py",
         "tests/test_deep_fingerprint_starlist.py",
         "tests/test_emergency_key_revocation.py",
         "tests/test_execution_feedback_trends.py",
@@ -107,7 +108,7 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 95,
+      "in_degree": 96,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -524,6 +525,7 @@
         "tests/test_control_plane_pr_impact.py",
         "tests/test_control_plane_release.py",
         "tests/test_control_plane_webhook.py",
+        "tests/test_dashboard_launch.py",
         "tests/test_http_security_headers.py",
         "tests/test_portfolio_claim_api.py",
         "tests/test_production_stack_e2e.py",
@@ -531,7 +533,7 @@
         "tests/test_speculation_api.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 12,
+      "in_degree": 13,
       "out_degree": 12
     },
     "src/production_os/control_surface.py": {
@@ -1624,6 +1626,7 @@
         "tests/test_claims_delivery.py",
         "tests/test_control_plane.py",
         "tests/test_controller_asset_capabilities.py",
+        "tests/test_dashboard_launch.py",
         "tests/test_execution_optimizer.py",
         "tests/test_execution_optimizer_postgres.py",
         "tests/test_incident_history.py",
@@ -1642,7 +1645,7 @@
         "tests/test_workers.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 38,
+      "in_degree": 39,
       "out_degree": 2
     },
     "src/production_os/workflow_engine.py": {
@@ -1964,6 +1967,16 @@
       "dependents": [],
       "in_degree": 0,
       "out_degree": 5
+    },
+    "tests/test_dashboard_launch.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/workers.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 3
     },
     "tests/test_deep_fingerprint_starlist.py": {
       "dependencies": [
