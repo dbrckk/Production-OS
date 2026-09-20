@@ -22,20 +22,19 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-20T15:09:09Z
+Generated: 2026-09-20T15:10:34Z
 
 ### Git
 - Branch: `main`
-- Head: `192abd685a6b`
-- Commit date: 2026-09-20T17:08:46+02:00
-- Commit: test: cover dashboard visual quality status
+- Head: `a98356bcdf84`
+- Commit date: 2026-09-20T17:10:14+02:00
+- Commit: test: scope dashboard visual quality to selected repo
 - Tracked files: 326
 
 ### Recently changed files
 - `tests/test_dashboard_launch.py`
 - `src/production_os/control_plane.py`
 - `tests/test_cli.py`
-- `src/production_os/cli.py`
 
 ### Project signals
 - `pyproject.toml`
