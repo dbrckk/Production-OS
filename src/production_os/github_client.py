@@ -5,7 +5,7 @@ import os
 import urllib.error
 import urllib.parse
 import urllib.request
-from base64 import b64decode
+from base64 import b64decode, b64encode
 from typing import Any
 
 from .models import RepoEvidence
@@ -67,6 +67,47 @@ class GitHubClient:
             raise GitHubAPIError(f"GitHub API {exc.code}: {body}") from exc
         except urllib.error.URLError as exc:
             raise GitHubAPIError(f"GitHub API unavailable: {exc}") from exc
+
+    def put_file(
+        self,
+        full_name: str,
+        path: str,
+        content: bytes,
+        *,
+        message: str,
+        branch: str = "main",
+    ) -> dict[str, Any]:
+        if not self.token:
+            raise GitHubAPIError("GITHUB_TOKEN is required to write repository contents")
+        encoded_path = "/".join(
+            urllib.parse.quote(part) for part in path.split("/") if part
+        )
+        if not encoded_path:
+            raise ValueError("repository path is required")
+        existing = None
+        try:
+            existing = self._get(
+                f"/repos/{full_name}/contents/{encoded_path}?ref={urllib.parse.quote(branch)}"
+            )
+        except GitHubAPIError as exc:
+            if "404" not in str(exc):
+                raise
+        payload: dict[str, Any] = {
+            "message": message,
+            "content": b64encode(content).decode("ascii"),
+            "branch": branch,
+        }
+        if isinstance(existing, dict) and existing.get("sha"):
+            payload["sha"] = existing["sha"]
+        result = self._request(
+            "PUT",
+            f"/repos/{full_name}/contents/{encoded_path}",
+            payload,
+        )
+        if not isinstance(result, dict):
+            raise GitHubAPIError("GitHub contents write returned invalid response")
+        return result
+
 
     def dispatch_workflow(
         self,
