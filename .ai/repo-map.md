@@ -59,6 +59,7 @@ src/
     adaptation.py
     api_auth.py
     approvals.py
+    asset_forge.py
     asymmetric_attestations.py
     atomic_io.py
     attestations.py
@@ -154,6 +155,7 @@ tests/
   test_adaptation.py
   test_api_auth.py
   test_approvals_migrations.py
+  test_asset_forge.py
   test_asymmetric_attestations.py
   test_attestations.py
   test_builder_identity_validation.py
@@ -796,6 +798,41 @@ def is_approved(self, key: str) -> bool
 item = self.approvals.get(key)
 ````
 
+## File: src/production_os/asset_forge.py
+````python
+ASSET_FORGE_REPOSITORY = "dbrckk/asset-forge"
+ASSET_FORGE_WORKFLOW = "production-os-dispatch.yml"
+⋮----
+@dataclass(frozen=True)
+class AssetForgeDispatch
+⋮----
+repository: str
+workflow: str
+ref: str
+request_id: str
+backend: str
+⋮----
+def to_dict(self) -> dict[str, str]
+⋮----
+request_id = str(request_id).strip()
+project = str(project).strip()
+asset_id = str(asset_id).strip()
+asset_type = str(asset_type).strip()
+instruction = str(instruction).strip()
+target_format = str(target_format).strip().lower()
+source_mode = str(source_mode).strip().lower()
+importance = str(importance).strip().lower()
+⋮----
+required = {
+missing = [name for name, value in required.items() if not value]
+⋮----
+request: dict[str, Any] = {
+⋮----
+request_id = str(request.get("requestId") or "").strip()
+⋮----
+inputs = {
+````
+
 ## File: src/production_os/asymmetric_attestations.py
 ````python
 ATTESTATION_SCHEMA = "production-os/validation-attestation/v2"
@@ -1216,6 +1253,8 @@ reconcile = sub.add_parser("reconcile", help="Recover expired leases and cooled-
 ⋮----
 dispatch = sub.add_parser("dispatch", help="Dispatch a handoff to the ai-dev-server file queue")
 ⋮----
+assetforge = sub.add_parser(
+⋮----
 ghrec = sub.add_parser("github-reconcile", help="Reconcile runtime tasks from explicit GitHub issue/PR mappings")
 ⋮----
 controller = sub.add_parser("controller", help="Run bounded autonomous control cycles")
@@ -1465,6 +1504,11 @@ budget_ledger = (
 quarantine_store = (
 ⋮----
 result = dispatch_handoff(
+⋮----
+def run_asset_forge_dispatch(args: argparse.Namespace) -> int
+⋮----
+request = build_asset_forge_request(
+receipt = dispatch_asset_forge(
 ⋮----
 def run_github_reconcile(args: argparse.Namespace) -> int
 ⋮----
@@ -2596,6 +2640,16 @@ def _get(self, path: str) -> Any
 request = urllib.request.Request(
 ⋮----
 body = exc.read().decode("utf-8", errors="replace")
+⋮----
+def _request(self, method: str, path: str, payload: dict[str, Any] | None = None) -> Any
+⋮----
+data = None
+⋮----
+data = json.dumps(payload, separators=(",", ":")).encode("utf-8")
+⋮----
+body = response.read()
+⋮----
+encoded = urllib.parse.quote(workflow, safe="")
 ⋮----
 encoded = urllib.parse.quote(branch, safe="")
 ⋮----
@@ -5786,6 +5840,25 @@ def test_runtime_state_v1_migration(tmp_path)
 path=tmp_path/"state.json"
 ⋮----
 result=migrate_state_file(path)
+````
+
+## File: tests/test_asset_forge.py
+````python
+class FakeGitHub
+⋮----
+def __init__(self)
+⋮----
+def dispatch_workflow(self, repository, workflow, *, ref, inputs)
+⋮----
+def test_build_asset_forge_request()
+⋮----
+request = build_asset_forge_request(
+⋮----
+def test_dispatch_asset_forge_uses_existing_workflow_contract()
+⋮----
+fake = FakeGitHub()
+⋮----
+receipt = dispatch_asset_forge(request, client=fake)
 ````
 
 ## File: tests/test_asymmetric_attestations.py

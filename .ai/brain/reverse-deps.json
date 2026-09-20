@@ -15,6 +15,7 @@
         "tests/test_adaptation_plan.py",
         "tests/test_api_auth.py",
         "tests/test_approvals_migrations.py",
+        "tests/test_asset_forge.py",
         "tests/test_asymmetric_attestations.py",
         "tests/test_attestations.py",
         "tests/test_builder_identity.py",
@@ -106,7 +107,7 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 94,
+      "in_degree": 95,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -185,6 +186,17 @@
       ],
       "in_degree": 19,
       "out_degree": 2
+    },
+    "src/production_os/asset_forge.py": {
+      "dependencies": [
+        "src/production_os/github_client.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "tests/test_asset_forge.py"
+      ],
+      "in_degree": 2,
+      "out_degree": 1
     },
     "src/production_os/asymmetric_attestations.py": {
       "dependencies": [
@@ -385,6 +397,7 @@
       "dependencies": [
         "src/production_os/api_auth.py",
         "src/production_os/approvals.py",
+        "src/production_os/asset_forge.py",
         "src/production_os/asymmetric_attestations.py",
         "src/production_os/attestations.py",
         "src/production_os/audit_checkpoint.py",
@@ -449,7 +462,7 @@
         "tests/test_cli.py"
       ],
       "in_degree": 1,
-      "out_degree": 61
+      "out_degree": 62
     },
     "src/production_os/compatibility.py": {
       "dependencies": [
@@ -691,6 +704,7 @@
         "src/production_os/source_tree.py"
       ],
       "dependents": [
+        "src/production_os/asset_forge.py",
         "src/production_os/cli.py",
         "src/production_os/control_plane.py",
         "src/production_os/controller.py",
@@ -699,7 +713,7 @@
         "tests/test_control_plane_webhook.py",
         "tests/test_github_client_pr_files.py"
       ],
-      "in_degree": 7,
+      "in_degree": 8,
       "out_degree": 2
     },
     "src/production_os/github_webhook.py": {
@@ -1679,6 +1693,15 @@
       "dependents": [],
       "in_degree": 0,
       "out_degree": 3
+    },
+    "tests/test_asset_forge.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/asset_forge.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 2
     },
     "tests/test_asymmetric_attestations.py": {
       "dependencies": [

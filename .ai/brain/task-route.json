@@ -4,15 +4,15 @@
     "expand_to": 12,
     "max_files": 3,
     "requested_max_files": 12,
-    "score_margin": 21,
+    "score_margin": 1,
     "tier": "narrow",
-    "top_score": 48
+    "top_score": 39
   },
   "cache": {
-    "fingerprint": "976630f49393afbe2fe28d6943f6464d6654f6372d29ef056240a8b1cde2a862",
+    "fingerprint": "2afdd0849abe9022437ae60b43ac3296c1655e8a867542e6e85efb9e509a7f5d",
     "hit": false
   },
-  "candidate_count": 26,
+  "candidate_count": 24,
   "fallback": "If bounded context is insufficient, expand only to budget.expand_to, then use architecture/segmented maps and targeted source search.",
   "files": [
     {
@@ -23,11 +23,9 @@
       ],
       "path": "tests/test_workflow_engine.py",
       "reasons": [
-        "impact",
-        "recently-changed",
         "search-index"
       ],
-      "score": 48,
+      "score": 39,
       "symbols": [
         "engine",
         "test_change_impact_can_be_recomputed_before_execution",
@@ -52,14 +50,35 @@
     {
       "learning_score": 0,
       "matched_terms": [
+        "engine",
+        "game"
+      ],
+      "path": "tests/test_asset_forge.py",
+      "reasons": [
+        "impact",
+        "recently-changed",
+        "search-index"
+      ],
+      "score": 38,
+      "symbols": [
+        "FakeGitHub",
+        "dispatch_workflow",
+        "test_build_asset_forge_request",
+        "test_dispatch_asset_forge_uses_existing_workflow_contract"
+      ]
+    },
+    {
+      "learning_score": 0,
+      "matched_terms": [
         "engine"
       ],
       "path": "src/production_os/cli.py",
       "reasons": [
         "impact",
+        "recently-changed",
         "search-index"
       ],
-      "score": 27,
+      "score": 30,
       "symbols": [
         "_external_refs_for_action",
         "_handoff",
@@ -72,6 +91,7 @@
         "main",
         "run_approve",
         "run_artifact_add",
+        "run_asset_forge_dispatch",
         "run_audit_checkpoint_create",
         "run_audit_checkpoint_verify",
         "run_audit_verify",
@@ -79,23 +99,7 @@
         "run_budget_record",
         "run_control_plane",
         "run_controller_command",
-        "run_db_import",
-        "run_db_init"
-      ]
-    },
-    {
-      "learning_score": 0,
-      "matched_terms": [
-        "engine"
-      ],
-      "path": "tests/test_workflow_postgres.py",
-      "reasons": [
-        "impact",
-        "search-index"
-      ],
-      "score": 27,
-      "symbols": [
-        "test_postgres_workflow_engine"
+        "run_db_import"
       ]
     }
   ],

@@ -22,21 +22,20 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-19T21:36:56Z
+Generated: 2026-09-20T10:48:28Z
 
 ### Git
 - Branch: `main`
-- Head: `050292288c34`
-- Commit date: 2026-09-19T23:36:43+02:00
-- Commit: test: preserve Asset Forge contract through dashboard workflow
-- Tracked files: 323
+- Head: `1b07b6da65b2`
+- Commit date: 2026-09-20T12:48:11+02:00
+- Commit: feat: expose asset-forge dispatch through Production OS CLI
+- Tracked files: 325
 
 ### Recently changed files
-- `tests/test_workflow_engine.py`
-- `src/production_os/workflow_engine.py`
-- `src/production_os/controller.py`
-- `src/production_os/task_capabilities.py`
-- `tests/test_controller_asset_capabilities.py`
+- `src/production_os/cli.py`
+- `src/production_os/asset_forge.py`
+- `tests/test_asset_forge.py`
+- `src/production_os/github_client.py`
 
 ### Project signals
 - `pyproject.toml`

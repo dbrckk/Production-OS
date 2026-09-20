@@ -12,6 +12,7 @@
         "tests/test_adaptation_plan.py",
         "tests/test_api_auth.py",
         "tests/test_approvals_migrations.py",
+        "tests/test_asset_forge.py",
         "tests/test_asymmetric_attestations.py",
         "tests/test_attestations.py",
         "tests/test_builder_identity.py",
@@ -103,7 +104,7 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 94,
+      "in_degree": 95,
       "out_degree": 0,
       "path": "src/production_os/__init__.py"
     },
@@ -111,6 +112,7 @@
       "dependencies": [
         "src/production_os/api_auth.py",
         "src/production_os/approvals.py",
+        "src/production_os/asset_forge.py",
         "src/production_os/asymmetric_attestations.py",
         "src/production_os/attestations.py",
         "src/production_os/audit_checkpoint.py",
@@ -175,7 +177,7 @@
         "tests/test_cli.py"
       ],
       "in_degree": 1,
-      "out_degree": 61,
+      "out_degree": 62,
       "path": "src/production_os/cli.py"
     },
     {
@@ -812,6 +814,25 @@
     },
     {
       "dependencies": [
+        "src/production_os/models.py",
+        "src/production_os/source_tree.py"
+      ],
+      "dependents": [
+        "src/production_os/asset_forge.py",
+        "src/production_os/cli.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/controller.py",
+        "src/production_os/github_work_state.py",
+        "tests/test_control_plane_pr_impact.py",
+        "tests/test_control_plane_webhook.py",
+        "tests/test_github_client_pr_files.py"
+      ],
+      "in_degree": 8,
+      "out_degree": 2,
+      "path": "src/production_os/github_client.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/fairness.py",
         "src/production_os/learning.py",
         "src/production_os/models.py",
@@ -881,24 +902,6 @@
       "in_degree": 8,
       "out_degree": 1,
       "path": "src/production_os/transparency_receipts.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/models.py",
-        "src/production_os/source_tree.py"
-      ],
-      "dependents": [
-        "src/production_os/cli.py",
-        "src/production_os/control_plane.py",
-        "src/production_os/controller.py",
-        "src/production_os/github_work_state.py",
-        "tests/test_control_plane_pr_impact.py",
-        "tests/test_control_plane_webhook.py",
-        "tests/test_github_client_pr_files.py"
-      ],
-      "in_degree": 7,
-      "out_degree": 2,
-      "path": "src/production_os/github_client.py"
     },
     {
       "dependencies": [
@@ -1428,8 +1431,8 @@
       "path": "src/production_os/adaptation_plan.py"
     }
   ],
-  "edge_count": 896,
+  "edge_count": 901,
   "generated_by": "dbrckk/repo-brain-v7-graph",
-  "node_count": 191,
+  "node_count": 193,
   "schema_version": 1
 }
