@@ -22,13 +22,13 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-20T16:55:39Z
+Generated: 2026-09-20T17:11:49Z
 
 ### Git
 - Branch: `main`
-- Head: `b31e8bedc90c`
-- Commit date: 2026-09-20T18:52:43+02:00
-- Commit: fix: escape repository regex cleanly in Python HTML literal
+- Head: `554bdb5b5161`
+- Commit date: 2026-09-20T19:11:02+02:00
+- Commit: feat: show cache and dedup savings in visual dashboard
 - Tracked files: 326
 
 ### Recently changed files
