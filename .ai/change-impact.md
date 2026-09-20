@@ -1,10 +1,10 @@
 # Change impact
 
-Base: 1a7805b814271f71b3488e1a051cd2e026befd21
-Head: 99f8fc5cc2a2fff3fabb5dcb5ead83ef673fcbcc
+Base: bc5bb26959fa40452820a6f9282bb3c671a6c448
+Head: 478e8a03f625dfa39bebf06bfffcbfe8f6df93b7
 
 ## Changed files
-- M tests/test_dashboard_launch.py
+- M tests/test_asset_forge.py
 
 ## Affected areas
 - tests

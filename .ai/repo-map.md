@@ -1009,6 +1009,44 @@ request_id = str(row.get("request_id") or "")
 report_path = remote_root / "jobs" / request_id / "production-report.json"
 produced_item = {
 ⋮----
+def _hex_hash_similarity(left: str, right: str) -> float | None
+⋮----
+left = str(left or "").strip().lower()
+right = str(right or "").strip().lower()
+⋮----
+left_value = int(left, 16)
+right_value = int(right, 16)
+⋮----
+bits = len(left) * 4
+distance = (left_value ^ right_value).bit_count()
+⋮----
+def _rgb_distance(left, right) -> float | None
+⋮----
+def _asset_ancestors(produced: list[dict[str, Any]]) -> dict[str, set[str]]
+⋮----
+direct = {
+memo: dict[str, set[str]] = {}
+⋮----
+def visit(item_id: str) -> set[str]
+⋮----
+result = set(direct.get(item_id, set()))
+⋮----
+def _dedup_summary(produced: list[dict[str, Any]]) -> dict[str, Any]
+⋮----
+exact = []
+near = []
+ancestors = _asset_ancestors(produced)
+⋮----
+left_id = str(left["batch_id"])
+right_id = str(right["batch_id"])
+⋮----
+left_art = left.get("technical_art")
+right_art = right.get("technical_art")
+left_metrics = (
+right_metrics = (
+similarity = _hex_hash_similarity(
+color_distance = _rgb_distance(
+⋮----
 root = Path(output_root)
 ⋮----
 ordered_items = _order_asset_batch(items)
@@ -1044,6 +1082,7 @@ report_path = Path(str(receipt.report_path))
 ⋮----
 artifact = _validated_artifact(report, out)
 generation = report.get("generation") if isinstance(report.get("generation"), dict) else {}
+validation = report.get("validation") if isinstance(report.get("validation"), dict) else {}
 visual_similarity = (
 ⋮----
 delivered_to: list[str] = []
@@ -6327,6 +6366,18 @@ payload = json.loads(request_path.read_text())
 artifact = output / "hero.png"
 ⋮----
 def make(instruction, rid)
+⋮----
+def test_dedup_summary_reports_exact_and_near_duplicates_without_mutation()
+⋮----
+base_art = {
+near_art = {
+produced = [
+result = _dedup_summary(produced)
+⋮----
+def test_dedup_summary_ignores_parent_child_visual_similarity()
+⋮----
+art = {
+result = _dedup_summary([
 ````
 
 ## File: tests/test_asymmetric_attestations.py
