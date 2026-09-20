@@ -1,6 +1,11 @@
+import json
+import tempfile
+from pathlib import Path
+from unittest.mock import patch
+
 import pytest
 
-from production_os.cli import _parse_args
+from production_os.cli import _parse_args, run_asset_forge_batch
 
 
 def test_control_plane_builder_trust_options_are_registered():
@@ -95,3 +100,69 @@ def test_transparency_checkpoint_verify_parser_accepts_rekor_receipt():
     assert args.receipt == "receipt.json"
     assert args.rekor_log_public_key == "rekor-log.pem"
     assert args.rekor_log_id == "a" * 64
+
+
+def test_asset_forge_batch_parser_accepts_result_file():
+    args = _parse_args([
+        "asset-forge-batch",
+        "--spec", "batch.json",
+        "--target-worktree", "repo",
+        "--result-file", "receipt.json",
+    ])
+    assert args.command == "asset-forge-batch"
+    assert args.result_file == "receipt.json"
+
+
+def test_asset_forge_batch_writes_visual_quality_failure_receipt():
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        spec = root / "batch.json"
+        receipt = root / "receipt.json"
+        spec.write_text(json.dumps({"items": [{"request": {}, "target_path": "a.png"}]}))
+
+        args = _parse_args([
+            "asset-forge-batch",
+            "--spec", str(spec),
+            "--target-worktree", str(root / "repo"),
+            "--result-file", str(receipt),
+        ])
+        with patch(
+            "production_os.cli.execute_asset_forge_batch",
+            side_effect=RuntimeError("visual consistency score 0.200 is below required 0.550"),
+        ):
+            rc = run_asset_forge_batch(args)
+
+        assert rc == 1
+        payload = json.loads(receipt.read_text())
+        assert payload["success"] is False
+        assert payload["error_code"] == "visual_quality_failed"
+        assert payload["error_type"] == "RuntimeError"
+
+
+def test_asset_forge_batch_writes_success_receipt():
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        spec = root / "batch.json"
+        receipt = root / "receipt.json"
+        spec.write_text(json.dumps({"items": [{"request": {}, "target_path": "a.png"}]}))
+
+        args = _parse_args([
+            "asset-forge-batch",
+            "--spec", str(spec),
+            "--target-worktree", str(root / "repo"),
+            "--result-file", str(receipt),
+        ])
+        expected = {
+            "schema_version": "production-os/asset-forge-batch/v1",
+            "success": True,
+            "quality_summary": {
+                "checked": 1,
+                "regenerated": 1,
+                "minimum_score": 0.81,
+            },
+        }
+        with patch("production_os.cli.execute_asset_forge_batch", return_value=expected):
+            rc = run_asset_forge_batch(args)
+
+        assert rc == 0
+        assert json.loads(receipt.read_text()) == expected
