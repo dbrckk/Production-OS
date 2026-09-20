@@ -185,6 +185,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     assetforge.add_argument("--model")
     assetforge.add_argument("--mode", choices=["auto", "local", "github"], default="auto")
     assetforge.add_argument("--ref", default="main")
+    assetforge.add_argument("--result-file")
 
     assetforgebatch = sub.add_parser(
         "asset-forge-batch",
@@ -198,6 +199,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     assetforgebatch.add_argument("--target-repository")
     assetforgebatch.add_argument("--target-worktree")
     assetforgebatch.add_argument("--target-ref", default="main")
+    assetforgebatch.add_argument("--result-file")
 
     ghrec = sub.add_parser("github-reconcile", help="Reconcile runtime tasks from explicit GitHub issue/PR mappings")
     ghrec.add_argument("--mapping", required=True, help="JSON list of repository/task/issue_number/pr_number mappings")
@@ -1188,10 +1190,18 @@ def run_asset_forge_dispatch(args: argparse.Namespace) -> int:
         target_worktree=args.target_worktree,
         target_ref=args.target_ref,
     )
-    print(json.dumps({
+    result = {
         **receipt.to_dict(),
         "request": request,
-    }, indent=2, ensure_ascii=False))
+    }
+    if args.result_file:
+        result_path = Path(args.result_file)
+        result_path.parent.mkdir(parents=True, exist_ok=True)
+        result_path.write_text(
+            json.dumps(result, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+    print(json.dumps(result, indent=2, ensure_ascii=False))
     return 0
 
 
@@ -1210,6 +1220,13 @@ def run_asset_forge_batch(args: argparse.Namespace) -> int:
         target_worktree=args.target_worktree,
         target_ref=args.target_ref,
     )
+    if args.result_file:
+        result_path = Path(args.result_file)
+        result_path.parent.mkdir(parents=True, exist_ok=True)
+        result_path.write_text(
+            json.dumps(result, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
     print(json.dumps(result, indent=2, ensure_ascii=False))
     return 0
 
