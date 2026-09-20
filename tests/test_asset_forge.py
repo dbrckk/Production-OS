@@ -385,3 +385,134 @@ def test_execute_asset_forge_batch_uses_single_github_commit(tmp_path):
     assert len(commits) == 1
     assert sorted(commits[0]["files"]) == ["assets/art/a.svg", "assets/art/b.svg"]
     assert result["delivery_mode"] == "github"
+
+
+def test_execute_asset_forge_batch_respects_dependency_order(tmp_path):
+    out = tmp_path / "batch"
+    worktree = tmp_path / "repo"
+    items = []
+    chain = [
+        ("character", []),
+        ("animation", ["character"]),
+        ("spritesheet", ["animation"]),
+        ("atlas", ["spritesheet"]),
+    ]
+    for name, deps in reversed(chain):
+        items.append({
+            "id": name,
+            "depends_on": deps,
+            "request": build_asset_forge_request(
+                request_id=f"dep-{name}",
+                project="deadline-zero",
+                asset_id=name,
+                asset_type="icon",
+                instruction=f"premium {name}",
+                target_format="svg",
+            ),
+            "target_path": f"assets/art/{name}.svg",
+        })
+
+    seen = []
+    def fake_run(cmd, check=False, **kwargs):
+        request_path = Path(cmd[cmd.index("fulfill") + 1])
+        request = __import__("json").loads(request_path.read_text())
+        asset_id = request["manifest"]["id"]
+        seen.append(asset_id)
+        output = Path(cmd[cmd.index("--output-dir") + 1])
+        output.mkdir(parents=True, exist_ok=True)
+        artifact = output / f"{asset_id}.svg"
+        artifact.write_text(f"<svg id='{asset_id}'/>", encoding="utf-8")
+        (output / "production-report.json").write_text(
+            __import__("json").dumps({"success": True, "artifact": str(artifact)}),
+            encoding="utf-8",
+        )
+        class Result:
+            returncode = 0
+        return Result()
+
+    with patch("production_os.asset_forge.shutil.which", return_value="/usr/bin/asset-forge"), patch(
+        "production_os.asset_forge.subprocess.run", side_effect=fake_run
+    ):
+        result = execute_asset_forge_batch(
+            items,
+            output_root=str(out),
+            target_worktree=str(worktree),
+            mode="local",
+        )
+
+    assert seen == ["character", "animation", "spritesheet", "atlas"]
+    assert result["execution_order"] == seen
+    assert result["items"][-1]["depends_on"] == ["spritesheet"]
+
+
+def test_execute_asset_forge_batch_rejects_dependency_cycles(tmp_path):
+    items = [
+        {
+            "id": "a",
+            "depends_on": ["b"],
+            "request": build_asset_forge_request(
+                request_id="cycle-a",
+                project="deadline-zero",
+                asset_id="a",
+                asset_type="icon",
+                instruction="premium a",
+                target_format="svg",
+            ),
+            "target_path": "assets/art/a.svg",
+        },
+        {
+            "id": "b",
+            "depends_on": ["a"],
+            "request": build_asset_forge_request(
+                request_id="cycle-b",
+                project="deadline-zero",
+                asset_id="b",
+                asset_type="icon",
+                instruction="premium b",
+                target_format="svg",
+            ),
+            "target_path": "assets/art/b.svg",
+        },
+    ]
+
+    with patch("production_os.asset_forge.shutil.which", return_value="/usr/bin/asset-forge"):
+        try:
+            execute_asset_forge_batch(
+                items,
+                output_root=str(tmp_path / "out"),
+                target_worktree=str(tmp_path / "repo"),
+                mode="local",
+            )
+        except ValueError as exc:
+            assert "cyclic" in str(exc)
+        else:
+            raise AssertionError("expected cyclic dependency rejection")
+
+
+def test_execute_asset_forge_batch_rejects_unknown_dependency(tmp_path):
+    item = {
+        "id": "atlas",
+        "depends_on": ["missing-spritesheet"],
+        "request": build_asset_forge_request(
+            request_id="unknown-dep",
+            project="deadline-zero",
+            asset_id="atlas",
+            asset_type="icon",
+            instruction="premium atlas",
+            target_format="svg",
+        ),
+        "target_path": "assets/art/atlas.svg",
+    }
+
+    with patch("production_os.asset_forge.shutil.which", return_value="/usr/bin/asset-forge"):
+        try:
+            execute_asset_forge_batch(
+                [item],
+                output_root=str(tmp_path / "out"),
+                target_worktree=str(tmp_path / "repo"),
+                mode="local",
+            )
+        except ValueError as exc:
+            assert "unknown" in str(exc)
+        else:
+            raise AssertionError("expected unknown dependency rejection")
