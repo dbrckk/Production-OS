@@ -520,3 +520,69 @@ def test_execute_asset_forge_batch_rejects_unknown_dependency(tmp_path):
             assert "unknown" in str(exc)
         else:
             raise AssertionError("expected unknown dependency rejection")
+
+
+def test_dependent_raster_asset_receives_validated_parent_reference(tmp_path):
+    out = tmp_path / "batch"
+    worktree = tmp_path / "repo"
+    items = [
+        {
+            "id": "character",
+            "request": build_asset_forge_request(
+                request_id="ref-character",
+                project="deadline-zero",
+                asset_id="character",
+                asset_type="sprite-sheet",
+                instruction="premium character sprite",
+                target_format="png",
+            ),
+            "target_path": "assets/art/character.png",
+        },
+        {
+            "id": "animation",
+            "depends_on": ["character"],
+            "request": build_asset_forge_request(
+                request_id="ref-animation",
+                project="deadline-zero",
+                asset_id="animation",
+                asset_type="sprite-sheet",
+                instruction="premium animation sprite",
+                target_format="png",
+            ),
+            "target_path": "assets/art/animation.png",
+        },
+    ]
+    commands = []
+
+    def fake_run(cmd, check=False, **kwargs):
+        commands.append(list(cmd))
+        request_path = Path(cmd[cmd.index("fulfill") + 1])
+        request = __import__("json").loads(request_path.read_text())
+        output = Path(cmd[cmd.index("--output-dir") + 1])
+        output.mkdir(parents=True, exist_ok=True)
+        asset_id = request["manifest"]["id"]
+        artifact = output / f"{asset_id}.png"
+        artifact.write_bytes(asset_id.encode("utf-8"))
+        (output / "production-report.json").write_text(
+            __import__("json").dumps({"success": True, "artifact": str(artifact)}),
+            encoding="utf-8",
+        )
+        class Result:
+            returncode = 0
+        return Result()
+
+    with patch("production_os.asset_forge.shutil.which", return_value="/usr/bin/asset-forge"), patch(
+        "production_os.asset_forge.subprocess.run", side_effect=fake_run
+    ):
+        result = execute_asset_forge_batch(
+            items,
+            output_root=str(out),
+            target_worktree=str(worktree),
+            mode="local",
+        )
+
+    child = commands[1]
+    assert "--reference" in child
+    reference = Path(child[child.index("--reference") + 1])
+    assert reference.name == "character.png"
+    assert result["items"][1]["visual_references"] == [str(reference)]
