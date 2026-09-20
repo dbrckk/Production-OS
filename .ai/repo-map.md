@@ -811,6 +811,8 @@ workflow: str
 ref: str
 request_id: str
 backend: str
+mode: str = "github"
+report_path: str | None = None
 ⋮----
 def to_dict(self) -> dict[str, str]
 ⋮----
@@ -828,7 +830,24 @@ missing = [name for name, value in required.items() if not value]
 ⋮----
 request: dict[str, Any] = {
 ⋮----
+local_cli = shutil.which("asset-forge")
+effective = mode
+⋮----
+effective = "local" if local_cli else "github"
+⋮----
 request_id = str(request.get("requestId") or "").strip()
+⋮----
+destination = Path(output_dir or f"build/asset-forge/{request_id}")
+⋮----
+request_path = Path(tmp) / "request.json"
+⋮----
+cmd = [
+⋮----
+completed = subprocess.run(cmd, check=False)
+⋮----
+report_path = destination / "production-report.json"
+⋮----
+report = json.loads(report_path.read_text(encoding="utf-8"))
 ⋮----
 inputs = {
 ````
@@ -1508,7 +1527,7 @@ result = dispatch_handoff(
 def run_asset_forge_dispatch(args: argparse.Namespace) -> int
 ⋮----
 request = build_asset_forge_request(
-receipt = dispatch_asset_forge(
+receipt = execute_asset_forge(
 ⋮----
 def run_github_reconcile(args: argparse.Namespace) -> int
 ⋮----
@@ -5859,6 +5878,22 @@ def test_dispatch_asset_forge_uses_existing_workflow_contract()
 fake = FakeGitHub()
 ⋮----
 receipt = dispatch_asset_forge(request, client=fake)
+⋮----
+def test_execute_asset_forge_auto_prefers_local_cli(tmp_path)
+⋮----
+out = tmp_path / "out"
+⋮----
+def fake_run(cmd, check=False)
+⋮----
+class Result
+⋮----
+returncode = 0
+⋮----
+receipt = execute_asset_forge(request, output_dir=str(out), mode="auto")
+⋮----
+def test_execute_asset_forge_auto_falls_back_to_github()
+⋮----
+receipt = execute_asset_forge(request, client=fake, mode="auto")
 ````
 
 ## File: tests/test_asymmetric_attestations.py
