@@ -384,9 +384,15 @@ def execute_asset_forge_batch(
                 raise RuntimeError(
                     f"asset dependency was not validated before execution: {dependency_id}"
                 )
+            dependency_path = Path(dependency["artifact"])
+            current_sha256 = hashlib.sha256(dependency_path.read_bytes()).hexdigest()
+            if current_sha256 != dependency["sha256"]:
+                raise RuntimeError(
+                    f"validated asset dependency changed before use: {dependency_id}"
+                )
             dependency_artifacts.append({
                 "id": dependency_id,
-                "artifact": str(dependency["artifact"]),
+                "artifact": str(dependency_path),
                 "sha256": dependency["sha256"],
             })
         request = item.get("request")
