@@ -22,16 +22,17 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-20T14:43:29Z
+Generated: 2026-09-20T15:05:49Z
 
 ### Git
 - Branch: `main`
-- Head: `8f4aad82326a`
-- Commit date: 2026-09-20T16:43:17+02:00
-- Commit: test: cover visual quality batch summary
+- Head: `d44ed1601e12`
+- Commit date: 2026-09-20T17:05:35+02:00
+- Commit: feat: persist structured asset-forge failure receipts
 - Tracked files: 326
 
 ### Recently changed files
+- `src/production_os/cli.py`
 - `tests/test_asset_forge.py`
 - `src/production_os/asset_forge.py`
 

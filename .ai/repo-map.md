@@ -1646,10 +1646,34 @@ quarantine_store = (
 ⋮----
 result = dispatch_handoff(
 ⋮----
+def _write_asset_result(path_value: str | None, payload: dict) -> None
+⋮----
+path = Path(path_value)
+⋮----
+def _asset_failure_result(exc: Exception) -> dict
+⋮----
+message = str(exc)
+quality_failed = "visual consistency score" in message.lower()
+⋮----
 def run_asset_forge_dispatch(args: argparse.Namespace) -> int
 ⋮----
 request = build_asset_forge_request(
+⋮----
 receipt = execute_asset_forge(
+⋮----
+failure = _asset_failure_result(exc)
+⋮----
+result = {
+⋮----
+report_path = Path(receipt.report_path)
+⋮----
+report = json.loads(report_path.read_text(encoding="utf-8"))
+⋮----
+report = {}
+generation = report.get("generation") if isinstance(report, dict) else None
+visual = generation.get("visualSimilarity") if isinstance(generation, dict) else None
+⋮----
+attempts = visual.get("attempts") if isinstance(visual.get("attempts"), list) else []
 ⋮----
 def run_asset_forge_batch(args: argparse.Namespace) -> int
 ⋮----
