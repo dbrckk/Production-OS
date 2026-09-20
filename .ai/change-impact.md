@@ -1,16 +1,16 @@
 # Change impact
 
-Base: a45817d08238a1eeb6463301a2f4e7474e8bdf11
-Head: 40a547a46583c51cc18f80b219e033dd78b68663
+Base: a750f0fcbcd08c9398f05193615dc6d497aa8323
+Head: 5ff32afb990aed8ff184f7c01249c2ebb5d0ce48
 
 ## Changed files
-- M src/production_os/cli.py
+- M tests/test_asset_forge.py
 
 ## Affected areas
-- src
+- tests
 
 ## Related test candidates
-- tests/test_cli.py
+- No direct filename-based test match detected.
 
 ## Agent guidance
 - Read this file before broad repository exploration.

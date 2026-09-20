@@ -9,7 +9,7 @@
       "source": {
         "file": "src/production_os/asset_forge.py",
         "start": 19,
-        "end": 38
+        "end": 42
       },
       "symbol_dependencies": [
         {
@@ -17,7 +17,7 @@
           "definitions": [
             {
               "file": "src/production_os/asset_forge.py",
-              "line": 28,
+              "line": 30,
               "kind": "function",
               "language": "python"
             }
@@ -30,8 +30,118 @@
     "to_dict": {
       "source": {
         "file": "src/production_os/asset_forge.py",
-        "start": 28,
-        "end": 148
+        "start": 30,
+        "end": 150
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "GitHubClient",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 19,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_deliver_artifact",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 142,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_validated_artifact",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 124,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "build_asset_forge_request",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 45,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "build_asset_forge_request": {
+      "source": {
+        "file": "src/production_os/asset_forge.py",
+        "start": 45,
+        "end": 119
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "_validated_artifact": {
+      "source": {
+        "file": "src/production_os/asset_forge.py",
+        "start": 124,
+        "end": 139
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "_deliver_artifact": {
+      "source": {
+        "file": "src/production_os/asset_forge.py",
+        "start": 142,
+        "end": 175
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "GitHubClient",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 19,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "put_file",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 71,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "execute_asset_forge": {
+      "source": {
+        "file": "src/production_os/asset_forge.py",
+        "start": 178,
+        "end": 279
       },
       "symbol_dependencies": [
         {
@@ -59,11 +169,23 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "build_asset_forge_request",
+          "symbol": "_deliver_artifact",
           "definitions": [
             {
               "file": "src/production_os/asset_forge.py",
-              "line": 41,
+              "line": 142,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_validated_artifact",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 124,
               "kind": "function",
               "language": "python"
             }
@@ -75,19 +197,7 @@
           "definitions": [
             {
               "file": "src/production_os/asset_forge.py",
-              "line": 202,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "execute_asset_forge",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 119,
+              "line": 281,
               "kind": "function",
               "language": "python"
             }
@@ -97,66 +207,11 @@
       ],
       "dependency_count": 5
     },
-    "build_asset_forge_request": {
-      "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 41,
-        "end": 115
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "execute_asset_forge": {
-      "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 119,
-        "end": 200
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "AssetForgeDispatch",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 19,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "GitHubClient",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 19,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "dispatch_asset_forge",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 202,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 3
-    },
     "dispatch_asset_forge": {
       "source": {
         "file": "src/production_os/asset_forge.py",
-        "start": 202,
-        "end": 237
+        "start": 281,
+        "end": 316
       },
       "symbol_dependencies": [
         {
@@ -188,7 +243,7 @@
           "definitions": [
             {
               "file": "src/production_os/github_client.py",
-              "line": 71,
+              "line": 112,
               "kind": "function",
               "language": "python"
             }
@@ -202,7 +257,7 @@
       "source": {
         "file": "src/production_os/cli.py",
         "start": 94,
-        "end": 689
+        "end": 693
       },
       "symbol_dependencies": [
         {
@@ -372,7 +427,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 2483,
+              "line": 2491,
               "kind": "function",
               "language": "python"
             }
@@ -517,8 +572,8 @@
     "_rank_actions": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 692,
-        "end": 694
+        "start": 696,
+        "end": 698
       },
       "symbol_dependencies": [
         {
@@ -551,8 +606,8 @@
     "_external_refs_for_action": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 697,
-        "end": 711
+        "start": 701,
+        "end": 715
       },
       "symbol_dependencies": [
         {
@@ -620,7 +675,7 @@
             },
             {
               "file": "src/production_os/asset_forge.py",
-              "line": 28,
+              "line": 30,
               "kind": "function",
               "language": "python"
             },
@@ -651,8 +706,8 @@
     "_handoff": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 714,
-        "end": 796
+        "start": 718,
+        "end": 800
       },
       "symbol_dependencies": [
         {
@@ -672,7 +727,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 697,
+              "line": 701,
               "kind": "function",
               "language": "python"
             }
@@ -732,7 +787,7 @@
             },
             {
               "file": "src/production_os/asset_forge.py",
-              "line": 28,
+              "line": 30,
               "kind": "function",
               "language": "python"
             },
@@ -763,8 +818,8 @@
     "_print_human": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 799,
-        "end": 846
+        "start": 803,
+        "end": 850
       },
       "symbol_dependencies": [
         {
@@ -803,8 +858,8 @@
     "run_scan": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 849,
-        "end": 959
+        "start": 853,
+        "end": 963
       },
       "symbol_dependencies": [
         {
@@ -860,7 +915,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 714,
+              "line": 718,
               "kind": "function",
               "language": "python"
             }
@@ -872,7 +927,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 799,
+              "line": 803,
               "kind": "function",
               "language": "python"
             }
@@ -884,7 +939,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 692,
+              "line": 696,
               "kind": "function",
               "language": "python"
             }
@@ -980,7 +1035,7 @@
           "definitions": [
             {
               "file": "src/production_os/github_client.py",
-              "line": 298,
+              "line": 339,
               "kind": "function",
               "language": "python"
             }
@@ -1046,7 +1101,7 @@
           "definitions": [
             {
               "file": "src/production_os/github_client.py",
-              "line": 173,
+              "line": 214,
               "kind": "function",
               "language": "python"
             }
@@ -1070,7 +1125,7 @@
           "definitions": [
             {
               "file": "src/production_os/github_client.py",
-              "line": 216,
+              "line": 257,
               "kind": "function",
               "language": "python"
             }
@@ -1118,7 +1173,7 @@
             },
             {
               "file": "src/production_os/asset_forge.py",
-              "line": 28,
+              "line": 30,
               "kind": "function",
               "language": "python"
             },
@@ -1161,8 +1216,8 @@
     "run_validation_results": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 962,
-        "end": 991
+        "start": 966,
+        "end": 995
       },
       "symbol_dependencies": [
         {
@@ -1218,7 +1273,7 @@
             },
             {
               "file": "src/production_os/asset_forge.py",
-              "line": 28,
+              "line": 30,
               "kind": "function",
               "language": "python"
             },
@@ -1249,8 +1304,8 @@
     "run_execution_feedback": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 994,
-        "end": 1028
+        "start": 998,
+        "end": 1032
       },
       "symbol_dependencies": [
         {
@@ -1384,7 +1439,7 @@
             },
             {
               "file": "src/production_os/asset_forge.py",
-              "line": 28,
+              "line": 30,
               "kind": "function",
               "language": "python"
             },
@@ -1415,8 +1470,8 @@
     "run_trends": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1031,
-        "end": 1041
+        "start": 1035,
+        "end": 1045
       },
       "symbol_dependencies": [
         {
@@ -1442,7 +1497,7 @@
             },
             {
               "file": "src/production_os/asset_forge.py",
-              "line": 28,
+              "line": 30,
               "kind": "function",
               "language": "python"
             },
@@ -1473,8 +1528,8 @@
     "run_heartbeat": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1044,
-        "end": 1056
+        "start": 1048,
+        "end": 1060
       },
       "symbol_dependencies": [
         {
@@ -1548,7 +1603,7 @@
             },
             {
               "file": "src/production_os/asset_forge.py",
-              "line": 28,
+              "line": 30,
               "kind": "function",
               "language": "python"
             },
@@ -1579,8 +1634,8 @@
     "run_reconcile": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1059,
-        "end": 1066
+        "start": 1063,
+        "end": 1070
       },
       "symbol_dependencies": [
         {
@@ -1618,7 +1673,7 @@
             },
             {
               "file": "src/production_os/asset_forge.py",
-              "line": 28,
+              "line": 30,
               "kind": "function",
               "language": "python"
             },
@@ -1649,8 +1704,8 @@
     "run_dispatch": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1069,
-        "end": 1146
+        "start": 1073,
+        "end": 1150
       },
       "symbol_dependencies": [
         {
@@ -1820,7 +1875,7 @@
             },
             {
               "file": "src/production_os/asset_forge.py",
-              "line": 28,
+              "line": 30,
               "kind": "function",
               "language": "python"
             },
@@ -1851,8 +1906,8 @@
     "run_asset_forge_dispatch": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1148,
-        "end": 1174
+        "start": 1152,
+        "end": 1182
       },
       "symbol_dependencies": [
         {
@@ -1860,7 +1915,7 @@
           "definitions": [
             {
               "file": "src/production_os/asset_forge.py",
-              "line": 41,
+              "line": 45,
               "kind": "function",
               "language": "python"
             }
@@ -1872,7 +1927,7 @@
           "definitions": [
             {
               "file": "src/production_os/asset_forge.py",
-              "line": 119,
+              "line": 178,
               "kind": "function",
               "language": "python"
             }
@@ -1890,7 +1945,7 @@
             },
             {
               "file": "src/production_os/asset_forge.py",
-              "line": 28,
+              "line": 30,
               "kind": "function",
               "language": "python"
             },
@@ -1921,8 +1976,8 @@
     "run_github_reconcile": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1177,
-        "end": 1228
+        "start": 1185,
+        "end": 1236
       },
       "symbol_dependencies": [
         {
@@ -2062,7 +2117,7 @@
             },
             {
               "file": "src/production_os/asset_forge.py",
-              "line": 28,
+              "line": 30,
               "kind": "function",
               "language": "python"
             },
@@ -2093,8 +2148,8 @@
     "run_controller_command": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1231,
-        "end": 1265
+        "start": 1239,
+        "end": 1273
       },
       "symbol_dependencies": [
         {
@@ -2115,8 +2170,8 @@
     "run_worker_register": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1267,
-        "end": 1278
+        "start": 1275,
+        "end": 1286
       },
       "symbol_dependencies": [
         {
@@ -2154,7 +2209,7 @@
             },
             {
               "file": "src/production_os/asset_forge.py",
-              "line": 28,
+              "line": 30,
               "kind": "function",
               "language": "python"
             },
@@ -2185,8 +2240,8 @@
     "run_worker_heartbeat": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1281,
-        "end": 1288
+        "start": 1289,
+        "end": 1296
       },
       "symbol_dependencies": [
         {
@@ -2230,7 +2285,7 @@
             },
             {
               "file": "src/production_os/asset_forge.py",
-              "line": 28,
+              "line": 30,
               "kind": "function",
               "language": "python"
             },
@@ -2261,8 +2316,8 @@
     "run_worker_list": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1291,
-        "end": 1299
+        "start": 1299,
+        "end": 1307
       },
       "symbol_dependencies": [
         {
@@ -2300,7 +2355,7 @@
             },
             {
               "file": "src/production_os/asset_forge.py",
-              "line": 28,
+              "line": 30,
               "kind": "function",
               "language": "python"
             },
@@ -2331,8 +2386,8 @@
     "run_job_claim": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1304,
-        "end": 1328
+        "start": 1312,
+        "end": 1336
       },
       "symbol_dependencies": [
         {
@@ -2406,7 +2461,7 @@
             },
             {
               "file": "src/production_os/asset_forge.py",
-              "line": 28,
+              "line": 30,
               "kind": "function",
               "language": "python"
             },
@@ -2437,8 +2492,8 @@
     "run_job_ack": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1331,
-        "end": 1338
+        "start": 1339,
+        "end": 1346
       },
       "symbol_dependencies": [
         {
@@ -2500,7 +2555,7 @@
             },
             {
               "file": "src/production_os/asset_forge.py",
-              "line": 28,
+              "line": 30,
               "kind": "function",
               "language": "python"
             },
@@ -2531,8 +2586,8 @@
     "run_job_complete": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1341,
-        "end": 1361
+        "start": 1349,
+        "end": 1369
       },
       "symbol_dependencies": [
         {
@@ -2690,7 +2745,7 @@
             },
             {
               "file": "src/production_os/asset_forge.py",
-              "line": 28,
+              "line": 30,
               "kind": "function",
               "language": "python"
             },
@@ -2721,8 +2776,8 @@
     "run_delivery_recover": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1364,
-        "end": 1379
+        "start": 1372,
+        "end": 1387
       },
       "symbol_dependencies": [
         {
@@ -2779,8 +2834,8 @@
     "run_preempt_request": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1383,
-        "end": 1390
+        "start": 1391,
+        "end": 1398
       },
       "symbol_dependencies": [
         {
@@ -2831,8 +2886,8 @@
     "run_preempt_checkpoint": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1393,
-        "end": 1408
+        "start": 1401,
+        "end": 1416
       },
       "symbol_dependencies": [
         {
@@ -2895,8 +2950,8 @@
     "run_emergency_stop": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1412,
-        "end": 1415
+        "start": 1420,
+        "end": 1423
       },
       "symbol_dependencies": [
         {
@@ -2917,8 +2972,8 @@
     "run_emergency_resume": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1418,
-        "end": 1421
+        "start": 1426,
+        "end": 1429
       },
       "symbol_dependencies": [
         {
@@ -2939,8 +2994,8 @@
     "run_audit_verify": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1424,
-        "end": 1427
+        "start": 1432,
+        "end": 1435
       },
       "symbol_dependencies": [
         {
@@ -2991,8 +3046,8 @@
     "run_backup": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1430,
-        "end": 1433
+        "start": 1438,
+        "end": 1441
       },
       "symbol_dependencies": [
         {
@@ -3013,8 +3068,8 @@
     "run_restore": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1436,
-        "end": 1439
+        "start": 1444,
+        "end": 1447
       },
       "symbol_dependencies": [
         {
@@ -3035,8 +3090,8 @@
     "run_approve": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1443,
-        "end": 1455
+        "start": 1451,
+        "end": 1463
       },
       "symbol_dependencies": [
         {
@@ -3080,7 +3135,7 @@
             },
             {
               "file": "src/production_os/asset_forge.py",
-              "line": 28,
+              "line": 30,
               "kind": "function",
               "language": "python"
             },
@@ -3111,8 +3166,8 @@
     "run_revoke": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1458,
-        "end": 1470
+        "start": 1466,
+        "end": 1478
       },
       "symbol_dependencies": [
         {
@@ -3156,7 +3211,7 @@
             },
             {
               "file": "src/production_os/asset_forge.py",
-              "line": 28,
+              "line": 30,
               "kind": "function",
               "language": "python"
             },
@@ -3187,8 +3242,8 @@
     "run_migrate_state": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1473,
-        "end": 1476
+        "start": 1481,
+        "end": 1484
       },
       "symbol_dependencies": [
         {
@@ -3209,8 +3264,8 @@
     "run_migrate_many": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1480,
-        "end": 1486
+        "start": 1488,
+        "end": 1494
       },
       "symbol_dependencies": [
         {
@@ -3236,7 +3291,7 @@
             },
             {
               "file": "src/production_os/asset_forge.py",
-              "line": 28,
+              "line": 30,
               "kind": "function",
               "language": "python"
             },
@@ -3267,8 +3322,8 @@
     "run_queue_compact": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1489,
-        "end": 1500
+        "start": 1497,
+        "end": 1508
       },
       "symbol_dependencies": [
         {
@@ -3301,8 +3356,8 @@
     "run_dead_letter_retry": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1503,
-        "end": 1513
+        "start": 1511,
+        "end": 1521
       },
       "symbol_dependencies": [
         {
@@ -3323,8 +3378,8 @@
     "run_audit_checkpoint_create": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1516,
-        "end": 1523
+        "start": 1524,
+        "end": 1531
       },
       "symbol_dependencies": [
         {
@@ -3345,8 +3400,8 @@
     "run_audit_checkpoint_verify": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1526,
-        "end": 1532
+        "start": 1534,
+        "end": 1540
       },
       "symbol_dependencies": [
         {
@@ -3397,8 +3452,8 @@
     "run_quarantine": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1536,
-        "end": 1544
+        "start": 1544,
+        "end": 1552
       },
       "symbol_dependencies": [
         {
@@ -3449,8 +3504,8 @@
     "run_unquarantine": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1547,
-        "end": 1555
+        "start": 1555,
+        "end": 1563
       },
       "symbol_dependencies": [
         {
@@ -3501,8 +3556,8 @@
     "run_budget_record": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1558,
-        "end": 1573
+        "start": 1566,
+        "end": 1581
       },
       "symbol_dependencies": [
         {
@@ -3541,8 +3596,8 @@
     "run_policy_validate": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1577,
-        "end": 1584
+        "start": 1585,
+        "end": 1592
       },
       "symbol_dependencies": [
         {
@@ -3556,7 +3611,7 @@
             },
             {
               "file": "src/production_os/asset_forge.py",
-              "line": 28,
+              "line": 30,
               "kind": "function",
               "language": "python"
             },
@@ -3599,8 +3654,8 @@
     "run_policy_check": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1587,
-        "end": 1597
+        "start": 1595,
+        "end": 1605
       },
       "symbol_dependencies": [
         {
@@ -3704,7 +3759,7 @@
             },
             {
               "file": "src/production_os/asset_forge.py",
-              "line": 28,
+              "line": 30,
               "kind": "function",
               "language": "python"
             },
@@ -3735,8 +3790,8 @@
     "run_db_init": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1601,
-        "end": 1614
+        "start": 1609,
+        "end": 1622
       },
       "symbol_dependencies": [
         {
@@ -3757,8 +3812,8 @@
     "run_db_import": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1617,
-        "end": 1626
+        "start": 1625,
+        "end": 1634
       },
       "symbol_dependencies": [
         {
@@ -3791,8 +3846,8 @@
     "run_token_hash": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1629,
-        "end": 1634
+        "start": 1637,
+        "end": 1642
       },
       "symbol_dependencies": [
         {
@@ -3813,8 +3868,8 @@
     "_trusted_validation_keys_from_env": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1637,
-        "end": 1650
+        "start": 1645,
+        "end": 1658
       },
       "symbol_dependencies": [],
       "dependency_count": 0
@@ -3822,8 +3877,8 @@
     "run_control_plane": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1653,
-        "end": 1716
+        "start": 1661,
+        "end": 1724
       },
       "symbol_dependencies": [
         {
@@ -3831,7 +3886,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1637,
+              "line": 1645,
               "kind": "function",
               "language": "python"
             }
@@ -3886,8 +3941,8 @@
     "run_remote_worker_poll": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1720,
-        "end": 1737
+        "start": 1728,
+        "end": 1745
       },
       "symbol_dependencies": [
         {
@@ -3925,7 +3980,7 @@
             },
             {
               "file": "src/production_os/asset_forge.py",
-              "line": 28,
+              "line": 30,
               "kind": "function",
               "language": "python"
             },
@@ -3956,8 +4011,8 @@
     "_workflow_engine": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1741,
-        "end": 1743
+        "start": 1749,
+        "end": 1751
       },
       "symbol_dependencies": [
         {
@@ -4002,8 +4057,8 @@
     "run_workflow_create": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1746,
-        "end": 1767
+        "start": 1754,
+        "end": 1775
       },
       "symbol_dependencies": [
         {
@@ -4023,7 +4078,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1741,
+              "line": 1749,
               "kind": "function",
               "language": "python"
             }
@@ -4096,8 +4151,8 @@
     "run_workflow_status": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1770,
-        "end": 1776
+        "start": 1778,
+        "end": 1784
       },
       "symbol_dependencies": [
         {
@@ -4105,7 +4160,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1741,
+              "line": 1749,
               "kind": "function",
               "language": "python"
             }
@@ -4148,8 +4203,8 @@
     "run_workflow_dispatch": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1779,
-        "end": 1787
+        "start": 1787,
+        "end": 1795
       },
       "symbol_dependencies": [
         {
@@ -4157,7 +4212,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1741,
+              "line": 1749,
               "kind": "function",
               "language": "python"
             }
@@ -4212,8 +4267,8 @@
     "run_workflow_critical_path": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1790,
-        "end": 1795
+        "start": 1798,
+        "end": 1803
       },
       "symbol_dependencies": [
         {
@@ -4221,7 +4276,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1741,
+              "line": 1749,
               "kind": "function",
               "language": "python"
             }
@@ -4246,8 +4301,8 @@
     "run_workflow_eta": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1798,
-        "end": 1807
+        "start": 1806,
+        "end": 1815
       },
       "symbol_dependencies": [
         {
@@ -4267,7 +4322,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1741,
+              "line": 1749,
               "kind": "function",
               "language": "python"
             }
@@ -4322,8 +4377,8 @@
     "run_stragglers": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1810,
-        "end": 1825
+        "start": 1818,
+        "end": 1833
       },
       "symbol_dependencies": [
         {
@@ -4416,8 +4471,8 @@
     "run_speculate_stragglers": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1828,
-        "end": 1870
+        "start": 1836,
+        "end": 1878
       },
       "symbol_dependencies": [
         {
@@ -4588,8 +4643,8 @@
     "run_workflow_impact": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1873,
-        "end": 1884
+        "start": 1881,
+        "end": 1892
       },
       "symbol_dependencies": [
         {
@@ -4597,7 +4652,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1741,
+              "line": 1749,
               "kind": "function",
               "language": "python"
             }
@@ -4652,8 +4707,8 @@
     "run_workflow_impact_pr": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1887,
-        "end": 1906
+        "start": 1895,
+        "end": 1914
       },
       "symbol_dependencies": [
         {
@@ -4673,7 +4728,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1741,
+              "line": 1749,
               "kind": "function",
               "language": "python"
             }
@@ -4727,7 +4782,7 @@
           "definitions": [
             {
               "file": "src/production_os/github_client.py",
-              "line": 128,
+              "line": 169,
               "kind": "function",
               "language": "python"
             }
@@ -4740,8 +4795,8 @@
     "run_pr_refresh": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1909,
-        "end": 1950
+        "start": 1917,
+        "end": 1958
       },
       "symbol_dependencies": [
         {
@@ -4761,7 +4816,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1741,
+              "line": 1749,
               "kind": "function",
               "language": "python"
             }
@@ -4839,7 +4894,7 @@
           "definitions": [
             {
               "file": "src/production_os/github_client.py",
-              "line": 128,
+              "line": 169,
               "kind": "function",
               "language": "python"
             }
@@ -4864,8 +4919,8 @@
     "run_workflow_cancel": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1953,
-        "end": 1959
+        "start": 1961,
+        "end": 1967
       },
       "symbol_dependencies": [
         {
@@ -4873,7 +4928,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1741,
+              "line": 1749,
               "kind": "function",
               "language": "python"
             }
@@ -4898,8 +4953,8 @@
     "run_artifact_add": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1962,
-        "end": 1986
+        "start": 1970,
+        "end": 1994
       },
       "symbol_dependencies": [
         {
@@ -4907,7 +4962,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1741,
+              "line": 1749,
               "kind": "function",
               "language": "python"
             }
@@ -4932,8 +4987,8 @@
     "_release_ledger": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1988,
-        "end": 2033
+        "start": 1996,
+        "end": 2041
       },
       "symbol_dependencies": [
         {
@@ -4953,7 +5008,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1637,
+              "line": 1645,
               "kind": "function",
               "language": "python"
             }
@@ -4965,7 +5020,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1741,
+              "line": 1749,
               "kind": "function",
               "language": "python"
             }
@@ -4978,8 +5033,8 @@
     "run_signing_keygen": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 2036,
-        "end": 2045
+        "start": 2044,
+        "end": 2053
       },
       "symbol_dependencies": [
         {
@@ -5000,8 +5055,8 @@
     "run_validation_attest_v2": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 2048,
-        "end": 2082
+        "start": 2056,
+        "end": 2090
       },
       "symbol_dependencies": [
         {
@@ -5009,7 +5064,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1741,
+              "line": 1749,
               "kind": "function",
               "language": "python"
             }
@@ -5052,8 +5107,8 @@
     "run_transparency_checkpoint": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 2085,
-        "end": 2240
+        "start": 2093,
+        "end": 2248
       },
       "symbol_dependencies": [
         {
@@ -5133,7 +5188,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1988,
+              "line": 1996,
               "kind": "function",
               "language": "python"
             }
@@ -5145,7 +5200,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1637,
+              "line": 1645,
               "kind": "function",
               "language": "python"
             }
@@ -5374,8 +5429,8 @@
     "run_transparency_checkpoint_verify": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 2243,
-        "end": 2289
+        "start": 2251,
+        "end": 2297
       },
       "symbol_dependencies": [
         {
@@ -5420,8 +5475,8 @@
     "run_slsa_verify": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 2291,
-        "end": 2306
+        "start": 2299,
+        "end": 2314
       },
       "symbol_dependencies": [
         {
@@ -5442,8 +5497,8 @@
     "run_provenance_verify_v2": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 2309,
-        "end": 2323
+        "start": 2317,
+        "end": 2331
       },
       "symbol_dependencies": [],
       "dependency_count": 0
@@ -5451,8 +5506,8 @@
     "run_validation_attest": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 2326,
-        "end": 2371
+        "start": 2334,
+        "end": 2379
       },
       "symbol_dependencies": [
         {
@@ -5460,7 +5515,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1741,
+              "line": 1749,
               "kind": "function",
               "language": "python"
             }
@@ -5521,8 +5576,8 @@
     "run_incident_snapshot": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 2374,
-        "end": 2386
+        "start": 2382,
+        "end": 2394
       },
       "symbol_dependencies": [
         {
@@ -5530,7 +5585,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1988,
+              "line": 1996,
               "kind": "function",
               "language": "python"
             }
@@ -5573,8 +5628,8 @@
     "run_incident_report": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 2389,
-        "end": 2396
+        "start": 2397,
+        "end": 2404
       },
       "symbol_dependencies": [
         {
@@ -5582,7 +5637,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1988,
+              "line": 1996,
               "kind": "function",
               "language": "python"
             }
@@ -5625,8 +5680,8 @@
     "run_trust_status": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 2399,
-        "end": 2409
+        "start": 2407,
+        "end": 2417
       },
       "symbol_dependencies": [
         {
@@ -5634,7 +5689,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1988,
+              "line": 1996,
               "kind": "function",
               "language": "python"
             }
@@ -5677,8 +5732,8 @@
     "run_release_verify": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 2412,
-        "end": 2421
+        "start": 2420,
+        "end": 2429
       },
       "symbol_dependencies": [
         {
@@ -5686,7 +5741,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1988,
+              "line": 1996,
               "kind": "function",
               "language": "python"
             }
@@ -5737,74 +5792,6 @@
         }
       ],
       "dependency_count": 3
-    },
-    "run_release_promote": {
-      "source": {
-        "file": "src/production_os/cli.py",
-        "start": 2424,
-        "end": 2457
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_release_ledger",
-          "definitions": [
-            {
-              "file": "src/production_os/cli.py",
-              "line": 1988,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "promote",
-          "definitions": [
-            {
-              "file": "src/production_os/release_ledger.py",
-              "line": 554,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "run_release_rollback": {
-      "source": {
-        "file": "src/production_os/cli.py",
-        "start": 2460,
-        "end": 2475
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_release_ledger",
-          "definitions": [
-            {
-              "file": "src/production_os/cli.py",
-              "line": 1988,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "rollback",
-          "definitions": [
-            {
-              "file": "src/production_os/release_ledger.py",
-              "line": 1326,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 2
     }
   }
 }

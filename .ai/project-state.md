@@ -22,19 +22,20 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-20T11:16:19Z
+Generated: 2026-09-20T11:31:06Z
 
 ### Git
 - Branch: `main`
-- Head: `40a547a46583`
-- Commit date: 2026-09-20T13:16:02+02:00
-- Commit: feat: expose custom asset source in asset-forge dispatch
+- Head: `5ff32afb990a`
+- Commit date: 2026-09-20T13:30:47+02:00
+- Commit: test: cover automatic asset delivery
 - Tracked files: 325
 
 ### Recently changed files
+- `tests/test_asset_forge.py`
 - `src/production_os/cli.py`
 - `src/production_os/asset_forge.py`
-- `tests/test_asset_forge.py`
+- `src/production_os/github_client.py`
 
 ### Project signals
 - `pyproject.toml`

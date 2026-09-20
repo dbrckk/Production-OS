@@ -813,6 +813,8 @@ request_id: str
 backend: str
 mode: str = "github"
 report_path: str | None = None
+delivery_mode: str | None = None
+delivered_to: str | None = None
 ⋮----
 def to_dict(self) -> dict[str, str]
 ⋮----
@@ -829,6 +831,26 @@ required = {
 missing = [name for name, value in required.items() if not value]
 ⋮----
 request: dict[str, Any] = {
+⋮----
+def _validated_artifact(report: dict[str, Any], destination: Path) -> Path
+⋮----
+raw = str(report.get("artifact") or "").strip()
+⋮----
+artifact = Path(raw)
+⋮----
+candidate = destination / artifact
+⋮----
+artifact = candidate
+⋮----
+resolved_destination = destination.resolve()
+resolved_artifact = artifact.resolve()
+⋮----
+normalized = target_path.strip().replace("\\", "/").lstrip("/")
+⋮----
+root = Path(target_worktree).resolve()
+destination = (root / normalized).resolve()
+⋮----
+gh = client or GitHubClient()
 ⋮----
 local_cli = shutil.which("asset-forge")
 effective = mode
@@ -848,6 +870,11 @@ completed = subprocess.run(cmd, check=False)
 report_path = destination / "production-report.json"
 ⋮----
 report = json.loads(report_path.read_text(encoding="utf-8"))
+⋮----
+artifact = _validated_artifact(report, destination)
+⋮----
+delivery_mode = None
+delivered_to = None
 ⋮----
 inputs = {
 ````
@@ -2667,6 +2694,16 @@ data = None
 data = json.dumps(payload, separators=(",", ":")).encode("utf-8")
 ⋮----
 body = response.read()
+⋮----
+encoded_path = "/".join(
+⋮----
+existing = None
+⋮----
+existing = self._get(
+⋮----
+payload: dict[str, Any] = {
+⋮----
+result = self._request(
 ⋮----
 encoded = urllib.parse.quote(workflow, safe="")
 ⋮----
@@ -5869,6 +5906,8 @@ def __init__(self)
 ⋮----
 def dispatch_workflow(self, repository, workflow, *, ref, inputs)
 ⋮----
+def put_file(self, repository, path, content, *, message, branch)
+⋮----
 def test_build_asset_forge_request()
 ⋮----
 request = build_asset_forge_request(
@@ -5894,6 +5933,20 @@ receipt = execute_asset_forge(request, output_dir=str(out), mode="auto")
 def test_execute_asset_forge_auto_falls_back_to_github()
 ⋮----
 receipt = execute_asset_forge(request, client=fake, mode="auto")
+⋮----
+def test_execute_asset_forge_delivers_to_worktree(tmp_path)
+⋮----
+worktree = tmp_path / "repo"
+⋮----
+artifact = out / "hud-icon.svg"
+⋮----
+receipt = execute_asset_forge(
+⋮----
+delivered = worktree / "assets/art/hud-icon.svg"
+⋮----
+def test_execute_asset_forge_delivers_with_existing_github_client(tmp_path)
+⋮----
+write = [call for call in fake.calls if "path" in call][0]
 ````
 
 ## File: tests/test_asymmetric_attestations.py
