@@ -966,3 +966,67 @@ def test_dedup_summary_ignores_parent_child_visual_similarity():
     ])
     assert result["exact_count"] == 0
     assert result["near_count"] == 0
+
+
+def test_batch_receipt_preserves_asset_library_version_metadata(tmp_path):
+    out = tmp_path / "batch"
+    worktree = tmp_path / "repo"
+    item = {
+        "id": "hero",
+        "request": build_asset_forge_request(
+            request_id="library-hero",
+            project="deadline-zero",
+            asset_id="hero",
+            asset_type="sprite-sheet",
+            instruction="premium hero",
+            target_format="png",
+        ),
+        "target_path": "assets/art/hero.png",
+    }
+
+    def fake_run(cmd, check=False, **kwargs):
+        output = Path(cmd[cmd.index("--output-dir") + 1])
+        output.mkdir(parents=True, exist_ok=True)
+        artifact = output / "hero.png"
+        artifact.write_bytes(b"hero")
+        (output / "production-report.json").write_text(
+            json.dumps({
+                "success": True,
+                "artifact": str(artifact),
+                "generation": {},
+                "validation": {},
+                "library": {
+                    "schema": "asset-forge/library-receipt/v1",
+                    "cacheHit": False,
+                    "reuseScope": "new",
+                    "entry": {
+                        "version": 4,
+                        "preferred": True,
+                        "duplicateOf": None,
+                        "compositeQuality": 0.93,
+                    },
+                },
+            }),
+            encoding="utf-8",
+        )
+        class Result:
+            returncode = 0
+        return Result()
+
+    with patch("production_os.asset_forge.shutil.which", return_value="/usr/bin/asset-forge"), patch(
+        "production_os.asset_forge.subprocess.run", side_effect=fake_run
+    ):
+        result = execute_asset_forge_batch(
+            [item],
+            output_root=str(out),
+            target_worktree=str(worktree),
+            mode="local",
+        )
+
+    library = result["items"][0]["library"]
+    assert library["entry"]["version"] == 4
+    assert library["entry"]["preferred"] is True
+    sidecar = json.loads(
+        (worktree / "assets/art/hero.png.asset-forge.json").read_text()
+    )
+    assert sidecar["library"]["entry"]["compositeQuality"] == 0.93
