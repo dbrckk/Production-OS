@@ -97,6 +97,11 @@ button{cursor:pointer}
 .actions{display:flex;gap:8px;align-items:center}
 .status{min-height:24px;font-weight:600}
 .small{font-size:.9rem;opacity:.75}
+.quality-badge{display:inline-block;padding:5px 10px;border-radius:999px;font-weight:700;font-size:.85rem}
+.quality-ok{background:#e8f7ed;color:#176b33}
+.quality-regenerated{background:#fff4d6;color:#7a5600}
+.quality-low{background:#fde8e8;color:#9b1c1c}
+.quality-unknown{background:#eef1f5;color:#4b5563}
 #settings{display:none}
 </style>
 </head>
@@ -116,6 +121,12 @@ button{cursor:pointer}
 </div>
 <p id="launch-status" class="status"></p>
 <p id="worker-status" class="small">Capacités worker : vérification...</p>
+</div>
+
+<div class="card">
+<h2>Visual Quality</h2>
+<p><span id="visual-quality" class="quality-badge quality-unknown">Inconnu</span></p>
+<p id="visual-quality-detail" class="small">Aucun résultat visuel chargé.</p>
 </div>
 
 <div id="settings" class="card">
@@ -200,6 +211,70 @@ async function loadWorkerStatus(){
  }
 }
 
+function qualityView(status){
+ if(status==='ok') return ['OK','quality-ok'];
+ if(status==='regenerated') return ['Régénéré','quality-regenerated'];
+ if(status==='low_quality') return ['Qualité faible','quality-low'];
+ return ['Inconnu','quality-unknown'];
+}
+
+function extractVisualQuality(workflow){
+ const tasks=(workflow&&workflow.tasks)||[];
+ for(let i=tasks.length-1;i>=0;i--){
+  const result=tasks[i]&&tasks[i].result;
+  if(!result) continue;
+  const direct=result.evidence&&result.evidence.visual_assets;
+  const nested=result.result&&result.result.evidence&&result.result.evidence.visual_assets;
+  const value=direct||nested;
+  if(value) return value;
+ }
+ return null;
+}
+
+async function loadVisualQuality(){
+ const badge=document.getElementById('visual-quality');
+ const detail=document.getElementById('visual-quality-detail');
+ if(!token()){
+  const view=qualityView('unknown');
+  badge.textContent=view[0];
+  badge.className='quality-badge '+view[1];
+  detail.textContent='Appaire cet appareil via ⚙ pour afficher la qualité des derniers assets.';
+  return;
+ }
+ try{
+  const list=await api('/v1/workflows');
+  const workflows=(list.workflows||[]);
+  if(!workflows.length){
+   detail.textContent='Aucun workflow disponible.';
+   return;
+  }
+  const latest=await api('/v1/workflows/'+encodeURIComponent(workflows[0].id));
+  const visual=extractVisualQuality(latest.workflow);
+  if(!visual){
+   const view=qualityView('unknown');
+   badge.textContent=view[0];
+   badge.className='quality-badge '+view[1];
+   detail.textContent='Aucun contrôle visuel sur le dernier workflow.';
+   return;
+  }
+  const view=qualityView(visual.quality_status);
+  badge.textContent=view[0];
+  badge.className='quality-badge '+view[1];
+  const parts=[];
+  if(Number.isFinite(Number(visual.checked))) parts.push('contrôlés '+Number(visual.checked));
+  if(Number.isFinite(Number(visual.regenerated))) parts.push('régénérés '+Number(visual.regenerated));
+  if(visual.minimum_score!==null&&visual.minimum_score!==undefined){
+   parts.push('score min '+Number(visual.minimum_score).toFixed(2));
+  }
+  detail.textContent=parts.length?parts.join(' · '):'Contrôle visuel disponible.';
+ }catch(_e){
+  const view=qualityView('unknown');
+  badge.textContent=view[0];
+  badge.className='quality-badge '+view[1];
+  detail.textContent='Qualité visuelle indisponible.';
+ }
+}
+
 async function launchWorkflow(){
  const status=document.getElementById('launch-status');
  status.textContent='Lancement...';
@@ -245,6 +320,8 @@ async function launchWorkflow(){
 
 loadRepositories();
 loadWorkerStatus();
+loadVisualQuality();
+setInterval(loadVisualQuality,10000);
 </script>
 </body>
 </html>"""
