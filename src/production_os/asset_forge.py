@@ -278,6 +278,137 @@ def execute_asset_forge(
         delivered_to=delivered_to,
     )
 
+def execute_asset_forge_batch(
+    items: list[dict[str, Any]],
+    *,
+    backend: str = "auto",
+    model: str | None = None,
+    mode: str = "auto",
+    output_root: str = "build/asset-forge-batch",
+    target_repository: str | None = None,
+    target_worktree: str | None = None,
+    target_ref: str = "main",
+    client: GitHubClient | None = None,
+) -> dict[str, Any]:
+    if not items:
+        raise ValueError("asset-forge batch requires at least one item")
+
+    root = Path(output_root)
+    root.mkdir(parents=True, exist_ok=True)
+    produced: list[dict[str, Any]] = []
+
+    for index, item in enumerate(items):
+        if not isinstance(item, dict):
+            raise ValueError("asset-forge batch item must be an object")
+        request = item.get("request")
+        if not isinstance(request, dict):
+            raise ValueError("asset-forge batch item request is required")
+        target_path = str(item.get("target_path") or "").strip()
+        if not target_path:
+            raise ValueError("asset-forge batch item target_path is required")
+        source_path = str(item.get("source_path") or "").strip() or None
+        request_id = str(request.get("requestId") or f"item-{index+1}")
+        out = root / request_id
+
+        receipt = execute_asset_forge(
+            request,
+            backend=backend,
+            model=model,
+            mode=mode,
+            output_dir=str(out),
+            source_path=source_path,
+            target_repository=None,
+            target_path=None,
+            target_worktree=None,
+            target_ref=target_ref,
+            client=client,
+        )
+        if receipt.mode != "local":
+            raise RuntimeError("transactional batch currently requires local asset-forge execution")
+        report_path = Path(str(receipt.report_path))
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        artifact = _validated_artifact(report, out)
+        produced.append({
+            "request_id": request_id,
+            "target_path": target_path,
+            "artifact": artifact,
+            "report_path": report_path,
+        })
+
+    delivery_mode = None
+    delivered_to: list[str] = []
+
+    if target_worktree:
+        root_worktree = Path(target_worktree).resolve()
+        staged = []
+        for item in produced:
+            normalized = item["target_path"].replace("\\", "/").lstrip("/")
+            destination = (root_worktree / normalized).resolve()
+            if not destination.is_relative_to(root_worktree):
+                raise ValueError("target_path escapes target worktree")
+            staged.append((destination, item["artifact"]))
+
+        backup_root = Path(tempfile.mkdtemp(prefix="production-os-asset-batch-backup-"))
+        backups: list[tuple[Path, Path | None]] = []
+        try:
+            for destination, artifact in staged:
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                backup = None
+                if destination.exists():
+                    backup = backup_root / str(len(backups))
+                    backup.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copyfile(destination, backup)
+                backups.append((destination, backup))
+                shutil.copyfile(artifact, destination)
+                delivered_to.append(str(destination))
+        except Exception:
+            for destination, backup in reversed(backups):
+                if backup and backup.exists():
+                    shutil.copyfile(backup, destination)
+                elif destination.exists():
+                    destination.unlink()
+            raise
+        finally:
+            shutil.rmtree(backup_root, ignore_errors=True)
+        delivery_mode = "worktree"
+
+    elif target_repository:
+        gh = client or GitHubClient()
+        payload = {
+            item["target_path"]: item["artifact"].read_bytes()
+            for item in produced
+        }
+        result = gh.commit_files(
+            target_repository,
+            payload,
+            message="assets: deliver validated asset batch",
+            branch=target_ref,
+        )
+        delivered_to = [
+            f"{target_repository}:{path}@{target_ref}"
+            for path in result["files"]
+        ]
+        delivery_mode = "github"
+    else:
+        raise ValueError("target_worktree or target_repository is required for batch delivery")
+
+    return {
+        "schema_version": "production-os/asset-forge-batch/v1",
+        "success": True,
+        "count": len(produced),
+        "delivery_mode": delivery_mode,
+        "delivered_to": delivered_to,
+        "items": [
+            {
+                "request_id": item["request_id"],
+                "target_path": item["target_path"],
+                "report_path": str(item["report_path"]),
+            }
+            for item in produced
+        ],
+    }
+
+
 def dispatch_asset_forge(
     request: dict[str, Any],
     *,
