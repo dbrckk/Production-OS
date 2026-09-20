@@ -302,6 +302,13 @@ async function loadVisualQuality(){
   const parts=[];
   if(Number.isFinite(Number(visual.checked))) parts.push('contrôlés '+Number(visual.checked));
   if(Number.isFinite(Number(visual.regenerated))) parts.push('régénérés '+Number(visual.regenerated));
+  if(Number.isFinite(Number(visual.cache_hits))) parts.push('cache '+Number(visual.cache_hits));
+  if(Number.isFinite(Number(visual.exact_duplicates))&&Number(visual.exact_duplicates)>0){
+   parts.push('doublons exacts '+Number(visual.exact_duplicates));
+  }
+  if(Number.isFinite(Number(visual.near_duplicates))&&Number(visual.near_duplicates)>0){
+   parts.push('quasi-doublons '+Number(visual.near_duplicates));
+  }
   if(visual.minimum_score!==null&&visual.minimum_score!==undefined){
    parts.push('score min '+Number(visual.minimum_score).toFixed(2));
   }
