@@ -184,6 +184,7 @@ def execute_asset_forge(
     mode: str = "auto",
     output_dir: str | None = None,
     source_path: str | None = None,
+    reference_paths: list[str] | None = None,
     target_repository: str | None = None,
     target_path: str | None = None,
     target_worktree: str | None = None,
@@ -240,6 +241,8 @@ def execute_asset_forge(
             cmd.extend(["--model", model])
         if source_path:
             cmd.extend(["--source", source_path])
+        for reference_path in reference_paths or []:
+            cmd.extend(["--reference", reference_path])
         completed = subprocess.run(
             cmd,
             check=False,
@@ -396,6 +399,13 @@ def execute_asset_forge_batch(
         request_id = str(request.get("requestId") or f"item-{index+1}")
         out = root / request_id
 
+        raster_reference_suffixes = {".png", ".webp", ".jpg", ".jpeg"}
+        visual_reference_paths = [
+            str(Path(dep["artifact"]))
+            for dep in dependency_artifacts
+            if Path(str(dep["artifact"])).suffix.lower() in raster_reference_suffixes
+        ][:4]
+
         receipt = execute_asset_forge(
             request,
             backend=backend,
@@ -403,6 +413,7 @@ def execute_asset_forge_batch(
             mode=mode,
             output_dir=str(out),
             source_path=source_path,
+            reference_paths=visual_reference_paths,
             target_repository=None,
             target_path=None,
             target_worktree=None,
@@ -418,6 +429,7 @@ def execute_asset_forge_batch(
             "batch_id": item["_batch_id"],
             "depends_on": list(item.get("_depends_on") or []),
             "dependency_artifacts": dependency_artifacts,
+            "visual_references": visual_reference_paths,
             "request_id": request_id,
             "target_path": target_path,
             "artifact": artifact,
@@ -496,6 +508,7 @@ def execute_asset_forge_batch(
                 "id": item["batch_id"],
                 "depends_on": item["depends_on"],
                 "dependency_artifacts": item["dependency_artifacts"],
+                "visual_references": item["visual_references"],
                 "sha256": item["sha256"],
                 "request_id": item["request_id"],
                 "target_path": item["target_path"],
