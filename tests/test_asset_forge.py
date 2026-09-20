@@ -677,6 +677,7 @@ def test_batch_receipt_surfaces_visual_similarity_quality_summary(tmp_path):
     assert result["quality_summary"] == {
         "checked": 1,
         "regenerated": 1,
+        "cache_hits": 0,
         "minimum_score": 0.82,
     }
     assert result["items"][0]["visual_similarity"]["passed"] is True
