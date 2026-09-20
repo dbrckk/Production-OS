@@ -22,21 +22,19 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-20T11:40:01Z
+Generated: 2026-09-20T11:57:18Z
 
 ### Git
 - Branch: `main`
-- Head: `e98cb534fedf`
-- Commit date: 2026-09-20T13:39:49+02:00
-- Commit: feat: expose transactional asset batch CLI
+- Head: `79598cc2d859`
+- Commit date: 2026-09-20T13:56:58+02:00
+- Commit: test: accept captured asset-forge subprocess output
 - Tracked files: 326
 
 ### Recently changed files
-- `src/production_os/cli.py`
 - `tests/test_asset_forge.py`
 - `src/production_os/asset_forge.py`
-- `src/production_os/github_client.py`
-- `tests/test_github_client_put_file.py`
+- `src/production_os/cli.py`
 
 ### Project signals
 - `pyproject.toml`

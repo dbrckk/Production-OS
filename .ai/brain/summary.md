@@ -2,11 +2,11 @@
 
 - Index mode: incremental
 - Files indexed: 194
-- Files reparsed this run: 4
+- Files reparsed this run: 2
 - Symbols: 1287
 - Internal import edges: 549
-- Impacted files: 10
-- Selected tests: 8
+- Impacted files: 3
+- Selected tests: 1
 
 ## Languages
 - python: 194 files
@@ -42,7 +42,7 @@
 ## ast-grep enrichment
 - ast-grep outline: available
 - AST index mode: incremental
-- AST files reparsed this run: 4
+- AST files reparsed this run: 2
 - outline files retained: 194
 - top-level items retained: 1722
 - direct members retained: 700

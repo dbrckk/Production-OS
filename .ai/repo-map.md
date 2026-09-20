@@ -866,7 +866,10 @@ request_path = Path(tmp) / "request.json"
 ⋮----
 cmd = [
 ⋮----
-completed = subprocess.run(cmd, check=False)
+completed = subprocess.run(
+⋮----
+detail = (completed.stderr or completed.stdout or "").strip()
+suffix = f": {detail}" if detail else ""
 ⋮----
 report_path = destination / "production-report.json"
 ⋮----
@@ -5993,7 +5996,7 @@ def test_execute_asset_forge_auto_prefers_local_cli(tmp_path)
 ⋮----
 out = tmp_path / "out"
 ⋮----
-def fake_run(cmd, check=False)
+def fake_run(cmd, check=False, **kwargs)
 ⋮----
 artifact = out / "hud-icon.svg"
 ⋮----
