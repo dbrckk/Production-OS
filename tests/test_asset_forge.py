@@ -76,7 +76,12 @@ def test_execute_asset_forge_auto_prefers_local_cli(tmp_path):
 
     def fake_run(cmd, check=False):
         out.mkdir(parents=True, exist_ok=True)
-        (out / "production-report.json").write_text('{"success":true}', encoding="utf-8")
+        artifact = out / "hud-icon.svg"
+        artifact.write_text("<svg/>", encoding="utf-8")
+        (out / "production-report.json").write_text(
+            '{"success":true,"artifact":"' + str(artifact).replace("\\","\\\\") + '"}',
+            encoding="utf-8",
+        )
         class Result:
             returncode = 0
         return Result()
