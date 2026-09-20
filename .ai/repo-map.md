@@ -924,6 +924,9 @@ dependency_artifacts = []
 ⋮----
 dependency = produced_by_id.get(dependency_id)
 ⋮----
+dependency_path = Path(dependency["artifact"])
+current_sha256 = hashlib.sha256(dependency_path.read_bytes()).hexdigest()
+⋮----
 target_path = str(item.get("target_path") or "").strip()
 ⋮----
 source_path = str(item.get("source_path") or "").strip() or None

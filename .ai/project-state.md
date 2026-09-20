@@ -22,13 +22,13 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-20T13:53:30Z
+Generated: 2026-09-20T13:54:25Z
 
 ### Git
 - Branch: `main`
-- Head: `5950eb87793a`
-- Commit date: 2026-09-20T15:53:21+02:00
-- Commit: fix: avoid reference generation for provided-source assets
+- Head: `46330198cb00`
+- Commit date: 2026-09-20T15:54:16+02:00
+- Commit: feat: revalidate parent asset integrity before dependent generation
 - Tracked files: 326
 
 ### Recently changed files

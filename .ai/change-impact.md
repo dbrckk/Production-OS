@@ -1,7 +1,7 @@
 # Change impact
 
-Base: 1bd15a720d5de63108ccd1e727e721f7c17924b4
-Head: 5950eb87793a9961e502b052b41ab7755b3f3b77
+Base: 0b3c70877fbdc00b00ee514dc83bf1bada2eda10
+Head: 46330198cb00ddf1e928ae6cf8689ff6353bb2d6
 
 ## Changed files
 - M src/production_os/asset_forge.py
