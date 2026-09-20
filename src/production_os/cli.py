@@ -1164,6 +1164,28 @@ def run_dispatch(args: argparse.Namespace) -> int:
     }, indent=2, ensure_ascii=False))
     return 0
 
+def _write_asset_result(path_value: str | None, payload: dict) -> None:
+    if not path_value:
+        return
+    path = Path(path_value)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(payload, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+
+
+def _asset_failure_result(exc: Exception) -> dict:
+    message = str(exc)
+    quality_failed = "visual consistency score" in message.lower()
+    return {
+        "schema_version": "production-os/asset-forge-result/v1",
+        "success": False,
+        "error_code": "visual_quality_failed" if quality_failed else "execution_failed",
+        "error_type": type(exc).__name__,
+    }
+
+
 def run_asset_forge_dispatch(args: argparse.Namespace) -> int:
     request = build_asset_forge_request(
         request_id=args.request_id,
@@ -1177,19 +1199,26 @@ def run_asset_forge_dispatch(args: argparse.Namespace) -> int:
         output_dir=args.output_dir,
         source_mode=args.source_mode,
     )
-    receipt = execute_asset_forge(
-        request,
-        ref=args.ref,
-        backend=args.backend,
-        model=args.model,
-        mode=args.mode,
-        output_dir=args.output_dir,
-        source_path=args.source,
-        target_repository=args.target_repository,
-        target_path=args.target_path,
-        target_worktree=args.target_worktree,
-        target_ref=args.target_ref,
-    )
+    try:
+        receipt = execute_asset_forge(
+            request,
+            ref=args.ref,
+            backend=args.backend,
+            model=args.model,
+            mode=args.mode,
+            output_dir=args.output_dir,
+            source_path=args.source,
+            target_repository=args.target_repository,
+            target_path=args.target_path,
+            target_worktree=args.target_worktree,
+            target_ref=args.target_ref,
+        )
+    except (RuntimeError, ValueError, OSError) as exc:
+        failure = _asset_failure_result(exc)
+        failure["request_id"] = args.request_id
+        _write_asset_result(args.result_file, failure)
+        print(json.dumps(failure, indent=2, ensure_ascii=False))
+        return 1
     result = {
         **receipt.to_dict(),
         "request": request,
@@ -1217,13 +1246,7 @@ def run_asset_forge_dispatch(args: argparse.Namespace) -> int:
                     ),
                     "passed": visual.get("passed"),
                 }
-    if args.result_file:
-        result_path = Path(args.result_file)
-        result_path.parent.mkdir(parents=True, exist_ok=True)
-        result_path.write_text(
-            json.dumps(result, indent=2, ensure_ascii=False) + "\n",
-            encoding="utf-8",
-        )
+    _write_asset_result(args.result_file, result)
     print(json.dumps(result, indent=2, ensure_ascii=False))
     return 0
 
@@ -1233,23 +1256,24 @@ def run_asset_forge_batch(args: argparse.Namespace) -> int:
     items = payload.get("items", payload) if isinstance(payload, dict) else payload
     if not isinstance(items, list):
         raise SystemExit("asset-forge batch spec must be a list or contain items")
-    result = execute_asset_forge_batch(
-        items,
-        backend=args.backend,
-        model=args.model,
-        mode=args.mode,
-        output_root=args.output_root,
-        target_repository=args.target_repository,
-        target_worktree=args.target_worktree,
-        target_ref=args.target_ref,
-    )
-    if args.result_file:
-        result_path = Path(args.result_file)
-        result_path.parent.mkdir(parents=True, exist_ok=True)
-        result_path.write_text(
-            json.dumps(result, indent=2, ensure_ascii=False) + "\n",
-            encoding="utf-8",
+    try:
+        result = execute_asset_forge_batch(
+            items,
+            backend=args.backend,
+            model=args.model,
+            mode=args.mode,
+            output_root=args.output_root,
+            target_repository=args.target_repository,
+            target_worktree=args.target_worktree,
+            target_ref=args.target_ref,
         )
+    except (RuntimeError, ValueError, OSError) as exc:
+        failure = _asset_failure_result(exc)
+        failure["count"] = len(items)
+        _write_asset_result(args.result_file, failure)
+        print(json.dumps(failure, indent=2, ensure_ascii=False))
+        return 1
+    _write_asset_result(args.result_file, result)
     print(json.dumps(result, indent=2, ensure_ascii=False))
     return 0
 
