@@ -443,6 +443,10 @@ def test_execute_asset_forge_batch_respects_dependency_order(tmp_path):
     assert seen == ["character", "animation", "spritesheet", "atlas"]
     assert result["execution_order"] == seen
     assert result["items"][-1]["depends_on"] == ["spritesheet"]
+    dependency = result["items"][-1]["dependency_artifacts"][0]
+    assert dependency["id"] == "spritesheet"
+    assert len(dependency["sha256"]) == 64
+    assert len(result["items"][-1]["sha256"]) == 64
 
 
 def test_execute_asset_forge_batch_rejects_dependency_cycles(tmp_path):
