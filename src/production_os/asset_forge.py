@@ -223,6 +223,7 @@ def _version_sidecar(
         },
         "cache_hit": bool(item.get("cache_hit")),
         "visual_similarity": item.get("visual_similarity"),
+        "technical_art": item.get("technical_art"),
         "history": history,
     }
 
@@ -647,6 +648,11 @@ def _produce_asset_forge_batch_remote(
                 if isinstance(row.get("visual_similarity"), dict)
                 else None
             ),
+            "technical_art": (
+                row.get("technical_art")
+                if isinstance(row.get("technical_art"), dict)
+                else None
+            ),
             "request_id": request_id,
             "target_path": target_path,
             "artifact": artifact_path,
@@ -761,6 +767,7 @@ def execute_asset_forge_batch(
                         in {".png", ".webp", ".jpg", ".jpeg"}
                     ][:4],
                     "visual_similarity": cached_metadata.get("visual_similarity"),
+                    "technical_art": cached_metadata.get("technical_art"),
                     "request_id": request_id,
                     "target_path": target_path,
                     "artifact": cached_artifact,
@@ -802,6 +809,7 @@ def execute_asset_forge_batch(
             report = json.loads(report_path.read_text(encoding="utf-8"))
             artifact = _validated_artifact(report, out)
             generation = report.get("generation") if isinstance(report.get("generation"), dict) else {}
+            validation = report.get("validation") if isinstance(report.get("validation"), dict) else {}
             visual_similarity = (
                 generation.get("visualSimilarity")
                 if isinstance(generation.get("visualSimilarity"), dict)
@@ -813,6 +821,11 @@ def execute_asset_forge_batch(
                 "dependency_artifacts": dependency_artifacts,
                 "visual_references": visual_reference_paths,
                 "visual_similarity": visual_similarity,
+                "technical_art": (
+                    validation.get("technicalArt")
+                    if isinstance(validation.get("technicalArt"), dict)
+                    else None
+                ),
                 "request_id": request_id,
                 "target_path": target_path,
                 "artifact": artifact,
@@ -941,6 +954,7 @@ def execute_asset_forge_batch(
                 "dependency_artifacts": item["dependency_artifacts"],
                 "visual_references": item["visual_references"],
                 "visual_similarity": item["visual_similarity"],
+                "technical_art": item.get("technical_art"),
                 "sha256": item["sha256"],
                 "request_id": item["request_id"],
                 "target_path": item["target_path"],
