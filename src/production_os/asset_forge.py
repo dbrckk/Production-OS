@@ -400,11 +400,13 @@ def execute_asset_forge_batch(
         out = root / request_id
 
         raster_reference_suffixes = {".png", ".webp", ".jpg", ".jpeg"}
-        visual_reference_paths = [
-            str(Path(dep["artifact"]))
-            for dep in dependency_artifacts
-            if Path(str(dep["artifact"])).suffix.lower() in raster_reference_suffixes
-        ][:4]
+        visual_reference_paths = []
+        if source_path is None:
+            visual_reference_paths = [
+                str(Path(dep["artifact"]))
+                for dep in dependency_artifacts
+                if Path(str(dep["artifact"])).suffix.lower() in raster_reference_suffixes
+            ][:4]
 
         receipt = execute_asset_forge(
             request,
