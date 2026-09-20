@@ -9,10 +9,10 @@
     "top_score": 39
   },
   "cache": {
-    "fingerprint": "f38381d25bdb15ab95536c9c3ec4afd26c6278ed6af891696e3acf8e8de85cbd",
+    "fingerprint": "4e2102790ec30b024df7e1ae1b811e1b1b567f5e5825c7d1fbbc43d94784407d",
     "hit": false
   },
-  "candidate_count": 20,
+  "candidate_count": 25,
   "fallback": "If bounded context is insufficient, expand only to budget.expand_to, then use architecture/segmented maps and targeted source search.",
   "files": [
     {
@@ -61,8 +61,10 @@
       ],
       "score": 38,
       "symbols": [
+        "Failed",
         "FakeGitHub",
         "Result",
+        "commit_files",
         "dispatch_workflow",
         "fake_run",
         "put_file",
@@ -70,6 +72,9 @@
         "test_dispatch_asset_forge_uses_existing_workflow_contract",
         "test_execute_asset_forge_auto_falls_back_to_github",
         "test_execute_asset_forge_auto_prefers_local_cli",
+        "test_execute_asset_forge_batch_aborts_delivery_when_one_asset_fails",
+        "test_execute_asset_forge_batch_delivers_only_after_all_validate",
+        "test_execute_asset_forge_batch_uses_single_github_commit",
         "test_execute_asset_forge_delivers_to_worktree",
         "test_execute_asset_forge_delivers_with_existing_github_client"
       ]
@@ -81,9 +86,11 @@
       ],
       "path": "src/production_os/cli.py",
       "reasons": [
+        "impact",
+        "recently-changed",
         "search-index"
       ],
-      "score": 21,
+      "score": 30,
       "symbols": [
         "_external_refs_for_action",
         "_handoff",
@@ -96,6 +103,7 @@
         "main",
         "run_approve",
         "run_artifact_add",
+        "run_asset_forge_batch",
         "run_asset_forge_dispatch",
         "run_audit_checkpoint_create",
         "run_audit_checkpoint_verify",
@@ -103,8 +111,7 @@
         "run_backup",
         "run_budget_record",
         "run_control_plane",
-        "run_controller_command",
-        "run_db_import"
+        "run_controller_command"
       ]
     }
   ],

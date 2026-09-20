@@ -877,6 +877,46 @@ artifact = _validated_artifact(report, destination)
 delivery_mode = None
 delivered_to = None
 ⋮----
+root = Path(output_root)
+⋮----
+produced: list[dict[str, Any]] = []
+⋮----
+request = item.get("request")
+⋮----
+target_path = str(item.get("target_path") or "").strip()
+⋮----
+source_path = str(item.get("source_path") or "").strip() or None
+request_id = str(request.get("requestId") or f"item-{index+1}")
+out = root / request_id
+⋮----
+receipt = execute_asset_forge(
+⋮----
+report_path = Path(str(receipt.report_path))
+⋮----
+artifact = _validated_artifact(report, out)
+⋮----
+delivered_to: list[str] = []
+⋮----
+root_worktree = Path(target_worktree).resolve()
+staged = []
+⋮----
+normalized = item["target_path"].replace("\\", "/").lstrip("/")
+destination = (root_worktree / normalized).resolve()
+⋮----
+backup_root = Path(tempfile.mkdtemp(prefix="production-os-asset-batch-backup-"))
+backups: list[tuple[Path, Path | None]] = []
+⋮----
+backup = None
+⋮----
+backup = backup_root / str(len(backups))
+⋮----
+delivery_mode = "worktree"
+⋮----
+payload = {
+result = gh.commit_files(
+delivered_to = [
+delivery_mode = "github"
+⋮----
 inputs = {
 ````
 
@@ -1302,6 +1342,8 @@ dispatch = sub.add_parser("dispatch", help="Dispatch a handoff to the ai-dev-ser
 ⋮----
 assetforge = sub.add_parser(
 ⋮----
+assetforgebatch = sub.add_parser(
+⋮----
 ghrec = sub.add_parser("github-reconcile", help="Reconcile runtime tasks from explicit GitHub issue/PR mappings")
 ⋮----
 controller = sub.add_parser("controller", help="Run bounded autonomous control cycles")
@@ -1557,6 +1599,13 @@ def run_asset_forge_dispatch(args: argparse.Namespace) -> int
 request = build_asset_forge_request(
 receipt = execute_asset_forge(
 ⋮----
+def run_asset_forge_batch(args: argparse.Namespace) -> int
+⋮----
+payload = json.loads(Path(args.spec).read_text(encoding="utf-8"))
+items = payload.get("items", payload) if isinstance(payload, dict) else payload
+⋮----
+result = execute_asset_forge_batch(
+⋮----
 def run_github_reconcile(args: argparse.Namespace) -> int
 ⋮----
 payload = json.loads(Path(args.mapping).read_text(encoding="utf-8"))
@@ -1733,7 +1782,6 @@ backend = open_backend(database)
 ⋮----
 def run_workflow_create(args: argparse.Namespace) -> int
 ⋮----
-payload = json.loads(Path(args.spec).read_text(encoding="utf-8"))
 engine = _workflow_engine(args.database)
 workflow = engine.create(
 ⋮----
@@ -2695,6 +2743,26 @@ data = None
 data = json.dumps(payload, separators=(",", ":")).encode("utf-8")
 ⋮----
 body = response.read()
+⋮----
+ref_name = branch.removeprefix("refs/heads/")
+ref = self._get(
+base_commit_sha = str(ref.get("object", {}).get("sha") or "")
+⋮----
+base_commit = self._get(f"/repos/{full_name}/git/commits/{base_commit_sha}")
+base_tree_sha = str(base_commit.get("tree", {}).get("sha") or "")
+⋮----
+tree = []
+⋮----
+normalized = path.strip().replace("\\", "/").lstrip("/")
+⋮----
+blob = self._request(
+blob_sha = str(blob.get("sha") or "") if isinstance(blob, dict) else ""
+⋮----
+created_tree = self._request(
+tree_sha = str(created_tree.get("sha") or "") if isinstance(created_tree, dict) else ""
+⋮----
+created_commit = self._request(
+commit_sha = str(created_commit.get("sha") or "") if isinstance(created_commit, dict) else ""
 ⋮----
 encoded_path = "/".join(
 ⋮----
@@ -5909,6 +5977,8 @@ def dispatch_workflow(self, repository, workflow, *, ref, inputs)
 ⋮----
 def put_file(self, repository, path, content, *, message, branch)
 ⋮----
+def commit_files(self, repository, files, *, message, branch)
+⋮----
 def test_build_asset_forge_request()
 ⋮----
 request = build_asset_forge_request(
@@ -5948,6 +6018,39 @@ delivered = worktree / "assets/art/hud-icon.svg"
 def test_execute_asset_forge_delivers_with_existing_github_client(tmp_path)
 ⋮----
 write = [call for call in fake.calls if "path" in call][0]
+⋮----
+def test_execute_asset_forge_batch_delivers_only_after_all_validate(tmp_path)
+⋮----
+out = tmp_path / "batch"
+⋮----
+requests = [
+⋮----
+request_path = Path(cmd[cmd.index("fulfill") + 1])
+request = __import__("json").loads(request_path.read_text())
+output = Path(cmd[cmd.index("--output-dir") + 1])
+⋮----
+artifact = output / f'{request["manifest"]["id"]}.svg'
+⋮----
+result = execute_asset_forge_batch(
+⋮----
+def test_execute_asset_forge_batch_aborts_delivery_when_one_asset_fails(tmp_path)
+⋮----
+existing = worktree / "assets/art/a.svg"
+⋮----
+calls = 0
+⋮----
+class Failed
+⋮----
+returncode = 1
+⋮----
+artifact = output / "a.svg"
+⋮----
+def test_execute_asset_forge_batch_uses_single_github_commit(tmp_path)
+⋮----
+asset_id = request["manifest"]["id"]
+artifact = output / f"{asset_id}.svg"
+⋮----
+commits = [call for call in fake.calls if "files" in call]
 ````
 
 ## File: tests/test_asymmetric_attestations.py

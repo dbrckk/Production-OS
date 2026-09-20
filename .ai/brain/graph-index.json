@@ -172,13 +172,14 @@
         "src/production_os/witness.py",
         "src/production_os/workers.py",
         "src/production_os/workflow_engine.py",
+        "tests/test_asset_forge.py",
         "tests/test_fairness.py"
       ],
       "dependents": [
         "tests/test_cli.py"
       ],
       "in_degree": 1,
-      "out_degree": 62,
+      "out_degree": 63,
       "path": "src/production_os/cli.py"
     },
     {
@@ -350,9 +351,48 @@
     },
     {
       "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/asset_forge.py"
+      ],
+      "dependents": [
+        "src/production_os/asset_forge.py",
+        "src/production_os/cli.py",
+        "src/production_os/execution_feedback.py",
+        "src/production_os/feedback.py",
+        "src/production_os/github_work_state.py",
+        "src/production_os/health.py",
+        "src/production_os/postgres_backend.py",
+        "src/production_os/rekor_checkpoint_state.py",
+        "src/production_os/rekor_witness_quorum.py",
+        "src/production_os/release_ledger.py",
+        "src/production_os/runtime_state.py",
+        "src/production_os/scheduler.py",
+        "src/production_os/self_healing.py",
+        "src/production_os/signer_factory.py",
+        "src/production_os/sqlite_backend.py",
+        "src/production_os/transparency_receipts.py",
+        "src/production_os/vault_auth.py",
+        "src/production_os/vault_signer.py",
+        "src/production_os/witness.py",
+        "src/production_os/workflow_engine.py",
+        "tests/test_callgraph_versioning_feedback.py",
+        "tests/test_github_work_state.py",
+        "tests/test_governance.py",
+        "tests/test_incident_history.py",
+        "tests/test_release_ledger.py",
+        "tests/test_sqlite_migration.py",
+        "tests/test_workflow_engine.py"
+      ],
+      "in_degree": 27,
+      "out_degree": 2,
+      "path": "tests/test_asset_forge.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/claims.py",
         "src/production_os/runtime_state.py",
         "src/production_os/workers.py",
+        "tests/test_asset_forge.py",
         "tests/test_fairness.py"
       ],
       "dependents": [
@@ -381,13 +421,14 @@
         "tests/test_workflow_splitting.py"
       ],
       "in_degree": 23,
-      "out_degree": 4,
+      "out_degree": 5,
       "path": "src/production_os/sqlite_backend.py"
     },
     {
       "dependencies": [
         "src/production_os/atomic_io.py",
-        "src/production_os/locks.py"
+        "src/production_os/locks.py",
+        "tests/test_asset_forge.py"
       ],
       "dependents": [
         "src/production_os/cli.py",
@@ -415,7 +456,7 @@
         "tests/test_self_healing_heartbeat.py"
       ],
       "in_degree": 23,
-      "out_degree": 2,
+      "out_degree": 3,
       "path": "src/production_os/runtime_state.py"
     },
     {
@@ -487,6 +528,37 @@
     },
     {
       "dependencies": [
+        "src/production_os/change_impact.py",
+        "src/production_os/result_cache.py",
+        "src/production_os/runtime_state.py",
+        "src/production_os/task_capabilities.py",
+        "src/production_os/workers.py",
+        "tests/test_asset_forge.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/control_plane.py",
+        "tests/test_control_plane_pr_impact.py",
+        "tests/test_control_plane_release.py",
+        "tests/test_control_plane_webhook.py",
+        "tests/test_incident_history.py",
+        "tests/test_portfolio_claim_api.py",
+        "tests/test_portfolio_optimizer.py",
+        "tests/test_release_ledger.py",
+        "tests/test_remote_worker.py",
+        "tests/test_secure_release_e2e.py",
+        "tests/test_workflow_cache.py",
+        "tests/test_workflow_change_impact.py",
+        "tests/test_workflow_engine.py",
+        "tests/test_workflow_postgres.py",
+        "tests/test_workflow_splitting.py"
+      ],
+      "in_degree": 16,
+      "out_degree": 6,
+      "path": "src/production_os/workflow_engine.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/atomic_io.py",
         "src/production_os/locks.py"
       ],
@@ -514,36 +586,6 @@
       "in_degree": 19,
       "out_degree": 2,
       "path": "src/production_os/approvals.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/change_impact.py",
-        "src/production_os/result_cache.py",
-        "src/production_os/runtime_state.py",
-        "src/production_os/task_capabilities.py",
-        "src/production_os/workers.py"
-      ],
-      "dependents": [
-        "src/production_os/cli.py",
-        "src/production_os/control_plane.py",
-        "tests/test_control_plane_pr_impact.py",
-        "tests/test_control_plane_release.py",
-        "tests/test_control_plane_webhook.py",
-        "tests/test_incident_history.py",
-        "tests/test_portfolio_claim_api.py",
-        "tests/test_portfolio_optimizer.py",
-        "tests/test_release_ledger.py",
-        "tests/test_remote_worker.py",
-        "tests/test_secure_release_e2e.py",
-        "tests/test_workflow_cache.py",
-        "tests/test_workflow_change_impact.py",
-        "tests/test_workflow_engine.py",
-        "tests/test_workflow_postgres.py",
-        "tests/test_workflow_splitting.py"
-      ],
-      "in_degree": 16,
-      "out_degree": 5,
-      "path": "src/production_os/workflow_engine.py"
     },
     {
       "dependencies": [
@@ -606,7 +648,8 @@
         "src/production_os/signers.py",
         "src/production_os/supply_chain.py",
         "src/production_os/transparency.py",
-        "src/production_os/trust_policy.py"
+        "src/production_os/trust_policy.py",
+        "tests/test_asset_forge.py"
       ],
       "dependents": [
         "src/production_os/cli.py",
@@ -617,7 +660,7 @@
         "tests/test_trust_status_summary.py"
       ],
       "in_degree": 6,
-      "out_degree": 9,
+      "out_degree": 10,
       "path": "src/production_os/release_ledger.py"
     },
     {
@@ -841,6 +884,7 @@
         "src/production_os/policy.py",
         "src/production_os/quarantine.py",
         "src/production_os/runtime_state.py",
+        "tests/test_asset_forge.py",
         "tests/test_fairness.py"
       ],
       "dependents": [
@@ -849,7 +893,7 @@
         "tests/test_scheduler.py"
       ],
       "in_degree": 3,
-      "out_degree": 7,
+      "out_degree": 8,
       "path": "src/production_os/scheduler.py"
     },
     {
@@ -863,12 +907,51 @@
         "src/production_os/release_ledger.py",
         "src/production_os/signing.py",
         "src/production_os/sqlite_backend.py",
-        "src/production_os/workflow_engine.py"
+        "src/production_os/workflow_engine.py",
+        "tests/test_asset_forge.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 10,
+      "out_degree": 11,
       "path": "tests/test_release_ledger.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/signers.py",
+        "tests/test_asset_forge.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "tests/test_rekor_checkpoint_state_cli.py",
+        "tests/test_rekor_signed_checkpoint.py",
+        "tests/test_rekor_signed_checkpoint_receipt.py",
+        "tests/test_rekor_v1_key_compatibility.py",
+        "tests/test_rekor_witness_quorum_cli.py",
+        "tests/test_transparency_cli.py",
+        "tests/test_transparency_receipts.py"
+      ],
+      "in_degree": 8,
+      "out_degree": 2,
+      "path": "src/production_os/transparency_receipts.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/claims.py",
+        "src/production_os/runtime_state.py",
+        "src/production_os/workers.py",
+        "tests/test_asset_forge.py",
+        "tests/test_fairness.py"
+      ],
+      "dependents": [
+        "src/production_os/storage.py",
+        "tests/test_execution_optimizer_postgres.py",
+        "tests/test_postgres_backend.py",
+        "tests/test_rekor_checkpoint_state_postgres.py",
+        "tests/test_workflow_postgres.py"
+      ],
+      "in_degree": 5,
+      "out_degree": 5,
+      "path": "src/production_os/postgres_backend.py"
     },
     {
       "dependencies": [],
@@ -889,24 +972,6 @@
     },
     {
       "dependencies": [
-        "src/production_os/signers.py"
-      ],
-      "dependents": [
-        "src/production_os/cli.py",
-        "tests/test_rekor_checkpoint_state_cli.py",
-        "tests/test_rekor_signed_checkpoint.py",
-        "tests/test_rekor_signed_checkpoint_receipt.py",
-        "tests/test_rekor_v1_key_compatibility.py",
-        "tests/test_rekor_witness_quorum_cli.py",
-        "tests/test_transparency_cli.py",
-        "tests/test_transparency_receipts.py"
-      ],
-      "in_degree": 8,
-      "out_degree": 1,
-      "path": "src/production_os/transparency_receipts.py"
-    },
-    {
-      "dependencies": [
         "src/production_os/builder_identity.py",
         "src/production_os/signers.py",
         "src/production_os/signing.py"
@@ -922,24 +987,6 @@
       "in_degree": 6,
       "out_degree": 3,
       "path": "src/production_os/supply_chain.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/claims.py",
-        "src/production_os/runtime_state.py",
-        "src/production_os/workers.py",
-        "tests/test_fairness.py"
-      ],
-      "dependents": [
-        "src/production_os/storage.py",
-        "tests/test_execution_optimizer_postgres.py",
-        "tests/test_postgres_backend.py",
-        "tests/test_rekor_checkpoint_state_postgres.py",
-        "tests/test_workflow_postgres.py"
-      ],
-      "in_degree": 5,
-      "out_degree": 4,
-      "path": "src/production_os/postgres_backend.py"
     },
     {
       "dependencies": [],
@@ -993,6 +1040,23 @@
     },
     {
       "dependencies": [
+        "src/production_os/signers.py",
+        "src/production_os/vault_auth.py",
+        "src/production_os/vault_signer.py",
+        "tests/test_asset_forge.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "tests/test_signer_factory.py",
+        "tests/test_vault_auth.py",
+        "tests/test_vault_signer.py"
+      ],
+      "in_degree": 4,
+      "out_degree": 4,
+      "path": "src/production_os/signer_factory.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/__init__.py",
         "src/production_os/capabilities.py",
         "src/production_os/classification.py",
@@ -1025,19 +1089,35 @@
     },
     {
       "dependencies": [
-        "src/production_os/signers.py",
-        "src/production_os/vault_auth.py",
-        "src/production_os/vault_signer.py"
+        "tests/test_asset_forge.py"
       ],
       "dependents": [
         "src/production_os/cli.py",
-        "tests/test_signer_factory.py",
-        "tests/test_vault_auth.py",
-        "tests/test_vault_signer.py"
+        "tests/test_rekor_checkpoint_state.py",
+        "tests/test_rekor_checkpoint_state_cli.py",
+        "tests/test_rekor_checkpoint_state_concurrency.py",
+        "tests/test_rekor_checkpoint_state_postgres.py",
+        "tests/test_rekor_consistency_client.py"
+      ],
+      "in_degree": 6,
+      "out_degree": 1,
+      "path": "src/production_os/rekor_checkpoint_state.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/signers.py",
+        "src/production_os/signing.py",
+        "tests/test_asset_forge.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "tests/test_signers.py",
+        "tests/test_transparency_cli.py",
+        "tests/test_witness.py"
       ],
       "in_degree": 4,
       "out_degree": 3,
-      "path": "src/production_os/signer_factory.py"
+      "path": "src/production_os/witness.py"
     },
     {
       "dependencies": [
@@ -1099,20 +1179,6 @@
       "in_degree": 0,
       "out_degree": 7,
       "path": "tests/test_secure_release_e2e.py"
-    },
-    {
-      "dependencies": [],
-      "dependents": [
-        "src/production_os/cli.py",
-        "tests/test_rekor_checkpoint_state.py",
-        "tests/test_rekor_checkpoint_state_cli.py",
-        "tests/test_rekor_checkpoint_state_concurrency.py",
-        "tests/test_rekor_checkpoint_state_postgres.py",
-        "tests/test_rekor_consistency_client.py"
-      ],
-      "in_degree": 6,
-      "out_degree": 0,
-      "path": "src/production_os/rekor_checkpoint_state.py"
     },
     {
       "dependencies": [
@@ -1191,21 +1257,6 @@
     },
     {
       "dependencies": [
-        "src/production_os/signers.py",
-        "src/production_os/signing.py"
-      ],
-      "dependents": [
-        "src/production_os/cli.py",
-        "tests/test_signers.py",
-        "tests/test_transparency_cli.py",
-        "tests/test_witness.py"
-      ],
-      "in_degree": 4,
-      "out_degree": 2,
-      "path": "src/production_os/witness.py"
-    },
-    {
-      "dependencies": [
         "src/production_os/policy.py",
         "src/production_os/quarantine.py",
         "src/production_os/runtime_state.py",
@@ -1267,6 +1318,20 @@
     {
       "dependencies": [
         "src/production_os/__init__.py",
+        "src/production_os/callgraph.py",
+        "src/production_os/feedback.py",
+        "src/production_os/models.py",
+        "src/production_os/versioning.py",
+        "tests/test_asset_forge.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 6,
+      "path": "tests/test_callgraph_versioning_feedback.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/__init__.py",
         "src/production_os/api_auth.py",
         "src/production_os/control_plane.py",
         "src/production_os/github_client.py",
@@ -1277,6 +1342,34 @@
       "in_degree": 0,
       "out_degree": 6,
       "path": "tests/test_control_plane_webhook.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/governance.py",
+        "src/production_os/policy.py",
+        "src/production_os/quarantine.py",
+        "src/production_os/runtime_state.py",
+        "tests/test_asset_forge.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 6,
+      "path": "tests/test_governance.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/release_ledger.py",
+        "src/production_os/sqlite_backend.py",
+        "src/production_os/workers.py",
+        "src/production_os/workflow_engine.py",
+        "tests/test_asset_forge.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 6,
+      "path": "tests/test_incident_history.py"
     },
     {
       "dependencies": [
@@ -1350,6 +1443,20 @@
     },
     {
       "dependencies": [
+        "src/production_os/github_client.py",
+        "tests/test_asset_forge.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/controller.py",
+        "tests/test_github_work_state.py"
+      ],
+      "in_degree": 3,
+      "out_degree": 2,
+      "path": "src/production_os/github_work_state.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/audit_integrity.py",
         "src/production_os/locks.py"
       ],
@@ -1361,79 +1468,9 @@
       "in_degree": 3,
       "out_degree": 2,
       "path": "src/production_os/journal.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/key_registry.py",
-        "src/production_os/signing.py"
-      ],
-      "dependents": [
-        "src/production_os/trust_policy.py",
-        "tests/test_key_domains.py",
-        "tests/test_trust_policy.py"
-      ],
-      "in_degree": 3,
-      "out_degree": 2,
-      "path": "src/production_os/key_domains.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/runtime_state.py",
-        "tests/test_fairness.py"
-      ],
-      "dependents": [
-        "src/production_os/cli.py",
-        "src/production_os/controller.py",
-        "tests/test_reconciliation_dispatch.py"
-      ],
-      "in_degree": 3,
-      "out_degree": 2,
-      "path": "src/production_os/reconciliation.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/key_domains.py",
-        "src/production_os/signers.py"
-      ],
-      "dependents": [
-        "src/production_os/cli.py",
-        "src/production_os/release_ledger.py",
-        "tests/test_trust_policy.py"
-      ],
-      "in_degree": 3,
-      "out_degree": 2,
-      "path": "src/production_os/trust_policy.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/capabilities.py",
-        "src/production_os/components.py",
-        "src/production_os/models.py"
-      ],
-      "dependents": [
-        "src/production_os/reuse.py",
-        "tests/test_adaptation.py"
-      ],
-      "in_degree": 2,
-      "out_degree": 3,
-      "path": "src/production_os/adaptation.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/capabilities.py",
-        "src/production_os/components.py",
-        "src/production_os/models.py"
-      ],
-      "dependents": [
-        "src/production_os/reuse.py",
-        "tests/test_adaptation_plan.py"
-      ],
-      "in_degree": 2,
-      "out_degree": 3,
-      "path": "src/production_os/adaptation_plan.py"
     }
   ],
-  "edge_count": 904,
+  "edge_count": 931,
   "generated_by": "dbrckk/repo-brain-v7-graph",
   "node_count": 194,
   "schema_version": 1
