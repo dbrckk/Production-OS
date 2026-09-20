@@ -1194,6 +1194,29 @@ def run_asset_forge_dispatch(args: argparse.Namespace) -> int:
         **receipt.to_dict(),
         "request": request,
     }
+    if receipt.report_path:
+        report_path = Path(receipt.report_path)
+        if report_path.is_file():
+            try:
+                report = json.loads(report_path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                report = {}
+            generation = report.get("generation") if isinstance(report, dict) else None
+            visual = generation.get("visualSimilarity") if isinstance(generation, dict) else None
+            if isinstance(visual, dict):
+                attempts = visual.get("attempts") if isinstance(visual.get("attempts"), list) else []
+                result["quality_summary"] = {
+                    "checked": 1,
+                    "regenerated": 1 if len(attempts) > 1 else 0,
+                    "minimum_score": (
+                        float(attempts[-1]["score"])
+                        if attempts
+                        and isinstance(attempts[-1], dict)
+                        and isinstance(attempts[-1].get("score"), (int, float))
+                        else None
+                    ),
+                    "passed": visual.get("passed"),
+                }
     if args.result_file:
         result_path = Path(args.result_file)
         result_path.parent.mkdir(parents=True, exist_ok=True)
