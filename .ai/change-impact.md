@@ -1,16 +1,16 @@
 # Change impact
 
-Base: 1aba5779009942bf62d820373537d42c2559dea4
-Head: 554bdb5b51614cbf435de65c5397ee9bfb4e5fe7
+Base: 5318e1c952abce42eac897ba5305eafa38ab15ff
+Head: 1c801e93fe803f4e8589e985929681f75595e481
 
 ## Changed files
-- M src/production_os/control_plane.py
+- M src/production_os/asset_forge.py
 
 ## Affected areas
 - src
 
 ## Related test candidates
-- tests/test_control_plane.py
+- tests/test_asset_forge.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

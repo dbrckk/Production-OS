@@ -22,19 +22,19 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-20T17:11:49Z
+Generated: 2026-09-20T17:15:29Z
 
 ### Git
 - Branch: `main`
-- Head: `554bdb5b5161`
-- Commit date: 2026-09-20T19:11:02+02:00
-- Commit: feat: show cache and dedup savings in visual dashboard
+- Head: `1c801e93fe80`
+- Commit date: 2026-09-20T19:15:19+02:00
+- Commit: feat: preserve preferred asset library version metadata in receipts
 - Tracked files: 326
 
 ### Recently changed files
+- `src/production_os/asset_forge.py`
 - `src/production_os/control_plane.py`
 - `tests/test_dashboard_launch.py`
-- `src/production_os/asset_forge.py`
 
 ### Project signals
 - `pyproject.toml`
