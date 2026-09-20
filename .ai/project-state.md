@@ -22,13 +22,13 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-20T13:37:28Z
+Generated: 2026-09-20T13:52:56Z
 
 ### Git
 - Branch: `main`
-- Head: `fd12469d6bd7`
-- Commit date: 2026-09-20T15:37:10+02:00
-- Commit: test: verify dependency artifact attestations
+- Head: `699a819acecd`
+- Commit date: 2026-09-20T15:52:44+02:00
+- Commit: test: verify dependent raster receives parent reference
 - Tracked files: 326
 
 ### Recently changed files

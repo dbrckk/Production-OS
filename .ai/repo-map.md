@@ -930,6 +930,9 @@ source_path = str(item.get("source_path") or "").strip() or None
 request_id = str(request.get("requestId") or f"item-{index+1}")
 out = root / request_id
 ⋮----
+raster_reference_suffixes = {".png", ".webp", ".jpg", ".jpeg"}
+visual_reference_paths = [
+⋮----
 receipt = execute_asset_forge(
 ⋮----
 report_path = Path(str(receipt.report_path))
@@ -6110,6 +6113,16 @@ items = [
 def test_execute_asset_forge_batch_rejects_unknown_dependency(tmp_path)
 ⋮----
 item = {
+⋮----
+def test_dependent_raster_asset_receives_validated_parent_reference(tmp_path)
+⋮----
+commands = []
+⋮----
+artifact = output / f"{asset_id}.png"
+⋮----
+child = commands[1]
+⋮----
+reference = Path(child[child.index("--reference") + 1])
 ````
 
 ## File: tests/test_asymmetric_attestations.py
