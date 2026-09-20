@@ -239,10 +239,17 @@ def execute_asset_forge(
             cmd.extend(["--model", model])
         if source_path:
             cmd.extend(["--source", source_path])
-        completed = subprocess.run(cmd, check=False)
+        completed = subprocess.run(
+            cmd,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
         if completed.returncode != 0:
+            detail = (completed.stderr or completed.stdout or "").strip()
+            suffix = f": {detail}" if detail else ""
             raise RuntimeError(
-                f"asset-forge local execution failed with exit code {completed.returncode}"
+                f"asset-forge local execution failed with exit code {completed.returncode}{suffix}"
             )
 
     report_path = destination / "production-report.json"
