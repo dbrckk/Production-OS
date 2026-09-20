@@ -1,4 +1,7 @@
-from production_os.asset_forge import build_asset_forge_request, dispatch_asset_forge
+from pathlib import Path
+from unittest.mock import patch
+
+from production_os.asset_forge import build_asset_forge_request, dispatch_asset_forge, execute_asset_forge
 
 
 class FakeGitHub:
@@ -48,3 +51,48 @@ def test_dispatch_asset_forge_uses_existing_workflow_contract():
     assert fake.calls[0]["workflow"] == "production-os-dispatch.yml"
     assert fake.calls[0]["inputs"]["backend"] == "auto"
     assert '"requestId":"enemy-001"' in fake.calls[0]["inputs"]["request_json"]
+
+
+def test_execute_asset_forge_auto_prefers_local_cli(tmp_path):
+    request = build_asset_forge_request(
+        request_id="local-001",
+        project="deadline-zero",
+        asset_id="hud-icon",
+        asset_type="icon",
+        instruction="premium HUD icon",
+        target_format="svg",
+    )
+    out = tmp_path / "out"
+
+    def fake_run(cmd, check=False):
+        out.mkdir(parents=True, exist_ok=True)
+        (out / "production-report.json").write_text('{"success":true}', encoding="utf-8")
+        class Result:
+            returncode = 0
+        return Result()
+
+    with patch("production_os.asset_forge.shutil.which", return_value="/usr/bin/asset-forge"), patch(
+        "production_os.asset_forge.subprocess.run", side_effect=fake_run
+    ) as run:
+        receipt = execute_asset_forge(request, output_dir=str(out), mode="auto")
+
+    assert receipt.mode == "local"
+    assert receipt.report_path == str(out / "production-report.json")
+    assert run.call_args.args[0][0] == "/usr/bin/asset-forge"
+    assert "fulfill" in run.call_args.args[0]
+
+
+def test_execute_asset_forge_auto_falls_back_to_github():
+    fake = FakeGitHub()
+    request = build_asset_forge_request(
+        request_id="remote-001",
+        project="deadline-zero",
+        asset_id="hero",
+        asset_type="icon",
+        instruction="premium hero icon",
+        target_format="svg",
+    )
+    with patch("production_os.asset_forge.shutil.which", return_value=None):
+        receipt = execute_asset_forge(request, client=fake, mode="auto")
+    assert receipt.mode == "github"
+    assert len(fake.calls) == 1
