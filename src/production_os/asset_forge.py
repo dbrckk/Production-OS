@@ -433,11 +433,18 @@ def execute_asset_forge_batch(
         report_path = Path(str(receipt.report_path))
         report = json.loads(report_path.read_text(encoding="utf-8"))
         artifact = _validated_artifact(report, out)
+        generation = report.get("generation") if isinstance(report.get("generation"), dict) else {}
+        visual_similarity = (
+            generation.get("visualSimilarity")
+            if isinstance(generation.get("visualSimilarity"), dict)
+            else None
+        )
         produced_item = {
             "batch_id": item["_batch_id"],
             "depends_on": list(item.get("_depends_on") or []),
             "dependency_artifacts": dependency_artifacts,
             "visual_references": visual_reference_paths,
+            "visual_similarity": visual_similarity,
             "request_id": request_id,
             "target_path": target_path,
             "artifact": artifact,
@@ -511,12 +518,31 @@ def execute_asset_forge_batch(
         "execution_order": [item["batch_id"] for item in produced],
         "delivery_mode": delivery_mode,
         "delivered_to": delivered_to,
+        "quality_summary": {
+            "checked": sum(1 for item in produced if item["visual_similarity"]),
+            "regenerated": sum(
+                1
+                for item in produced
+                if item["visual_similarity"]
+                and len(item["visual_similarity"].get("attempts") or []) > 1
+            ),
+            "minimum_score": min(
+                (
+                    float(item["visual_similarity"]["attempts"][-1]["score"])
+                    for item in produced
+                    if item["visual_similarity"]
+                    and item["visual_similarity"].get("attempts")
+                ),
+                default=None,
+            ),
+        },
         "items": [
             {
                 "id": item["batch_id"],
                 "depends_on": item["depends_on"],
                 "dependency_artifacts": item["dependency_artifacts"],
                 "visual_references": item["visual_references"],
+                "visual_similarity": item["visual_similarity"],
                 "sha256": item["sha256"],
                 "request_id": item["request_id"],
                 "target_path": item["target_path"],
