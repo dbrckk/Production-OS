@@ -22,13 +22,13 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-20T13:35:56Z
+Generated: 2026-09-20T13:37:28Z
 
 ### Git
 - Branch: `main`
-- Head: `deb2897e4b16`
-- Commit date: 2026-09-20T15:35:44+02:00
-- Commit: test: cover asset dependency graph ordering
+- Head: `fd12469d6bd7`
+- Commit date: 2026-09-20T15:37:10+02:00
+- Commit: test: verify dependency artifact attestations
 - Tracked files: 326
 
 ### Recently changed files

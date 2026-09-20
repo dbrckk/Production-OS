@@ -1,13 +1,13 @@
 # CI status
 
-Summary: 1 success / 2 failure / 3 active
+Summary: 3 success / 1 failure / 2 active
 
-- CI: in_progress / pending (deb2897e)
-- CI: in_progress / pending (490fab81)
-- CI: in_progress / pending (c062be65)
+- CI: in_progress / pending (fd12469d)
+- CI: in_progress / pending (b95a10fc)
+- CI: completed / success (deb2897e)
+- CI: completed / success (490fab81)
+- CI: completed / success (c062be65)
 - CI: completed / failure (79598cc2)
-- CI: completed / failure (b99aa5c1)
-- CI: completed / success (e98cb534)
 
 ## Latest failed run structure
 - Job: test

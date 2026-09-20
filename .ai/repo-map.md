@@ -917,7 +917,12 @@ blocked = [item_id for item_id in order_hint if indegree[item_id] > 0]
 root = Path(output_root)
 ⋮----
 produced: list[dict[str, Any]] = []
+produced_by_id: dict[str, dict[str, Any]] = {}
 ordered_items = _order_asset_batch(items)
+⋮----
+dependency_artifacts = []
+⋮----
+dependency = produced_by_id.get(dependency_id)
 ⋮----
 target_path = str(item.get("target_path") or "").strip()
 ⋮----
@@ -930,6 +935,7 @@ receipt = execute_asset_forge(
 report_path = Path(str(receipt.report_path))
 ⋮----
 artifact = _validated_artifact(report, out)
+produced_item = {
 ⋮----
 delivered_to: list[str] = []
 ⋮----
@@ -6094,6 +6100,8 @@ items = []
 chain = [
 ⋮----
 seen = []
+⋮----
+dependency = result["items"][-1]["dependency_artifacts"][0]
 ⋮----
 def test_execute_asset_forge_batch_rejects_dependency_cycles(tmp_path)
 ⋮----
