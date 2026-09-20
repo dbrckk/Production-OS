@@ -33,3 +33,9 @@ def test_dashboard_surfaces_visual_quality_without_extra_controls():
 def test_dashboard_visual_quality_follows_selected_repository():
     assert "item.repository===selectedRepository" in DASHBOARD_HTML
     assert "addEventListener('change',loadVisualQuality)" in DASHBOARD_HTML
+
+
+def test_dashboard_lists_per_asset_visual_quality_details():
+    assert 'id="visual-assets-list"' in DASHBOARD_HTML
+    assert "item.cache_hit?' · cache':''" in DASHBOARD_HTML
+    assert "score '+score+' · essais '+attempts" in DASHBOARD_HTML
