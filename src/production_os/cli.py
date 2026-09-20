@@ -26,7 +26,7 @@ from .emergency import clear_emergency_stop, set_emergency_stop
 from .execution_feedback import decide_execution_outcome
 from .feedback import summarize_validation_results
 from .github_client import GitHubAPIError, GitHubClient
-from .asset_forge import build_asset_forge_request, dispatch_asset_forge
+from .asset_forge import build_asset_forge_request, execute_asset_forge
 from .github_work_state import fetch_github_work_state, runtime_decision_from_github
 from .graph import build_knowledge_graph
 from .health_server import serve_health
@@ -177,6 +177,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     assetforge.add_argument("--output-dir")
     assetforge.add_argument("--backend", choices=["auto", "pollinations", "imagen-codex"], default="auto")
     assetforge.add_argument("--model")
+    assetforge.add_argument("--mode", choices=["auto", "local", "github"], default="auto")
     assetforge.add_argument("--ref", default="main")
 
     ghrec = sub.add_parser("github-reconcile", help="Reconcile runtime tasks from explicit GitHub issue/PR mappings")
@@ -1154,11 +1155,13 @@ def run_asset_forge_dispatch(args: argparse.Namespace) -> int:
         engine=args.engine,
         output_dir=args.output_dir,
     )
-    receipt = dispatch_asset_forge(
+    receipt = execute_asset_forge(
         request,
         ref=args.ref,
         backend=args.backend,
         model=args.model,
+        mode=args.mode,
+        output_dir=args.output_dir,
     )
     print(json.dumps({
         **receipt.to_dict(),
