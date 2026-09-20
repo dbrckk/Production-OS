@@ -1,3 +1,7 @@
+import hashlib
+import io
+import json
+import zipfile
 from pathlib import Path
 from unittest.mock import patch
 
@@ -7,6 +11,7 @@ from production_os.asset_forge import build_asset_forge_request, dispatch_asset_
 class FakeGitHub:
     def __init__(self):
         self.calls = []
+        self.remote_zip = None
 
     def dispatch_workflow(self, repository, workflow, *, ref, inputs):
         self.calls.append({
@@ -15,6 +20,27 @@ class FakeGitHub:
             "ref": ref,
             "inputs": inputs,
         })
+
+
+    def wait_for_workflow_run(self, repository, workflow, *, display_title, timeout_seconds, poll_seconds):
+        self.calls.append({
+            "repository": repository,
+            "workflow": workflow,
+            "display_title": display_title,
+        })
+        return {"id": 77, "status": "completed", "conclusion": "success"}
+
+    def workflow_run_artifacts(self, repository, run_id):
+        return [{"id": 88, "name": "asset-forge-batch-" + next(
+            call["inputs"]["correlation_id"]
+            for call in self.calls
+            if "inputs" in call and "correlation_id" in call["inputs"]
+        ), "expired": False}]
+
+    def download_workflow_artifact(self, repository, artifact_id):
+        if self.remote_zip is None:
+            raise AssertionError("remote_zip not configured")
+        return self.remote_zip
 
     def put_file(self, repository, path, content, *, message, branch):
         self.calls.append({
@@ -646,3 +672,95 @@ def test_batch_receipt_surfaces_visual_similarity_quality_summary(tmp_path):
         "minimum_score": 0.82,
     }
     assert result["items"][0]["visual_similarity"]["passed"] is True
+
+
+def test_execute_asset_forge_batch_remote_fallback_downloads_and_delivers(tmp_path):
+    fake = FakeGitHub()
+    request = build_asset_forge_request(
+        request_id="remote-a",
+        project="deadline-zero",
+        asset_id="remote-a",
+        asset_type="sprite-sheet",
+        instruction="premium remote sprite",
+        target_format="png",
+    )
+    artifact_bytes = b"remote-png"
+    digest = hashlib.sha256(artifact_bytes).hexdigest()
+    result = {
+        "schema_version": "asset-forge/remote-batch-result/v1",
+        "success": True,
+        "count": 1,
+        "execution_order": ["remote-a"],
+        "quality_summary": {"checked": 0, "regenerated": 0, "minimum_score": None},
+        "items": [{
+            "id": "remote-a",
+            "depends_on": [],
+            "request_id": "remote-a",
+            "target_path": "assets/art/remote-a.png",
+            "artifact": "bundle/remote-a.png",
+            "sha256": digest,
+            "visual_similarity": None,
+        }],
+    }
+    archive = io.BytesIO()
+    with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr("batch-result.json", json.dumps(result))
+        zf.writestr("bundle/remote-a.png", artifact_bytes)
+        zf.writestr(
+            "jobs/remote-a/production-report.json",
+            json.dumps({"success": True, "artifact": "unused"}),
+        )
+    fake.remote_zip = archive.getvalue()
+
+    worktree = tmp_path / "repo"
+    with patch("production_os.asset_forge.shutil.which", return_value=None):
+        receipt = execute_asset_forge_batch(
+            [{
+                "id": "remote-a",
+                "request": request,
+                "target_path": "assets/art/remote-a.png",
+            }],
+            mode="auto",
+            output_root=str(tmp_path / "out"),
+            target_worktree=str(worktree),
+            client=fake,
+        )
+
+    assert receipt["delivery_mode"] == "worktree"
+    assert (worktree / "assets/art/remote-a.png").read_bytes() == artifact_bytes
+    dispatch = next(call for call in fake.calls if "inputs" in call)
+    assert dispatch["workflow"] == "production-os-batch.yml"
+    assert dispatch["inputs"]["correlation_id"].startswith("pos-")
+
+
+def test_execute_asset_forge_batch_rejects_duplicate_target_paths(tmp_path):
+    request_a = build_asset_forge_request(
+        request_id="dup-a",
+        project="deadline-zero",
+        asset_id="a",
+        asset_type="icon",
+        instruction="a",
+        target_format="svg",
+    )
+    request_b = build_asset_forge_request(
+        request_id="dup-b",
+        project="deadline-zero",
+        asset_id="b",
+        asset_type="icon",
+        instruction="b",
+        target_format="svg",
+    )
+    try:
+        execute_asset_forge_batch(
+            [
+                {"id": "a", "request": request_a, "target_path": "assets/art/same.svg"},
+                {"id": "b", "request": request_b, "target_path": "assets/art/same.svg"},
+            ],
+            output_root=str(tmp_path / "out"),
+            target_worktree=str(tmp_path / "repo"),
+            mode="local",
+        )
+    except ValueError as exc:
+        assert "target_path values must be unique" in str(exc)
+    else:
+        raise AssertionError("expected duplicate target path rejection")
