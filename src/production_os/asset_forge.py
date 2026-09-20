@@ -669,6 +669,116 @@ def _produce_asset_forge_batch_remote(
     return produced
 
 
+
+def _hex_hash_similarity(left: str, right: str) -> float | None:
+    left = str(left or "").strip().lower()
+    right = str(right or "").strip().lower()
+    if not left or len(left) != len(right):
+        return None
+    try:
+        left_value = int(left, 16)
+        right_value = int(right, 16)
+    except ValueError:
+        return None
+    bits = len(left) * 4
+    distance = (left_value ^ right_value).bit_count()
+    return 1.0 - distance / max(1, bits)
+
+
+def _rgb_distance(left, right) -> float | None:
+    if not (
+        isinstance(left, list)
+        and isinstance(right, list)
+        and len(left) == 3
+        and len(right) == 3
+        and all(isinstance(value, (int, float)) for value in left + right)
+    ):
+        return None
+    return sum((float(a) - float(b)) ** 2 for a, b in zip(left, right)) ** 0.5
+
+
+def _asset_ancestors(produced: list[dict[str, Any]]) -> dict[str, set[str]]:
+    direct = {
+        str(item["batch_id"]): set(str(value) for value in item.get("depends_on") or [])
+        for item in produced
+    }
+    memo: dict[str, set[str]] = {}
+
+    def visit(item_id: str) -> set[str]:
+        if item_id in memo:
+            return memo[item_id]
+        result = set(direct.get(item_id, set()))
+        for dependency in list(result):
+            result.update(visit(dependency))
+        memo[item_id] = result
+        return result
+
+    for item_id in direct:
+        visit(item_id)
+    return memo
+
+
+def _dedup_summary(produced: list[dict[str, Any]]) -> dict[str, Any]:
+    exact = []
+    near = []
+    ancestors = _asset_ancestors(produced)
+    for index, left in enumerate(produced):
+        for right in produced[index + 1:]:
+            left_id = str(left["batch_id"])
+            right_id = str(right["batch_id"])
+            if (
+                left_id in ancestors.get(right_id, set())
+                or right_id in ancestors.get(left_id, set())
+            ):
+                continue
+            if left.get("sha256") == right.get("sha256"):
+                exact.append({
+                    "asset_ids": [left_id, right_id],
+                    "sha256": left["sha256"],
+                })
+                continue
+            left_art = left.get("technical_art")
+            right_art = right.get("technical_art")
+            left_metrics = (
+                left_art.get("metrics")
+                if isinstance(left_art, dict)
+                and isinstance(left_art.get("metrics"), dict)
+                else {}
+            )
+            right_metrics = (
+                right_art.get("metrics")
+                if isinstance(right_art, dict)
+                and isinstance(right_art.get("metrics"), dict)
+                else {}
+            )
+            similarity = _hex_hash_similarity(
+                left_metrics.get("perceptualHash"),
+                right_metrics.get("perceptualHash"),
+            )
+            color_distance = _rgb_distance(
+                left_metrics.get("averageRgb"),
+                right_metrics.get("averageRgb"),
+            )
+            if (
+                similarity is not None
+                and color_distance is not None
+                and similarity >= 0.97
+                and color_distance <= 30.0
+            ):
+                near.append({
+                    "asset_ids": [left_id, right_id],
+                    "perceptual_similarity": round(similarity, 6),
+                    "average_rgb_distance": round(color_distance, 3),
+                })
+    return {
+        "exact_duplicates": exact,
+        "near_duplicates": near,
+        "exact_count": len(exact),
+        "near_count": len(near),
+        "destructive_actions": 0,
+    }
+
+
 def execute_asset_forge_batch(
     items: list[dict[str, Any]],
     *,
@@ -928,6 +1038,7 @@ def execute_asset_forge_batch(
         "execution_order": [item["batch_id"] for item in produced],
         "delivery_mode": delivery_mode,
         "delivered_to": delivered_to,
+        "dedup_summary": _dedup_summary(produced),
         "quality_summary": {
             "checked": sum(1 for item in produced if item["visual_similarity"]),
             "regenerated": sum(
