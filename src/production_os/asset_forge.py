@@ -123,6 +123,7 @@ def execute_asset_forge(
     model: str | None = None,
     mode: str = "auto",
     output_dir: str | None = None,
+    source_path: str | None = None,
     client: GitHubClient | None = None,
     repository: str = ASSET_FORGE_REPOSITORY,
     workflow: str = ASSET_FORGE_WORKFLOW,
@@ -173,6 +174,8 @@ def execute_asset_forge(
         ]
         if model:
             cmd.extend(["--model", model])
+        if source_path:
+            cmd.extend(["--source", source_path])
         completed = subprocess.run(cmd, check=False)
         if completed.returncode != 0:
             raise RuntimeError(
