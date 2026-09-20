@@ -47,4 +47,4 @@ def test_dashboard_visual_quality_has_previews_and_history():
     assert "asset-thumb" in DASHBOARD_HTML
     assert "Promise.all(" in DASHBOARD_HTML
     assert "workflows.slice(0,5)" in DASHBOARD_HTML
-    assert "target="_blank"" in DASHBOARD_HTML
+    assert 'target="_blank"' in DASHBOARD_HTML
