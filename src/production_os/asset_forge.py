@@ -126,6 +126,107 @@ def build_asset_forge_request(
 
 
 
+def _request_fingerprint(
+    request: dict[str, Any],
+    dependency_artifacts: list[dict[str, Any]],
+    *,
+    source_path: str | None = None,
+) -> str:
+    canonical_request = {
+        key: value
+        for key, value in request.items()
+        if key not in {"requestId", "delivery"}
+    }
+    source_sha256 = None
+    if source_path:
+        source = Path(source_path)
+        if source.is_file():
+            source_sha256 = hashlib.sha256(source.read_bytes()).hexdigest()
+    payload = {
+        "request": canonical_request,
+        "dependencies": [
+            {"id": value["id"], "sha256": value["sha256"]}
+            for value in dependency_artifacts
+        ],
+        "source_sha256": source_sha256,
+    }
+    return hashlib.sha256(
+        json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+
+
+def _sidecar_relative_path(target_path: str) -> str:
+    return target_path.strip().replace("\\", "/").lstrip("/") + ".asset-forge.json"
+
+
+def _cached_worktree_asset(
+    worktree: str | None,
+    target_path: str,
+    fingerprint: str,
+) -> tuple[Path, dict[str, Any]] | None:
+    if not worktree:
+        return None
+    root = Path(worktree).resolve()
+    normalized = target_path.strip().replace("\\", "/").lstrip("/")
+    artifact = (root / normalized).resolve()
+    sidecar = (root / _sidecar_relative_path(normalized)).resolve()
+    if not artifact.is_relative_to(root) or not sidecar.is_relative_to(root):
+        raise ValueError("target_path escapes target worktree")
+    if not artifact.is_file() or not sidecar.is_file():
+        return None
+    try:
+        metadata = json.loads(sidecar.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        return None
+    if not isinstance(metadata, dict):
+        return None
+    if metadata.get("schema_version") != "production-os/asset-version/v1":
+        return None
+    if str(metadata.get("request_fingerprint") or "") != fingerprint:
+        return None
+    digest = hashlib.sha256(artifact.read_bytes()).hexdigest()
+    if digest != str(metadata.get("sha256") or ""):
+        return None
+    return artifact, metadata
+
+
+def _version_sidecar(
+    item: dict[str, Any],
+    *,
+    existing: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    existing = existing if isinstance(existing, dict) else {}
+    prior_sha = str(existing.get("sha256") or "")
+    prior_version = int(existing.get("version") or 0)
+    same = prior_sha == item["sha256"] and prior_version > 0
+    version = prior_version if same else prior_version + 1
+    history = list(existing.get("history") or []) if isinstance(existing.get("history"), list) else []
+    if prior_version > 0 and not same:
+        history.append({
+            "version": prior_version,
+            "sha256": prior_sha,
+            "request_fingerprint": existing.get("request_fingerprint"),
+        })
+    history = history[-12:]
+    return {
+        "schema_version": "production-os/asset-version/v1",
+        "asset_id": item["batch_id"],
+        "request_id": item["request_id"],
+        "target_path": item["target_path"],
+        "version": version,
+        "sha256": item["sha256"],
+        "request_fingerprint": item["request_fingerprint"],
+        "depends_on": item["depends_on"],
+        "dependency_sha256": {
+            value["id"]: value["sha256"]
+            for value in item["dependency_artifacts"]
+        },
+        "cache_hit": bool(item.get("cache_hit")),
+        "visual_similarity": item.get("visual_similarity"),
+        "history": history,
+    }
+
+
 def _validated_artifact(report: dict[str, Any], destination: Path) -> Path:
     raw = str(report.get("artifact") or "").strip()
     if not raw:
@@ -551,6 +652,11 @@ def _produce_asset_forge_batch_remote(
             "artifact": artifact_path,
             "sha256": digest,
             "report_path": report_path,
+            "request_fingerprint": _request_fingerprint(
+                expected["request"],
+                dependency_artifacts,
+            ),
+            "cache_hit": False,
         }
         produced.append(produced_item)
         produced_by_id[item_id] = produced_item
@@ -632,6 +738,40 @@ def execute_asset_forge_batch(
             source_path = str(item.get("source_path") or "").strip() or None
             request_id = str(request.get("requestId") or f"item-{index+1}")
             out = root / request_id
+            request_fingerprint = _request_fingerprint(
+                request,
+                dependency_artifacts,
+                source_path=source_path,
+            )
+            cached = _cached_worktree_asset(
+                target_worktree,
+                target_path,
+                request_fingerprint,
+            )
+            if cached is not None:
+                cached_artifact, cached_metadata = cached
+                produced_item = {
+                    "batch_id": item["_batch_id"],
+                    "depends_on": list(item.get("_depends_on") or []),
+                    "dependency_artifacts": dependency_artifacts,
+                    "visual_references": [
+                        str(Path(dep["artifact"]))
+                        for dep in dependency_artifacts
+                        if Path(str(dep["artifact"])).suffix.lower()
+                        in {".png", ".webp", ".jpg", ".jpeg"}
+                    ][:4],
+                    "visual_similarity": cached_metadata.get("visual_similarity"),
+                    "request_id": request_id,
+                    "target_path": target_path,
+                    "artifact": cached_artifact,
+                    "sha256": str(cached_metadata["sha256"]),
+                    "report_path": out / "cache-hit.json",
+                    "request_fingerprint": request_fingerprint,
+                    "cache_hit": True,
+                }
+                produced.append(produced_item)
+                produced_by_id[item["_batch_id"]] = produced_item
+                continue
 
             raster_reference_suffixes = {".png", ".webp", ".jpg", ".jpeg"}
             visual_reference_paths = []
@@ -678,6 +818,8 @@ def execute_asset_forge_batch(
                 "artifact": artifact,
                 "sha256": hashlib.sha256(artifact.read_bytes()).hexdigest(),
                 "report_path": report_path,
+                "request_fingerprint": request_fingerprint,
+                "cache_hit": False,
             }
             produced.append(produced_item)
             produced_by_id[item["_batch_id"]] = produced_item
@@ -693,7 +835,24 @@ def execute_asset_forge_batch(
             destination = (root_worktree / normalized).resolve()
             if not destination.is_relative_to(root_worktree):
                 raise ValueError("target_path escapes target worktree")
+            sidecar_destination = (
+                root_worktree / _sidecar_relative_path(normalized)
+            ).resolve()
+            if not sidecar_destination.is_relative_to(root_worktree):
+                raise ValueError("asset sidecar escapes target worktree")
+            existing = None
+            if sidecar_destination.is_file():
+                try:
+                    value = json.loads(sidecar_destination.read_text(encoding="utf-8"))
+                    existing = value if isinstance(value, dict) else None
+                except (OSError, UnicodeError, json.JSONDecodeError):
+                    existing = None
+            sidecar = _version_sidecar(item, existing=existing)
             staged.append((destination, item["artifact"]))
+            staged.append((
+                sidecar_destination,
+                json.dumps(sidecar, indent=2, sort_keys=True).encode("utf-8"),
+            ))
 
         backup_root = Path(tempfile.mkdtemp(prefix="production-os-asset-batch-backup-"))
         backups: list[tuple[Path, Path | None]] = []
@@ -706,8 +865,12 @@ def execute_asset_forge_batch(
                     backup.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copyfile(destination, backup)
                 backups.append((destination, backup))
-                shutil.copyfile(artifact, destination)
-                delivered_to.append(str(destination))
+                if isinstance(artifact, (bytes, bytearray)):
+                    destination.write_bytes(bytes(artifact))
+                else:
+                    shutil.copyfile(artifact, destination)
+                if not destination.name.endswith(".asset-forge.json"):
+                    delivered_to.append(str(destination))
         except Exception:
             for destination, backup in reversed(backups):
                 if backup and backup.exists():
@@ -721,10 +884,15 @@ def execute_asset_forge_batch(
 
     elif target_repository:
         gh = client or GitHubClient()
-        payload = {
-            item["target_path"]: item["artifact"].read_bytes()
-            for item in produced
-        }
+        payload: dict[str, bytes] = {}
+        for item in produced:
+            payload[item["target_path"]] = item["artifact"].read_bytes()
+            sidecar_path = _sidecar_relative_path(item["target_path"])
+            existing = gh.read_json_file(target_repository, sidecar_path)
+            sidecar = _version_sidecar(item, existing=existing)
+            payload[sidecar_path] = (
+                json.dumps(sidecar, indent=2, sort_keys=True) + "\n"
+            ).encode("utf-8")
         result = gh.commit_files(
             target_repository,
             payload,
@@ -734,6 +902,7 @@ def execute_asset_forge_batch(
         delivered_to = [
             f"{target_repository}:{path}@{target_ref}"
             for path in result["files"]
+            if not path.endswith(".asset-forge.json")
         ]
         delivery_mode = "github"
     else:
@@ -754,6 +923,7 @@ def execute_asset_forge_batch(
                 if item["visual_similarity"]
                 and len(item["visual_similarity"].get("attempts") or []) > 1
             ),
+            "cache_hits": sum(1 for item in produced if item.get("cache_hit")),
             "minimum_score": min(
                 (
                     float(item["visual_similarity"]["attempts"][-1]["score"])
@@ -775,6 +945,8 @@ def execute_asset_forge_batch(
                 "request_id": item["request_id"],
                 "target_path": item["target_path"],
                 "report_path": str(item["report_path"]),
+                "request_fingerprint": item["request_fingerprint"],
+                "cache_hit": bool(item.get("cache_hit")),
             }
             for item in produced
         ],
