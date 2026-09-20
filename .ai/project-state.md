@@ -22,21 +22,19 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-20T16:01:19Z
+Generated: 2026-09-20T16:03:35Z
 
 ### Git
 - Branch: `main`
-- Head: `194883f91c6e`
-- Commit date: 2026-09-20T18:01:09+02:00
-- Commit: test: cover remote batch fallback and duplicate targets
+- Head: `d7a301b907cf`
+- Commit date: 2026-09-20T18:03:21+02:00
+- Commit: test: cover cache reuse and asset version sidecars
 - Tracked files: 326
 
 ### Recently changed files
 - `tests/test_asset_forge.py`
 - `src/production_os/asset_forge.py`
 - `src/production_os/github_client.py`
-- `tests/test_dashboard_launch.py`
-- `src/production_os/control_plane.py`
 
 ### Project signals
 - `pyproject.toml`

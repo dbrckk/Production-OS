@@ -834,6 +834,34 @@ missing = [name for name, value in required.items() if not value]
 ⋮----
 request: dict[str, Any] = {
 ⋮----
+canonical_request = {
+source_sha256 = None
+⋮----
+source = Path(source_path)
+⋮----
+source_sha256 = hashlib.sha256(source.read_bytes()).hexdigest()
+payload = {
+⋮----
+def _sidecar_relative_path(target_path: str) -> str
+⋮----
+root = Path(worktree).resolve()
+normalized = target_path.strip().replace("\\", "/").lstrip("/")
+artifact = (root / normalized).resolve()
+sidecar = (root / _sidecar_relative_path(normalized)).resolve()
+⋮----
+metadata = json.loads(sidecar.read_text(encoding="utf-8"))
+⋮----
+digest = hashlib.sha256(artifact.read_bytes()).hexdigest()
+⋮----
+existing = existing if isinstance(existing, dict) else {}
+prior_sha = str(existing.get("sha256") or "")
+prior_version = int(existing.get("version") or 0)
+same = prior_sha == item["sha256"] and prior_version > 0
+version = prior_version if same else prior_version + 1
+history = list(existing.get("history") or []) if isinstance(existing.get("history"), list) else []
+⋮----
+history = history[-12:]
+⋮----
 def _validated_artifact(report: dict[str, Any], destination: Path) -> Path
 ⋮----
 raw = str(report.get("artifact") or "").strip()
@@ -846,8 +874,6 @@ artifact = candidate
 ⋮----
 resolved_destination = destination.resolve()
 resolved_artifact = artifact.resolve()
-⋮----
-normalized = target_path.strip().replace("\\", "/").lstrip("/")
 ⋮----
 root = Path(target_worktree).resolve()
 destination = (root / normalized).resolve()
@@ -1004,6 +1030,8 @@ target_path = str(item.get("target_path") or "").strip()
 source_path = str(item.get("source_path") or "").strip() or None
 request_id = str(request.get("requestId") or f"item-{index+1}")
 out = root / request_id
+request_fingerprint = _request_fingerprint(
+cached = _cached_worktree_asset(
 ⋮----
 raster_reference_suffixes = {".png", ".webp", ".jpg", ".jpeg"}
 visual_reference_paths = []
@@ -1026,6 +1054,15 @@ staged = []
 normalized = item["target_path"].replace("\\", "/").lstrip("/")
 destination = (root_worktree / normalized).resolve()
 ⋮----
+sidecar_destination = (
+⋮----
+existing = None
+⋮----
+value = json.loads(sidecar_destination.read_text(encoding="utf-8"))
+existing = value if isinstance(value, dict) else None
+⋮----
+sidecar = _version_sidecar(item, existing=existing)
+⋮----
 backup_root = Path(tempfile.mkdtemp(prefix="production-os-asset-batch-backup-"))
 backups: list[tuple[Path, Path | None]] = []
 ⋮----
@@ -1035,7 +1072,11 @@ backup = backup_root / str(len(backups))
 ⋮----
 delivery_mode = "worktree"
 ⋮----
-payload = {
+payload: dict[str, bytes] = {}
+⋮----
+sidecar_path = _sidecar_relative_path(item["target_path"])
+existing = gh.read_json_file(target_repository, sidecar_path)
+⋮----
 result = gh.commit_files(
 delivered_to = [
 delivery_mode = "github"
@@ -6143,6 +6184,8 @@ def download_workflow_artifact(self, repository, artifact_id)
 ⋮----
 def put_file(self, repository, path, content, *, message, branch)
 ⋮----
+def read_json_file(self, repository, path)
+⋮----
 def commit_files(self, repository, files, *, message, branch)
 ⋮----
 def test_build_asset_forge_request()
@@ -6264,6 +6307,26 @@ def test_execute_asset_forge_batch_rejects_duplicate_target_paths(tmp_path)
 ⋮----
 request_a = build_asset_forge_request(
 request_b = build_asset_forge_request(
+⋮----
+def test_asset_batch_reuses_identical_worktree_asset_from_version_sidecar(tmp_path)
+⋮----
+calls = []
+⋮----
+artifact = output / "cache-hero.png"
+⋮----
+first = execute_asset_forge_batch(
+request2 = build_asset_forge_request(
+second = execute_asset_forge_batch(
+⋮----
+sidecar = json.loads(
+⋮----
+def test_asset_version_sidecar_increments_when_semantic_request_changes(tmp_path)
+⋮----
+payload = json.loads(request_path.read_text())
+⋮----
+artifact = output / "hero.png"
+⋮----
+def make(instruction, rid)
 ````
 
 ## File: tests/test_asymmetric_attestations.py
