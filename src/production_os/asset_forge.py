@@ -24,6 +24,8 @@ class AssetForgeDispatch:
     backend: str
     mode: str = "github"
     report_path: str | None = None
+    delivery_mode: str | None = None
+    delivered_to: str | None = None
 
     def to_dict(self) -> dict[str, str]:
         return {
@@ -35,6 +37,8 @@ class AssetForgeDispatch:
             "backend": self.backend,
             "mode": self.mode,
             **({"report_path": self.report_path} if self.report_path else {}),
+            **({"delivery_mode": self.delivery_mode} if self.delivery_mode else {}),
+            **({"delivered_to": self.delivered_to} if self.delivered_to else {}),
         }
 
 
@@ -116,6 +120,61 @@ def build_asset_forge_request(
 
 
 
+
+def _validated_artifact(report: dict[str, Any], destination: Path) -> Path:
+    raw = str(report.get("artifact") or "").strip()
+    if not raw:
+        raise RuntimeError("asset-forge production report has no artifact")
+    artifact = Path(raw)
+    if not artifact.is_absolute():
+        candidate = destination / artifact
+        if candidate.is_file():
+            artifact = candidate
+    if not artifact.is_file():
+        raise RuntimeError("asset-forge production artifact is missing")
+    resolved_destination = destination.resolve()
+    resolved_artifact = artifact.resolve()
+    if not resolved_artifact.is_relative_to(resolved_destination):
+        raise RuntimeError("asset-forge production artifact escapes output directory")
+    return artifact
+
+
+def _deliver_artifact(
+    artifact: Path,
+    *,
+    target_path: str,
+    target_repository: str | None,
+    target_worktree: str | None,
+    target_ref: str,
+    client: GitHubClient | None,
+    request_id: str,
+) -> tuple[str, str]:
+    normalized = target_path.strip().replace("\\", "/").lstrip("/")
+    if not normalized or normalized in {".", ".."} or any(part in {"", ".", ".."} for part in normalized.split("/")):
+        raise ValueError("target_path must be a safe repository-relative path")
+
+    if target_worktree:
+        root = Path(target_worktree).resolve()
+        destination = (root / normalized).resolve()
+        if not destination.is_relative_to(root):
+            raise ValueError("target_path escapes target worktree")
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(artifact, destination)
+        return "worktree", str(destination)
+
+    if not target_repository:
+        raise ValueError("target_repository is required when no target_worktree is provided")
+    gh = client or GitHubClient()
+    gh.put_file(
+        target_repository,
+        normalized,
+        artifact.read_bytes(),
+        message=f"assets: deliver {request_id}",
+        branch=target_ref,
+    )
+    return "github", f"{target_repository}:{normalized}@{target_ref}"
+
+
 def execute_asset_forge(
     request: dict[str, Any],
     *,
@@ -124,6 +183,10 @@ def execute_asset_forge(
     mode: str = "auto",
     output_dir: str | None = None,
     source_path: str | None = None,
+    target_repository: str | None = None,
+    target_path: str | None = None,
+    target_worktree: str | None = None,
+    target_ref: str = "main",
     client: GitHubClient | None = None,
     repository: str = ASSET_FORGE_REPOSITORY,
     workflow: str = ASSET_FORGE_WORKFLOW,
@@ -188,6 +251,20 @@ def execute_asset_forge(
     report = json.loads(report_path.read_text(encoding="utf-8"))
     if report.get("success") is not True:
         raise RuntimeError("asset-forge production report indicates failure")
+    artifact = _validated_artifact(report, destination)
+
+    delivery_mode = None
+    delivered_to = None
+    if target_path:
+        delivery_mode, delivered_to = _deliver_artifact(
+            artifact,
+            target_path=target_path,
+            target_repository=target_repository,
+            target_worktree=target_worktree,
+            target_ref=target_ref,
+            client=client,
+            request_id=request_id,
+        )
 
     return AssetForgeDispatch(
         repository=repository,
@@ -197,6 +274,8 @@ def execute_asset_forge(
         backend=backend,
         mode="local",
         report_path=str(report_path),
+        delivery_mode=delivery_mode,
+        delivered_to=delivered_to,
     )
 
 def dispatch_asset_forge(
