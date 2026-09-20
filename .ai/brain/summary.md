@@ -3,9 +3,9 @@
 - Index mode: incremental
 - Files indexed: 194
 - Files reparsed this run: 1
-- Symbols: 1315
+- Symbols: 1320
 - Internal import edges: 549
-- Impacted files: 3
+- Impacted files: 1
 - Selected tests: 1
 
 ## Languages
@@ -15,7 +15,7 @@
 - src/production_os/cli.py: 80 symbols
 - src/production_os/postgres_backend.py: 53 symbols
 - src/production_os/sqlite_backend.py: 53 symbols
-- tests/test_asset_forge.py: 38 symbols
+- tests/test_asset_forge.py: 43 symbols
 - src/production_os/workflow_engine.py: 33 symbols
 - tests/test_transparency_receipts.py: 29 symbols
 - src/production_os/github_client.py: 28 symbols
@@ -44,8 +44,8 @@
 - AST index mode: incremental
 - AST files reparsed this run: 1
 - outline files retained: 194
-- top-level items retained: 1748
-- direct members retained: 704
+- top-level items retained: 1754
+- direct members retained: 707
 - symbol shards: 25
 - route named symbols via ast-routing.json, then fetch one ast-symbols/<initial>.json shard
 

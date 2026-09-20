@@ -5,19 +5,79 @@
   "semantic": false,
   "note": "Dependencies are known symbol names lexically present inside the symbol's AST/source range.",
   "symbols": {
-    "AssetForgeDispatch": {
+    "FakeGitHub": {
       "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 24,
-        "end": 47
+        "file": "tests/test_asset_forge.py",
+        "start": 11,
+        "end": 62
       },
       "symbol_dependencies": [
         {
-          "symbol": "to_dict",
+          "symbol": "commit_files",
           "definitions": [
             {
-              "file": "src/production_os/asset_forge.py",
-              "line": 35,
+              "file": "tests/test_asset_forge.py",
+              "line": 55,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "dispatch_workflow",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 16,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "download_workflow_artifact",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 40,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "put_file",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 45,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "wait_for_workflow_run",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 25,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "workflow_run_artifacts",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 33,
               "kind": "function",
               "language": "python"
             }
@@ -25,46 +85,58 @@
           "relation": "same_file"
         }
       ],
-      "dependency_count": 1
+      "dependency_count": 6
     },
-    "to_dict": {
+    "__init__": {
       "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 35,
-        "end": 155
+        "file": "tests/test_asset_forge.py",
+        "start": 12,
+        "end": 132
       },
       "symbol_dependencies": [
         {
-          "symbol": "GitHubClient",
+          "symbol": "FakeGitHub",
           "definitions": [
             {
-              "file": "src/production_os/github_client.py",
-              "line": 20,
+              "file": "tests/test_asset_forge.py",
+              "line": 11,
               "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_deliver_artifact",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 147,
-              "kind": "function",
               "language": "python"
             }
           ],
           "relation": "same_file"
         },
         {
-          "symbol": "_validated_artifact",
+          "symbol": "Result",
           "definitions": [
             {
-              "file": "src/production_os/asset_forge.py",
-              "line": 129,
-              "kind": "function",
+              "file": "tests/test_asset_forge.py",
+              "line": 120,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 171,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 212,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 274,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 341,
+              "kind": "class",
               "language": "python"
             }
           ],
@@ -80,112 +152,14 @@
               "language": "python"
             }
           ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "build_asset_forge_request": {
-      "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 50,
-        "end": 124
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "_validated_artifact": {
-      "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 129,
-        "end": 144
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "_deliver_artifact": {
-      "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 147,
-        "end": 180
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubClient",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 20,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
           "relation": "imported_module"
         },
         {
-          "symbol": "put_file",
+          "symbol": "commit_files",
           "definitions": [
             {
-              "file": "src/production_os/github_client.py",
-              "line": 157,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "execute_asset_forge": {
-      "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 183,
-        "end": 294
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "AssetForgeDispatch",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 24,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "GitHubClient",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 20,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_deliver_artifact",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 147,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_validated_artifact",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 129,
+              "file": "tests/test_asset_forge.py",
+              "line": 55,
               "kind": "function",
               "language": "python"
             }
@@ -202,124 +176,222 @@
               "language": "python"
             }
           ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 5
-    },
-    "_batch_item_id": {
-      "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 296,
-        "end": 303
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "_order_asset_batch": {
-      "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 306,
-        "end": 359
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_batch_item_id",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 296,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "_extract_remote_batch_bundle": {
-      "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 363,
-        "end": 392
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "_produce_asset_forge_batch_remote": {
-      "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 395,
-        "end": 557
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubClient",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 20,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
           "relation": "imported_module"
-        },
-        {
-          "symbol": "_extract_remote_batch_bundle",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 363,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
         },
         {
           "symbol": "dispatch_workflow",
           "definitions": [
             {
-              "file": "src/production_os/github_client.py",
-              "line": 198,
+              "file": "tests/test_asset_forge.py",
+              "line": 16,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
+          "relation": "same_file"
         },
         {
           "symbol": "download_workflow_artifact",
           "definitions": [
             {
-              "file": "src/production_os/github_client.py",
-              "line": 269,
+              "file": "tests/test_asset_forge.py",
+              "line": 40,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "execute_asset_forge",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 183,
               "kind": "function",
               "language": "python"
             }
           ],
           "relation": "imported_module"
+        },
+        {
+          "symbol": "fake_run",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 112,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 163,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 204,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 263,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 326,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "put_file",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 45,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "test_build_asset_forge_request",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 65,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "test_dispatch_asset_forge_uses_existing_workflow_contract",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 81,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "test_execute_asset_forge_auto_prefers_local_cli",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 101,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
         },
         {
           "symbol": "wait_for_workflow_run",
           "definitions": [
             {
-              "file": "src/production_os/github_client.py",
-              "line": 234,
+              "file": "tests/test_asset_forge.py",
+              "line": 25,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
+          "relation": "same_file"
         },
         {
           "symbol": "workflow_run_artifacts",
           "definitions": [
             {
-              "file": "src/production_os/github_client.py",
-              "line": 258,
+              "file": "tests/test_asset_forge.py",
+              "line": 33,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 15
+    },
+    "dispatch_workflow": {
+      "source": {
+        "file": "tests/test_asset_forge.py",
+        "start": 16,
+        "end": 22
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "wait_for_workflow_run": {
+      "source": {
+        "file": "tests/test_asset_forge.py",
+        "start": 25,
+        "end": 31
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "workflow_run_artifacts": {
+      "source": {
+        "file": "tests/test_asset_forge.py",
+        "start": 33,
+        "end": 38
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "download_workflow_artifact": {
+      "source": {
+        "file": "tests/test_asset_forge.py",
+        "start": 40,
+        "end": 43
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "put_file": {
+      "source": {
+        "file": "tests/test_asset_forge.py",
+        "start": 45,
+        "end": 53
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "commit_files": {
+      "source": {
+        "file": "tests/test_asset_forge.py",
+        "start": 55,
+        "end": 62
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "test_build_asset_forge_request": {
+      "source": {
+        "file": "tests/test_asset_forge.py",
+        "start": 65,
+        "end": 78
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "build_asset_forge_request",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 50,
               "kind": "function",
               "language": "python"
             }
@@ -327,69 +399,103 @@
           "relation": "imported_module"
         }
       ],
-      "dependency_count": 6
+      "dependency_count": 1
     },
-    "execute_asset_forge_batch": {
+    "test_dispatch_asset_forge_uses_existing_workflow_contract": {
       "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 560,
-        "end": 781
+        "file": "tests/test_asset_forge.py",
+        "start": 81,
+        "end": 98
       },
       "symbol_dependencies": [
         {
-          "symbol": "GitHubClient",
+          "symbol": "FakeGitHub",
           "definitions": [
             {
-              "file": "src/production_os/github_client.py",
-              "line": 20,
+              "file": "tests/test_asset_forge.py",
+              "line": 11,
               "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "build_asset_forge_request",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 50,
+              "kind": "function",
               "language": "python"
             }
           ],
           "relation": "imported_module"
         },
         {
-          "symbol": "_order_asset_batch",
+          "symbol": "dispatch_asset_forge",
           "definitions": [
             {
               "file": "src/production_os/asset_forge.py",
-              "line": 306,
+              "line": 784,
               "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "test_execute_asset_forge_auto_prefers_local_cli": {
+      "source": {
+        "file": "tests/test_asset_forge.py",
+        "start": 101,
+        "end": 132
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "Result",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 120,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 171,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 212,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 274,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 341,
+              "kind": "class",
               "language": "python"
             }
           ],
           "relation": "same_file"
         },
         {
-          "symbol": "_produce_asset_forge_batch_remote",
+          "symbol": "build_asset_forge_request",
           "definitions": [
             {
               "file": "src/production_os/asset_forge.py",
-              "line": 395,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_validated_artifact",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 129,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "commit_files",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 72,
+              "line": 50,
               "kind": "function",
               "language": "python"
             }
@@ -406,24 +512,60 @@
               "language": "python"
             }
           ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "fake_run",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 112,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 163,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 204,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 263,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 326,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
           "relation": "same_file"
         }
       ],
-      "dependency_count": 6
+      "dependency_count": 4
     },
-    "dispatch_asset_forge": {
+    "fake_run": {
       "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 784,
-        "end": 819
+        "file": "tests/test_asset_forge.py",
+        "start": 112,
+        "end": 232
       },
       "symbol_dependencies": [
         {
-          "symbol": "AssetForgeDispatch",
+          "symbol": "FakeGitHub",
           "definitions": [
             {
-              "file": "src/production_os/asset_forge.py",
-              "line": 24,
+              "file": "tests/test_asset_forge.py",
+              "line": 11,
               "kind": "class",
               "language": "python"
             }
@@ -431,23 +573,271 @@
           "relation": "same_file"
         },
         {
-          "symbol": "GitHubClient",
+          "symbol": "Result",
           "definitions": [
             {
-              "file": "src/production_os/github_client.py",
-              "line": 20,
+              "file": "tests/test_asset_forge.py",
+              "line": 120,
               "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 171,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 212,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 274,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 341,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "build_asset_forge_request",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 50,
+              "kind": "function",
               "language": "python"
             }
           ],
           "relation": "imported_module"
         },
         {
-          "symbol": "dispatch_workflow",
+          "symbol": "execute_asset_forge",
           "definitions": [
             {
-              "file": "src/production_os/github_client.py",
-              "line": 198,
+              "file": "src/production_os/asset_forge.py",
+              "line": 183,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "test_execute_asset_forge_auto_falls_back_to_github",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 135,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "test_execute_asset_forge_delivers_to_worktree",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 151,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "test_execute_asset_forge_delivers_with_existing_github_client",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 7
+    },
+    "Result": {
+      "source": {
+        "file": "tests/test_asset_forge.py",
+        "start": 120,
+        "end": 240
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "FakeGitHub",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 11,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "build_asset_forge_request",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 50,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "execute_asset_forge",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 183,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "fake_run",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 112,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 163,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 204,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 263,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 326,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "test_execute_asset_forge_auto_falls_back_to_github",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 135,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "test_execute_asset_forge_batch_delivers_only_after_all_validate",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 235,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "test_execute_asset_forge_delivers_to_worktree",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 151,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "test_execute_asset_forge_delivers_with_existing_github_client",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 8
+    },
+    "test_execute_asset_forge_auto_falls_back_to_github": {
+      "source": {
+        "file": "tests/test_asset_forge.py",
+        "start": 135,
+        "end": 148
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "FakeGitHub",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 11,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "build_asset_forge_request",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 50,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "execute_asset_forge",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 183,
               "kind": "function",
               "language": "python"
             }
@@ -456,6 +846,1180 @@
         }
       ],
       "dependency_count": 3
+    },
+    "test_execute_asset_forge_delivers_to_worktree": {
+      "source": {
+        "file": "tests/test_asset_forge.py",
+        "start": 151,
+        "end": 189
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "Result",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 120,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 171,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 212,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 274,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 341,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "build_asset_forge_request",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 50,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "execute_asset_forge",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 183,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "fake_run",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 112,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 163,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 204,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 263,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 326,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "test_execute_asset_forge_delivers_with_existing_github_client": {
+      "source": {
+        "file": "tests/test_asset_forge.py",
+        "start": 192,
+        "end": 232
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "FakeGitHub",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 11,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "Result",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 120,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 171,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 212,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 274,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 341,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "build_asset_forge_request",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 50,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "execute_asset_forge",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 183,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "fake_run",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 112,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 163,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 204,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 263,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 326,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 5
+    },
+    "test_execute_asset_forge_batch_delivers_only_after_all_validate": {
+      "source": {
+        "file": "tests/test_asset_forge.py",
+        "start": 235,
+        "end": 291
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "Result",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 120,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 171,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 212,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 274,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 341,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "build_asset_forge_request",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 50,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "execute_asset_forge_batch",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 560,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "fake_run",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 112,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 163,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 204,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 263,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 326,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "test_execute_asset_forge_batch_aborts_delivery_when_one_asset_fails": {
+      "source": {
+        "file": "tests/test_asset_forge.py",
+        "start": 294,
+        "end": 361
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "Failed",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 332,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "Result",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 120,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 171,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 212,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 274,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 341,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "build_asset_forge_request",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 50,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "execute_asset_forge_batch",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 560,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "fake_run",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 112,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 163,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 204,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 263,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 326,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 5
+    },
+    "Failed": {
+      "source": {
+        "file": "tests/test_asset_forge.py",
+        "start": 332,
+        "end": 452
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "FakeGitHub",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 11,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "Result",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 120,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 171,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 212,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 274,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 341,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "build_asset_forge_request",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 50,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "execute_asset_forge_batch",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 560,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "fake_run",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 112,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 163,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 204,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 263,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 326,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "test_execute_asset_forge_batch_respects_dependency_order",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 416,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "test_execute_asset_forge_batch_uses_single_github_commit",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 364,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 7
+    },
+    "test_execute_asset_forge_batch_uses_single_github_commit": {
+      "source": {
+        "file": "tests/test_asset_forge.py",
+        "start": 364,
+        "end": 413
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "FakeGitHub",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 11,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "Result",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 120,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 171,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 212,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 274,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 341,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "build_asset_forge_request",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 50,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "execute_asset_forge_batch",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 560,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "fake_run",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 112,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 163,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 204,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 263,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 326,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 5
+    },
+    "test_execute_asset_forge_batch_respects_dependency_order": {
+      "source": {
+        "file": "tests/test_asset_forge.py",
+        "start": 416,
+        "end": 475
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "Result",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 120,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 171,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 212,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 274,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 341,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "build_asset_forge_request",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 50,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "execute_asset_forge_batch",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 560,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "fake_run",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 112,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 163,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 204,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 263,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 326,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "test_execute_asset_forge_batch_rejects_dependency_cycles": {
+      "source": {
+        "file": "tests/test_asset_forge.py",
+        "start": 478,
+        "end": 519
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "build_asset_forge_request",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 50,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "execute_asset_forge_batch",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 560,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "test_execute_asset_forge_batch_rejects_unknown_dependency": {
+      "source": {
+        "file": "tests/test_asset_forge.py",
+        "start": 522,
+        "end": 548
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "build_asset_forge_request",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 50,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "execute_asset_forge_batch",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 560,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "test_dependent_raster_asset_receives_validated_parent_reference": {
+      "source": {
+        "file": "tests/test_asset_forge.py",
+        "start": 551,
+        "end": 614
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "Result",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 120,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 171,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 212,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 274,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 341,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "build_asset_forge_request",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 50,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "execute_asset_forge_batch",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 560,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "fake_run",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 112,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 163,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 204,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 263,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 326,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "test_batch_receipt_surfaces_visual_similarity_quality_summary": {
+      "source": {
+        "file": "tests/test_asset_forge.py",
+        "start": 617,
+        "end": 674
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "Result",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 120,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 171,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 212,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 274,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 341,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "build_asset_forge_request",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 50,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "execute_asset_forge_batch",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 560,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "fake_run",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 112,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 163,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 204,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 263,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 326,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "test_execute_asset_forge_batch_remote_fallback_downloads_and_delivers": {
+      "source": {
+        "file": "tests/test_asset_forge.py",
+        "start": 677,
+        "end": 733
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "FakeGitHub",
+          "definitions": [
+            {
+              "file": "tests/test_asset_forge.py",
+              "line": 11,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "build_asset_forge_request",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 50,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "execute_asset_forge_batch",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 560,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "test_execute_asset_forge_batch_rejects_duplicate_target_paths": {
+      "source": {
+        "file": "tests/test_asset_forge.py",
+        "start": 736,
+        "end": 766
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "build_asset_forge_request",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 50,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "execute_asset_forge_batch",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 560,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
     }
   }
 }

@@ -4,12 +4,12 @@
     "expand_to": 12,
     "max_files": 3,
     "requested_max_files": 12,
-    "score_margin": 4,
+    "score_margin": 1,
     "tier": "narrow",
     "top_score": 39
   },
   "cache": {
-    "fingerprint": "66cbe1044c47502d3b49c2e33c2792844bcb27072b517526d4b4435404f0dd67",
+    "fingerprint": "1b3b36235b44b4565efbd1d539cdac34a06342cb2c3206f668b7fa0067e509e0",
     "hit": false
   },
   "candidate_count": 19,
@@ -56,15 +56,17 @@
       "path": "tests/test_asset_forge.py",
       "reasons": [
         "impact",
+        "recently-changed",
         "search-index"
       ],
-      "score": 35,
+      "score": 38,
       "symbols": [
         "Failed",
         "FakeGitHub",
         "Result",
         "commit_files",
         "dispatch_workflow",
+        "download_workflow_artifact",
         "fake_run",
         "put_file",
         "test_batch_receipt_surfaces_visual_similarity_quality_summary",
@@ -76,10 +78,9 @@
         "test_execute_asset_forge_batch_aborts_delivery_when_one_asset_fails",
         "test_execute_asset_forge_batch_delivers_only_after_all_validate",
         "test_execute_asset_forge_batch_rejects_dependency_cycles",
+        "test_execute_asset_forge_batch_rejects_duplicate_target_paths",
         "test_execute_asset_forge_batch_rejects_unknown_dependency",
-        "test_execute_asset_forge_batch_respects_dependency_order",
-        "test_execute_asset_forge_batch_uses_single_github_commit",
-        "test_execute_asset_forge_delivers_to_worktree"
+        "test_execute_asset_forge_batch_remote_fallback_downloads_and_delivers"
       ]
     },
     {
@@ -89,10 +90,9 @@
       ],
       "path": "src/production_os/cli.py",
       "reasons": [
-        "impact",
         "search-index"
       ],
-      "score": 27,
+      "score": 21,
       "symbols": [
         "_asset_failure_result",
         "_external_refs_for_action",

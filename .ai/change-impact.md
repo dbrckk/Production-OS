@@ -1,16 +1,16 @@
 # Change impact
 
-Base: 53636aaefe0d94ac8505a2915fe1d8ac7c45dea0
-Head: 40e6480c719704c1213ebf2809aa48c38a799e08
+Base: abc50e60c431d6209b371cb096a0ef746842e048
+Head: 194883f91c6ef1087cf0e0880ac4a703598cda7a
 
 ## Changed files
-- M src/production_os/asset_forge.py
+- M tests/test_asset_forge.py
 
 ## Affected areas
-- src
+- tests
 
 ## Related test candidates
-- tests/test_asset_forge.py
+- No direct filename-based test match detected.
 
 ## Agent guidance
 - Read this file before broad repository exploration.

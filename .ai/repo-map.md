@@ -6135,6 +6135,12 @@ def __init__(self)
 ⋮----
 def dispatch_workflow(self, repository, workflow, *, ref, inputs)
 ⋮----
+def wait_for_workflow_run(self, repository, workflow, *, display_title, timeout_seconds, poll_seconds)
+⋮----
+def workflow_run_artifacts(self, repository, run_id)
+⋮----
+def download_workflow_artifact(self, repository, artifact_id)
+⋮----
 def put_file(self, repository, path, content, *, message, branch)
 ⋮----
 def commit_files(self, repository, files, *, message, branch)
@@ -6242,6 +6248,22 @@ reference = Path(child[child.index("--reference") + 1])
 def test_batch_receipt_surfaces_visual_similarity_quality_summary(tmp_path)
 ⋮----
 artifact = output / "character.png"
+⋮----
+def test_execute_asset_forge_batch_remote_fallback_downloads_and_delivers(tmp_path)
+⋮----
+artifact_bytes = b"remote-png"
+digest = hashlib.sha256(artifact_bytes).hexdigest()
+result = {
+archive = io.BytesIO()
+⋮----
+receipt = execute_asset_forge_batch(
+⋮----
+dispatch = next(call for call in fake.calls if "inputs" in call)
+⋮----
+def test_execute_asset_forge_batch_rejects_duplicate_target_paths(tmp_path)
+⋮----
+request_a = build_asset_forge_request(
+request_b = build_asset_forge_request(
 ````
 
 ## File: tests/test_asymmetric_attestations.py

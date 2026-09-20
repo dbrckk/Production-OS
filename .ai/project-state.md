@@ -22,16 +22,17 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-20T16:00:46Z
+Generated: 2026-09-20T16:01:19Z
 
 ### Git
 - Branch: `main`
-- Head: `40e6480c7197`
-- Commit date: 2026-09-20T18:00:35+02:00
-- Commit: feat: add remote transactional Asset Forge fallback
+- Head: `194883f91c6e`
+- Commit date: 2026-09-20T18:01:09+02:00
+- Commit: test: cover remote batch fallback and duplicate targets
 - Tracked files: 326
 
 ### Recently changed files
+- `tests/test_asset_forge.py`
 - `src/production_os/asset_forge.py`
 - `src/production_os/github_client.py`
 - `tests/test_dashboard_launch.py`
