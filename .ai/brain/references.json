@@ -5,1602 +5,219 @@
   "semantic": false,
   "note": "Occurrences are lexical word matches; verify source/LSP/compiler data before relying on them.",
   "symbols": {
-    "AssetForgeDispatch": {
+    "ControlPlane": {
       "definition": {
-        "file": "src/production_os/asset_forge.py",
-        "line": 24,
+        "file": "src/production_os/control_plane.py",
+        "line": 25,
         "kind": "class",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "src/production_os/asset_forge.py",
-          "line": 24,
-          "preview": "class AssetForgeDispatch:",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 302,
-          "preview": ") -> AssetForgeDispatch:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 386,
-          "preview": "return AssetForgeDispatch(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 1090,
-          "preview": ") -> AssetForgeDispatch:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 1110,
-          "preview": "return AssetForgeDispatch(",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 5
-    },
-    "to_dict": {
-      "definition": {
-        "file": "src/production_os/asset_forge.py",
-        "line": 35,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/adaptation.py",
-          "line": 21,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/adaptation_plan.py",
-          "line": 21,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/approvals.py",
-          "line": 20,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/approvals.py",
-          "line": 51,
-          "preview": "\"approvals\":[item.to_dict() for item in self.approvals.values()],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 35,
-          "preview": "def to_dict(self) -> dict[str, str]:",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/budgets.py",
-          "line": 19,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/callgraph.py",
-          "line": 17,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/callgraph.py",
-          "line": 73,
-          "preview": "\"edges\": [edge.to_dict() for edge in edges[:2000]],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/capabilities.py",
-          "line": 15,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/change_impact.py",
-          "line": 13,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/claims.py",
-          "line": 23,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/claims.py",
-          "line": 50,
-          "preview": "\"claims\": [claim.to_dict() for claim in self.claims.values()],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 728,
-          "preview": "ref.to_dict()",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 735,
-          "preview": "item.to_dict() for item in reuse if item.target == action.repository",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 937,
-          "preview": "\"learning_signals\": [signal.to_dict() for signal in learning_signals],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 959,
-          "preview": "\"repositories\": [a.to_dict() for a in assessments],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 960,
-          "preview": "\"ranked_actions\": [a.to_dict() for a in actions],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 961,
-          "preview": "\"reuse_opportunities\": [item.to_dict() for item in reuse],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 998,
-          "preview": "\"summary\": summary.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1028,
-          "preview": "\"decision\": decision.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1033,
-          "preview": "payload[\"runtime_state\"] = record.to_dict()",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1057,
-          "preview": "\"trends\": [trend.to_dict() for trend in build_trends(snapshots)],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1073,
-          "preview": "\"record\": record.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1083,
-          "preview": "\"actions\": [action.to_dict() for action in actions],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1163,
-          "preview": "\"result\":result.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1223,
-          "preview": "**receipt.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1308,
-          "preview": "updated = state.record_outcome(repository, task, decision).to_dict()",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1313,
-          "preview": "\"github\": work_state.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1325,
-          "preview": "\"github\": work_state.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1380,
-          "preview": "\"worker\":worker.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1390,
-          "preview": "\"worker\":worker.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1400,
-          "preview": "\"workers\":[w.to_dict() for w in registry.workers.values()],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1430,
-          "preview": "\"claim\":claim.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1440,
-          "preview": "\"claim\":claim.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1461,
-          "preview": "\"claim\":claim.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1462,
-          "preview": "\"worker\":worker.to_dict() if worker else None,",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1463,
-          "preview": "\"runtime\":state.get(claim.repository, claim.task).to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1557,
-          "preview": "\"approval\":item.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1572,
-          "preview": "\"approval\":item.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1587,
-          "preview": "\"results\":[item.to_dict() for item in migrate_many(args.paths)],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1686,
-          "preview": "**result.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1699,
-          "preview": "\"decision\":decision.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1839,
-          "preview": "\"jobs\":[job.to_dict() for job in jobs],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/compatibility.py",
-          "line": 15,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/components.py",
-          "line": 21,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
           "file": "src/production_os/control_plane.py",
-          "line": 752,
-          "preview": "worker.to_dict()",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1237,
-          "preview": "self._send(HTTPStatus.OK, {\"worker\":worker.to_dict()})",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1274,
-          "preview": "\"worker\":worker.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 50,
-          "preview": "related = [item.to_dict() for item in reuse if item.target == action.repository][:5]",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 124,
-          "preview": "updated = state.record_outcome(repository, task, decision).to_dict()",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 130,
-          "preview": "\"github\":work_state.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 231,
-          "preview": "**item.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 333,
-          "preview": "dispatches.append(result.to_dict())",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 338,
-          "preview": "**result.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 358,
-          "preview": "health = build_health(state, metrics_store.metrics.to_dict())",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 363,
-          "preview": "metrics=metrics_store.metrics.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 364,
-          "preview": "runtime_records=[record.to_dict() for record in state.records.values()],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 375,
-          "preview": "\"reconciliation\":[a.to_dict() for a in reconcile_actions],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 376,
-          "preview": "\"self_healing\":[a.to_dict() for a in healing_actions],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 377,
-          "preview": "\"governance\":[a.to_dict() for a in governance_actions],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 378,
-          "preview": "\"heartbeats\":[a.to_dict() for a in heartbeat_results],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 380,
-          "preview": "\"workers\":[w.to_dict() for w in worker_registry.workers.values()] if worker_registry else [],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/controller.py",
-          "line": 418,
-          "preview": "build_health(state, metrics_store.metrics.to_dict()),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/deep_fingerprint.py",
-          "line": 15,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/dispatch.py",
-          "line": 31,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/execution_feedback.py",
-          "line": 13,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/feedback.py",
-          "line": 14,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/github_work_state.py",
-          "line": 22,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/governance.py",
-          "line": 17,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/graph.py",
-          "line": 16,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/graph.py",
-          "line": 117,
-          "preview": "\"edges\": [edge.to_dict() for edge in edges],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/heartbeat_manager.py",
-          "line": 15,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/learning.py",
-          "line": 20,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/metrics.py",
-          "line": 22,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/metrics.py",
-          "line": 47,
-          "preview": "\"metrics\":self.metrics.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/migration_registry.py",
-          "line": 16,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/models.py",
-          "line": 38,
-          "preview": "def to_dict(self) -> dict[str, Any]:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/models.py",
-          "line": 54,
-          "preview": "def to_dict(self) -> dict[str, int]:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/models.py",
-          "line": 82,
-          "preview": "def to_dict(self) -> dict[str, Any]:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/models.py",
-          "line": 98,
-          "preview": "def to_dict(self) -> dict[str, Any]:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/models.py",
-          "line": 100,
-          "preview": "\"evidence\": self.evidence.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/models.py",
-          "line": 101,
-          "preview": "\"score\": self.score.to_dict(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/models.py",
-          "line": 107,
-          "preview": "\"capabilities\": [cap.to_dict() for cap in self.capabilities],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/models.py",
-          "line": 108,
-          "preview": "\"source_signals\": [signal.to_dict() for signal in self.source_signals],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/models.py",
-          "line": 109,
-          "preview": "\"components\": [component.to_dict() for component in self.components],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/models.py",
-          "line": 110,
-          "preview": "\"actions\": [action.to_dict() for action in self.actions],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/policy.py",
           "line": 25,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/policy_validation.py",
-          "line": 13,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/preemption.py",
-          "line": 17,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/preemption.py",
-          "line": 91,
-          "preview": "return record.to_dict()",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/preemption.py",
-          "line": 120,
-          "preview": "return runtime_state.get(repository, task).to_dict()",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/rate_limit.py",
-          "line": 19,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/reconciliation.py",
-          "line": 17,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/remote_worker.py",
-          "line": 15,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/reuse.py",
-          "line": 24,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/reuse.py",
-          "line": 95,
-          "preview": "row.to_dict()",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/reuse.py",
-          "line": 125,
-          "preview": ").to_dict()",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/reuse.py",
-          "line": 128,
-          "preview": "item.to_dict()",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/reuse.py",
-          "line": 145,
-          "preview": "step.to_dict()",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/runtime_state.py",
-          "line": 32,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/runtime_state.py",
-          "line": 63,
-          "preview": "\"records\": {k: v.to_dict() for k, v in self.records.items()},",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scheduler.py",
-          "line": 24,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/scheduler.py",
-          "line": 194,
-          "preview": "\"work\": [item.to_dict() for item in work],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/self_healing.py",
-          "line": 16,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/starlist.py",
-          "line": 17,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/trends.py",
-          "line": 15,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/validation.py",
-          "line": 15,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/versioning.py",
-          "line": 17,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/workers.py",
-          "line": 21,
-          "preview": "def to_dict(self) -> dict:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/workers.py",
-          "line": 48,
-          "preview": "\"workers\": [w.to_dict() for w in self.workers.values()],",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/workflow_engine.py",
-          "line": 394,
-          "preview": "return [item.to_dict() for item in decisions]",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 111
-    },
-    "build_asset_forge_request": {
-      "definition": {
-        "file": "src/production_os/asset_forge.py",
-        "line": 50,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 50,
-          "preview": "def build_asset_forge_request(",
+          "preview": "class ControlPlane:",
           "definition_candidate": true
         },
         {
-          "file": "src/production_os/cli.py",
-          "line": 29,
-          "preview": "from .asset_forge import build_asset_forge_request, execute_asset_forge, execute_asset_forge_batch",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1190,
-          "preview": "request = build_asset_forge_request(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 8,
-          "preview": "from production_os.asset_forge import _dedup_summary, build_asset_forge_request, dispatch_asset_forge, execute_asset_forge, execute_asset_forge_batch",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 69,
-          "preview": "request = build_asset_forge_request(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 86,
-          "preview": "request = build_asset_forge_request(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 105,
-          "preview": "request = build_asset_forge_request(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 140,
-          "preview": "request = build_asset_forge_request(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 155,
-          "preview": "request = build_asset_forge_request(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 197,
-          "preview": "request = build_asset_forge_request(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 243,
-          "preview": "\"request\": build_asset_forge_request(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 254,
-          "preview": "\"request\": build_asset_forge_request(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 305,
-          "preview": "\"request\": build_asset_forge_request(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 316,
-          "preview": "\"request\": build_asset_forge_request(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 372,
-          "preview": "\"request\": build_asset_forge_request(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 438,
-          "preview": "\"request\": build_asset_forge_request(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 491,
-          "preview": "\"request\": build_asset_forge_request(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 504,
-          "preview": "\"request\": build_asset_forge_request(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 534,
-          "preview": "\"request\": build_asset_forge_request(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 565,
-          "preview": "\"request\": build_asset_forge_request(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 578,
-          "preview": "\"request\": build_asset_forge_request(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 630,
-          "preview": "\"request\": build_asset_forge_request(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 688,
-          "preview": "request = build_asset_forge_request(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 746,
-          "preview": "request_a = build_asset_forge_request(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 754,
-          "preview": "request_b = build_asset_forge_request(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 781,
-          "preview": "request = build_asset_forge_request(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 819,
-          "preview": "request2 = build_asset_forge_request(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 870,
-          "preview": "\"request\": build_asset_forge_request(",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 28
-    },
-    "_request_fingerprint": {
-      "definition": {
-        "file": "src/production_os/asset_forge.py",
-        "line": 129,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 129,
-          "preview": "def _request_fingerprint(",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 661,
-          "preview": "\"request_fingerprint\": _request_fingerprint(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 857,
-          "preview": "request_fingerprint = _request_fingerprint(",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 3
-    },
-    "_sidecar_relative_path": {
-      "definition": {
-        "file": "src/production_os/asset_forge.py",
-        "line": 158,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 158,
-          "preview": "def _sidecar_relative_path(target_path: str) -> str:",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 172,
-          "preview": "sidecar = (root / _sidecar_relative_path(normalized)).resolve()",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 962,
-          "preview": "root_worktree / _sidecar_relative_path(normalized)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 1013,
-          "preview": "sidecar_path = _sidecar_relative_path(item[\"target_path\"])",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 4
-    },
-    "_cached_worktree_asset": {
-      "definition": {
-        "file": "src/production_os/asset_forge.py",
-        "line": 162,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 162,
-          "preview": "def _cached_worktree_asset(",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 862,
-          "preview": "cached = _cached_worktree_asset(",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 2
-    },
-    "_version_sidecar": {
-      "definition": {
-        "file": "src/production_os/asset_forge.py",
-        "line": 193,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 193,
-          "preview": "def _version_sidecar(",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 973,
-          "preview": "sidecar = _version_sidecar(item, existing=existing)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 1015,
-          "preview": "sidecar = _version_sidecar(item, existing=existing)",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 3
-    },
-    "_validated_artifact": {
-      "definition": {
-        "file": "src/production_os/asset_forge.py",
-        "line": 231,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 231,
-          "preview": "def _validated_artifact(report: dict[str, Any], destination: Path) -> Path:",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 371,
-          "preview": "artifact = _validated_artifact(report, destination)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 920,
-          "preview": "artifact = _validated_artifact(report, out)",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 3
-    },
-    "_deliver_artifact": {
-      "definition": {
-        "file": "src/production_os/asset_forge.py",
-        "line": 249,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 249,
-          "preview": "def _deliver_artifact(",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 376,
-          "preview": "delivery_mode, delivered_to = _deliver_artifact(",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 2
-    },
-    "execute_asset_forge": {
-      "definition": {
-        "file": "src/production_os/asset_forge.py",
-        "line": 285,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 285,
-          "preview": "def execute_asset_forge(",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 902,
-          "preview": "receipt = execute_asset_forge(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 29,
-          "preview": "from .asset_forge import build_asset_forge_request, execute_asset_forge, execute_asset_forge_batch",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 1203,
-          "preview": "receipt = execute_asset_forge(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 8,
-          "preview": "from production_os.asset_forge import _dedup_summary, build_asset_forge_request, dispatch_asset_forge, execute_asset_forge, execute_asset_forge_batch",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 130,
-          "preview": "receipt = execute_asset_forge(request, output_dir=str(out), mode=\"auto\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 149,
-          "preview": "receipt = execute_asset_forge(request, client=fake, mode=\"auto\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 181,
-          "preview": "receipt = execute_asset_forge(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 222,
-          "preview": "receipt = execute_asset_forge(",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 9
-    },
-    "_batch_item_id": {
-      "definition": {
-        "file": "src/production_os/asset_forge.py",
-        "line": 398,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 398,
-          "preview": "def _batch_item_id(item: dict[str, Any], index: int) -> str:",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 414,
-          "preview": "item_id = _batch_item_id(item, index)",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 2
-    },
-    "_order_asset_batch": {
-      "definition": {
-        "file": "src/production_os/asset_forge.py",
-        "line": 408,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/asset_forge.py",
+          "file": "src/production_os/control_plane.py",
           "line": 408,
-          "preview": "def _order_asset_batch(items: list[dict[str, Any]]) -> list[dict[str, Any]]:",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 801,
-          "preview": "ordered_items = _order_asset_batch(items)",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 2
-    },
-    "_extract_remote_batch_bundle": {
-      "definition": {
-        "file": "src/production_os/asset_forge.py",
-        "line": 465,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 465,
-          "preview": "def _extract_remote_batch_bundle(data: bytes, destination: Path) -> Path:",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 576,
-          "preview": "remote_root = _extract_remote_batch_bundle(",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 2
-    },
-    "_produce_asset_forge_batch_remote": {
-      "definition": {
-        "file": "src/production_os/asset_forge.py",
-        "line": 497,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 497,
-          "preview": "def _produce_asset_forge_batch_remote(",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 814,
-          "preview": "produced = _produce_asset_forge_batch_remote(",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 2
-    },
-    "_hex_hash_similarity": {
-      "definition": {
-        "file": "src/production_os/asset_forge.py",
-        "line": 673,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 673,
-          "preview": "def _hex_hash_similarity(left: str, right: str) -> float | None:",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 754,
-          "preview": "similarity = _hex_hash_similarity(",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 2
-    },
-    "_rgb_distance": {
-      "definition": {
-        "file": "src/production_os/asset_forge.py",
-        "line": 688,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 688,
-          "preview": "def _rgb_distance(left, right) -> float | None:",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 758,
-          "preview": "color_distance = _rgb_distance(",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 2
-    },
-    "_asset_ancestors": {
-      "definition": {
-        "file": "src/production_os/asset_forge.py",
-        "line": 700,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 700,
-          "preview": "def _asset_ancestors(produced: list[dict[str, Any]]) -> dict[str, set[str]]:",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 724,
-          "preview": "ancestors = _asset_ancestors(produced)",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 2
-    },
-    "visit": {
-      "definition": {
-        "file": "src/production_os/asset_forge.py",
-        "line": 707,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 707,
-          "preview": "def visit(item_id: str) -> set[str]:",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 712,
-          "preview": "result.update(visit(dependency))",
+          "preview": "def make_handler(control: ControlPlane):",
           "definition_candidate": false
         },
         {
-          "file": "src/production_os/asset_forge.py",
-          "line": 717,
-          "preview": "visit(item_id)",
+          "file": "src/production_os/control_plane.py",
+          "line": 1821,
+          "preview": "control = ControlPlane(",
           "definition_candidate": false
         },
         {
-          "file": "src/production_os/workflow_engine.py",
-          "line": 163,
-          "preview": "def visit(task_id: str) -> None:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/workflow_engine.py",
-          "line": 170,
-          "preview": "visit(dep)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/workflow_engine.py",
-          "line": 175,
-          "preview": "visit(task_id)",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 6
-    },
-    "_dedup_summary": {
-      "definition": {
-        "file": "src/production_os/asset_forge.py",
-        "line": 721,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 721,
-          "preview": "def _dedup_summary(produced: list[dict[str, Any]]) -> dict[str, Any]:",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 1041,
-          "preview": "\"dedup_summary\": _dedup_summary(produced),",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
+          "file": "tests/test_control_plane.py",
           "line": 8,
-          "preview": "from production_os.asset_forge import _dedup_summary, build_asset_forge_request, dispatch_asset_forge, execute_asset_forge, execute_asset_forge_batch",
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_asset_forge.py",
-          "line": 939,
-          "preview": "result = _dedup_summary(produced)",
+          "file": "tests/test_control_plane.py",
+          "line": 32,
+          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_asset_forge.py",
-          "line": 953,
-          "preview": "result = _dedup_summary([",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 5
-    },
-    "execute_asset_forge_batch": {
-      "definition": {
-        "file": "src/production_os/asset_forge.py",
-        "line": 782,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 782,
-          "preview": "def execute_asset_forge_batch(",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 29,
-          "preview": "from .asset_forge import build_asset_forge_request, execute_asset_forge, execute_asset_forge_batch",
+          "file": "tests/test_control_plane.py",
+          "line": 80,
+          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
           "definition_candidate": false
         },
         {
-          "file": "src/production_os/cli.py",
-          "line": 1260,
-          "preview": "result = execute_asset_forge_batch(",
+          "file": "tests/test_control_plane.py",
+          "line": 134,
+          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_asset_forge.py",
+          "file": "tests/test_control_plane.py",
+          "line": 183,
+          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane.py",
+          "line": 272,
+          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane.py",
+          "line": 315,
+          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane.py",
+          "line": 358,
+          "preview": "control=ControlPlane(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane.py",
+          "line": 390,
+          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane_pr_impact.py",
           "line": 8,
-          "preview": "from production_os.asset_forge import _dedup_summary, build_asset_forge_request, dispatch_asset_forge, execute_asset_forge, execute_asset_forge_batch",
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_asset_forge.py",
-          "line": 284,
-          "preview": "result = execute_asset_forge_batch(",
+          "file": "tests/test_control_plane_pr_impact.py",
+          "line": 37,
+          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_asset_forge.py",
-          "line": 352,
-          "preview": "execute_asset_forge_batch(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 404,
-          "preview": "result = execute_asset_forge_batch(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 470,
-          "preview": "result = execute_asset_forge_batch(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 518,
-          "preview": "execute_asset_forge_batch(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 547,
-          "preview": "execute_asset_forge_batch(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 611,
-          "preview": "result = execute_asset_forge_batch(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 670,
-          "preview": "result = execute_asset_forge_batch(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 726,
-          "preview": "receipt = execute_asset_forge_batch(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 763,
-          "preview": "execute_asset_forge_batch(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 813,
-          "preview": "first = execute_asset_forge_batch(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 827,
-          "preview": "second = execute_asset_forge_batch(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 884,
-          "preview": "execute_asset_forge_batch(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 890,
-          "preview": "execute_asset_forge_batch(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_cli.py",
-          "line": 130,
-          "preview": "\"production_os.cli.execute_asset_forge_batch\",",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_cli.py",
-          "line": 164,
-          "preview": "with patch(\"production_os.cli.execute_asset_forge_batch\", return_value=expected):",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 20
-    },
-    "dispatch_asset_forge": {
-      "definition": {
-        "file": "src/production_os/asset_forge.py",
-        "line": 1081,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 312,
-          "preview": "return dispatch_asset_forge(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 1081,
-          "preview": "def dispatch_asset_forge(",
-          "definition_candidate": true
-        },
-        {
-          "file": "tests/test_asset_forge.py",
+          "file": "tests/test_control_plane_release.py",
           "line": 8,
-          "preview": "from production_os.asset_forge import _dedup_summary, build_asset_forge_request, dispatch_asset_forge, execute_asset_forge, execute_asset_forge_batch",
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_asset_forge.py",
-          "line": 95,
-          "preview": "receipt = dispatch_asset_forge(request, client=fake)",
+          "file": "tests/test_control_plane_release.py",
+          "line": 43,
+          "preview": "control=ControlPlane(",
           "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 4
-    },
-    "FakeGitHub": {
-      "definition": {
-        "file": "tests/test_asset_forge.py",
-        "line": 11,
-        "kind": "class",
-        "language": "python"
-      },
-      "occurrences": [
+        },
         {
-          "file": "tests/test_asset_forge.py",
+          "file": "tests/test_control_plane_webhook.py",
           "line": 11,
-          "preview": "class FakeGitHub:",
-          "definition_candidate": true
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 85,
-          "preview": "fake = FakeGitHub()",
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_asset_forge.py",
-          "line": 139,
-          "preview": "fake = FakeGitHub()",
+          "file": "tests/test_control_plane_webhook.py",
+          "line": 48,
+          "preview": "control=ControlPlane(",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_asset_forge.py",
-          "line": 196,
-          "preview": "fake = FakeGitHub()",
+          "file": "tests/test_control_plane_webhook.py",
+          "line": 145,
+          "preview": "control=ControlPlane(",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_asset_forge.py",
-          "line": 368,
-          "preview": "fake = FakeGitHub()",
+          "file": "tests/test_control_plane_webhook.py",
+          "line": 190,
+          "preview": "control=ControlPlane(",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_asset_forge.py",
-          "line": 687,
-          "preview": "fake = FakeGitHub()",
+          "file": "tests/test_http_security_headers.py",
+          "line": 7,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_http_security_headers.py",
+          "line": 19,
+          "preview": "control = ControlPlane(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_portfolio_claim_api.py",
+          "line": 7,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_portfolio_claim_api.py",
+          "line": 31,
+          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_production_stack_e2e.py",
+          "line": 17,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_production_stack_e2e.py",
+          "line": 92,
+          "preview": "control = ControlPlane(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_remote_worker.py",
+          "line": 7,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_remote_worker.py",
+          "line": 16,
+          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_remote_worker.py",
+          "line": 46,
+          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_speculation_api.py",
+          "line": 7,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_speculation_api.py",
+          "line": 31,
+          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workflow_api.py",
+          "line": 7,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workflow_api.py",
+          "line": 31,
+          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
           "definition_candidate": false
         }
       ],
-      "occurrence_count": 6
+      "occurrence_count": 33
     },
     "__init__": {
       "definition": {
-        "file": "tests/test_asset_forge.py",
-        "line": 12,
+        "file": "src/production_os/control_plane.py",
+        "line": 26,
         "kind": "function",
         "language": "python"
       },
@@ -1639,7 +256,7 @@
           "file": "src/production_os/control_plane.py",
           "line": 26,
           "preview": "def __init__(",
-          "definition_candidate": false
+          "definition_candidate": true
         },
         {
           "file": "src/production_os/execution_optimizer.py",
@@ -1867,7 +484,7 @@
           "file": "tests/test_asset_forge.py",
           "line": 12,
           "preview": "def __init__(self):",
-          "definition_candidate": true
+          "definition_candidate": false
         },
         {
           "file": "tests/test_fairness.py",
@@ -1920,946 +537,1156 @@
       ],
       "occurrence_count": 52
     },
-    "dispatch_workflow": {
+    "_json_bytes": {
       "definition": {
-        "file": "tests/test_asset_forge.py",
-        "line": 16,
+        "file": "src/production_os/control_plane.py",
+        "line": 77,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "src/production_os/asset_forge.py",
-          "line": 531,
-          "preview": "gh.dispatch_workflow(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 1104,
-          "preview": "(client or GitHubClient()).dispatch_workflow(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/github_client.py",
-          "line": 198,
-          "preview": "def dispatch_workflow(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 16,
-          "preview": "def dispatch_workflow(self, repository, workflow, *, ref, inputs):",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 4
-    },
-    "wait_for_workflow_run": {
-      "definition": {
-        "file": "tests/test_asset_forge.py",
-        "line": 25,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 543,
-          "preview": "run = gh.wait_for_workflow_run(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/github_client.py",
-          "line": 234,
-          "preview": "def wait_for_workflow_run(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 25,
-          "preview": "def wait_for_workflow_run(self, repository, workflow, *, display_title, timeout_seconds, poll_seconds):",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 3
-    },
-    "workflow_run_artifacts": {
-      "definition": {
-        "file": "tests/test_asset_forge.py",
-        "line": 33,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 558,
-          "preview": "artifacts = gh.workflow_run_artifacts(repository, run_id)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/github_client.py",
-          "line": 258,
-          "preview": "def workflow_run_artifacts(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 33,
-          "preview": "def workflow_run_artifacts(self, repository, run_id):",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 3
-    },
-    "download_workflow_artifact": {
-      "definition": {
-        "file": "tests/test_asset_forge.py",
-        "line": 40,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 574,
-          "preview": "zip_bytes = gh.download_workflow_artifact(repository, artifact_id)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/github_client.py",
-          "line": 269,
-          "preview": "def download_workflow_artifact(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 40,
-          "preview": "def download_workflow_artifact(self, repository, artifact_id):",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 3
-    },
-    "put_file": {
-      "definition": {
-        "file": "tests/test_asset_forge.py",
-        "line": 45,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 275,
-          "preview": "gh.put_file(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/github_client.py",
-          "line": 157,
-          "preview": "def put_file(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 45,
-          "preview": "def put_file(self, repository, path, content, *, message, branch):",
+          "file": "src/production_os/control_plane.py",
+          "line": 77,
+          "preview": "def _json_bytes(payload: dict | list) -> bytes:",
           "definition_candidate": true
         },
         {
-          "file": "tests/test_github_client_put_file.py",
-          "line": 23,
-          "preview": "result = client.put_file(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_github_client_put_file.py",
-          "line": 42,
-          "preview": "client.put_file(",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 5
-    },
-    "read_json_file": {
-      "definition": {
-        "file": "tests/test_asset_forge.py",
-        "line": 55,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 1014,
-          "preview": "existing = gh.read_json_file(target_repository, sidecar_path)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/cli.py",
-          "line": 879,
-          "preview": "catalog = client.read_json_file(args.star_list_repo, args.star_list_path)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/github_client.py",
-          "line": 442,
-          "preview": "def read_json_file(self, full_name: str, path: str) -> dict[str, Any] | None:",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 55,
-          "preview": "def read_json_file(self, repository, path):",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 4
-    },
-    "commit_files": {
-      "definition": {
-        "file": "tests/test_asset_forge.py",
-        "line": 58,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/asset_forge.py",
-          "line": 1019,
-          "preview": "result = gh.commit_files(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/github_client.py",
-          "line": 72,
-          "preview": "def commit_files(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 58,
-          "preview": "def commit_files(self, repository, files, *, message, branch):",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 3
-    },
-    "test_build_asset_forge_request": {
-      "definition": {
-        "file": "tests/test_asset_forge.py",
-        "line": 68,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 68,
-          "preview": "def test_build_asset_forge_request():",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "test_dispatch_asset_forge_uses_existing_workflow_contract": {
-      "definition": {
-        "file": "tests/test_asset_forge.py",
-        "line": 84,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 84,
-          "preview": "def test_dispatch_asset_forge_uses_existing_workflow_contract():",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "test_execute_asset_forge_auto_prefers_local_cli": {
-      "definition": {
-        "file": "tests/test_asset_forge.py",
-        "line": 104,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 104,
-          "preview": "def test_execute_asset_forge_auto_prefers_local_cli(tmp_path):",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "fake_run": {
-      "definition": {
-        "file": "tests/test_asset_forge.py",
-        "line": 115,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 115,
-          "preview": "def fake_run(cmd, check=False, **kwargs):",
-          "definition_candidate": true
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 128,
-          "preview": "\"production_os.asset_forge.subprocess.run\", side_effect=fake_run",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 166,
-          "preview": "def fake_run(cmd, check=False, **kwargs):",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 179,
-          "preview": "\"production_os.asset_forge.subprocess.run\", side_effect=fake_run",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 207,
-          "preview": "def fake_run(cmd, check=False, **kwargs):",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 220,
-          "preview": "\"production_os.asset_forge.subprocess.run\", side_effect=fake_run",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 266,
-          "preview": "def fake_run(cmd, check=False, **kwargs):",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 282,
-          "preview": "\"production_os.asset_forge.subprocess.run\", side_effect=fake_run",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 329,
-          "preview": "def fake_run(cmd, check=False, **kwargs):",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 349,
-          "preview": "\"production_os.asset_forge.subprocess.run\", side_effect=fake_run",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 385,
-          "preview": "def fake_run(cmd, check=False, **kwargs):",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 402,
-          "preview": "\"production_os.asset_forge.subprocess.run\", side_effect=fake_run",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 450,
-          "preview": "def fake_run(cmd, check=False, **kwargs):",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 468,
-          "preview": "\"production_os.asset_forge.subprocess.run\", side_effect=fake_run",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 591,
-          "preview": "def fake_run(cmd, check=False, **kwargs):",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 609,
-          "preview": "\"production_os.asset_forge.subprocess.run\", side_effect=fake_run",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 641,
-          "preview": "def fake_run(cmd, check=False, **kwargs):",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 668,
-          "preview": "\"production_os.asset_forge.subprocess.run\", side_effect=fake_run",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 796,
-          "preview": "def fake_run(cmd, check=False, **kwargs):",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 811,
-          "preview": "\"production_os.asset_forge.subprocess.run\", side_effect=fake_run",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 851,
-          "preview": "def fake_run(cmd, check=False, **kwargs):",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 882,
-          "preview": "\"production_os.asset_forge.subprocess.run\", side_effect=fake_run",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 22
-    },
-    "Result": {
-      "definition": {
-        "file": "tests/test_asset_forge.py",
-        "line": 123,
-        "kind": "class",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 123,
-          "preview": "class Result:",
-          "definition_candidate": true
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 125,
-          "preview": "return Result()",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 174,
-          "preview": "class Result:",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 176,
-          "preview": "return Result()",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 215,
-          "preview": "class Result:",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 217,
-          "preview": "return Result()",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 277,
-          "preview": "class Result:",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 279,
-          "preview": "return Result()",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 344,
-          "preview": "class Result:",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 346,
-          "preview": "return Result()",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 397,
-          "preview": "class Result:",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 399,
-          "preview": "return Result()",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 463,
-          "preview": "class Result:",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 465,
-          "preview": "return Result()",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 604,
-          "preview": "class Result:",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 606,
-          "preview": "return Result()",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 663,
-          "preview": "class Result:",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 665,
-          "preview": "return Result()",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 806,
-          "preview": "class Result:",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 808,
-          "preview": "return Result()",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 863,
-          "preview": "class Result:",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 865,
-          "preview": "return Result()",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_trust_status_summary.py",
-          "line": 30,
-          "preview": "class Result:",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_trust_status_summary.py",
-          "line": 47,
-          "preview": "lambda *args, **kwargs: Result(),",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_trust_status_summary.py",
-          "line": 82,
-          "preview": "class Result:",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_trust_status_summary.py",
-          "line": 99,
-          "preview": "lambda *args, **kwargs: Result(),",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 26
-    },
-    "test_execute_asset_forge_auto_falls_back_to_github": {
-      "definition": {
-        "file": "tests/test_asset_forge.py",
-        "line": 138,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 138,
-          "preview": "def test_execute_asset_forge_auto_falls_back_to_github():",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "test_execute_asset_forge_delivers_to_worktree": {
-      "definition": {
-        "file": "tests/test_asset_forge.py",
-        "line": 154,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 154,
-          "preview": "def test_execute_asset_forge_delivers_to_worktree(tmp_path):",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "test_execute_asset_forge_delivers_with_existing_github_client": {
-      "definition": {
-        "file": "tests/test_asset_forge.py",
-        "line": 195,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 195,
-          "preview": "def test_execute_asset_forge_delivers_with_existing_github_client(tmp_path):",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "test_execute_asset_forge_batch_delivers_only_after_all_validate": {
-      "definition": {
-        "file": "tests/test_asset_forge.py",
-        "line": 238,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 238,
-          "preview": "def test_execute_asset_forge_batch_delivers_only_after_all_validate(tmp_path):",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "test_execute_asset_forge_batch_aborts_delivery_when_one_asset_fails": {
-      "definition": {
-        "file": "tests/test_asset_forge.py",
-        "line": 297,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 297,
-          "preview": "def test_execute_asset_forge_batch_aborts_delivery_when_one_asset_fails(tmp_path):",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "Failed": {
-      "definition": {
-        "file": "tests/test_asset_forge.py",
-        "line": 335,
-        "kind": "class",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 335,
-          "preview": "class Failed:",
-          "definition_candidate": true
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 337,
-          "preview": "return Failed()",
+          "file": "src/production_os/control_plane.py",
+          "line": 440,
+          "preview": "body = _json_bytes(payload)",
           "definition_candidate": false
         }
       ],
       "occurrence_count": 2
     },
-    "test_execute_asset_forge_batch_uses_single_github_commit": {
+    "RequestBodyTooLarge": {
       "definition": {
-        "file": "tests/test_asset_forge.py",
-        "line": 367,
+        "file": "src/production_os/control_plane.py",
+        "line": 404,
+        "kind": "class",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 404,
+          "preview": "class RequestBodyTooLarge(ValueError):",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 484,
+          "preview": "raise RequestBodyTooLarge(\"request body too large\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 824,
+          "preview": "except RequestBodyTooLarge as exc:",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1001,
+          "preview": "except RequestBodyTooLarge as exc:",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 4
+    },
+    "make_handler": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 408,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "tests/test_asset_forge.py",
-          "line": 367,
-          "preview": "def test_execute_asset_forge_batch_uses_single_github_commit(tmp_path):",
+          "file": "src/production_os/control_plane.py",
+          "line": 408,
+          "preview": "def make_handler(control: ControlPlane):",
           "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1833,
+          "preview": "make_handler(control),",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane.py",
+          "line": 8,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane.py",
+          "line": 33,
+          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane.py",
+          "line": 96,
+          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane.py",
+          "line": 143,
+          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane.py",
+          "line": 195,
+          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane.py",
+          "line": 275,
+          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane.py",
+          "line": 316,
+          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane.py",
+          "line": 362,
+          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane.py",
+          "line": 391,
+          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane_pr_impact.py",
+          "line": 8,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane_pr_impact.py",
+          "line": 67,
+          "preview": "make_handler(control),",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane_release.py",
+          "line": 8,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane_release.py",
+          "line": 80,
+          "preview": "make_handler(control),",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane_webhook.py",
+          "line": 11,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane_webhook.py",
+          "line": 87,
+          "preview": "make_handler(control),",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane_webhook.py",
+          "line": 152,
+          "preview": "make_handler(control),",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane_webhook.py",
+          "line": 215,
+          "preview": "make_handler(control),",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_http_security_headers.py",
+          "line": 7,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_http_security_headers.py",
+          "line": 25,
+          "preview": "make_handler(control),",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_portfolio_claim_api.py",
+          "line": 7,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_portfolio_claim_api.py",
+          "line": 71,
+          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_production_stack_e2e.py",
+          "line": 17,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_production_stack_e2e.py",
+          "line": 98,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_remote_worker.py",
+          "line": 7,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_remote_worker.py",
+          "line": 23,
+          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_remote_worker.py",
+          "line": 70,
+          "preview": "make_handler(control),",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_speculation_api.py",
+          "line": 7,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_speculation_api.py",
+          "line": 49,
+          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workflow_api.py",
+          "line": 7,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workflow_api.py",
+          "line": 34,
+          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
+          "definition_candidate": false
         }
       ],
-      "occurrence_count": 1
+      "occurrence_count": 32
     },
-    "test_execute_asset_forge_batch_respects_dependency_order": {
+    "Handler": {
       "definition": {
-        "file": "tests/test_asset_forge.py",
-        "line": 424,
+        "file": "src/production_os/control_plane.py",
+        "line": 409,
+        "kind": "class",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 409,
+          "preview": "class Handler(BaseHTTPRequestHandler):",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1797,
+          "preview": "return Handler",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "version_string": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 412,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "tests/test_asset_forge.py",
-          "line": 424,
-          "preview": "def test_execute_asset_forge_batch_respects_dependency_order(tmp_path):",
+          "file": "src/production_os/control_plane.py",
+          "line": 412,
+          "preview": "def version_string(self) -> str:",
           "definition_candidate": true
         }
       ],
       "occurrence_count": 1
     },
-    "test_execute_asset_forge_batch_rejects_dependency_cycles": {
+    "log_message": {
       "definition": {
-        "file": "tests/test_asset_forge.py",
-        "line": 486,
+        "file": "src/production_os/control_plane.py",
+        "line": 415,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "tests/test_asset_forge.py",
-          "line": 486,
-          "preview": "def test_execute_asset_forge_batch_rejects_dependency_cycles(tmp_path):",
+          "file": "src/production_os/control_plane.py",
+          "line": 415,
+          "preview": "def log_message(self, format: str, *args) -> None:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/health_server.py",
+          "line": 35,
+          "preview": "def log_message(self, format: str, *args) -> None:",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "_send_html": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 418,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 418,
+          "preview": "def _send_html(self, status: int, html: str) -> None:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 533,
+          "preview": "self._send_html(HTTPStatus.OK, DASHBOARD_HTML)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "_send": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 433,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 433,
+          "preview": "def _send(",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 458,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 513,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 519,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 537,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 561,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 576,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 598,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 622,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 627,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 640,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 645,
+          "preview": "self._send(HTTPStatus.OK, {\"job\":job})",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 655,
+          "preview": "self._send(HTTPStatus.OK, payload)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 660,
+          "preview": "self._send(HTTPStatus.OK, payload)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 663,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 675,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 681,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 688,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 703,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 723,
+          "preview": "self._send(HTTPStatus.OK, report)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 733,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 744,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 771,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 776,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 785,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 790,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 799,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 810,
+          "preview": "self._send(HTTPStatus.NOT_FOUND, {\"error\":\"not found\"})",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 817,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 825,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 831,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 842,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 863,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 877,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 884,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 895,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 974,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1002,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1008,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1059,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1079,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1108,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1139,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1158,
+          "preview": "self._send(HTTPStatus.OK, {\"jobs\":jobs})",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1171,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1192,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1207,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1240,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1246,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1273,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1288,
+          "preview": "self._send(HTTPStatus.OK, {\"worker\":worker.to_dict()})",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1322,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1338,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1353,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1362,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1373,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1405,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1416,
+          "preview": "self._send(HTTPStatus.CREATED, {\"job\":job})",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1448,
+          "preview": "self._send(HTTPStatus.NO_CONTENT, {})",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1486,
+          "preview": "self._send(HTTPStatus.NO_CONTENT, {})",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1497,
+          "preview": "self._send(HTTPStatus.NO_CONTENT, {})",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1500,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1525,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1537,
+          "preview": "self._send(HTTPStatus.OK, {\"job\":job})",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1583,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1603,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1635,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1669,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1694,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1730,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1759,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1779,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1785,
+          "preview": "self._send(HTTPStatus.NOT_FOUND, {\"error\":\"not found\"})",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1787,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1792,
+          "preview": "self._send(",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 75
+    },
+    "_method_not_allowed": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 457,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 457,
+          "preview": "def _method_not_allowed(self) -> None:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 465,
+          "preview": "self._method_not_allowed()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 468,
+          "preview": "self._method_not_allowed()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 471,
+          "preview": "self._method_not_allowed()",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 4
+    },
+    "do_PUT": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 464,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 464,
+          "preview": "def do_PUT(self) -> None:",
           "definition_candidate": true
         }
       ],
       "occurrence_count": 1
     },
-    "test_execute_asset_forge_batch_rejects_unknown_dependency": {
+    "do_PATCH": {
       "definition": {
-        "file": "tests/test_asset_forge.py",
+        "file": "src/production_os/control_plane.py",
+        "line": 467,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 467,
+          "preview": "def do_PATCH(self) -> None:",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 1
+    },
+    "do_DELETE": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 470,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 470,
+          "preview": "def do_DELETE(self) -> None:",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 1
+    },
+    "_read_body": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 473,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 473,
+          "preview": "def _read_body(self) -> bytes:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 493,
+          "preview": "raw = self._read_body()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 823,
+          "preview": "raw = self._read_body()",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 3
+    },
+    "_read_json": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 492,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 492,
+          "preview": "def _read_json(self) -> dict:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1000,
+          "preview": "body = self._read_json()",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "_principal": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 504,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 504,
+          "preview": "def _principal(self) -> Principal | None:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 511,
+          "preview": "principal = self._principal()",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "_require": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 510,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 510,
+          "preview": "def _require(self, role: str) -> Principal | None:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 546,
+          "preview": "principal = self._require(\"viewer\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1016,
+          "preview": "principal = self._require(\"operator\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1069,
+          "preview": "principal = self._require(\"operator\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1121,
+          "preview": "principal = self._require(\"operator\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1148,
+          "preview": "principal = self._require(\"operator\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1280,
+          "preview": "principal = self._require(\"operator\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1292,
+          "preview": "principal = self._require(\"worker\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1332,
+          "preview": "principal = self._require(\"operator\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1395,
+          "preview": "principal = self._require(\"operator\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1412,
+          "preview": "principal = self._require(\"operator\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1420,
+          "preview": "principal = self._require(\"worker\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1517,
+          "preview": "principal = self._require(\"worker\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1541,
+          "preview": "principal = self._require(\"worker\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1594,
+          "preview": "principal = self._require(\"worker\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1684,
+          "preview": "principal = self._require(\"worker\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1773,
+          "preview": "principal = self._require(\"operator\")",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 17
+    },
+    "do_GET": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
         "line": 530,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "tests/test_asset_forge.py",
+          "file": "src/production_os/control_plane.py",
           "line": 530,
-          "preview": "def test_execute_asset_forge_batch_rejects_unknown_dependency(tmp_path):",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "test_dependent_raster_asset_receives_validated_parent_reference": {
-      "definition": {
-        "file": "tests/test_asset_forge.py",
-        "line": 559,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 559,
-          "preview": "def test_dependent_raster_asset_receives_validated_parent_reference(tmp_path):",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "test_batch_receipt_surfaces_visual_similarity_quality_summary": {
-      "definition": {
-        "file": "tests/test_asset_forge.py",
-        "line": 625,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 625,
-          "preview": "def test_batch_receipt_surfaces_visual_similarity_quality_summary(tmp_path):",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "test_execute_asset_forge_batch_remote_fallback_downloads_and_delivers": {
-      "definition": {
-        "file": "tests/test_asset_forge.py",
-        "line": 686,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 686,
-          "preview": "def test_execute_asset_forge_batch_remote_fallback_downloads_and_delivers(tmp_path):",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "test_execute_asset_forge_batch_rejects_duplicate_target_paths": {
-      "definition": {
-        "file": "tests/test_asset_forge.py",
-        "line": 745,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 745,
-          "preview": "def test_execute_asset_forge_batch_rejects_duplicate_target_paths(tmp_path):",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "test_asset_batch_reuses_identical_worktree_asset_from_version_sidecar": {
-      "definition": {
-        "file": "tests/test_asset_forge.py",
-        "line": 778,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 778,
-          "preview": "def test_asset_batch_reuses_identical_worktree_asset_from_version_sidecar(tmp_path):",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "test_asset_version_sidecar_increments_when_semantic_request_changes": {
-      "definition": {
-        "file": "tests/test_asset_forge.py",
-        "line": 846,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 846,
-          "preview": "def test_asset_version_sidecar_increments_when_semantic_request_changes(tmp_path):",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "make": {
-      "definition": {
-        "file": "tests/test_asset_forge.py",
-        "line": 867,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/task_capabilities.py",
-          "line": 74,
-          "preview": "r\"\\b(?:create|generate|produce|build|make|design|model|\"",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/validation.py",
-          "line": 58,
-          "preview": "f\"Port or recreate {len(reused_tests)} linked source test(s) and make them pass.\",",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 867,
-          "preview": "def make(instruction, rid):",
+          "preview": "def do_GET(self) -> None:",
           "definition_candidate": true
         },
         {
-          "file": "tests/test_asset_forge.py",
-          "line": 885,
-          "preview": "make(\"premium hero v1\", \"version-a\"),",
+          "file": "src/production_os/health_server.py",
+          "line": 11,
+          "preview": "def do_GET(self) -> None:",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "do_POST": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 812,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 812,
+          "preview": "def do_POST(self) -> None:",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 1
+    },
+    "serve_control_plane": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 1800,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 20,
+          "preview": "from .control_plane import serve_control_plane",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_asset_forge.py",
-          "line": 891,
-          "preview": "make(\"premium hero v2\", \"version-b\"),",
+          "file": "src/production_os/cli.py",
+          "line": 1758,
+          "preview": "serve_control_plane(",
           "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 5
-    },
-    "test_dedup_summary_reports_exact_and_near_duplicates_without_mutation": {
-      "definition": {
-        "file": "tests/test_asset_forge.py",
-        "line": 906,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
+        },
         {
-          "file": "tests/test_asset_forge.py",
-          "line": 906,
-          "preview": "def test_dedup_summary_reports_exact_and_near_duplicates_without_mutation():",
+          "file": "src/production_os/control_plane.py",
+          "line": 1800,
+          "preview": "def serve_control_plane(",
           "definition_candidate": true
         }
       ],
-      "occurrence_count": 1
-    },
-    "test_dedup_summary_ignores_parent_child_visual_similarity": {
-      "definition": {
-        "file": "tests/test_asset_forge.py",
-        "line": 946,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_asset_forge.py",
-          "line": 946,
-          "preview": "def test_dedup_summary_ignores_parent_child_visual_similarity():",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
+      "occurrence_count": 3
     }
   }
 }
