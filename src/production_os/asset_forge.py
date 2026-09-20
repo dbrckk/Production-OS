@@ -38,6 +38,7 @@ def build_asset_forge_request(
     asset_type: str,
     instruction: str,
     target_format: str,
+    importance: str = "primary",
     engine: str | None = None,
     output_dir: str | None = None,
     source_mode: str = "generated",
@@ -52,6 +53,7 @@ def build_asset_forge_request(
     instruction = str(instruction).strip()
     target_format = str(target_format).strip().lower()
     source_mode = str(source_mode).strip().lower()
+    importance = str(importance).strip().lower()
 
     required = {
         "request_id": request_id,
@@ -66,6 +68,8 @@ def build_asset_forge_request(
         raise ValueError("missing asset-forge request fields: " + ", ".join(missing))
     if source_mode not in {"generated", "external", "custom"}:
         raise ValueError("source_mode must be generated, external, or custom")
+    if importance not in {"primary", "secondary"}:
+        raise ValueError("importance must be primary or secondary")
 
     request: dict[str, Any] = {
         "schema": "asset-forge/production-request/v1",
@@ -76,6 +80,7 @@ def build_asset_forge_request(
             "id": asset_id,
             "project": project,
             "type": asset_type,
+            "importance": importance,
             "source": {
                 "mode": source_mode,
                 "uri": source_uri,
