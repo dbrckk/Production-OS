@@ -6877,6 +6877,8 @@ def test_dashboard_lists_per_asset_visual_quality_details()
 def test_dashboard_visual_quality_has_previews_and_history()
 ⋮----
 def test_dashboard_lists_semantic_art_score_per_asset()
+⋮----
+def test_dashboard_surfaces_asset_library_version_and_preference()
 ````
 
 ## File: tests/test_deep_fingerprint_starlist.py

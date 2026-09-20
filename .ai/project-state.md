@@ -22,16 +22,17 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-20T17:18:01Z
+Generated: 2026-09-20T17:18:48Z
 
 ### Git
 - Branch: `main`
-- Head: `97ed2b0c5aaf`
-- Commit date: 2026-09-20T19:17:47+02:00
-- Commit: feat: show preferred asset library version in dashboard
+- Head: `505288394d28`
+- Commit date: 2026-09-20T19:18:36+02:00
+- Commit: test: cover preferred asset library version in dashboard
 - Tracked files: 326
 
 ### Recently changed files
+- `tests/test_dashboard_launch.py`
 - `src/production_os/control_plane.py`
 - `tests/test_asset_forge.py`
 - `src/production_os/asset_forge.py`
