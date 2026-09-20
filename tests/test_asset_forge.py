@@ -5,7 +5,7 @@ import zipfile
 from pathlib import Path
 from unittest.mock import patch
 
-from production_os.asset_forge import build_asset_forge_request, dispatch_asset_forge, execute_asset_forge, execute_asset_forge_batch
+from production_os.asset_forge import _dedup_summary, build_asset_forge_request, dispatch_asset_forge, execute_asset_forge, execute_asset_forge_batch
 
 
 class FakeGitHub:
@@ -901,3 +901,68 @@ def test_asset_version_sidecar_increments_when_semantic_request_changes(tmp_path
     assert sidecar["version"] == 2
     assert len(sidecar["history"]) == 1
     assert sidecar["history"][0]["version"] == 1
+
+
+def test_dedup_summary_reports_exact_and_near_duplicates_without_mutation():
+    base_art = {
+        "metrics": {
+            "perceptualHash": "f0" * 32,
+            "averageRgb": [120, 80, 60],
+        }
+    }
+    near_art = {
+        "metrics": {
+            "perceptualHash": "f0" * 31 + "e0",
+            "averageRgb": [125, 82, 61],
+        }
+    }
+    produced = [
+        {
+            "batch_id": "a",
+            "depends_on": [],
+            "sha256": "a" * 64,
+            "technical_art": base_art,
+        },
+        {
+            "batch_id": "b",
+            "depends_on": [],
+            "sha256": "a" * 64,
+            "technical_art": base_art,
+        },
+        {
+            "batch_id": "c",
+            "depends_on": [],
+            "sha256": "c" * 64,
+            "technical_art": near_art,
+        },
+    ]
+    result = _dedup_summary(produced)
+    assert result["exact_count"] == 1
+    assert result["near_count"] >= 1
+    assert result["destructive_actions"] == 0
+    assert result["exact_duplicates"][0]["asset_ids"] == ["a", "b"]
+
+
+def test_dedup_summary_ignores_parent_child_visual_similarity():
+    art = {
+        "metrics": {
+            "perceptualHash": "aa" * 32,
+            "averageRgb": [100, 100, 100],
+        }
+    }
+    result = _dedup_summary([
+        {
+            "batch_id": "hero",
+            "depends_on": [],
+            "sha256": "1" * 64,
+            "technical_art": art,
+        },
+        {
+            "batch_id": "run",
+            "depends_on": ["hero"],
+            "sha256": "2" * 64,
+            "technical_art": art,
+        },
+    ])
+    assert result["exact_count"] == 0
+    assert result["near_count"] == 0
