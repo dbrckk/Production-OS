@@ -227,7 +227,7 @@ function escapeHtml(value){
 function githubAssetUrls(repository,path){
  const repo=String(repository||'').trim();
  const value=String(path||'').replace(/^\\/+/, '');
- if(!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repo)||!value||value.includes('..')){
+ if(!/^[A-Za-z0-9_.-]+\\/[A-Za-z0-9_.-]+$/.test(repo)||!value||value.includes('..')){
   return null;
  }
  const encoded=value.split('/').map(encodeURIComponent).join('/');
