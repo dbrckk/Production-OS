@@ -22,19 +22,18 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-20T11:57:18Z
+Generated: 2026-09-20T13:35:56Z
 
 ### Git
 - Branch: `main`
-- Head: `79598cc2d859`
-- Commit date: 2026-09-20T13:56:58+02:00
-- Commit: test: accept captured asset-forge subprocess output
+- Head: `deb2897e4b16`
+- Commit date: 2026-09-20T15:35:44+02:00
+- Commit: test: cover asset dependency graph ordering
 - Tracked files: 326
 
 ### Recently changed files
 - `tests/test_asset_forge.py`
 - `src/production_os/asset_forge.py`
-- `src/production_os/cli.py`
 
 ### Project signals
 - `pyproject.toml`

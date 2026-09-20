@@ -868,7 +868,7 @@ cmd = [
 ⋮----
 completed = subprocess.run(
 ⋮----
-detail = (completed.stderr or completed.stdout or "").strip()
+detail = (getattr(completed, "stderr", "") or getattr(completed, "stdout", "") or "").strip()
 suffix = f": {detail}" if detail else ""
 ⋮----
 report_path = destination / "production-report.json"
@@ -880,11 +880,44 @@ artifact = _validated_artifact(report, destination)
 delivery_mode = None
 delivered_to = None
 ⋮----
+def _batch_item_id(item: dict[str, Any], index: int) -> str
+⋮----
+explicit = str(item.get("id") or "").strip()
+request = item.get("request")
+request_id = str(request.get("requestId") or "").strip() if isinstance(request, dict) else ""
+value = explicit or request_id or f"item-{index + 1}"
+⋮----
+def _order_asset_batch(items: list[dict[str, Any]]) -> list[dict[str, Any]]
+⋮----
+indexed: dict[str, dict[str, Any]] = {}
+order_hint: list[str] = []
+⋮----
+item_id = _batch_item_id(item, index)
+⋮----
+copy = dict(item)
+⋮----
+indegree = {item_id: 0 for item_id in indexed}
+dependents: dict[str, list[str]] = {item_id: [] for item_id in indexed}
+⋮----
+raw = item.get("depends_on") or []
+⋮----
+raw = [raw]
+⋮----
+dependencies = []
+⋮----
+dep_id = str(dep).strip()
+⋮----
+ready = [item_id for item_id in order_hint if indegree[item_id] == 0]
+sorted_ids: list[str] = []
+⋮----
+current = ready.pop(0)
+⋮----
+blocked = [item_id for item_id in order_hint if indegree[item_id] > 0]
+⋮----
 root = Path(output_root)
 ⋮----
 produced: list[dict[str, Any]] = []
-⋮----
-request = item.get("request")
+ordered_items = _order_asset_batch(items)
 ⋮----
 target_path = str(item.get("target_path") or "").strip()
 ⋮----
@@ -6054,6 +6087,21 @@ asset_id = request["manifest"]["id"]
 artifact = output / f"{asset_id}.svg"
 ⋮----
 commits = [call for call in fake.calls if "files" in call]
+⋮----
+def test_execute_asset_forge_batch_respects_dependency_order(tmp_path)
+⋮----
+items = []
+chain = [
+⋮----
+seen = []
+⋮----
+def test_execute_asset_forge_batch_rejects_dependency_cycles(tmp_path)
+⋮----
+items = [
+⋮----
+def test_execute_asset_forge_batch_rejects_unknown_dependency(tmp_path)
+⋮----
+item = {
 ````
 
 ## File: tests/test_asymmetric_attestations.py

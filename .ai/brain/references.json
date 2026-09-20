@@ -33,13 +33,13 @@
         },
         {
           "file": "src/production_os/asset_forge.py",
-          "line": 428,
+          "line": 498,
           "preview": ") -> AssetForgeDispatch:",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/asset_forge.py",
-          "line": 448,
+          "line": 518,
           "preview": "return AssetForgeDispatch(",
           "definition_candidate": false
         }
@@ -820,9 +820,33 @@
           "line": 343,
           "preview": "\"request\": build_asset_forge_request(",
           "definition_candidate": false
+        },
+        {
+          "file": "tests/test_asset_forge.py",
+          "line": 404,
+          "preview": "\"request\": build_asset_forge_request(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_asset_forge.py",
+          "line": 453,
+          "preview": "\"request\": build_asset_forge_request(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_asset_forge.py",
+          "line": 466,
+          "preview": "\"request\": build_asset_forge_request(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_asset_forge.py",
+          "line": 496,
+          "preview": "\"request\": build_asset_forge_request(",
+          "definition_candidate": false
         }
       ],
-      "occurrence_count": 15
+      "occurrence_count": 19
     },
     "_validated_artifact": {
       "definition": {
@@ -846,7 +870,7 @@
         },
         {
           "file": "src/production_os/asset_forge.py",
-          "line": 337,
+          "line": 402,
           "preview": "artifact = _validated_artifact(report, out)",
           "definition_candidate": false
         }
@@ -892,7 +916,7 @@
         },
         {
           "file": "src/production_os/asset_forge.py",
-          "line": 320,
+          "line": 385,
           "preview": "receipt = execute_asset_forge(",
           "definition_candidate": false
         },
@@ -941,7 +965,7 @@
       ],
       "occurrence_count": 9
     },
-    "execute_asset_forge_batch": {
+    "_batch_item_id": {
       "definition": {
         "file": "src/production_os/asset_forge.py",
         "line": 288,
@@ -952,6 +976,52 @@
         {
           "file": "src/production_os/asset_forge.py",
           "line": 288,
+          "preview": "def _batch_item_id(item: dict[str, Any], index: int) -> str:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 304,
+          "preview": "item_id = _batch_item_id(item, index)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "_order_asset_batch": {
+      "definition": {
+        "file": "src/production_os/asset_forge.py",
+        "line": 298,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 298,
+          "preview": "def _order_asset_batch(items: list[dict[str, Any]]) -> list[dict[str, Any]]:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 372,
+          "preview": "ordered_items = _order_asset_batch(items)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "execute_asset_forge_batch": {
+      "definition": {
+        "file": "src/production_os/asset_forge.py",
+        "line": 354,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 354,
           "preview": "def execute_asset_forge_batch(",
           "definition_candidate": true
         },
@@ -990,14 +1060,32 @@
           "line": 375,
           "preview": "result = execute_asset_forge_batch(",
           "definition_candidate": false
+        },
+        {
+          "file": "tests/test_asset_forge.py",
+          "line": 436,
+          "preview": "result = execute_asset_forge_batch(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_asset_forge.py",
+          "line": 480,
+          "preview": "execute_asset_forge_batch(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_asset_forge.py",
+          "line": 509,
+          "preview": "execute_asset_forge_batch(",
+          "definition_candidate": false
         }
       ],
-      "occurrence_count": 7
+      "occurrence_count": 10
     },
     "dispatch_asset_forge": {
       "definition": {
         "file": "src/production_os/asset_forge.py",
-        "line": 419,
+        "line": 489,
         "kind": "function",
         "language": "python"
       },
@@ -1010,7 +1098,7 @@
         },
         {
           "file": "src/production_os/asset_forge.py",
-          "line": 419,
+          "line": 489,
           "preview": "def dispatch_asset_forge(",
           "definition_candidate": true
         },
@@ -1403,7 +1491,7 @@
       "occurrences": [
         {
           "file": "src/production_os/asset_forge.py",
-          "line": 442,
+          "line": 512,
           "preview": "(client or GitHubClient()).dispatch_workflow(",
           "definition_candidate": false
         },
@@ -1473,7 +1561,7 @@
       "occurrences": [
         {
           "file": "src/production_os/asset_forge.py",
-          "line": 388,
+          "line": 455,
           "preview": "result = gh.commit_files(",
           "definition_candidate": false
         },
@@ -1622,9 +1710,21 @@
           "line": 373,
           "preview": "\"production_os.asset_forge.subprocess.run\", side_effect=fake_run",
           "definition_candidate": false
+        },
+        {
+          "file": "tests/test_asset_forge.py",
+          "line": 416,
+          "preview": "def fake_run(cmd, check=False, **kwargs):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_asset_forge.py",
+          "line": 434,
+          "preview": "\"production_os.asset_forge.subprocess.run\", side_effect=fake_run",
+          "definition_candidate": false
         }
       ],
-      "occurrence_count": 12
+      "occurrence_count": 14
     },
     "Result": {
       "definition": {
@@ -1707,6 +1807,18 @@
           "definition_candidate": false
         },
         {
+          "file": "tests/test_asset_forge.py",
+          "line": 429,
+          "preview": "class Result:",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_asset_forge.py",
+          "line": 431,
+          "preview": "return Result()",
+          "definition_candidate": false
+        },
+        {
           "file": "tests/test_trust_status_summary.py",
           "line": 30,
           "preview": "class Result:",
@@ -1731,7 +1843,7 @@
           "definition_candidate": false
         }
       ],
-      "occurrence_count": 16
+      "occurrence_count": 18
     },
     "test_execute_asset_forge_auto_falls_back_to_github": {
       "definition": {
@@ -1853,6 +1965,57 @@
           "file": "tests/test_asset_forge.py",
           "line": 338,
           "preview": "def test_execute_asset_forge_batch_uses_single_github_commit(tmp_path):",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 1
+    },
+    "test_execute_asset_forge_batch_respects_dependency_order": {
+      "definition": {
+        "file": "tests/test_asset_forge.py",
+        "line": 390,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "tests/test_asset_forge.py",
+          "line": 390,
+          "preview": "def test_execute_asset_forge_batch_respects_dependency_order(tmp_path):",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 1
+    },
+    "test_execute_asset_forge_batch_rejects_dependency_cycles": {
+      "definition": {
+        "file": "tests/test_asset_forge.py",
+        "line": 448,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "tests/test_asset_forge.py",
+          "line": 448,
+          "preview": "def test_execute_asset_forge_batch_rejects_dependency_cycles(tmp_path):",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 1
+    },
+    "test_execute_asset_forge_batch_rejects_unknown_dependency": {
+      "definition": {
+        "file": "tests/test_asset_forge.py",
+        "line": 492,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "tests/test_asset_forge.py",
+          "line": 492,
+          "preview": "def test_execute_asset_forge_batch_rejects_unknown_dependency(tmp_path):",
           "definition_candidate": true
         }
       ],
