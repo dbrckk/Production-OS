@@ -931,6 +931,8 @@ request_id = str(request.get("requestId") or f"item-{index+1}")
 out = root / request_id
 ⋮----
 raster_reference_suffixes = {".png", ".webp", ".jpg", ".jpeg"}
+visual_reference_paths = []
+⋮----
 visual_reference_paths = [
 ⋮----
 receipt = execute_asset_forge(

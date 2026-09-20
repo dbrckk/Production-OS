@@ -22,18 +22,18 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-20T13:52:56Z
+Generated: 2026-09-20T13:53:30Z
 
 ### Git
 - Branch: `main`
-- Head: `699a819acecd`
-- Commit date: 2026-09-20T15:52:44+02:00
-- Commit: test: verify dependent raster receives parent reference
+- Head: `5950eb87793a`
+- Commit date: 2026-09-20T15:53:21+02:00
+- Commit: fix: avoid reference generation for provided-source assets
 - Tracked files: 326
 
 ### Recently changed files
-- `tests/test_asset_forge.py`
 - `src/production_os/asset_forge.py`
+- `tests/test_asset_forge.py`
 
 ### Project signals
 - `pyproject.toml`
