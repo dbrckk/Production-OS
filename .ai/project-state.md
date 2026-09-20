@@ -22,19 +22,19 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-20T15:10:34Z
+Generated: 2026-09-20T15:59:57Z
 
 ### Git
 - Branch: `main`
-- Head: `a98356bcdf84`
-- Commit date: 2026-09-20T17:10:14+02:00
-- Commit: test: scope dashboard visual quality to selected repo
+- Head: `7e65d4cca93b`
+- Commit date: 2026-09-20T17:59:48+02:00
+- Commit: feat: retrieve correlated workflow artifacts securely
 - Tracked files: 326
 
 ### Recently changed files
+- `src/production_os/github_client.py`
 - `tests/test_dashboard_launch.py`
 - `src/production_os/control_plane.py`
-- `tests/test_cli.py`
 
 ### Project signals
 - `pyproject.toml`

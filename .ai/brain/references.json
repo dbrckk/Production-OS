@@ -5,219 +5,470 @@
   "semantic": false,
   "note": "Occurrences are lexical word matches; verify source/LSP/compiler data before relying on them.",
   "symbols": {
-    "ControlPlane": {
+    "GitHubAPIError": {
       "definition": {
-        "file": "src/production_os/control_plane.py",
-        "line": 25,
+        "file": "src/production_os/github_client.py",
+        "line": 16,
         "kind": "class",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "src/production_os/control_plane.py",
-          "line": 25,
-          "preview": "class ControlPlane:",
+          "file": "src/production_os/cli.py",
+          "line": 28,
+          "preview": "from .github_client import GitHubAPIError, GitHubClient",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 872,
+          "preview": "except GitHubAPIError as exc:",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 880,
+          "preview": "except GitHubAPIError as exc:",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 901,
+          "preview": "except GitHubAPIError as exc:",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 16,
+          "preview": "class GitHubAPIError(RuntimeError):",
           "definition_candidate": true
         },
         {
-          "file": "src/production_os/control_plane.py",
-          "line": 340,
-          "preview": "def make_handler(control: ControlPlane):",
+          "file": "src/production_os/github_client.py",
+          "line": 42,
+          "preview": "raise GitHubAPIError(f\"GitHub API {exc.code}: {body}\") from exc",
           "definition_candidate": false
         },
         {
-          "file": "src/production_os/control_plane.py",
-          "line": 1753,
-          "preview": "control = ControlPlane(",
+          "file": "src/production_os/github_client.py",
+          "line": 44,
+          "preview": "raise GitHubAPIError(f\"GitHub API unavailable: {exc}\") from exc",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_control_plane.py",
-          "line": 8,
-          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "file": "src/production_os/github_client.py",
+          "line": 68,
+          "preview": "raise GitHubAPIError(f\"GitHub API {exc.code}: {body}\") from exc",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_control_plane.py",
-          "line": 32,
-          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
+          "file": "src/production_os/github_client.py",
+          "line": 70,
+          "preview": "raise GitHubAPIError(f\"GitHub API unavailable: {exc}\") from exc",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_control_plane.py",
-          "line": 80,
-          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
+          "file": "src/production_os/github_client.py",
+          "line": 81,
+          "preview": "raise GitHubAPIError(\"GITHUB_TOKEN is required to write repository contents\")",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_control_plane.py",
-          "line": 134,
-          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
+          "file": "src/production_os/github_client.py",
+          "line": 90,
+          "preview": "raise GitHubAPIError(\"GitHub branch ref has no commit sha\")",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_control_plane.py",
-          "line": 183,
-          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
+          "file": "src/production_os/github_client.py",
+          "line": 94,
+          "preview": "raise GitHubAPIError(\"GitHub base commit has no tree sha\")",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_control_plane.py",
-          "line": 272,
-          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
+          "file": "src/production_os/github_client.py",
+          "line": 115,
+          "preview": "raise GitHubAPIError(\"GitHub blob creation returned no sha\")",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_control_plane.py",
-          "line": 315,
-          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
+          "file": "src/production_os/github_client.py",
+          "line": 130,
+          "preview": "raise GitHubAPIError(\"GitHub tree creation returned no sha\")",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_control_plane.py",
-          "line": 358,
-          "preview": "control=ControlPlane(",
+          "file": "src/production_os/github_client.py",
+          "line": 143,
+          "preview": "raise GitHubAPIError(\"GitHub commit creation returned no sha\")",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_control_plane.py",
-          "line": 390,
-          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
+          "file": "src/production_os/github_client.py",
+          "line": 167,
+          "preview": "raise GitHubAPIError(\"GITHUB_TOKEN is required to write repository contents\")",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_control_plane_pr_impact.py",
-          "line": 8,
-          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "file": "src/production_os/github_client.py",
+          "line": 178,
+          "preview": "except GitHubAPIError as exc:",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_control_plane_pr_impact.py",
-          "line": 37,
-          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
+          "file": "src/production_os/github_client.py",
+          "line": 194,
+          "preview": "raise GitHubAPIError(\"GitHub contents write returned invalid response\")",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_control_plane_release.py",
-          "line": 8,
-          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "file": "src/production_os/github_client.py",
+          "line": 207,
+          "preview": "raise GitHubAPIError(\"GITHUB_TOKEN is required to dispatch a workflow\")",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_control_plane_release.py",
-          "line": 43,
-          "preview": "control=ControlPlane(",
+          "file": "src/production_os/github_client.py",
+          "line": 254,
+          "preview": "raise GitHubAPIError(",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_control_plane_webhook.py",
-          "line": 11,
-          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "file": "src/production_os/github_client.py",
+          "line": 277,
+          "preview": "raise GitHubAPIError(\"GITHUB_TOKEN is required to download workflow artifacts\")",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_control_plane_webhook.py",
-          "line": 48,
-          "preview": "control=ControlPlane(",
+          "file": "src/production_os/github_client.py",
+          "line": 305,
+          "preview": "raise GitHubAPIError(",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_control_plane_webhook.py",
-          "line": 145,
-          "preview": "control=ControlPlane(",
+          "file": "src/production_os/github_client.py",
+          "line": 309,
+          "preview": "raise GitHubAPIError(",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_control_plane_webhook.py",
-          "line": 190,
-          "preview": "control=ControlPlane(",
+          "file": "src/production_os/github_client.py",
+          "line": 313,
+          "preview": "raise GitHubAPIError(\"GitHub workflow artifact exceeds download limit\")",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_http_security_headers.py",
-          "line": 7,
-          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "file": "src/production_os/github_client.py",
+          "line": 326,
+          "preview": "except GitHubAPIError as exc:",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_http_security_headers.py",
-          "line": 19,
-          "preview": "control = ControlPlane(",
+          "file": "src/production_os/github_client.py",
+          "line": 335,
+          "preview": "except GitHubAPIError:",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_portfolio_claim_api.py",
-          "line": 7,
-          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "file": "src/production_os/github_client.py",
+          "line": 342,
+          "preview": "except GitHubAPIError:",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_portfolio_claim_api.py",
-          "line": 31,
-          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
+          "file": "src/production_os/github_client.py",
+          "line": 349,
+          "preview": "except GitHubAPIError:",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_production_stack_e2e.py",
-          "line": 17,
-          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "file": "src/production_os/github_client.py",
+          "line": 373,
+          "preview": "raise GitHubAPIError(",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_production_stack_e2e.py",
-          "line": 92,
-          "preview": "control = ControlPlane(",
+          "file": "src/production_os/github_client.py",
+          "line": 392,
+          "preview": "except GitHubAPIError:",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_remote_worker.py",
-          "line": 7,
-          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "file": "src/production_os/github_client.py",
+          "line": 420,
+          "preview": "except GitHubAPIError as exc:",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_remote_worker.py",
-          "line": 16,
-          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
+          "file": "src/production_os/github_client.py",
+          "line": 430,
+          "preview": "except GitHubAPIError as exc:",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_remote_worker.py",
-          "line": 46,
-          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
+          "file": "src/production_os/github_client.py",
+          "line": 458,
+          "preview": "except GitHubAPIError:",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_speculation_api.py",
-          "line": 7,
-          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "file": "src/production_os/github_client.py",
+          "line": 468,
+          "preview": "except GitHubAPIError:",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_speculation_api.py",
-          "line": 31,
-          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
+          "file": "src/production_os/github_work_state.py",
+          "line": 6,
+          "preview": "from .github_client import GitHubAPIError, GitHubClient",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_workflow_api.py",
-          "line": 7,
-          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "file": "tests/test_github_client_pr_files.py",
+          "line": 1,
+          "preview": "from production_os.github_client import GitHubAPIError, GitHubClient",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_workflow_api.py",
-          "line": 31,
-          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
+          "file": "tests/test_github_client_pr_files.py",
+          "line": 52,
+          "preview": "GitHubAPIError(\"GitHub API unavailable\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_github_client_pr_files.py",
+          "line": 57,
+          "preview": "except GitHubAPIError:",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_github_client_pr_files.py",
+          "line": 60,
+          "preview": "raise AssertionError(\"expected GitHubAPIError\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_github_client_pr_files.py",
+          "line": 68,
+          "preview": "except GitHubAPIError as exc:",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_github_client_pr_files.py",
+          "line": 71,
+          "preview": "raise AssertionError(\"expected GitHubAPIError\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_github_client_put_file.py",
+          "line": 12,
+          "preview": "from production_os.github_client import GitHubAPIError",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_github_client_put_file.py",
+          "line": 13,
+          "preview": "raise GitHubAPIError(\"GitHub API 404: not found\")",
           "definition_candidate": false
         }
       ],
-      "occurrence_count": 33
+      "occurrence_count": 43
+    },
+    "GitHubClient": {
+      "definition": {
+        "file": "src/production_os/github_client.py",
+        "line": 20,
+        "kind": "class",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 12,
+          "preview": "from .github_client import GitHubClient",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 150,
+          "preview": "client: GitHubClient | None,",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 168,
+          "preview": "gh = client or GitHubClient()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 192,
+          "preview": "client: GitHubClient | None = None,",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 368,
+          "preview": "client: GitHubClient | None = None,",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 495,
+          "preview": "gh = client or GitHubClient()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 559,
+          "preview": "client: GitHubClient | None = None,",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 579,
+          "preview": "(client or GitHubClient()).dispatch_workflow(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 28,
+          "preview": "from .github_client import GitHubAPIError, GitHubClient",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 869,
+          "preview": "client = GitHubClient()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1287,
+          "preview": "client = GitHubClient()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1992,
+          "preview": "client = GitHubClient()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2030,
+          "preview": "changed_paths = GitHubClient().list_pull_request_files(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 14,
+          "preview": "from .github_client import GitHubClient",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 862,
+          "preview": "GitHubClient().list_pull_request_files(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1023,
+          "preview": "changed_paths = GitHubClient().list_pull_request_files(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1116,
+          "preview": "changed_paths = GitHubClient().list_pull_request_files(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/controller.py",
+          "line": 14,
+          "preview": "from .github_client import GitHubClient",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/controller.py",
+          "line": 103,
+          "preview": "client: GitHubClient,",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/controller.py",
+          "line": 243,
+          "preview": "client = GitHubClient()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 20,
+          "preview": "class GitHubClient:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/github_work_state.py",
+          "line": 6,
+          "preview": "from .github_client import GitHubAPIError, GitHubClient",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_work_state.py",
+          "line": 65,
+          "preview": "client: GitHubClient,",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane_pr_impact.py",
+          "line": 32,
+          "preview": "monkeypatch.setattr(control_plane, \"GitHubClient\", FakeGitHubClient)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane_webhook.py",
+          "line": 46,
+          "preview": "monkeypatch.setattr(control_plane, \"GitHubClient\", FakeGitHubClient)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane_webhook.py",
+          "line": 188,
+          "preview": "monkeypatch.setattr(control_plane, \"GitHubClient\", FakeGitHubClient)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_github_client_pr_files.py",
+          "line": 1,
+          "preview": "from production_os.github_client import GitHubAPIError, GitHubClient",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_github_client_pr_files.py",
+          "line": 4,
+          "preview": "class FakeGitHubClient(GitHubClient):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_github_client_put_file.py",
+          "line": 1,
+          "preview": "from production_os.github_client import GitHubClient",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_github_client_put_file.py",
+          "line": 4,
+          "preview": "class FakeWriteClient(GitHubClient):",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 30
     },
     "__init__": {
       "definition": {
-        "file": "src/production_os/control_plane.py",
-        "line": 26,
+        "file": "src/production_os/github_client.py",
+        "line": 23,
         "kind": "function",
         "language": "python"
       },
@@ -256,7 +507,7 @@
           "file": "src/production_os/control_plane.py",
           "line": 26,
           "preview": "def __init__(",
-          "definition_candidate": true
+          "definition_candidate": false
         },
         {
           "file": "src/production_os/execution_optimizer.py",
@@ -266,9 +517,9 @@
         },
         {
           "file": "src/production_os/github_client.py",
-          "line": 22,
+          "line": 23,
           "preview": "def __init__(self, token: str | None = None, timeout: float = 20.0):",
-          "definition_candidate": false
+          "definition_candidate": true
         },
         {
           "file": "src/production_os/github_webhook.py",
@@ -537,1224 +788,904 @@
       ],
       "occurrence_count": 52
     },
-    "_json_bytes": {
+    "_get": {
       "definition": {
-        "file": "src/production_os/control_plane.py",
-        "line": 77,
+        "file": "src/production_os/github_client.py",
+        "line": 27,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "src/production_os/control_plane.py",
-          "line": 77,
-          "preview": "def _json_bytes(payload: dict | list) -> bytes:",
+          "file": "src/production_os/github_client.py",
+          "line": 27,
+          "preview": "def _get(self, path: str) -> Any:",
           "definition_candidate": true
         },
         {
-          "file": "src/production_os/control_plane.py",
-          "line": 372,
-          "preview": "body = _json_bytes(payload)",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 2
-    },
-    "RequestBodyTooLarge": {
-      "definition": {
-        "file": "src/production_os/control_plane.py",
-        "line": 336,
-        "kind": "class",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 336,
-          "preview": "class RequestBodyTooLarge(ValueError):",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 416,
-          "preview": "raise RequestBodyTooLarge(\"request body too large\")",
+          "file": "src/production_os/github_client.py",
+          "line": 85,
+          "preview": "ref = self._get(",
           "definition_candidate": false
         },
         {
-          "file": "src/production_os/control_plane.py",
-          "line": 756,
-          "preview": "except RequestBodyTooLarge as exc:",
+          "file": "src/production_os/github_client.py",
+          "line": 91,
+          "preview": "base_commit = self._get(f\"/repos/{full_name}/git/commits/{base_commit_sha}\")",
           "definition_candidate": false
         },
         {
-          "file": "src/production_os/control_plane.py",
-          "line": 933,
-          "preview": "except RequestBodyTooLarge as exc:",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 4
-    },
-    "make_handler": {
-      "definition": {
-        "file": "src/production_os/control_plane.py",
-        "line": 340,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 340,
-          "preview": "def make_handler(control: ControlPlane):",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1765,
-          "preview": "make_handler(control),",
+          "file": "src/production_os/github_client.py",
+          "line": 175,
+          "preview": "existing = self._get(",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_control_plane.py",
-          "line": 8,
-          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "file": "src/production_os/github_client.py",
+          "line": 227,
+          "preview": "payload = self._get(",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_control_plane.py",
-          "line": 33,
-          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
+          "file": "src/production_os/github_client.py",
+          "line": 263,
+          "preview": "payload = self._get(",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_control_plane.py",
-          "line": 96,
-          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
+          "file": "src/production_os/github_client.py",
+          "line": 323,
+          "preview": "payload = self._get(",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_control_plane.py",
-          "line": 143,
-          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
+          "file": "src/production_os/github_client.py",
+          "line": 334,
+          "preview": "payload = self._get(f\"/repos/{full_name}/issues/{issue_number}\")",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_control_plane.py",
-          "line": 195,
-          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_control_plane.py",
-          "line": 275,
-          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_control_plane.py",
-          "line": 316,
-          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_control_plane.py",
-          "line": 362,
-          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_control_plane.py",
-          "line": 391,
-          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_control_plane_pr_impact.py",
-          "line": 8,
-          "preview": "from production_os.control_plane import ControlPlane, make_handler",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_control_plane_pr_impact.py",
-          "line": 67,
-          "preview": "make_handler(control),",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_control_plane_release.py",
-          "line": 8,
-          "preview": "from production_os.control_plane import ControlPlane, make_handler",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_control_plane_release.py",
-          "line": 80,
-          "preview": "make_handler(control),",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_control_plane_webhook.py",
-          "line": 11,
-          "preview": "from production_os.control_plane import ControlPlane, make_handler",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_control_plane_webhook.py",
-          "line": 87,
-          "preview": "make_handler(control),",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_control_plane_webhook.py",
-          "line": 152,
-          "preview": "make_handler(control),",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_control_plane_webhook.py",
-          "line": 215,
-          "preview": "make_handler(control),",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_http_security_headers.py",
-          "line": 7,
-          "preview": "from production_os.control_plane import ControlPlane, make_handler",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_http_security_headers.py",
-          "line": 25,
-          "preview": "make_handler(control),",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_portfolio_claim_api.py",
-          "line": 7,
-          "preview": "from production_os.control_plane import ControlPlane, make_handler",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_portfolio_claim_api.py",
-          "line": 71,
-          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_production_stack_e2e.py",
-          "line": 17,
-          "preview": "from production_os.control_plane import ControlPlane, make_handler",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_production_stack_e2e.py",
-          "line": 98,
-          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_remote_worker.py",
-          "line": 7,
-          "preview": "from production_os.control_plane import ControlPlane, make_handler",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_remote_worker.py",
-          "line": 23,
-          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_remote_worker.py",
-          "line": 70,
-          "preview": "make_handler(control),",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_speculation_api.py",
-          "line": 7,
-          "preview": "from production_os.control_plane import ControlPlane, make_handler",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_speculation_api.py",
-          "line": 49,
-          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_workflow_api.py",
-          "line": 7,
-          "preview": "from production_os.control_plane import ControlPlane, make_handler",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_workflow_api.py",
-          "line": 34,
-          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 32
-    },
-    "Handler": {
-      "definition": {
-        "file": "src/production_os/control_plane.py",
-        "line": 341,
-        "kind": "class",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/control_plane.py",
+          "file": "src/production_os/github_client.py",
           "line": 341,
-          "preview": "class Handler(BaseHTTPRequestHandler):",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1729,
-          "preview": "return Handler",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 2
-    },
-    "version_string": {
-      "definition": {
-        "file": "src/production_os/control_plane.py",
-        "line": 344,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 344,
-          "preview": "def version_string(self) -> str:",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "log_message": {
-      "definition": {
-        "file": "src/production_os/control_plane.py",
-        "line": 347,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 347,
-          "preview": "def log_message(self, format: str, *args) -> None:",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/health_server.py",
-          "line": 35,
-          "preview": "def log_message(self, format: str, *args) -> None:",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 2
-    },
-    "_send_html": {
-      "definition": {
-        "file": "src/production_os/control_plane.py",
-        "line": 350,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 350,
-          "preview": "def _send_html(self, status: int, html: str) -> None:",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 465,
-          "preview": "self._send_html(HTTPStatus.OK, DASHBOARD_HTML)",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 2
-    },
-    "_send": {
-      "definition": {
-        "file": "src/production_os/control_plane.py",
-        "line": 365,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 365,
-          "preview": "def _send(",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 390,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 445,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 451,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 469,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 493,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 508,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 530,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 554,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 559,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 572,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 577,
-          "preview": "self._send(HTTPStatus.OK, {\"job\":job})",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 587,
-          "preview": "self._send(HTTPStatus.OK, payload)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 592,
-          "preview": "self._send(HTTPStatus.OK, payload)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 595,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 607,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 613,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 620,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 635,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 655,
-          "preview": "self._send(HTTPStatus.OK, report)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 665,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 676,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 703,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 708,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 717,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 722,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 731,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 742,
-          "preview": "self._send(HTTPStatus.NOT_FOUND, {\"error\":\"not found\"})",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 749,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 757,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 763,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 774,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 795,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 809,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 816,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 827,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 906,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 934,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 940,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 991,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1011,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1040,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1071,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1090,
-          "preview": "self._send(HTTPStatus.OK, {\"jobs\":jobs})",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1103,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1124,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1139,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1172,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1178,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1205,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1220,
-          "preview": "self._send(HTTPStatus.OK, {\"worker\":worker.to_dict()})",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1254,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1270,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1285,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1294,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1305,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1337,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1348,
-          "preview": "self._send(HTTPStatus.CREATED, {\"job\":job})",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1380,
-          "preview": "self._send(HTTPStatus.NO_CONTENT, {})",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1418,
-          "preview": "self._send(HTTPStatus.NO_CONTENT, {})",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1429,
-          "preview": "self._send(HTTPStatus.NO_CONTENT, {})",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1432,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1457,
-          "preview": "self._send(",
+          "preview": "payload = self._get(f\"/repos/{full_name}/pulls/{pr_number}\")",
           "definition_candidate": false
         },
         {
-          "file": "src/production_os/control_plane.py",
-          "line": 1469,
-          "preview": "self._send(HTTPStatus.OK, {\"job\":job})",
+          "file": "src/production_os/github_client.py",
+          "line": 348,
+          "preview": "payload = self._get(f\"/repos/{full_name}/pulls/{pr_number}/reviews\")",
           "definition_candidate": false
         },
         {
-          "file": "src/production_os/control_plane.py",
-          "line": 1515,
-          "preview": "self._send(",
+          "file": "src/production_os/github_client.py",
+          "line": 368,
+          "preview": "payload = self._get(",
           "definition_candidate": false
         },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1535,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1567,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1601,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1626,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1662,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1691,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1711,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1717,
-          "preview": "self._send(HTTPStatus.NOT_FOUND, {\"error\":\"not found\"})",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1719,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1724,
-          "preview": "self._send(",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 75
-    },
-    "_method_not_allowed": {
-      "definition": {
-        "file": "src/production_os/control_plane.py",
-        "line": 389,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
         {
-          "file": "src/production_os/control_plane.py",
+          "file": "src/production_os/github_client.py",
           "line": 389,
-          "preview": "def _method_not_allowed(self) -> None:",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 397,
-          "preview": "self._method_not_allowed()",
+          "preview": "payload = self._get(",
           "definition_candidate": false
         },
         {
-          "file": "src/production_os/control_plane.py",
-          "line": 400,
-          "preview": "self._method_not_allowed()",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
+          "file": "src/production_os/github_client.py",
           "line": 403,
-          "preview": "self._method_not_allowed()",
+          "preview": "payload = self._get(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 419,
+          "preview": "payload = self._get(f\"/repos/{full_name}/contents{suffix}\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 429,
+          "preview": "payload = self._get(f\"/repos/{full_name}/contents/{encoded_path}\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 454,
+          "preview": "payload = self._get(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 465,
+          "preview": "payload = self._get(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_github_client_pr_files.py",
+          "line": 10,
+          "preview": "def _get(self, path):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_github_client_put_file.py",
+          "line": 10,
+          "preview": "def _get(self, path):",
           "definition_candidate": false
         }
       ],
-      "occurrence_count": 4
+      "occurrence_count": 19
     },
-    "do_PUT": {
+    "_request": {
       "definition": {
-        "file": "src/production_os/control_plane.py",
-        "line": 396,
+        "file": "src/production_os/github_client.py",
+        "line": 46,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "src/production_os/control_plane.py",
+          "file": "src/production_os/github_client.py",
+          "line": 46,
+          "preview": "def _request(self, method: str, path: str, payload: dict[str, Any] | None = None) -> Any:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 105,
+          "preview": "blob = self._request(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 123,
+          "preview": "created_tree = self._request(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 132,
+          "preview": "created_commit = self._request(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 145,
+          "preview": "self._request(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 188,
+          "preview": "result = self._request(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 209,
+          "preview": "self._request(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/remote_worker.py",
+          "line": 35,
+          "preview": "def _request(self, path: str, payload: dict | None = None) -> tuple[int, dict]:",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/remote_worker.py",
+          "line": 74,
+          "preview": "_, result = self._request(\"/v1/workers/heartbeat\", payload)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/remote_worker.py",
+          "line": 84,
+          "preview": "status, result = self._request(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/remote_worker.py",
+          "line": 98,
+          "preview": "_, result = self._request(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/remote_worker.py",
+          "line": 109,
+          "preview": "_, result = self._request(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/remote_worker.py",
+          "line": 126,
+          "preview": "_, result = self._request(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/remote_worker.py",
+          "line": 149,
+          "preview": "_, result = self._request(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_github_client_put_file.py",
+          "line": 16,
+          "preview": "def _request(self, method, path, payload=None):",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 15
+    },
+    "commit_files": {
+      "definition": {
+        "file": "src/production_os/github_client.py",
+        "line": 72,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 500,
+          "preview": "result = gh.commit_files(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 72,
+          "preview": "def commit_files(",
+          "definition_candidate": true
+        },
+        {
+          "file": "tests/test_asset_forge.py",
+          "line": 29,
+          "preview": "def commit_files(self, repository, files, *, message, branch):",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 3
+    },
+    "put_file": {
+      "definition": {
+        "file": "src/production_os/github_client.py",
+        "line": 157,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 169,
+          "preview": "gh.put_file(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 157,
+          "preview": "def put_file(",
+          "definition_candidate": true
+        },
+        {
+          "file": "tests/test_asset_forge.py",
+          "line": 19,
+          "preview": "def put_file(self, repository, path, content, *, message, branch):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_github_client_put_file.py",
+          "line": 23,
+          "preview": "result = client.put_file(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_github_client_put_file.py",
+          "line": 42,
+          "preview": "client.put_file(",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 5
+    },
+    "dispatch_workflow": {
+      "definition": {
+        "file": "src/production_os/github_client.py",
+        "line": 198,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/asset_forge.py",
+          "line": 579,
+          "preview": "(client or GitHubClient()).dispatch_workflow(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 198,
+          "preview": "def dispatch_workflow(",
+          "definition_candidate": true
+        },
+        {
+          "file": "tests/test_asset_forge.py",
+          "line": 11,
+          "preview": "def dispatch_workflow(self, repository, workflow, *, ref, inputs):",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 3
+    },
+    "workflow_runs": {
+      "definition": {
+        "file": "src/production_os/github_client.py",
+        "line": 218,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 218,
+          "preview": "def workflow_runs(",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 231,
+          "preview": "runs = payload.get(\"workflow_runs\", []) if isinstance(payload, dict) else []",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 247,
+          "preview": "for run in self.workflow_runs(full_name, workflow):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_client.py",
           "line": 396,
-          "preview": "def do_PUT(self) -> None:",
+          "preview": "runs = payload.get(\"workflow_runs\", [])",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 460,
+          "preview": "runs = payload.get(\"workflow_runs\", []) if isinstance(payload, dict) else []",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 5
+    },
+    "wait_for_workflow_run": {
+      "definition": {
+        "file": "src/production_os/github_client.py",
+        "line": 234,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 234,
+          "preview": "def wait_for_workflow_run(",
           "definition_candidate": true
         }
       ],
       "occurrence_count": 1
     },
-    "do_PATCH": {
+    "workflow_run_artifacts": {
       "definition": {
-        "file": "src/production_os/control_plane.py",
+        "file": "src/production_os/github_client.py",
+        "line": 258,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 258,
+          "preview": "def workflow_run_artifacts(",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 1
+    },
+    "download_workflow_artifact": {
+      "definition": {
+        "file": "src/production_os/github_client.py",
+        "line": 269,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 269,
+          "preview": "def download_workflow_artifact(",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 1
+    },
+    "StripCredentialRedirect": {
+      "definition": {
+        "file": "src/production_os/github_client.py",
+        "line": 288,
+        "kind": "class",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 288,
+          "preview": "class StripCredentialRedirect(urllib.request.HTTPRedirectHandler):",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 298,
+          "preview": "with urllib.request.build_opener(StripCredentialRedirect).open(",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "redirect_request": {
+      "definition": {
+        "file": "src/production_os/github_client.py",
+        "line": 289,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 289,
+          "preview": "def redirect_request(self, req, fp, code, msg, headers, newurl):",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 290,
+          "preview": "redirected = super().redirect_request(",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "get_branch_protection": {
+      "definition": {
+        "file": "src/production_os/github_client.py",
+        "line": 316,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/controller.py",
+          "line": 302,
+          "preview": "branch_protected = client.get_branch_protection(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 316,
+          "preview": "def get_branch_protection(",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "get_issue": {
+      "definition": {
+        "file": "src/production_os/github_client.py",
+        "line": 332,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 332,
+          "preview": "def get_issue(self, full_name: str, issue_number: int) -> dict[str, Any] | None:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/github_work_state.py",
+          "line": 80,
+          "preview": "issue = client.get_issue(repository, issue_number)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "get_pull_request": {
+      "definition": {
+        "file": "src/production_os/github_client.py",
+        "line": 339,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 339,
+          "preview": "def get_pull_request(self, full_name: str, pr_number: int) -> dict[str, Any] | None:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/github_work_state.py",
+          "line": 84,
+          "preview": "pr = client.get_pull_request(repository, pr_number)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "get_pull_request_reviews": {
+      "definition": {
+        "file": "src/production_os/github_client.py",
+        "line": 346,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 346,
+          "preview": "def get_pull_request_reviews(self, full_name: str, pr_number: int) -> list[dict[str, Any]]:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/github_work_state.py",
+          "line": 92,
+          "preview": "reviews = client.get_pull_request_reviews(repository, pr_number)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "list_pull_request_files": {
+      "definition": {
+        "file": "src/production_os/github_client.py",
+        "line": 354,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 1993,
+          "preview": "changed_paths = client.list_pull_request_files(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2030,
+          "preview": "changed_paths = GitHubClient().list_pull_request_files(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 862,
+          "preview": "GitHubClient().list_pull_request_files(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1023,
+          "preview": "changed_paths = GitHubClient().list_pull_request_files(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1116,
+          "preview": "changed_paths = GitHubClient().list_pull_request_files(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 354,
+          "preview": "def list_pull_request_files(",
+          "definition_candidate": true
+        },
+        {
+          "file": "tests/test_control_plane_pr_impact.py",
+          "line": 27,
+          "preview": "def list_pull_request_files(self, repository, pr_number):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane_webhook.py",
+          "line": 40,
+          "preview": "def list_pull_request_files(self, repository, pr_number):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane_webhook.py",
+          "line": 183,
+          "preview": "def list_pull_request_files(self, repository, pr_number):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_github_client_pr_files.py",
+          "line": 30,
+          "preview": "files = client.list_pull_request_files(\"o/a\", 7)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_github_client_pr_files.py",
+          "line": 47,
+          "preview": "assert client.list_pull_request_files(\"o/a\", 1) == [\"src/a.py\"]",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_github_client_pr_files.py",
+          "line": 56,
+          "preview": "client.list_pull_request_files(\"o/a\", 1)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_github_client_pr_files.py",
+          "line": 67,
+          "preview": "client.list_pull_request_files(\"o/a\", 1)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 13
+    },
+    "get_commit_workflow_runs": {
+      "definition": {
+        "file": "src/production_os/github_client.py",
+        "line": 387,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 387,
+          "preview": "def get_commit_workflow_runs(self, full_name: str, commit_sha: str) -> list[dict[str, Any]]:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/github_work_state.py",
+          "line": 96,
+          "preview": "runs = client.get_commit_workflow_runs(repository, head_sha)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "list_repositories": {
+      "definition": {
+        "file": "src/production_os/github_client.py",
         "line": 399,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "src/production_os/control_plane.py",
+          "file": "src/production_os/cli.py",
+          "line": 871,
+          "preview": "repos = client.list_repositories(args.owner)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/controller.py",
+          "line": 252,
+          "preview": "repos = client.list_repositories(owner)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_client.py",
           "line": 399,
-          "preview": "def do_PATCH(self) -> None:",
+          "preview": "def list_repositories(self, owner: str) -> list[dict[str, Any]]:",
           "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "do_DELETE": {
-      "definition": {
-        "file": "src/production_os/control_plane.py",
-        "line": 402,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 402,
-          "preview": "def do_DELETE(self) -> None:",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "_read_body": {
-      "definition": {
-        "file": "src/production_os/control_plane.py",
-        "line": 405,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 405,
-          "preview": "def _read_body(self) -> bytes:",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 425,
-          "preview": "raw = self._read_body()",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 755,
-          "preview": "raw = self._read_body()",
-          "definition_candidate": false
         }
       ],
       "occurrence_count": 3
     },
-    "_read_json": {
+    "_contents": {
       "definition": {
-        "file": "src/production_os/control_plane.py",
-        "line": 424,
+        "file": "src/production_os/github_client.py",
+        "line": 415,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "src/production_os/control_plane.py",
-          "line": 424,
-          "preview": "def _read_json(self) -> dict:",
+          "file": "src/production_os/github_client.py",
+          "line": 415,
+          "preview": "def _contents(self, full_name: str, path: str = \"\") -> list[dict[str, Any]]:",
           "definition_candidate": true
         },
         {
-          "file": "src/production_os/control_plane.py",
-          "line": 932,
-          "preview": "body = self._read_json()",
+          "file": "src/production_os/github_client.py",
+          "line": 527,
+          "preview": "root = self._contents(full_name)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 531,
+          "preview": "workflow_entries = self._contents(full_name, \".github/workflows\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 536,
+          "preview": "github_entries = self._contents(full_name, \".github\")",
           "definition_candidate": false
         }
       ],
-      "occurrence_count": 2
+      "occurrence_count": 4
     },
-    "_principal": {
+    "_read_text": {
       "definition": {
-        "file": "src/production_os/control_plane.py",
-        "line": 436,
+        "file": "src/production_os/github_client.py",
+        "line": 426,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "src/production_os/control_plane.py",
-          "line": 436,
-          "preview": "def _principal(self) -> Principal | None:",
+          "file": "src/production_os/github_client.py",
+          "line": 426,
+          "preview": "def _read_text(self, full_name: str, path: str) -> str:",
           "definition_candidate": true
         },
         {
-          "file": "src/production_os/control_plane.py",
+          "file": "src/production_os/github_client.py",
           "line": 443,
-          "preview": "principal = self._principal()",
+          "preview": "text = self._read_text(full_name, path)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 496,
+          "preview": "text = self._read_text(full_name, path)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 502,
+          "preview": "text = self._read_text(full_name, path)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 518,
+          "preview": "text = self._read_text(full_name, path)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 541,
+          "preview": "readme = self._read_text(full_name, readme_name) if readme_name else \"\"",
           "definition_candidate": false
         }
       ],
-      "occurrence_count": 2
+      "occurrence_count": 6
     },
-    "_require": {
+    "read_json_file": {
       "definition": {
-        "file": "src/production_os/control_plane.py",
+        "file": "src/production_os/github_client.py",
         "line": 442,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "src/production_os/control_plane.py",
+          "file": "src/production_os/cli.py",
+          "line": 879,
+          "preview": "catalog = client.read_json_file(args.star_list_repo, args.star_list_path)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_client.py",
           "line": 442,
-          "preview": "def _require(self, role: str) -> Principal | None:",
+          "preview": "def read_json_file(self, full_name: str, path: str) -> dict[str, Any] | None:",
           "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 478,
-          "preview": "principal = self._require(\"viewer\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 948,
-          "preview": "principal = self._require(\"operator\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1001,
-          "preview": "principal = self._require(\"operator\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1053,
-          "preview": "principal = self._require(\"operator\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1080,
-          "preview": "principal = self._require(\"operator\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1212,
-          "preview": "principal = self._require(\"operator\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1224,
-          "preview": "principal = self._require(\"worker\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1264,
-          "preview": "principal = self._require(\"operator\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1327,
-          "preview": "principal = self._require(\"operator\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1344,
-          "preview": "principal = self._require(\"operator\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1352,
-          "preview": "principal = self._require(\"worker\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1449,
-          "preview": "principal = self._require(\"worker\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1473,
-          "preview": "principal = self._require(\"worker\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1526,
-          "preview": "principal = self._require(\"worker\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1616,
-          "preview": "principal = self._require(\"worker\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1705,
-          "preview": "principal = self._require(\"operator\")",
-          "definition_candidate": false
         }
       ],
-      "occurrence_count": 17
+      "occurrence_count": 2
     },
-    "do_GET": {
+    "_latest_workflow_run": {
       "definition": {
-        "file": "src/production_os/control_plane.py",
-        "line": 462,
+        "file": "src/production_os/github_client.py",
+        "line": 452,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "src/production_os/control_plane.py",
-          "line": 462,
-          "preview": "def do_GET(self) -> None:",
+          "file": "src/production_os/github_client.py",
+          "line": 452,
+          "preview": "def _latest_workflow_run(self, full_name: str, branch: str) -> dict[str, Any] | None:",
           "definition_candidate": true
         },
         {
-          "file": "src/production_os/health_server.py",
-          "line": 11,
-          "preview": "def do_GET(self) -> None:",
+          "file": "src/production_os/github_client.py",
+          "line": 538,
+          "preview": "latest_run = self._latest_workflow_run(full_name, default_branch) if workflow_names else None",
           "definition_candidate": false
         }
       ],
       "occurrence_count": 2
     },
-    "do_POST": {
+    "_recursive_tree_paths": {
       "definition": {
-        "file": "src/production_os/control_plane.py",
-        "line": 744,
+        "file": "src/production_os/github_client.py",
+        "line": 463,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "src/production_os/control_plane.py",
-          "line": 744,
-          "preview": "def do_POST(self) -> None:",
+          "file": "src/production_os/github_client.py",
+          "line": 463,
+          "preview": "def _recursive_tree_paths(self, full_name: str, ref: str) -> list[str]:",
           "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 506,
+          "preview": "tree_paths = self._recursive_tree_paths(full_name, default_branch)",
+          "definition_candidate": false
         }
       ],
-      "occurrence_count": 1
+      "occurrence_count": 2
     },
-    "serve_control_plane": {
+    "_collect_source_documents": {
       "definition": {
-        "file": "src/production_os/control_plane.py",
-        "line": 1732,
+        "file": "src/production_os/github_client.py",
+        "line": 477,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 477,
+          "preview": "def _collect_source_documents(",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 543,
+          "preview": "source_documents = self._collect_source_documents(",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "collect_evidence": {
+      "definition": {
+        "file": "src/production_os/github_client.py",
+        "line": 524,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/cli.py",
-          "line": 20,
-          "preview": "from .control_plane import serve_control_plane",
+          "line": 900,
+          "preview": "evidence = client.collect_evidence(repo)",
           "definition_candidate": false
         },
         {
-          "file": "src/production_os/cli.py",
-          "line": 1758,
-          "preview": "serve_control_plane(",
+          "file": "src/production_os/controller.py",
+          "line": 258,
+          "preview": "assessments.append(assess_repository(client.collect_evidence(repo)))",
           "definition_candidate": false
         },
         {
-          "file": "src/production_os/control_plane.py",
-          "line": 1732,
-          "preview": "def serve_control_plane(",
+          "file": "src/production_os/github_client.py",
+          "line": 524,
+          "preview": "def collect_evidence(self, repo: dict[str, Any]) -> RepoEvidence:",
           "definition_candidate": true
         }
       ],
       "occurrence_count": 3
-    },
-    "test_dashboard_daily_surface_is_repo_instruction_only": {
-      "definition": {
-        "file": "tests/test_dashboard_launch.py",
-        "line": 4,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_dashboard_launch.py",
-          "line": 4,
-          "preview": "def test_dashboard_daily_surface_is_repo_instruction_only():",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "test_dashboard_pairing_is_hidden_from_normal_surface": {
-      "definition": {
-        "file": "tests/test_dashboard_launch.py",
-        "line": 18,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_dashboard_launch.py",
-          "line": 18,
-          "preview": "def test_dashboard_pairing_is_hidden_from_normal_surface():",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "test_dashboard_surfaces_visual_quality_without_extra_controls": {
-      "definition": {
-        "file": "tests/test_dashboard_launch.py",
-        "line": 24,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_dashboard_launch.py",
-          "line": 24,
-          "preview": "def test_dashboard_surfaces_visual_quality_without_extra_controls():",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "test_dashboard_visual_quality_follows_selected_repository": {
-      "definition": {
-        "file": "tests/test_dashboard_launch.py",
-        "line": 33,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_dashboard_launch.py",
-          "line": 33,
-          "preview": "def test_dashboard_visual_quality_follows_selected_repository():",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
     }
   }
 }

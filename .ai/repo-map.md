@@ -2852,9 +2852,24 @@ result = self._request(
 ⋮----
 encoded = urllib.parse.quote(workflow, safe="")
 ⋮----
-encoded = urllib.parse.quote(branch, safe="")
-⋮----
 payload = self._get(
+runs = payload.get("workflow_runs", []) if isinstance(payload, dict) else []
+⋮----
+deadline = clock() + float(timeout_seconds)
+⋮----
+status = str(run.get("status") or "")
+⋮----
+artifacts = payload.get("artifacts", []) if isinstance(payload, dict) else []
+⋮----
+class StripCredentialRedirect(urllib.request.HTTPRedirectHandler)
+⋮----
+def redirect_request(self, req, fp, code, msg, headers, newurl)
+⋮----
+redirected = super().redirect_request(
+⋮----
+data = response.read(max_bytes + 1)
+⋮----
+encoded = urllib.parse.quote(branch, safe="")
 ⋮----
 def get_issue(self, full_name: str, issue_number: int) -> dict[str, Any] | None
 ⋮----
@@ -2907,8 +2922,6 @@ text = self._read_text(full_name, path)
 value = json.loads(text)
 ⋮----
 def _latest_workflow_run(self, full_name: str, branch: str) -> dict[str, Any] | None
-⋮----
-runs = payload.get("workflow_runs", []) if isinstance(payload, dict) else []
 ⋮----
 def _recursive_tree_paths(self, full_name: str, ref: str) -> list[str]
 ⋮----
