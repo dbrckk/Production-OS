@@ -61,3 +61,28 @@ def test_dashboard_surfaces_asset_library_version_and_preference():
     assert "library_preferred" in DASHBOARD_HTML
     assert "lib v" in DASHBOARD_HTML
     assert "qualité lib" in DASHBOARD_HTML
+
+
+def test_dashboard_pairing_modal_is_mobile_visible_and_closable():
+    assert '#settings.open{display:block}' in DASHBOARD_HTML
+    assert 'function setSettingsOpen(open)' in DASHBOARD_HTML
+    assert 'setSettingsOpen(false)' in DASHBOARD_HTML
+    assert 'id="settings-button"' in DASHBOARD_HTML
+
+
+def test_dashboard_worker_status_uses_authenticated_api():
+    assert "const data=await api('/v1/workers')" in DASHBOARD_HTML
+    assert "fetch('/v1/workers')" not in DASHBOARD_HTML
+    assert "Worker : appairage requis via ⚙." in DASHBOARD_HTML
+
+
+def test_dashboard_launch_opens_pairing_when_token_missing():
+    assert "if(!token()){" in DASHBOARD_HTML
+    assert "Appairage requis avant le premier lancement." in DASHBOARD_HTML
+    assert "setSettingsOpen(true)" in DASHBOARD_HTML
+
+
+def test_dashboard_pairing_validates_operator_token_before_accepting():
+    assert "await api('/v1/workers')" in DASHBOARD_HTML
+    assert "Token opérateur invalide." in DASHBOARD_HTML
+    assert "Vérification de l’appairage..." in DASHBOARD_HTML
