@@ -22,20 +22,18 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-20T17:18:48Z
+Generated: 2026-09-21T19:11:41Z
 
 ### Git
 - Branch: `main`
-- Head: `505288394d28`
-- Commit date: 2026-09-20T19:18:36+02:00
-- Commit: test: cover preferred asset library version in dashboard
+- Head: `76347e7ba442`
+- Commit date: 2026-09-21T21:11:29+02:00
+- Commit: Merge pull request #16 from dbrckk/fix/dashboard-pairing-launch
 - Tracked files: 326
 
 ### Recently changed files
 - `tests/test_dashboard_launch.py`
 - `src/production_os/control_plane.py`
-- `tests/test_asset_forge.py`
-- `src/production_os/asset_forge.py`
 
 ### Project signals
 - `pyproject.toml`

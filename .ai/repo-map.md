@@ -6879,6 +6879,14 @@ def test_dashboard_visual_quality_has_previews_and_history()
 def test_dashboard_lists_semantic_art_score_per_asset()
 ⋮----
 def test_dashboard_surfaces_asset_library_version_and_preference()
+⋮----
+def test_dashboard_pairing_modal_is_mobile_visible_and_closable()
+⋮----
+def test_dashboard_worker_status_uses_authenticated_api()
+⋮----
+def test_dashboard_launch_opens_pairing_when_token_missing()
+⋮----
+def test_dashboard_pairing_validates_operator_token_before_accepting()
 ````
 
 ## File: tests/test_deep_fingerprint_starlist.py
