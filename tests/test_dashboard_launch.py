@@ -18,7 +18,8 @@ def test_dashboard_daily_surface_is_repo_instruction_only():
 def test_dashboard_pairing_is_hidden_from_normal_surface():
     assert 'id="settings"' in DASHBOARD_HTML
     assert "localStorage.setItem(TOKEN_KEY,value)" in DASHBOARD_HTML
-    assert 'style.display' in DASHBOARD_HTML
+    assert "#settings{display:none" in DASHBOARD_HTML
+    assert "classList.toggle('open'" in DASHBOARD_HTML
 
 
 def test_dashboard_surfaces_visual_quality_without_extra_controls():
