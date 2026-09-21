@@ -106,7 +106,8 @@ button{cursor:pointer}
 .asset-thumb{width:48px;height:48px;object-fit:contain;border-radius:8px;background:#f5f5f5}
 .asset-meta{min-width:0;overflow-wrap:anywhere}
 .history-row{padding:6px 0;border-top:1px solid #eee}
-#settings{display:none}
+#settings{display:none;position:fixed;z-index:1000;top:16px;left:16px;right:16px;max-width:680px;margin:0 auto;max-height:calc(100vh - 32px);overflow:auto;background:#fff;box-shadow:0 18px 60px rgba(0,0,0,.28)}
+#settings.open{display:block}
 </style>
 </head>
 <body>
@@ -121,7 +122,7 @@ button{cursor:pointer}
 
 <div class="actions">
 <button onclick="launchWorkflow()">Lancer</button>
-<button onclick="toggleSettings()" aria-label="Settings">⚙</button>
+<button id="settings-button" type="button" onclick="toggleSettings()" aria-label="Settings">⚙</button>
 </div>
 <p id="launch-status" class="status"></p>
 <p id="worker-status" class="small">Capacités worker : vérification...</p>
@@ -141,8 +142,9 @@ button{cursor:pointer}
 <p class="small">À faire une seule fois. Le token reste uniquement dans le stockage local de ce navigateur et n'est jamais affiché dans le dashboard normal.</p>
 <input id="pair-token" type="password" placeholder="Operator token" autocomplete="off">
 <div class="actions">
-<button onclick="savePairing()">Enregistrer</button>
-<button onclick="clearPairing()">Oublier cet appareil</button>
+<button type="button" onclick="savePairing()">Enregistrer</button>
+<button type="button" onclick="clearPairing()">Oublier cet appareil</button>
+<button type="button" onclick="setSettingsOpen(false)">Fermer</button>
 </div>
 </div>
 
@@ -151,23 +153,48 @@ const TOKEN_KEY='production_os_operator_token';
 
 function token(){return localStorage.getItem(TOKEN_KEY)||''}
 
-function toggleSettings(){
+function setSettingsOpen(open){
  const el=document.getElementById('settings');
- el.style.display=el.style.display==='block'?'none':'block';
+ el.classList.toggle('open',Boolean(open));
+ if(open){
+  setTimeout(()=>document.getElementById('pair-token').focus(),0);
+ }
 }
 
-function savePairing(){
- const value=document.getElementById('pair-token').value.trim();
- if(!value){return}
+function toggleSettings(){
+ const el=document.getElementById('settings');
+ setSettingsOpen(!el.classList.contains('open'));
+}
+
+async function savePairing(){
+ const input=document.getElementById('pair-token');
+ const value=input.value.trim();
+ const status=document.getElementById('launch-status');
+ if(!value){
+  status.textContent='Entre le token opérateur.';
+  return;
+ }
+ const previous=token();
  localStorage.setItem(TOKEN_KEY,value);
- document.getElementById('pair-token').value='';
- document.getElementById('settings').style.display='none';
- document.getElementById('launch-status').textContent='Appareil appairé.';
+ status.textContent='Vérification de l’appairage...';
+ try{
+  await api('/v1/workers');
+  input.value='';
+  setSettingsOpen(false);
+  status.textContent='Appareil appairé.';
+  await loadWorkerStatus();
+  await loadVisualQuality();
+ }catch(_e){
+  if(previous) localStorage.setItem(TOKEN_KEY,previous);
+  else localStorage.removeItem(TOKEN_KEY);
+  status.textContent='Token opérateur invalide. Vérifie le token puis réessaie.';
+ }
 }
 
 function clearPairing(){
  localStorage.removeItem(TOKEN_KEY);
  document.getElementById('launch-status').textContent='Appairage supprimé.';
+ document.getElementById('worker-status').textContent='Worker : appairage requis via ⚙.';
 }
 
 async function api(path,options={}){
@@ -202,10 +229,12 @@ async function loadRepositories(){
 
 async function loadWorkerStatus(){
  const el=document.getElementById('worker-status');
+ if(!token()){
+  el.textContent='Worker : appairage requis via ⚙.';
+  return;
+ }
  try{
-  const r=await fetch('/v1/workers');
-  if(!r.ok) throw new Error('workers unavailable');
-  const data=await r.json();
+  const data=await api('/v1/workers');
   const online=(data.workers||[]).filter(x=>x.status==='online');
   const capabilities=new Set(online.flatMap(x=>x.capabilities||[]));
   const visual=capabilities.has('visual-asset-production');
@@ -371,6 +400,11 @@ async function loadVisualQuality(){
 
 async function launchWorkflow(){
  const status=document.getElementById('launch-status');
+ if(!token()){
+  status.textContent='Appairage requis avant le premier lancement.';
+  setSettingsOpen(true);
+  return;
+ }
  status.textContent='Lancement...';
  try{
   const repository=document.getElementById('repository').value.trim();
