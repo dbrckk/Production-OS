@@ -752,6 +752,13 @@ def make_handler(control: ControlPlane):
             if principal is None:
                 return
 
+            if parsed.path.startswith("/v1/dashboard/") and principal.role == "worker":
+                self._send(
+                    HTTPStatus.FORBIDDEN,
+                    {"error":"forbidden","required_role":"viewer","role":principal.role},
+                )
+                return
+
             if parsed.path.startswith("/v1/dashboard/"):
                 query = parse_qs(parsed.query)
                 try:
