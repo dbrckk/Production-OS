@@ -315,7 +315,7 @@ class PostgresBackend:
                     CREATE INDEX IF NOT EXISTS idx_job_executions_workflow_started ON job_executions(workflow_id, started_at DESC)
                 """)
                 cur.execute("""
-                    CREATE TABLE IF NOT EXISTS api_usage_events (id TEXT PRIMARY KEY, execution_id TEXT NOT NULL, worker_id TEXT NOT NULL, repository TEXT NOT NULL, provider TEXT NOT NULL, model TEXT NOT NULL, api_calls INTEGER NOT NULL DEFAULT 1, input_tokens BIGINT NOT NULL DEFAULT 0, cached_input_tokens BIGINT NOT NULL DEFAULT 0, output_tokens BIGINT NOT NULL DEFAULT 0, reasoning_tokens BIGINT NOT NULL DEFAULT 0, total_tokens BIGINT NOT NULL DEFAULT 0, estimated_cost_usd DOUBLE PRECISION, pricing_catalog_version TEXT, occurred_at TEXT NOT NULL)
+                    CREATE TABLE IF NOT EXISTS api_usage_events (id TEXT PRIMARY KEY, execution_id TEXT NOT NULL, worker_id TEXT NOT NULL, repository TEXT NOT NULL, provider TEXT, model TEXT, api_calls INTEGER NOT NULL DEFAULT 1, input_tokens BIGINT NOT NULL DEFAULT 0, cached_input_tokens BIGINT NOT NULL DEFAULT 0, output_tokens BIGINT NOT NULL DEFAULT 0, reasoning_tokens BIGINT NOT NULL DEFAULT 0, total_tokens BIGINT NOT NULL DEFAULT 0, estimated_cost_usd DOUBLE PRECISION, pricing_catalog_version TEXT, occurred_at TEXT NOT NULL)
                 """)
                 cur.execute("""
                     CREATE INDEX IF NOT EXISTS idx_api_usage_worker_time ON api_usage_events(worker_id, occurred_at DESC)
