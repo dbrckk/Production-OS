@@ -37,7 +37,7 @@ def test_postgres_schema_v9_has_execution_columns():
                   AND table_name = 'job_executions'
                 """
             )
-            columns = {row[0] for row in cur.fetchall()}
+            columns = {row["column_name"] for row in cur.fetchall()}
 
     assert backend.SCHEMA_VERSION == 9
     assert REQUIRED_EXECUTION_COLUMNS <= columns
