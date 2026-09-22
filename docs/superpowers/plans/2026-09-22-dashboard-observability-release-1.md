@@ -409,6 +409,8 @@ Implement these exact method contracts:
 - `save_progress_snapshot(self, snapshot: dict) -> dict`
 - `latest_progress_snapshot(self, repository: str) -> dict | None`
 - `progress_history(self, repository: str, *, limit: int = 100) -> list[dict]`
+- `save_provider_quota_snapshot(self, snapshot: dict) -> dict`
+- `latest_provider_quota_snapshots(self) -> list[dict]`
 
 Each query must use parameter binding through `_execute`. Snapshot inserts use application-generated IDs and JSON serialization with sorted keys. `logs_for_worker` uses the stored log ID as an opaque cursor and orders by `created_at DESC, id DESC`.
 
@@ -489,7 +491,9 @@ Add auth tests:
 - viewer token => 403;
 - no token => 401;
 - malformed progress => 400;
-- telemetry failure does not alter job status.
+- telemetry failure does not alter job status;
+- authenticated heartbeat capacity creates a quota snapshot;
+- unauthenticated/unavailable capacity persists no numeric remaining quota.
 
 - [ ] **Step 2: Run tests and verify failure**
 
@@ -562,6 +566,41 @@ if (
 ```
 
 Logs in `body["logs"]` go through `DashboardStore.append_logs`, whose Task-2 contract redacts credential-like values before persistence.
+
+The existing worker heartbeat already accepts a credential-free `capacity` object from AI Dev Server. Persist a provider quota snapshot only from validated capacity data:
+
+```python
+capacity = body.get("capacity")
+if isinstance(capacity, dict):
+    source = str(capacity.get("source") or "").strip()
+    source_status = str(capacity.get("status") or "unavailable")
+    used = capacity.get("used_this_month")
+    remaining = capacity.get("remaining_tokens")
+    if source:
+        limit_value = (
+            int(used) + int(remaining)
+            if isinstance(used, int) and isinstance(remaining, int)
+            else None
+        )
+        control.dashboard_store.save_provider_quota_snapshot({
+            "provider": source,
+            "quota_type": "monthly_tokens",
+            "used_value": used if isinstance(used, int) else None,
+            "limit_value": limit_value,
+            "remaining_value": (
+                remaining if isinstance(remaining, int) else None
+            ),
+            "unit": "tokens",
+            "source_status": (
+                "authenticated"
+                if source_status == "ok"
+                and capacity.get("authenticated_usage") is True
+                else "unavailable"
+            ),
+        })
+```
+
+Never infer a provider quota from the default token budget when `authenticated_usage` is false.
 
 - [ ] **Step 6: Verify current control-plane behavior still passes**
 
@@ -871,7 +910,7 @@ WINDOW_SECONDS = {
 
 Reject any other value with `ValueError("invalid window")`.
 
-Return totals, provider/model breakdown, and daily timeline. Use final `api_usage_events`; do not sum `live_usage_json` into historical totals.
+Return totals, provider/model breakdown, daily timeline, and the latest quota snapshot for each provider. Use final `api_usage_events`; do not sum `live_usage_json` into historical totals. Quota rows with `source_status != "authenticated"` expose numeric values as null in the API response.
 
 - [ ] **Step 5: Run tests**
 
