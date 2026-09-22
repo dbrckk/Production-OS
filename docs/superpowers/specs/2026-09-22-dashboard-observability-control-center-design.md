@@ -151,7 +151,8 @@ Allowed `desired_state` values:
 - `active`
 - `paused`
 - `draining`
-- `cancel_requested`
+
+Cancellation is job-scoped rather than worker-scoped so workers with concurrency greater than one are never ambiguous.
 
 Observed state remains in `workers.status`.
 
@@ -162,7 +163,29 @@ Example:
 
 This means the worker may finish the current job but must not claim another.
 
-### 6.2 job_executions
+### 6.2 job_control_state
+
+Durable job-level operator intent is stored independently from worker control state.
+
+Fields:
+
+- `job_key TEXT PRIMARY KEY`
+- `desired_state TEXT NOT NULL DEFAULT 'active'`
+- `reason TEXT NULL`
+- `requested_by TEXT NULL`
+- `requested_at TEXT NOT NULL`
+- `acknowledged_at TEXT NULL`
+- `updated_at TEXT NOT NULL`
+
+Allowed `desired_state` values:
+
+- `active`
+- `cancel_requested`
+- `cancelled`
+
+This prevents a worker-wide cancellation flag from ambiguously targeting one of several concurrent jobs.
+
+### 6.3 job_executions
 
 One row represents one real execution attempt.
 
@@ -206,7 +229,7 @@ Indexes:
 
 Execution attempts are append-oriented. A retry creates a new execution row and never mutates the previous failed attempt into a success.
 
-### 6.3 api_usage_events
+### 6.4 api_usage_events
 
 This table preserves provider/model-level usage detail.
 
@@ -230,7 +253,7 @@ Fields:
 
 A worker may submit one aggregate usage event per completed execution in the first release. Finer-grained events may be added later without changing the dashboard contract.
 
-### 6.4 provider_quota_snapshots
+### 6.5 provider_quota_snapshots
 
 Quota data is stored only when a provider exposes it reliably.
 
@@ -248,7 +271,7 @@ Fields:
 
 If a provider does not expose quota or remaining credit, `source_status` is `unavailable` and numeric values remain null.
 
-### 6.5 worker_log_events
+### 6.6 worker_log_events
 
 Structured logs exposed to the dashboard.
 
@@ -277,7 +300,7 @@ Levels:
 
 Secrets are redacted before persistence.
 
-### 6.6 project_repository_snapshots
+### 6.7 project_repository_snapshots
 
 Periodic repository-level facts.
 
@@ -301,7 +324,7 @@ Fields:
 
 `github_commits` means unique commits reachable from the repository's default branch at snapshot time. The UI must label this as the main/default-branch commit count rather than implying a sum across every branch.
 
-### 6.7 project_progress_snapshots
+### 6.8 project_progress_snapshots
 
 Auditable global project progress.
 
@@ -468,7 +491,7 @@ The API may additionally expose counts and ETA, but the percentage remains based
 
 Global progress is an estimate and is always presented as such.
 
-Default dimensions and weights:
+Default dimensions and weights for visual/game-style repositories:
 
 - Code / functionality: 25%
 - UI / UX: 15%
@@ -477,7 +500,9 @@ Default dimensions and weights:
 - Stability: 15%
 - Release readiness: 15%
 
-Each dimension contains:
+Production-OS selects a versioned progress profile appropriate to the repository type. Dimensions that are genuinely not applicable are marked `not_applicable` and their weights are redistributed across applicable dimensions. A backend/service project is therefore not penalized for lacking game assets or UI screens. Unknown evidence and not-applicable dimensions are distinct states.
+
+Each applicable dimension contains:
 
 - score 0–100;
 - evidence items;
@@ -490,7 +515,7 @@ Evidence may include:
 - CI state;
 - tests detected/passing/failing;
 - release state;
-- issues/roadmap/TODO evidence;
+- issues, roadmap entries, and explicit remaining-work markers;
 - assets expected/generated/rejected;
 - visual-quality evidence;
 - recurring failures;
@@ -511,6 +536,7 @@ The dashboard must show:
 - remaining work;
 - blockers;
 - calculation version;
+- progress profile/version;
 - snapshot time.
 
 Clicking a progress score must explain why the score exists.
@@ -549,10 +575,11 @@ Worker control is based on durable desired state.
 
 ### cancel-current
 
-- sets `cancel_requested` for the worker/current job;
-- the worker observes this at heartbeat/checkpoint boundaries;
+- creates or updates `job_control_state` for the explicitly selected active job with `cancel_requested`;
+- the worker observes the job-scoped request at heartbeat/checkpoint boundaries;
 - it stops cleanly at the next supported safe interruption point;
-- the job becomes cancelled only after Production-OS receives or reconciles the cancellation outcome.
+- the job becomes cancelled only after Production-OS receives or reconciles the cancellation outcome;
+- if a worker has multiple active jobs, the API requires the target `job_key` and never guesses which one to cancel.
 
 No UI action may pretend a remote process was killed when no acknowledgement exists.
 
@@ -905,7 +932,7 @@ Tests for:
 - pause;
 - drain;
 - resume;
-- cooperative cancellation;
+- job-scoped cooperative cancellation on workers with one and multiple active jobs;
 - queued cancellation;
 - retry lineage;
 - max-attempt enforcement;
