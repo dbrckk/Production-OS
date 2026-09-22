@@ -14,6 +14,7 @@ from .portfolio_optimizer import PortfolioOptimizer
 from .github_client import GitHubClient
 from .release_ledger import ReleaseLedger
 from .dashboard_store import DashboardStore
+from .dashboard_service import DashboardService, DashboardNotFound
 from .github_webhook import (
     WebhookDeliveryStore,
     WebhookError,
@@ -46,6 +47,7 @@ class ControlPlane:
     ):
         self.backend = open_backend(database)
         self.dashboard_store = DashboardStore(self.backend)
+        self.dashboard = DashboardService(self)
         self.queue = job_queue_for(self.backend)
         self.workers = worker_registry_for(self.backend)
         self.workflows = WorkflowEngine(self.backend, self.queue)
@@ -748,6 +750,65 @@ def make_handler(control: ControlPlane):
 
             principal = self._require("viewer")
             if principal is None:
+                return
+
+            if parsed.path.startswith("/v1/dashboard/"):
+                query = parse_qs(parsed.query)
+                try:
+                    window = query.get("window", ["7d"])[0]
+                    parts = [part for part in parsed.path.split("/") if part]
+                    service = control.dashboard
+                    if parsed.path == "/v1/dashboard/overview":
+                        payload = service.overview(window)
+                    elif parsed.path == "/v1/dashboard/workers":
+                        payload = service.workers()
+                    elif len(parts) >= 3 and parts[1] == "dashboard" and parts[2] == "workers":
+                        worker_id = parts[3] if len(parts) >= 4 else ""
+                        if len(parts) == 4:
+                            payload = service.worker_detail(worker_id)
+                        elif len(parts) == 5 and parts[4] == "logs":
+                            payload = service.worker_logs(worker_id, query.get("after",[None])[0], query.get("limit",["100"])[0])
+                        elif len(parts) == 5 and parts[4] == "usage":
+                            payload = service.worker_usage(worker_id, window)
+                        else:
+                            raise DashboardNotFound(parsed.path)
+                    elif parsed.path == "/v1/dashboard/projects":
+                        payload = service.projects()
+                    elif len(parts) >= 4 and parts[1] == "dashboard" and parts[2] == "projects":
+                        if len(parts) < 5:
+                            raise DashboardNotFound(parsed.path)
+                        repository = parts[3] + "/" + parts[4]
+                        if any(x in {".",".."} for x in (parts[3],parts[4])):
+                            raise ValueError("invalid repository")
+                        if len(parts) == 5:
+                            payload = service.project_detail(repository)
+                        elif len(parts) == 6 and parts[5] == "progress":
+                            payload = service.project_progress(repository)
+                        elif len(parts) == 6 and parts[5] == "commits":
+                            payload = service.project_commits(repository, window)
+                        elif len(parts) == 6 and parts[5] == "usage":
+                            payload = service.project_usage(repository, window)
+                        elif len(parts) == 6 and parts[5] == "workflows":
+                            payload = service.project_workflows(repository)
+                        elif len(parts) == 6 and parts[5] == "history":
+                            payload = service.project_history(repository)
+                        else:
+                            raise DashboardNotFound(parsed.path)
+                    elif parsed.path == "/v1/dashboard/activity":
+                        payload = service.activity(
+                            repository=query.get("repository",[None])[0],
+                            worker_id=query.get("worker_id",[None])[0],
+                            event_type=query.get("event_type",[None])[0],
+                            after=int(query.get("after",["0"])[0]),
+                            limit=int(query.get("limit",["100"])[0]),
+                        )
+                    else:
+                        raise DashboardNotFound(parsed.path)
+                    self._send(HTTPStatus.OK, payload)
+                except DashboardNotFound:
+                    self._send(HTTPStatus.NOT_FOUND, {"error":"dashboard resource not found"})
+                except (ValueError, TypeError):
+                    self._send(HTTPStatus.BAD_REQUEST, {"error":"invalid dashboard query"})
                 return
 
             if parsed.path == "/v1/stats":
