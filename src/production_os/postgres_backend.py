@@ -22,7 +22,7 @@ def _utcnow() -> str:
 
 
 class PostgresBackend:
-    SCHEMA_VERSION = 8
+    SCHEMA_VERSION = 9
 
     def __init__(self, dsn: str):
         if psycopg is None:
