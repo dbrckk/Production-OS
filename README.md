@@ -3084,3 +3084,29 @@ Incident history entries are SHA-256 hash chained. Rewriting a persisted report
 or breaking the previous-hash chain causes verification to fail. Unchanged
 snapshots are deduplicated while genuine blast-radius changes append a new
 entry.
+
+
+## Dashboard observability — Release 1
+
+The authenticated workspace remains available at `/dashboard`. Pair the browser
+with a viewer or operator credential to read observability data; worker-only
+credentials cannot read dashboard routes. The workspace provides **Vue générale**,
+**Projets**, **Workers**, and **Activité**, while the existing repository +
+instruction launch form remains available.
+
+Project pages distinguish **Production actuelle** from **Projet estimé**. The
+first is deterministic workflow progress weighted by task estimates. The second
+is a versioned evidence-based estimate and is always accompanied by confidence
+and evidence coverage; unavailable evidence stays unknown rather than being
+invented.
+
+API cost is an estimate only when an exact provider/model price is known for the
+execution date. Token totals remain useful when cost cannot be calculated.
+Production-OS-attributed commits are reported separately from total commits on
+the repository default branch; the latter comes from GitHub snapshots and may be
+marked degraded when cached data is used.
+
+Workers publish live execution telemetry through
+`POST /v1/jobs/{job_key}/telemetry`; this endpoint requires the owning worker
+credential. Release 1 dashboard observability is read-only: pause, drain,
+cancellation, retry and kick controls belong to Release 2.
