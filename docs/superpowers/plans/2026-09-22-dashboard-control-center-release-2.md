@@ -82,6 +82,7 @@
 - Produces:
   - `DashboardControl(store, queue, workflows, *, github=None, actions_repository=None, actions_workflow=None)`
   - `set_worker_state(worker_id: str, desired_state: str, *, requested_by: str, reason: str | None = None) -> dict`
+  - `acknowledge_worker_state(worker_id: str, desired_state: str, *, at: str | None = None) -> dict`
   - `worker_state(worker_id: str) -> dict`
   - `request_job_cancel(job_key: str, *, requested_by: str, reason: str | None = None) -> dict`
   - `acknowledge_job_cancel(job_key: str, *, at: str | None = None) -> dict`
@@ -148,10 +149,13 @@ def set_job_control(
     at: str | None = None,
 ) -> dict: ...
 
+def acknowledge_worker_control(self, worker_id: str, desired_state: str, *, at: str | None = None) -> dict: ...
 def acknowledge_job_control(self, job_key: str, *, at: str | None = None) -> dict: ...
 ```
 
 Use `INSERT ... ON CONFLICT ... DO UPDATE` with backend placeholder translation already used by `DashboardStore`.
+
+`acknowledge_worker_control` does not add a new schema column: it verifies the supplied state equals the durable `desired_state`, preserves `requested_at`, and advances `updated_at`. `worker_state` exposes `acknowledged_at = updated_at` only when `updated_at != requested_at`; otherwise it returns null. This keeps the approved schema unchanged while distinguishing request time from worker acknowledgement time.
 
 - [ ] **Step 4: Implement control validation**
 
@@ -195,14 +199,16 @@ git commit -m "feat(control): persist worker and job desired state"
 ### Task 2: Prevent paused/draining workers from claiming new jobs
 
 **Files:**
-- Modify: `src/production_os/control_plane.py: worker claim route around current claim selection`
+- Modify: `src/production_os/control_plane.py: worker heartbeat and claim routes`
 - Modify: `src/production_os/dashboard_service.py`
+- Modify: `studio/production_os_worker.py:607-810` in `dbrckk/ai-dev-server`
 - Modify: `tests/test_dashboard_control.py`
 - Modify: `tests/test_portfolio_claim_api.py`
+- Modify: `tests/test_production_os_worker_runtime.py` in `dbrckk/ai-dev-server`
 
 **Interfaces:**
 - Consumes: `DashboardControl.worker_state`.
-- Produces: claim behavior that returns no job for paused/draining workers while keeping heartbeat/status visibility.
+- Produces: heartbeat control envelope, worker acknowledgement via optional `control_state`, and claim behavior that returns no job for paused/draining workers.
 
 - [ ] **Step 1: Write failing claim-gating tests**
 
@@ -232,7 +238,31 @@ def test_draining_worker_finishes_current_job_but_claims_no_second_job(...):
 pytest tests/test_dashboard_control.py tests/test_portfolio_claim_api.py -q
 ```
 
-- [ ] **Step 3: Gate before optimizer/queue claim**
+- [ ] **Step 3: Return desired state from heartbeat and record explicit worker acknowledgement**
+
+Heartbeat response includes:
+
+```python
+"control": {
+    "worker": control.dashboard_control.worker_state(worker_id),
+    "jobs": {...},
+}
+```
+
+Heartbeat request accepts optional `control_state`. When it exactly matches the current durable desired state, call:
+
+```python
+control.dashboard_store.acknowledge_worker_control(
+    worker_id,
+    control_state,
+)
+```
+
+A mismatched/stale state is ignored for acknowledgement and the current desired state is returned again.
+
+In AI Dev Server, `run_once` performs a pre-claim heartbeat. If the response requests `paused` or `draining`, it immediately sends one acknowledgement heartbeat with `control_state` set to that value, then returns without calling `claim`. This lets ephemeral GitHub Actions workers acknowledge a pause/drain even when they do no work.
+
+- [ ] **Step 4: Gate before optimizer/queue claim**
 
 In the worker claim route:
 
@@ -245,7 +275,7 @@ if desired["desired_state"] in {"paused", "draining"}:
 
 Do this before ranking candidates so paused workers do not consume optimizer work or modify queue state.
 
-- [ ] **Step 4: Surface desired/observed state together**
+- [ ] **Step 5: Surface desired/observed state together**
 
 `DashboardService.worker_detail` returns:
 
@@ -260,19 +290,36 @@ Do this before ranking candidates so paused workers do not consume optimizer wor
 
 If draining and active tasks == 0, derive display state `drained` without rewriting `workers.status`.
 
-- [ ] **Step 5: Run tests**
+- [ ] **Step 6: Run tests**
+
+Production-OS:
 
 ```bash
 pytest tests/test_dashboard_control.py tests/test_portfolio_claim_api.py tests/test_dashboard_api.py -q
 ```
 
+AI Dev Server:
+
+```bash
+python -m unittest tests.test_production_os_worker_runtime -v
+```
+
 Expected: PASS.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
+
+Production-OS:
 
 ```bash
 git add src/production_os/control_plane.py src/production_os/dashboard_service.py tests/test_dashboard_control.py tests/test_portfolio_claim_api.py tests/test_dashboard_api.py
 git commit -m "feat(control): honor pause and drain during claims"
+```
+
+AI Dev Server:
+
+```bash
+git add studio/production_os_worker.py tests/test_production_os_worker_runtime.py
+git commit -m "feat(production-os): honor worker desired state"
 ```
 
 ---
@@ -375,6 +422,8 @@ git commit -m "feat(control): add operator worker control API"
 - Modify: `src/production_os/control_plane.py`
 - Modify: `src/production_os/dashboard_control.py`
 - Modify: `src/production_os/dashboard_store.py`
+- Modify: `src/production_os/sqlite_backend.py:1239-1298`
+- Modify: `src/production_os/postgres_backend.py:1300-1364`
 - Modify: `studio/production_os_worker.py` in `dbrckk/ai-dev-server`
 - Modify: `tests/test_dashboard_control.py`
 - Modify: `tests/test_dashboard_control_api.py`
@@ -465,7 +514,26 @@ At safe boundaries already controlled by `run_once`:
 
 If the underlying long-running runner cannot be interrupted inside a single external subprocess, do not kill it unsafely; mark cancellation as pending until the next safe boundary.
 
-- [ ] **Step 5: Add explicit cancelled endpoint/client action**
+- [ ] **Step 5: Add explicit queue cancellation primitives and cancelled endpoint/client action**
+
+Add queue methods with SQLite/PostgreSQL parity:
+
+```python
+def cancel(self, key: str, worker_id: str) -> dict:
+    return self._transition(
+        key, worker_id, {"claimed", "acked"},
+        "cancelled", "job-cancelled", completed=True,
+    )
+
+def cancel_queued(self, key: str) -> dict:
+    # transactionally require status == "queued", set terminal cancelled,
+    # completed_at/updated_at = now, and append `job-cancelled` event.
+    ...
+```
+
+`cancel_queued` must not accept a worker ID and must fail if the job has already been claimed. Replace the comment-body implementation above with the backend's existing transaction/placeholder style; the test must assert the SQL transition and emitted event.
+
+Then add the worker acknowledgement route:
 
 Production-OS:
 
@@ -484,7 +552,9 @@ Worker payload:
 }
 ```
 
-Route requires `worker`, validates claim ownership and pending job control, transitions job to `cancelled`, acknowledges control, records execution terminal state `cancelled`, and correlates the workflow task.
+Route requires `worker`, validates claim ownership and pending job control, calls `queue.cancel(key, worker_id)`, acknowledges control, records execution terminal state `cancelled`, and correlates the workflow task.
+
+Dashboard job action `cancel` calls `queue.cancel_queued(key)` immediately only when current status is `queued`; for `claimed`/`acked` it creates `cancel_requested` and waits for the worker acknowledgement path.
 
 AI Dev Server adds `ProductionOSClient.cancelled(payload)`.
 
@@ -510,7 +580,7 @@ Expected: PASS.
 Production-OS:
 
 ```bash
-git add src/production_os/control_plane.py src/production_os/dashboard_control.py src/production_os/dashboard_store.py tests/test_dashboard_control.py tests/test_dashboard_control_api.py tests/test_workflow_api.py
+git add src/production_os/control_plane.py src/production_os/dashboard_control.py src/production_os/dashboard_store.py src/production_os/sqlite_backend.py src/production_os/postgres_backend.py tests/test_dashboard_control.py tests/test_dashboard_control_api.py tests/test_workflow_api.py
 git commit -m "feat(control): add cooperative job cancellation"
 ```
 
