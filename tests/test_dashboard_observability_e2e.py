@@ -48,3 +48,15 @@ def test_observability_lifecycle_uses_final_usage_and_attributed_commits(tmp_pat
     assert commits["production_os"] == 1
     detail=control.dashboard.worker_detail("worker-a")
     assert detail["executions"][0]["status"] == "succeeded"
+
+
+def test_attributed_commit_count_deduplicates_sha_across_executions(tmp_path):
+    control=ControlPlane(str(tmp_path/"db.sqlite"),authorizer=_auth())
+    store=control.dashboard_store
+    for index in (1,2):
+        job={"key":f"job-{index}","repository":"dbrckk/example","task":"ship",
+             "delivery_attempt":1,"payload":{}}
+        store.start_execution(job,"worker-a")
+        store.finish_execution(job["key"],"worker-a",status="succeeded",duration_seconds=1,
+                               result={"commits":{"shas":["b"*40]}})
+    assert control.dashboard.project_commits("dbrckk/example","all")["production_os"] == 1
