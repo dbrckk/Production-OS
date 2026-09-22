@@ -3,10 +3,6 @@ import os
 import pytest
 
 from production_os.postgres_backend import PostgresBackend
-from tests.test_dashboard_store import (
-    REQUIRED_EXECUTION_COLUMNS,
-    REQUIRED_TABLES,
-)
 
 
 DSN = os.getenv("PRODUCTION_OS_TEST_POSTGRES")
@@ -15,6 +11,52 @@ pytestmark = pytest.mark.skipif(
     not DSN,
     reason="PRODUCTION_OS_TEST_POSTGRES not configured",
 )
+
+REQUIRED_TABLES = {
+    "worker_control_state",
+    "job_control_state",
+    "job_executions",
+    "api_usage_events",
+    "provider_quota_snapshots",
+    "worker_log_events",
+    "project_repository_snapshots",
+    "project_progress_snapshots",
+}
+
+REQUIRED_EXECUTION_COLUMNS = {
+    "id",
+    "job_key",
+    "workflow_id",
+    "workflow_task_id",
+    "repository",
+    "worker_id",
+    "attempt",
+    "status",
+    "started_at",
+    "finished_at",
+    "duration_seconds",
+    "provider",
+    "model",
+    "api_calls",
+    "input_tokens",
+    "cached_input_tokens",
+    "output_tokens",
+    "reasoning_tokens",
+    "total_tokens",
+    "estimated_cost_usd",
+    "pricing_catalog_version",
+    "commit_count",
+    "commit_shas_json",
+    "retry_of_execution_id",
+    "error_type",
+    "error_message",
+    "current_stage",
+    "progress_percent",
+    "live_usage_json",
+    "last_telemetry_at",
+    "result_summary_json",
+    "created_at",
+}
 
 
 def test_postgres_schema_v9_matches_dashboard_contract():
