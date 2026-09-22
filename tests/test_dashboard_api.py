@@ -139,3 +139,13 @@ def test_dashboard_worker_routes_and_unknown_worker(running_control_plane):
     assert status == 200
     assert payload["limit"] == 500
     assert get_api(base, "/v1/dashboard/workers/worker-a/usage?window=30d", "viewer-token")[0] == 200
+
+
+def test_dashboard_project_and_activity_routes(running_control_plane):
+    base, control = running_control_plane
+    assert get_api(base, "/v1/dashboard/projects", "viewer-token")[0] == 200
+    assert get_api(base, "/v1/dashboard/projects/dbrckk/missing", "viewer-token")[0] == 404
+    assert get_api(base, "/v1/dashboard/activity?limit=999999", "viewer-token")[0] == 200
+    for suffix in ("progress","commits?window=30d","usage?window=30d","workflows","history"):
+        status, _ = get_api(base, "/v1/dashboard/projects/dbrckk/missing/" + suffix, "viewer-token")
+        assert status == 404
