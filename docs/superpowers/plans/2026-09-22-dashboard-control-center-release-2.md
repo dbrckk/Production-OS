@@ -80,10 +80,11 @@
 **Interfaces:**
 - Consumes: schema-v9 `worker_control_state` and `job_control_state`.
 - Produces:
-  - `DashboardControl(store, queue, workflows, *, github=None, actions_repository=None, actions_workflow=None)`
+  - `DashboardControl(store, queue, workflows, *, github=None, actions_repository=None, actions_workflow=None, actions_ref="main")`
   - `set_worker_state(worker_id: str, desired_state: str, *, requested_by: str, reason: str | None = None) -> dict`
   - `acknowledge_worker_state(worker_id: str, desired_state: str, *, at: str | None = None) -> dict`
   - `worker_state(worker_id: str) -> dict`
+  - `job_state(job_key: str) -> dict`
   - `request_job_cancel(job_key: str, *, requested_by: str, reason: str | None = None) -> dict`
   - `acknowledge_job_cancel(job_key: str, *, at: str | None = None) -> dict`
   - `retry_job(job_key: str, *, requested_by: str) -> dict`.
@@ -158,6 +159,22 @@ class DashboardControlError(RuntimeError):
     "acknowledged_at": None,
 }
 ```
+
+`job_state(job_key)` mirrors this defaulting rule for a job with no control row:
+
+```python
+{
+    "job_key": job_key,
+    "desired_state": "active",
+    "persisted": False,
+    "requested_at": None,
+    "acknowledged_at": None,
+}
+```
+
+`acknowledge_worker_state` is the service-level wrapper around
+`store.acknowledge_worker_control`; `acknowledge_job_cancel` wraps
+`store.acknowledge_job_control`.
 
 - [ ] **Step 5: Run tests**
 
@@ -245,7 +262,7 @@ Heartbeat response includes:
 Heartbeat request accepts optional `control_state`. When it exactly matches the current durable desired state, call:
 
 ```python
-control.dashboard_store.acknowledge_worker_control(
+control.dashboard_control.acknowledge_worker_state(
     worker_id,
     control_state,
 )
@@ -647,7 +664,7 @@ def test_retry_creates_new_attempt_and_preserves_failed_execution(control_fixtur
         "build",
         delivery_attempt=1,
     )
-    status, payload = retry_job(failed["key"])
+    status, payload = retry_job(control_fixture, failed["key"])
 
     assert status == 202
     assert payload["retry_of"] == failed["key"]
@@ -810,6 +827,7 @@ def test_kick_dispatches_actions_worker_when_configured(control_fixture):
         github=github,
         actions_repository="dbrckk/ai-dev-server",
         actions_workflow="production-os-actions-worker.yml",
+        actions_ref="main",
     )
     result = control.kick_worker("github-actions-worker")
     assert result["status"] == "dispatched"
@@ -850,6 +868,10 @@ PRODUCTION_OS_ACTIONS_REPOSITORY=dbrckk/ai-dev-server
 PRODUCTION_OS_ACTIONS_WORKFLOW=production-os-actions-worker.yml
 PRODUCTION_OS_ACTIONS_REF=main
 ```
+
+Pass these values into `DashboardControl(..., actions_ref=...)`; `kick_worker`
+calls `github.dispatch_workflow(actions_repository, actions_workflow,
+ref=actions_ref)`.
 
 Use the existing server-side GitHub token source only if already configured for `GitHubClient`. Do not expose it to dashboard JavaScript.
 
@@ -1092,6 +1114,21 @@ git commit -m "feat(dashboard): add worker control center"
 - [ ] **Step 1: Add restart persistence test**
 
 ```python
+def test_authorizer():
+    return TokenAuthorizer([
+        {
+            "name": "operator",
+            "role": "operator",
+            "sha256": token_digest("operator"),
+        },
+        {
+            "name": "worker",
+            "role": "worker",
+            "sha256": token_digest("worker"),
+        },
+    ])
+
+
 def test_paused_state_survives_control_plane_restart(tmp_path):
     first = ControlPlane(
         str(tmp_path / "production.db"),
