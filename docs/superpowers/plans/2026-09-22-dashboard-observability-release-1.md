@@ -40,6 +40,7 @@
 ### Production-OS files created
 
 - `src/production_os/dashboard_store.py` — backend-neutral persistence/query boundary for schema-v9 telemetry and snapshots.
+- `src/production_os/dashboard_security.py` — recursive server-side credential redaction for structured logs/metadata.
 - `src/production_os/dashboard_usage.py` — normalization, pricing catalog, cost calculation, and usage aggregation.
 - `src/production_os/project_progress.py` — deterministic workflow progress and versioned hybrid project progress calculation.
 - `src/production_os/dashboard_github.py` — GitHub repository snapshot collection and cache/degraded handling.
@@ -47,6 +48,7 @@
 - `src/production_os/dashboard_ui.py` — dashboard HTML/CSS/JS, preserving `DASHBOARD_HTML` as an importable compatibility symbol.
 - `tests/test_dashboard_store.py`
 - `tests/test_dashboard_store_postgres.py`
+- `tests/test_dashboard_security.py`
 - `tests/test_dashboard_usage.py`
 - `tests/test_project_progress.py`
 - `tests/test_dashboard_github.py`
@@ -238,10 +240,13 @@ git commit -m "feat(observability): add schema v9 telemetry tables"
 - Create: `src/production_os/dashboard_store.py`
 - Modify: `tests/test_dashboard_store.py`
 - Modify: `tests/test_dashboard_store_postgres.py`
+- Create: `src/production_os/dashboard_security.py`
+- Create: `tests/test_dashboard_security.py`
 
 **Interfaces:**
 - Consumes: schema-v9 tables from Task 1.
 - Produces:
+  - `redact_log_value(value: object) -> object`
   - `DashboardStore(backend)`
   - `start_execution(job: dict, worker_id: str, *, started_at: str | None = None) -> dict`
   - `update_live_execution(job_key: str, worker_id: str, telemetry: dict, *, at: str | None = None) -> dict`
@@ -286,6 +291,7 @@ def test_live_usage_replaces_cumulative_snapshot_instead_of_summing(backend):
 ```
 
 Also add tests for:
+- recursive log redaction removes authorization/token/api-key/password values before persistence;
 - wrong worker cannot update a claimed execution;
 - progress `101` is rejected;
 - progress does not move backward;
@@ -338,6 +344,26 @@ class DashboardStore:
 ```
 
 `start_execution` uses `job["delivery_attempt"] or 1` and `INSERT ... ON CONFLICT(id) DO NOTHING`, then reads back the row. This makes repeated ACK delivery safe.
+
+Add `dashboard_security.py` with recursive redaction before any log serialization:
+
+```python
+_SENSITIVE_KEYS = {"authorization", "token", "api_key", "apikey", "secret", "password", "cookie"}
+
+def redact_log_value(value: object) -> object:
+    if isinstance(value, dict):
+        return {
+            str(key): ("[REDACTED]" if str(key).lower() in _SENSITIVE_KEYS else redact_log_value(child))
+            for key, child in value.items()
+        }
+    if isinstance(value, list):
+        return [redact_log_value(child) for child in value]
+    if isinstance(value, str):
+        return _scrub_secret_patterns(value)
+    return value
+```
+
+`DashboardStore.append_logs` must call `redact_log_value` before writing `message` or `metadata_json`.
 
 - [ ] **Step 4: Implement live and final execution writes**
 
@@ -396,7 +422,7 @@ pytest tests/test_dashboard_store.py tests/test_dashboard_store_postgres.py -q
 
 Expected: PASS.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
 git add src/production_os/dashboard_store.py tests/test_dashboard_store.py tests/test_dashboard_store_postgres.py
@@ -524,7 +550,7 @@ if (
     return
 ```
 
-Logs in `body["logs"]` must go through the redaction helper introduced in Task 4 before persistence.
+Logs in `body["logs"]` go through `DashboardStore.append_logs`, whose Task-2 contract redacts credential-like values before persistence.
 
 - [ ] **Step 6: Verify current control-plane behavior still passes**
 
@@ -546,8 +572,10 @@ git commit -m "feat(observability): ingest live worker telemetry"
 ### Task 4: Enrich AI Dev Server results and publish live telemetry
 
 **Files:**
+- Modify: `studio/agents/orchestrator.py:56-157` in `dbrckk/ai-dev-server`
 - Modify: `studio/github_runner.py:96-220` in `dbrckk/ai-dev-server`
 - Modify: `studio/production_os_worker.py:97-269, 557-810`
+- Modify: `tests/test_agent_router.py`
 - Modify: `tests/test_github_runner_usage.py`
 - Modify: `tests/test_production_os_result_contract.py`
 - Modify: `tests/test_production_os_worker.py`
@@ -608,7 +636,22 @@ python -m unittest tests.test_github_runner_usage tests.test_production_os_resul
 
 Expected: failures for missing `providers` and `commits`.
 
-- [ ] **Step 3: Normalize provider/model usage without breaking existing totals**
+- [ ] **Step 3: Attach provider/model identity only when runtime evidence knows it, then aggregate without breaking totals**
+
+In `studio/agents/orchestrator.py`, extend `_run_evidence` with explicit runtime identity only for a runtime where both values are known. For the configured OpenCode compatible-provider path, use the configured model string; do not invent a model for `codex-chatgpt` or `omniroute-free` when the runtime does not expose the resolved model:
+
+```python
+def _run_evidence(run, capacity_source: str | None = None) -> dict:
+    evidence = {...}
+    if run.agent == "opencode":
+        model = str(os.environ.get("STUDIO_CODE_MODEL") or os.environ.get("STUDIO_MODEL") or "").strip()
+        base = str(os.environ.get("STUDIO_API_BASE") or "").strip()
+        if model and base:
+            evidence["provider"] = "studio"
+            evidence["model"] = model
+    ...
+    return evidence
+```
 
 Keep the existing top-level counters and add `providers`:
 
@@ -721,7 +764,7 @@ git commit -m "feat(production-os): publish observability telemetry"
 
 ---
 
-### Task 5: Add redaction, pricing, and usage aggregation
+### Task 5: Add versioned pricing and usage aggregation
 
 **Files:**
 - Create: `src/production_os/dashboard_usage.py`
@@ -732,25 +775,13 @@ git commit -m "feat(production-os): publish observability telemetry"
 **Interfaces:**
 - Consumes: raw usage/result fields from Tasks 2–4.
 - Produces:
-  - `redact_log_value(value: object) -> object`
   - `PricingCatalog.from_mapping(payload: dict) -> PricingCatalog`
   - `PricingCatalog.estimate(provider: str, model: str, usage: dict, at: str) -> tuple[float | None, str | None]`
   - `aggregate_usage(rows: list[dict], *, window: str) -> dict`
 
-- [ ] **Step 1: Write failing security/pricing tests**
+- [ ] **Step 1: Write failing pricing/aggregation tests**
 
 ```python
-def test_log_redaction_masks_credentials_recursively():
-    payload = {
-        "message": "Authorization: Bearer abcdefghijklmnopqrstuvwxyz",
-        "meta": {"api_key": "sk-secret-value", "safe": "ok"},
-    }
-    redacted = redact_log_value(payload)
-    assert "abcdefghijklmnopqrstuvwxyz" not in str(redacted)
-    assert "sk-secret-value" not in str(redacted)
-    assert redacted["meta"]["safe"] == "ok"
-
-
 def test_pricing_returns_unknown_for_unlisted_model():
     catalog = PricingCatalog.from_mapping({
         "version": "2026-09-22",
@@ -761,11 +792,26 @@ def test_pricing_returns_unknown_for_unlisted_model():
     )
     assert cost is None
     assert version is None
+
+
+def test_usage_aggregation_does_not_mix_live_snapshot_with_final_events():
+    rows = [{
+        "provider": "studio",
+        "model": "model-a",
+        "api_calls": 1,
+        "input_tokens": 700,
+        "cached_input_tokens": 0,
+        "output_tokens": 200,
+        "reasoning_tokens": 0,
+        "total_tokens": 900,
+        "estimated_cost_usd": None,
+        "occurred_at": "2026-09-22T10:00:00+00:00",
+    }]
+    result = aggregate_usage(rows, window="24h")
+    assert result["totals"]["total_tokens"] == 900
 ```
 
-Also pin explicit zero vs unknown:
-- missing token field remains unavailable metadata;
-- reported zero is zero.
+Also pin explicit zero vs unknown: missing token/cost fields remain unavailable metadata; a producer-reported zero remains zero.
 
 - [ ] **Step 2: Run tests and verify failure**
 
@@ -797,21 +843,7 @@ Use exact rule shape:
 
 Only an exact provider/model match valid at execution time produces cost.
 
-- [ ] **Step 4: Implement server-side recursive redaction**
-
-Mask keys matching case-insensitive:
-`authorization`, `token`, `api_key`, `apikey`, `secret`, `password`, `cookie`.
-
-Also scrub string patterns:
-- `Authorization: Bearer ...`
-- `Bearer <long-token>`
-- common `sk-` style credential prefixes.
-
-Return `"[REDACTED]"` rather than partial secret fragments.
-
-Call redaction from `DashboardStore.append_logs` before JSON serialization or insertion.
-
-- [ ] **Step 5: Implement usage aggregation**
+- [ ] **Step 4: Implement usage aggregation**
 
 Supported windows:
 
@@ -828,7 +860,7 @@ Reject any other value with `ValueError("invalid window")`.
 
 Return totals, provider/model breakdown, and daily timeline. Use final `api_usage_events`; do not sum `live_usage_json` into historical totals.
 
-- [ ] **Step 6: Run tests**
+- [ ] **Step 5: Run tests**
 
 ```bash
 pytest tests/test_dashboard_usage.py tests/test_dashboard_store.py -q
@@ -958,6 +990,7 @@ git commit -m "feat(observability): snapshot GitHub project state"
 - Consumes: workflow dicts from `WorkflowEngine.get`, repository snapshot, recent execution/events/visual evidence.
 - Produces:
   - `workflow_progress(workflow: dict) -> dict`
+  - `build_project_evidence(*, workflow: dict | None, repository_snapshot: dict | None, executions: list[dict], events: list[dict], visual_quality: dict | None) -> dict`
   - `ProjectProgressEngine.calculate(repository: str, evidence: dict, *, captured_at: str | None = None) -> dict`
   - persisted `project_progress_snapshots`.
 
@@ -1050,7 +1083,33 @@ Initial confidence thresholds:
 
 Expose the threshold values in code constants and pin them in tests.
 
-- [ ] **Step 5: Persist progress snapshots through `DashboardStore`**
+- [ ] **Step 5: Build auditable evidence from real project facts**
+
+Implement `build_project_evidence` so it maps only observed facts into the six dimensions. Example rules:
+
+```python
+def build_project_evidence(*, workflow, repository_snapshot, executions, events, visual_quality):
+    evidence = {"dimensions": {}, "remaining_work": [], "blockers": []}
+    if workflow:
+        evidence["workflow"] = workflow_progress(workflow)
+    if repository_snapshot:
+        evidence["repository"] = {
+            "ci_status": repository_snapshot.get("ci_status"),
+            "latest_release": repository_snapshot.get("latest_release"),
+            "tests_detected": repository_snapshot.get("tests_detected"),
+            "tests_passing": repository_snapshot.get("tests_passing"),
+            "tests_failing": repository_snapshot.get("tests_failing"),
+        }
+    if visual_quality:
+        evidence["visual_quality"] = visual_quality
+    evidence["execution_summary"] = _execution_summary(executions)
+    evidence["recent_events"] = _relevant_progress_events(events)
+    return evidence
+```
+
+A missing fact stays absent; this builder must never manufacture a score. `ProjectProgressEngine.calculate` converts the available evidence into dimension scores/confidence using versioned rules.
+
+- [ ] **Step 6: Persist progress snapshots through `DashboardStore`**
 
 The saved payload must contain:
 - current workflow ID;
@@ -1064,7 +1123,7 @@ The saved payload must contain:
 - calculation version;
 - selected profile.
 
-- [ ] **Step 6: Run tests**
+- [ ] **Step 7: Run tests**
 
 ```bash
 pytest tests/test_project_progress.py tests/test_dashboard_store.py -q
@@ -1072,7 +1131,7 @@ pytest tests/test_project_progress.py tests/test_dashboard_store.py -q
 
 Expected: PASS.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 8: Commit**
 
 ```bash
 git add src/production_os/project_progress.py src/production_os/dashboard_store.py tests/test_project_progress.py
