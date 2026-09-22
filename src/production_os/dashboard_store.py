@@ -116,9 +116,10 @@ class DashboardStore:
             if row["worker_id"] != worker_id:
                 raise PermissionError("execution belongs to another worker")
             old = row.get("progress_percent")
-            if progress is not None and old is not None and progress < float(old):
-                raise ValueError("progress must not move backward")
             stage = telemetry.get("stage", row.get("current_stage"))
+            if (progress is not None and old is not None and progress < float(old)
+                    and stage == row.get("current_stage")):
+                raise ValueError("progress must not move backward within a stage")
             live_usage = row.get("live_usage") or {}
             if usage is not None:
                 live_usage = usage
@@ -175,7 +176,7 @@ class DashboardStore:
                        total_tokens, estimated_cost_usd, pricing_catalog_version, occurred_at
                     ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO NOTHING""",
                     (f"{row['id']}:{index}", row["id"], worker_id, row["repository"],
-                     item.get("provider") or "unknown", item.get("model") or "unknown",
+                     item.get("provider"), item.get("model"),
                      int(item.get("api_calls") or 0), int(item.get("input_tokens") or 0),
                      int(item.get("cached_input_tokens") or 0), int(item.get("output_tokens") or 0),
                      int(item.get("reasoning_tokens") or 0), int(item.get("total_tokens") or 0),
