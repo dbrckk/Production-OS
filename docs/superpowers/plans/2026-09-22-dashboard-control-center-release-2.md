@@ -124,36 +124,16 @@ Expected: missing module/class.
 
 - [ ] **Step 3: Add store CRUD**
 
-Implement exact methods in `DashboardStore`:
+Implement these exact method contracts in `DashboardStore`:
 
-```python
-def get_worker_control(self, worker_id: str) -> dict | None: ...
-def set_worker_control(
-    self,
-    worker_id: str,
-    desired_state: str,
-    *,
-    requested_by: str,
-    reason: str | None = None,
-    at: str | None = None,
-) -> dict: ...
+- `get_worker_control(self, worker_id: str) -> dict | None`
+- `set_worker_control(self, worker_id: str, desired_state: str, *, requested_by: str, reason: str | None = None, at: str | None = None) -> dict`
+- `get_job_control(self, job_key: str) -> dict | None`
+- `set_job_control(self, job_key: str, desired_state: str, *, requested_by: str, reason: str | None = None, at: str | None = None) -> dict`
+- `acknowledge_worker_control(self, worker_id: str, desired_state: str, *, at: str | None = None) -> dict`
+- `acknowledge_job_control(self, job_key: str, *, at: str | None = None) -> dict`
 
-def get_job_control(self, job_key: str) -> dict | None: ...
-def set_job_control(
-    self,
-    job_key: str,
-    desired_state: str,
-    *,
-    requested_by: str,
-    reason: str | None = None,
-    at: str | None = None,
-) -> dict: ...
-
-def acknowledge_worker_control(self, worker_id: str, desired_state: str, *, at: str | None = None) -> dict: ...
-def acknowledge_job_control(self, job_key: str, *, at: str | None = None) -> dict: ...
-```
-
-Use `INSERT ... ON CONFLICT ... DO UPDATE` with backend placeholder translation already used by `DashboardStore`.
+Use parameterized `INSERT` statements with `ON CONFLICT(worker_id) DO UPDATE` or `ON CONFLICT(job_key) DO UPDATE` with backend placeholder translation already used by `DashboardStore`.
 
 `acknowledge_worker_control` does not add a new schema column: it verifies the supplied state equals the durable `desired_state`, preserves `requested_at`, and advances `updated_at`. `worker_state` exposes `acknowledged_at = updated_at` only when `updated_at != requested_at`; otherwise it returns null. This keeps the approved schema unchanged while distinguishing request time from worker acknowledgement time.
 
@@ -213,23 +193,33 @@ git commit -m "feat(control): persist worker and job desired state"
 - [ ] **Step 1: Write failing claim-gating tests**
 
 ```python
-def test_paused_worker_cannot_claim_but_can_heartbeat(...):
-    pause_worker("worker-a")
-    status, payload = claim("worker-a")
+def test_paused_worker_cannot_claim_but_can_heartbeat(control_fixture):
+    pause_worker(control_fixture, "worker-a")
+    status, payload = claim(control_fixture, "worker-a")
     assert status == 204
 
-    status, heartbeat = heartbeat_worker("worker-a", active_job_keys=[])
+    status, heartbeat = heartbeat_worker(
+        control_fixture,
+        "worker-a",
+        active_job_keys=[],
+    )
     assert status == 200
     assert heartbeat["worker"]["status"] == "online"
 
 
-def test_draining_worker_finishes_current_job_but_claims_no_second_job(...):
-    first = claim_and_ack("worker-a")
-    set_worker_state("worker-a", "draining")
-    enqueue_second_job()
+def test_draining_worker_finishes_current_job_but_claims_no_second_job(
+    control_fixture,
+):
+    first = claim_and_ack(control_fixture, "worker-a")
+    set_worker_state(control_fixture, "worker-a", "draining")
+    enqueue_second_job(control_fixture)
 
-    assert heartbeat_worker("worker-a", [first["key"]])[0] == 200
-    assert claim("worker-a")[0] == 204
+    assert heartbeat_worker(
+        control_fixture,
+        "worker-a",
+        [first["key"]],
+    )[0] == 200
+    assert claim(control_fixture, "worker-a")[0] == 204
 ```
 
 - [ ] **Step 2: Run tests and verify failure**
@@ -245,7 +235,10 @@ Heartbeat response includes:
 ```python
 "control": {
     "worker": control.dashboard_control.worker_state(worker_id),
-    "jobs": {...},
+    "jobs": {
+        key: control.dashboard_control.job_state(key)
+        for key in active_job_keys
+    },
 }
 ```
 
@@ -337,19 +330,19 @@ git commit -m "feat(production-os): honor worker desired state"
 - [ ] **Step 1: Write failing authorization and response tests**
 
 ```python
-def test_worker_control_requires_operator(...):
+def test_worker_control_requires_operator(control_api_fixture):
     status, _ = post(
         "/v1/dashboard/workers/worker-a/control",
-        viewer_token,
+        control_api_fixture.viewer_token,
         {"action": "pause"},
     )
     assert status == 403
 
 
-def test_pause_returns_requested_state_not_fake_remote_ack(...):
+def test_pause_returns_requested_state_not_fake_remote_ack(control_api_fixture):
     status, payload = post(
         "/v1/dashboard/workers/worker-a/control",
-        operator_token,
+        control_api_fixture.operator_token,
         {"action": "pause"},
     )
     assert status == 202
@@ -439,14 +432,16 @@ git commit -m "feat(control): add operator worker control API"
 - [ ] **Step 1: Write failing multi-job cancellation tests**
 
 ```python
-def test_cancel_request_targets_only_named_job(...):
-    job_a = active_job("worker-a", "job-a")
-    job_b = active_job("worker-a", "job-b")
+def test_cancel_request_targets_only_named_job(control_fixture):
+    active_job(control_fixture, "worker-a", "job-a")
+    active_job(control_fixture, "worker-a", "job-b")
 
-    request_cancel("job-a")
+    request_cancel(control_fixture, "job-a")
 
-    assert control.get_job_control("job-a")["desired_state"] == "cancel_requested"
-    assert control.get_job_control("job-b") is None
+    assert control_fixture.dashboard_control.job_state(
+        "job-a"
+    )["desired_state"] == "cancel_requested"
+    assert control_fixture.dashboard_store.get_job_control("job-b") is None
 ```
 
 Worker test:
@@ -459,7 +454,13 @@ def test_worker_stops_only_when_current_job_has_cancel_directive():
             "jobs": {"job-abc123": {"desired_state": "cancel_requested"}}
         }
     }
-    result = run_once(..., client=fake, run_project=cooperative_runner)
+    result = run_once(
+        fake,
+        worker_id="worker-a",
+        output_root=Path(tempfile.mkdtemp()),
+        run_project=cooperative_runner,
+        heartbeat_interval_seconds=0.01,
+    )
     assert result["status"] == "cancelled"
     assert any(call[0] == "cancelled" for call in fake.calls)
 ```
@@ -526,9 +527,38 @@ def cancel(self, key: str, worker_id: str) -> dict:
     )
 
 def cancel_queued(self, key: str) -> dict:
-    # transactionally require status == "queued", set terminal cancelled,
-    # completed_at/updated_at = now, and append `job-cancelled` event.
-    ...
+    now = _utcnow()
+    with self.backend.transaction() as db:
+        row = db.execute(
+            "SELECT * FROM jobs WHERE key=?",
+            (key,),
+        ).fetchone()
+        if row is None:
+            raise KeyError(key)
+        if row["status"] != "queued":
+            raise RuntimeError(
+                f"job cannot transition from {row['status']}"
+            )
+        db.execute(
+            """
+            UPDATE jobs
+            SET status='cancelled', completed_at=?, updated_at=?
+            WHERE key=?
+            """,
+            (now, now, key),
+        )
+        self.backend.append_event(
+            db,
+            "job-cancelled",
+            {},
+            repository=row["repository"],
+            task_key_value=key,
+        )
+        row = db.execute(
+            "SELECT * FROM jobs WHERE key=?",
+            (key,),
+        ).fetchone()
+    return self._job_dict(row)
 ```
 
 `cancel_queued` must not accept a worker ID and must fail if the job has already been claimed. Replace the comment-body implementation above with the backend's existing transaction/placeholder style; the test must assert the SQL transition and emitted event.
@@ -610,8 +640,13 @@ git commit -m "feat(production-os): honor job cancellation directives"
 - [ ] **Step 1: Write failing retry tests**
 
 ```python
-def test_retry_creates_new_attempt_and_preserves_failed_execution(...):
-    failed = failed_job_for_task("wf-1", "build", delivery_attempt=1)
+def test_retry_creates_new_attempt_and_preserves_failed_execution(control_fixture):
+    failed = failed_job_for_task(
+        control_fixture,
+        "wf-1",
+        "build",
+        delivery_attempt=1,
+    )
     status, payload = retry_job(failed["key"])
 
     assert status == 202
@@ -620,9 +655,11 @@ def test_retry_creates_new_attempt_and_preserves_failed_execution(...):
     assert execution_history(failed["key"])[0]["status"] == "failed"
 
 
-def test_repeated_retry_request_is_idempotent_while_retry_active(...):
-    first = retry_job("job-1")
-    second = retry_job("job-1")
+def test_repeated_retry_request_is_idempotent_while_retry_active(
+    control_fixture,
+):
+    first = retry_job(control_fixture, "job-1")
+    second = retry_job(control_fixture, "job-1")
     assert first["job"]["key"] == second["job"]["key"]
 ```
 
@@ -650,7 +687,46 @@ def retry_task_job(
     *,
     failed_job_key: str,
 ) -> dict:
-    ...
+    failed_job = self.queue.get(failed_job_key)
+    if not self.job_generation_current(failed_job):
+        raise RuntimeError("stale workflow generation")
+    workflow = self.get(workflow_id)
+    task = next(
+        row for row in workflow["tasks"]
+        if row["task_id"] == task_id
+    )
+    if task["status"] not in {"failed", "cancelled"}:
+        raise RuntimeError("workflow task is not retryable")
+    if int(task["attempts"]) >= int(task["max_attempts"]):
+        raise RuntimeError("workflow task max attempts reached")
+    now = _now()
+    with self.backend.transaction() as db:
+        _execute(
+            db,
+            self.backend,
+            """
+            UPDATE workflow_tasks
+            SET status='ready', claimed_job_key=NULL, updated_at=?
+            WHERE workflow_id=? AND task_id=?
+              AND status IN ('failed','cancelled')
+            """,
+            (now, workflow_id, task_id),
+        )
+        self.backend.append_event(
+            db,
+            "workflow-task-retry-requested",
+            {
+                "workflow_id": workflow_id,
+                "task_id": task_id,
+                "retry_of": failed_job_key,
+            },
+            repository=workflow["repository"],
+            task_key_value=failed_job_key,
+        )
+    jobs = self.dispatch_ready(workflow_id, limit=1)
+    if not jobs:
+        raise RuntimeError("retry did not dispatch a job")
+    return jobs[0]
 ```
 
 Inside one backend transaction:
@@ -725,10 +801,12 @@ git commit -m "feat(control): add traceable job retry"
 - [ ] **Step 1: Write failing configured/fallback tests**
 
 ```python
-def test_kick_dispatches_actions_worker_when_configured(...):
+def test_kick_dispatches_actions_worker_when_configured(control_fixture):
     github = FakeGitHub()
     control = DashboardControl(
-        store, queue, workflows,
+        control_fixture.dashboard_store,
+        control_fixture.queue,
+        control_fixture.workflows,
         github=github,
         actions_repository="dbrckk/ai-dev-server",
         actions_workflow="production-os-actions-worker.yml",
@@ -742,8 +820,14 @@ def test_kick_dispatches_actions_worker_when_configured(...):
     )]
 
 
-def test_kick_reports_scheduled_fallback_without_dispatch_credentials(...):
-    control = DashboardControl(store, queue, workflows)
+def test_kick_reports_scheduled_fallback_without_dispatch_credentials(
+    control_fixture,
+):
+    control = DashboardControl(
+        control_fixture.dashboard_store,
+        control_fixture.queue,
+        control_fixture.workflows,
+    )
     result = control.kick_worker("github-actions-worker")
     assert result == {
         "status": "scheduled_fallback",
@@ -864,11 +948,11 @@ Each alert returns:
 
 ```python
 {
-    "code": "...",
-    "severity": "info|medium|high",
-    "title": "...",
-    "message": "...",
-    "evidence": {...},
+    "code": "queue_without_worker",
+    "severity": "high",
+    "title": "Travail en attente sans worker",
+    "message": "3 productions sont en attente et aucun worker n'est en ligne.",
+    "evidence": {"queued": 3, "online_workers": 0},
 }
 ```
 
@@ -1009,12 +1093,18 @@ git commit -m "feat(dashboard): add worker control center"
 
 ```python
 def test_paused_state_survives_control_plane_restart(tmp_path):
-    first = ControlPlane(str(tmp_path / "production.db"), ...)
+    first = ControlPlane(
+        str(tmp_path / "production.db"),
+        authorizer=test_authorizer(),
+    )
     first.dashboard_control.set_worker_state(
         "worker-a", "paused", requested_by="operator:dashboard"
     )
 
-    second = ControlPlane(str(tmp_path / "production.db"), ...)
+    second = ControlPlane(
+        str(tmp_path / "production.db"),
+        authorizer=test_authorizer(),
+    )
     assert second.dashboard_control.worker_state("worker-a")["desired_state"] == "paused"
 ```
 
