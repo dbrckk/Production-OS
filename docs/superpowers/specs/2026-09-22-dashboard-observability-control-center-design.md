@@ -181,7 +181,8 @@ Allowed `desired_state` values:
 
 - `active`
 - `cancel_requested`
-- `cancelled`
+
+The authoritative cancellation outcome remains `jobs.status='cancelled'`; the control table records operator intent and acknowledgement, not a second copy of job outcome state.
 
 This prevents a worker-wide cancellation flag from ambiguously targeting one of several concurrent jobs.
 
@@ -217,6 +218,10 @@ Required fields:
 - `retry_of_execution_id TEXT NULL`
 - `error_type TEXT NULL`
 - `error_message TEXT NULL`
+- `current_stage TEXT NULL`
+- `progress_percent REAL NULL`
+- `live_usage_json TEXT NOT NULL DEFAULT '{}'`
+- `last_telemetry_at TEXT NULL`
 - `result_summary_json TEXT NOT NULL DEFAULT '{}'`
 - `created_at TEXT NOT NULL`
 
@@ -417,7 +422,43 @@ The worker result envelope must support normalized telemetry:
 
 Fields may be absent when the underlying provider or runner cannot supply them. Absence remains unknown, not zero, unless the producer explicitly reports zero.
 
-### 7.3 Cost calculation
+### 7.3 Live worker telemetry
+
+Workers need an intermediate telemetry path so the dashboard can show current stage, task progress, and known API usage before a job completes.
+
+Endpoint:
+
+`POST /v1/jobs/{job_key}/telemetry`
+
+Authentication: `worker`.
+
+The request must include the worker identity and may include:
+
+- current stage;
+- progress percentage 0–100;
+- cumulative known usage totals;
+- cumulative provider/model usage breakdown;
+- structured log entries;
+- optional current result/evidence summary.
+
+Production-OS validates that the job is currently claimed by that worker before accepting telemetry.
+
+The server updates only the active `job_executions` row's live fields:
+
+- `current_stage`
+- `progress_percent`
+- `live_usage_json`
+- `last_telemetry_at`
+
+Progress is clamped to 0–100 and must not move backwards for the same execution unless the worker explicitly starts a new stage that declares its own nested progress. Dashboard task progress therefore remains stable instead of oscillating because of malformed worker updates.
+
+Live usage payloads are cumulative for the current execution. The server replaces the latest live snapshot rather than summing repeated heartbeats, preventing double counting. Provider/model `api_usage_events` are finalized from the correlated completion/failure envelope, where possible.
+
+Structured log entries supplied through telemetry are redacted server-side before insertion into `worker_log_events`.
+
+This endpoint is observability-only: malformed optional telemetry must not invalidate an otherwise valid heartbeat or completion path.
+
+### 7.4 Cost calculation
 
 Token counts are raw facts. Cost is derived.
 
@@ -564,9 +605,11 @@ Worker control is based on durable desired state.
 ### drain
 
 - sets desired state to `draining`;
+- worker immediately stops claiming new work;
 - worker finishes active jobs;
-- worker does not claim new work;
-- intended for graceful maintenance.
+- while active jobs remain, observed state may be `busy` with desired state `draining`;
+- once active jobs reach zero, the worker reports `drained` while continuing heartbeat/reconciliation;
+- intended for graceful maintenance or shutdown preparation.
 
 ### resume
 
@@ -847,6 +890,8 @@ Existing deployments must retain:
 - current dashboard launch capability;
 - existing auth tokens and role behavior.
 
+Workers without a `worker_control_state` row are interpreted as desired state `active` until an operator changes that state. This makes the migration compatible with existing workers without requiring an eager row for every historical worker.
+
 Backfill strategy:
 
 - use `execution_history` for historical durations/success/worker association;
@@ -903,6 +948,9 @@ Tests for SQLite and PostgreSQL:
 
 Tests for:
 
+- live telemetry ownership validation;
+- cumulative live usage without double counting;
+- monotonic active-execution progress;
 - normalized token aggregation;
 - unknown vs explicit zero;
 - provider/model breakdown;
