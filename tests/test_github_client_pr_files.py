@@ -69,3 +69,20 @@ def test_list_pull_request_files_rejects_invalid_payload():
         assert "not a list" in str(exc)
     else:
         raise AssertionError("expected GitHubAPIError")
+
+
+def test_default_branch_commit_count_uses_last_link_page():
+    client = GitHubClient("token")
+    client._request_json_with_headers = lambda method, path: (
+        [{"sha":"a"*40}],
+        {"Link": '<https://api.github.com/repos/dbrckk/example/commits?sha=main&per_page=1&page=214>; rel="last"'},
+    )
+    assert client.default_branch_commit_count("dbrckk/example", "main") == 214
+
+
+def test_default_branch_commit_count_handles_single_and_empty():
+    client = GitHubClient("token")
+    client._request_json_with_headers = lambda method, path: ([{"sha":"a"*40}], {})
+    assert client.default_branch_commit_count("dbrckk/example", "main") == 1
+    client._request_json_with_headers = lambda method, path: ([], {})
+    assert client.default_branch_commit_count("dbrckk/example", "main") == 0
