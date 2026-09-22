@@ -14,10 +14,7 @@ def _auth():
 
 def test_observability_lifecycle_uses_final_usage_and_attributed_commits(tmp_path):
     control=ControlPlane(str(tmp_path/"db.sqlite"),authorizer=_auth())
-    workflow=control.workflows.create(
-        "observability-e2e","dbrckk/example",
-        [WorkflowTaskSpec(task_id="build",title="Build",payload={},estimated_minutes=30)],
-    )
+    workflow=control.workflows.create(\n        name="observability-e2e",repository="dbrckk/example",\n        tasks=[WorkflowTaskSpec(task_id="build",title="Build",payload={},estimated_minutes=30)],\n    )
     control.workers.register("worker-a",["python"],1)
     control.workflows.dispatch_ready(workflow["id"],limit=1)
     job=control.queue.claim_next("worker-a",capabilities=["python"])
