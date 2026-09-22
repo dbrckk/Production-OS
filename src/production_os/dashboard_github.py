@@ -24,6 +24,9 @@ class RepositorySnapshotter:
         value = str(repository or "").strip()
         if not _REPOSITORY.fullmatch(value):
             raise ValueError("invalid repository")
+        owner, name = value.split("/", 1)
+        if owner in {".", ".."} or name in {".", ".."}:
+            raise ValueError("invalid repository")
         return value
 
     def refresh(self, repository: str) -> dict:
