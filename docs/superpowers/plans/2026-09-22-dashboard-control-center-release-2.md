@@ -736,7 +736,7 @@ Inside one backend transaction:
 4. check `attempts < max_attempts`;
 5. move task to `ready`;
 6. clear `claimed_job_key` but preserve prior `result_json` in execution history/event evidence;
-7. call normal `dispatch_ready(..., limit=1)` after transaction.
+7. call `jobs = self.dispatch_ready(workflow_id, limit=1)` after the transaction and require exactly one returned retry job.
 
 Do not construct a job that bypasses the workflow engine.
 
