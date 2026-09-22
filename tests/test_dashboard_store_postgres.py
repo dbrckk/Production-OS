@@ -2,6 +2,7 @@ import os
 
 import pytest
 
+from production_os.dashboard_store import DashboardStore
 from production_os.postgres_backend import PostgresBackend
 
 
@@ -105,3 +106,66 @@ def test_postgres_schema_v9_initialization_is_idempotent():
             rows = cur.fetchall()
 
     assert rows == [{"key": "schema_version", "value": "9"}]
+
+
+
+def _reset_dashboard_tables(backend):
+    with backend.connect() as db:
+        with db.cursor() as cur:
+            cur.execute(
+                """
+                TRUNCATE api_usage_events, worker_log_events,
+                    provider_quota_snapshots, project_progress_snapshots,
+                    project_repository_snapshots, job_executions
+                CASCADE
+                """
+            )
+
+
+def test_postgres_dashboard_store_execution_lifecycle_parity():
+    backend = PostgresBackend(DSN)
+    _reset_dashboard_tables(backend)
+    store = DashboardStore(backend)
+    job = {
+        "key": "pg-job-1",
+        "repository": "dbrckk/example",
+        "task": "ship",
+        "delivery_attempt": 1,
+        "payload": {
+            "workflow_id": "wf-pg",
+            "workflow_task_id": "build",
+        },
+    }
+
+    started = store.start_execution(job, "worker-pg")
+    live = store.update_live_execution(
+        "pg-job-1",
+        "worker-pg",
+        {"stage": "implementation", "progress": 25},
+    )
+    finished = store.finish_execution(
+        "pg-job-1",
+        "worker-pg",
+        status="succeeded",
+        duration_seconds=4.5,
+        result={
+            "commits": {"shas": ["c" * 40]},
+            "usage": {
+                "providers": [
+                    {
+                        "provider": "studio",
+                        "model": "model-a",
+                        "total_tokens": 50,
+                    }
+                ]
+            },
+        },
+    )
+
+    assert started["status"] == "running"
+    assert live["progress_percent"] == 25
+    assert finished["status"] == "succeeded"
+    assert finished["commit_shas"] == ["c" * 40]
+    assert store.usage_events(repository="dbrckk/example")[0][
+        "total_tokens"
+    ] == 50
