@@ -560,4 +560,4 @@ function schedulePoll(key,intervalMs,fn){
 }
 </script>
 </body>
-</html>"""\n
+</html>"""
