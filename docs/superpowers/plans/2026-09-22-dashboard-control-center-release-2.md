@@ -818,6 +818,15 @@ git commit -m "feat(control): add traceable job retry"
 - [ ] **Step 1: Write failing configured/fallback tests**
 
 ```python
+class FakeGitHub:
+    def __init__(self):
+        self.calls = []
+
+    def dispatch_workflow(self, repository, workflow, ref, inputs=None):
+        self.calls.append((repository, workflow, ref))
+        return None
+
+
 def test_kick_dispatches_actions_worker_when_configured(control_fixture):
     github = FakeGitHub()
     control = DashboardControl(
