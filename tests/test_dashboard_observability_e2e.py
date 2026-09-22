@@ -60,3 +60,34 @@ def test_attributed_commit_count_deduplicates_sha_across_executions(tmp_path):
         store.finish_execution(job["key"],"worker-a",status="succeeded",duration_seconds=1,
                                result={"commits":{"shas":["b"*40]}})
     assert control.dashboard.project_commits("dbrckk/example","all")["production_os"] == 1
+
+
+def test_secret_like_log_values_are_redacted_before_persistence(tmp_path):
+    control=ControlPlane(str(tmp_path/"db.sqlite"),authorizer=_auth())
+    control.dashboard_store.append_logs("worker-a",[{
+        "message":"Authorization: Bearer super-secret-token",
+        "metadata":{"api_key":"abc123","nested":{"password":"pw"}},
+    }])
+    row=control.dashboard_store.logs_for_worker("worker-a")[0]
+    assert "super-secret-token" not in row["message"]
+    assert row["metadata"]["api_key"] == "[REDACTED]"
+    assert row["metadata"]["nested"]["password"] == "[REDACTED]"
+
+
+def test_project_progress_exposes_weighted_current_workflow(tmp_path):
+    control=ControlPlane(str(tmp_path/"db.sqlite"),authorizer=_auth())
+    workflow=control.workflows.create(
+        name="progress-e2e",
+        repository="dbrckk/example",
+        tasks=[
+            WorkflowTaskSpec(task_id="done",title="Done",payload={},estimated_minutes=10),
+            WorkflowTaskSpec(task_id="todo",title="Todo",payload={},estimated_minutes=30),
+        ],
+    )
+    with control.backend.transaction() as db:
+        db.execute("UPDATE workflow_tasks SET status='succeeded' WHERE workflow_id=? AND task_id=?",
+                   (workflow["id"],"done"))
+    progress=control.dashboard.project_progress("dbrckk/example")
+    assert progress["production"]["percent"] == 25.0
+    assert progress["estimate"]["calculation_version"] == "project-progress/v1"
+    assert progress["estimate"]["confidence"] in {"low","medium","high"}
