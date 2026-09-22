@@ -87,3 +87,31 @@ def test_dashboard_pairing_validates_operator_token_before_accepting():
     assert "await api('/v1/workers')" in DASHBOARD_HTML
     assert "Token opérateur invalide." in DASHBOARD_HTML
     assert "Vérification de l’appairage..." in DASHBOARD_HTML
+
+
+def test_dashboard_v2_surfaces_runtime_health_and_recent_runs():
+    assert 'id="server-state"' in DASHBOARD_HTML
+    assert 'id="pair-state"' in DASHBOARD_HTML
+    assert 'id="worker-state"' in DASHBOARD_HTML
+    assert 'id="recent-runs"' in DASHBOARD_HTML
+    assert "loadRecentRuns()" in DASHBOARD_HTML
+    assert "refreshDashboard()" in DASHBOARD_HTML
+
+
+def test_dashboard_v2_explains_offline_worker_and_queued_launch():
+    assert 'id="runtime-warning"' in DASHBOARD_HTML
+    assert "Worker hors ligne" in DASHBOARD_HTML
+    assert "Production créée · en attente du worker" in DASHBOARD_HTML
+
+
+def test_dashboard_v2_has_readable_auth_errors():
+    assert "Token opérateur refusé par le serveur." in DASHBOARD_HTML
+    assert "Ce token n’a pas le rôle requis." in DASHBOARD_HTML
+    assert "r.status===401" in DASHBOARD_HTML
+    assert "r.status===403" in DASHBOARD_HTML
+
+
+def test_dashboard_v2_has_mobile_primary_launch_action():
+    assert 'id="launch-button"' in DASHBOARD_HTML
+    assert "Lancer la production" in DASHBOARD_HTML
+    assert "@media(max-width:560px)" in DASHBOARD_HTML
