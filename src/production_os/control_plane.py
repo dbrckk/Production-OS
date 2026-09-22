@@ -13,6 +13,7 @@ from .speculation import SpeculationManager
 from .portfolio_optimizer import PortfolioOptimizer
 from .github_client import GitHubClient
 from .release_ledger import ReleaseLedger
+from .dashboard_store import DashboardStore
 from .github_webhook import (
     WebhookDeliveryStore,
     WebhookError,
@@ -44,6 +45,7 @@ class ControlPlane:
         require_trusted_builder: bool = False,
     ):
         self.backend = open_backend(database)
+        self.dashboard_store = DashboardStore(self.backend)
         self.queue = job_queue_for(self.backend)
         self.workers = worker_registry_for(self.backend)
         self.workflows = WorkflowEngine(self.backend, self.queue)
@@ -1501,6 +1503,41 @@ def make_handler(control: ControlPlane):
                             else None
                         ),
                     )
+                    capacity = body.get("capacity")
+                    if isinstance(capacity, dict):
+                        source = str(capacity.get("source") or "").strip()
+                        source_status = str(capacity.get("status") or "unavailable")
+                        used = capacity.get("used_this_month")
+                        remaining = capacity.get("remaining_tokens")
+                        if source:
+                            authenticated = (
+                                source_status == "ok"
+                                and capacity.get("authenticated_usage") is True
+                            )
+                            used_value = used if authenticated and isinstance(used, int) else None
+                            remaining_value = (
+                                remaining
+                                if authenticated and isinstance(remaining, int)
+                                else None
+                            )
+                            limit_value = (
+                                used_value + remaining_value
+                                if used_value is not None and remaining_value is not None
+                                else None
+                            )
+                            control.dashboard_store.save_provider_quota_snapshot({
+                                "id": f"{source}:{__import__('time').time_ns()}",
+                                "provider": source,
+                                "quota_type": "monthly_tokens",
+                                "used_value": used_value,
+                                "limit_value": limit_value,
+                                "remaining_value": remaining_value,
+                                "unit": "tokens",
+                                "source_status": "authenticated" if authenticated else "unavailable",
+                                "captured_at": __import__("datetime").datetime.now(
+                                    __import__("datetime").timezone.utc
+                                ).isoformat(),
+                            })
                     active_job_keys = body.get(
                         "active_job_keys",
                         [],
@@ -1731,11 +1768,50 @@ def make_handler(control: ControlPlane):
                             },
                         )
                         return
-                    job = control.queue.ack(
-                        key,
-                        str(body["worker_id"]),
-                    )
+                    worker_id = str(body["worker_id"])
+                    job = control.queue.ack(key, worker_id)
+                    control.dashboard_store.start_execution(job, worker_id)
                     self._send(HTTPStatus.OK, {"job":job})
+                    return
+
+                if (
+                    parsed.path.startswith("/v1/jobs/")
+                    and parsed.path.endswith("/telemetry")
+                ):
+                    principal = self._require("worker")
+                    if principal is None:
+                        return
+                    parts = [part for part in parsed.path.split("/") if part]
+                    if len(parts) != 4 or parts[:2] != ["v1", "jobs"]:
+                        self._send(HTTPStatus.NOT_FOUND, {"error":"not found"})
+                        return
+                    key = parts[2]
+                    worker_id = str(body.get("worker_id") or "")
+                    job = control.queue.get(key)
+                    if job.get("claimed_by") != worker_id:
+                        self._send(
+                            HTTPStatus.CONFLICT,
+                            {"error":"job claim owner mismatch"},
+                        )
+                        return
+                    execution = control.dashboard_store.update_live_execution(
+                        key, worker_id, body
+                    )
+                    logs = body.get("logs") or []
+                    if logs:
+                        if not isinstance(logs, list):
+                            raise ValueError("logs must be a list")
+                        enriched = [
+                            {
+                                **dict(row),
+                                "repository": job.get("repository"),
+                                "job_key": key,
+                            }
+                            for row in logs
+                            if isinstance(row, dict)
+                        ]
+                        control.dashboard_store.append_logs(worker_id, enriched)
+                    self._send(HTTPStatus.OK, {"execution":execution})
                     return
 
                 if parsed.path == "/v1/jobs/stale-checkpoint":
@@ -1847,6 +1923,17 @@ def make_handler(control: ControlPlane):
                         return
 
                     job = control.queue.complete(key, worker_id)
+                    control.dashboard_store.finish_execution(
+                        key,
+                        worker_id,
+                        status="succeeded",
+                        duration_seconds=(
+                            float(duration_seconds)
+                            if duration_seconds is not None
+                            else None
+                        ),
+                        result=dict(body.get("result") or {}),
+                    )
                     cancelled = []
                     if group_id is not None:
                         cancelled = control.speculation.cancel_losers(
@@ -1919,6 +2006,18 @@ def make_handler(control: ControlPlane):
                         key,
                         worker_id,
                         reason,
+                    )
+                    control.dashboard_store.finish_execution(
+                        key,
+                        worker_id,
+                        status="failed",
+                        duration_seconds=(
+                            float(duration_seconds)
+                            if duration_seconds is not None
+                            else None
+                        ),
+                        result=dict(body.get("result") or {}),
+                        error_message=reason,
                     )
                     group_id = control.speculation.group_for_job(key)
                     if (
