@@ -83,121 +83,196 @@ def _json_bytes(payload: dict | list) -> bytes:
 
 
 DASHBOARD_HTML = """<!doctype html>
-<html>
+<html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1020">
 <title>Production-OS</title>
 <style>
-body{font-family:system-ui,sans-serif;max-width:760px;margin:24px auto;padding:0 16px}
-select,textarea,button,input{font:inherit;padding:12px;box-sizing:border-box}
-select,textarea,input{width:100%;margin:6px 0 16px}
-button{cursor:pointer}
-.card{border:1px solid #ddd;border-radius:12px;padding:16px;margin-bottom:16px}
-.actions{display:flex;gap:8px;align-items:center}
-.status{min-height:24px;font-weight:600}
-.small{font-size:.9rem;opacity:.75}
-.quality-badge{display:inline-block;padding:5px 10px;border-radius:999px;font-weight:700;font-size:.85rem}
-.quality-ok{background:#e8f7ed;color:#176b33}
-.quality-regenerated{background:#fff4d6;color:#7a5600}
-.quality-low{background:#fde8e8;color:#9b1c1c}
-.quality-unknown{background:#eef1f5;color:#4b5563}
-.asset-row{display:flex;gap:10px;align-items:center;padding:8px 0;border-top:1px solid #eee}
-.asset-thumb{width:48px;height:48px;object-fit:contain;border-radius:8px;background:#f5f5f5}
+:root{
+ --bg:#080d18;--panel:#101827;--panel2:#151f31;--line:#25324a;--text:#f4f7fb;
+ --muted:#94a3b8;--accent:#6ea8fe;--accent2:#8b5cf6;--ok:#34d399;--warn:#fbbf24;
+ --bad:#fb7185;--shadow:0 20px 50px rgba(0,0,0,.28);--radius:18px
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{
+ margin:0;min-height:100vh;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+ color:var(--text);background:
+ radial-gradient(circle at 10% -10%,rgba(110,168,254,.18),transparent 34rem),
+ radial-gradient(circle at 100% 0,rgba(139,92,246,.15),transparent 28rem),var(--bg)
+}
+.shell{max-width:900px;margin:0 auto;padding:18px 14px 48px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.logo{
+ width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-weight:900;
+ background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 12px 30px rgba(110,168,254,.24)
+}
+.brand h1{font-size:1.28rem;margin:0;letter-spacing:-.02em}
+.brand p{margin:2px 0 0;color:var(--muted);font-size:.82rem}
+.icon-btn,.secondary-btn,.primary-btn{
+ border:1px solid var(--line);color:var(--text);background:var(--panel2);cursor:pointer;
+ border-radius:13px;font:inherit;font-weight:700;transition:.15s ease
+}
+.icon-btn{width:44px;height:44px;padding:0;font-size:1.15rem}
+.icon-btn:active,.secondary-btn:active,.primary-btn:active{transform:scale(.98)}
+.status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.status-card{background:rgba(16,24,39,.88);border:1px solid var(--line);border-radius:15px;padding:11px 12px;min-width:0}
+.status-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+.status-value{font-size:.88rem;font-weight:800;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;background:var(--muted)}
+.dot.ok{background:var(--ok);box-shadow:0 0 0 4px rgba(52,211,153,.10)}
+.dot.warn{background:var(--warn);box-shadow:0 0 0 4px rgba(251,191,36,.10)}
+.dot.bad{background:var(--bad);box-shadow:0 0 0 4px rgba(251,113,133,.10)}
+.card{background:rgba(16,24,39,.94);border:1px solid var(--line);border-radius:var(--radius);padding:17px;margin-bottom:14px;box-shadow:var(--shadow)}
+.card h2{font-size:1rem;margin:0 0 14px}
+label{display:block;font-size:.82rem;font-weight:800;color:#cbd5e1;margin-bottom:6px}
+select,textarea,input{
+ width:100%;border:1px solid var(--line);background:#0c1422;color:var(--text);
+ border-radius:13px;font:inherit;padding:12px 13px;outline:none
+}
+select:focus,textarea:focus,input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(110,168,254,.12)}
+select{margin-bottom:14px}
+textarea{resize:vertical;min-height:150px;line-height:1.45}
+.launch-row{display:grid;grid-template-columns:1fr auto;gap:9px;margin-top:13px}
+.primary-btn{
+ border:none;padding:13px 17px;background:linear-gradient(135deg,#4f8dfd,#7c5ce7);
+ box-shadow:0 12px 28px rgba(79,141,253,.22);min-height:48px
+}
+.primary-btn[disabled]{opacity:.55;cursor:wait}
+.secondary-btn{padding:11px 14px}
+.status-message{margin:11px 0 0;min-height:20px;font-size:.88rem;font-weight:700;color:#cbd5e1}
+.worker-detail{margin:7px 0 0;color:var(--muted);font-size:.8rem}
+.runtime-warning{display:none;margin-top:10px;padding:10px 12px;border-radius:12px;background:rgba(251,191,36,.10);border:1px solid rgba(251,191,36,.25);color:#fde68a;font-size:.82rem}
+.runtime-warning.show{display:block}
+.section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px}
+.section-head h2{margin:0}
+.badge{display:inline-flex;align-items:center;border-radius:999px;padding:5px 9px;font-size:.75rem;font-weight:800;background:#1e293b;color:#cbd5e1}
+.run-list{display:grid;gap:8px}
+.run{
+ display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:11px 12px;
+ border:1px solid var(--line);border-radius:13px;background:#0c1422
+}
+.run-title{font-size:.85rem;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.run-meta{font-size:.74rem;color:var(--muted);margin-top:3px}
+.run-state{font-size:.72rem;font-weight:900;border-radius:999px;padding:5px 8px}
+.state-succeeded{background:rgba(52,211,153,.12);color:#6ee7b7}
+.state-running,.state-ready,.state-pending{background:rgba(110,168,254,.12);color:#93c5fd}
+.state-failed,.state-cancelled{background:rgba(251,113,133,.12);color:#fda4af}
+.state-other{background:#1e293b;color:#cbd5e1}
+.empty{color:var(--muted);font-size:.84rem;padding:7px 2px}
+.quality-badge{display:inline-block;padding:5px 10px;border-radius:999px;font-weight:800;font-size:.78rem}
+.quality-ok{background:rgba(52,211,153,.12);color:#6ee7b7}
+.quality-regenerated{background:rgba(251,191,36,.12);color:#fde68a}
+.quality-low{background:rgba(251,113,133,.12);color:#fda4af}
+.quality-unknown{background:#1e293b;color:#cbd5e1}
+.small{font-size:.8rem;color:var(--muted)}
+.asset-row{display:flex;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
+.asset-thumb{width:50px;height:50px;object-fit:contain;border-radius:10px;background:#07101c}
 .asset-meta{min-width:0;overflow-wrap:anywhere}
-.history-row{padding:6px 0;border-top:1px solid #eee}
-#settings{display:none;position:fixed;z-index:1000;top:16px;left:16px;right:16px;max-width:680px;margin:0 auto;max-height:calc(100vh - 32px);overflow:auto;background:#fff;box-shadow:0 18px 60px rgba(0,0,0,.28)}
+.asset-meta a{color:#bfdbfe;text-decoration:none}
+.history-row{padding:7px 0;border-top:1px solid var(--line);font-size:.8rem;color:var(--muted)}
+#settings{display:none;position:fixed;z-index:1000;inset:0;padding:18px;background:rgba(3,7,18,.72);backdrop-filter:blur(8px);overflow:auto}
 #settings.open{display:block}
+.settings-panel{max-width:520px;margin:8vh auto 0;background:#101827;border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:0 30px 80px rgba(0,0,0,.45)}
+.settings-panel h2{margin:0 0 7px}
+.settings-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.settings-actions .secondary-btn:last-child{grid-column:1/-1}
+.pair-feedback{min-height:18px;margin-top:9px;font-size:.8rem;font-weight:700}
+.footer-note{text-align:center;color:#64748b;font-size:.72rem;margin-top:18px}
+@media(max-width:560px){
+ .shell{padding:14px 12px 38px}
+ .status-grid{grid-template-columns:1fr}
+ .status-card{display:flex;justify-content:space-between;align-items:center;gap:10px}
+ .status-value{margin-top:0;text-align:right}
+ .card{padding:15px}
+ .launch-row{grid-template-columns:1fr auto}
+ textarea{min-height:180px}
+ .settings-panel{margin-top:3vh}
+}
 </style>
 </head>
 <body>
-<h1>Production-OS</h1>
+<div class="shell">
+ <div class="topbar">
+  <div class="brand">
+   <div class="logo">P</div>
+   <div><h1>Production-OS</h1><p>Centre de production autonome</p></div>
+  </div>
+  <button id="settings-button" class="icon-btn" type="button" onclick="toggleSettings()" aria-label="Settings">⚙</button>
+ </div>
 
-<div class="card">
-<label for="repository"><b>Repository</b></label>
-<select id="repository"><option value="dbrckk/Jumpy">dbrckk/Jumpy</option></select>
+ <div class="status-grid">
+  <div class="status-card"><div class="status-label">Serveur</div><div id="server-state" class="status-value"><span class="dot warn"></span>Vérification</div></div>
+  <div class="status-card"><div class="status-label">Appairage</div><div id="pair-state" class="status-value"><span class="dot warn"></span>Non appairé</div></div>
+  <div class="status-card"><div class="status-label">Worker</div><div id="worker-state" class="status-value"><span class="dot warn"></span>Vérification</div></div>
+ </div>
 
-<label for="instruction"><b>Instruction</b></label>
-<textarea id="instruction" rows="7" placeholder="Ex: Continue le développement et corrige les blocages principaux."></textarea>
+ <div class="card">
+  <h2>Nouvelle production</h2>
+  <label for="repository">Repository</label>
+  <select id="repository"><option value="dbrckk/Jumpy">dbrckk/Jumpy</option></select>
+  <label for="instruction">Instruction</label>
+  <textarea id="instruction" rows="7" placeholder="Décris le résultat final attendu. Production-OS s'occupe de l'exécution."></textarea>
+  <div class="launch-row">
+   <button id="launch-button" class="primary-btn" onclick="launchWorkflow()">Lancer la production</button>
+   <button class="secondary-btn" type="button" onclick="refreshDashboard()" aria-label="Actualiser">↻</button>
+  </div>
+  <p id="launch-status" class="status-message"></p>
+  <p id="worker-status" class="worker-detail">Capacités worker : vérification...</p>
+  <div id="runtime-warning" class="runtime-warning">Worker hors ligne : la production peut être créée, mais elle restera en attente jusqu'à la reconnexion du moteur d'exécution.</div>
+ </div>
 
-<div class="actions">
-<button onclick="launchWorkflow()">Lancer</button>
-<button id="settings-button" type="button" onclick="toggleSettings()" aria-label="Settings">⚙</button>
+ <div class="card">
+  <div class="section-head"><h2>Productions récentes</h2><span id="runs-count" class="badge">0</span></div>
+  <div id="recent-runs" class="run-list"><div class="empty">Aucune production chargée.</div></div>
+ </div>
+
+ <div class="card">
+  <div class="section-head"><h2>Qualité visuelle</h2><span id="visual-quality" class="quality-badge quality-unknown">Inconnu</span></div>
+  <p id="visual-quality-detail" class="small">Aucun résultat visuel chargé.</p>
+  <div id="visual-assets-list" class="small"></div>
+  <h3 style="font-size:.85rem;margin:15px 0 6px">Historique</h3>
+  <div id="visual-quality-history" class="small"></div>
+ </div>
+
+ <p class="footer-note">Production-OS · tableau de contrôle mobile</p>
 </div>
-<p id="launch-status" class="status"></p>
-<p id="worker-status" class="small">Capacités worker : vérification...</p>
-</div>
 
-<div class="card">
-<h2>Visual Quality</h2>
-<p><span id="visual-quality" class="quality-badge quality-unknown">Inconnu</span></p>
-<p id="visual-quality-detail" class="small">Aucun résultat visuel chargé.</p>
-<div id="visual-assets-list" class="small"></div>
-<h3>Historique</h3>
-<div id="visual-quality-history" class="small"></div>
-</div>
-
-<div id="settings" class="card">
-<h2>Appairage de cet appareil</h2>
-<p class="small">À faire une seule fois. Le token reste uniquement dans le stockage local de ce navigateur et n'est jamais affiché dans le dashboard normal.</p>
-<input id="pair-token" type="password" placeholder="Operator token" autocomplete="off">
-<div class="actions">
-<button type="button" onclick="savePairing()">Enregistrer</button>
-<button type="button" onclick="clearPairing()">Oublier cet appareil</button>
-<button type="button" onclick="setSettingsOpen(false)">Fermer</button>
-</div>
+<div id="settings">
+ <div class="settings-panel">
+  <div class="section-head"><h2>Appairage</h2><button class="icon-btn" type="button" onclick="setSettingsOpen(false)" aria-label="Fermer">×</button></div>
+  <p class="small">À faire une seule fois sur cet appareil. Le token reste dans le stockage local de ce navigateur.</p>
+  <input id="pair-token" type="password" placeholder="Operator token" autocomplete="off">
+  <div id="pair-feedback" class="pair-feedback"></div>
+  <div class="settings-actions">
+   <button class="primary-btn" type="button" onclick="savePairing()">Enregistrer</button>
+   <button class="secondary-btn" type="button" onclick="clearPairing()">Oublier</button>
+   <button class="secondary-btn" type="button" onclick="setSettingsOpen(false)">Fermer</button>
+  </div>
+ </div>
 </div>
 
 <script>
 const TOKEN_KEY='production_os_operator_token';
+let workerOnline=false;
+let refreshBusy=false;
 
 function token(){return localStorage.getItem(TOKEN_KEY)||''}
-
+function esc(value){return String(value).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})}
+function dot(state){return '<span class="dot '+state+'"></span>'}
+function setState(id,state,text){document.getElementById(id).innerHTML=dot(state)+esc(text)}
 function setSettingsOpen(open){
  const el=document.getElementById('settings');
  el.classList.toggle('open',Boolean(open));
- if(open){
-  setTimeout(()=>document.getElementById('pair-token').focus(),0);
- }
+ if(open){setTimeout(function(){document.getElementById('pair-token').focus()},0)}
 }
+function toggleSettings(){const el=document.getElementById('settings');setSettingsOpen(!el.classList.contains('open'))}
 
-function toggleSettings(){
- const el=document.getElementById('settings');
- setSettingsOpen(!el.classList.contains('open'));
-}
-
-async function savePairing(){
- const input=document.getElementById('pair-token');
- const value=input.value.trim();
- const status=document.getElementById('launch-status');
- if(!value){
-  status.textContent='Entre le token opérateur.';
-  return;
- }
- const previous=token();
- localStorage.setItem(TOKEN_KEY,value);
- status.textContent='Vérification de l’appairage...';
- try{
-  await api('/v1/workers');
-  input.value='';
-  setSettingsOpen(false);
-  status.textContent='Appareil appairé.';
-  await loadWorkerStatus();
-  await loadVisualQuality();
- }catch(_e){
-  if(previous) localStorage.setItem(TOKEN_KEY,previous);
-  else localStorage.removeItem(TOKEN_KEY);
-  status.textContent='Token opérateur invalide. Vérifie le token puis réessaie.';
- }
-}
-
-function clearPairing(){
- localStorage.removeItem(TOKEN_KEY);
- document.getElementById('launch-status').textContent='Appairage supprimé.';
- document.getElementById('worker-status').textContent='Worker : appairage requis via ⚙.';
-}
-
-async function api(path,options={}){
+async function api(path,options){
+ options=options||{};
  const secret=token();
  if(!secret) throw new Error('Cet appareil doit être appairé une seule fois via ⚙.');
  const headers=Object.assign(
@@ -205,9 +280,69 @@ async function api(path,options={}){
   options.body?{'Content-Type':'application/json'}:{},
   options.headers||{}
  );
- const r=await fetch(path,Object.assign({},options,{headers}));
- if(!r.ok) throw new Error(await r.text());
+ const r=await fetch(path,Object.assign({},options,{headers:headers}));
+ if(!r.ok){
+  let detail='';
+  try{
+   const payload=await r.json();
+   detail=String(payload.error||'');
+  }catch(_e){
+   try{detail=(await r.text()).slice(0,180)}catch(_ignore){}
+  }
+  if(r.status===401) throw new Error('Token opérateur refusé par le serveur.');
+  if(r.status===403) throw new Error('Ce token n’a pas le rôle requis.');
+  throw new Error(detail||('Erreur serveur '+r.status));
+ }
+ if(r.status===204) return {};
  return await r.json();
+}
+
+async function checkServer(){
+ try{
+  const r=await fetch('/health',{cache:'no-store'});
+  if(!r.ok) throw new Error('health');
+  setState('server-state','ok','En ligne');
+  return true;
+ }catch(_e){
+  setState('server-state','bad','Indisponible');
+  return false;
+ }
+}
+
+async function savePairing(){
+ const input=document.getElementById('pair-token');
+ const value=input.value.trim();
+ const feedback=document.getElementById('pair-feedback');
+ const status=document.getElementById('launch-status');
+ if(!value){feedback.textContent='Entre le token opérateur.';return}
+ const previous=token();
+ localStorage.setItem(TOKEN_KEY,value);
+ feedback.textContent='Vérification de l’appairage...';
+ status.textContent='Vérification de l’appairage...';
+ try{
+  await api('/v1/workers');
+  input.value='';
+  feedback.textContent='';
+  setSettingsOpen(false);
+  setState('pair-state','ok','Appairé');
+  status.textContent='Appareil appairé.';
+  await refreshDashboard();
+ }catch(e){
+  if(previous) localStorage.setItem(TOKEN_KEY,previous); else localStorage.removeItem(TOKEN_KEY);
+  setState('pair-state','bad','Token refusé');
+  feedback.textContent=String(e).replace(/^Error:\s*/,'');
+  status.textContent='Token opérateur invalide. Vérifie le token puis réessaie.';
+ }
+}
+
+function clearPairing(){
+ localStorage.removeItem(TOKEN_KEY);
+ setState('pair-state','warn','Non appairé');
+ setState('worker-state','warn','Appairage requis');
+ document.getElementById('launch-status').textContent='Appairage supprimé.';
+ document.getElementById('worker-status').textContent='Worker : appairage requis via ⚙.';
+ document.getElementById('pair-feedback').textContent='';
+ workerOnline=false;
 }
 
 async function loadRepositories(){
@@ -216,12 +351,13 @@ async function loadRepositories(){
   if(!r.ok) return;
   const repos=await r.json();
   const select=document.getElementById('repository');
+  const selected=select.value;
   select.innerHTML='';
-  repos.filter(x=>!x.archived).sort((a,b)=>a.name.localeCompare(b.name)).forEach(x=>{
+  repos.filter(function(x){return !x.archived}).sort(function(a,b){return a.name.localeCompare(b.name)}).forEach(function(x){
    const option=document.createElement('option');
    option.value=x.full_name;
    option.textContent=x.full_name;
-   if(x.full_name==='dbrckk/Jumpy') option.selected=true;
+   if(x.full_name===selected||(!selected&&x.full_name==='dbrckk/Jumpy')) option.selected=true;
    select.appendChild(option);
   });
  }catch(_e){}
@@ -229,54 +365,95 @@ async function loadRepositories(){
 
 async function loadWorkerStatus(){
  const el=document.getElementById('worker-status');
+ const warning=document.getElementById('runtime-warning');
  if(!token()){
+  setState('pair-state','warn','Non appairé');
+  setState('worker-state','warn','Appairage requis');
   el.textContent='Worker : appairage requis via ⚙.';
+  warning.classList.remove('show');
+  workerOnline=false;
   return;
  }
+ setState('pair-state','ok','Appairé');
  try{
   const data=await api('/v1/workers');
-  const online=(data.workers||[]).filter(x=>x.status==='online');
-  const capabilities=new Set(online.flatMap(x=>x.capabilities||[]));
+  const online=(data.workers||[]).filter(function(x){return x.status==='online'});
+  const capabilities=new Set(online.flatMap(function(x){return x.capabilities||[]}));
   const visual=capabilities.has('visual-asset-production');
   const threeD=capabilities.has('visual-asset-3d-production');
+  workerOnline=online.length>0;
+  if(workerOnline){
+   setState('worker-state','ok',online.length+' en ligne');
+   warning.classList.remove('show');
+  }else{
+   setState('worker-state','warn','Hors ligne');
+   warning.classList.add('show');
+  }
   el.textContent='Worker : code '+(online.length?'✓':'—')
    +' · assets 2D/SVG '+(visual?'✓':'—')
    +' · 3D '+(threeD?'✓':'—');
- }catch(_e){
-  el.textContent='Capacités worker : indisponibles';
+ }catch(e){
+  workerOnline=false;
+  const message=String(e).replace(/^Error:\s*/,'');
+  setState('worker-state','bad','Erreur');
+  el.textContent='Capacités worker : indisponibles · '+message;
+  warning.classList.add('show');
  }
 }
 
-function escapeHtml(value){
- return String(value).replace(/[&<>"']/g,ch=>({
-  '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
- }[ch]));
+function workflowState(status){
+ const value=String(status||'unknown').toLowerCase();
+ if(value==='succeeded') return ['Terminé','state-succeeded'];
+ if(value==='failed') return ['Échec','state-failed'];
+ if(value==='cancelled'||value==='canceled') return ['Annulé','state-cancelled'];
+ if(value==='running') return ['En cours','state-running'];
+ if(value==='ready'||value==='pending'||value==='queued') return ['En attente','state-pending'];
+ return [value||'Inconnu','state-other'];
+}
+
+async function loadRecentRuns(){
+ const listEl=document.getElementById('recent-runs');
+ const countEl=document.getElementById('runs-count');
+ if(!token()){
+  listEl.innerHTML='<div class="empty">Appairage requis pour afficher les productions.</div>';
+  countEl.textContent='0';
+  return;
+ }
+ try{
+  const list=await api('/v1/workflows');
+  const selectedRepository=document.getElementById('repository').value.trim();
+  const workflows=(list.workflows||[]).filter(function(item){return !selectedRepository||item.repository===selectedRepository}).slice(0,8);
+  countEl.textContent=String(workflows.length);
+  if(!workflows.length){
+   listEl.innerHTML='<div class="empty">Aucune production pour ce repository.</div>';
+   return;
+  }
+  listEl.innerHTML=workflows.map(function(item){
+   const state=workflowState(item.status);
+   const when=String(item.updated_at||item.created_at||'').replace('T',' ').replace('Z','').slice(0,19);
+   return '<div class="run"><div><div class="run-title">'+esc(item.name||item.id)+'</div>'
+    +'<div class="run-meta">'+esc(when)+' · '+esc(String(item.id||'').slice(0,12))+'</div></div>'
+    +'<div class="run-state '+state[1]+'">'+state[0]+'</div></div>';
+  }).join('');
+ }catch(e){
+  listEl.innerHTML='<div class="empty">Productions indisponibles · '+esc(String(e).replace(/^Error:\s*/,''))+'</div>';
+ }
 }
 
 function githubAssetUrls(repository,path){
  const repo=String(repository||'').trim();
  const value=String(path||'').replace(/^\\/+/, '');
- if(!/^[A-Za-z0-9_.-]+\\/[A-Za-z0-9_.-]+$/.test(repo)||!value||value.includes('..')){
-  return null;
- }
+ if(!/^[A-Za-z0-9_.-]+\\/[A-Za-z0-9_.-]+$/.test(repo)||!value||value.includes('..')) return null;
  const encoded=value.split('/').map(encodeURIComponent).join('/');
- return {
-  view:'https://github.com/'+repo+'/blob/main/'+encoded,
-  raw:'https://raw.githubusercontent.com/'+repo+'/main/'+encoded
- };
+ return {view:'https://github.com/'+repo+'/blob/main/'+encoded,raw:'https://raw.githubusercontent.com/'+repo+'/main/'+encoded};
 }
-
-function isPreviewableAsset(path){
- return /\.(png|webp|jpe?g|gif|svg)$/i.test(String(path||''));
-}
-
+function isPreviewableAsset(path){return /\.(png|webp|jpe?g|gif|svg)$/i.test(String(path||''))}
 function qualityView(status){
  if(status==='ok') return ['OK','quality-ok'];
  if(status==='regenerated') return ['Régénéré','quality-regenerated'];
  if(status==='low_quality') return ['Qualité faible','quality-low'];
  return ['Inconnu','quality-unknown'];
 }
-
 function extractVisualQuality(workflow){
  const tasks=(workflow&&workflow.tasks)||[];
  for(let i=tasks.length-1;i>=0;i--){
@@ -289,109 +466,67 @@ function extractVisualQuality(workflow){
  }
  return null;
 }
-
 async function loadVisualQuality(){
  const badge=document.getElementById('visual-quality');
  const detail=document.getElementById('visual-quality-detail');
  if(!token()){
-  const view=qualityView('unknown');
-  badge.textContent=view[0];
-  badge.className='quality-badge '+view[1];
-  detail.textContent='Appaire cet appareil via ⚙ pour afficher la qualité des derniers assets.';
-  return;
+  const view=qualityView('unknown');badge.textContent=view[0];badge.className='quality-badge '+view[1];
+  detail.textContent='Appaire cet appareil via ⚙ pour afficher la qualité des derniers assets.';return;
  }
  try{
   const list=await api('/v1/workflows');
   const selectedRepository=document.getElementById('repository').value.trim();
-  const workflows=(list.workflows||[]).filter(
-   item=>!selectedRepository||item.repository===selectedRepository
-  );
+  const workflows=(list.workflows||[]).filter(function(item){return item.repository===selectedRepository});
   if(!workflows.length){
-   const view=qualityView('unknown');
-   badge.textContent=view[0];
-   badge.className='quality-badge '+view[1];
-   detail.textContent='Aucun workflow visuel pour ce repository.';
-   return;
+   const view=qualityView('unknown');badge.textContent=view[0];badge.className='quality-badge '+view[1];
+   detail.textContent='Aucun workflow visuel pour ce repository.';return;
   }
-  const recent=await Promise.all(
-   workflows.slice(0,5).map(item=>api('/v1/workflows/'+encodeURIComponent(item.id)))
-  );
+  const recent=await Promise.all(workflows.slice(0,5).map(function(item){return api('/v1/workflows/'+encodeURIComponent(item.id))}));
   const latest=recent[0];
   const visual=extractVisualQuality(latest.workflow);
   if(!visual){
-   const view=qualityView('unknown');
-   badge.textContent=view[0];
-   badge.className='quality-badge '+view[1];
-   detail.textContent='Aucun contrôle visuel sur le dernier workflow.';
-   return;
+   const view=qualityView('unknown');badge.textContent=view[0];badge.className='quality-badge '+view[1];
+   detail.textContent='Aucun contrôle visuel sur le dernier workflow.';return;
   }
-  const view=qualityView(visual.quality_status);
-  badge.textContent=view[0];
-  badge.className='quality-badge '+view[1];
+  const view=qualityView(visual.quality_status);badge.textContent=view[0];badge.className='quality-badge '+view[1];
   const parts=[];
   if(Number.isFinite(Number(visual.checked))) parts.push('contrôlés '+Number(visual.checked));
   if(Number.isFinite(Number(visual.regenerated))) parts.push('régénérés '+Number(visual.regenerated));
   if(Number.isFinite(Number(visual.cache_hits))) parts.push('cache '+Number(visual.cache_hits));
-  if(Number.isFinite(Number(visual.exact_duplicates))&&Number(visual.exact_duplicates)>0){
-   parts.push('doublons exacts '+Number(visual.exact_duplicates));
-  }
-  if(Number.isFinite(Number(visual.near_duplicates))&&Number(visual.near_duplicates)>0){
-   parts.push('quasi-doublons '+Number(visual.near_duplicates));
-  }
-  if(visual.minimum_score!==null&&visual.minimum_score!==undefined){
-   parts.push('score min '+Number(visual.minimum_score).toFixed(2));
-  }
+  if(Number.isFinite(Number(visual.exact_duplicates))&&Number(visual.exact_duplicates)>0) parts.push('doublons exacts '+Number(visual.exact_duplicates));
+  if(Number.isFinite(Number(visual.near_duplicates))&&Number(visual.near_duplicates)>0) parts.push('quasi-doublons '+Number(visual.near_duplicates));
+  if(visual.minimum_score!==null&&visual.minimum_score!==undefined) parts.push('score min '+Number(visual.minimum_score).toFixed(2));
   detail.textContent=parts.length?parts.join(' · '):'Contrôle visuel disponible.';
   const assetList=document.getElementById('visual-assets-list');
   const rows=Array.isArray(visual.items)?visual.items:[];
-  assetList.innerHTML=rows.slice(0,12).map(item=>{
+  assetList.innerHTML=rows.slice(0,12).map(function(item){
    const score=item.score===null||item.score===undefined?'—':Number(item.score).toFixed(2);
    const attempts=Number(item.attempts||0);
-   const semantic=item.semantic_score===null||item.semantic_score===undefined
-    ? ''
-    : ' · art '+Number(item.semantic_score).toFixed(2);
+   const semantic=item.semantic_score===null||item.semantic_score===undefined?'':' · art '+Number(item.semantic_score).toFixed(2);
    const cache=item.cache_hit?' · cache':'';
    const regenerated=item.regenerated?' · régénéré':'';
-   const libraryVersion=item.library_version===null||item.library_version===undefined
-    ? ''
-    : ' · lib v'+Number(item.library_version);
-   const libraryQuality=item.library_quality===null||item.library_quality===undefined
-    ? ''
-    : ' · qualité lib '+Number(item.library_quality).toFixed(2);
+   const libraryVersion=item.library_version===null||item.library_version===undefined?'':' · lib v'+Number(item.library_version);
+   const libraryQuality=item.library_quality===null||item.library_quality===undefined?'':' · qualité lib '+Number(item.library_quality).toFixed(2);
    const preferred=item.library_preferred===true?' · préférée':'';
    const duplicate=item.library_duplicate_of?' · doublon':'';
    const target=String(item.target_path||item.id||'asset');
    const sha=String(item.sha256||'').slice(0,10);
    const urls=githubAssetUrls(selectedRepository,target);
-   const thumb=urls&&isPreviewableAsset(target)
-    ? '<a href="'+escapeHtml(urls.view)+'" target="_blank" rel="noreferrer"><img class="asset-thumb" loading="lazy" src="'+escapeHtml(urls.raw)+'" alt=""></a>'
-    : '';
-   const link=urls
-    ? '<a href="'+escapeHtml(urls.view)+'" target="_blank" rel="noreferrer">'+escapeHtml(target)+'</a>'
-    : '<b>'+escapeHtml(target)+'</b>';
+   const thumb=urls&&isPreviewableAsset(target)?'<a href="'+esc(urls.view)+'" target="_blank" rel="noreferrer"><img class="asset-thumb" loading="lazy" src="'+esc(urls.raw)+'" alt=""></a>':'';
+   const link=urls?'<a href="'+esc(urls.view)+'" target="_blank" rel="noreferrer">'+esc(target)+'</a>':'<b>'+esc(target)+'</b>';
    return '<div class="asset-row">'+thumb+'<div class="asset-meta">'+link
-    +'<div>cohérence '+score+semantic+' · essais '+attempts+cache+regenerated
-    +libraryVersion+libraryQuality+preferred+duplicate+(sha?' · '+escapeHtml(sha):'')
-    +'</div></div></div>';
+    +'<div>cohérence '+score+semantic+' · essais '+attempts+cache+regenerated+libraryVersion+libraryQuality+preferred+duplicate+(sha?' · '+esc(sha):'')+'</div></div></div>';
   }).join('');
-
   const history=document.getElementById('visual-quality-history');
-  history.innerHTML=recent.map(entry=>{
-   const workflow=entry.workflow||{};
-   const itemVisual=extractVisualQuality(workflow);
-   const status=itemVisual?itemVisual.quality_status:'unknown';
-   const view=qualityView(status);
+  history.innerHTML=recent.map(function(entry){
+   const workflow=entry.workflow||{};const itemVisual=extractVisualQuality(workflow);
+   const status=itemVisual?itemVisual.quality_status:'unknown';const itemView=qualityView(status);
    const when=String(workflow.updated_at||workflow.created_at||'').replace('T',' ').replace('Z','');
-   const min=itemVisual&&itemVisual.minimum_score!==null&&itemVisual.minimum_score!==undefined
-    ? ' · score '+Number(itemVisual.minimum_score).toFixed(2)
-    : '';
-   return '<div class="history-row"><span class="quality-badge '+view[1]+'">'+view[0]+'</span> '
-    +escapeHtml(when)+min+'</div>';
+   const min=itemVisual&&itemVisual.minimum_score!==null&&itemVisual.minimum_score!==undefined?' · score '+Number(itemVisual.minimum_score).toFixed(2):'';
+   return '<div class="history-row"><span class="quality-badge '+itemView[1]+'">'+itemView[0]+'</span> '+esc(when)+min+'</div>';
   }).join('');
  }catch(_e){
-  const view=qualityView('unknown');
-  badge.textContent=view[0];
-  badge.className='quality-badge '+view[1];
+  const view=qualityView('unknown');badge.textContent=view[0];badge.className='quality-badge '+view[1];
   detail.textContent='Qualité visuelle indisponible.';
   document.getElementById('visual-assets-list').innerHTML='';
   document.getElementById('visual-quality-history').innerHTML='';
@@ -400,22 +535,21 @@ async function loadVisualQuality(){
 
 async function launchWorkflow(){
  const status=document.getElementById('launch-status');
+ const button=document.getElementById('launch-button');
  if(!token()){
   status.textContent='Appairage requis avant le premier lancement.';
-  setSettingsOpen(true);
-  return;
+  setSettingsOpen(true);return;
  }
- status.textContent='Lancement...';
+ const repository=document.getElementById('repository').value.trim();
+ const task=document.getElementById('instruction').value.trim();
+ if(!repository||!task){status.textContent='Sélectionne un repo et écris une instruction.';return}
+ button.disabled=true;button.textContent='Lancement…';status.textContent='Création du workflow…';
  try{
-  const repository=document.getElementById('repository').value.trim();
-  const task=document.getElementById('instruction').value.trim();
-  if(!repository||!task) throw new Error('Sélectionne un repo et écris une instruction.');
-
   const created=await api('/v1/workflows',{
    method:'POST',
    body:JSON.stringify({
     name:'Dashboard: '+repository,
-    repository,
+    repository:repository,
     tasks:[{
      task_id:'implementation',
      title:task.slice(0,120),
@@ -423,8 +557,8 @@ async function launchWorkflow(){
      max_attempts:2,
      estimated_minutes:30,
      payload:{handoff:{
-      repository,
-      task,
+      repository:repository,
+      task:task,
       final_goal:task,
       agent_preference:'codex',
       token_budget:30000
@@ -432,24 +566,36 @@ async function launchWorkflow(){
     }]
    })
   });
-
   const id=created.workflow.id;
   const dispatched=await api('/v1/workflows/'+encodeURIComponent(id)+'/dispatch',{
-   method:'POST',
-   body:JSON.stringify({limit:1})
+   method:'POST',body:JSON.stringify({limit:1})
   });
-  status.textContent=(dispatched.jobs||[]).length
-   ? 'Lancé.'
-   : 'Workflow créé, en attente de capacité.';
+  if((dispatched.jobs||[]).length){
+   status.textContent='Production lancée · '+String(id).slice(0,12);
+  }else{
+   status.textContent='Production créée · en attente du worker · '+String(id).slice(0,12);
+  }
+  await loadRecentRuns();
  }catch(e){
   status.textContent=String(e).replace(/^Error:\s*/,'');
+ }finally{
+  button.disabled=false;button.textContent='Lancer la production';
  }
 }
 
-loadRepositories().then(loadVisualQuality);
-loadWorkerStatus();
-document.getElementById('repository').addEventListener('change',loadVisualQuality);
+async function refreshDashboard(){
+ if(refreshBusy) return;
+ refreshBusy=true;
+ try{
+  await checkServer();
+  await Promise.all([loadWorkerStatus(),loadRecentRuns(),loadVisualQuality()]);
+ }finally{refreshBusy=false}
+}
+
+loadRepositories().then(function(){return refreshDashboard()});
+document.getElementById('repository').addEventListener('change',function(){loadVisualQuality();loadRecentRuns()});
 setInterval(loadVisualQuality,10000);
+setInterval(function(){loadWorkerStatus();loadRecentRuns()},10000);
 </script>
 </body>
 </html>"""
