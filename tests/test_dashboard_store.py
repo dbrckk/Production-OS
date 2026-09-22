@@ -116,3 +116,24 @@ def test_finish_execution_is_idempotent_and_deduplicates_commits(tmp_path):
     assert second["commit_count"] == 2
     assert second["commit_shas"] == ["a", "b"]
     assert second["total_tokens"] == 25
+
+
+def test_progress_may_restart_when_stage_changes(tmp_path):
+    from production_os.dashboard_store import DashboardStore
+    store = DashboardStore(SQLiteBackend(tmp_path / "production.db"))
+    store.start_execution(_sample_job(), "worker-a")
+    store.update_live_execution("job-1","worker-a",{"stage":"plan","progress":90})
+    row=store.update_live_execution("job-1","worker-a",{"stage":"implementation","progress":10})
+    assert row["progress_percent"] == 10
+
+
+def test_usage_provider_model_remain_unknown_as_null(tmp_path):
+    from production_os.dashboard_store import DashboardStore
+    store=DashboardStore(SQLiteBackend(tmp_path/"production.db"))
+    store.start_execution(_sample_job(),"worker-a")
+    store.finish_execution("job-1","worker-a",status="succeeded",duration_seconds=1,result={
+        "usage":{"providers":[{"api_calls":1,"total_tokens":5}]}
+    })
+    events=store.usage_events()
+    assert events[0]["provider"] is None
+    assert events[0]["model"] is None
