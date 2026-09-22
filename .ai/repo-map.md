@@ -6887,6 +6887,14 @@ def test_dashboard_worker_status_uses_authenticated_api()
 def test_dashboard_launch_opens_pairing_when_token_missing()
 ⋮----
 def test_dashboard_pairing_validates_operator_token_before_accepting()
+⋮----
+def test_dashboard_v2_surfaces_runtime_health_and_recent_runs()
+⋮----
+def test_dashboard_v2_explains_offline_worker_and_queued_launch()
+⋮----
+def test_dashboard_v2_has_readable_auth_errors()
+⋮----
+def test_dashboard_v2_has_mobile_primary_launch_action()
 ````
 
 ## File: tests/test_deep_fingerprint_starlist.py

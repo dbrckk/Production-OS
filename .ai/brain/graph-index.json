@@ -313,6 +313,45 @@
     },
     {
       "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/asset_forge.py"
+      ],
+      "dependents": [
+        "src/production_os/asset_forge.py",
+        "src/production_os/cli.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/execution_feedback.py",
+        "src/production_os/feedback.py",
+        "src/production_os/github_work_state.py",
+        "src/production_os/health.py",
+        "src/production_os/postgres_backend.py",
+        "src/production_os/rekor_checkpoint_state.py",
+        "src/production_os/rekor_witness_quorum.py",
+        "src/production_os/release_ledger.py",
+        "src/production_os/runtime_state.py",
+        "src/production_os/scheduler.py",
+        "src/production_os/self_healing.py",
+        "src/production_os/signer_factory.py",
+        "src/production_os/sqlite_backend.py",
+        "src/production_os/transparency_receipts.py",
+        "src/production_os/vault_auth.py",
+        "src/production_os/vault_signer.py",
+        "src/production_os/witness.py",
+        "src/production_os/workflow_engine.py",
+        "tests/test_callgraph_versioning_feedback.py",
+        "tests/test_github_work_state.py",
+        "tests/test_governance.py",
+        "tests/test_incident_history.py",
+        "tests/test_release_ledger.py",
+        "tests/test_sqlite_migration.py",
+        "tests/test_workflow_engine.py"
+      ],
+      "in_degree": 28,
+      "out_degree": 2,
+      "path": "tests/test_asset_forge.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/components.py",
         "tests/test_fairness.py"
       ],
@@ -348,44 +387,6 @@
       "in_degree": 27,
       "out_degree": 2,
       "path": "src/production_os/models.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/__init__.py",
-        "src/production_os/asset_forge.py"
-      ],
-      "dependents": [
-        "src/production_os/asset_forge.py",
-        "src/production_os/cli.py",
-        "src/production_os/execution_feedback.py",
-        "src/production_os/feedback.py",
-        "src/production_os/github_work_state.py",
-        "src/production_os/health.py",
-        "src/production_os/postgres_backend.py",
-        "src/production_os/rekor_checkpoint_state.py",
-        "src/production_os/rekor_witness_quorum.py",
-        "src/production_os/release_ledger.py",
-        "src/production_os/runtime_state.py",
-        "src/production_os/scheduler.py",
-        "src/production_os/self_healing.py",
-        "src/production_os/signer_factory.py",
-        "src/production_os/sqlite_backend.py",
-        "src/production_os/transparency_receipts.py",
-        "src/production_os/vault_auth.py",
-        "src/production_os/vault_signer.py",
-        "src/production_os/witness.py",
-        "src/production_os/workflow_engine.py",
-        "tests/test_callgraph_versioning_feedback.py",
-        "tests/test_github_work_state.py",
-        "tests/test_governance.py",
-        "tests/test_incident_history.py",
-        "tests/test_release_ledger.py",
-        "tests/test_sqlite_migration.py",
-        "tests/test_workflow_engine.py"
-      ],
-      "in_degree": 27,
-      "out_degree": 2,
-      "path": "tests/test_asset_forge.py"
     },
     {
       "dependencies": [
@@ -472,6 +473,7 @@
         "src/production_os/storage.py",
         "src/production_os/workers.py",
         "src/production_os/workflow_engine.py",
+        "tests/test_asset_forge.py",
         "tests/test_fairness.py"
       ],
       "dependents": [
@@ -490,7 +492,7 @@
         "tests/test_workflow_api.py"
       ],
       "in_degree": 13,
-      "out_degree": 12,
+      "out_degree": 13,
       "path": "src/production_os/control_plane.py"
     },
     {
@@ -1470,7 +1472,7 @@
       "path": "src/production_os/journal.py"
     }
   ],
-  "edge_count": 931,
+  "edge_count": 932,
   "generated_by": "dbrckk/repo-brain-v7-graph",
   "node_count": 194,
   "schema_version": 1

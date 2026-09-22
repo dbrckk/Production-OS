@@ -22,18 +22,18 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-21T19:11:41Z
+Generated: 2026-09-22T10:00:07Z
 
 ### Git
 - Branch: `main`
-- Head: `76347e7ba442`
-- Commit date: 2026-09-21T21:11:29+02:00
-- Commit: Merge pull request #16 from dbrckk/fix/dashboard-pairing-launch
+- Head: `acf5fc8f510a`
+- Commit date: 2026-09-22T11:59:55+02:00
+- Commit: Merge pull request #17 from dbrckk/feat/dashboard-v2-runtime-status
 - Tracked files: 326
 
 ### Recently changed files
-- `tests/test_dashboard_launch.py`
 - `src/production_os/control_plane.py`
+- `tests/test_dashboard_launch.py`
 
 ### Project signals
 - `pyproject.toml`
