@@ -39,7 +39,7 @@ class RepositorySnapshotter:
             "id": f"{repository}:{captured}",
             "repository": repository,
             "default_branch": branch,
-            "production_os_commits": None,
+            "production_os_commits": 0,
             "github_commits": self.github.default_branch_commit_count(repository, branch),
             "open_issues": None,
             "open_pull_requests": self.github.open_pull_request_count(repository),
