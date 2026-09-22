@@ -593,7 +593,8 @@ async function refreshDashboard(){
 }
 
 loadRepositories().then(function(){return refreshDashboard()});
-document.getElementById('repository').addEventListener('change',function(){loadVisualQuality();loadRecentRuns()});
+document.getElementById('repository').addEventListener('change',loadVisualQuality);
+document.getElementById('repository').addEventListener('change',loadRecentRuns);
 setInterval(loadVisualQuality,10000);
 setInterval(function(){loadWorkerStatus();loadRecentRuns()},10000);
 </script>
