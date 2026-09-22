@@ -734,7 +734,14 @@ def make_handler(control: ControlPlane):
                 self._send_html(HTTPStatus.OK, DASHBOARD_HTML)
                 return
 
-            if parsed.path in {"/", "/health", "/healthz"}:
+            if parsed.path == "/":
+                self.send_response(HTTPStatus.FOUND)
+                self.send_header("Location", "/dashboard")
+                self.send_header("Cache-Control", "no-store")
+                self.end_headers()
+                return
+
+            if parsed.path in {"/health", "/healthz"}:
                 self._send(
                     HTTPStatus.OK,
                     {
