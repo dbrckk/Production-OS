@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from .dashboard_usage import aggregate_usage
 
@@ -22,6 +22,43 @@ class DashboardService:
         with self.control.backend.connect() as db:
             rows=db.execute("SELECT * FROM workers ORDER BY worker_id").fetchall()
         return [dict(x) for x in rows]
+
+    @staticmethod
+    def _distinct_commit_shas(executions: list[dict]) -> set[str]:
+        shas: set[str] = set()
+        for execution in executions:
+            for sha in execution.get("commit_shas") or []:
+                value = str(sha).strip().lower()
+                if len(value) == 40 and all(ch in "0123456789abcdef" for ch in value):
+                    shas.add(value)
+        return shas
+
+    @staticmethod
+    def _window_cutoff(window: str):
+        seconds={"24h":86400,"7d":604800,"30d":2592000,"all":None}
+        if window not in seconds:
+            raise ValueError("invalid window")
+        value=seconds[window]
+        return None if value is None else datetime.now(timezone.utc)-timedelta(seconds=value)
+
+    def _executions_in_window(self, executions: list[dict], window: str) -> list[dict]:
+        cutoff=self._window_cutoff(window)
+        if cutoff is None:
+            return executions
+        selected=[]
+        for row in executions:
+            raw=row.get("finished_at") or row.get("started_at")
+            if not raw:
+                continue
+            try:
+                parsed=datetime.fromisoformat(str(raw).replace("Z","+00:00"))
+                if parsed.tzinfo is None:
+                    parsed=parsed.replace(tzinfo=timezone.utc)
+            except ValueError:
+                continue
+            if parsed >= cutoff:
+                selected.append(row)
+        return selected
 
     def overview(self, window: str) -> dict:
         usage=aggregate_usage(self.store.usage_events(),window=window,
@@ -45,8 +82,8 @@ class DashboardService:
           "usage":{"api_calls":usage["totals"].get("api_calls"),
                    "tokens":usage["totals"].get("total_tokens"),
                    "estimated_cost_usd":usage["totals"].get("estimated_cost_usd")},
-          "commits":{"production_os":sum(int(x.get("commit_count") or 0) for x in executions),
-                     "github_default_branch":0},
+          "commits":{"production_os":len(self._distinct_commit_shas(self._executions_in_window(executions,window))),
+                     "github_default_branch":None},
           "performance":{"success_rate":round(succeeded/finished*100,2) if finished else None,
                          "execution_seconds":sum(float(x.get("duration_seconds") or 0) for x in executions)},
           "projects":self.projects()["projects"],"errors":[]}
@@ -99,9 +136,9 @@ class DashboardService:
 
     def project_commits(self,repository,window):
         self._require_project(repository)
-        executions=self.store.executions_for_repository(repository,limit=500)
+        executions=self._executions_in_window(self.store.executions_for_repository(repository,limit=500),window)
         return {"repository":repository,"window":window,
-                "production_os":sum(int(x.get("commit_count") or 0) for x in executions),
+                "production_os":len(self._distinct_commit_shas(executions)),
                 "github_default_branch":(self.store.latest_repository_snapshot(repository) or {}).get("github_commits"),
                 "generated_at":_now()}
 
