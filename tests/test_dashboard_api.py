@@ -35,6 +35,17 @@ def running_control_plane(tmp_path):
         thread.join(timeout=2)
 
 
+def get_api(base, path, token):
+    req = Request(base + path, method="GET", headers=(
+        {"Authorization":f"Bearer {token}"} if token else {}
+    ))
+    try:
+        with urlopen(req, timeout=3) as res:
+            return res.status, json.loads(res.read())
+    except HTTPError as exc:
+        return exc.code, json.loads(exc.read())
+
+
 def api(base, path, token, body):
     data = json.dumps(body).encode()
     req = Request(base + path, data=data, method="POST", headers={
@@ -100,3 +111,31 @@ def test_heartbeat_persists_only_authenticated_quota_values(running_control_plan
     assert quota["remaining_value"] == 900
     assert quota["limit_value"] == 1000
     assert quota["source_status"] == "authenticated"
+
+
+def test_dashboard_overview_requires_viewer_and_has_stable_envelope(running_control_plane):
+    base, _ = running_control_plane
+    status, payload = get_api(base, "/v1/dashboard/overview?window=7d", "viewer-token")
+    assert status == 200
+    assert payload["schema_version"] == "production-os/dashboard-overview/v1"
+    assert set(("workers","productions","usage","commits","performance","projects","errors")) <= set(payload)
+    assert get_api(base, "/v1/dashboard/overview?window=7d", "worker-a-token")[0] == 403
+    assert get_api(base, "/v1/dashboard/overview?window=7d", None)[0] == 401
+
+
+def test_dashboard_rejects_invalid_window(running_control_plane):
+    base, _ = running_control_plane
+    assert get_api(base, "/v1/dashboard/overview?window=2h", "viewer-token")[0] == 400
+
+
+def test_dashboard_worker_routes_and_unknown_worker(running_control_plane):
+    base, control = running_control_plane
+    control.workers.register("worker-a", ["python"], 1)
+    assert get_api(base, "/v1/dashboard/workers", "viewer-token")[0] == 200
+    status, payload = get_api(base, "/v1/dashboard/workers/worker-a", "viewer-token")
+    assert status == 200 and payload["worker"]["worker_id"] == "worker-a"
+    assert get_api(base, "/v1/dashboard/workers/missing", "viewer-token")[0] == 404
+    status, payload = get_api(base, "/v1/dashboard/workers/worker-a/logs?limit=999999", "viewer-token")
+    assert status == 200
+    assert payload["limit"] == 500
+    assert get_api(base, "/v1/dashboard/workers/worker-a/usage?window=30d", "viewer-token")[0] == 200
