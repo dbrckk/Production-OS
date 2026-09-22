@@ -1,4 +1,6 @@
-from __future__ import annotations\n\nDASHBOARD_HTML = """<!doctype html>
+from __future__ import annotations
+
+DASHBOARD_HTML = """<!doctype html>
 <html lang="fr">
 <head>
 <meta charset="utf-8">
