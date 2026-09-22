@@ -50,7 +50,7 @@ def api(base, path, token, body):
 
 def _owned_execution(control):
     control.workers.register("worker-a", ["python"], 1)
-    job = control.queue.enqueue("dbrckk/example", "ship", {"workflow_id":"wf"})
+    job = control.queue.enqueue({"idempotency_key":"job-telemetry", "handoff":{"repository":"dbrckk/example","task":"ship"}, "workflow_id":"wf"})
     claimed = control.queue.claim("worker-a", ["python"])
     acked = control.queue.ack(claimed["key"], "worker-a")
     control.dashboard_store.start_execution(acked, "worker-a")
