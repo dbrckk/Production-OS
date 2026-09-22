@@ -343,7 +343,7 @@ class DashboardStore:
         self.backend = backend
 ```
 
-`start_execution` uses `job["delivery_attempt"] or 1` and `INSERT ... ON CONFLICT(id) DO NOTHING`, then reads back the row. This makes repeated ACK delivery safe.
+`start_execution` uses `job["delivery_attempt"] or 1` and an `INSERT` statement with `ON CONFLICT(id) DO NOTHING`, then reads back the row. This makes repeated ACK delivery safe.
 
 Add `dashboard_security.py` with recursive redaction before any log serialization:
 
@@ -396,21 +396,21 @@ def _bounded_progress(value):
 
 - [ ] **Step 5: Add query and snapshot primitives needed by later services**
 
-Implement these exact methods:
+Implement these exact method contracts:
 
-```python
-def latest_execution(self, job_key: str) -> dict | None: ...
-def executions_for_worker(self, worker_id: str, *, limit: int = 100) -> list[dict]: ...
-def executions_for_repository(self, repository: str, *, limit: int = 100) -> list[dict]: ...
-def usage_events(self, *, worker_id: str | None = None, repository: str | None = None, since: str | None = None) -> list[dict]: ...
-def append_logs(self, worker_id: str, rows: list[dict]) -> list[dict]: ...
-def logs_for_worker(self, worker_id: str, *, after: str | None = None, limit: int = 100) -> list[dict]: ...
-def save_repository_snapshot(self, snapshot: dict) -> dict: ...
-def latest_repository_snapshot(self, repository: str) -> dict | None: ...
-def save_progress_snapshot(self, snapshot: dict) -> dict: ...
-def latest_progress_snapshot(self, repository: str) -> dict | None: ...
-def progress_history(self, repository: str, *, limit: int = 100) -> list[dict]: ...
-```
+- `latest_execution(self, job_key: str) -> dict | None`
+- `executions_for_worker(self, worker_id: str, *, limit: int = 100) -> list[dict]`
+- `executions_for_repository(self, repository: str, *, limit: int = 100) -> list[dict]`
+- `usage_events(self, *, worker_id: str | None = None, repository: str | None = None, since: str | None = None) -> list[dict]`
+- `append_logs(self, worker_id: str, rows: list[dict]) -> list[dict]`
+- `logs_for_worker(self, worker_id: str, *, after: str | None = None, limit: int = 100) -> list[dict]`
+- `save_repository_snapshot(self, snapshot: dict) -> dict`
+- `latest_repository_snapshot(self, repository: str) -> dict | None`
+- `save_progress_snapshot(self, snapshot: dict) -> dict`
+- `latest_progress_snapshot(self, repository: str) -> dict | None`
+- `progress_history(self, repository: str, *, limit: int = 100) -> list[dict]`
+
+Each query must use parameter binding through `_execute`. Snapshot inserts use application-generated IDs and JSON serialization with sorted keys. `logs_for_worker` uses the stored log ID as an opaque cursor and orders by `created_at DESC, id DESC`.
 
 Clamp log `limit` to 1–500 and reject invalid cursors rather than interpolating them into SQL.
 
@@ -422,10 +422,10 @@ pytest tests/test_dashboard_store.py tests/test_dashboard_store_postgres.py -q
 
 Expected: PASS.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
-git add src/production_os/dashboard_store.py tests/test_dashboard_store.py tests/test_dashboard_store_postgres.py
+git add src/production_os/dashboard_store.py src/production_os/dashboard_security.py tests/test_dashboard_store.py tests/test_dashboard_store_postgres.py tests/test_dashboard_security.py
 git commit -m "feat(observability): persist execution telemetry"
 ```
 
@@ -467,8 +467,21 @@ def test_worker_can_publish_owned_job_telemetry(running_control_plane):
     assert payload["execution"]["progress_percent"] == 42
 
 
-def test_other_worker_cannot_publish_telemetry_for_claimed_job(running_control_plane):
-    ...
+def test_other_worker_cannot_publish_telemetry_for_claimed_job(
+    running_control_plane_two_workers,
+):
+    base, operator, worker_a, worker_b = running_control_plane_two_workers
+    job = enqueue_and_claim(base, operator, worker_a)
+    status, _ = api(
+        base,
+        f"/v1/jobs/{job['key']}/telemetry",
+        worker_b,
+        {
+            "worker_id": "worker-b",
+            "stage": "implementation",
+            "progress": 10,
+        },
+    )
     assert status == 409
 ```
 
@@ -493,10 +506,8 @@ Add:
 ```python
 from .dashboard_store import DashboardStore
 
-class ControlPlane:
-    def __init__(...):
-        ...
-        self.dashboard_store = DashboardStore(self.backend)
+# In ControlPlane.__init__, immediately after self.backend is created:
+self.dashboard_store = DashboardStore(self.backend)
 ```
 
 - [ ] **Step 4: Start/finalize executions at existing lifecycle boundaries**
@@ -638,20 +649,22 @@ Expected: failures for missing `providers` and `commits`.
 
 - [ ] **Step 3: Attach provider/model identity only when runtime evidence knows it, then aggregate without breaking totals**
 
-In `studio/agents/orchestrator.py`, extend `_run_evidence` with explicit runtime identity only for a runtime where both values are known. For the configured OpenCode compatible-provider path, use the configured model string; do not invent a model for `codex-chatgpt` or `omniroute-free` when the runtime does not expose the resolved model:
+In `studio/agents/orchestrator.py`, extend the existing `_run_evidence` after its current base evidence dictionary is created. Add only explicit identity that the runtime configuration actually knows:
 
 ```python
-def _run_evidence(run, capacity_source: str | None = None) -> dict:
-    evidence = {...}
-    if run.agent == "opencode":
-        model = str(os.environ.get("STUDIO_CODE_MODEL") or os.environ.get("STUDIO_MODEL") or "").strip()
-        base = str(os.environ.get("STUDIO_API_BASE") or "").strip()
-        if model and base:
-            evidence["provider"] = "studio"
-            evidence["model"] = model
-    ...
-    return evidence
+if run.agent == "opencode":
+    model = str(
+        os.environ.get("STUDIO_CODE_MODEL")
+        or os.environ.get("STUDIO_MODEL")
+        or ""
+    ).strip()
+    base = str(os.environ.get("STUDIO_API_BASE") or "").strip()
+    if model and base:
+        evidence["provider"] = "studio"
+        evidence["model"] = model
 ```
+
+Leave provider/model absent for `codex-chatgpt` and `omniroute-free` unless their execution evidence later exposes the resolved model explicitly.
 
 Keep the existing top-level counters and add `providers`:
 
@@ -868,7 +881,7 @@ pytest tests/test_dashboard_usage.py tests/test_dashboard_store.py -q
 
 Expected: PASS.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
 git add src/production_os/dashboard_usage.py src/production_os/dashboard_store.py tests/test_dashboard_usage.py tests/test_dashboard_store.py
@@ -900,7 +913,7 @@ git commit -m "feat(observability): aggregate safe API usage"
 Use a fake GitHub transport whose `/commits?sha=main&per_page=1` response has:
 
 ```http
-Link: <https://api.github.com/.../commits?sha=main&per_page=1&page=214>; rel="last"
+Link: <https://api.github.com/repos/dbrckk/example/commits?sha=main&per_page=1&page=214>; rel="last"
 ```
 
 Assert:
@@ -914,7 +927,19 @@ Also test one-commit/no-Link response => `1`, empty response => `0`.
 Snapshot failure test:
 
 ```python
-def test_snapshotter_returns_cached_snapshot_as_degraded_on_github_failure(...):
+def test_snapshotter_returns_cached_snapshot_as_degraded_on_github_failure(
+    tmp_path,
+):
+    backend = SQLiteBackend(tmp_path / "production.db")
+    store = DashboardStore(backend)
+    github = FakeGitHub(
+        repository={
+            "default_branch": "main",
+            "sha": "a" * 40,
+            "commit_count": 7,
+        }
+    )
+    snapshotter = RepositorySnapshotter(github, store)
     cached = snapshotter.refresh("dbrckk/example")
     github.fail = True
     result = snapshotter.get("dbrckk/example", max_age_seconds=0)
@@ -934,8 +959,43 @@ pytest tests/test_dashboard_github.py tests/test_github_client_pr_files.py -q
 Implement:
 
 ```python
-def _request_json_with_headers(self, method: str, path: str) -> tuple[Any, dict[str, str]]:
-    ...
+def _request_json_with_headers(
+    self,
+    method: str,
+    path: str,
+) -> tuple[Any, dict[str, str]]:
+    request = urllib.request.Request(
+        f"{self.API}{path}",
+        method=method.upper(),
+        headers={
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+            "User-Agent": "Production-OS/1.0",
+            **(
+                {"Authorization": f"Bearer {self.token}"}
+                if self.token
+                else {}
+            ),
+        },
+    )
+    try:
+        with urllib.request.urlopen(
+            request,
+            timeout=self.timeout,
+        ) as response:
+            body = response.read()
+            payload = json.loads(body.decode("utf-8")) if body else None
+            headers = {str(k): str(v) for k, v in response.headers.items()}
+            return payload, headers
+    except urllib.error.HTTPError as exc:
+        body = exc.read().decode("utf-8", errors="replace")
+        raise GitHubAPIError(
+            f"GitHub API {exc.code}: {body}"
+        ) from exc
+    except urllib.error.URLError as exc:
+        raise GitHubAPIError(
+            f"GitHub API unavailable: {exc}"
+        ) from exc
 ```
 
 Keep existing `_get` and `_request` return contracts unchanged by having them discard headers.
@@ -1162,7 +1222,7 @@ git commit -m "feat(observability): calculate auditable project progress"
   - `project_usage(repository: str, window: str) -> dict`
   - `project_workflows(repository: str) -> dict`
   - `project_history(repository: str) -> dict`
-  - `activity(filters...) -> dict`.
+  - `activity(*, repository: str | None = None, worker_id: str | None = None, event_type: str | None = None, after: int = 0, limit: int = 100) -> dict`.
 
 - [ ] **Step 1: Write API contract tests before service code**
 
@@ -1206,13 +1266,13 @@ Return a stable envelope:
 ```python
 {
     "schema_version": "production-os/dashboard-overview/v1",
-    "generated_at": "...",
-    "workers": {...},
-    "productions": {...},
-    "usage": {...},
-    "commits": {...},
-    "performance": {...},
-    "projects": [...],
+    "generated_at": "2026-09-22T12:00:00+00:00",
+    "workers": {"total": 1, "online": 1, "busy": 0, "paused": 0, "offline": 0},
+    "productions": {"running": 0, "queued": 0, "succeeded": 0, "failed": 0},
+    "usage": {"api_calls": 0, "tokens": 0, "estimated_cost_usd": None},
+    "commits": {"production_os": 0, "github_default_branch": 0},
+    "performance": {"success_rate": None, "execution_seconds": 0.0},
+    "projects": [],
     "errors": [],
 }
 ```
@@ -1417,9 +1477,13 @@ git commit -m "feat(dashboard): add mobile observability workspace"
 The test must perform:
 
 ```python
-workflow = create_workflow(...)
-register_worker("worker-a")
-job = claim_and_ack(...)
+workflow = create_workflow(
+    repository="dbrckk/example",
+    task_id="build",
+    estimated_minutes=30,
+)
+register_worker("worker-a", capabilities=["python"])
+job = claim_and_ack(worker_id="worker-a")
 post_telemetry(job["key"], {
     "worker_id": "worker-a",
     "stage": "implementation",
