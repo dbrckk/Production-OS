@@ -410,3 +410,27 @@ def test_generic_post_returns_413_before_endpoint_processing(tmp_path):
     finally:
         server.shutdown()
         server.server_close()
+
+
+def test_root_redirects_to_dashboard_and_health_endpoints_stay_json(tmp_path):
+    control=ControlPlane(str(tmp_path/"db.sqlite"))
+    server=ThreadingHTTPServer(("127.0.0.1",0),make_handler(control))
+    thread=threading.Thread(target=server.serve_forever,daemon=True)
+    thread.start()
+    base=f"http://127.0.0.1:{server.server_port}"
+    try:
+        with urllib.request.urlopen(base+"/",timeout=3) as response:
+            body=response.read().decode("utf-8")
+            assert response.status==200
+            assert response.geturl().endswith("/dashboard")
+            assert "<title>Production-OS</title>" in body
+
+        for path in ("/health","/healthz"):
+            with urllib.request.urlopen(base+path,timeout=3) as response:
+                payload=json.loads(response.read())
+                assert response.status==200
+                assert payload["status"]=="healthy"
+                assert payload["schema_version"]=="production-os/control-plane/v1"
+    finally:
+        server.shutdown()
+        server.server_close()
