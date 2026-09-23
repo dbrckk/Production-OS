@@ -610,10 +610,22 @@ async function loadProjectDetail(repository){
   ]);
   const detail=results[0],progress=results[1],commits=results[2],usage=results[3],workflows=results[4],history=results[5];
   const production=progress.production||{},estimate=progress.estimate||{},totals=usage.totals||{};
+  const evidence=progress.estimate&&progress.estimate.evidence;
+  const remainingWork=progress.estimate&&progress.estimate.remaining_work;
+  const blockers=progress.estimate&&progress.estimate.blockers;
+  function progressList(value){
+   if(Array.isArray(value))return value.length?value.map(function(item){return esc(typeof item==="string"?item:JSON.stringify(item))}).join(" · "):"Aucun";
+   if(value&&typeof value==="object")return esc(JSON.stringify(value));
+   return value==null?"Indisponible":esc(String(value));
+  }
   el.innerHTML=
    '<div class="card"><div class="section-head"><h2>'+esc(repository)+'</h2><span class="badge">'+esc(String((detail.snapshot||{}).ci_status||"CI inconnue"))+'</span></div>'+
    '<p class="small"><strong>Production actuelle :</strong> '+formatNumber(production.percent)+' %</p>'+
-   '<p class="small"><strong>Projet estimé :</strong> '+formatNumber(estimate.score)+' % · confiance '+esc(String(estimate.confidence||"inconnue"))+'</p>'+
+   '<p class="small"><strong>Projet estimé :</strong> '+formatNumber(estimate.score)+' %</p>'+
+   '<p class="small"><strong>Confiance :</strong> '+esc(String(estimate.confidence||"inconnue"))+'</p>'+
+   '<p class="small"><strong>Preuves :</strong> '+progressList(evidence)+'</p>'+
+   '<p class="small"><strong>Travail restant :</strong> '+progressList(remainingWork)+'</p>'+
+   '<p class="small"><strong>Blocages :</strong> '+progressList(blockers)+'</p>'+
    '<p class="small">Commits Production-OS : '+formatNumber(commits.production_os)+' · branche GitHub : '+formatNumber(commits.github_default_branch)+'</p>'+
    '<p class="small">API : '+formatNumber(totals.api_calls)+' appels · '+formatNumber(totals.total_tokens)+' tokens · '+formatNumber(totals.estimated_cost_usd)+' USD estimés</p>'+
    '<p class="small">Workflows : '+formatNumber((workflows.workflows||[]).length)+' · exécutions récentes : '+formatNumber((history.executions||[]).length)+' · couverture historique : '+esc(String(history.history_coverage||"complète"))+'</p></div>';
