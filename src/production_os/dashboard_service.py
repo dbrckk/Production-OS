@@ -109,7 +109,7 @@ class DashboardService:
     def _repositories(self):
         found=set()
         with self.control.backend.connect() as db:
-            for table in ("workflows","jobs","job_executions","project_repository_snapshots"):
+            for table in ("workflows","jobs","job_executions","project_repository_snapshots","execution_history"):
                 try:
                     rows=db.execute(f"SELECT DISTINCT repository FROM {table} WHERE repository IS NOT NULL").fetchall()
                     found.update(str(x["repository"]) for x in rows if x["repository"])
@@ -196,12 +196,30 @@ class DashboardService:
 
     def project_history(self,repository):
         self._require_project(repository)
-        return {"repository":repository,"executions":self.store.executions_for_repository(repository,limit=100),
-                "progress":self.store.progress_history(repository,limit=100),"generated_at":_now()}
+        executions=self.store.executions_for_repository(repository,limit=100)
+        with self.control.backend.connect() as db:
+            rows=db.execute(
+                "SELECT repository,task,worker_id,duration_seconds,succeeded,created_at FROM execution_history WHERE repository=? ORDER BY created_at DESC LIMIT 100",
+                (repository,),
+            ).fetchall()
+        legacy=[dict(x) for x in rows]
+        coverage="complete"
+        if legacy:
+            coverage="partial"
+        return {
+            "repository":repository,
+            "executions":executions,
+            "legacy_executions":legacy,
+            "history_coverage":coverage,
+            "progress":self.store.progress_history(repository,limit=100),
+            "generated_at":_now(),
+        }
 
     def activity(self,*,repository=None,worker_id=None,event_type=None,after=0,limit=100):
         limit=max(1,min(500,int(limit)))
         rows=self.control.backend.events_after(int(after),limit)
         if repository: rows=[x for x in rows if x.get("repository")==repository]
+        if worker_id:
+            rows=[x for x in rows if str((x.get("payload") or {}).get("worker_id") or "")==worker_id]
         if event_type: rows=[x for x in rows if x.get("event_type")==event_type]
         return {"events":rows,"limit":limit,"generated_at":_now()}
