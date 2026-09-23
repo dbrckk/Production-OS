@@ -1,4 +1,4 @@
-import json\n\nfrom __future__ import annotations
+from __future__ import annotations\n\nimport json
 
 from production_os.api_auth import TokenAuthorizer, token_digest
 from production_os.control_plane import ControlPlane
