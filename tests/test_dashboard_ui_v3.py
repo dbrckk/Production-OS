@@ -90,3 +90,11 @@ def test_worker_detail_exposes_structured_recent_logs():
         assert label in DASHBOARD_HTML
     assert "row.stage" in DASHBOARD_HTML
     assert "row.level" in DASHBOARD_HTML
+
+
+def test_worker_detail_exposes_capabilities_and_health():
+    for label in ("Capacités", "Santé du worker", "Concurrence"):
+        assert label in DASHBOARD_HTML
+    assert "worker.capabilities" in DASHBOARD_HTML
+    assert "worker.status" in DASHBOARD_HTML
+    assert "worker.max_concurrency" in DASHBOARD_HTML
