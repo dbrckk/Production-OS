@@ -663,7 +663,7 @@ async function loadWorkerDetail(workerId){
    '<div class="status-card"><div class="status-label">Coût estimé</div><div class="status-value">'+(totals.estimated_cost_usd==null?'Indisponible':formatNumber(totals.estimated_cost_usd)+' USD')+'</div></div>'+
    '</div>'+
    '<h3 style="font-size:.85rem;margin:15px 0 6px">Logs récents</h3>'+
-   (recent.length?recent.map(function(row){return '<div class="small">'+esc(String(row.created_at||""))+' · '+esc(String(row.level||"info"))+' · '+esc(String(row.message||""))+'</div>'}).join(""):'<div class="empty">Aucun log récent.</div>')+
+   (recent.length?recent.map(function(row){return '<div class="small">'+esc(String(row.created_at||""))+' · <strong>Niveau :</strong> '+esc(String(row.level||"info"))+' · <strong>Étape :</strong> '+esc(String(row.stage||"—"))+' · '+esc(String(row.message||""))+'</div>'}).join(""):'<div class="empty">Aucun log récent.</div>')+
    '<h3 style="font-size:.85rem;margin:15px 0 6px">Historique d’exécution</h3>'+
    (executions.length?executions.slice(0,8).map(function(row){return '<div class="small"><strong>Résultat :</strong> '+esc(String(row.status||"inconnu"))+' · '+esc(String(row.started_at||""))+' · <strong>Durée :</strong> '+(row.duration_seconds==null?'—':formatNumber(row.duration_seconds)+' s')+'</div>'}).join(""):'<div class="empty">Aucune exécution enregistrée.</div>')+
    '</div>';
