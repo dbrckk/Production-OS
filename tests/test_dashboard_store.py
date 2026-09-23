@@ -137,3 +137,12 @@ def test_usage_provider_model_remain_unknown_as_null(tmp_path):
     events=store.usage_events()
     assert events[0]["provider"] is None
     assert events[0]["model"] is None
+
+
+def test_append_logs_generates_unique_ids_across_repeated_calls(tmp_path):
+    store=_store(tmp_path)
+    row={"created_at":"2026-09-23T12:00:00+00:00","message":"same timestamp"}
+    first=store.append_logs("worker-a",[row])[0]
+    second=store.append_logs("worker-a",[row])[0]
+    assert first["id"] != second["id"]
+    assert len(store.logs_for_worker("worker-a")) == 2
