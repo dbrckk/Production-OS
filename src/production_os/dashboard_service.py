@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 
-from .dashboard_usage import aggregate_usage
+from .dashboard_usage import aggregate_usage\nfrom .project_progress import ProjectProgressEngine, build_project_evidence, workflow_progress
 
 
 class DashboardNotFound(KeyError):
@@ -131,8 +131,48 @@ class DashboardService:
 
     def project_progress(self,repository):
         self._require_project(repository)
-        return {"repository":repository,"progress":self.store.latest_progress_snapshot(repository),
-                "history":self.store.progress_history(repository),"generated_at":_now()}
+        with self.control.backend.connect() as db:
+            rows=db.execute(
+                "SELECT id FROM workflows WHERE repository=? ORDER BY updated_at DESC LIMIT 1",
+                (repository,),
+            ).fetchall()
+        workflow=self.control.workflows.get(str(rows[0]["id"])) if rows else None
+        production=workflow_progress(workflow) if workflow else {
+            "percent":None,"completed_weight":0.0,"total_weight":0.0,
+        }
+        snapshot=self.store.latest_repository_snapshot(repository)
+        executions=self.store.executions_for_repository(repository,limit=500)
+        events=self.control.backend.events_after(0,500)
+        evidence=build_project_evidence(
+            workflow=workflow,
+            repository_snapshot=snapshot,
+            executions=executions,
+            events=[x for x in events if x.get("repository")==repository],
+            visual_quality=None,
+        )
+        persisted=self.store.latest_progress_snapshot(repository)
+        if persisted:
+            estimate={
+                "repository":repository,
+                "score":persisted.get("project_progress"),
+                "confidence":persisted.get("confidence"),
+                "calculation_version":persisted.get("calculation_version"),
+                "captured_at":persisted.get("captured_at"),
+                "evidence":persisted.get("evidence"),
+                "remaining_work":persisted.get("remaining_work"),
+                "blockers":persisted.get("blockers"),
+            }
+        else:
+            estimate=ProjectProgressEngine().calculate(repository,evidence)
+            estimate["evidence"]=evidence
+        return {
+            "repository":repository,
+            "current_workflow_id":workflow.get("id") if workflow else None,
+            "production":production,
+            "estimate":estimate,
+            "history":self.store.progress_history(repository),
+            "generated_at":_now(),
+        }
 
     def project_commits(self,repository,window):
         self._require_project(repository)
