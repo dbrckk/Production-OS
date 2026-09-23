@@ -48,3 +48,9 @@ def test_dashboard_v3_is_bound_to_observability_read_apis():
         "loadWorkerDetail",
     ):
         assert f"function {function_name}" in DASHBOARD_HTML or f"async function {function_name}" in DASHBOARD_HTML
+
+
+def test_dashboard_v3_has_usage_window_controls():
+    for label in ("24h", "7d", "30d"):
+        assert label in DASHBOARD_HTML
+    assert "setDashboardWindow" in DASHBOARD_HTML
