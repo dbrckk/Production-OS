@@ -656,7 +656,12 @@ async function loadWorkerDetail(workerId){
    '<p class="small"><strong>Progression :</strong> '+formatNumber(currentProgress)+' %</p>'+
    '<p class="small"><strong>Dernier heartbeat :</strong> '+esc(String(worker.last_heartbeat||"Indisponible"))+'</p>'+
    '<p class="small">Tâches actives : '+formatNumber(worker.active_tasks)+' / '+formatNumber(worker.max_concurrency)+'</p>'+
-   '<p class="small">Exécutions : '+formatNumber(executions.length)+' · API : '+formatNumber(totals.api_calls)+' appels · '+formatNumber(totals.total_tokens)+' tokens</p>'+
+   '<p class="small">Exécutions : '+formatNumber(executions.length)+'</p>'+
+   '<div class="status-grid">'+
+   '<div class="status-card"><div class="status-label">Appels API</div><div class="status-value">'+formatNumber(totals.api_calls)+'</div></div>'+
+   '<div class="status-card"><div class="status-label">Tokens</div><div class="status-value">'+formatNumber(totals.total_tokens)+'</div></div>'+
+   '<div class="status-card"><div class="status-label">Coût estimé</div><div class="status-value">'+(totals.estimated_cost_usd==null?'Indisponible':formatNumber(totals.estimated_cost_usd)+' USD')+'</div></div>'+
+   '</div>'+
    '<h3 style="font-size:.85rem;margin:15px 0 6px">Logs récents</h3>'+
    (recent.length?recent.map(function(row){return '<div class="small">'+esc(String(row.created_at||""))+' · '+esc(String(row.level||"info"))+' · '+esc(String(row.message||""))+'</div>'}).join(""):'<div class="empty">Aucun log récent.</div>')+
    '</div>';
