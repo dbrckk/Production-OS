@@ -63,3 +63,10 @@ def test_dashboard_activity_view_is_bound_to_observability_api():
     assert "/v1/dashboard/activity" in DASHBOARD_HTML
     assert "async function loadActivityView" in DASHBOARD_HTML
     assert 'id="activity-list"' in DASHBOARD_HTML
+
+
+def test_worker_detail_exposes_live_task_and_health_information():
+    for label in ("Tâche actuelle", "Dernier heartbeat", "Progression"):
+        assert label in DASHBOARD_HTML
+    assert "progress_percent" in DASHBOARD_HTML
+    assert "last_heartbeat" in DASHBOARD_HTML
