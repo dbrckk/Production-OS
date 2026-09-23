@@ -142,7 +142,11 @@ class DashboardService:
     def project_progress(self,repository):
         self._require_project(repository)
         with self.control.backend.connect() as db:
-            rows=_execute(\n                db, self.control.backend,\n                "SELECT id FROM workflows WHERE repository=? ORDER BY updated_at DESC LIMIT 1",\n                (repository,),\n            ).fetchall()
+            rows=_execute(
+                db, self.control.backend,
+                "SELECT id FROM workflows WHERE repository=? ORDER BY updated_at DESC LIMIT 1",
+                (repository,),
+            ).fetchall()
         workflow=self.control.workflows.get(str(rows[0]["id"])) if rows else None
         production=workflow_progress(workflow) if workflow else {
             "percent":None,"completed_weight":0.0,"total_weight":0.0,
@@ -204,7 +208,11 @@ class DashboardService:
         self._require_project(repository)
         executions=self.store.executions_for_repository(repository,limit=100)
         with self.control.backend.connect() as db:
-            rows=_execute(\n                db,self.control.backend,\n                "SELECT repository,task,worker_id,duration_seconds,succeeded,created_at FROM execution_history WHERE repository=? ORDER BY created_at DESC LIMIT 100",\n                (repository,),\n            ).fetchall()
+            rows=_execute(
+                db,self.control.backend,
+                "SELECT repository,task,worker_id,duration_seconds,succeeded,created_at FROM execution_history WHERE repository=? ORDER BY created_at DESC LIMIT 100",
+                (repository,),
+            ).fetchall()
         legacy=[dict(x) for x in rows]
         coverage="complete"
         if legacy:
