@@ -41,6 +41,11 @@ def test_schema_v9_initialization_is_idempotent(tmp_path):
     assert count == 1
 
 
+def _store(tmp_path):
+    from production_os.dashboard_store import DashboardStore
+    return DashboardStore(SQLiteBackend(tmp_path / "production.db"))
+
+
 def _sample_job():
     return {
         "key": "job-1",
