@@ -120,3 +120,10 @@ def test_project_detail_exposes_commit_window_and_sources():
     assert "commits.window" in DASHBOARD_HTML
     assert "commits.production_os" in DASHBOARD_HTML
     assert "commits.github_default_branch" in DASHBOARD_HTML
+
+
+def test_project_detail_exposes_api_usage_breakdown():
+    for label in ("Fournisseur", "Modèle", "Appels API projet", "Tokens projet"):
+        assert label in DASHBOARD_HTML
+    assert "usage.providers" in DASHBOARD_HTML
+    assert "usage.timeline" in DASHBOARD_HTML
