@@ -98,3 +98,11 @@ def test_worker_detail_exposes_capabilities_and_health():
     assert "worker.capabilities" in DASHBOARD_HTML
     assert "worker.status" in DASHBOARD_HTML
     assert "worker.max_concurrency" in DASHBOARD_HTML
+
+
+def test_project_detail_exposes_progress_evidence():
+    for label in ("Confiance", "Preuves", "Travail restant", "Blocages"):
+        assert label in DASHBOARD_HTML
+    assert "progress.estimate.evidence" in DASHBOARD_HTML
+    assert "progress.estimate.remaining_work" in DASHBOARD_HTML
+    assert "progress.estimate.blockers" in DASHBOARD_HTML
