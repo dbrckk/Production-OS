@@ -106,3 +106,9 @@ def test_project_detail_exposes_progress_evidence():
     assert "progress.estimate.evidence" in DASHBOARD_HTML
     assert "progress.estimate.remaining_work" in DASHBOARD_HTML
     assert "progress.estimate.blockers" in DASHBOARD_HTML
+
+
+def test_project_detail_exposes_progress_components():
+    for label in ("Code", "Tests", "Stabilité", "Release"):
+        assert label in DASHBOARD_HTML
+    assert "estimate.components" in DASHBOARD_HTML
