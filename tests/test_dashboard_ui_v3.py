@@ -49,3 +49,11 @@ def test_dashboard_workers_view_is_bound_to_observability_api():
     assert "async function loadWorkerDetail" in DASHBOARD_HTML
     assert 'id="workers-list"' in DASHBOARD_HTML
     assert 'id="worker-detail"' in DASHBOARD_HTML
+
+
+def test_dashboard_projects_view_is_bound_to_observability_api():
+    assert "/v1/dashboard/projects" in DASHBOARD_HTML
+    assert "async function loadProjectsView" in DASHBOARD_HTML
+    assert "async function loadProjectDetail" in DASHBOARD_HTML
+    assert 'id="projects-list"' in DASHBOARD_HTML
+    assert 'id="project-detail"' in DASHBOARD_HTML
