@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 import json
+import hashlib
 
 from .dashboard_usage import aggregate_usage
 from .project_progress import ProjectProgressEngine, build_project_evidence, workflow_progress
@@ -184,59 +185,65 @@ class DashboardService:
             events=[x for x in events if x.get("repository")==repository],
             visual_quality=None,
         )
-        estimate=ProjectProgressEngine().calculate(repository,evidence)
-        estimate["evidence"]=evidence
-        estimate["remaining_work"]=evidence.get("remaining_work") or []
-        estimate["blockers"]=evidence.get("blockers") or []
-
-        components=estimate.get("components") or {}
-        candidate={
+        calculated=ProjectProgressEngine().calculate(repository,evidence)
+        calculated["evidence"]=evidence
+        calculated["remaining_work"]=evidence.get("remaining_work") or []
+        calculated["blockers"]=evidence.get("blockers") or []
+        latest=self.store.latest_progress_snapshot(repository)
+        components=calculated.get("components") or {}
+        snapshot={
+            "repository":repository,
             "current_workflow_id":workflow.get("id") if workflow else None,
             "production_progress":production.get("percent"),
-            "project_progress":estimate.get("score"),
-            "confidence":estimate.get("confidence"),
+            "project_progress":calculated.get("score"),
+            "confidence":calculated.get("confidence"),
             "code_score":(components.get("code") or {}).get("score"),
             "ui_ux_score":(components.get("ui_ux") or {}).get("score"),
             "assets_score":(components.get("assets") or {}).get("score"),
             "tests_score":(components.get("tests") or {}).get("score"),
             "stability_score":(components.get("stability") or {}).get("score"),
             "release_score":(components.get("release") or {}).get("score"),
-            "evidence":evidence,
-            "remaining_work":estimate["remaining_work"],
-            "blockers":estimate["blockers"],
-            "calculation_version":estimate.get("calculation_version"),
+            "evidence_json":evidence,
+            "remaining_work_json":calculated["remaining_work"],
+            "blockers_json":calculated["blockers"],
+            "calculation_version":calculated.get("calculation_version"),
         }
-        latest=self.store.latest_progress_snapshot(repository)
-        if self._progress_snapshot_state(latest) != candidate:
-            captured_at=estimate.get("captured_at") or _now()
-            saved=self.store.save_progress_snapshot({
-                "id":str(uuid4()),
+        meaningful_keys=(
+            "current_workflow_id","production_progress","project_progress","confidence",
+            "code_score","ui_ux_score","assets_score","tests_score","stability_score",
+            "release_score","calculation_version",
+        )
+        latest_evidence=(latest or {}).get("evidence")
+        latest_remaining=(latest or {}).get("remaining_work")
+        latest_blockers=(latest or {}).get("blockers")
+        changed=latest is None or any(latest.get(key)!=snapshot.get(key) for key in meaningful_keys)
+        changed=changed or latest_evidence!=evidence or latest_remaining!=calculated["remaining_work"] or latest_blockers!=calculated["blockers"]
+        if changed:
+            canonical=json.dumps({
                 "repository":repository,
-                "current_workflow_id":candidate["current_workflow_id"],
-                "production_progress":candidate["production_progress"],
-                "project_progress":candidate["project_progress"],
-                "confidence":candidate["confidence"],
-                "code_score":candidate["code_score"],
-                "ui_ux_score":candidate["ui_ux_score"],
-                "assets_score":candidate["assets_score"],
-                "tests_score":candidate["tests_score"],
-                "stability_score":candidate["stability_score"],
-                "release_score":candidate["release_score"],
-                "evidence_json":candidate["evidence"],
-                "remaining_work_json":candidate["remaining_work"],
-                "blockers_json":candidate["blockers"],
-                "calculation_version":candidate["calculation_version"],
-                "captured_at":captured_at,
+                **{key:snapshot.get(key) for key in meaningful_keys},
+                "evidence":evidence,
+                "remaining_work":calculated["remaining_work"],
+                "blockers":calculated["blockers"],
+            },sort_keys=True,separators=(",",":"),default=str)
+            snapshot["id"]="progress:"+hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+            snapshot["captured_at"]=_now()
+            latest=self.store.save_progress_snapshot(snapshot)
+        if latest:
+            calculated.update({
+                "score":latest.get("project_progress"),
+                "confidence":latest.get("confidence"),
+                "calculation_version":latest.get("calculation_version"),
+                "captured_at":latest.get("captured_at"),
+                "evidence":latest.get("evidence"),
+                "remaining_work":latest.get("remaining_work"),
+                "blockers":latest.get("blockers"),
             })
-            estimate["captured_at"]=saved.get("captured_at")
-        elif latest:
-            estimate["captured_at"]=latest.get("captured_at")
-
         return {
             "repository":repository,
             "current_workflow_id":workflow.get("id") if workflow else None,
             "production":production,
-            "estimate":estimate,
+            "estimate":calculated,
             "history":self.store.progress_history(repository),
             "generated_at":_now(),
         }
