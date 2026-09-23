@@ -185,71 +185,51 @@ class DashboardService:
             events=[x for x in events if x.get("repository")==repository],
             visual_quality=None,
         )
-        calculated=ProjectProgressEngine().calculate(repository,evidence)
-        calculated["evidence"]=evidence
-        calculated["remaining_work"]=evidence.get("remaining_work") or []
-        calculated["blockers"]=evidence.get("blockers") or []
+        estimate=ProjectProgressEngine().calculate(repository,evidence)
+        estimate["evidence"]=evidence
+        estimate["remaining_work"]=evidence.get("remaining_work") or []
+        estimate["blockers"]=evidence.get("blockers") or []
 
-        components=calculated.get("components") or {}
-        candidate={
+        components=estimate.get("components") or {}
+        signature_payload={
             "repository":repository,
             "current_workflow_id":workflow.get("id") if workflow else None,
             "production_progress":production.get("percent"),
-            "project_progress":calculated.get("score"),
-            "confidence":calculated.get("confidence"),
-            "code_score":(components.get("code") or {}).get("score"),
-            "ui_ux_score":(components.get("ui_ux") or {}).get("score"),
-            "assets_score":(components.get("assets") or {}).get("score"),
-            "tests_score":(components.get("tests") or {}).get("score"),
-            "stability_score":(components.get("stability") or {}).get("score"),
-            "release_score":(components.get("release") or {}).get("score"),
-            "evidence_json":evidence,
-            "remaining_work_json":calculated["remaining_work"],
-            "blockers_json":calculated["blockers"],
-            "calculation_version":calculated.get("calculation_version"),
+            "project_progress":estimate.get("score"),
+            "confidence":estimate.get("confidence"),
+            "components":{
+                name:(components.get(name) or {}).get("score")
+                for name in ("code","ui_ux","assets","tests","stability","release")
+            },
+            "evidence":evidence,
+            "remaining_work":estimate["remaining_work"],
+            "blockers":estimate["blockers"],
+            "calculation_version":estimate.get("calculation_version"),
         }
-        persisted=self.store.latest_progress_snapshot(repository)
-        comparable_fields=(
-            "current_workflow_id","production_progress","project_progress","confidence",
-            "code_score","ui_ux_score","assets_score","tests_score","stability_score",
-            "release_score","calculation_version",
-        )
-        changed=persisted is None or any(
-            persisted.get(field) != candidate.get(field) for field in comparable_fields
-        )
-        if changed:
-            candidate["id"]=str(uuid4())
-            candidate["captured_at"]=calculated.get("captured_at") or _now()
-            persisted=self.store.save_progress_snapshot(candidate)
-
-        if persisted:
-            score_fields={
-                "code":"code_score","ui_ux":"ui_ux_score","assets":"assets_score",
-                "tests":"tests_score","stability":"stability_score","release":"release_score",
-            }
-            persisted_components={}
-            for name,field in score_fields.items():
-                score=persisted.get(field)
-                persisted_components[name]={
-                    "status":"observed" if score is not None else (
-                        "not_applicable" if (calculated.get("components",{}).get(name) or {}).get("status")=="not_applicable"
-                        else "unknown"
-                    ),
-                    "score":score,
-                }
-            estimate={
+        signature=json.dumps(signature_payload,sort_keys=True,separators=(",",":"),default=str)
+        snapshot_id="progress:"+hashlib.sha256(signature.encode("utf-8")).hexdigest()
+        if self.store.latest_progress_snapshot(repository) is None or (
+            self.store.latest_progress_snapshot(repository).get("id") != snapshot_id
+        ):
+            self.store.save_progress_snapshot({
+                "id":snapshot_id,
                 "repository":repository,
-                "score":persisted.get("project_progress"),
-                "confidence":persisted.get("confidence"),
-                "components":persisted_components,
-                "calculation_version":persisted.get("calculation_version"),
-                "captured_at":persisted.get("captured_at"),
-                "evidence":persisted.get("evidence"),
-                "remaining_work":persisted.get("remaining_work"),
-                "blockers":persisted.get("blockers"),
-            }
-        else:
-            estimate=calculated
+                "current_workflow_id":signature_payload["current_workflow_id"],
+                "production_progress":signature_payload["production_progress"],
+                "project_progress":signature_payload["project_progress"],
+                "confidence":signature_payload["confidence"],
+                "code_score":signature_payload["components"]["code"],
+                "ui_ux_score":signature_payload["components"]["ui_ux"],
+                "assets_score":signature_payload["components"]["assets"],
+                "tests_score":signature_payload["components"]["tests"],
+                "stability_score":signature_payload["components"]["stability"],
+                "release_score":signature_payload["components"]["release"],
+                "evidence_json":evidence,
+                "remaining_work_json":estimate["remaining_work"],
+                "blockers_json":estimate["blockers"],
+                "calculation_version":estimate.get("calculation_version"),
+                "captured_at":estimate.get("captured_at"),
+            })
         return {
             "repository":repository,
             "current_workflow_id":workflow.get("id") if workflow else None,
