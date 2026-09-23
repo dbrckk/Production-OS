@@ -91,3 +91,24 @@ def test_project_progress_exposes_weighted_current_workflow(tmp_path):
     assert progress["production"]["percent"] == 25.0
     assert progress["estimate"]["calculation_version"] == "project-progress/v1"
     assert progress["estimate"]["confidence"] in {"low","medium","high"}
+
+
+def test_activity_worker_filter_uses_event_payload(tmp_path):
+    control=ControlPlane(str(tmp_path/"db.sqlite"),authorizer=_auth())
+    control.backend.append_event("job.completed","dbrckk/example","a",{"worker_id":"worker-a"})
+    control.backend.append_event("job.completed","dbrckk/example","b",{"worker_id":"worker-b"})
+    rows=control.dashboard.activity(worker_id="worker-a")["events"]
+    assert len(rows) == 1
+    assert rows[0]["payload"]["worker_id"] == "worker-a"
+
+
+def test_project_history_marks_legacy_backfill_partial(tmp_path):
+    control=ControlPlane(str(tmp_path/"db.sqlite"),authorizer=_auth())
+    with control.backend.transaction() as db:
+        db.execute(
+            "INSERT INTO execution_history(repository,task,worker_id,duration_seconds,succeeded,capabilities_json,created_at) VALUES(?,?,?,?,?,?,?)",
+            ("dbrckk/example","legacy","worker-a",3.5,1,"[]","2026-09-01T00:00:00+00:00"),
+        )
+    history=control.dashboard.project_history("dbrckk/example")
+    assert history["history_coverage"] == "partial"
+    assert history["legacy_executions"][0]["worker_id"] == "worker-a"
