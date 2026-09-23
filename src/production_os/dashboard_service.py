@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
+import json
 
 from .dashboard_usage import aggregate_usage
 from .project_progress import ProjectProgressEngine, build_project_evidence, workflow_progress
@@ -193,10 +194,63 @@ class DashboardService:
                 "github_default_branch":(self.store.latest_repository_snapshot(repository) or {}).get("github_commits"),
                 "generated_at":_now()}
 
+    def _legacy_workflow_usage_rows(self, repository):
+        with self.control.backend.connect() as db:
+            modern_rows=_execute(
+                db,self.control.backend,
+                "SELECT workflow_id,workflow_task_id FROM job_executions WHERE repository=?",
+                (repository,),
+            ).fetchall()
+            modern_pairs={
+                (str(row["workflow_id"]),str(row["workflow_task_id"]))
+                for row in modern_rows
+                if row["workflow_id"] is not None and row["workflow_task_id"] is not None
+            }
+            rows=_execute(
+                db,self.control.backend,
+                """SELECT wt.workflow_id,wt.task_id,wt.result_json,wt.updated_at
+                   FROM workflow_tasks wt
+                   JOIN workflows w ON w.id=wt.workflow_id
+                   WHERE w.repository=? AND wt.result_json IS NOT NULL""",
+                (repository,),
+            ).fetchall()
+        usage_rows=[]
+        for row in rows:
+            if (str(row["workflow_id"]),str(row["task_id"])) in modern_pairs:
+                continue
+            try:
+                result=json.loads(row["result_json"]) if isinstance(row["result_json"],str) else row["result_json"]
+            except (TypeError,ValueError,json.JSONDecodeError):
+                continue
+            usage=(result or {}).get("usage") if isinstance(result,dict) else None
+            providers=usage.get("providers") if isinstance(usage,dict) else None
+            if not isinstance(providers,list):
+                continue
+            for provider in providers:
+                if not isinstance(provider,dict):
+                    continue
+                usage_rows.append({
+                    "occurred_at":row["updated_at"],
+                    "provider":provider.get("provider"),
+                    "model":provider.get("model"),
+                    "api_calls":provider.get("api_calls"),
+                    "input_tokens":provider.get("input_tokens"),
+                    "cached_input_tokens":provider.get("cached_input_tokens"),
+                    "output_tokens":provider.get("output_tokens"),
+                    "reasoning_tokens":provider.get("reasoning_tokens"),
+                    "total_tokens":provider.get("total_tokens"),
+                    "estimated_cost_usd":provider.get("estimated_cost_usd"),
+                })
+        return usage_rows
+
     def project_usage(self,repository,window):
         self._require_project(repository)
-        return aggregate_usage(self.store.usage_events(repository=repository),window=window,
-                               quota_rows=self.store.latest_provider_quota_snapshots())
+        current=self.store.usage_events(repository=repository)
+        legacy=self._legacy_workflow_usage_rows(repository)
+        payload=aggregate_usage(current+legacy,window=window,
+                                quota_rows=self.store.latest_provider_quota_snapshots())
+        payload["history_coverage"]="partial" if legacy else "complete"
+        return payload
 
     def project_workflows(self,repository):
         self._require_project(repository)
