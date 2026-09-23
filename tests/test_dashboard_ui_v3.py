@@ -41,3 +41,11 @@ def test_dashboard_v3_has_usage_window_controls():
     for label in ("24h", "7d", "30d"):
         assert label in DASHBOARD_HTML
     assert "setDashboardWindow" in DASHBOARD_HTML
+
+
+def test_dashboard_workers_view_is_bound_to_observability_api():
+    assert "/v1/dashboard/workers" in DASHBOARD_HTML
+    assert "async function loadWorkersView" in DASHBOARD_HTML
+    assert "async function loadWorkerDetail" in DASHBOARD_HTML
+    assert 'id="workers-list"' in DASHBOARD_HTML
+    assert 'id="worker-detail"' in DASHBOARD_HTML
