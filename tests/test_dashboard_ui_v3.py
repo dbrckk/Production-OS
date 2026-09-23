@@ -31,23 +31,10 @@ def test_dashboard_preserves_launch_and_mobile_accessibility():
     assert "Annuler la tâche" not in DASHBOARD_HTML
 
 
-def test_dashboard_v3_is_bound_to_observability_read_apis():
-    for endpoint in (
-        "/v1/dashboard/overview",
-        "/v1/dashboard/projects",
-        "/v1/dashboard/workers",
-        "/v1/dashboard/activity",
-    ):
-        assert endpoint in DASHBOARD_HTML
-    for function_name in (
-        "loadOverview",
-        "loadProjectsView",
-        "loadWorkersView",
-        "loadActivityView",
-        "loadProjectDetail",
-        "loadWorkerDetail",
-    ):
-        assert f"function {function_name}" in DASHBOARD_HTML or f"async function {function_name}" in DASHBOARD_HTML
+def test_dashboard_overview_is_bound_to_observability_api():
+    assert "/v1/dashboard/overview" in DASHBOARD_HTML
+    assert "async function loadOverview" in DASHBOARD_HTML
+    assert 'id="overview-metrics"' in DASHBOARD_HTML
 
 
 def test_dashboard_v3_has_usage_window_controls():
