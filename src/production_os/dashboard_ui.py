@@ -613,6 +613,11 @@ async function loadProjectDetail(repository){
   const evidence=progress.estimate&&progress.estimate.evidence;
   const remainingWork=progress.estimate&&progress.estimate.remaining_work;
   const blockers=progress.estimate&&progress.estimate.blockers;
+  const components=estimate.components||{};
+  function componentValue(name){
+   const item=components[name]||{};
+   return item.score==null?(item.status==="not_applicable"?"N/A":"Indisponible"):formatNumber(item.score)+" %";
+  }
   function progressList(value){
    if(Array.isArray(value))return value.length?value.map(function(item){return esc(typeof item==="string"?item:JSON.stringify(item))}).join(" · "):"Aucun";
    if(value&&typeof value==="object")return esc(JSON.stringify(value));
@@ -626,6 +631,12 @@ async function loadProjectDetail(repository){
    '<p class="small"><strong>Preuves :</strong> '+progressList(evidence)+'</p>'+
    '<p class="small"><strong>Travail restant :</strong> '+progressList(remainingWork)+'</p>'+
    '<p class="small"><strong>Blocages :</strong> '+progressList(blockers)+'</p>'+
+   '<div class="status-grid">'+
+   '<div class="status-card"><div class="status-label">Code</div><div class="status-value">'+componentValue("code")+'</div></div>'+
+   '<div class="status-card"><div class="status-label">Tests</div><div class="status-value">'+componentValue("tests")+'</div></div>'+
+   '<div class="status-card"><div class="status-label">Stabilité</div><div class="status-value">'+componentValue("stability")+'</div></div>'+
+   '<div class="status-card"><div class="status-label">Release</div><div class="status-value">'+componentValue("release")+'</div></div>'+
+   '</div>'+
    '<p class="small">Commits Production-OS : '+formatNumber(commits.production_os)+' · branche GitHub : '+formatNumber(commits.github_default_branch)+'</p>'+
    '<p class="small">API : '+formatNumber(totals.api_calls)+' appels · '+formatNumber(totals.total_tokens)+' tokens · '+formatNumber(totals.estimated_cost_usd)+' USD estimés</p>'+
    '<p class="small">Workflows : '+formatNumber((workflows.workflows||[]).length)+' · exécutions récentes : '+formatNumber((history.executions||[]).length)+' · couverture historique : '+esc(String(history.history_coverage||"complète"))+'</p></div>';
