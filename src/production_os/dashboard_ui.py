@@ -610,6 +610,7 @@ async function loadProjectDetail(repository){
   ]);
   const detail=results[0],progress=results[1],commits=results[2],usage=results[3],workflows=results[4],history=results[5];
   const production=progress.production||{},estimate=progress.estimate||{},totals=usage.totals||{};
+  const usageProviders=usage.providers||[],usageTimeline=usage.timeline||[];
   const evidence=progress.estimate&&progress.estimate.evidence;
   const remainingWork=progress.estimate&&progress.estimate.remaining_work;
   const blockers=progress.estimate&&progress.estimate.blockers;
@@ -642,7 +643,13 @@ async function loadProjectDetail(repository){
    '<div class="status-card"><div class="status-label">Commits Production-OS</div><div class="status-value">'+formatNumber(commits.production_os)+'</div></div>'+
    '<div class="status-card"><div class="status-label">Commits branche GitHub</div><div class="status-value">'+(commits.github_default_branch==null?'Indisponible':formatNumber(commits.github_default_branch))+'</div></div>'+
    '</div>'+
-   '<p class="small">API : '+formatNumber(totals.api_calls)+' appels · '+formatNumber(totals.total_tokens)+' tokens · '+formatNumber(totals.estimated_cost_usd)+' USD estimés</p>'+
+   '<div class="status-grid">'+
+   '<div class="status-card"><div class="status-label">Appels API projet</div><div class="status-value">'+formatNumber(totals.api_calls)+'</div></div>'+
+   '<div class="status-card"><div class="status-label">Tokens projet</div><div class="status-value">'+formatNumber(totals.total_tokens)+'</div></div>'+
+   '</div>'+
+   '<h3 style="font-size:.85rem;margin:15px 0 6px">Consommation par modèle</h3>'+
+   (usageProviders.length?usageProviders.map(function(row){return '<div class="small"><strong>Fournisseur :</strong> '+esc(String(row.provider||"inconnu"))+' · <strong>Modèle :</strong> '+esc(String(row.model||"inconnu"))+' · '+formatNumber(row.api_calls)+' appels · '+formatNumber(row.total_tokens)+' tokens</div>'}).join(""):'<div class="empty">Aucune consommation API détaillée.</div>')+
+   '<p class="small">Points de tendance : '+formatNumber(usageTimeline.length)+'</p>'+
    '<p class="small">Workflows : '+formatNumber((workflows.workflows||[]).length)+' · exécutions récentes : '+formatNumber((history.executions||[]).length)+' · couverture historique : '+esc(String(history.history_coverage||"complète"))+'</p></div>';
  }catch(e){el.innerHTML=errorCard(e)}
 }
