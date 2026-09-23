@@ -95,8 +95,9 @@ def test_project_progress_exposes_weighted_current_workflow(tmp_path):
 
 def test_activity_worker_filter_uses_event_payload(tmp_path):
     control=ControlPlane(str(tmp_path/"db.sqlite"),authorizer=_auth())
-    control.backend.append_event("job.completed","dbrckk/example","a",{"worker_id":"worker-a"})
-    control.backend.append_event("job.completed","dbrckk/example","b",{"worker_id":"worker-b"})
+    with control.backend.transaction() as db:
+        control.backend.append_event(db,"job.completed",{"worker_id":"worker-a"},repository="dbrckk/example",task_key_value="a")
+        control.backend.append_event(db,"job.completed",{"worker_id":"worker-b"},repository="dbrckk/example",task_key_value="b")
     rows=control.dashboard.activity(worker_id="worker-a")["events"]
     assert len(rows) == 1
     assert rows[0]["payload"]["worker_id"] == "worker-a"
