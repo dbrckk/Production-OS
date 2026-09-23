@@ -112,3 +112,11 @@ def test_project_detail_exposes_progress_components():
     for label in ("Code", "Tests", "Stabilité", "Release"):
         assert label in DASHBOARD_HTML
     assert "estimate.components" in DASHBOARD_HTML
+
+
+def test_project_detail_exposes_commit_window_and_sources():
+    for label in ("Fenêtre commits", "Commits Production-OS", "Commits branche GitHub"):
+        assert label in DASHBOARD_HTML
+    assert "commits.window" in DASHBOARD_HTML
+    assert "commits.production_os" in DASHBOARD_HTML
+    assert "commits.github_default_branch" in DASHBOARD_HTML
