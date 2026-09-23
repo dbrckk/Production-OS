@@ -655,7 +655,9 @@ async function loadWorkerDetail(workerId){
    '<p class="small"><strong>Tâche actuelle :</strong> '+esc(String(currentTask))+'</p>'+
    '<p class="small"><strong>Progression :</strong> '+formatNumber(currentProgress)+' %</p>'+
    '<p class="small"><strong>Dernier heartbeat :</strong> '+esc(String(worker.last_heartbeat||"Indisponible"))+'</p>'+
-   '<p class="small">Tâches actives : '+formatNumber(worker.active_tasks)+' / '+formatNumber(worker.max_concurrency)+'</p>'+
+   '<p class="small"><strong>Santé du worker :</strong> '+esc(String(worker.status||"inconnu"))+'</p>'+
+   '<p class="small"><strong>Concurrence :</strong> '+formatNumber(worker.active_tasks)+' / '+formatNumber(worker.max_concurrency)+'</p>'+
+   '<p class="small"><strong>Capacités :</strong> '+esc(Array.isArray(worker.capabilities)?worker.capabilities.join(", "):String(worker.capabilities||"Indisponible"))+'</p>'+
    '<p class="small">Exécutions : '+formatNumber(executions.length)+'</p>'+
    '<div class="status-grid">'+
    '<div class="status-card"><div class="status-label">Appels API</div><div class="status-value">'+formatNumber(totals.api_calls)+'</div></div>'+
