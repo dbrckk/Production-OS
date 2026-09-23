@@ -76,3 +76,10 @@ def test_worker_detail_exposes_api_usage_breakdown():
     for label in ("Appels API", "Tokens", "Coût estimé"):
         assert label in DASHBOARD_HTML
     assert "estimated_cost_usd" in DASHBOARD_HTML
+
+
+def test_worker_detail_exposes_execution_history():
+    for label in ("Historique d’exécution", "Durée", "Résultat"):
+        assert label in DASHBOARD_HTML
+    assert "duration_seconds" in DASHBOARD_HTML
+    assert "started_at" in DASHBOARD_HTML
