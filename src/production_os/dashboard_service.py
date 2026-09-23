@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 
-from .dashboard_usage import aggregate_usage\nfrom .project_progress import ProjectProgressEngine, build_project_evidence, workflow_progress
+from .dashboard_usage import aggregate_usage
+from .project_progress import ProjectProgressEngine, build_project_evidence, workflow_progress
 
 
 class DashboardNotFound(KeyError):
