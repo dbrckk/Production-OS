@@ -70,3 +70,9 @@ def test_worker_detail_exposes_live_task_and_health_information():
         assert label in DASHBOARD_HTML
     assert "progress_percent" in DASHBOARD_HTML
     assert "last_heartbeat" in DASHBOARD_HTML
+
+
+def test_worker_detail_exposes_api_usage_breakdown():
+    for label in ("Appels API", "Tokens", "Coût estimé"):
+        assert label in DASHBOARD_HTML
+    assert "estimated_cost_usd" in DASHBOARD_HTML
