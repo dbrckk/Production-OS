@@ -190,49 +190,68 @@ class DashboardService:
         estimate["remaining_work"]=evidence.get("remaining_work") or []
         estimate["blockers"]=evidence.get("blockers") or []
 
+        latest=self.store.latest_progress_snapshot(repository)
         components=estimate.get("components") or {}
         meaningful={
-            "repository":repository,
             "current_workflow_id":workflow.get("id") if workflow else None,
             "production_progress":production.get("percent"),
             "project_progress":estimate.get("score"),
             "confidence":estimate.get("confidence"),
-            "components":{
-                name:(components.get(name) or {}).get("score")
-                for name in ("code","ui_ux","assets","tests","stability","release")
-            },
-            "evidence":evidence,
+            "code_score":(components.get("code") or {}).get("score"),
+            "ui_ux_score":(components.get("ui_ux") or {}).get("score"),
+            "assets_score":(components.get("assets") or {}).get("score"),
+            "tests_score":(components.get("tests") or {}).get("score"),
+            "stability_score":(components.get("stability") or {}).get("score"),
+            "release_score":(components.get("release") or {}).get("score"),
+            "evidence":estimate["evidence"],
             "remaining_work":estimate["remaining_work"],
             "blockers":estimate["blockers"],
             "calculation_version":estimate.get("calculation_version"),
         }
-        fingerprint=hashlib.sha256(
-            json.dumps(meaningful,sort_keys=True,separators=(",",":"),default=str).encode("utf-8")
-        ).hexdigest()
-        latest=self.store.latest_progress_snapshot(repository)
-        if latest is None or latest.get("id") != fingerprint:
-            self.store.save_progress_snapshot({
-                "id":fingerprint,
+        latest_meaningful=None
+        if latest:
+            latest_meaningful={
+                "current_workflow_id":latest.get("current_workflow_id"),
+                "production_progress":latest.get("production_progress"),
+                "project_progress":latest.get("project_progress"),
+                "confidence":latest.get("confidence"),
+                "code_score":latest.get("code_score"),
+                "ui_ux_score":latest.get("ui_ux_score"),
+                "assets_score":latest.get("assets_score"),
+                "tests_score":latest.get("tests_score"),
+                "stability_score":latest.get("stability_score"),
+                "release_score":latest.get("release_score"),
+                "evidence":latest.get("evidence") or {},
+                "remaining_work":latest.get("remaining_work") or [],
+                "blockers":latest.get("blockers") or [],
+                "calculation_version":latest.get("calculation_version"),
+            }
+        if latest_meaningful != meaningful:
+            captured_at=estimate.get("captured_at") or _now()
+            snapshot_payload={
+                "id":repository+":"+captured_at,
                 "repository":repository,
                 "current_workflow_id":meaningful["current_workflow_id"],
                 "production_progress":meaningful["production_progress"],
                 "project_progress":meaningful["project_progress"],
                 "confidence":meaningful["confidence"],
-                "code_score":meaningful["components"]["code"],
-                "ui_ux_score":meaningful["components"]["ui_ux"],
-                "assets_score":meaningful["components"]["assets"],
-                "tests_score":meaningful["components"]["tests"],
-                "stability_score":meaningful["components"]["stability"],
-                "release_score":meaningful["components"]["release"],
-                "evidence_json":evidence,
-                "remaining_work_json":estimate["remaining_work"],
-                "blockers_json":estimate["blockers"],
+                "code_score":meaningful["code_score"],
+                "ui_ux_score":meaningful["ui_ux_score"],
+                "assets_score":meaningful["assets_score"],
+                "tests_score":meaningful["tests_score"],
+                "stability_score":meaningful["stability_score"],
+                "release_score":meaningful["release_score"],
+                "evidence_json":meaningful["evidence"],
+                "remaining_work_json":meaningful["remaining_work"],
+                "blockers_json":meaningful["blockers"],
                 "calculation_version":meaningful["calculation_version"],
-                "captured_at":estimate.get("captured_at") or _now(),
-            })
+                "captured_at":captured_at,
+            }
+            self.store.save_progress_snapshot(snapshot_payload)
+
         return {
             "repository":repository,
-            "current_workflow_id":meaningful["current_workflow_id"],
+            "current_workflow_id":workflow.get("id") if workflow else None,
             "production":production,
             "estimate":estimate,
             "history":self.store.progress_history(repository),
