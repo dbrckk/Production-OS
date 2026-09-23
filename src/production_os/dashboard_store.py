@@ -40,6 +40,20 @@ def _bounded_progress(value):
     return value
 
 
+def _valid_commit_shas(values) -> list[str]:
+    shas = []
+    seen = set()
+    for value in values or []:
+        if not isinstance(value, str):
+            continue
+        sha = value.strip().lower()
+        if len(sha) != 40 or any(ch not in "0123456789abcdef" for ch in sha) or sha in seen:
+            continue
+        seen.add(sha)
+        shas.append(sha)
+    return shas
+
+
 def _decode(row) -> dict | None:
     if row is None:
         return None
@@ -143,7 +157,7 @@ class DashboardStore:
         result = result or {}
         usage = result.get("usage") or {}
         commits = result.get("commits") or {}
-        shas = list(dict.fromkeys(commits.get("shas") or []))
+        shas = _valid_commit_shas(commits.get("shas"))
         with self.backend.transaction() as db:
             row = self._fetchone(
                 db, "SELECT * FROM job_executions WHERE job_key=? ORDER BY attempt DESC LIMIT 1", (job_key,)
