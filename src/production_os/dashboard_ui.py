@@ -645,11 +645,18 @@ async function loadWorkerDetail(workerId){
    api(base+"/usage?window="+encodeURIComponent(appState.window))
   ]);
   const detail=results[0],logs=results[1],usage=results[2],worker=detail.worker||{},totals=usage.totals||{};
+  const executions=detail.executions||[];
+  const activeExecution=executions.find(function(row){return row.status==="running"})||null;
+  const currentTask=activeExecution?(activeExecution.workflow_task_id||activeExecution.job_key||"En cours"):"Aucune";
+  const currentProgress=activeExecution?activeExecution.progress_percent:null;
   const recent=(logs.logs||[]).slice(0,8);
   el.innerHTML=
    '<div class="card"><div class="section-head"><h2>'+esc(workerId)+'</h2><span class="badge">'+esc(String(worker.status||"inconnu"))+'</span></div>'+
+   '<p class="small"><strong>Tâche actuelle :</strong> '+esc(String(currentTask))+'</p>'+
+   '<p class="small"><strong>Progression :</strong> '+formatNumber(currentProgress)+' %</p>'+
+   '<p class="small"><strong>Dernier heartbeat :</strong> '+esc(String(worker.last_heartbeat||"Indisponible"))+'</p>'+
    '<p class="small">Tâches actives : '+formatNumber(worker.active_tasks)+' / '+formatNumber(worker.max_concurrency)+'</p>'+
-   '<p class="small">Exécutions : '+formatNumber((detail.executions||[]).length)+' · API : '+formatNumber(totals.api_calls)+' appels · '+formatNumber(totals.total_tokens)+' tokens</p>'+
+   '<p class="small">Exécutions : '+formatNumber(executions.length)+' · API : '+formatNumber(totals.api_calls)+' appels · '+formatNumber(totals.total_tokens)+' tokens</p>'+
    '<h3 style="font-size:.85rem;margin:15px 0 6px">Logs récents</h3>'+
    (recent.length?recent.map(function(row){return '<div class="small">'+esc(String(row.created_at||""))+' · '+esc(String(row.level||"info"))+' · '+esc(String(row.message||""))+'</div>'}).join(""):'<div class="empty">Aucun log récent.</div>')+
    '</div>';
