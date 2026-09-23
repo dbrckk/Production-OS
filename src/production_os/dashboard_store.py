@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from datetime import datetime, timezone
+from uuid import uuid4
 
 from .dashboard_security import redact_log_value
 
@@ -208,7 +209,7 @@ class DashboardStore:
         with self.backend.transaction() as db:
             for index, source in enumerate(rows):
                 row = redact_log_value(source)
-                ident = str(row.get("id") or f"{worker_id}:{row.get('created_at') or _now()}:{index}")
+                ident = str(row.get("id") or uuid4())
                 created = row.get("created_at") or _now()
                 _execute(db, self.backend, """INSERT INTO worker_log_events(
                     id, worker_id, repository, workflow_id, job_key, level, stage, message,
