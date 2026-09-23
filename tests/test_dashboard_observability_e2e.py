@@ -1,4 +1,4 @@
-from __future__ import annotations
+import json\n\nfrom __future__ import annotations
 
 from production_os.api_auth import TokenAuthorizer, token_digest
 from production_os.control_plane import ControlPlane
@@ -113,3 +113,30 @@ def test_project_history_marks_legacy_backfill_partial(tmp_path):
     history=control.dashboard.project_history("dbrckk/example")
     assert history["history_coverage"] == "partial"
     assert history["legacy_executions"][0]["worker_id"] == "worker-a"
+
+
+def test_project_usage_backfills_legacy_workflow_result_usage(tmp_path):
+    control=ControlPlane(str(tmp_path/"db.sqlite"),authorizer=_auth())
+    workflow=control.workflows.create(
+        name="legacy-usage",
+        repository="dbrckk/example",
+        tasks=[WorkflowTaskSpec(task_id="done",title="Done",payload={})],
+    )
+    result_json=json.dumps({
+        "usage":{
+            "providers":[{
+                "provider":"legacy-provider","model":"legacy-model","api_calls":1,
+                "input_tokens":200,"cached_input_tokens":0,"output_tokens":100,
+                "reasoning_tokens":0,"total_tokens":300,
+            }]
+        }
+    })
+    with control.backend.transaction() as db:
+        db.execute(
+            "UPDATE workflow_tasks SET status='succeeded', result_json=?, updated_at=? WHERE workflow_id=? AND task_id=?",
+            (result_json,"2026-09-01T00:00:00+00:00",workflow["id"],"done"),
+        )
+    usage=control.dashboard.project_usage("dbrckk/example","all")
+    assert usage["totals"]["api_calls"] == 1
+    assert usage["totals"]["total_tokens"] == 300
+    assert usage["history_coverage"] == "partial"
