@@ -151,3 +151,14 @@ def test_append_logs_generates_unique_ids_across_repeated_calls(tmp_path):
     second=store.append_logs("worker-a",[row])[0]
     assert first["id"] != second["id"]
     assert len(store.logs_for_worker("worker-a")) == 2
+
+
+def test_finish_execution_ignores_malformed_commit_shas(tmp_path):
+    store=_store(tmp_path)
+    store.start_execution(_sample_job(),"worker-a")
+    valid="a"*40
+    row=store.finish_execution("job-1","worker-a",status="succeeded",duration_seconds=1,result={
+        "commits":{"count":5,"shas":[valid,valid,"not-a-sha","b"*39,"G"*40,None,123]}
+    })
+    assert row["commit_count"] == 1
+    assert row["commit_shas"] == [valid]
