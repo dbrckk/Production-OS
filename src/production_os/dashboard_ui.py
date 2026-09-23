@@ -534,7 +534,132 @@ document.getElementById('repository').addEventListener('change',loadRecentRuns);
 setInterval(loadVisualQuality,10000);
 setInterval(function(){loadWorkerStatus();loadRecentRuns()},10000);
 
-const appState={view:"overview",workerId:null,repository:null,tab:null,polling:new Map()};
+const appState={view:"overview",workerId:null,repository:null,tab:null,window:"7d",polling:new Map()};
+(function restoreNavigation(){
+ const q=new URLSearchParams(window.location.search);
+ const view=q.get("view");
+ if(["overview","projects","workers","activity"].includes(view))appState.view=view;
+ appState.workerId=q.get("worker")||null;
+ appState.repository=q.get("repo")||null;
+ appState.tab=q.get("tab")||null;
+})();
+
+function clearViewPolls(){
+ appState.polling.forEach(function(id){clearInterval(id)});
+ appState.polling.clear();
+}
+function formatNumber(value){
+ if(value===null||value===undefined)return "—";
+ return new Intl.NumberFormat("fr-FR",{maximumFractionDigits:2}).format(value);
+}
+function errorCard(error){
+ return '<div class="card"><div class="small">'+esc(String(error).replace(/^Error:\\s*/,''))+'</div></div>';
+}
+function repoApiPath(repository){
+ return String(repository).split("/").map(encodeURIComponent).join("/");
+}
+async function loadOverview(){
+ const el=document.getElementById("overview-metrics");
+ try{
+  const data=await api("/v1/dashboard/overview?window="+encodeURIComponent(appState.window));
+  const w=data.workers||{},p=data.productions||{},u=data.usage||{},c=data.commits||{},perf=data.performance||{};
+  el.innerHTML=
+   '<div class="status-grid">'+
+   '<div class="status-card"><div class="status-label">Workers en ligne</div><div class="status-value">'+formatNumber(w.online)+' / '+formatNumber(w.total)+'</div></div>'+
+   '<div class="status-card"><div class="status-label">Productions actives</div><div class="status-value">'+formatNumber(p.running)+'</div></div>'+
+   '<div class="status-card"><div class="status-label">Tokens · '+esc(appState.window)+'</div><div class="status-value">'+formatNumber(u.tokens)+'</div></div>'+
+   '</div>'+
+   '<div class="card"><div class="section-head"><h2>Activité mesurée</h2></div>'+
+   '<p class="small">API calls : '+formatNumber(u.api_calls)+' · coût estimé : '+formatNumber(u.estimated_cost_usd)+' USD</p>'+
+   '<p class="small">Commits Production-OS : '+formatNumber(c.production_os)+' · branche par défaut GitHub : '+formatNumber(c.github_default_branch)+'</p>'+
+   '<p class="small">Taux de réussite : '+formatNumber(perf.success_rate)+' % · temps d’exécution : '+formatNumber(perf.execution_seconds)+' s</p></div>';
+ }catch(e){el.innerHTML=errorCard(e)}
+}
+function openProject(encoded){
+ navigate({view:"projects",repository:decodeURIComponent(encoded),workerId:null,tab:"overview"});
+}
+async function loadProjectsView(){
+ const list=document.getElementById("projects-list");
+ try{
+  const data=await api("/v1/dashboard/projects");
+  const rows=data.projects||[];
+  list.innerHTML=rows.length?rows.map(function(item){
+   const repo=String(item.repository||"");
+   return '<button class="secondary-btn" type="button" data-repo="'+esc(encodeURIComponent(repo))+'" onclick="openProject(this.dataset.repo)">'+esc(repo)+'</button>';
+  }).join(" "):'<div class="empty">Aucun projet observé.</div>';
+  if(appState.repository)await loadProjectDetail(appState.repository);
+  else document.getElementById("project-detail").innerHTML='<div class="empty">Sélectionne un projet.</div>';
+ }catch(e){list.innerHTML=errorCard(e)}
+}
+async function loadProjectDetail(repository){
+ const el=document.getElementById("project-detail");
+ try{
+  const base="/v1/dashboard/projects/"+repoApiPath(repository);
+  const results=await Promise.all([
+   api(base),
+   api(base+"/progress"),
+   api(base+"/commits?window="+encodeURIComponent(appState.window)),
+   api(base+"/usage?window="+encodeURIComponent(appState.window)),
+   api(base+"/workflows"),
+   api(base+"/history")
+  ]);
+  const detail=results[0],progress=results[1],commits=results[2],usage=results[3],workflows=results[4],history=results[5];
+  const production=progress.production||{},estimate=progress.estimate||{},totals=usage.totals||{};
+  el.innerHTML=
+   '<div class="card"><div class="section-head"><h2>'+esc(repository)+'</h2><span class="badge">'+esc(String((detail.snapshot||{}).ci_status||"CI inconnue"))+'</span></div>'+
+   '<p class="small"><strong>Production actuelle :</strong> '+formatNumber(production.percent)+' %</p>'+
+   '<p class="small"><strong>Projet estimé :</strong> '+formatNumber(estimate.score)+' % · confiance '+esc(String(estimate.confidence||"inconnue"))+'</p>'+
+   '<p class="small">Commits Production-OS : '+formatNumber(commits.production_os)+' · branche GitHub : '+formatNumber(commits.github_default_branch)+'</p>'+
+   '<p class="small">API : '+formatNumber(totals.api_calls)+' appels · '+formatNumber(totals.total_tokens)+' tokens · '+formatNumber(totals.estimated_cost_usd)+' USD estimés</p>'+
+   '<p class="small">Workflows : '+formatNumber((workflows.workflows||[]).length)+' · exécutions récentes : '+formatNumber((history.executions||[]).length)+' · couverture historique : '+esc(String(history.history_coverage||"complète"))+'</p></div>';
+ }catch(e){el.innerHTML=errorCard(e)}
+}
+function openWorker(encoded){
+ navigate({view:"workers",workerId:decodeURIComponent(encoded),repository:null,tab:"overview"});
+}
+async function loadWorkersView(){
+ const list=document.getElementById("workers-list");
+ try{
+  const data=await api("/v1/dashboard/workers");
+  const rows=data.workers||[];
+  list.innerHTML=rows.length?rows.map(function(worker){
+   const id=String(worker.worker_id||"");
+   return '<button class="secondary-btn" type="button" data-worker="'+esc(encodeURIComponent(id))+'" onclick="openWorker(this.dataset.worker)">'+esc(id)+' · '+esc(String(worker.status||"inconnu"))+'</button>';
+  }).join(" "):'<div class="empty">Aucun worker enregistré.</div>';
+  if(appState.workerId)await loadWorkerDetail(appState.workerId);
+  else document.getElementById("worker-detail").innerHTML='<div class="empty">Sélectionne un worker.</div>';
+ }catch(e){list.innerHTML=errorCard(e)}
+}
+async function loadWorkerDetail(workerId){
+ const el=document.getElementById("worker-detail");
+ try{
+  const base="/v1/dashboard/workers/"+encodeURIComponent(workerId);
+  const results=await Promise.all([
+   api(base),
+   api(base+"/logs?limit=50"),
+   api(base+"/usage?window="+encodeURIComponent(appState.window))
+  ]);
+  const detail=results[0],logs=results[1],usage=results[2],worker=detail.worker||{},totals=usage.totals||{};
+  const recent=(logs.logs||[]).slice(0,8);
+  el.innerHTML=
+   '<div class="card"><div class="section-head"><h2>'+esc(workerId)+'</h2><span class="badge">'+esc(String(worker.status||"inconnu"))+'</span></div>'+
+   '<p class="small">Tâches actives : '+formatNumber(worker.active_tasks)+' / '+formatNumber(worker.max_concurrency)+'</p>'+
+   '<p class="small">Exécutions : '+formatNumber((detail.executions||[]).length)+' · API : '+formatNumber(totals.api_calls)+' appels · '+formatNumber(totals.total_tokens)+' tokens</p>'+
+   '<h3 style="font-size:.85rem;margin:15px 0 6px">Logs récents</h3>'+
+   (recent.length?recent.map(function(row){return '<div class="small">'+esc(String(row.created_at||""))+' · '+esc(String(row.level||"info"))+' · '+esc(String(row.message||""))+'</div>'}).join(""):'<div class="empty">Aucun log récent.</div>')+
+   '</div>';
+ }catch(e){el.innerHTML=errorCard(e)}
+}
+async function loadActivityView(){
+ const el=document.getElementById("activity-list");
+ try{
+  const data=await api("/v1/dashboard/activity?limit=100");
+  const rows=data.events||[];
+  el.innerHTML=rows.length?rows.slice().reverse().map(function(row){
+   return '<div class="card"><div class="section-head"><strong>'+esc(String(row.event_type||"événement"))+'</strong><span class="badge">'+esc(String(row.repository||"global"))+'</span></div><div class="small">'+esc(String(row.created_at||""))+'</div></div>';
+  }).join(""):'<div class="empty">Aucune activité enregistrée.</div>';
+ }catch(e){el.innerHTML=errorCard(e)}
+}
 function navigate(next){
  Object.assign(appState,next||{});
  const params=new URLSearchParams();
@@ -545,19 +670,26 @@ function navigate(next){
  history.replaceState(null,"","/dashboard?"+params.toString());
  renderActiveView();
 }
-function renderActiveView(){
+async function renderActiveView(){
  document.querySelectorAll(".v3-view").forEach(function(el){el.classList.remove("active")});
  const target=document.getElementById("view-"+appState.view);
  if(target)target.classList.add("active");
+ clearViewPolls();
+ const loaders={overview:loadOverview,projects:loadProjectsView,workers:loadWorkersView,activity:loadActivityView};
+ const loader=loaders[appState.view]||loadOverview;
+ await loader();
+ schedulePoll("active-view",appState.view==="overview"?15000:5000,loader);
 }
 function schedulePoll(key,intervalMs,fn){
  if(appState.polling.has(key))clearInterval(appState.polling.get(key));
  const id=setInterval(async function(){
-  const y=window.scrollY;await fn();
+  const y=window.scrollY;
+  await fn();
   if(Math.abs(window.scrollY-y)>1)window.scrollTo({top:y,behavior:"instant"});
  },intervalMs);
  appState.polling.set(key,id);
 }
+renderActiveView();
 </script>
 </body>
 </html>"""
