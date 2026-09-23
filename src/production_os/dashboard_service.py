@@ -185,70 +185,71 @@ class DashboardService:
             events=[x for x in events if x.get("repository")==repository],
             visual_quality=None,
         )
-        estimate=ProjectProgressEngine().calculate(repository,evidence)
-        estimate["evidence"]=evidence
-        estimate["remaining_work"]=evidence.get("remaining_work") or []
-        estimate["blockers"]=evidence.get("blockers") or []
+        calculated=ProjectProgressEngine().calculate(repository,evidence)
+        calculated["evidence"]=evidence
+        calculated["remaining_work"]=evidence.get("remaining_work") or []
+        calculated["blockers"]=evidence.get("blockers") or []
 
-        latest=self.store.latest_progress_snapshot(repository)
-        components=estimate.get("components") or {}
-        meaningful={
+        components=calculated.get("components") or {}
+        candidate={
+            "repository":repository,
             "current_workflow_id":workflow.get("id") if workflow else None,
             "production_progress":production.get("percent"),
-            "project_progress":estimate.get("score"),
-            "confidence":estimate.get("confidence"),
+            "project_progress":calculated.get("score"),
+            "confidence":calculated.get("confidence"),
             "code_score":(components.get("code") or {}).get("score"),
             "ui_ux_score":(components.get("ui_ux") or {}).get("score"),
             "assets_score":(components.get("assets") or {}).get("score"),
             "tests_score":(components.get("tests") or {}).get("score"),
             "stability_score":(components.get("stability") or {}).get("score"),
             "release_score":(components.get("release") or {}).get("score"),
-            "evidence":estimate["evidence"],
-            "remaining_work":estimate["remaining_work"],
-            "blockers":estimate["blockers"],
-            "calculation_version":estimate.get("calculation_version"),
+            "evidence_json":evidence,
+            "remaining_work_json":calculated["remaining_work"],
+            "blockers_json":calculated["blockers"],
+            "calculation_version":calculated.get("calculation_version"),
         }
-        latest_meaningful=None
-        if latest:
-            latest_meaningful={
-                "current_workflow_id":latest.get("current_workflow_id"),
-                "production_progress":latest.get("production_progress"),
-                "project_progress":latest.get("project_progress"),
-                "confidence":latest.get("confidence"),
-                "code_score":latest.get("code_score"),
-                "ui_ux_score":latest.get("ui_ux_score"),
-                "assets_score":latest.get("assets_score"),
-                "tests_score":latest.get("tests_score"),
-                "stability_score":latest.get("stability_score"),
-                "release_score":latest.get("release_score"),
-                "evidence":latest.get("evidence") or {},
-                "remaining_work":latest.get("remaining_work") or [],
-                "blockers":latest.get("blockers") or [],
-                "calculation_version":latest.get("calculation_version"),
-            }
-        if latest_meaningful != meaningful:
-            captured_at=estimate.get("captured_at") or _now()
-            snapshot_payload={
-                "id":repository+":"+captured_at,
-                "repository":repository,
-                "current_workflow_id":meaningful["current_workflow_id"],
-                "production_progress":meaningful["production_progress"],
-                "project_progress":meaningful["project_progress"],
-                "confidence":meaningful["confidence"],
-                "code_score":meaningful["code_score"],
-                "ui_ux_score":meaningful["ui_ux_score"],
-                "assets_score":meaningful["assets_score"],
-                "tests_score":meaningful["tests_score"],
-                "stability_score":meaningful["stability_score"],
-                "release_score":meaningful["release_score"],
-                "evidence_json":meaningful["evidence"],
-                "remaining_work_json":meaningful["remaining_work"],
-                "blockers_json":meaningful["blockers"],
-                "calculation_version":meaningful["calculation_version"],
-                "captured_at":captured_at,
-            }
-            self.store.save_progress_snapshot(snapshot_payload)
+        persisted=self.store.latest_progress_snapshot(repository)
+        comparable_fields=(
+            "current_workflow_id","production_progress","project_progress","confidence",
+            "code_score","ui_ux_score","assets_score","tests_score","stability_score",
+            "release_score","calculation_version",
+        )
+        changed=persisted is None or any(
+            persisted.get(field) != candidate.get(field) for field in comparable_fields
+        )
+        if changed:
+            candidate["id"]=str(uuid4())
+            candidate["captured_at"]=calculated.get("captured_at") or _now()
+            persisted=self.store.save_progress_snapshot(candidate)
 
+        if persisted:
+            score_fields={
+                "code":"code_score","ui_ux":"ui_ux_score","assets":"assets_score",
+                "tests":"tests_score","stability":"stability_score","release":"release_score",
+            }
+            persisted_components={}
+            for name,field in score_fields.items():
+                score=persisted.get(field)
+                persisted_components[name]={
+                    "status":"observed" if score is not None else (
+                        "not_applicable" if (calculated.get("components",{}).get(name) or {}).get("status")=="not_applicable"
+                        else "unknown"
+                    ),
+                    "score":score,
+                }
+            estimate={
+                "repository":repository,
+                "score":persisted.get("project_progress"),
+                "confidence":persisted.get("confidence"),
+                "components":persisted_components,
+                "calculation_version":persisted.get("calculation_version"),
+                "captured_at":persisted.get("captured_at"),
+                "evidence":persisted.get("evidence"),
+                "remaining_work":persisted.get("remaining_work"),
+                "blockers":persisted.get("blockers"),
+            }
+        else:
+            estimate=calculated
         return {
             "repository":repository,
             "current_workflow_id":workflow.get("id") if workflow else None,
