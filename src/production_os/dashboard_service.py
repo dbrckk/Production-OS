@@ -190,44 +190,35 @@ class DashboardService:
         estimate["remaining_work"]=evidence.get("remaining_work") or []
         estimate["blockers"]=evidence.get("blockers") or []
 
-        previous=self.store.latest_progress_snapshot(repository)
-        component_scores={
-            name:(estimate.get("components",{}).get(name) or {}).get("score")
-            for name in ("code","ui_ux","assets","tests","stability","release")
+        latest=self.store.latest_progress_snapshot(repository)
+        components=estimate.get("components") or {}
+        snapshot={
+            "id":str(uuid.uuid4()),
+            "repository":repository,
+            "current_workflow_id":workflow.get("id") if workflow else None,
+            "production_progress":production.get("percent"),
+            "project_progress":estimate.get("score"),
+            "confidence":estimate.get("confidence"),
+            "code_score":(components.get("code") or {}).get("score"),
+            "ui_ux_score":(components.get("ui_ux") or {}).get("score"),
+            "assets_score":(components.get("assets") or {}).get("score"),
+            "tests_score":(components.get("tests") or {}).get("score"),
+            "stability_score":(components.get("stability") or {}).get("score"),
+            "release_score":(components.get("release") or {}).get("score"),
+            "evidence_json":evidence,
+            "remaining_work_json":estimate["remaining_work"],
+            "blockers_json":estimate["blockers"],
+            "calculation_version":estimate.get("calculation_version"),
+            "captured_at":estimate.get("captured_at"),
         }
-        meaningful=(
-            previous is None
-            or previous.get("current_workflow_id") != (workflow.get("id") if workflow else None)
-            or previous.get("production_progress") != production.get("percent")
-            or previous.get("project_progress") != estimate.get("score")
-            or previous.get("confidence") != estimate.get("confidence")
-            or any(previous.get(name+"_score") != component_scores[name]
-                   for name in component_scores)
+        meaningful_fields=(
+            "current_workflow_id","production_progress","project_progress","confidence",
+            "code_score","ui_ux_score","assets_score","tests_score","stability_score",
+            "release_score","calculation_version",
         )
-        if meaningful:
-            captured=estimate.get("captured_at") or _now()
-            saved=self.store.save_progress_snapshot({
-                "id":repository+":"+captured,
-                "repository":repository,
-                "current_workflow_id":workflow.get("id") if workflow else None,
-                "production_progress":production.get("percent"),
-                "project_progress":estimate.get("score"),
-                "confidence":estimate.get("confidence"),
-                "code_score":component_scores["code"],
-                "ui_ux_score":component_scores["ui_ux"],
-                "assets_score":component_scores["assets"],
-                "tests_score":component_scores["tests"],
-                "stability_score":component_scores["stability"],
-                "release_score":component_scores["release"],
-                "evidence_json":evidence,
-                "remaining_work_json":estimate["remaining_work"],
-                "blockers_json":estimate["blockers"],
-                "calculation_version":estimate.get("calculation_version"),
-                "captured_at":captured,
-            })
-            estimate["captured_at"]=saved.get("captured_at") or captured
-        elif previous:
-            estimate["captured_at"]=previous.get("captured_at")
+        if latest is None or any(latest.get(field)!=snapshot.get(field) for field in meaningful_fields):
+            self.store.save_progress_snapshot(snapshot)
+
         return {
             "repository":repository,
             "current_workflow_id":workflow.get("id") if workflow else None,
