@@ -41,3 +41,27 @@ def test_postgres_schema_v9_has_execution_columns():
 
     assert backend.SCHEMA_VERSION == 9
     assert REQUIRED_EXECUTION_COLUMNS <= columns
+
+
+def test_dashboard_service_project_queries_work_on_postgres():
+    from production_os.control_plane import ControlPlane
+    from production_os.workflow_engine import WorkflowTaskSpec
+
+    control = ControlPlane(DSN)
+    repository = "dbrckk/postgres-dashboard"
+    workflow = control.workflows.create(
+        name="postgres-dashboard",
+        repository=repository,
+        tasks=[
+            WorkflowTaskSpec(
+                task_id="build",
+                title="Build",
+                payload={},
+                estimated_minutes=5,
+            )
+        ],
+    )
+    payload = control.dashboard.project_workflows(repository)
+    assert any(row["id"] == workflow["id"] for row in payload["workflows"])
+    progress = control.dashboard.project_progress(repository)
+    assert progress["current_workflow_id"] == workflow["id"]
