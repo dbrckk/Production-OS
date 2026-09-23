@@ -127,7 +127,7 @@ body{overflow-x:hidden}
 <button data-view="activity" onclick="navigate({view:'activity',workerId:null,repository:null,tab:null})">Activité</button>
 </nav>
 <section class="v3-workspace" aria-live="polite">
-<div id="view-overview" class="v3-view active"><h2>Vue générale</h2><div id="overview-metrics"></div></div>
+<div id="view-overview" class="v3-view active"><div class="section-head"><h2>Vue générale</h2><div class="v3-tabs" aria-label="Période"><button type="button" onclick="setDashboardWindow('24h')">24h</button><button type="button" onclick="setDashboardWindow('7d')">7d</button><button type="button" onclick="setDashboardWindow('30d')">30d</button></div></div><div id="overview-metrics"></div></div>
 <div id="view-projects" class="v3-view"><h2>Projets</h2><div id="projects-list"></div><div class="v3-tabs" aria-label="Détail projet"><button>Aperçu</button><button>Avancement</button><button>Commits</button><button>API</button><button>Workflows</button><button>Qualité</button><button>Historique</button></div><div id="project-detail"></div></div>
 <div id="view-workers" class="v3-view"><h2>Workers</h2><div id="workers-list"></div><div class="v3-tabs" aria-label="Détail worker"><button>Aperçu</button><button>Tâches</button><button>Logs</button><button>API</button><button>Historique</button></div><div id="worker-detail"></div></div>
 <div id="view-activity" class="v3-view"><h2>Activité</h2><div id="activity-list"></div></div>
@@ -547,6 +547,11 @@ const appState={view:"overview",workerId:null,repository:null,tab:null,window:"7
 function clearViewPolls(){
  appState.polling.forEach(function(id){clearInterval(id)});
  appState.polling.clear();
+}
+function setDashboardWindow(windowName){
+ if(!["24h","7d","30d"].includes(windowName))return;
+ appState.window=windowName;
+ renderActiveView();
 }
 function formatNumber(value){
  if(value===null||value===undefined)return "—";
