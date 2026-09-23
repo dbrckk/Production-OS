@@ -142,3 +142,29 @@ def test_project_usage_backfills_legacy_workflow_result_usage(tmp_path):
     assert usage["totals"]["api_calls"] == 1
     assert usage["totals"]["total_tokens"] == 300
     assert usage["history_coverage"] == "partial"
+
+
+def test_project_progress_persists_snapshot_only_when_meaningful_state_changes(tmp_path):
+    control=ControlPlane(str(tmp_path/"db.sqlite"),authorizer=_auth())
+    workflow=control.workflows.create(
+        name="snapshot-progress",
+        repository="dbrckk/example",
+        tasks=[WorkflowTaskSpec(task_id="build",title="Build",payload={},estimated_minutes=10)],
+    )
+    first=control.dashboard.project_progress("dbrckk/example")
+    second=control.dashboard.project_progress("dbrckk/example")
+    history=control.dashboard_store.progress_history("dbrckk/example")
+    assert first["estimate"]["calculation_version"] == "project-progress/v1"
+    assert second["production"]["percent"] == first["production"]["percent"]
+    assert len(history) == 1
+    with control.backend.transaction() as db:
+        db.execute(
+            "UPDATE workflow_tasks SET status='succeeded' WHERE workflow_id=? AND task_id=?",
+            (workflow["id"],"build"),
+        )
+    changed=control.dashboard.project_progress("dbrckk/example")
+    history=control.dashboard_store.progress_history("dbrckk/example")
+    assert changed["production"]["percent"] == 100.0
+    assert len(history) == 2
+    assert history[0]["production_progress"] == 100.0
+    assert "evidence" in changed["estimate"]
