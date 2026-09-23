@@ -637,7 +637,11 @@ async function loadProjectDetail(repository){
    '<div class="status-card"><div class="status-label">Stabilité</div><div class="status-value">'+componentValue("stability")+'</div></div>'+
    '<div class="status-card"><div class="status-label">Release</div><div class="status-value">'+componentValue("release")+'</div></div>'+
    '</div>'+
-   '<p class="small">Commits Production-OS : '+formatNumber(commits.production_os)+' · branche GitHub : '+formatNumber(commits.github_default_branch)+'</p>'+
+   '<p class="small"><strong>Fenêtre commits :</strong> '+esc(String(commits.window||appState.window))+'</p>'+
+   '<div class="status-grid">'+
+   '<div class="status-card"><div class="status-label">Commits Production-OS</div><div class="status-value">'+formatNumber(commits.production_os)+'</div></div>'+
+   '<div class="status-card"><div class="status-label">Commits branche GitHub</div><div class="status-value">'+(commits.github_default_branch==null?'Indisponible':formatNumber(commits.github_default_branch))+'</div></div>'+
+   '</div>'+
    '<p class="small">API : '+formatNumber(totals.api_calls)+' appels · '+formatNumber(totals.total_tokens)+' tokens · '+formatNumber(totals.estimated_cost_usd)+' USD estimés</p>'+
    '<p class="small">Workflows : '+formatNumber((workflows.workflows||[]).length)+' · exécutions récentes : '+formatNumber((history.executions||[]).length)+' · couverture historique : '+esc(String(history.history_coverage||"complète"))+'</p></div>';
  }catch(e){el.innerHTML=errorCard(e)}
