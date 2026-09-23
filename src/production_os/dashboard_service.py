@@ -14,6 +14,15 @@ def _now():
     return datetime.now(timezone.utc).isoformat()
 
 
+def _is_postgres(backend) -> bool:
+    return backend.__class__.__name__.startswith("Postgres")
+
+
+def _execute(db, backend, statement: str, params: tuple = ()):
+    sql = statement.replace("?", "%s") if _is_postgres(backend) else statement
+    return db.execute(sql, params)
+
+
 class DashboardService:
     def __init__(self, control):
         self.control=control
@@ -133,10 +142,7 @@ class DashboardService:
     def project_progress(self,repository):
         self._require_project(repository)
         with self.control.backend.connect() as db:
-            rows=db.execute(
-                "SELECT id FROM workflows WHERE repository=? ORDER BY updated_at DESC LIMIT 1",
-                (repository,),
-            ).fetchall()
+            rows=_execute(\n                db, self.control.backend,\n                "SELECT id FROM workflows WHERE repository=? ORDER BY updated_at DESC LIMIT 1",\n                (repository,),\n            ).fetchall()
         workflow=self.control.workflows.get(str(rows[0]["id"])) if rows else None
         production=workflow_progress(workflow) if workflow else {
             "percent":None,"completed_weight":0.0,"total_weight":0.0,
@@ -191,17 +197,14 @@ class DashboardService:
     def project_workflows(self,repository):
         self._require_project(repository)
         with self.control.backend.connect() as db:
-            rows=db.execute("SELECT id,name,status,created_at,updated_at FROM workflows WHERE repository=? ORDER BY created_at DESC LIMIT 100",(repository,)).fetchall()
+            rows=_execute(db,self.control.backend,"SELECT id,name,status,created_at,updated_at FROM workflows WHERE repository=? ORDER BY created_at DESC LIMIT 100",(repository,)).fetchall()
         return {"repository":repository,"workflows":[dict(x) for x in rows],"generated_at":_now()}
 
     def project_history(self,repository):
         self._require_project(repository)
         executions=self.store.executions_for_repository(repository,limit=100)
         with self.control.backend.connect() as db:
-            rows=db.execute(
-                "SELECT repository,task,worker_id,duration_seconds,succeeded,created_at FROM execution_history WHERE repository=? ORDER BY created_at DESC LIMIT 100",
-                (repository,),
-            ).fetchall()
+            rows=_execute(\n                db,self.control.backend,\n                "SELECT repository,task,worker_id,duration_seconds,succeeded,created_at FROM execution_history WHERE repository=? ORDER BY created_at DESC LIMIT 100",\n                (repository,),\n            ).fetchall()
         legacy=[dict(x) for x in rows]
         coverage="complete"
         if legacy:
