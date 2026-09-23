@@ -83,3 +83,10 @@ def test_worker_detail_exposes_execution_history():
         assert label in DASHBOARD_HTML
     assert "duration_seconds" in DASHBOARD_HTML
     assert "started_at" in DASHBOARD_HTML
+
+
+def test_worker_detail_exposes_structured_recent_logs():
+    for label in ("Logs récents", "Niveau", "Étape"):
+        assert label in DASHBOARD_HTML
+    assert "row.stage" in DASHBOARD_HTML
+    assert "row.level" in DASHBOARD_HTML
