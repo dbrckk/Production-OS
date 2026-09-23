@@ -29,3 +29,22 @@ def test_dashboard_preserves_launch_and_mobile_accessibility():
     assert "aria-live" in DASHBOARD_HTML
     assert "Pause worker" not in DASHBOARD_HTML
     assert "Annuler la tâche" not in DASHBOARD_HTML
+
+
+def test_dashboard_v3_is_bound_to_observability_read_apis():
+    for endpoint in (
+        "/v1/dashboard/overview",
+        "/v1/dashboard/projects",
+        "/v1/dashboard/workers",
+        "/v1/dashboard/activity",
+    ):
+        assert endpoint in DASHBOARD_HTML
+    for function_name in (
+        "loadOverview",
+        "loadProjectsView",
+        "loadWorkersView",
+        "loadActivityView",
+        "loadProjectDetail",
+        "loadWorkerDetail",
+    ):
+        assert f"function {function_name}" in DASHBOARD_HTML or f"async function {function_name}" in DASHBOARD_HTML
