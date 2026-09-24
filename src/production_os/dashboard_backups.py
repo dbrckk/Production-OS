@@ -4,9 +4,13 @@ from datetime import datetime, timezone
 from hashlib import sha256
 import json
 import os
+import re
 from pathlib import Path
 import sqlite3
 from uuid import uuid4
+
+
+BACKUP_ID_RE = re.compile(r"^\\d{8}T\\d{6}Z-[0-9a-f]{12}$")
 
 
 class BackupError(RuntimeError):
@@ -100,6 +104,92 @@ def backup_readiness(backend) -> dict:
             "message":"Configured backup directory is unavailable.",
             "backups":[],
         }
+
+
+def verify_backup_for_restore(backend, backup_id: str) -> dict:
+    backup_id = str(backup_id or "").strip()
+    if not BACKUP_ID_RE.fullmatch(backup_id):
+        raise BackupError("invalid backup id")
+
+    readiness = backup_readiness(backend)
+    if readiness["backend_kind"] != "sqlite":
+        raise BackupError("restore verification is unsupported for this backend")
+    if not readiness["backup_directory_configured"]:
+        raise BackupError("backup directory is not configured")
+
+    directory = _configured_dir()
+    assert directory is not None
+    manifest_path = directory / f"{backup_id}.json"
+    backup_path = directory / f"{backup_id}.sqlite"
+    manifest = _safe_manifest(manifest_path)
+    if manifest is None:
+        raise BackupError("backup manifest is missing or invalid")
+    if (
+        manifest.get("backup_id") != backup_id
+        or manifest.get("backend_kind") != "sqlite"
+        or manifest.get("verified") is not True
+    ):
+        raise BackupError("backup manifest does not match backup")
+    if not backup_path.is_file():
+        raise BackupError("backup file is missing")
+
+    digest = sha256()
+    size = 0
+    with backup_path.open("rb") as handle:
+        while True:
+            chunk = handle.read(1024 * 1024)
+            if not chunk:
+                break
+            size += len(chunk)
+            digest.update(chunk)
+    actual_sha = digest.hexdigest()
+
+    expected_size = manifest.get("size_bytes")
+    expected_sha = str(manifest.get("sha256") or "")
+    if (
+        isinstance(expected_size, bool)
+        or not isinstance(expected_size, int)
+        or expected_size < 0
+        or size != expected_size
+    ):
+        raise BackupError("backup size does not match manifest")
+    if actual_sha != expected_sha:
+        raise BackupError("backup hash does not match manifest")
+
+    connection = sqlite3.connect(
+        f"file:{backup_path.as_posix()}?mode=ro",
+        uri=True,
+    )
+    try:
+        integrity_row = connection.execute(
+            "PRAGMA integrity_check"
+        ).fetchone()
+        integrity = integrity_row[0] if integrity_row else None
+        if integrity != "ok":
+            raise BackupError("backup integrity check failed")
+        schema_row = connection.execute(
+            "SELECT value FROM schema_meta WHERE key='schema_version'"
+        ).fetchone()
+        if schema_row is None:
+            raise BackupError("backup schema version is unavailable")
+        schema_version = str(schema_row[0])
+    except sqlite3.DatabaseError as exc:
+        raise BackupError("backup database is unreadable") from exc
+    finally:
+        connection.close()
+
+    return {
+        "backup_id":backup_id,
+        "backend_kind":"sqlite",
+        "verified":True,
+        "restorable":True,
+        "size_bytes":size,
+        "sha256":actual_sha,
+        "schema_version":schema_version,
+        "integrity":"ok",
+        "checked_at":_now(),
+        "restore_enabled":False,
+    }
 
 
 def create_verified_sqlite_backup(backend) -> dict:
