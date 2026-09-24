@@ -567,7 +567,12 @@ async function loadOverview(){
  const el=document.getElementById("overview-metrics");
  try{
   const data=await api("/v1/dashboard/overview?window="+encodeURIComponent(appState.window));
-  const w=data.workers||{},p=data.productions||{},u=data.usage||{},c=data.commits||{},perf=data.performance||{};
+  const w=data.workers||{},p=data.productions||{},u=data.usage||{},c=data.commits||{},perf=data.performance||{},alerts=data.alerts||[];
+  const alertsHtml=alerts.length?
+   '<div class="card"><div class="section-head"><h2>Alertes opérationnelles</h2><span class="badge">'+formatNumber(alerts.length)+'</span></div>'+
+   alerts.map(function(item){
+    return '<div class="small"><strong>'+esc(String(item.title||item.code||"Alerte"))+'</strong> · '+esc(String(item.severity||""))+'<br>'+esc(String(item.message||""))+'</div>';
+   }).join('')+'</div>':'';
   el.innerHTML=
    '<div class="status-grid">'+
    '<div class="status-card"><div class="status-label">Workers en ligne</div><div class="status-value">'+formatNumber(w.online)+' / '+formatNumber(w.total)+'</div></div>'+
@@ -577,7 +582,8 @@ async function loadOverview(){
    '<div class="card"><div class="section-head"><h2>Activité mesurée</h2></div>'+
    '<p class="small">API calls : '+formatNumber(u.api_calls)+' · coût estimé : '+formatNumber(u.estimated_cost_usd)+' USD</p>'+
    '<p class="small">Commits Production-OS : '+formatNumber(c.production_os)+' · branche par défaut GitHub : '+formatNumber(c.github_default_branch)+'</p>'+
-   '<p class="small">Taux de réussite : '+formatNumber(perf.success_rate)+' % · temps d’exécution : '+formatNumber(perf.execution_seconds)+' s</p></div>';
+   '<p class="small">Taux de réussite : '+formatNumber(perf.success_rate)+' % · temps d’exécution : '+formatNumber(perf.execution_seconds)+' s</p></div>'+
+   alertsHtml;
  }catch(e){el.innerHTML=errorCard(e)}
 }
 function openProject(encoded){
