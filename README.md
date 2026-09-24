@@ -649,7 +649,7 @@ repository/progress snapshots 90 days
 generic event stream         90 days
 ```
 
-Release 12 performs no deletion, VACUUM, backup mutation or restore action. It deliberately establishes visibility before destructive maintenance is introduced. Timestamp scans are streamed row by row so large history tables do not need to be loaded fully into memory.
+Release 12 performs no deletion, VACUUM, backup mutation or restore action. It deliberately establishes visibility before destructive maintenance is introduced. Timestamp scans are streamed row by row so large history tables do not need to be loaded fully into memory. The resulting maintenance snapshot is cached server-side for five minutes (30 seconds after an unknown/error state), so normal dashboard polling does not repeatedly rescan large tables.
 
 The dashboard never exposes the SQLite path, PostgreSQL DSN, credentials or tokens. If maintenance diagnostics fail, the rest of the Overview remains available and the storage card degrades to `unknown`.
 
