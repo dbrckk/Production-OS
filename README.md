@@ -504,6 +504,46 @@ verified_at
 
 The Activity view shows control outcome and remediation verification separately.
 
+## Dashboard Control Center Release 8 — Remediation analytics
+
+The dashboard can summarize observed remediation effectiveness without turning historical metrics into automatic control decisions.
+
+Analytics support the existing dashboard windows:
+
+```text
+24h
+7d
+30d
+all
+```
+
+The summary exposes:
+
+```text
+total
+resolved
+still_active
+pending
+not_applicable
+effectiveness_denominator
+observed_resolution_rate
+median_resolution_detection_seconds
+```
+
+The observed resolution rate uses only remediation events with a verification state of `resolved` or `still_active`:
+
+```text
+resolved / (resolved + still_active)
+```
+
+Pending and not-applicable events are excluded from that denominator.
+
+The median resolution-detection duration is calculated only from resolved events with valid `completed_at` and `verified_at` timestamps.
+
+Breakdowns are available by control action and by incident code. Every rate is displayed with its observed sample size. A zero-size effectiveness sample produces no rate rather than an inferred value.
+
+These analytics are read-only. They never rank playbooks, launch controls, or change worker, job, workflow, incident, or remediation state beyond the existing incident refresh needed to read current verification facts.
+
 ## Design principles
 
 - Evidence over assumptions
