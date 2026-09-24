@@ -368,3 +368,19 @@ def test_retention_prune_button_only_renders_for_positive_prunable_count():
     assert "const pruneButton=prunable>0" in DASHBOARD_HTML
     assert 'data-prunable="' in DASHBOARD_HTML
     assert "Nettoyer l’historique expiré" in DASHBOARD_HTML
+
+
+def test_overview_renders_backup_readiness_and_safe_create_button():
+    assert "/v1/dashboard/backups" in DASHBOARD_HTML
+    assert "Sauvegarde" in DASHBOARD_HTML
+    assert "Dernière sauvegarde vérifiée" in DASHBOARD_HTML
+    assert "createVerifiedBackup" in DASHBOARD_HTML
+    assert "CREATE_VERIFIED_BACKUP" in DASHBOARD_HTML
+    assert "backups.create_supported===true" in DASHBOARD_HTML
+    assert "Restauration" in DASHBOARD_HTML
+
+
+def test_backup_ui_does_not_render_server_paths():
+    assert "PRODUCTION_OS_BACKUP_DIR" not in DASHBOARD_HTML
+    assert "backup_dir" not in DASHBOARD_HTML
+    assert "database_path" not in DASHBOARD_HTML
