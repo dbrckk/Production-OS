@@ -214,3 +214,55 @@ def test_resolved_incident_reopens_without_stale_acknowledgement(tmp_path):
     assert reopened["acknowledged_by"] is None
     assert reopened["acknowledged_at"] is None
     assert reopened["resolved_at"] is None
+
+
+def test_incident_api_rejects_invalid_status_filter(tmp_path):
+    control = ControlPlane(str(tmp_path / "bad-status.sqlite"), authorizer=_auth())
+    server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    base = f"http://127.0.0.1:{server.server_port}"
+    try:
+        status, payload = _request(
+            base,
+            "/v1/dashboard/incidents?status=bogus",
+            "viewer",
+        )
+        assert status == 400
+        assert payload["error"] == "invalid dashboard query"
+    finally:
+        server.shutdown()
+        server.server_close()
+
+
+def test_resolved_incident_cannot_be_acknowledged(tmp_path):
+    control = ControlPlane(str(tmp_path / "resolved-ack.sqlite"), authorizer=_auth())
+    control.queue.enqueue({
+        "handoff":{"repository":"dbrckk/example","task":"waiting"},
+        "required_capabilities":["python"],
+    })
+    incident = control.dashboard.incidents()["incidents"][0]
+    control.workers.register("worker-a", ["python"], 1)
+    resolved = control.dashboard.incidents(status="resolved")["incidents"][0]
+    assert resolved["id"] == incident["id"]
+    assert resolved["status"] == "resolved"
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    base = f"http://127.0.0.1:{server.server_port}"
+    try:
+        status, payload = _request(
+            base,
+            f"/v1/dashboard/incidents/{incident['id']}/acknowledge",
+            "operator",
+            method="POST",
+            body={},
+        )
+        assert status == 409
+        assert "resolved incident cannot be acknowledged" in payload["error"]
+        current = control.dashboard_store.dashboard_incidents(limit=1)[0]
+        assert current["status"] == "resolved"
+    finally:
+        server.shutdown()
+        server.server_close()
