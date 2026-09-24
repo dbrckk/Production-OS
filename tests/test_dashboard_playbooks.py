@@ -70,3 +70,14 @@ def test_playbook_derivation_has_no_execution_side_effect_contract():
         "target_id":"global",
     })
     assert result["suggestions"] == []
+
+
+def test_resolved_incident_has_no_remediation_actions():
+    result = derive_incident_playbook({
+        "id":"i5",
+        "code":"queue_without_worker",
+        "target_type":"control-plane",
+        "target_id":"global",
+        "status":"resolved",
+    }, actions_kick_mode="immediate")
+    assert result["suggestions"] == []
