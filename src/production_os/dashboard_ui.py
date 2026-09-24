@@ -385,7 +385,7 @@ function githubAssetUrls(repository,path){
  const encoded=value.split('/').map(encodeURIComponent).join('/');
  return {view:'https://github.com/'+repo+'/blob/main/'+encoded,raw:'https://raw.githubusercontent.com/'+repo+'/main/'+encoded};
 }
-function isPreviewableAsset(path){return /\.(png|webp|jpe?g|gif|svg)$/i.test(String(path||''))}
+function isPreviewableAsset(path){return /\\.(png|webp|jpe?g|gif|svg)$/i.test(String(path||''))}
 function qualityView(status){
  if(status==='ok') return ['OK','quality-ok'];
  if(status==='regenerated') return ['Régénéré','quality-regenerated'];
