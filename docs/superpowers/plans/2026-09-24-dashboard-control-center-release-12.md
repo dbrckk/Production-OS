@@ -59,6 +59,7 @@ Dashboard Overview renders a compact Storage maintenance card.
 - durable table row counts and valid/invalid timestamp accounting
 - configurable retention windows with safe defaults
 - exact retention candidate counts from parsed timestamps
+- bounded-memory streaming timestamp scans for large tables
 - viewer-readable /v1/dashboard/maintenance
 - worker role remains forbidden by dashboard authorization
 - Overview Storage & retention card with independent degraded mode
