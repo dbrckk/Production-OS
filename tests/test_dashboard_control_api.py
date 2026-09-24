@@ -33,6 +33,7 @@ def _fixture(tmp_path):
     auth = TokenAuthorizer([
         {"name":"viewer","role":"viewer","sha256":token_digest("viewer")},
         {"name":"operator","role":"operator","sha256":token_digest("operator")},
+        {"name":"worker","role":"worker","sha256":token_digest("worker")},
     ])
     control = ControlPlane(str(tmp_path / "db.sqlite"), authorizer=auth)
     control.workers.register("worker-a", ["python"], 1)
@@ -154,5 +155,44 @@ def test_cancel_current_targets_only_named_active_job(tmp_path):
         assert payload["desired_state"] == "cancel_requested"
         assert control.dashboard_control.job_state(job["key"])["desired_state"] == "cancel_requested"
         assert control.dashboard_store.get_job_control(sibling["key"]) is None
+    finally:
+        server.shutdown(); server.server_close()
+
+
+def test_worker_heartbeat_acknowledges_and_cancels_target_job(tmp_path):
+    control, server, base = _fixture(tmp_path)
+    job = control.queue.enqueue({
+        "handoff":{"repository":"dbrckk/example","task":"Cancelable"},
+        "required_capabilities":["python"],
+    })
+    claimed = control.queue.claim_key(job["key"], "worker-a")
+    assert claimed is not None
+    control.queue.ack(job["key"], "worker-a")
+    control.dashboard_store.start_execution(control.queue.get(job["key"]), "worker-a")
+    try:
+        status, requested = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"cancel-current","job_key":job["key"]},
+        )
+        assert status == 202
+        assert requested["desired_state"] == "cancel_requested"
+
+        status, heartbeat = _post(
+            base,
+            "/v1/workers/heartbeat",
+            "worker",
+            {
+                "worker_id":"worker-a",
+                "active_tasks":1,
+                "active_job_keys":[job["key"]],
+                "job_control_states":{job["key"]:"cancel_requested"},
+            },
+        )
+        assert status == 200
+        assert control.queue.get(job["key"])["status"] == "cancelled"
+        state = control.dashboard_control.job_state(job["key"])
+        assert state["acknowledged_at"] is not None
     finally:
         server.shutdown(); server.server_close()
