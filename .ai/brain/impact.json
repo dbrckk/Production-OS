@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "generated_by": "dbrckk/repo-brain",
-  "base": "a572a7f898e3d45da70fe10c49ab0ca65b9b7a03",
-  "head": "2bc6e41b04f3e8d92711016ded2683c0f7997729",
+  "base": "2bc6e41b04f3e8d92711016ded2683c0f7997729",
+  "head": "16919056a0c46c20a304e7301cf50110de8fa7d2",
   "index_mode": "incremental",
   "changed_files": [
     {
@@ -10,7 +10,7 @@
       "status": "M"
     },
     {
-      "path": "docs/superpowers/plans/2026-09-24-dashboard-control-center-release-12.md",
+      "path": "docs/superpowers/plans/2026-09-24-dashboard-control-center-release-13.md",
       "status": "A"
     },
     {
@@ -19,7 +19,7 @@
     },
     {
       "path": "src/production_os/dashboard_maintenance.py",
-      "status": "A"
+      "status": "M"
     },
     {
       "path": "src/production_os/dashboard_service.py",
@@ -30,7 +30,7 @@
       "status": "M"
     },
     {
-      "path": "tests/test_dashboard_maintenance.py",
+      "path": "tests/test_dashboard_retention_prune.py",
       "status": "A"
     },
     {
@@ -47,7 +47,7 @@
     "src/production_os/dashboard_maintenance.py",
     "src/production_os/dashboard_service.py",
     "src/production_os/dashboard_ui.py",
-    "tests/test_dashboard_maintenance.py",
+    "tests/test_dashboard_retention_prune.py",
     "tests/test_dashboard_store_postgres.py",
     "tests/test_dashboard_ui_v3.py"
   ],
@@ -73,6 +73,7 @@
     "tests/test_dashboard_observability_e2e.py",
     "tests/test_dashboard_playbook_api.py",
     "tests/test_dashboard_remediation_api.py",
+    "tests/test_dashboard_retention_prune.py",
     "tests/test_dashboard_store_postgres.py",
     "tests/test_dashboard_ui_v3.py",
     "tests/test_http_security_headers.py",
@@ -567,163 +568,217 @@
       "name": "ControlPlane",
       "kind": "class",
       "file": "src/production_os/control_plane.py",
-      "line": 30
+      "line": 31
     },
     {
       "name": "__init__",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 31
+      "line": 32
     },
     {
       "name": "_json_bytes",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 103
+      "line": 104
     },
     {
       "name": "RequestBodyTooLarge",
       "kind": "class",
       "file": "src/production_os/control_plane.py",
-      "line": 114
+      "line": 115
     },
     {
       "name": "make_handler",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 118
+      "line": 119
     },
     {
       "name": "Handler",
       "kind": "class",
       "file": "src/production_os/control_plane.py",
-      "line": 119
+      "line": 120
     },
     {
       "name": "version_string",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 122
+      "line": 123
     },
     {
       "name": "log_message",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 125
+      "line": 126
     },
     {
       "name": "_send_html",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 128
+      "line": 129
     },
     {
       "name": "_send",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 143
+      "line": 144
     },
     {
       "name": "_method_not_allowed",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 167
+      "line": 168
     },
     {
       "name": "do_PUT",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 174
+      "line": 175
     },
     {
       "name": "do_PATCH",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 177
+      "line": 178
     },
     {
       "name": "do_DELETE",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 180
+      "line": 181
     },
     {
       "name": "_read_body",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 183
+      "line": 184
     },
     {
       "name": "_read_json",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 202
+      "line": 203
     },
     {
       "name": "_principal",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 214
+      "line": 215
     },
     {
       "name": "_require",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 220
+      "line": 221
     },
     {
       "name": "do_GET",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 240
+      "line": 241
     },
     {
       "name": "do_POST",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 623
+      "line": 624
     },
     {
       "name": "audit_control",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 940
+      "line": 1012
     },
     {
       "name": "serve_control_plane",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 2143
+      "line": 2215
+    },
+    {
+      "name": "RetentionSpec",
+      "kind": "class",
+      "file": "src/production_os/dashboard_maintenance.py",
+      "line": 13
+    },
+    {
+      "name": "RetentionCandidateConflict",
+      "kind": "class",
+      "file": "src/production_os/dashboard_maintenance.py",
+      "line": 85
+    },
+    {
+      "name": "__init__",
+      "kind": "function",
+      "file": "src/production_os/dashboard_maintenance.py",
+      "line": 86
+    },
+    {
+      "name": "_is_postgres",
+      "kind": "function",
+      "file": "src/production_os/dashboard_maintenance.py",
+      "line": 94
+    },
+    {
+      "name": "_execute",
+      "kind": "function",
+      "file": "src/production_os/dashboard_maintenance.py",
+      "line": 98
     },
     {
       "name": "_parse_time",
       "kind": "function",
       "file": "src/production_os/dashboard_maintenance.py",
-      "line": 20
+      "line": 103
     },
     {
       "name": "_retention_days",
       "kind": "function",
       "file": "src/production_os/dashboard_maintenance.py",
-      "line": 32
+      "line": 115
     },
     {
       "name": "_database_size_bytes",
       "kind": "function",
       "file": "src/production_os/dashboard_maintenance.py",
-      "line": 43
+      "line": 126
+    },
+    {
+      "name": "_select_columns",
+      "kind": "function",
+      "file": "src/production_os/dashboard_maintenance.py",
+      "line": 157
+    },
+    {
+      "name": "_old_row_disposition",
+      "kind": "function",
+      "file": "src/production_os/dashboard_maintenance.py",
+      "line": 167
     },
     {
       "name": "_table_snapshot",
       "kind": "function",
       "file": "src/production_os/dashboard_maintenance.py",
-      "line": 74
+      "line": 190
     },
     {
       "name": "storage_maintenance_snapshot",
       "kind": "function",
       "file": "src/production_os/dashboard_maintenance.py",
-      "line": 122
+      "line": 247
+    },
+    {
+      "name": "_collect_prunable_keys",
+      "kind": "function",
+      "file": "src/production_os/dashboard_maintenance.py",
+      "line": 313
+    },
+    {
+      "name": "prune_expired_history",
+      "kind": "function",
+      "file": "src/production_os/dashboard_maintenance.py",
+      "line": 339
     },
     {
       "name": "DashboardNotFound",
@@ -876,76 +931,82 @@
       "line": 542
     },
     {
-      "name": "repositories",
+      "name": "prune_maintenance",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
       "line": 554
     },
     {
+      "name": "repositories",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 566
+    },
+    {
       "name": "projects",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 595
+      "line": 607
     },
     {
       "name": "_require_project",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 600
+      "line": 612
     },
     {
       "name": "project_detail",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 603
+      "line": 615
     },
     {
       "name": "_progress_snapshot_state",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 609
+      "line": 621
     },
     {
       "name": "project_progress",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 629
+      "line": 641
     },
     {
       "name": "project_commits",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 692
+      "line": 704
     },
     {
       "name": "_legacy_workflow_usage_rows",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 700
+      "line": 712
     },
     {
       "name": "project_usage",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 749
+      "line": 761
     },
     {
       "name": "project_workflows",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 758
+      "line": 770
     },
     {
       "name": "project_history",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 764
+      "line": 776
     },
     {
       "name": "activity",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 786
+      "line": 798
     },
     {
       "name": "request",
@@ -1822,66 +1883,6 @@
       "kind": "function",
       "file": "tests/test_dashboard_observability_e2e.py",
       "line": 123
-    },
-    {
-      "name": "_control",
-      "kind": "function",
-      "file": "tests/test_dashboard_playbook_api.py",
-      "line": 7
-    },
-    {
-      "name": "test_queue_incident_exposes_truthful_scheduled_kick_fallback",
-      "kind": "function",
-      "file": "tests/test_dashboard_playbook_api.py",
-      "line": 14
-    },
-    {
-      "name": "test_queue_incident_exposes_immediate_kick_only_when_dispatch_is_configured",
-      "kind": "function",
-      "file": "tests/test_dashboard_playbook_api.py",
-      "line": 29
-    },
-    {
-      "name": "test_stale_worker_playbook_only_offers_recovery_for_expired_claim",
-      "kind": "function",
-      "file": "tests/test_dashboard_playbook_api.py",
-      "line": 46
-    },
-    {
-      "name": "test_stale_execution_playbook_offers_cancel_only_for_active_owned_job",
-      "kind": "function",
-      "file": "tests/test_dashboard_playbook_api.py",
-      "line": 78
-    },
-    {
-      "name": "_auth",
-      "kind": "function",
-      "file": "tests/test_dashboard_remediation_api.py",
-      "line": 13
-    },
-    {
-      "name": "_request",
-      "kind": "function",
-      "file": "tests/test_dashboard_remediation_api.py",
-      "line": 21
-    },
-    {
-      "name": "_server",
-      "kind": "function",
-      "file": "tests/test_dashboard_remediation_api.py",
-      "line": 41
-    },
-    {
-      "name": "_queue_incident",
-      "kind": "function",
-      "file": "tests/test_dashboard_remediation_api.py",
-      "line": 48
-    },
-    {
-      "name": "test_valid_incident_linked_kick_is_traced",
-      "kind": "function",
-      "file": "tests/test_dashboard_remediation_api.py",
-      "line": 59
     }
   ],
   "selected_tests": [
@@ -1901,6 +1902,7 @@
     "tests/test_dashboard_observability_e2e.py",
     "tests/test_dashboard_playbook_api.py",
     "tests/test_dashboard_remediation_api.py",
+    "tests/test_dashboard_retention_prune.py",
     "tests/test_dashboard_store.py",
     "tests/test_dashboard_store_postgres.py",
     "tests/test_dashboard_ui_v3.py",

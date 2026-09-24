@@ -22,25 +22,27 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-24T18:16:10Z
+Generated: 2026-09-24T18:29:01Z
 
 ### Git
 - Branch: `main`
-- Head: `2bc6e41b04f3`
-- Commit date: 2026-09-24T20:15:56+02:00
-- Commit: feat: control center release 12 storage maintenance
-- Tracked files: 380
+- Head: `16919056a0c4`
+- Commit date: 2026-09-24T20:28:50+02:00
+- Commit: feat: control center release 13 safe retention
+- Tracked files: 386
 
 ### Recently changed files
 - `README.md`
-- `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-12.md`
+- `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-13.md`
 - `src/production_os/control_plane.py`
 - `src/production_os/dashboard_maintenance.py`
 - `src/production_os/dashboard_service.py`
 - `src/production_os/dashboard_ui.py`
-- `tests/test_dashboard_maintenance.py`
+- `tests/test_dashboard_retention_prune.py`
 - `tests/test_dashboard_store_postgres.py`
 - `tests/test_dashboard_ui_v3.py`
+- `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-12.md`
+- `tests/test_dashboard_maintenance.py`
 - `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-11.md`
 - `src/production_os/github_client.py`
 - `tests/test_dashboard_launch_ux.py`
@@ -50,8 +52,6 @@ Generated: 2026-09-24T18:16:10Z
 - `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-9.md`
 - `src/production_os/dashboard_store.py`
 - `src/production_os/postgres_backend.py`
-- `src/production_os/sqlite_backend.py`
-- `tests/test_dashboard_control_audit.py`
 
 ### Project signals
 - `pyproject.toml`

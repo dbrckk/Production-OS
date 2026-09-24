@@ -207,6 +207,7 @@ tests/
   test_dashboard_remediation_api.py
   test_dashboard_remediation_history.py
   test_dashboard_remediation_metrics.py
+  test_dashboard_retention_prune.py
   test_dashboard_security.py
   test_dashboard_store_postgres.py
   test_dashboard_store.py
@@ -2484,6 +2485,13 @@ body = self._read_json()
 ⋮----
 principal = self._require("operator")
 ⋮----
+expected = body.get("expected_candidate_rows")
+⋮----
+requested_by = f"{principal.role}:{principal.name}"
+audit = control.dashboard_store.append_control_audit(
+⋮----
+result = control.dashboard.prune_maintenance(expected)
+⋮----
 incident_id = parts[3]
 ⋮----
 incident = control.dashboard_store.acknowledge_dashboard_incident(
@@ -2491,7 +2499,7 @@ incident = control.dashboard_store.acknowledge_dashboard_incident(
 action = str(body.get("action") or "").strip()
 state_by_action = {
 worker_id = parts[3]
-requested_by = f"{principal.role}:{principal.name}"
+⋮----
 audit_job_key = (
 ⋮----
 remediation_event = None
@@ -2995,7 +3003,30 @@ def dedupe_key(signal: dict) -> str
 
 ## File: src/production_os/dashboard_maintenance.py
 ````python
+TERMINAL_EXECUTION_STATUSES = {"succeeded", "failed", "cancelled"}
+⋮----
+@dataclass(frozen=True)
+class RetentionSpec
+⋮----
+label: str
+table: str
+timestamp_column: str
+env_name: str
+default_days: int
+key_column: str = "id"
+mode: str = "prunable"
+⋮----
 RETENTION_SPECS = (
+⋮----
+class RetentionCandidateConflict(RuntimeError)
+⋮----
+def __init__(self, expected: int, actual: int)
+⋮----
+def _is_postgres(backend) -> bool
+⋮----
+def _execute(db, backend, statement: str, params: tuple = ())
+⋮----
+sql = statement.replace("?", "%s") if _is_postgres(backend) else statement
 ⋮----
 def _parse_time(value)
 ⋮----
@@ -3023,21 +3054,29 @@ found = False
 ⋮----
 found = True
 ⋮----
+def _select_columns(spec: RetentionSpec) -> str
+⋮----
+columns = [
+⋮----
+parsed = _parse_time(row["timestamp"])
+⋮----
+status = str(row["row_status"] or "")
+⋮----
 cutoff = now - timedelta(days=retention_days)
 ⋮----
 valid_count = 0
 invalid = 0
-candidates = 0
+prunable = 0
+protected = 0
 oldest = None
 newest = None
 ⋮----
 cursor = db.execute(
 ⋮----
-parsed = _parse_time(row["timestamp"])
-⋮----
 oldest = parsed
 ⋮----
 newest = parsed
+disposition = _old_row_disposition(
 ⋮----
 current = now or datetime.now(timezone.utc)
 ⋮----
@@ -3048,6 +3087,8 @@ tables = []
 errors = []
 ⋮----
 total_candidates = sum(
+prunable_candidates = sum(
+protected_candidates = sum(
 total_rows = sum(int(row.get("rows") or 0) for row in tables)
 ⋮----
 size_bytes = _database_size_bytes(backend)
@@ -3055,6 +3096,28 @@ size_bytes = _database_size_bytes(backend)
 size_bytes = None
 ⋮----
 status = (
+⋮----
+selected: dict[str, list[object]] = {}
+⋮----
+cutoff = now - timedelta(
+keys: list[object] = []
+cursor = _execute(
+⋮----
+deleted: dict[str, int] = {}
+⋮----
+keys_by_label = _collect_prunable_keys(
+actual = sum(len(keys) for keys in keys_by_label.values())
+⋮----
+spec_by_label = {spec.label:spec for spec in RETENTION_SPECS}
+⋮----
+spec = spec_by_label[label]
+count = 0
+⋮----
+chunk = keys[offset:offset + 200]
+⋮----
+placeholders = ",".join("?" for _ in chunk)
+⋮----
+deleted_total = sum(deleted.values())
 ````
 
 ## File: src/production_os/dashboard_playbooks.py
@@ -3342,7 +3405,7 @@ found=set()
 ⋮----
 rows=db.execute(f"SELECT DISTINCT repository FROM {table} WHERE repository IS NOT NULL").fetchall()
 ⋮----
-def maintenance(self) -> dict
+def maintenance(self, *, force: bool = False) -> dict
 ⋮----
 now = time.monotonic()
 cached = self._maintenance_cache
@@ -3350,6 +3413,10 @@ cached = self._maintenance_cache
 ttl = 30.0 if cached.get("status") == "unknown" else 300.0
 ⋮----
 payload = storage_maintenance_snapshot(self.control.backend)
+⋮----
+def prune_maintenance(self, expected_candidate_rows: int) -> dict
+⋮----
+result = prune_expired_history(
 ⋮----
 def repositories(self) -> dict
 ⋮----
@@ -8940,6 +9007,71 @@ def test_invalid_durability_timestamps_are_ignored()
 rows = [{
 ````
 
+## File: tests/test_dashboard_retention_prune.py
+````python
+OLD = "2020-01-01T00:00:00+00:00"
+RECENT = "2099-01-01T00:00:00+00:00"
+⋮----
+def _auth()
+⋮----
+def _post(base, path, token, body)
+⋮----
+request = urllib.request.Request(
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+def _seed_retention_rows(backend)
+⋮----
+def _seed_old_remediation(control)
+⋮----
+incident = control.dashboard_store.upsert_dashboard_incident(
+⋮----
+def test_snapshot_separates_prunable_and_protected_candidates(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "retention.sqlite")
+⋮----
+control = ControlPlane(
+⋮----
+snapshot = storage_maintenance_snapshot(backend)
+logs = next(row for row in snapshot["tables"] if row["name"] == "worker_logs")
+executions = next(row for row in snapshot["tables"] if row["name"] == "executions")
+⋮----
+def test_prune_deletes_only_valid_old_prunable_rows(tmp_path)
+⋮----
+remediation = _seed_old_remediation(control)
+⋮----
+before = storage_maintenance_snapshot(control.backend)
+⋮----
+result = prune_expired_history(
+⋮----
+log_ids = {
+executions = {
+remediation_row = db.execute(
+⋮----
+def test_stale_candidate_count_rolls_back_without_deletion(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "conflict.sqlite")
+⋮----
+before = storage_maintenance_snapshot(backend)
+expected = before["prunable_candidate_rows"]
+⋮----
+def test_prune_api_requires_operator_exact_phrase_and_audits_success(tmp_path)
+⋮----
+snapshot = storage_maintenance_snapshot(control.backend)
+expected = snapshot["prunable_candidate_rows"]
+⋮----
+audit = control.dashboard_store.control_audit_events(limit=10)
+⋮----
+def test_prune_api_stale_expected_count_returns_409_and_zero_deletion(tmp_path)
+⋮----
+expected = storage_maintenance_snapshot(
+⋮----
+ids = {
+````
+
 ## File: tests/test_dashboard_security.py
 ````python
 def test_recursive_redaction_removes_sensitive_values()
@@ -8984,6 +9116,15 @@ def test_postgres_storage_maintenance_snapshot_has_size_and_no_dsn()
 payload = storage_maintenance_snapshot(backend)
 ⋮----
 names = {row["name"] for row in payload["tables"]}
+⋮----
+def test_postgres_retention_classifies_terminal_and_running_executions_safely()
+⋮----
+suffix = uuid4().hex
+old = "2020-01-01T00:00:00+00:00"
+running_id = "retention-running-" + suffix
+terminal_id = "retention-terminal-" + suffix
+⋮----
+executions = next(
 ````
 
 ## File: tests/test_dashboard_store.py
@@ -9137,6 +9278,12 @@ def test_mobile_launch_flow_remains_repo_plus_instruction()
 def test_overview_renders_storage_maintenance_card()
 ⋮----
 def test_storage_maintenance_failure_does_not_break_overview()
+⋮----
+def test_storage_retention_ui_separates_prunable_and_protected_rows()
+⋮----
+def test_retention_prune_requires_explicit_confirmation_and_exact_phrase()
+⋮----
+def test_retention_prune_button_only_renders_for_positive_prunable_count()
 ````
 
 ## File: tests/test_dashboard_usage.py
@@ -12059,6 +12206,49 @@ generic event stream         90 days
 Release 12 performs no deletion, VACUUM, backup mutation or restore action. It deliberately establishes visibility before destructive maintenance is introduced. Timestamp scans are streamed row by row so large history tables do not need to be loaded fully into memory. The resulting maintenance snapshot is cached server-side for five minutes (30 seconds after an unknown/error state), so normal dashboard polling does not repeatedly rescan large tables.
 
 The dashboard never exposes the SQLite path, PostgreSQL DSN, credentials or tokens. If maintenance diagnostics fail, the rest of the Overview remains available and the storage card degrades to `unknown`.
+
+## Dashboard Control Center Release 13 — Safe retention cleanup
+
+Expired historical data can now be pruned explicitly by an operator from the Storage & retention card.
+
+The cleanup endpoint is:
+
+```text
+POST /v1/dashboard/maintenance/prune
+```
+
+and requires both:
+
+```text
+confirm = PRUNE_EXPIRED_HISTORY
+expected_candidate_rows = <fresh prunable count observed by the operator>
+```
+
+The server recomputes every eligible row inside the cleanup transaction. If the current prunable count differs from the operator's expected count, cleanup returns a conflict and deletes nothing.
+
+Prunable history includes expired:
+
+- API usage events;
+- worker log events;
+- terminal job executions (`succeeded`, `failed`, `cancelled`);
+- control audit events;
+- repository/progress snapshots;
+- generic event-stream entries.
+
+Protected data includes:
+
+- running/non-terminal executions;
+- incident records;
+- remediation history;
+- workflows and workflow tasks;
+- jobs and workers;
+- worker/job desired control state;
+- release/trust history;
+- invalid timestamps and rows newer than their retention cutoff.
+
+Cleanup is never automatic. It is not triggered by alerts, health checks, analytics or dashboard polling. The UI requires an explicit browser confirmation, and every accepted/conflicted cleanup request is recorded in the control audit.
+
+Release 13 does not run `VACUUM` in the request path and does not mutate backup/restore state.
 
 ## Design principles
 

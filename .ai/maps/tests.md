@@ -80,6 +80,7 @@ test_dashboard_playbooks.py
 test_dashboard_remediation_api.py
 test_dashboard_remediation_history.py
 test_dashboard_remediation_metrics.py
+test_dashboard_retention_prune.py
 test_dashboard_security.py
 test_dashboard_store_postgres.py
 test_dashboard_store.py
@@ -1827,6 +1828,71 @@ def test_invalid_durability_timestamps_are_ignored()
 rows = [{
 ```
 
+## File: test_dashboard_retention_prune.py
+```python
+OLD = "2020-01-01T00:00:00+00:00"
+RECENT = "2099-01-01T00:00:00+00:00"
+⋮----
+def _auth()
+⋮----
+def _post(base, path, token, body)
+⋮----
+request = urllib.request.Request(
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+def _seed_retention_rows(backend)
+⋮----
+def _seed_old_remediation(control)
+⋮----
+incident = control.dashboard_store.upsert_dashboard_incident(
+⋮----
+def test_snapshot_separates_prunable_and_protected_candidates(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "retention.sqlite")
+⋮----
+control = ControlPlane(
+⋮----
+snapshot = storage_maintenance_snapshot(backend)
+logs = next(row for row in snapshot["tables"] if row["name"] == "worker_logs")
+executions = next(row for row in snapshot["tables"] if row["name"] == "executions")
+⋮----
+def test_prune_deletes_only_valid_old_prunable_rows(tmp_path)
+⋮----
+remediation = _seed_old_remediation(control)
+⋮----
+before = storage_maintenance_snapshot(control.backend)
+⋮----
+result = prune_expired_history(
+⋮----
+log_ids = {
+executions = {
+remediation_row = db.execute(
+⋮----
+def test_stale_candidate_count_rolls_back_without_deletion(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "conflict.sqlite")
+⋮----
+before = storage_maintenance_snapshot(backend)
+expected = before["prunable_candidate_rows"]
+⋮----
+def test_prune_api_requires_operator_exact_phrase_and_audits_success(tmp_path)
+⋮----
+snapshot = storage_maintenance_snapshot(control.backend)
+expected = snapshot["prunable_candidate_rows"]
+⋮----
+audit = control.dashboard_store.control_audit_events(limit=10)
+⋮----
+def test_prune_api_stale_expected_count_returns_409_and_zero_deletion(tmp_path)
+⋮----
+expected = storage_maintenance_snapshot(
+⋮----
+ids = {
+```
+
 ## File: test_dashboard_security.py
 ```python
 def test_recursive_redaction_removes_sensitive_values()
@@ -1871,6 +1937,15 @@ def test_postgres_storage_maintenance_snapshot_has_size_and_no_dsn()
 payload = storage_maintenance_snapshot(backend)
 ⋮----
 names = {row["name"] for row in payload["tables"]}
+⋮----
+def test_postgres_retention_classifies_terminal_and_running_executions_safely()
+⋮----
+suffix = uuid4().hex
+old = "2020-01-01T00:00:00+00:00"
+running_id = "retention-running-" + suffix
+terminal_id = "retention-terminal-" + suffix
+⋮----
+executions = next(
 ```
 
 ## File: test_dashboard_store.py
@@ -2024,6 +2099,12 @@ def test_mobile_launch_flow_remains_repo_plus_instruction()
 def test_overview_renders_storage_maintenance_card()
 ⋮----
 def test_storage_maintenance_failure_does_not_break_overview()
+⋮----
+def test_storage_retention_ui_separates_prunable_and_protected_rows()
+⋮----
+def test_retention_prune_requires_explicit_confirmation_and_exact_phrase()
+⋮----
+def test_retention_prune_button_only_renders_for_positive_prunable_count()
 ```
 
 ## File: test_dashboard_usage.py

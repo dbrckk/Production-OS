@@ -1975,6 +1975,13 @@ body = self._read_json()
 ⋮----
 principal = self._require("operator")
 ⋮----
+expected = body.get("expected_candidate_rows")
+⋮----
+requested_by = f"{principal.role}:{principal.name}"
+audit = control.dashboard_store.append_control_audit(
+⋮----
+result = control.dashboard.prune_maintenance(expected)
+⋮----
 incident_id = parts[3]
 ⋮----
 incident = control.dashboard_store.acknowledge_dashboard_incident(
@@ -1982,7 +1989,7 @@ incident = control.dashboard_store.acknowledge_dashboard_incident(
 action = str(body.get("action") or "").strip()
 state_by_action = {
 worker_id = parts[3]
-requested_by = f"{principal.role}:{principal.name}"
+⋮----
 audit_job_key = (
 ⋮----
 remediation_event = None
@@ -2486,7 +2493,30 @@ def dedupe_key(signal: dict) -> str
 
 ## File: production_os/dashboard_maintenance.py
 ```python
+TERMINAL_EXECUTION_STATUSES = {"succeeded", "failed", "cancelled"}
+⋮----
+@dataclass(frozen=True)
+class RetentionSpec
+⋮----
+label: str
+table: str
+timestamp_column: str
+env_name: str
+default_days: int
+key_column: str = "id"
+mode: str = "prunable"
+⋮----
 RETENTION_SPECS = (
+⋮----
+class RetentionCandidateConflict(RuntimeError)
+⋮----
+def __init__(self, expected: int, actual: int)
+⋮----
+def _is_postgres(backend) -> bool
+⋮----
+def _execute(db, backend, statement: str, params: tuple = ())
+⋮----
+sql = statement.replace("?", "%s") if _is_postgres(backend) else statement
 ⋮----
 def _parse_time(value)
 ⋮----
@@ -2514,21 +2544,29 @@ found = False
 ⋮----
 found = True
 ⋮----
+def _select_columns(spec: RetentionSpec) -> str
+⋮----
+columns = [
+⋮----
+parsed = _parse_time(row["timestamp"])
+⋮----
+status = str(row["row_status"] or "")
+⋮----
 cutoff = now - timedelta(days=retention_days)
 ⋮----
 valid_count = 0
 invalid = 0
-candidates = 0
+prunable = 0
+protected = 0
 oldest = None
 newest = None
 ⋮----
 cursor = db.execute(
 ⋮----
-parsed = _parse_time(row["timestamp"])
-⋮----
 oldest = parsed
 ⋮----
 newest = parsed
+disposition = _old_row_disposition(
 ⋮----
 current = now or datetime.now(timezone.utc)
 ⋮----
@@ -2539,6 +2577,8 @@ tables = []
 errors = []
 ⋮----
 total_candidates = sum(
+prunable_candidates = sum(
+protected_candidates = sum(
 total_rows = sum(int(row.get("rows") or 0) for row in tables)
 ⋮----
 size_bytes = _database_size_bytes(backend)
@@ -2546,6 +2586,28 @@ size_bytes = _database_size_bytes(backend)
 size_bytes = None
 ⋮----
 status = (
+⋮----
+selected: dict[str, list[object]] = {}
+⋮----
+cutoff = now - timedelta(
+keys: list[object] = []
+cursor = _execute(
+⋮----
+deleted: dict[str, int] = {}
+⋮----
+keys_by_label = _collect_prunable_keys(
+actual = sum(len(keys) for keys in keys_by_label.values())
+⋮----
+spec_by_label = {spec.label:spec for spec in RETENTION_SPECS}
+⋮----
+spec = spec_by_label[label]
+count = 0
+⋮----
+chunk = keys[offset:offset + 200]
+⋮----
+placeholders = ",".join("?" for _ in chunk)
+⋮----
+deleted_total = sum(deleted.values())
 ```
 
 ## File: production_os/dashboard_playbooks.py
@@ -2833,7 +2895,7 @@ found=set()
 ⋮----
 rows=db.execute(f"SELECT DISTINCT repository FROM {table} WHERE repository IS NOT NULL").fetchall()
 ⋮----
-def maintenance(self) -> dict
+def maintenance(self, *, force: bool = False) -> dict
 ⋮----
 now = time.monotonic()
 cached = self._maintenance_cache
@@ -2841,6 +2903,10 @@ cached = self._maintenance_cache
 ttl = 30.0 if cached.get("status") == "unknown" else 300.0
 ⋮----
 payload = storage_maintenance_snapshot(self.control.backend)
+⋮----
+def prune_maintenance(self, expected_candidate_rows: int) -> dict
+⋮----
+result = prune_expired_history(
 ⋮----
 def repositories(self) -> dict
 ⋮----
