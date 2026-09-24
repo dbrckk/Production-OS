@@ -1248,7 +1248,10 @@ def make_handler(control: ControlPlane):
                             job = control.queue.get(job_key)
                             if str(job.get("claimed_by") or "") != str(body["worker_id"]):
                                 raise RuntimeError("job claim owner mismatch")
-                            control.queue.cancel(job_key, str(body["worker_id"]))
+                            cancelled_job = control.queue.cancel(
+                                job_key,
+                                str(body["worker_id"]),
+                            )
                             control.dashboard_control.acknowledge_job_cancel(job_key)
                             control.dashboard_store.finish_execution(
                                 job_key,
@@ -1257,6 +1260,15 @@ def make_handler(control: ControlPlane):
                                 duration_seconds=None,
                                 result={"reason":"operator cancel"},
                             )
+                            payload = cancelled_job.get("payload") or {}
+                            workflow_id = payload.get("workflow_id")
+                            workflow_task_id = payload.get("workflow_task_id")
+                            if workflow_id and workflow_task_id:
+                                control.workflows.record_cancelled(
+                                    str(workflow_id),
+                                    str(workflow_task_id),
+                                    result={"reason":"operator cancel"},
+                                )
 
                     self._send(
                         HTTPStatus.OK,
