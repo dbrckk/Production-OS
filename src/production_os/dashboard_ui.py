@@ -568,8 +568,19 @@ function repoApiPath(repository){
 async function loadOverview(){
  const el=document.getElementById("overview-metrics");
  try{
-  const data=await api("/v1/dashboard/overview?window="+encodeURIComponent(appState.window));
+  const results=await Promise.all([
+   api("/v1/dashboard/overview?window="+encodeURIComponent(appState.window)),
+   api("/v1/dashboard/health")
+  ]);
+  const data=results[0],health=results[1]||{};
   const w=data.workers||{},p=data.productions||{},u=data.usage||{},c=data.commits||{},perf=data.performance||{},alerts=data.alerts||[];
+  const healthReasons=health.reasons||[];
+  const healthHtml=
+   '<div class="card"><div class="section-head"><h2>Santé opérationnelle</h2><span class="badge">'+esc(String(health.status||"inconnu"))+'</span></div>'+
+   (healthReasons.length?healthReasons.map(function(item){
+    return '<div class="small"><strong>'+esc(String(item.code||"diagnostic"))+'</strong> · '+esc(String(item.severity||""))+'</div>';
+   }).join(""):'<div class="small">Aucune dégradation opérationnelle détectée.</div>')+
+   '</div>';
   const alertsHtml=alerts.length?
    '<div class="card"><div class="section-head"><h2>Alertes opérationnelles</h2><span class="badge">'+formatNumber(alerts.length)+'</span></div>'+
    alerts.map(function(item){
@@ -585,6 +596,7 @@ async function loadOverview(){
    '<p class="small">API calls : '+formatNumber(u.api_calls)+' · coût estimé : '+formatNumber(u.estimated_cost_usd)+' USD</p>'+
    '<p class="small">Commits Production-OS : '+formatNumber(c.production_os)+' · branche par défaut GitHub : '+formatNumber(c.github_default_branch)+'</p>'+
    '<p class="small">Taux de réussite : '+formatNumber(perf.success_rate)+' % · temps d’exécution : '+formatNumber(perf.execution_seconds)+' s</p></div>'+
+   healthHtml+
    alertsHtml;
  }catch(e){el.innerHTML=errorCard(e)}
 }
