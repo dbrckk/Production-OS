@@ -149,3 +149,126 @@ def test_dashboard_project_and_activity_routes(running_control_plane):
     for suffix in ("progress","commits?window=30d","usage?window=30d","workflows","history"):
         status, _ = get_api(base, "/v1/dashboard/projects/dbrckk/missing/" + suffix, "viewer-token")
         assert status == 404
+
+
+def test_dashboard_autopilot_queue_ranks_jobs_and_explains_worker_eligibility(
+    running_control_plane,
+):
+    base, control = running_control_plane
+    control.workers.register("worker-a", ["python"], 1)
+    control.workers.register("worker-b", ["node"], 1)
+
+    low = control.queue.enqueue({
+        "idempotency_key":"autopilot-low",
+        "handoff":{"repository":"dbrckk/example","task":"Low"},
+        "required_capabilities":["python"],
+        "priority":1,
+    })
+    high = control.queue.enqueue({
+        "idempotency_key":"autopilot-high",
+        "handoff":{"repository":"dbrckk/example","task":"High"},
+        "required_capabilities":["python"],
+        "priority":10,
+    })
+
+    status, payload = get_api(
+        base,
+        "/v1/dashboard/autopilot?limit=20",
+        "viewer-token",
+    )
+    assert status == 200
+    assert payload["schema_version"] == "production-os/dashboard-autopilot/v1"
+    assert [row["job_key"] for row in payload["jobs"]][:2] == [
+        high["key"],
+        low["key"],
+    ]
+    assert payload["jobs"][0]["preferred_worker"] == "worker-a"
+    assert payload["jobs"][0]["eligible_workers"] == ["worker-a"]
+    assert payload["jobs"][0]["wait_reason"] is None
+
+
+def test_dashboard_autopilot_respects_pause_capacity_and_capabilities(
+    running_control_plane,
+):
+    base, control = running_control_plane
+    control.workers.register("worker-a", ["python"], 1)
+    control.workers.register("worker-b", ["node"], 1)
+    control.dashboard_control.set_worker_state(
+        "worker-a",
+        "paused",
+        requested_by="operator:test",
+    )
+
+    paused_job = control.queue.enqueue({
+        "idempotency_key":"autopilot-paused",
+        "handoff":{"repository":"dbrckk/example","task":"Paused"},
+        "required_capabilities":["python"],
+        "priority":30,
+    })
+    missing_job = control.queue.enqueue({
+        "idempotency_key":"autopilot-missing",
+        "handoff":{"repository":"dbrckk/example","task":"Android"},
+        "required_capabilities":["android"],
+        "priority":20,
+    })
+
+    status, payload = get_api(
+        base,
+        "/v1/dashboard/autopilot",
+        "viewer-token",
+    )
+    assert status == 200
+    rows = {row["job_key"]:row for row in payload["jobs"]}
+    assert rows[paused_job["key"]]["wait_reason"] == "worker_controlled"
+    assert rows[missing_job["key"]]["wait_reason"] == "missing_capability"
+
+    control.dashboard_control.set_worker_state(
+        "worker-a",
+        "active",
+        requested_by="operator:test",
+    )
+    control.workers.heartbeat("worker-a", active_tasks=1)
+    status, payload = get_api(
+        base,
+        "/v1/dashboard/autopilot",
+        "viewer-token",
+    )
+    rows = {row["job_key"]:row for row in payload["jobs"]}
+    assert rows[paused_job["key"]]["wait_reason"] == "capacity_full"
+
+
+def test_dashboard_autopilot_honors_assigned_worker_and_access_rules(
+    running_control_plane,
+):
+    base, control = running_control_plane
+    control.workers.register("worker-a", ["python"], 1)
+    control.workers.register("worker-b", ["python"], 1)
+
+    job = control.queue.enqueue({
+        "idempotency_key":"autopilot-assigned",
+        "handoff":{"repository":"dbrckk/example","task":"Pinned"},
+        "required_capabilities":["python"],
+        "worker_id":"worker-b",
+        "priority":50,
+    })
+    status, payload = get_api(
+        base,
+        "/v1/dashboard/autopilot",
+        "viewer-token",
+    )
+    assert status == 200
+    row = next(item for item in payload["jobs"] if item["job_key"] == job["key"])
+    assert row["assigned_worker"] == "worker-b"
+    assert row["eligible_workers"] == ["worker-b"]
+    assert row["preferred_worker"] == "worker-b"
+
+    assert get_api(
+        base,
+        "/v1/dashboard/autopilot",
+        "worker-a-token",
+    )[0] == 403
+    assert get_api(
+        base,
+        "/v1/dashboard/autopilot?limit=0",
+        "viewer-token",
+    )[0] == 200
