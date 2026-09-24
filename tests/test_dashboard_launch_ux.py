@@ -8,6 +8,7 @@ from http.server import ThreadingHTTPServer
 
 from production_os.api_auth import TokenAuthorizer, token_digest
 from production_os.control_plane import ControlPlane, make_handler
+from production_os.github_client import GitHubAPIError
 
 
 def _auth():
@@ -131,6 +132,51 @@ def test_repository_picker_is_server_backed_sorted_and_excludes_archived(
         )
         assert status == 403
         assert payload["error"] == "forbidden"
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+
+
+def test_repository_picker_falls_back_to_observed_projects_on_github_failure(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(
+        str(tmp_path / "repos-fallback.sqlite"),
+        authorizer=_auth(),
+    )
+
+    def fail_repos(self, owner):
+        raise GitHubAPIError("offline")
+
+    monkeypatch.setattr(
+        "production_os.dashboard_service.GitHubClient.list_accessible_repositories",
+        fail_repos,
+    )
+    monkeypatch.setattr(
+        "production_os.dashboard_service.DashboardService.projects",
+        lambda self: {
+            "projects":[
+                {"repository":"dbrckk/Zeta"},
+                {"repository":"dbrckk/Alpha"},
+            ],
+            "generated_at":"2026-09-24T18:00:00+00:00",
+        },
+    )
+
+    server, thread, base = _server(control)
+    try:
+        status, payload, _ = _get(
+            base + "/v1/dashboard/repositories",
+            "viewer",
+        )
+        assert status == 200
+        assert payload["source"] == "observed-projects"
+        assert [row["full_name"] for row in payload["repositories"]] == [
+            "dbrckk/Alpha",
+            "dbrckk/Zeta",
+        ]
     finally:
         server.shutdown()
         server.server_close()
