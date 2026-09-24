@@ -83,6 +83,7 @@ src/
     dashboard_control.py
     dashboard_github.py
     dashboard_health.py
+    dashboard_incidents.py
     dashboard_security.py
     dashboard_service.py
     dashboard_store.py
@@ -192,6 +193,8 @@ tests/
   test_dashboard_control.py
   test_dashboard_github.py
   test_dashboard_health.py
+  test_dashboard_incident_signals.py
+  test_dashboard_incidents.py
   test_dashboard_launch.py
   test_dashboard_observability_e2e.py
   test_dashboard_security.py
@@ -2401,6 +2404,8 @@ payload = service.project_history(repository)
 ⋮----
 payload = service.control_audit(
 ⋮----
+payload = service.incidents(
+⋮----
 payload = service.activity(
 ⋮----
 rows = db.execute(
@@ -2460,6 +2465,10 @@ jobs = control.workflows.dispatch_ready(
 body = self._read_json()
 ⋮----
 principal = self._require("operator")
+⋮----
+incident_id = parts[3]
+⋮----
+incident = control.dashboard_store.acknowledge_dashboard_incident(
 ⋮----
 action = str(body.get("action") or "").strip()
 state_by_action = {
@@ -2931,6 +2940,29 @@ stale_executions = []
 last = _dt(
 ````
 
+## File: src/production_os/dashboard_incidents.py
+````python
+def signals_from_health(health: dict) -> list[dict]
+⋮----
+signals = []
+⋮----
+code = str(reason.get("code") or "")
+severity = str(reason.get("severity") or "medium")
+evidence = dict(reason.get("evidence") or {})
+⋮----
+queued = int(evidence.get("queued") or 0)
+⋮----
+worker_id = str(worker.get("worker_id") or "")
+⋮----
+age = worker.get("age_seconds")
+⋮----
+job_key = str(execution.get("job_key") or "")
+⋮----
+age = execution.get("age_seconds")
+⋮----
+def dedupe_key(signal: dict) -> str
+````
+
 ## File: src/production_os/dashboard_security.py
 ````python
 _SENSITIVE_KEYS = {
@@ -3093,6 +3125,10 @@ def health(self) -> dict
 job_rows = db.execute(
 execution_rows = db.execute(
 states = {
+⋮----
+health = self.health()
+signals = signals_from_health(health)
+active_keys: set[str] = set()
 ⋮----
 def control_audit(self, limit: int = 100) -> dict
 ⋮----
@@ -3267,14 +3303,18 @@ live_usage = usage if usage is not None else (row.get("live_usage") or {})
 ⋮----
 result = result or {}; usage = result.get("usage") or {}; commits = result.get("commits") or {}; shas = _valid_commit_shas(commits.get("shas"))
 ⋮----
-ident = uuid4().hex
 timestamp = at or _now()
+dedupe_key = f"{code}:{target_type}:{target_id}"
+ident = uuid4().hex
+⋮----
+bounded = max(1, min(500, int(limit)))
+⋮----
+rows = self._fetchall(
+resolved = []
 ⋮----
 row = self._fetchone(
 ⋮----
 def control_audit_events(self, *, limit: int = 100) -> list[dict]
-⋮----
-bounded = max(1, min(500, int(limit)))
 ⋮----
 def get_worker_control(self, worker_id: str) -> dict | None
 ⋮----
@@ -4656,7 +4696,7 @@ def _utcnow() -> str
 ⋮----
 class PostgresBackend
 ⋮----
-SCHEMA_VERSION = 10
+SCHEMA_VERSION = 11
 ⋮----
 def __init__(self, dsn: str)
 ⋮----
@@ -5996,7 +6036,7 @@ def _utcnow() -> str
 ⋮----
 class SQLiteBackend
 ⋮----
-SCHEMA_VERSION = 10
+SCHEMA_VERSION = 11
 ⋮----
 def __init__(self, path: str | Path)
 ⋮----
@@ -7953,7 +7993,7 @@ base = f"http://127.0.0.1:{server.server_port}"
 ⋮----
 events = payload["events"]
 ⋮----
-def test_release3_schema_is_v10_and_contains_control_audit(tmp_path)
+def test_release4_schema_is_v11_and_contains_control_audit(tmp_path)
 ⋮----
 backend = SQLiteBackend(tmp_path / "schema.sqlite")
 ⋮----
@@ -8032,6 +8072,20 @@ job = first.queue.enqueue({
 persisted = second.dashboard_store.control_audit_events(limit=10)
 ⋮----
 latest = second.dashboard_store.control_audit_events(limit=1)[0]
+⋮----
+def test_release4_incident_lifecycle_survives_restart(tmp_path)
+⋮----
+database = str(tmp_path / "release4-incidents.db")
+⋮----
+incident = first.dashboard.incidents()["incidents"][0]
+⋮----
+persisted = second.dashboard_store.dashboard_incidents(limit=10)
+⋮----
+reconciled = second.dashboard.incidents()["incidents"]
+resolved = next(row for row in reconciled if row["id"] == incident["id"])
+⋮----
+third = ControlPlane(database, authorizer=_auth())
+final = third.dashboard_store.dashboard_incidents(limit=10)
 ````
 
 ## File: tests/test_dashboard_control.py
@@ -8125,6 +8179,89 @@ def test_queue_without_worker_degrades_health()
 def test_stale_busy_worker_and_running_execution_are_explained()
 ⋮----
 codes = {item["code"] for item in result["reasons"]}
+````
+
+## File: tests/test_dashboard_incident_signals.py
+````python
+def test_health_signals_expand_to_targeted_incidents()
+⋮----
+signals = signals_from_health({
+⋮----
+keys = {dedupe_key(item) for item in signals}
+````
+
+## File: tests/test_dashboard_incidents.py
+````python
+def _store(tmp_path)
+⋮----
+def test_incident_upsert_deduplicates_and_counts_occurrences(tmp_path)
+⋮----
+store = _store(tmp_path)
+first = store.upsert_dashboard_incident(
+second = store.upsert_dashboard_incident(
+⋮----
+rows = store.dashboard_incidents(limit=10)
+⋮----
+def test_incident_acknowledgement_is_durable(tmp_path)
+⋮----
+incident = store.upsert_dashboard_incident(
+acknowledged = store.acknowledge_dashboard_incident(
+⋮----
+def test_incident_schema_has_no_freeform_secret_payload(tmp_path)
+⋮----
+row = store.upsert_dashboard_incident(
+forbidden = {"token", "authorization", "headers", "secret", "payload", "metadata"}
+⋮----
+def _auth()
+⋮----
+def _request(base, path, token, *, method="GET", body=None)
+⋮----
+data = None if body is None else json.dumps(body).encode("utf-8")
+request = urllib.request.Request(
+⋮----
+raw = response.read()
+⋮----
+raw = exc.read()
+⋮----
+def test_incident_api_acknowledges_and_resolves_when_health_clears(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "api-incidents.sqlite"), authorizer=_auth())
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+base = f"http://127.0.0.1:{server.server_port}"
+⋮----
+incident = payload["incidents"][0]
+⋮----
+def test_incident_polling_does_not_inflate_unchanged_occurrence_count(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "polling-incidents.sqlite"), authorizer=_auth())
+⋮----
+first = control.dashboard.incidents()["incidents"][0]
+second = control.dashboard.incidents()["incidents"][0]
+⋮----
+def test_resolved_incident_reopens_without_stale_acknowledgement(tmp_path)
+⋮----
+resolved = store.dashboard_incidents(limit=1)[0]
+⋮----
+reopened = store.upsert_dashboard_incident(
+⋮----
+def test_incident_api_rejects_invalid_status_filter(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "bad-status.sqlite"), authorizer=_auth())
+⋮----
+def test_resolved_incident_cannot_be_acknowledged(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "resolved-ack.sqlite"), authorizer=_auth())
+⋮----
+incident = control.dashboard.incidents()["incidents"][0]
+⋮----
+resolved = control.dashboard.incidents(status="resolved")["incidents"][0]
+⋮----
+current = control.dashboard_store.dashboard_incidents(limit=1)[0]
+⋮----
+def test_stale_incident_age_updates_do_not_create_new_occurrences(tmp_path)
 ````
 
 ## File: tests/test_dashboard_launch.py
@@ -8242,13 +8379,15 @@ pytestmark = pytest.mark.skipif(
 ⋮----
 REQUIRED_EXECUTION_COLUMNS = {
 ⋮----
-def test_postgres_schema_v10_has_execution_columns_and_control_audit()
+def test_postgres_schema_v11_has_execution_columns_control_audit_and_incidents()
 ⋮----
 backend = PostgresBackend(DSN)
 ⋮----
 columns = {row["column_name"] for row in cur.fetchall()}
 ⋮----
 audit_table = cur.fetchone()
+⋮----
+incident_table = cur.fetchone()
 ⋮----
 def test_dashboard_service_project_queries_work_on_postgres()
 ⋮----
@@ -8381,6 +8520,8 @@ def test_activity_view_renders_operator_control_audit()
 def test_overview_renders_operational_health()
 ⋮----
 def test_worker_control_exposes_recover_stuck_only_from_recoverable_jobs()
+⋮----
+def test_overview_renders_and_acknowledges_durable_incidents()
 ````
 
 ## File: tests/test_dashboard_usage.py
@@ -11015,6 +11156,37 @@ Recovery is job-scoped and requires an explicit `job_key`. A non-expired claim i
 - at or above `max_attempts` → move the job to `dead-letter`.
 
 The action is audited whether it succeeds or is rejected.
+
+## Dashboard Control Center Release 4
+
+Release 4 adds durable operational incident management on top of Release 3 health diagnostics.
+
+Incidents follow the lifecycle:
+
+```text
+open → acknowledged → resolved
+```
+
+Health diagnostics are converted into targeted incidents for:
+
+- the global control plane;
+- an individual worker;
+- an individual job.
+
+Repeated polling does not inflate the occurrence counter when the evidence is unchanged. If an incident clears, it is marked `resolved` rather than deleted. If the same condition later returns, the incident reopens as `open`, increments its occurrence count, and clears the previous acknowledgement.
+
+Dashboard endpoints:
+
+```text
+GET  /v1/dashboard/incidents
+POST /v1/dashboard/incidents/{incident_id}/acknowledge
+```
+
+Viewer and operator roles may read incidents. Acknowledgement requires operator. Worker credentials cannot read dashboard incident history.
+
+Acknowledgement records the operator identity and timestamp. Incident records deliberately avoid arbitrary payload, metadata, authorization headers, or credential fields.
+
+Incident reconciliation is observational only. It does not automatically pause workers, cancel jobs, retry work, or run stuck-job recovery.
 
 ## Design principles
 

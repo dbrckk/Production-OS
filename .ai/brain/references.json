@@ -27,7 +27,7 @@
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 2044,
+          "line": 2077,
           "preview": "control = ControlPlane(",
           "definition_candidate": false
         },
@@ -218,6 +218,54 @@
           "definition_candidate": false
         },
         {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 308,
+          "preview": "first = ControlPlane(database, authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 320,
+          "preview": "second = ControlPlane(database, authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 332,
+          "preview": "third = ControlPlane(database, authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 10,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 106,
+          "preview": "control = ControlPlane(str(tmp_path / \"api-incidents.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 173,
+          "preview": "control = ControlPlane(str(tmp_path / \"polling-incidents.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 220,
+          "preview": "control = ControlPlane(str(tmp_path / \"bad-status.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 239,
+          "preview": "control = ControlPlane(str(tmp_path / \"resolved-ack.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
           "file": "tests/test_dashboard_observability_e2e.py",
           "line": 6,
           "preview": "from production_os.control_plane import ControlPlane",
@@ -285,13 +333,13 @@
         },
         {
           "file": "tests/test_dashboard_store_postgres.py",
-          "line": 59,
+          "line": 71,
           "preview": "from production_os.control_plane import ControlPlane",
           "definition_candidate": false
         },
         {
           "file": "tests/test_dashboard_store_postgres.py",
-          "line": 62,
+          "line": 74,
           "preview": "control = ControlPlane(DSN)",
           "definition_candidate": false
         },
@@ -386,7 +434,7 @@
           "definition_candidate": false
         }
       ],
-      "occurrence_count": 62
+      "occurrence_count": 70
     },
     "__init__": {
       "definition": {
@@ -446,7 +494,7 @@
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 32,
+          "line": 33,
           "preview": "def __init__(self, control):",
           "definition_candidate": false
         },
@@ -524,25 +572,25 @@
         },
         {
           "file": "src/production_os/postgres_backend.py",
-          "line": 427,
+          "line": 450,
           "preview": "def __init__(self, backend: PostgresBackend):",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/postgres_backend.py",
-          "line": 755,
+          "line": 778,
           "preview": "def __init__(self, backend: PostgresBackend):",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/postgres_backend.py",
-          "line": 937,
+          "line": 960,
           "preview": "def __init__(self, backend: PostgresBackend):",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/postgres_backend.py",
-          "line": 1115,
+          "line": 1138,
           "preview": "def __init__(self, backend: PostgresBackend):",
           "definition_candidate": false
         },
@@ -638,25 +686,25 @@
         },
         {
           "file": "src/production_os/sqlite_backend.py",
-          "line": 439,
+          "line": 458,
           "preview": "def __init__(self, backend: SQLiteBackend):",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/sqlite_backend.py",
-          "line": 765,
+          "line": 784,
           "preview": "def __init__(self, backend: SQLiteBackend):",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/sqlite_backend.py",
-          "line": 937,
+          "line": 956,
           "preview": "def __init__(self, backend: SQLiteBackend):",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/sqlite_backend.py",
-          "line": 1081,
+          "line": 1100,
           "preview": "def __init__(self, backend: SQLiteBackend):",
           "definition_candidate": false
         },
@@ -804,13 +852,13 @@
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 610,
+          "line": 615,
           "preview": "except RequestBodyTooLarge as exc:",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 787,
+          "line": 792,
           "preview": "except RequestBodyTooLarge as exc:",
           "definition_candidate": false
         }
@@ -833,7 +881,7 @@
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 2056,
+          "line": 2089,
           "preview": "make_handler(control),",
           "definition_candidate": false
         },
@@ -1000,6 +1048,30 @@
           "definition_candidate": false
         },
         {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 10,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 111,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 221,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 250,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
           "file": "tests/test_http_security_headers.py",
           "line": 7,
           "preview": "from production_os.control_plane import ControlPlane, make_handler",
@@ -1090,7 +1162,7 @@
           "definition_candidate": false
         }
       ],
-      "occurrence_count": 44
+      "occurrence_count": 48
     },
     "Handler": {
       "definition": {
@@ -1108,7 +1180,7 @@
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 2020,
+          "line": 2053,
           "preview": "return Handler",
           "definition_candidate": false
         }
@@ -1224,43 +1296,37 @@
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 329,
+          "line": 334,
           "preview": "self._send(HTTPStatus.OK, payload)",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 331,
+          "line": 336,
           "preview": "self._send(HTTPStatus.NOT_FOUND, {\"error\":\"dashboard resource not found\"})",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 333,
+          "line": 338,
           "preview": "self._send(HTTPStatus.BAD_REQUEST, {\"error\":\"invalid dashboard query\"})",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 347,
+          "line": 352,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 362,
+          "line": 367,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 384,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 408,
+          "line": 389,
           "preview": "self._send(",
           "definition_candidate": false
         },
@@ -1272,20 +1338,20 @@
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 426,
+          "line": 418,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
           "line": 431,
-          "preview": "self._send(HTTPStatus.OK, {\"job\":job})",
+          "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 441,
-          "preview": "self._send(HTTPStatus.OK, payload)",
+          "line": 436,
+          "preview": "self._send(HTTPStatus.OK, {\"job\":job})",
           "definition_candidate": false
         },
         {
@@ -1296,55 +1362,55 @@
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 449,
+          "line": 451,
+          "preview": "self._send(HTTPStatus.OK, payload)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 454,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 461,
+          "line": 466,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 467,
+          "line": 472,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 474,
+          "line": 479,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 489,
+          "line": 494,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 509,
+          "line": 514,
           "preview": "self._send(HTTPStatus.OK, report)",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 519,
+          "line": 524,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 530,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 557,
+          "line": 535,
           "preview": "self._send(",
           "definition_candidate": false
         },
@@ -1356,7 +1422,7 @@
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 571,
+          "line": 567,
           "preview": "self._send(",
           "definition_candidate": false
         },
@@ -1368,211 +1434,223 @@
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 585,
+          "line": 581,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 596,
+          "line": 590,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 601,
           "preview": "self._send(HTTPStatus.NOT_FOUND, {\"error\":\"not found\"})",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 603,
+          "line": 608,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 611,
+          "line": 616,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 617,
+          "line": 622,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 628,
+          "line": 633,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 649,
+          "line": 654,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 663,
+          "line": 668,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 670,
+          "line": 675,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 681,
+          "line": 686,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 760,
+          "line": 765,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 788,
+          "line": 793,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 794,
+          "line": 799,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 856,
+          "line": 824,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 869,
+          "line": 829,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 880,
+          "line": 889,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 901,
+          "line": 902,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 926,
+          "line": 913,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 940,
+          "line": 934,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 958,
+          "line": 959,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 974,
+          "line": 973,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 987,
+          "line": 991,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 998,
+          "line": 1007,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1011,
+          "line": 1020,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1026,
+          "line": 1031,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1046,
+          "line": 1044,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1062,
+          "line": 1059,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1119,
+          "line": 1079,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1139,
+          "line": 1095,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1168,
+          "line": 1152,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1199,
+          "line": 1172,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1218,
+          "line": 1201,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1232,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1251,
           "preview": "self._send(HTTPStatus.OK, {\"jobs\":jobs})",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1231,
+          "line": 1264,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1252,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1267,
+          "line": 1285,
           "preview": "self._send(",
           "definition_candidate": false
         },
@@ -1584,181 +1662,163 @@
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1306,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
           "line": 1333,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1348,
+          "line": 1339,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1366,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1381,
           "preview": "self._send(HTTPStatus.OK, {\"worker\":worker.to_dict()})",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1471,
+          "line": 1504,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1494,
+          "line": 1527,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1509,
+          "line": 1542,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1518,
+          "line": 1551,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1529,
+          "line": 1562,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1561,
+          "line": 1594,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1572,
+          "line": 1605,
           "preview": "self._send(HTTPStatus.CREATED, {\"job\":job})",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1587,
+          "line": 1620,
           "preview": "self._send(HTTPStatus.NO_CONTENT, {})",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1609,
+          "line": 1642,
           "preview": "self._send(HTTPStatus.NO_CONTENT, {})",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1647,
+          "line": 1680,
           "preview": "self._send(HTTPStatus.NO_CONTENT, {})",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1658,
+          "line": 1691,
           "preview": "self._send(HTTPStatus.NO_CONTENT, {})",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1661,
+          "line": 1694,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1686,
+          "line": 1719,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1697,
+          "line": 1730,
           "preview": "self._send(HTTPStatus.OK, {\"job\":job})",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1709,
+          "line": 1742,
           "preview": "self._send(HTTPStatus.NOT_FOUND, {\"error\":\"not found\"})",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1715,
+          "line": 1748,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1737,
+          "line": 1770,
           "preview": "self._send(HTTPStatus.OK, {\"execution\":execution})",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1783,
+          "line": 1816,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1803,
+          "line": 1836,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1835,
+          "line": 1868,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1880,
+          "line": 1913,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1905,
+          "line": 1938,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1953,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1982,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 2002,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 2008,
-          "preview": "self._send(HTTPStatus.NOT_FOUND, {\"error\":\"not found\"})",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 2010,
+          "line": 1986,
           "preview": "self._send(",
           "definition_candidate": false
         },
@@ -1767,9 +1827,33 @@
           "line": 2015,
           "preview": "self._send(",
           "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2035,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2041,
+          "preview": "self._send(HTTPStatus.NOT_FOUND, {\"error\":\"not found\"})",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2043,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2048,
+          "preview": "self._send(",
+          "definition_candidate": false
         }
       ],
-      "occurrence_count": 97
+      "occurrence_count": 99
     },
     "_method_not_allowed": {
       "definition": {
@@ -1879,7 +1963,7 @@
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 609,
+          "line": 614,
           "preview": "raw = self._read_body()",
           "definition_candidate": false
         }
@@ -1902,7 +1986,7 @@
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 786,
+          "line": 791,
           "preview": "body = self._read_json()",
           "definition_candidate": false
         }
@@ -1954,108 +2038,114 @@
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 809,
+          "line": 814,
           "preview": "principal = self._require(\"operator\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1076,
+          "line": 842,
           "preview": "principal = self._require(\"operator\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1129,
+          "line": 1109,
           "preview": "principal = self._require(\"operator\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1181,
+          "line": 1162,
           "preview": "principal = self._require(\"operator\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1208,
+          "line": 1214,
           "preview": "principal = self._require(\"operator\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1340,
+          "line": 1241,
           "preview": "principal = self._require(\"operator\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1352,
+          "line": 1373,
+          "preview": "principal = self._require(\"operator\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1385,
           "preview": "principal = self._require(\"worker\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1488,
+          "line": 1521,
           "preview": "principal = self._require(\"operator\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1551,
+          "line": 1584,
           "preview": "principal = self._require(\"operator\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1568,
+          "line": 1601,
           "preview": "principal = self._require(\"operator\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1576,
+          "line": 1609,
           "preview": "principal = self._require(\"worker\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1678,
+          "line": 1711,
           "preview": "principal = self._require(\"worker\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1704,
+          "line": 1737,
           "preview": "principal = self._require(\"worker\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1741,
+          "line": 1774,
           "preview": "principal = self._require(\"worker\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1794,
+          "line": 1827,
           "preview": "principal = self._require(\"worker\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1895,
+          "line": 1928,
           "preview": "principal = self._require(\"worker\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1996,
+          "line": 2029,
           "preview": "principal = self._require(\"operator\")",
           "definition_candidate": false
         }
       ],
-      "occurrence_count": 19
+      "occurrence_count": 20
     },
     "do_GET": {
       "definition": {
@@ -2083,14 +2173,14 @@
     "do_POST": {
       "definition": {
         "file": "src/production_os/control_plane.py",
-        "line": 598,
+        "line": 603,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/control_plane.py",
-          "line": 598,
+          "line": 603,
           "preview": "def do_POST(self) -> None:",
           "definition_candidate": true
         }
@@ -2100,38 +2190,20 @@
     "audit_control": {
       "definition": {
         "file": "src/production_os/control_plane.py",
-        "line": 831,
+        "line": 864,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/control_plane.py",
-          "line": 831,
+          "line": 864,
           "preview": "def audit_control(",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 852,
-          "preview": "audit_control(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 864,
-          "preview": "audit_control(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 875,
-          "preview": "audit_control(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 891,
+          "line": 885,
           "preview": "audit_control(",
           "definition_candidate": false
         },
@@ -2143,14 +2215,20 @@
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 918,
+          "line": 908,
           "preview": "audit_control(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 939,
-          "preview": "audit_control(\"failed\", error_code=\"job_key_required\")",
+          "line": 924,
+          "preview": "audit_control(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 930,
+          "preview": "audit_control(",
           "definition_candidate": false
         },
         {
@@ -2161,49 +2239,61 @@
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 957,
-          "preview": "audit_control(\"accepted\", job_key=job_key)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 973,
+          "line": 972,
           "preview": "audit_control(\"failed\", error_code=\"job_key_required\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 982,
+          "line": 984,
           "preview": "audit_control(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 993,
-          "preview": "audit_control(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1006,
-          "preview": "audit_control(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1025,
+          "line": 990,
           "preview": "audit_control(\"accepted\", job_key=job_key)",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1042,
+          "line": 1006,
+          "preview": "audit_control(\"failed\", error_code=\"job_key_required\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1015,
           "preview": "audit_control(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1061,
+          "line": 1026,
+          "preview": "audit_control(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1039,
+          "preview": "audit_control(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1058,
+          "preview": "audit_control(\"accepted\", job_key=job_key)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1075,
+          "preview": "audit_control(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1094,
           "preview": "audit_control(\"accepted\")",
           "definition_candidate": false
         }
@@ -2213,7 +2303,7 @@
     "serve_control_plane": {
       "definition": {
         "file": "src/production_os/control_plane.py",
-        "line": 2023,
+        "line": 2056,
         "kind": "function",
         "language": "python"
       },
@@ -2232,147 +2322,153 @@
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 2023,
+          "line": 2056,
           "preview": "def serve_control_plane(",
           "definition_candidate": true
         }
       ],
       "occurrence_count": 3
     },
-    "_dt": {
+    "signals_from_health": {
       "definition": {
-        "file": "src/production_os/dashboard_health.py",
-        "line": 9,
+        "file": "src/production_os/dashboard_incidents.py",
+        "line": 4,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "src/production_os/dashboard_health.py",
-          "line": 9,
-          "preview": "def _dt(value):",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/dashboard_health.py",
-          "line": 20,
-          "preview": "now = _dt(snapshot.get(\"generated_at\")) or datetime.now(timezone.utc)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/dashboard_health.py",
-          "line": 36,
-          "preview": "last = _dt(worker.get(\"last_heartbeat\"))",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/dashboard_health.py",
-          "line": 54,
-          "preview": "last = _dt(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/dashboard_usage.py",
-          "line": 20,
-          "preview": "def _dt(value):",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/dashboard_usage.py",
-          "line": 49,
-          "preview": "when = _dt(at)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/dashboard_usage.py",
-          "line": 53,
-          "preview": "start = _dt(rule[\"valid_from\"])",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/dashboard_usage.py",
-          "line": 54,
-          "preview": "end = _dt(rule[\"valid_to\"]) if rule.get(\"valid_to\") else None",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/dashboard_usage.py",
-          "line": 77,
-          "preview": "now = _dt(now or datetime.now(timezone.utc))",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/dashboard_usage.py",
-          "line": 85,
-          "preview": "occurred = _dt(row.get(\"occurred_at\"))",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/dashboard_usage.py",
-          "line": 139,
-          "preview": "captured = _dt(row.get(\"captured_at\"))",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 11
-    },
-    "derive_control_health": {
-      "definition": {
-        "file": "src/production_os/dashboard_health.py",
-        "line": 19,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/dashboard_health.py",
-          "line": 19,
-          "preview": "def derive_control_health(snapshot: dict) -> dict:",
+          "file": "src/production_os/dashboard_incidents.py",
+          "line": 4,
+          "preview": "def signals_from_health(health: dict) -> list[dict]:",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 10,
-          "preview": "from .dashboard_health import derive_control_health",
+          "line": 11,
+          "preview": "from .dashboard_incidents import dedupe_key, signals_from_health",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 360,
-          "preview": "return derive_control_health(snapshot)",
+          "line": 370,
+          "preview": "signals = signals_from_health(health)",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_dashboard_health.py",
+          "file": "tests/test_dashboard_incident_signals.py",
           "line": 1,
-          "preview": "from production_os.dashboard_health import derive_control_health",
+          "preview": "from production_os.dashboard_incidents import dedupe_key, signals_from_health",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_dashboard_health.py",
+          "file": "tests/test_dashboard_incident_signals.py",
           "line": 5,
-          "preview": "result = derive_control_health({",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_dashboard_health.py",
-          "line": 17,
-          "preview": "result = derive_control_health({",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_dashboard_health.py",
-          "line": 29,
-          "preview": "result = derive_control_health({",
+          "preview": "signals = signals_from_health({",
           "definition_candidate": false
         }
       ],
-      "occurrence_count": 7
+      "occurrence_count": 5
+    },
+    "dedupe_key": {
+      "definition": {
+        "file": "src/production_os/dashboard_incidents.py",
+        "line": 51,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/dashboard_incidents.py",
+          "line": 51,
+          "preview": "def dedupe_key(signal: dict) -> str:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/dashboard_service.py",
+          "line": 11,
+          "preview": "from .dashboard_incidents import dedupe_key, signals_from_health",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_service.py",
+          "line": 373,
+          "preview": "active_keys.add(dedupe_key(signal))",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 159,
+          "preview": "dedupe_key = f\"{code}:{target_type}:{target_id}\"",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 166,
+          "preview": "id, dedupe_key, code, severity, title, message,",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 170,
+          "preview": "ON CONFLICT(dedupe_key) DO UPDATE SET",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 198,
+          "preview": "dedupe_key,",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 211,
+          "preview": "\"SELECT * FROM dashboard_incidents WHERE dedupe_key=?\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 212,
+          "preview": "(dedupe_key,),",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 255,
+          "preview": "if row[\"dedupe_key\"] in active_dedupe_keys:",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/postgres_backend.py",
+          "line": 321,
+          "preview": "dedupe_key TEXT NOT NULL UNIQUE,",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/sqlite_backend.py",
+          "line": 325,
+          "preview": "dedupe_key TEXT NOT NULL UNIQUE,",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incident_signals.py",
+          "line": 1,
+          "preview": "from production_os.dashboard_incidents import dedupe_key, signals_from_health",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incident_signals.py",
+          "line": 33,
+          "preview": "keys = {dedupe_key(item) for item in signals}",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 14
     },
     "DashboardNotFound": {
       "definition": {
         "file": "src/production_os/dashboard_service.py",
-        "line": 14,
+        "line": 15,
         "kind": "class",
         "language": "python"
       },
@@ -2403,31 +2499,31 @@
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 328,
+          "line": 333,
           "preview": "raise DashboardNotFound(parsed.path)",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 330,
+          "line": 335,
           "preview": "except DashboardNotFound:",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 14,
+          "line": 15,
           "preview": "class DashboardNotFound(KeyError):",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 383,
+          "line": 410,
           "preview": "if not rows: raise DashboardNotFound(worker_id)",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 437,
+          "line": 464,
           "preview": "if repository not in self._repositories(): raise DashboardNotFound(repository)",
           "definition_candidate": false
         }
@@ -2437,7 +2533,7 @@
     "_now": {
       "definition": {
         "file": "src/production_os/dashboard_service.py",
-        "line": 18,
+        "line": 19,
         "kind": "function",
         "language": "python"
       },
@@ -2456,97 +2552,103 @@
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 18,
+          "line": 19,
           "preview": "def _now():",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 134,
+          "line": 135,
           "preview": "\"schema_version\":\"production-os/dashboard-overview/v1\",\"generated_at\":_now(),",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 324,
+          "line": 325,
           "preview": "\"generated_at\":_now(),",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 347,
+          "line": 348,
           "preview": "\"generated_at\":_now(),",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 365,
+          "line": 386,
           "preview": "\"generated_at\":_now(),",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 379,
+          "line": 392,
+          "preview": "\"generated_at\":_now(),",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_service.py",
+          "line": 406,
           "preview": "return {\"workers\":rows,\"generated_at\":_now()}",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 401,
+          "line": 428,
           "preview": "(worker_id, _now()),",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 407,
+          "line": 434,
           "preview": "\"generated_at\":_now(),",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 413,
+          "line": 440,
           "preview": "return {\"logs\":self.store.logs_for_worker(worker_id,after=after,limit=limit),\"limit\":limit,\"generated_at\":_now()}",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 434,
+          "line": 461,
           "preview": "\"generated_at\":_now()}",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 442,
+          "line": 469,
           "preview": "\"progress\":self.store.latest_progress_snapshot(repository),\"generated_at\":_now()}",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 525,
+          "line": 552,
           "preview": "\"generated_at\":_now(),",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 534,
+          "line": 561,
           "preview": "\"generated_at\":_now()}",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 598,
+          "line": 625,
           "preview": "return {\"repository\":repository,\"workflows\":[dict(x) for x in rows],\"generated_at\":_now()}",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 619,
+          "line": 646,
           "preview": "\"generated_at\":_now(),",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 629,
+          "line": 656,
           "preview": "return {\"events\":rows,\"limit\":limit,\"generated_at\":_now()}",
           "definition_candidate": false
         },
@@ -2582,37 +2684,55 @@
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 159,
+          "line": 158,
           "preview": "timestamp = at or _now()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 238,
+          "line": 246,
           "preview": "timestamp = at or _now()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 267,
+          "line": 281,
           "preview": "timestamp = at or _now()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 307,
+          "line": 320,
           "preview": "timestamp = at or _now()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 337,
+          "line": 399,
           "preview": "timestamp = at or _now()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 378,
+          "line": 428,
+          "preview": "timestamp = at or _now()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 468,
+          "preview": "timestamp = at or _now()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 498,
+          "preview": "timestamp = at or _now()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 539,
           "preview": "row=redact_log_value(source); ident=str(row.get(\"id\") or uuid4()); created=row.get(\"created_at\") or _now()",
           "definition_candidate": false
         },
@@ -2785,25 +2905,25 @@
           "definition_candidate": false
         }
       ],
-      "occurrence_count": 57
+      "occurrence_count": 61
     },
     "_is_postgres": {
       "definition": {
         "file": "src/production_os/dashboard_service.py",
-        "line": 22,
+        "line": 23,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 22,
+          "line": 23,
           "preview": "def _is_postgres(backend) -> bool:",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 27,
+          "line": 28,
           "preview": "sql = statement.replace(\"?\", \"%s\") if _is_postgres(backend) else statement",
           "definition_candidate": false
         },
@@ -2891,50 +3011,50 @@
     "_execute": {
       "definition": {
         "file": "src/production_os/dashboard_service.py",
-        "line": 26,
+        "line": 27,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 26,
+          "line": 27,
           "preview": "def _execute(db, backend, statement: str, params: tuple = ()):",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 393,
+          "line": 420,
           "preview": "recoverable_rows = _execute(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 468,
+          "line": 495,
           "preview": "rows=_execute(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 538,
+          "line": 565,
           "preview": "modern_rows=_execute(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 548,
+          "line": 575,
           "preview": "rows=_execute(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 597,
+          "line": 624,
           "preview": "rows=_execute(db,self.control.backend,\"SELECT id,name,status,created_at,updated_at FROM workflows WHERE repository=? ORDER BY created_at DESC LIMIT 100\",(repository,)).fetchall()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 604,
+          "line": 631,
           "preview": "rows=_execute(",
           "definition_candidate": false
         },
@@ -2988,49 +3108,67 @@
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 161,
+          "line": 162,
           "preview": "_execute(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 193,
+          "line": 257,
           "preview": "_execute(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 240,
+          "line": 292,
           "preview": "_execute(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 278,
+          "line": 322,
           "preview": "_execute(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 309,
+          "line": 354,
           "preview": "_execute(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 346,
+          "line": 401,
           "preview": "_execute(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 379,
+          "line": 439,
+          "preview": "_execute(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 470,
+          "preview": "_execute(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 507,
+          "preview": "_execute(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 540,
           "preview": "_execute(db,self.backend,\"\"\"INSERT INTO worker_log_events(id,worker_id,repository,workflow_id,job_key,level,stage,message,provider,model,metadata_json,created_at) VALUES(?,?,?,?,?,",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 402,
+          "line": 563,
           "preview": "_execute(db,self.backend,f\"INSERT INTO {table}({','.join(cols)}) VALUES({','.join('?' for _ in cols)}) ON CONFLICT(id) DO NOTHING\",tuple(values[x] for x in cols))",
           "definition_candidate": false
         },
@@ -3539,12 +3677,12 @@
           "definition_candidate": false
         }
       ],
-      "occurrence_count": 107
+      "occurrence_count": 110
     },
     "DashboardService": {
       "definition": {
         "file": "src/production_os/dashboard_service.py",
-        "line": 31,
+        "line": 32,
         "kind": "class",
         "language": "python"
       },
@@ -3563,7 +3701,7 @@
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 31,
+          "line": 32,
           "preview": "class DashboardService:",
           "definition_candidate": true
         },
@@ -3597,44 +3735,44 @@
     "_worker_rows": {
       "definition": {
         "file": "src/production_os/dashboard_service.py",
-        "line": 36,
+        "line": 37,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 36,
+          "line": 37,
           "preview": "def _worker_rows(self):",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 111,
+          "line": 112,
           "preview": "workers=self._worker_rows()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 202,
+          "line": 203,
           "preview": "workers = self._worker_rows()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 332,
+          "line": 333,
           "preview": "workers = self._worker_rows()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 370,
+          "line": 397,
           "preview": "for worker in self._worker_rows():",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 382,
+          "line": 409,
           "preview": "rows=[x for x in self._worker_rows() if x.get(\"worker_id\")==worker_id]",
           "definition_candidate": false
         }
@@ -3644,26 +3782,26 @@
     "_distinct_commit_shas": {
       "definition": {
         "file": "src/production_os/dashboard_service.py",
-        "line": 42,
+        "line": 43,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 42,
+          "line": 43,
           "preview": "def _distinct_commit_shas(executions: list[dict]) -> set[str]:",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 148,
+          "line": 149,
           "preview": "\"commits\":{\"production_os\":len(self._distinct_commit_shas(self._executions_in_window(executions,window))),",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 532,
+          "line": 559,
           "preview": "\"production_os\":len(self._distinct_commit_shas(executions)),",
           "definition_candidate": false
         }
@@ -3673,20 +3811,20 @@
     "_window_cutoff": {
       "definition": {
         "file": "src/production_os/dashboard_service.py",
-        "line": 52,
+        "line": 53,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 52,
+          "line": 53,
           "preview": "def _window_cutoff(window: str):",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 60,
+          "line": 61,
           "preview": "cutoff=self._window_cutoff(window)",
           "definition_candidate": false
         }
@@ -3696,26 +3834,26 @@
     "_executions_in_window": {
       "definition": {
         "file": "src/production_os/dashboard_service.py",
-        "line": 59,
+        "line": 60,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 59,
+          "line": 60,
           "preview": "def _executions_in_window(self, executions: list[dict], window: str) -> list[dict]:",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 148,
+          "line": 149,
           "preview": "\"commits\":{\"production_os\":len(self._distinct_commit_shas(self._executions_in_window(executions,window))),",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 530,
+          "line": 557,
           "preview": "executions=self._executions_in_window(self.store.executions_for_repository(repository,limit=500),window)",
           "definition_candidate": false
         }
@@ -3725,20 +3863,20 @@
     "_previous_window_cost": {
       "definition": {
         "file": "src/production_os/dashboard_service.py",
-        "line": 79,
+        "line": 80,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 79,
+          "line": 80,
           "preview": "def _previous_window_cost(rows: list[dict], window: str):",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 110,
+          "line": 111,
           "preview": "previous_cost=self._previous_window_cost(usage_rows, window)",
           "definition_candidate": false
         },
@@ -3766,7 +3904,7 @@
     "overview": {
       "definition": {
         "file": "src/production_os/dashboard_service.py",
-        "line": 106,
+        "line": 107,
         "kind": "function",
         "language": "python"
       },
@@ -3785,13 +3923,13 @@
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 106,
+          "line": 107,
           "preview": "def overview(self, window: str) -> dict:",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 134,
+          "line": 135,
           "preview": "\"schema_version\":\"production-os/dashboard-overview/v1\",\"generated_at\":_now(),",
           "definition_candidate": false
         },
@@ -3833,25 +3971,31 @@
         },
         {
           "file": "src/production_os/dashboard_ui.py",
-          "line": 655,
+          "line": 674,
+          "preview": "document.getElementById(\"overview-metrics\").insertAdjacentHTML(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_ui.py",
+          "line": 682,
           "preview": "navigate({view:\"projects\",repository:decodeURIComponent(encoded),workerId:null,tab:\"overview\"});",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_ui.py",
-          "line": 728,
+          "line": 755,
           "preview": "navigate({view:\"workers\",workerId:decodeURIComponent(encoded),repository:null,tab:\"overview\"});",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_ui.py",
-          "line": 872,
+          "line": 899,
           "preview": "const loaders={overview:loadOverview,projects:loadProjectsView,workers:loadWorkersView,autopilot:loadAutopilot,activity:loadActivityView};",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_ui.py",
-          "line": 875,
+          "line": 902,
           "preview": "schedulePoll(\"active-view\",appState.view===\"overview\"?15000:5000,loader);",
           "definition_candidate": false
         },
@@ -3904,25 +4048,25 @@
           "definition_candidate": false
         }
       ],
-      "occurrence_count": 22
+      "occurrence_count": 23
     },
     "_worker_capabilities": {
       "definition": {
         "file": "src/production_os/dashboard_service.py",
-        "line": 160,
+        "line": 161,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 160,
+          "line": 161,
           "preview": "def _worker_capabilities(worker: dict) -> list[str]:",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 211,
+          "line": 212,
           "preview": "\"capabilities\":self._worker_capabilities(worker),",
           "definition_candidate": false
         }
@@ -3932,7 +4076,7 @@
     "autopilot_queue": {
       "definition": {
         "file": "src/production_os/dashboard_service.py",
-        "line": 174,
+        "line": 175,
         "kind": "function",
         "language": "python"
       },
@@ -3945,7 +4089,7 @@
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 174,
+          "line": 175,
           "preview": "def autopilot_queue(self, limit: int = 50) -> dict:",
           "definition_candidate": true
         }
@@ -3955,7 +4099,7 @@
     "health": {
       "definition": {
         "file": "src/production_os/dashboard_service.py",
-        "line": 331,
+        "line": 332,
         "kind": "function",
         "language": "python"
       },
@@ -4045,10 +4189,40 @@
           "definition_candidate": false
         },
         {
+          "file": "src/production_os/dashboard_incidents.py",
+          "line": 4,
+          "preview": "def signals_from_health(health: dict) -> list[dict]:",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_incidents.py",
+          "line": 6,
+          "preview": "for reason in health.get(\"reasons\") or []:",
+          "definition_candidate": false
+        },
+        {
           "file": "src/production_os/dashboard_service.py",
-          "line": 331,
+          "line": 332,
           "preview": "def health(self) -> dict:",
           "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/dashboard_service.py",
+          "line": 369,
+          "preview": "health = self.health()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_service.py",
+          "line": 370,
+          "preview": "signals = signals_from_health(health)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_service.py",
+          "line": 385,
+          "preview": "\"health_status\":health[\"status\"],",
+          "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_ui.py",
@@ -4065,24 +4239,24 @@
         {
           "file": "src/production_os/dashboard_ui.py",
           "line": 573,
-          "preview": "api(\"/v1/dashboard/health\")",
+          "preview": "api(\"/v1/dashboard/health\"),",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_ui.py",
-          "line": 575,
-          "preview": "const data=results[0],health=results[1]||{};",
+          "line": 576,
+          "preview": "const data=results[0],health=results[1]||{},incidentData=results[2]||{};",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_ui.py",
-          "line": 577,
+          "line": 578,
           "preview": "const healthReasons=health.reasons||[];",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_ui.py",
-          "line": 579,
+          "line": 590,
           "preview": "'<div class=\"card\"><div class=\"section-head\"><h2>Sant\u00e9 op\u00e9rationnelle</h2><span class=\"badge\">'+esc(String(health.status||\"inconnu\"))+'</span></div>'+",
           "definition_candidate": false
         },
@@ -4195,12 +4369,227 @@
           "definition_candidate": false
         }
       ],
-      "occurrence_count": 39
+      "occurrence_count": 44
+    },
+    "incidents": {
+      "definition": {
+        "file": "src/production_os/dashboard_service.py",
+        "line": 363,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 319,
+          "preview": "elif parsed.path == \"/v1/dashboard/incidents\":",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 320,
+          "preview": "payload = service.incidents(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 811,
+          "preview": "and parts[2] == \"incidents\"",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_service.py",
+          "line": 363,
+          "preview": "def incidents(",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/dashboard_service.py",
+          "line": 381,
+          "preview": "\"incidents\":self.store.dashboard_incidents(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_ui.py",
+          "line": 574,
+          "preview": "api(\"/v1/dashboard/incidents?limit=20\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_ui.py",
+          "line": 579,
+          "preview": "const incidents=incidentData.incidents||[];",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_ui.py",
+          "line": 581,
+          "preview": "'<div class=\"card\"><div class=\"section-head\"><h2>Incidents</h2><span class=\"badge\">'+formatNumber(incidents.length)+'</span></div>'+",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_ui.py",
+          "line": 582,
+          "preview": "(incidents.length?incidents.map(function(item){",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_ui.py",
+          "line": 669,
+          "preview": "\"/v1/dashboard/incidents/\"+encodeURIComponent(incidentId)+\"/acknowledge\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 307,
+          "preview": "database = str(tmp_path / \"release4-incidents.db\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 313,
+          "preview": "incident = first.dashboard.incidents()[\"incidents\"][0]",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 327,
+          "preview": "reconciled = second.dashboard.incidents()[\"incidents\"]",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 16,
+          "preview": "return DashboardStore(SQLiteBackend(tmp_path / \"incidents.sqlite\"))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 106,
+          "preview": "control = ControlPlane(str(tmp_path / \"api-incidents.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 118,
+          "preview": "\"/v1/dashboard/incidents?status=open\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 123,
+          "preview": "assert len(payload[\"incidents\"]) == 1",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 124,
+          "preview": "incident = payload[\"incidents\"][0]",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 130,
+          "preview": "f\"/v1/dashboard/incidents/{incident['id']}/acknowledge\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 139,
+          "preview": "f\"/v1/dashboard/incidents/{incident['id']}/acknowledge\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 150,
+          "preview": "\"/v1/dashboard/incidents\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 158,
+          "preview": "\"/v1/dashboard/incidents?status=resolved\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 163,
+          "preview": "assert len(refreshed[\"incidents\"]) == 1",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 164,
+          "preview": "assert refreshed[\"incidents\"][0][\"id\"] == incident[\"id\"]",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 165,
+          "preview": "assert refreshed[\"incidents\"][0][\"status\"] == \"resolved\"",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 166,
+          "preview": "assert refreshed[\"incidents\"][0][\"resolved_at\"] is not None",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 173,
+          "preview": "control = ControlPlane(str(tmp_path / \"polling-incidents.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 178,
+          "preview": "first = control.dashboard.incidents()[\"incidents\"][0]",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 179,
+          "preview": "second = control.dashboard.incidents()[\"incidents\"][0]",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 228,
+          "preview": "\"/v1/dashboard/incidents?status=bogus\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 244,
+          "preview": "incident = control.dashboard.incidents()[\"incidents\"][0]",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 246,
+          "preview": "resolved = control.dashboard.incidents(status=\"resolved\")[\"incidents\"][0]",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 257,
+          "preview": "f\"/v1/dashboard/incidents/{incident['id']}/acknowledge\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_ui_v3.py",
+          "line": 235,
+          "preview": "assert \"/v1/dashboard/incidents?limit=20\" in DASHBOARD_HTML",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 34
     },
     "control_audit": {
       "definition": {
         "file": "src/production_os/dashboard_service.py",
-        "line": 362,
+        "line": 389,
         "kind": "function",
         "language": "python"
       },
@@ -4213,7 +4602,7 @@
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 362,
+          "line": 389,
           "preview": "def control_audit(self, limit: int = 100) -> dict:",
           "definition_candidate": true
         }
@@ -4223,7 +4612,7 @@
     "workers": {
       "definition": {
         "file": "src/production_os/dashboard_service.py",
-        "line": 368,
+        "line": 395,
         "kind": "function",
         "language": "python"
       },
@@ -4350,133 +4739,133 @@
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 341,
+          "line": 346,
           "preview": "workers = db.execute(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 342,
+          "line": 347,
           "preview": "\"SELECT COUNT(*) AS count FROM workers WHERE status='online'\"",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 355,
+          "line": 360,
           "preview": "\"online_workers\":workers,",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 361,
+          "line": 366,
           "preview": "control.workers.load()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 366,
+          "line": 371,
           "preview": "workers=list(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 367,
+          "line": 372,
           "preview": "control.workers.workers.values()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 582,
+          "line": 587,
           "preview": "if parsed.path == \"/v1/workers\":",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 583,
+          "line": 588,
           "preview": "control.workers.detect_dead()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 584,
+          "line": 589,
           "preview": "control.workers.load()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 588,
+          "line": 593,
           "preview": "\"workers\":[",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 590,
+          "line": 595,
           "preview": "for worker in control.workers.workers.values()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 806,
+          "line": 839,
           "preview": "and parts[2] == \"workers\"",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1079,
+          "line": 1112,
           "preview": "control.workers.load()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1090,
+          "line": 1123,
           "preview": "workers=list(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1091,
+          "line": 1124,
           "preview": "control.workers.workers.values()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1339,
+          "line": 1372,
           "preview": "if parsed.path == \"/v1/workers/register\":",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1343,
+          "line": 1376,
           "preview": "worker = control.workers.register(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1351,
+          "line": 1384,
           "preview": "if parsed.path == \"/v1/workers/heartbeat\":",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1355,
+          "line": 1388,
           "preview": "worker = control.workers.heartbeat(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1616,
+          "line": 1649,
           "preview": "control.workers.load()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1618,
+          "line": 1651,
           "preview": "control.workers.workers.values()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1630,
+          "line": 1663,
           "preview": "workers=available_workers,",
           "definition_candidate": false
         },
@@ -4529,92 +4918,98 @@
           "definition_candidate": false
         },
         {
+          "file": "src/production_os/dashboard_incidents.py",
+          "line": 21,
+          "preview": "for worker in evidence.get(\"workers\") or []:",
+          "definition_candidate": false
+        },
+        {
           "file": "src/production_os/dashboard_service.py",
-          "line": 38,
+          "line": 39,
           "preview": "rows=db.execute(\"SELECT * FROM workers ORDER BY worker_id\").fetchall()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 111,
+          "line": 112,
           "preview": "workers=self._worker_rows()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 135,
+          "line": 136,
           "preview": "\"workers\":{\"total\":len(workers),\"online\":sum(x.get(\"status\")==\"online\" for x in workers),",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 136,
+          "line": 137,
           "preview": "\"busy\":sum(int(x.get(\"active_tasks\") or 0)>0 for x in workers),",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 139,
+          "line": 140,
           "preview": "for x in workers",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 141,
+          "line": 142,
           "preview": "\"offline\":sum(x.get(\"status\")!=\"online\" for x in workers)},",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 153,
+          "line": 154,
           "preview": "\"busy_workers\":[x for x in workers if int(x.get(\"active_tasks\") or 0)>0],",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 202,
+          "line": 203,
           "preview": "workers = self._worker_rows()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 205,
+          "line": 206,
           "preview": "for worker in workers:",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 332,
+          "line": 333,
           "preview": "workers = self._worker_rows()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 348,
+          "line": 349,
           "preview": "\"workers\":{",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 351,
+          "line": 352,
           "preview": "for row in workers",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 357,
+          "line": 358,
           "preview": "\"worker_rows\":workers,",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 368,
+          "line": 395,
           "preview": "def workers(self):",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 379,
+          "line": 406,
           "preview": "return {\"workers\":rows,\"generated_at\":_now()}",
           "definition_candidate": false
         },
@@ -4656,49 +5051,49 @@
         },
         {
           "file": "src/production_os/dashboard_ui.py",
-          "line": 576,
+          "line": 577,
           "preview": "const w=data.workers||{},p=data.productions||{},u=data.usage||{},c=data.commits||{},perf=data.performance||{},alerts=data.alerts||[];",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_ui.py",
-          "line": 728,
+          "line": 755,
           "preview": "navigate({view:\"workers\",workerId:decodeURIComponent(encoded),repository:null,tab:\"overview\"});",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_ui.py",
-          "line": 731,
+          "line": 758,
           "preview": "const list=document.getElementById(\"workers-list\");",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_ui.py",
-          "line": 733,
+          "line": 760,
           "preview": "const data=await api(\"/v1/dashboard/workers\");",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_ui.py",
-          "line": 734,
+          "line": 761,
           "preview": "const rows=data.workers||[];",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_ui.py",
-          "line": 774,
+          "line": 801,
           "preview": "\"/v1/dashboard/workers/\"+encodeURIComponent(workerId)+\"/control\",",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_ui.py",
-          "line": 783,
+          "line": 810,
           "preview": "const base=\"/v1/dashboard/workers/\"+encodeURIComponent(workerId);",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_ui.py",
-          "line": 872,
+          "line": 899,
           "preview": "const loaders={overview:loadOverview,projects:loadProjectsView,workers:loadWorkersView,autopilot:loadAutopilot,activity:loadActivityView};",
           "definition_candidate": false
         },
@@ -4800,115 +5195,115 @@
         },
         {
           "file": "src/production_os/postgres_backend.py",
-          "line": 757,
+          "line": 780,
           "preview": "self.workers: dict[str, Worker] = {}",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/postgres_backend.py",
-          "line": 774,
+          "line": 797,
           "preview": "cur.execute(\"SELECT * FROM workers\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/postgres_backend.py",
-          "line": 776,
+          "line": 799,
           "preview": "self.workers = {row[\"worker_id\"]: self._row(row) for row in rows}",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/postgres_backend.py",
-          "line": 779,
+          "line": 802,
           "preview": "for worker in list(self.workers.values()):",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/postgres_backend.py",
-          "line": 789,
-          "preview": "UPDATE workers",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/postgres_backend.py",
           "line": 812,
-          "preview": "INSERT INTO workers(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/postgres_backend.py",
-          "line": 839,
-          "preview": "\"SELECT * FROM workers WHERE worker_id=%s\",",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/postgres_backend.py",
-          "line": 844,
-          "preview": "self.workers[worker_id] = worker",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/postgres_backend.py",
-          "line": 852,
-          "preview": "\"SELECT * FROM workers WHERE worker_id=%s FOR UPDATE\",",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/postgres_backend.py",
-          "line": 865,
           "preview": "UPDATE workers",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/postgres_backend.py",
-          "line": 872,
+          "line": 835,
+          "preview": "INSERT INTO workers(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/postgres_backend.py",
+          "line": 862,
           "preview": "\"SELECT * FROM workers WHERE worker_id=%s\",",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/postgres_backend.py",
-          "line": 877,
+          "line": 867,
           "preview": "self.workers[worker_id] = worker",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/postgres_backend.py",
-          "line": 884,
+          "line": 875,
+          "preview": "\"SELECT * FROM workers WHERE worker_id=%s FOR UPDATE\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/postgres_backend.py",
+          "line": 888,
+          "preview": "UPDATE workers",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/postgres_backend.py",
+          "line": 895,
+          "preview": "\"SELECT * FROM workers WHERE worker_id=%s\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/postgres_backend.py",
+          "line": 900,
+          "preview": "self.workers[worker_id] = worker",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/postgres_backend.py",
+          "line": 907,
           "preview": "\"SELECT active_tasks FROM workers WHERE worker_id=%s FOR UPDATE\",",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/postgres_backend.py",
-          "line": 892,
+          "line": 915,
           "preview": "\"UPDATE workers SET active_tasks=%s WHERE worker_id=%s\",",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/postgres_backend.py",
-          "line": 896,
+          "line": 919,
           "preview": "\"SELECT * FROM workers WHERE worker_id=%s\",",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/postgres_backend.py",
-          "line": 901,
+          "line": 924,
           "preview": "self.workers[worker_id] = worker",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/postgres_backend.py",
-          "line": 908,
+          "line": 931,
           "preview": "for worker in list(self.workers.values()):",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/postgres_backend.py",
-          "line": 920,
+          "line": 943,
           "preview": "\"UPDATE workers SET status='dead' WHERE worker_id=%s\",",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/postgres_backend.py",
-          "line": 931,
+          "line": 954,
           "preview": "w for w in self.workers.values()",
           "definition_candidate": false
         },
@@ -4941,12 +5336,6 @@
           "line": 51,
           "preview": "worker = workers.workers.get(record.lease_owner)",
           "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/preemption.py",
-          "line": 96,
-          "preview": "workers: WorkerRegistry,",
-          "definition_candidate": false
         }
       ],
       "occurrence_count": 120
@@ -4954,7 +5343,7 @@
     "worker_detail": {
       "definition": {
         "file": "src/production_os/dashboard_service.py",
-        "line": 381,
+        "line": 408,
         "kind": "function",
         "language": "python"
       },
@@ -4967,19 +5356,19 @@
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 381,
+          "line": 408,
           "preview": "def worker_detail(self, worker_id):",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 411,
+          "line": 438,
           "preview": "self.worker_detail(worker_id)",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 416,
+          "line": 443,
           "preview": "self.worker_detail(worker_id)",
           "definition_candidate": false
         },
@@ -4995,7 +5384,7 @@
     "worker_logs": {
       "definition": {
         "file": "src/production_os/dashboard_service.py",
-        "line": 410,
+        "line": 437,
         "kind": "function",
         "language": "python"
       },
@@ -5008,7 +5397,7 @@
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 410,
+          "line": 437,
           "preview": "def worker_logs(self,worker_id,after,limit):",
           "definition_candidate": true
         }
@@ -5018,7 +5407,7 @@
     "worker_usage": {
       "definition": {
         "file": "src/production_os/dashboard_service.py",
-        "line": 415,
+        "line": 442,
         "kind": "function",
         "language": "python"
       },
@@ -5031,7 +5420,7 @@
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 415,
+          "line": 442,
           "preview": "def worker_usage(self,worker_id,window):",
           "definition_candidate": true
         }
@@ -5041,26 +5430,26 @@
     "_repositories": {
       "definition": {
         "file": "src/production_os/dashboard_service.py",
-        "line": 420,
+        "line": 447,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 420,
+          "line": 447,
           "preview": "def _repositories(self):",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 433,
+          "line": 460,
           "preview": "\"progress\":self.store.latest_progress_snapshot(r)} for r in self._repositories()],",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 437,
+          "line": 464,
           "preview": "if repository not in self._repositories(): raise DashboardNotFound(repository)",
           "definition_candidate": false
         }
@@ -5070,7 +5459,7 @@
     "projects": {
       "definition": {
         "file": "src/production_os/dashboard_service.py",
-        "line": 431,
+        "line": 458,
         "kind": "function",
         "language": "python"
       },
@@ -5095,19 +5484,19 @@
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 154,
+          "line": 155,
           "preview": "\"projects\":self.projects()[\"projects\"],\"errors\":[]}",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 431,
+          "line": 458,
           "preview": "def projects(self):",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 432,
+          "line": 459,
           "preview": "return {\"projects\":[{\"repository\":r,\"snapshot\":self.store.latest_repository_snapshot(r),",
           "definition_candidate": false
         },
@@ -5131,37 +5520,37 @@
         },
         {
           "file": "src/production_os/dashboard_ui.py",
-          "line": 655,
+          "line": 682,
           "preview": "navigate({view:\"projects\",repository:decodeURIComponent(encoded),workerId:null,tab:\"overview\"});",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_ui.py",
-          "line": 658,
+          "line": 685,
           "preview": "const list=document.getElementById(\"projects-list\");",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_ui.py",
-          "line": 660,
+          "line": 687,
           "preview": "const data=await api(\"/v1/dashboard/projects\");",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_ui.py",
-          "line": 661,
+          "line": 688,
           "preview": "const rows=data.projects||[];",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_ui.py",
-          "line": 673,
+          "line": 700,
           "preview": "const base=\"/v1/dashboard/projects/\"+repoApiPath(repository);",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_ui.py",
-          "line": 872,
+          "line": 899,
           "preview": "const loaders={overview:loadOverview,projects:loadProjectsView,workers:loadWorkersView,autopilot:loadAutopilot,activity:loadActivityView};",
           "definition_candidate": false
         },
@@ -5213,50 +5602,50 @@
     "_require_project": {
       "definition": {
         "file": "src/production_os/dashboard_service.py",
-        "line": 436,
+        "line": 463,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 436,
+          "line": 463,
           "preview": "def _require_project(self,repository):",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 440,
+          "line": 467,
           "preview": "self._require_project(repository)",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 466,
+          "line": 493,
           "preview": "self._require_project(repository)",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 529,
+          "line": 556,
           "preview": "self._require_project(repository)",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 586,
+          "line": 613,
           "preview": "self._require_project(repository)",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 595,
+          "line": 622,
           "preview": "self._require_project(repository)",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 601,
+          "line": 628,
           "preview": "self._require_project(repository)",
           "definition_candidate": false
         }
@@ -5266,7 +5655,7 @@
     "project_detail": {
       "definition": {
         "file": "src/production_os/dashboard_service.py",
-        "line": 439,
+        "line": 466,
         "kind": "function",
         "language": "python"
       },
@@ -5279,7 +5668,7 @@
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 439,
+          "line": 466,
           "preview": "def project_detail(self,repository):",
           "definition_candidate": true
         }
@@ -5289,26 +5678,26 @@
     "_progress_snapshot_state": {
       "definition": {
         "file": "src/production_os/dashboard_service.py",
-        "line": 445,
+        "line": 472,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 445,
+          "line": 472,
           "preview": "def _progress_snapshot_state(snapshot):",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 510,
+          "line": 537,
           "preview": "candidate_state=self._progress_snapshot_state(candidate)",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 514,
+          "line": 541,
           "preview": "meaningful=self._progress_snapshot_state(persisted) != candidate_state",
           "definition_candidate": false
         }
@@ -5318,7 +5707,7 @@
     "project_progress": {
       "definition": {
         "file": "src/production_os/dashboard_service.py",
-        "line": 465,
+        "line": 492,
         "kind": "function",
         "language": "python"
       },
@@ -5331,25 +5720,25 @@
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 11,
+          "line": 12,
           "preview": "from .project_progress import ProjectProgressEngine, build_project_evidence, workflow_progress",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 451,
+          "line": 478,
           "preview": "\"project_progress\":snapshot.get(\"project_progress\"),",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 465,
+          "line": 492,
           "preview": "def project_progress(self,repository):",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 496,
+          "line": 523,
           "preview": "\"project_progress\":calculated.get(\"score\"),",
           "definition_candidate": false
         },
@@ -5361,19 +5750,19 @@
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 395,
+          "line": 556,
           "preview": "\"project_progress_snapshots\":(\"id\",\"repository\",\"current_workflow_id\",\"production_progress\",\"project_progress\",\"confidence\",\"code_score\",\"ui_ux_score\",\"assets_score\",\"tests_score\",",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/postgres_backend.py",
-          "line": 358,
+          "line": 381,
           "preview": "CREATE TABLE IF NOT EXISTS project_progress_snapshots (id TEXT PRIMARY KEY, repository TEXT NOT NULL, current_workflow_id TEXT, production_progress DOUBLE PRECISION, project_progre",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/sqlite_backend.py",
-          "line": 371,
+          "line": 390,
           "preview": "production_progress REAL, project_progress REAL, confidence TEXT NOT NULL,",
           "definition_candidate": false
         },
@@ -5427,7 +5816,7 @@
         },
         {
           "file": "tests/test_dashboard_store_postgres.py",
-          "line": 78,
+          "line": 90,
           "preview": "progress = control.dashboard.project_progress(repository)",
           "definition_candidate": false
         },
@@ -5455,7 +5844,7 @@
     "project_commits": {
       "definition": {
         "file": "src/production_os/dashboard_service.py",
-        "line": 528,
+        "line": 555,
         "kind": "function",
         "language": "python"
       },
@@ -5468,7 +5857,7 @@
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 528,
+          "line": 555,
           "preview": "def project_commits(self,repository,window):",
           "definition_candidate": true
         },
@@ -5490,20 +5879,20 @@
     "_legacy_workflow_usage_rows": {
       "definition": {
         "file": "src/production_os/dashboard_service.py",
-        "line": 536,
+        "line": 563,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 536,
+          "line": 563,
           "preview": "def _legacy_workflow_usage_rows(self, repository):",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 588,
+          "line": 615,
           "preview": "legacy=self._legacy_workflow_usage_rows(repository)",
           "definition_candidate": false
         }
@@ -5513,7 +5902,7 @@
     "project_usage": {
       "definition": {
         "file": "src/production_os/dashboard_service.py",
-        "line": 585,
+        "line": 612,
         "kind": "function",
         "language": "python"
       },
@@ -5526,7 +5915,7 @@
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 585,
+          "line": 612,
           "preview": "def project_usage(self,repository,window):",
           "definition_candidate": true
         },
@@ -5548,7 +5937,7 @@
     "project_workflows": {
       "definition": {
         "file": "src/production_os/dashboard_service.py",
-        "line": 594,
+        "line": 621,
         "kind": "function",
         "language": "python"
       },
@@ -5561,13 +5950,13 @@
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 594,
+          "line": 621,
           "preview": "def project_workflows(self,repository):",
           "definition_candidate": true
         },
         {
           "file": "tests/test_dashboard_store_postgres.py",
-          "line": 76,
+          "line": 88,
           "preview": "payload = control.dashboard.project_workflows(repository)",
           "definition_candidate": false
         }
@@ -5577,7 +5966,7 @@
     "project_history": {
       "definition": {
         "file": "src/production_os/dashboard_service.py",
-        "line": 600,
+        "line": 627,
         "kind": "function",
         "language": "python"
       },
@@ -5590,7 +5979,7 @@
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 600,
+          "line": 627,
           "preview": "def project_history(self,repository):",
           "definition_candidate": true
         },
@@ -5606,7 +5995,7 @@
     "activity": {
       "definition": {
         "file": "src/production_os/dashboard_service.py",
-        "line": 622,
+        "line": 649,
         "kind": "function",
         "language": "python"
       },
@@ -5619,19 +6008,19 @@
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 319,
+          "line": 324,
           "preview": "elif parsed.path == \"/v1/dashboard/activity\":",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 320,
+          "line": 325,
           "preview": "payload = service.activity(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 622,
+          "line": 649,
           "preview": "def activity(self,*,repository=None,worker_id=None,event_type=None,after=0,limit=100):",
           "definition_candidate": true
         },
@@ -5655,19 +6044,19 @@
         },
         {
           "file": "src/production_os/dashboard_ui.py",
-          "line": 836,
+          "line": 863,
           "preview": "const el=document.getElementById(\"activity-list\");",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_ui.py",
-          "line": 839,
+          "line": 866,
           "preview": "api(\"/v1/dashboard/activity?limit=100\"),",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_ui.py",
-          "line": 872,
+          "line": 899,
           "preview": "const loaders={overview:loadOverview,projects:loadProjectsView,workers:loadWorkersView,autopilot:loadAutopilot,activity:loadActivityView};",
           "definition_candidate": false
         },
@@ -5887,13 +6276,13 @@
         },
         {
           "file": "src/production_os/postgres_backend.py",
-          "line": 334,
+          "line": 357,
           "preview": "CREATE TABLE IF NOT EXISTS api_usage_events (id TEXT PRIMARY KEY, execution_id TEXT NOT NULL, worker_id TEXT NOT NULL, repository TEXT NOT NULL, provider TEXT, model TEXT, api_call",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/sqlite_backend.py",
-          "line": 342,
+          "line": 361,
           "preview": "id TEXT PRIMARY KEY, execution_id TEXT NOT NULL, worker_id TEXT NOT NULL,",
           "definition_candidate": false
         }
@@ -6080,6 +6469,18 @@
           "definition_candidate": false
         },
         {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 11,
+          "preview": "from production_os.dashboard_store import DashboardStore",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 16,
+          "preview": "return DashboardStore(SQLiteBackend(tmp_path / \"incidents.sqlite\"))",
+          "definition_candidate": false
+        },
+        {
           "file": "tests/test_dashboard_store.py",
           "line": 3,
           "preview": "from production_os.dashboard_store import DashboardStore",
@@ -6092,7 +6493,7 @@
           "definition_candidate": false
         }
       ],
-      "occurrence_count": 18
+      "occurrence_count": 20
     },
     "_fetchone": {
       "definition": {
@@ -6146,96 +6547,120 @@
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 179,
+          "line": 209,
           "preview": "return self._fetchone(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 201,
+          "line": 266,
+          "preview": "self._fetchone(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 283,
           "preview": "row = self._fetchone(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 223,
+          "line": 302,
           "preview": "return self._fetchone(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 254,
+          "line": 340,
           "preview": "return self._fetchone(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 269,
+          "line": 362,
           "preview": "row = self._fetchone(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 284,
+          "line": 384,
           "preview": "return self._fetchone(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 292,
+          "line": 415,
           "preview": "return self._fetchone(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 325,
-          "preview": "return self._fetchone(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/dashboard_store.py",
-          "line": 339,
+          "line": 430,
           "preview": "row = self._fetchone(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 354,
+          "line": 445,
           "preview": "return self._fetchone(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 381,
+          "line": 453,
+          "preview": "return self._fetchone(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 486,
+          "preview": "return self._fetchone(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 500,
+          "preview": "row = self._fetchone(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 515,
+          "preview": "return self._fetchone(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 542,
           "preview": "saved.append(self._fetchone(db,\"SELECT * FROM worker_log_events WHERE id=?\",(ident,)))",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 388,
+          "line": 549,
           "preview": "cursor=self._fetchone(db,\"SELECT * FROM worker_log_events WHERE id=? AND worker_id=?\",(after,worker_id))",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 403,
+          "line": 564,
           "preview": "return self._fetchone(db,f\"SELECT * FROM {table} WHERE id=?\",(values[\"id\"],))",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 407,
+          "line": 568,
           "preview": "with self.backend.connect() as db: return self._fetchone(db,\"SELECT * FROM project_repository_snapshots WHERE repository=? ORDER BY captured_at DESC, id DESC LIMIT 1\",(repository,)",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 410,
+          "line": 571,
           "preview": "with self.backend.connect() as db: return self._fetchone(db,\"SELECT * FROM project_progress_snapshots WHERE repository=? ORDER BY captured_at DESC, id DESC LIMIT 1\",(repository,))",
           "definition_candidate": false
         }
       ],
-      "occurrence_count": 22
+      "occurrence_count": 26
     },
     "_fetchall": {
       "definition": {
@@ -6253,54 +6678,72 @@
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 213,
+          "line": 224,
           "preview": "return self._fetchall(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 361,
+          "line": 231,
+          "preview": "return self._fetchall(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 248,
+          "preview": "rows = self._fetchall(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 374,
+          "preview": "return self._fetchall(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 522,
           "preview": "with self.backend.connect() as db: return self._fetchall(db, \"SELECT * FROM job_executions WHERE worker_id=? ORDER BY started_at DESC LIMIT ?\", (worker_id, max(1,min(limit,500))))",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 364,
+          "line": 525,
           "preview": "with self.backend.connect() as db: return self._fetchall(db, \"SELECT * FROM job_executions WHERE repository=? ORDER BY started_at DESC LIMIT ?\", (repository, max(1,min(limit,500)))",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 372,
+          "line": 533,
           "preview": "with self.backend.connect() as db: return self._fetchall(db, \"SELECT * FROM api_usage_events\" + where + \" ORDER BY occurred_at DESC\", params)",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 387,
+          "line": 548,
           "preview": "if after is None: return self._fetchall(db,\"SELECT * FROM worker_log_events WHERE worker_id=? ORDER BY created_at DESC, id DESC LIMIT ?\",(worker_id,limit))",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 390,
+          "line": 551,
           "preview": "return self._fetchall(db,\"\"\"SELECT * FROM worker_log_events WHERE worker_id=? AND (created_at < ? OR (created_at = ? AND id < ?)) ORDER BY created_at DESC, id DESC LIMIT ?\"\"\",(work",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 412,
+          "line": 573,
           "preview": "with self.backend.connect() as db: return self._fetchall(db,\"SELECT * FROM project_progress_snapshots WHERE repository=? ORDER BY captured_at DESC, id DESC LIMIT ?\",(repository,max",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 415,
+          "line": 576,
           "preview": "with self.backend.connect() as db: return self._fetchall(db,\"\"\"SELECT q.* FROM provider_quota_snapshots q JOIN (SELECT provider, MAX(captured_at) captured_at FROM provider_quota_sn",
           "definition_candidate": false
         }
       ],
-      "occurrence_count": 9
+      "occurrence_count": 12
     },
     "start_execution": {
       "definition": {
@@ -6312,7 +6755,7 @@
       "occurrences": [
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1696,
+          "line": 1729,
           "preview": "control.dashboard_store.start_execution(job, worker_id)",
           "definition_candidate": false
         },
@@ -6501,7 +6944,7 @@
       "occurrences": [
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1720,
+          "line": 1753,
           "preview": "execution = control.dashboard_store.update_live_execution(",
           "definition_candidate": false
         },
@@ -6548,19 +6991,19 @@
       "occurrences": [
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1454,
+          "line": 1487,
           "preview": "control.dashboard_store.finish_execution(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1849,
+          "line": 1882,
           "preview": "control.dashboard_store.finish_execution(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1933,
+          "line": 1966,
           "preview": "control.dashboard_store.finish_execution(",
           "definition_candidate": false
         },
@@ -6609,7 +7052,7 @@
       ],
       "occurrence_count": 10
     },
-    "append_control_audit": {
+    "upsert_dashboard_incident": {
       "definition": {
         "file": "src/production_os/dashboard_store.py",
         "line": 147,
@@ -6618,14 +7061,370 @@
       },
       "occurrences": [
         {
-          "file": "src/production_os/control_plane.py",
-          "line": 823,
-          "preview": "audit_event = control.dashboard_store.append_control_audit(",
+          "file": "src/production_os/dashboard_service.py",
+          "line": 374,
+          "preview": "self.store.upsert_dashboard_incident(**signal)",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
           "line": 147,
+          "preview": "def upsert_dashboard_incident(",
+          "definition_candidate": true
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 21,
+          "preview": "first = store.upsert_dashboard_incident(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 29,
+          "preview": "second = store.upsert_dashboard_incident(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 46,
+          "preview": "incident = store.upsert_dashboard_incident(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 65,
+          "preview": "row = store.upsert_dashboard_incident(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 187,
+          "preview": "incident = store.upsert_dashboard_incident(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 204,
+          "preview": "reopened = store.upsert_dashboard_incident(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 273,
+          "preview": "first = store.upsert_dashboard_incident(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 281,
+          "preview": "second = store.upsert_dashboard_incident(",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 10
+    },
+    "dashboard_incidents": {
+      "definition": {
+        "file": "src/production_os/dashboard_store.py",
+        "line": 215,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/dashboard_service.py",
+          "line": 11,
+          "preview": "from .dashboard_incidents import dedupe_key, signals_from_health",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_service.py",
+          "line": 381,
+          "preview": "\"incidents\":self.store.dashboard_incidents(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 165,
+          "preview": "\"\"\"INSERT INTO dashboard_incidents(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 175,
+          "preview": "WHEN dashboard_incidents.status='resolved'",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 176,
+          "preview": "THEN dashboard_incidents.occurrence_count+1",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 177,
+          "preview": "ELSE dashboard_incidents.occurrence_count",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 181,
+          "preview": "WHEN dashboard_incidents.status='resolved'",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 183,
+          "preview": "ELSE dashboard_incidents.status",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 186,
+          "preview": "WHEN dashboard_incidents.status='resolved'",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 188,
+          "preview": "ELSE dashboard_incidents.acknowledged_by",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 191,
+          "preview": "WHEN dashboard_incidents.status='resolved'",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 193,
+          "preview": "ELSE dashboard_incidents.acknowledged_at",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 211,
+          "preview": "\"SELECT * FROM dashboard_incidents WHERE dedupe_key=?\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 215,
+          "preview": "def dashboard_incidents(",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 226,
+          "preview": "\"\"\"SELECT * FROM dashboard_incidents",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 233,
+          "preview": "\"\"\"SELECT * FROM dashboard_incidents",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 250,
+          "preview": "\"\"\"SELECT * FROM dashboard_incidents",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 260,
+          "preview": "\"\"\"UPDATE dashboard_incidents",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 268,
+          "preview": "\"SELECT * FROM dashboard_incidents WHERE id=?\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 285,
+          "preview": "\"SELECT * FROM dashboard_incidents WHERE id=?\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 295,
+          "preview": "\"\"\"UPDATE dashboard_incidents",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 304,
+          "preview": "\"SELECT * FROM dashboard_incidents WHERE id=?\",",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/postgres_backend.py",
+          "line": 319,
+          "preview": "CREATE TABLE IF NOT EXISTS dashboard_incidents (",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/postgres_backend.py",
+          "line": 339,
+          "preview": "ON dashboard_incidents(status, last_seen_at DESC)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/sqlite_backend.py",
+          "line": 323,
+          "preview": "CREATE TABLE IF NOT EXISTS dashboard_incidents (",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/sqlite_backend.py",
+          "line": 341,
+          "preview": "ON dashboard_incidents(status, last_seen_at DESC);",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 321,
+          "preview": "persisted = second.dashboard_store.dashboard_incidents(limit=10)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 333,
+          "preview": "final = third.dashboard_store.dashboard_incidents(limit=10)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incident_signals.py",
+          "line": 1,
+          "preview": "from production_os.dashboard_incidents import dedupe_key, signals_from_health",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 40,
+          "preview": "rows = store.dashboard_incidents(limit=10)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 201,
+          "preview": "resolved = store.dashboard_incidents(limit=1)[0]",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 264,
+          "preview": "current = control.dashboard_store.dashboard_incidents(limit=1)[0]",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_store_postgres.py",
+          "line": 63,
+          "preview": "AND table_name = 'dashboard_incidents'",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_store_postgres.py",
+          "line": 67,
+          "preview": "assert incident_table[\"table_name\"] == \"dashboard_incidents\"",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 34
+    },
+    "resolve_dashboard_incidents_except": {
+      "definition": {
+        "file": "src/production_os/dashboard_store.py",
+        "line": 240,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/dashboard_service.py",
+          "line": 375,
+          "preview": "self.store.resolve_dashboard_incidents_except(active_keys)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 240,
+          "preview": "def resolve_dashboard_incidents_except(",
+          "definition_candidate": true
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 200,
+          "preview": "store.resolve_dashboard_incidents_except(set())",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 3
+    },
+    "acknowledge_dashboard_incident": {
+      "definition": {
+        "file": "src/production_os/dashboard_store.py",
+        "line": 274,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 819,
+          "preview": "incident = control.dashboard_store.acknowledge_dashboard_incident(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 274,
+          "preview": "def acknowledge_dashboard_incident(",
+          "definition_candidate": true
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 315,
+          "preview": "first.dashboard_store.acknowledge_dashboard_incident(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 54,
+          "preview": "acknowledged = store.acknowledge_dashboard_incident(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 195,
+          "preview": "acknowledged = store.acknowledge_dashboard_incident(",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 5
+    },
+    "append_control_audit": {
+      "definition": {
+        "file": "src/production_os/dashboard_store.py",
+        "line": 308,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 856,
+          "preview": "audit_event = control.dashboard_store.append_control_audit(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 308,
           "preview": "def append_control_audit(",
           "definition_candidate": true
         },
@@ -6659,20 +7458,20 @@
     "update_control_audit": {
       "definition": {
         "file": "src/production_os/dashboard_store.py",
-        "line": 185,
+        "line": 346,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/control_plane.py",
-          "line": 839,
+          "line": 872,
           "preview": "control.dashboard_store.update_control_audit(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 185,
+          "line": 346,
           "preview": "def update_control_audit(",
           "definition_candidate": true
         },
@@ -6700,50 +7499,50 @@
     "control_audit_events": {
       "definition": {
         "file": "src/production_os/dashboard_store.py",
-        "line": 210,
+        "line": 371,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/dashboard_service.py",
-          "line": 364,
+          "line": 391,
           "preview": "\"events\":self.store.control_audit_events(limit=limit),",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 164,
+          "line": 325,
           "preview": "\"\"\"INSERT INTO control_audit_events(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 181,
+          "line": 342,
           "preview": "\"SELECT * FROM control_audit_events WHERE id=?\",",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 196,
+          "line": 357,
           "preview": "\"\"\"UPDATE control_audit_events",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 203,
+          "line": 364,
           "preview": "\"SELECT * FROM control_audit_events WHERE id=?\",",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 210,
+          "line": 371,
           "preview": "def control_audit_events(self, *, limit: int = 100) -> list[dict]:",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 215,
+          "line": 376,
           "preview": "\"\"\"SELECT * FROM control_audit_events",
           "definition_candidate": false
         },
@@ -6849,7 +7648,7 @@
     "get_worker_control": {
       "definition": {
         "file": "src/production_os/dashboard_store.py",
-        "line": 221,
+        "line": 382,
         "kind": "function",
         "language": "python"
       },
@@ -6868,7 +7667,7 @@
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 221,
+          "line": 382,
           "preview": "def get_worker_control(self, worker_id: str) -> dict | None:",
           "definition_candidate": true
         }
@@ -6878,7 +7677,7 @@
     "set_worker_control": {
       "definition": {
         "file": "src/production_os/dashboard_store.py",
-        "line": 229,
+        "line": 390,
         "kind": "function",
         "language": "python"
       },
@@ -6891,7 +7690,7 @@
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 229,
+          "line": 390,
           "preview": "def set_worker_control(",
           "definition_candidate": true
         }
@@ -6901,7 +7700,7 @@
     "acknowledge_worker_control": {
       "definition": {
         "file": "src/production_os/dashboard_store.py",
-        "line": 260,
+        "line": 421,
         "kind": "function",
         "language": "python"
       },
@@ -6914,7 +7713,7 @@
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 260,
+          "line": 421,
           "preview": "def acknowledge_worker_control(",
           "definition_candidate": true
         }
@@ -6924,7 +7723,7 @@
     "get_job_control": {
       "definition": {
         "file": "src/production_os/dashboard_store.py",
-        "line": 290,
+        "line": 451,
         "kind": "function",
         "language": "python"
       },
@@ -6937,7 +7736,7 @@
         },
         {
           "file": "src/production_os/dashboard_store.py",
-          "line": 290,
+          "line": 451,
           "preview": "def get_job_control(self, job_key: str) -> dict | None:",
           "definition_candidate": true
         },
@@ -6949,157 +7748,6 @@
         }
       ],
       "occurrence_count": 3
-    },
-    "set_job_control": {
-      "definition": {
-        "file": "src/production_os/dashboard_store.py",
-        "line": 298,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/dashboard_control.py",
-          "line": 118,
-          "preview": "row = self.store.set_job_control(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/dashboard_store.py",
-          "line": 298,
-          "preview": "def set_job_control(",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 2
-    },
-    "acknowledge_job_control": {
-      "definition": {
-        "file": "src/production_os/dashboard_store.py",
-        "line": 331,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/dashboard_control.py",
-          "line": 127,
-          "preview": "row = self.store.acknowledge_job_control(job_key, at=at)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/dashboard_store.py",
-          "line": 331,
-          "preview": "def acknowledge_job_control(",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 2
-    },
-    "executions_for_worker": {
-      "definition": {
-        "file": "src/production_os/dashboard_store.py",
-        "line": 360,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/dashboard_service.py",
-          "line": 405,
-          "preview": "\"executions\":self.store.executions_for_worker(worker_id),",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/dashboard_store.py",
-          "line": 360,
-          "preview": "def executions_for_worker(self, worker_id: str, *, limit: int = 100) -> list[dict]:",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 2
-    },
-    "executions_for_repository": {
-      "definition": {
-        "file": "src/production_os/dashboard_store.py",
-        "line": 363,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/dashboard_github.py",
-          "line": 42,
-          "preview": "for execution in self.store.executions_for_repository(repository, limit=500):",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/dashboard_service.py",
-          "line": 478,
-          "preview": "executions=self.store.executions_for_repository(repository,limit=500)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/dashboard_service.py",
-          "line": 530,
-          "preview": "executions=self._executions_in_window(self.store.executions_for_repository(repository,limit=500),window)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/dashboard_service.py",
-          "line": 602,
-          "preview": "executions=self.store.executions_for_repository(repository,limit=100)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/dashboard_store.py",
-          "line": 363,
-          "preview": "def executions_for_repository(self, repository: str, *, limit: int = 100) -> list[dict]:",
-          "definition_candidate": true
-        },
-        {
-          "file": "tests/test_dashboard_github.py",
-          "line": 61,
-          "preview": "store.executions_for_repository = lambda repository, limit=500: [",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 6
-    },
-    "usage_events": {
-      "definition": {
-        "file": "src/production_os/dashboard_store.py",
-        "line": 366,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/dashboard_service.py",
-          "line": 107,
-          "preview": "usage_rows=self.store.usage_events()",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/dashboard_service.py",
-          "line": 417,
-          "preview": "return aggregate_usage(self.store.usage_events(worker_id=worker_id),window=window,",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/dashboard_service.py",
-          "line": 587,
-          "preview": "current=self.store.usage_events(repository=repository)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/dashboard_store.py",
-          "line": 366,
-          "preview": "def usage_events(self, *, worker_id=None, repository=None, since=None) -> list[dict]:",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 4
     }
   }
 }
