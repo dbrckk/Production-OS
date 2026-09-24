@@ -84,6 +84,7 @@ src/
     dashboard_github.py
     dashboard_health.py
     dashboard_incidents.py
+    dashboard_playbooks.py
     dashboard_security.py
     dashboard_service.py
     dashboard_store.py
@@ -197,6 +198,8 @@ tests/
   test_dashboard_incidents.py
   test_dashboard_launch.py
   test_dashboard_observability_e2e.py
+  test_dashboard_playbook_api.py
+  test_dashboard_playbooks.py
   test_dashboard_security.py
   test_dashboard_store_postgres.py
   test_dashboard_store.py
@@ -2963,6 +2966,23 @@ age = execution.get("age_seconds")
 def dedupe_key(signal: dict) -> str
 ````
 
+## File: src/production_os/dashboard_playbooks.py
+````python
+ACTIVE_JOB_STATUSES = {"claimed", "acked", "running"}
+⋮----
+code = str(incident.get("code") or "")
+target_type = str(incident.get("target_type") or "")
+target_id = str(incident.get("target_id") or "")
+suggestions: list[dict] = []
+⋮----
+availability = (
+⋮----
+key = str(row.get("key") or "")
+⋮----
+owner = str((job or {}).get("claimed_by") or "")
+status = str((job or {}).get("status") or "")
+````
+
 ## File: src/production_os/dashboard_security.py
 ````python
 _SENSITIVE_KEYS = {
@@ -3129,6 +3149,19 @@ states = {
 health = self.health()
 signals = signals_from_health(health)
 active_keys: set[str] = set()
+⋮----
+rows = self.store.dashboard_incidents(
+kick_mode = (
+enriched = []
+⋮----
+item = dict(incident)
+recoverable_jobs = []
+job = None
+⋮----
+found = _execute(
+recoverable_jobs = [dict(row) for row in found]
+⋮----
+job = self.control.queue.get(str(item.get("target_id")))
 ⋮----
 def control_audit(self, limit: int = 100) -> dict
 ⋮----
@@ -8363,6 +8396,66 @@ def test_project_progress_snapshot_persists_selected_profile(tmp_path)
 snapshot=control.dashboard_store.latest_progress_snapshot("dbrckk/example")
 ````
 
+## File: tests/test_dashboard_playbook_api.py
+````python
+def _control(tmp_path)
+⋮----
+def test_queue_incident_exposes_truthful_scheduled_kick_fallback(tmp_path)
+⋮----
+control = _control(tmp_path)
+⋮----
+incidents = control.dashboard.incidents()["incidents"]
+incident = next(x for x in incidents if x["code"] == "queue_without_worker")
+suggestion = incident["playbook"]["suggestions"][0]
+⋮----
+def test_queue_incident_exposes_immediate_kick_only_when_dispatch_is_configured(tmp_path)
+⋮----
+incident = next(
+⋮----
+def test_stale_worker_playbook_only_offers_recovery_for_expired_claim(tmp_path)
+⋮----
+job = control.queue.enqueue({
+⋮----
+recovery = [
+⋮----
+def test_stale_execution_playbook_offers_cancel_only_for_active_owned_job(tmp_path)
+⋮----
+cancel = next(
+````
+
+## File: tests/test_dashboard_playbooks.py
+````python
+def test_queue_without_worker_playbook_is_truthful_about_kick_mode()
+⋮----
+incident = {
+immediate = derive_incident_playbook(
+fallback = derive_incident_playbook(
+⋮----
+def test_stale_worker_recovery_is_suggested_only_for_server_recoverable_jobs()
+⋮----
+result = derive_incident_playbook(
+actions = [(x["action"], x["job_key"]) for x in result["suggestions"]]
+⋮----
+def test_stale_job_cancel_requires_active_owned_job()
+⋮----
+active = derive_incident_playbook(
+cancel = next(x for x in active["suggestions"] if x["action"] == "cancel-current")
+⋮----
+terminal = derive_incident_playbook(
+cancel = next(x for x in terminal["suggestions"] if x["action"] == "cancel-current")
+⋮----
+def test_playbook_derivation_has_no_execution_side_effect_contract()
+⋮----
+result = derive_incident_playbook({
+⋮----
+def test_resolved_incident_has_no_remediation_actions()
+⋮----
+def test_stale_job_inspection_is_unavailable_without_owner()
+⋮----
+inspect = next(x for x in result["suggestions"] if x["action"] == "inspect-job")
+cancel = next(x for x in result["suggestions"] if x["action"] == "cancel-current")
+````
+
 ## File: tests/test_dashboard_security.py
 ````python
 def test_recursive_redaction_removes_sensitive_values()
@@ -8522,6 +8615,12 @@ def test_overview_renders_operational_health()
 def test_worker_control_exposes_recover_stuck_only_from_recoverable_jobs()
 ⋮----
 def test_overview_renders_and_acknowledges_durable_incidents()
+⋮----
+def test_overview_renders_server_backed_incident_playbooks()
+⋮----
+def test_incident_playbook_actions_are_explicit_and_reuse_control_api()
+⋮----
+def test_incident_inspection_playbooks_only_navigate()
 ````
 
 ## File: tests/test_dashboard_usage.py
@@ -11187,6 +11286,43 @@ Viewer and operator roles may read incidents. Acknowledgement requires operator.
 Acknowledgement records the operator identity and timestamp. Incident records deliberately avoid arbitrary payload, metadata, authorization headers, or credential fields.
 
 Incident reconciliation is observational only. It does not automatically pause workers, cancel jobs, retry work, or run stuck-job recovery.
+
+## Dashboard Control Center Release 5 — Safe remediation playbooks
+
+Durable incidents can now expose deterministic remediation guidance derived from current server facts.
+
+The dashboard never decides availability on its own. Each playbook suggestion includes:
+
+```text
+action
+worker_id
+job_key
+availability
+reason
+interrupting
+```
+
+Availability values are:
+
+```text
+available
+fallback
+unavailable
+```
+
+Examples:
+
+- `queue_without_worker` may suggest a GitHub Actions `kick`;
+- `stale_busy_workers` may suggest inspection and a targeted `recover-stuck` only for an expired claimed job;
+- `stale_running_executions` may suggest inspection and an explicit `cancel-current` only while the named job is still active and owned by the named worker.
+
+Resolved incidents expose no remediation actions.
+
+Playbook generation is read-only and deterministic. It does not mutate the queue, pause workers, cancel jobs, retry work, or recover claims.
+
+Interrupting remediation always requires an explicit operator action and reuses the existing validated control API, including the same confirmation flow used by direct worker controls. Inspection suggestions are navigation-only.
+
+The browser receives no GitHub, worker, or operator credentials from playbook generation.
 
 ## Design principles
 

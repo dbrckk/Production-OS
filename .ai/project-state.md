@@ -22,23 +22,28 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-24T16:01:37Z
+Generated: 2026-09-24T16:27:50Z
 
 ### Git
 - Branch: `main`
-- Head: `8f64c4cfcea6`
-- Commit date: 2026-09-24T18:00:50+02:00
-- Commit: feat: control center release 4 incidents
-- Tracked files: 361
+- Head: `6546c5527245`
+- Commit date: 2026-09-24T18:27:37+02:00
+- Commit: feat: control center release 5 playbooks
+- Tracked files: 365
 
 ### Recently changed files
 - `README.md`
+- `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-5.md`
+- `src/production_os/dashboard_playbooks.py`
+- `src/production_os/dashboard_service.py`
+- `src/production_os/dashboard_ui.py`
+- `tests/test_dashboard_playbook_api.py`
+- `tests/test_dashboard_playbooks.py`
+- `tests/test_dashboard_ui_v3.py`
 - `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-4.md`
 - `src/production_os/control_plane.py`
 - `src/production_os/dashboard_incidents.py`
-- `src/production_os/dashboard_service.py`
 - `src/production_os/dashboard_store.py`
-- `src/production_os/dashboard_ui.py`
 - `src/production_os/postgres_backend.py`
 - `src/production_os/sqlite_backend.py`
 - `tests/test_dashboard_control_audit.py`
@@ -46,12 +51,7 @@ Generated: 2026-09-24T16:01:37Z
 - `tests/test_dashboard_incident_signals.py`
 - `tests/test_dashboard_incidents.py`
 - `tests/test_dashboard_store_postgres.py`
-- `tests/test_dashboard_ui_v3.py`
 - `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-3.md`
-- `src/production_os/dashboard_health.py`
-- `tests/test_dashboard_api.py`
-- `tests/test_dashboard_control_api.py`
-- `tests/test_dashboard_health.py`
 
 ### Project signals
 - `pyproject.toml`
