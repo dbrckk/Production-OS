@@ -38,14 +38,87 @@ def _relevant_progress_events(rows):
 
 
 def build_project_evidence(*,workflow,repository_snapshot,executions,events,visual_quality):
+    executions=executions or []
     out={"dimensions":{},"remaining_work":[],"blockers":[],
-         "execution_summary":_execution_summary(executions or []),
+         "execution_summary":_execution_summary(executions),
          "recent_events":_relevant_progress_events(events or [])}
-    if workflow: out["workflow"]=workflow_progress(workflow)
+
+    if workflow:
+        progress=workflow_progress(workflow)
+        out["workflow"]=progress
+        if progress.get("percent") is not None:
+            out["dimensions"]["code"]={
+                "score":float(progress["percent"]),
+                "evidence":{"source":"workflow_progress","completed_weight":progress["completed_weight"],
+                            "total_weight":progress["total_weight"]},
+                "fresh":True,
+            }
+            if progress["percent"] < 100:
+                out["remaining_work"].append("workflow_incomplete")
+
     if repository_snapshot:
-        out["repository"]={k:repository_snapshot.get(k) for k in
+        repository={k:repository_snapshot.get(k) for k in
           ("ci_status","latest_release","tests_detected","tests_passing","tests_failing")}
-    if visual_quality: out["visual_quality"]=dict(visual_quality)
+        out["repository"]=repository
+
+        passing=repository.get("tests_passing")
+        failing=repository.get("tests_failing")
+        if isinstance(passing,(int,float)) and isinstance(failing,(int,float)) and passing+failing>0:
+            test_score=round(float(passing)/(float(passing)+float(failing))*100,2)
+            out["dimensions"]["tests"]={
+                "score":test_score,
+                "evidence":{"source":"repository_tests","passing":passing,"failing":failing},
+                "fresh":True,
+            }
+            if failing:
+                out["blockers"].append("tests_failing")
+
+        ci_status=str(repository.get("ci_status") or "").lower()
+        if ci_status in {"success","successful","passed","passing","green"}:
+            out["dimensions"].setdefault("release",{
+                "score":100.0 if repository.get("latest_release") else 75.0,
+                "evidence":{"source":"repository_ci","ci_status":repository.get("ci_status"),
+                            "latest_release":repository.get("latest_release")},
+                "fresh":True,
+            })
+        elif ci_status in {"failure","failed","error","red"}:
+            out["dimensions"]["release"]={
+                "score":0.0,
+                "evidence":{"source":"repository_ci","ci_status":repository.get("ci_status"),
+                            "latest_release":repository.get("latest_release")},
+                "fresh":True,
+            }
+            out["blockers"].append("ci_failing")
+        elif repository.get("latest_release"):
+            out["dimensions"]["release"]={
+                "score":100.0,
+                "evidence":{"source":"repository_release","latest_release":repository.get("latest_release")},
+                "fresh":True,
+            }
+
+    summary=out["execution_summary"]
+    if summary.get("success_rate") is not None:
+        out["dimensions"]["stability"]={
+            "score":float(summary["success_rate"]),
+            "evidence":{"source":"execution_history","count":summary["count"],
+                        "succeeded":summary["succeeded"]},
+            "fresh":True,
+        }
+        if summary["success_rate"] < 100:
+            out["remaining_work"].append("execution_failures_present")
+
+    if visual_quality:
+        out["visual_quality"]=dict(visual_quality)
+        score=visual_quality.get("score")
+        if isinstance(score,(int,float)):
+            out["dimensions"]["ui_ux"]={
+                "score":max(0.0,min(100.0,float(score))),
+                "evidence":{"source":"visual_quality"},
+                "fresh":visual_quality.get("fresh",True) is True,
+            }
+
+    out["remaining_work"]=list(dict.fromkeys(out["remaining_work"]))
+    out["blockers"]=list(dict.fromkeys(out["blockers"]))
     return out
 
 
