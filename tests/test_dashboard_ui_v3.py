@@ -229,3 +229,11 @@ def test_worker_control_exposes_recover_stuck_only_from_recoverable_jobs():
     assert 'data-control-action="recover-stuck"' in DASHBOARD_HTML
     assert "detail.recoverable_jobs" in DASHBOARD_HTML
     assert "Récupérer ce job bloqué" in DASHBOARD_HTML
+
+
+def test_overview_renders_and_acknowledges_durable_incidents():
+    assert "/v1/dashboard/incidents?limit=20" in DASHBOARD_HTML
+    assert "async function acknowledgeIncident" in DASHBOARD_HTML
+    assert "Acquitter" in DASHBOARD_HTML
+    assert "item.target_type" in DASHBOARD_HTML
+    assert "item.target_id" in DASHBOARD_HTML
