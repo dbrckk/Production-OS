@@ -24,7 +24,7 @@ def _parse_time(value):
     return parsed
 
 
-def _bucket(rows: list[dict]) -> dict:
+def _bucket(rows: list[dict], *, now: datetime) -> dict:
     total = len(rows)
     resolved = sum(
         str(row.get("verification_state") or "") == "resolved"
@@ -71,6 +71,22 @@ def _bucket(rows: list[dict]) -> dict:
         if recurrence_denominator
         else None
     )
+    recurrence_durations = []
+    watching_ages = []
+    for row in rows:
+        state = str(row.get("recurrence_state") or "not_evaluated")
+        verified = _parse_time(row.get("verified_at"))
+        if verified is None:
+            continue
+        if state == "recurred":
+            recurred_at = _parse_time(row.get("recurred_at"))
+            if recurred_at is None or recurred_at < verified:
+                continue
+            recurrence_durations.append(
+                (recurred_at - verified).total_seconds()
+            )
+        elif state == "watching" and now >= verified:
+            watching_ages.append((now - verified).total_seconds())
     return {
         "total":total,
         "resolved":resolved,
@@ -83,6 +99,26 @@ def _bucket(rows: list[dict]) -> dict:
         "recurred":recurred,
         "recurrence_denominator":recurrence_denominator,
         "observed_recurrence_rate":recurrence_rate,
+        "median_time_to_recurrence_seconds":(
+            round(float(median(recurrence_durations)), 2)
+            if recurrence_durations
+            else None
+        ),
+        "min_time_to_recurrence_seconds":(
+            round(float(min(recurrence_durations)), 2)
+            if recurrence_durations
+            else None
+        ),
+        "max_time_to_recurrence_seconds":(
+            round(float(max(recurrence_durations)), 2)
+            if recurrence_durations
+            else None
+        ),
+        "median_watching_age_seconds":(
+            round(float(median(watching_ages)), 2)
+            if watching_ages
+            else None
+        ),
         "median_resolution_detection_seconds":(
             round(float(median(durations)), 2)
             if durations
@@ -123,13 +159,13 @@ def aggregate_remediation_analytics(
             value = str(row.get(key) or "unknown")
             groups.setdefault(value, []).append(row)
         return [
-            {"name":name, **_bucket(items)}
+            {"name":name, **_bucket(items, now=current)}
             for name, items in sorted(groups.items())
         ]
 
     return {
         "window":window,
-        "summary":_bucket(selected),
+        "summary":_bucket(selected, now=current),
         "by_action":grouped("action"),
         "by_incident_code":grouped("incident_code"),
     }
