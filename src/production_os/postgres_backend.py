@@ -22,7 +22,7 @@ def _utcnow() -> str:
 
 
 class PostgresBackend:
-    SCHEMA_VERSION = 12
+    SCHEMA_VERSION = 13
 
     def __init__(self, dsn: str):
         if psycopg is None:
@@ -350,6 +350,9 @@ class PostgresBackend:
                         error_code TEXT,
                         requested_at TEXT NOT NULL,
                         completed_at TEXT,
+                        verification_state TEXT NOT NULL DEFAULT 'pending',
+                        verification_checks INTEGER NOT NULL DEFAULT 0,
+                        verified_at TEXT,
                         FOREIGN KEY(incident_id) REFERENCES dashboard_incidents(id)
                             ON DELETE RESTRICT
                     )
@@ -406,6 +409,20 @@ class PostgresBackend:
                 """)
                 cur.execute("""
                     CREATE INDEX IF NOT EXISTS idx_project_progress_repo_time ON project_progress_snapshots(repository, captured_at DESC)
+                """)
+                cur.execute("""
+                    ALTER TABLE dashboard_remediation_events
+                    ADD COLUMN IF NOT EXISTS verification_state TEXT
+                    NOT NULL DEFAULT 'pending'
+                """)
+                cur.execute("""
+                    ALTER TABLE dashboard_remediation_events
+                    ADD COLUMN IF NOT EXISTS verification_checks INTEGER
+                    NOT NULL DEFAULT 0
+                """)
+                cur.execute("""
+                    ALTER TABLE dashboard_remediation_events
+                    ADD COLUMN IF NOT EXISTS verified_at TEXT
                 """)
                 cur.execute("""
                     INSERT INTO schema_meta(key, value)
