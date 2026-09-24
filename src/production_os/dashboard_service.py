@@ -74,9 +74,39 @@ class DashboardService:
                 selected.append(row)
         return selected
 
+    @staticmethod
+    def _previous_window_cost(rows: list[dict], window: str):
+        seconds = {"24h":86400, "7d":604800, "30d":2592000}.get(window)
+        if seconds is None:
+            return None
+        now = datetime.now(timezone.utc)
+        start = now - timedelta(seconds=seconds * 2)
+        end = now - timedelta(seconds=seconds)
+        total = 0.0
+        found = False
+        for row in rows:
+            raw = row.get("occurred_at")
+            if not raw:
+                continue
+            try:
+                occurred = datetime.fromisoformat(str(raw).replace("Z", "+00:00"))
+                if occurred.tzinfo is None:
+                    occurred = occurred.replace(tzinfo=timezone.utc)
+            except ValueError:
+                continue
+            if not (start <= occurred < end):
+                continue
+            cost = row.get("estimated_cost_usd")
+            if isinstance(cost, (int, float)) and not isinstance(cost, bool):
+                total += float(cost)
+                found = True
+        return total if found else None
+
     def overview(self, window: str) -> dict:
-        usage=aggregate_usage(self.store.usage_events(),window=window,
+        usage_rows=self.store.usage_events()
+        usage=aggregate_usage(usage_rows,window=window,
                               quota_rows=self.store.latest_provider_quota_snapshots())
+        previous_cost=self._previous_window_cost(usage_rows, window)
         workers=self._worker_rows()
         executions=[]
         with self.control.backend.connect() as db:
@@ -113,7 +143,7 @@ class DashboardService:
           "usage":{"api_calls":usage["totals"].get("api_calls"),
                    "tokens":usage["totals"].get("total_tokens"),
                    "estimated_cost_usd":usage["totals"].get("estimated_cost_usd"),
-                   "cost_baseline_usd":None},
+                   "cost_baseline_usd":previous_cost},
           "commits":{"production_os":len(self._distinct_commit_shas(self._executions_in_window(executions,window))),
                      "github_default_branch":None},
           "performance":{"success_rate":round(succeeded/finished*100,2) if finished else None,
