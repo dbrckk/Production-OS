@@ -186,3 +186,79 @@ def test_zero_recurrence_denominator_has_no_rate():
     )
     assert result["summary"]["recurrence_denominator"] == 0
     assert result["summary"]["observed_recurrence_rate"] is None
+
+
+def test_durability_timing_uses_only_valid_recurred_rows():
+    rows = [
+        {
+            "action":"kick",
+            "incident_code":"queue_without_worker",
+            "verification_state":"resolved",
+            "recurrence_state":"recurred",
+            "requested_at":"2026-09-24T14:00:00+00:00",
+            "verified_at":"2026-09-24T14:10:00+00:00",
+            "recurred_at":"2026-09-24T14:40:00+00:00",
+        },
+        {
+            "action":"recover-stuck",
+            "incident_code":"stale_busy_workers",
+            "verification_state":"resolved",
+            "recurrence_state":"recurred",
+            "requested_at":"2026-09-24T15:00:00+00:00",
+            "verified_at":"2026-09-24T15:10:00+00:00",
+            "recurred_at":"2026-09-24T16:10:00+00:00",
+        },
+        {
+            "action":"kick",
+            "incident_code":"queue_without_worker",
+            "verification_state":"resolved",
+            "recurrence_state":"recurred",
+            "requested_at":"2026-09-24T16:00:00+00:00",
+            "verified_at":"2026-09-24T16:30:00+00:00",
+            "recurred_at":"2026-09-24T16:20:00+00:00",
+        },
+    ]
+    result = aggregate_remediation_analytics(rows, window="24h", now=NOW)
+    summary = result["summary"]
+    assert summary["median_time_to_recurrence_seconds"] == 2700.0
+    assert summary["min_time_to_recurrence_seconds"] == 1800.0
+    assert summary["max_time_to_recurrence_seconds"] == 3600.0
+
+
+def test_watching_age_is_observed_not_final_durability():
+    rows = [
+        {
+            "action":"kick",
+            "incident_code":"queue_without_worker",
+            "verification_state":"resolved",
+            "recurrence_state":"watching",
+            "requested_at":"2026-09-24T15:00:00+00:00",
+            "verified_at":"2026-09-24T15:30:00+00:00",
+        },
+        {
+            "action":"recover-stuck",
+            "incident_code":"stale_busy_workers",
+            "verification_state":"resolved",
+            "recurrence_state":"watching",
+            "requested_at":"2026-09-24T15:10:00+00:00",
+            "verified_at":"2026-09-24T16:30:00+00:00",
+        },
+    ]
+    result = aggregate_remediation_analytics(rows, window="24h", now=NOW)
+    assert result["summary"]["median_watching_age_seconds"] == 3600.0
+
+
+def test_invalid_durability_timestamps_are_ignored():
+    rows = [{
+        "action":"kick",
+        "incident_code":"queue_without_worker",
+        "verification_state":"resolved",
+        "recurrence_state":"recurred",
+        "requested_at":"2026-09-24T16:00:00+00:00",
+        "verified_at":"invalid",
+        "recurred_at":"2026-09-24T16:30:00+00:00",
+    }]
+    result = aggregate_remediation_analytics(rows, window="24h", now=NOW)
+    assert result["summary"]["median_time_to_recurrence_seconds"] is None
+    assert result["summary"]["min_time_to_recurrence_seconds"] is None
+    assert result["summary"]["max_time_to_recurrence_seconds"] is None
