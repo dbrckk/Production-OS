@@ -172,8 +172,7 @@ class DashboardStore:
                     title=excluded.title,
                     message=excluded.message,
                     occurrence_count=CASE
-                        WHEN dashboard_incidents.message<>excluded.message
-                          OR dashboard_incidents.status='resolved'
+                        WHEN dashboard_incidents.status='resolved'
                         THEN dashboard_incidents.occurrence_count+1
                         ELSE dashboard_incidents.occurrence_count
                     END,
