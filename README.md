@@ -653,6 +653,49 @@ Release 12 performs no deletion, VACUUM, backup mutation or restore action. It d
 
 The dashboard never exposes the SQLite path, PostgreSQL DSN, credentials or tokens. If maintenance diagnostics fail, the rest of the Overview remains available and the storage card degrades to `unknown`.
 
+## Dashboard Control Center Release 13 — Safe retention cleanup
+
+Expired historical data can now be pruned explicitly by an operator from the Storage & retention card.
+
+The cleanup endpoint is:
+
+```text
+POST /v1/dashboard/maintenance/prune
+```
+
+and requires both:
+
+```text
+confirm = PRUNE_EXPIRED_HISTORY
+expected_candidate_rows = <fresh prunable count observed by the operator>
+```
+
+The server recomputes every eligible row inside the cleanup transaction. If the current prunable count differs from the operator's expected count, cleanup returns a conflict and deletes nothing.
+
+Prunable history includes expired:
+
+- API usage events;
+- worker log events;
+- terminal job executions (`succeeded`, `failed`, `cancelled`);
+- control audit events;
+- repository/progress snapshots;
+- generic event-stream entries.
+
+Protected data includes:
+
+- running/non-terminal executions;
+- incident records;
+- remediation history;
+- workflows and workflow tasks;
+- jobs and workers;
+- worker/job desired control state;
+- release/trust history;
+- invalid timestamps and rows newer than their retention cutoff.
+
+Cleanup is never automatic. It is not triggered by alerts, health checks, analytics or dashboard polling. The UI requires an explicit browser confirmation, and every accepted/conflicted cleanup request is recorded in the control audit.
+
+Release 13 does not run `VACUUM` in the request path and does not mutate backup/restore state.
+
 ## Design principles
 
 - Evidence over assumptions
