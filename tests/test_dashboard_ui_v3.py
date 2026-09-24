@@ -329,3 +329,18 @@ def test_mobile_launch_flow_remains_repo_plus_instruction():
     assert "Lancer la production" in DASHBOARD_HTML
     assert "async function launchWorkflow" in DASHBOARD_HTML
     assert "final_goal:task" in DASHBOARD_HTML
+
+
+def test_overview_renders_storage_maintenance_card():
+    assert "/v1/dashboard/maintenance" in DASHBOARD_HTML
+    assert "Stockage & rétention" in DASHBOARD_HTML
+    assert "maintenance.database_size_bytes" in DASHBOARD_HTML
+    assert "maintenance.candidate_rows" in DASHBOARD_HTML
+    assert "row.retention_days" in DASHBOARD_HTML
+    assert "row.invalid_timestamps" in DASHBOARD_HTML
+
+
+def test_storage_maintenance_failure_does_not_break_overview():
+    assert '.catch(function(){' in DASHBOARD_HTML
+    assert 'status:"unknown"' in DASHBOARD_HTML
+    assert "Diagnostic de stockage indisponible." in DASHBOARD_HTML
