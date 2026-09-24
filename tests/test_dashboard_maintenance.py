@@ -134,3 +134,43 @@ def test_maintenance_api_is_viewer_readable_and_worker_forbidden(tmp_path):
         server.shutdown()
         server.server_close()
         thread.join(timeout=2)
+
+
+def test_dashboard_maintenance_snapshot_is_cached_between_refreshes(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(
+        str(tmp_path / "maintenance-cache.sqlite"),
+        authorizer=_auth(),
+    )
+    calls = []
+
+    def fake_snapshot(backend):
+        calls.append(backend)
+        return {
+            "status":"healthy",
+            "backend_kind":"sqlite",
+            "database_size_bytes":123,
+            "total_rows":0,
+            "candidate_rows":0,
+            "tables":[],
+            "errors":[],
+            "generated_at":"2026-09-24T18:00:00+00:00",
+        }
+
+    moments = iter([100.0, 101.0])
+    monkeypatch.setattr(
+        "production_os.dashboard_service.storage_maintenance_snapshot",
+        fake_snapshot,
+    )
+    monkeypatch.setattr(
+        "production_os.dashboard_service.time.monotonic",
+        lambda: next(moments),
+    )
+
+    first = control.dashboard.maintenance()
+    second = control.dashboard.maintenance()
+    assert first["cached"] is False
+    assert second["cached"] is True
+    assert len(calls) == 1
