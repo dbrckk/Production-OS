@@ -256,6 +256,54 @@ The control surface shows execution lanes, repository/task priorities, blockers,
 - [x] automatic execution feedback loop
 - [x] mobile/dashboard control surface
 
+## Dashboard Control Center Release 2
+
+The dashboard control center separates **desired control intent** from **observed worker state**.
+
+Worker controls:
+
+- `pause`: blocks new claims and lets the current task continue;
+- `drain`: blocks new claims and lets active tasks finish before the worker becomes drained;
+- `resume`: returns the worker desired state to `active`;
+- `cancel-current`: cooperatively cancels one explicitly named active `job_key`;
+- `retry`: creates a new workflow attempt with a new job key while preserving prior execution history;
+- `kick`: requests an immediate GitHub Actions worker run only when server-side GitHub dispatch credentials are configured.
+
+All dashboard control endpoints require the `operator` role.
+
+Cancellation is job-scoped rather than worker-wide. A cancellation request is not considered acknowledged until the worker reports the matching `cancel_requested` state. Terminal job transitions are exclusive: once cancellation wins, a late completion is rejected; once completion wins, a later cancel-current request is rejected.
+
+Retries preserve lineage. The previous failed or cancelled execution remains immutable, the replacement receives a new idempotency/job key, workflow generation checks still apply, and `max_attempts` cannot be bypassed by repeated control requests.
+
+GitHub Actions kick outcomes are reported honestly:
+
+```text
+dispatched
+scheduled_fallback
+failed
+```
+
+`scheduled_fallback` means no immediate dispatch was possible and the existing five-minute scheduled worker poll remains the next wake-up path. It must not be presented as a started worker.
+
+The UI separately presents:
+
+```text
+Action demandée
+Confirmée par le worker
+```
+
+so operator intent is never displayed as runtime acknowledgement before heartbeat evidence exists.
+
+Optional server-side configuration:
+
+```text
+PRODUCTION_OS_ACTIONS_REPOSITORY=dbrckk/ai-dev-server
+PRODUCTION_OS_ACTIONS_WORKFLOW=production-os-actions-worker.yml
+PRODUCTION_OS_ACTIONS_REF=main
+```
+
+The GitHub token remains server-side and is never returned to dashboard JavaScript.
+
 ## Design principles
 
 - Evidence over assumptions
