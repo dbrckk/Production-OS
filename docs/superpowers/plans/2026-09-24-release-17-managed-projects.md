@@ -98,3 +98,30 @@ The single task handoff contains repository, task, final_goal, agent_preference=
 - SQLite/PostgreSQL parity
 - mobile UI regression
 - full CI + Python 3.11/3.12 green
+
+
+## Implemented in current branch
+
+- schema v15 SQLite/PostgreSQL managed_projects + managed_project_runs
+- immutable workflow generation model
+- ACTIVE / REVIEW_REQUIRED / NEEDS_ATTENTION / DONE lifecycle
+- workflow success -> REVIEW_REQUIRED reconciliation
+- workflow failure/cancel -> NEEDS_ATTENTION reconciliation
+- additional instruction creates generation+1
+- retest creates generation+1 with original final goal
+- prior workflows remain immutable/auditable
+- concurrent/early follow-up rejected
+- repository owner/name validation
+- restart persistence
+- viewer read / worker denied / operator mutation API
+- exact MARK_PROJECT_DONE confirmation
+- mobile Projects UI for create/instruction/retest/complete
+- SQLite/PostgreSQL schema parity and migration coverage
+- lifecycle/API/UI regression tests
+- README documentation
+
+## Remaining before Release 17 completion
+
+- final CI qualification on complete head
+- final diff/security review
+- mark PR ready and merge only after green final head
