@@ -39,3 +39,26 @@ Turn durable incidents into deterministic remediation guidance without introduci
 - no direct queue mutations from suggestion generation
 - mobile UI regression
 - final CI green before merge
+
+
+## Implemented in current branch
+
+- deterministic server-side playbook derivation
+- truthful availability values: available / fallback / unavailable
+- queue_without_worker kick guidance
+- stale busy worker inspection + expired-claim recover-stuck guidance
+- stale running job inspection + explicit cancel-current guidance
+- resolved incident suppression
+- server-enriched incident API responses
+- mobile dashboard rendering of playbooks
+- explicit operator-only action execution through existing control APIs
+- interrupting action confirmation reuse
+- unavailable actions disabled in UI
+- orphaned job inspection truthfulness
+- README and unit/API/UI regression coverage
+
+## Remaining before Release 5 completion
+
+- final CI qualification on the final head
+- mark PR ready
+- merge only after green final head
