@@ -296,3 +296,13 @@ def test_activity_view_renders_remediation_analytics_with_sample_sizes():
     assert "row.effectiveness_denominator" in DASHBOARD_HTML
     assert "Par action" in DASHBOARD_HTML
     assert "Par incident" in DASHBOARD_HTML
+
+
+def test_activity_view_renders_remediation_recurrence_status():
+    assert "row.recurrence_state" in DASHBOARD_HTML
+    assert "row.recurred_at" in DASHBOARD_HTML
+    assert "Surveillance de récidive" in DASHBOARD_HTML
+    assert "Récidives observées" in DASHBOARD_HTML
+    assert "Taux de récidive observé" in DASHBOARD_HTML
+    assert "remediationSummary.recurrence_denominator" in DASHBOARD_HTML
+    assert "remediationSummary.observed_recurrence_rate" in DASHBOARD_HTML
