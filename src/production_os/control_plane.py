@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import json
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -52,10 +53,24 @@ class ControlPlane:
         self.queue = job_queue_for(self.backend)
         self.workers = worker_registry_for(self.backend)
         self.workflows = WorkflowEngine(self.backend, self.queue)
+        github_token = str(os.getenv("GITHUB_TOKEN") or "").strip()
+        actions_repository = str(
+            os.getenv("PRODUCTION_OS_ACTIONS_REPOSITORY") or ""
+        ).strip() or None
+        actions_workflow = str(
+            os.getenv("PRODUCTION_OS_ACTIONS_WORKFLOW") or ""
+        ).strip() or None
+        actions_ref = str(
+            os.getenv("PRODUCTION_OS_ACTIONS_REF") or "main"
+        ).strip() or "main"
         self.dashboard_control = DashboardControl(
             self.dashboard_store,
             self.queue,
             self.workflows,
+            github=GitHubClient(github_token) if github_token else None,
+            actions_repository=actions_repository,
+            actions_workflow=actions_workflow,
+            actions_ref=actions_ref,
         )
         self.dashboard = DashboardService(self)
         self.optimizer = ExecutionOptimizer(self.backend)
@@ -791,6 +806,23 @@ def make_handler(control: ControlPlane):
                         "drain":"draining",
                     }
                     worker_id = parts[3]
+                    if action == "kick":
+                        kicked = control.dashboard_control.kick_worker(worker_id)
+                        status = (
+                            HTTPStatus.BAD_GATEWAY
+                            if kicked.get("status") == "failed"
+                            else HTTPStatus.ACCEPTED
+                        )
+                        self._send(
+                            status,
+                            {
+                                "accepted":kicked.get("status") != "failed",
+                                "worker_id":worker_id,
+                                **kicked,
+                            },
+                        )
+                        return
+
                     if action == "retry":
                         job_key = str(body.get("job_key") or "").strip()
                         if not job_key:
