@@ -216,3 +216,10 @@ def test_activity_view_renders_operator_control_audit():
     assert "row.requested_by" in DASHBOARD_HTML
     assert "row.outcome" in DASHBOARD_HTML
     assert "row.error_code" in DASHBOARD_HTML
+
+
+def test_overview_renders_operational_health():
+    assert "/v1/dashboard/health" in DASHBOARD_HTML
+    assert "Santé opérationnelle" in DASHBOARD_HTML
+    assert "health.status" in DASHBOARD_HTML
+    assert "health.reasons" in DASHBOARD_HTML
