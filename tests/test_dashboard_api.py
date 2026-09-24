@@ -351,3 +351,25 @@ def test_dashboard_health_requires_viewer_and_has_stable_shape(running_control_p
     assert payload["status"] in {"healthy", "degraded"}
     assert isinstance(payload["reasons"], list)
     assert get_api(base, "/v1/dashboard/health", "worker-a-token")[0] == 403
+
+
+def test_worker_detail_includes_recoverable_jobs(running_control_plane):
+    base, control = running_control_plane
+    control.workers.register("worker-a", ["python"], 1)
+    job = control.queue.enqueue({
+        "handoff":{"repository":"dbrckk/example","task":"expired claim"},
+        "required_capabilities":["python"],
+    })
+    assert control.queue.claim_key(job["key"], "worker-a") is not None
+    with control.backend.transaction() as db:
+        db.execute(
+            "UPDATE jobs SET ack_deadline=? WHERE key=?",
+            ("2000-01-01T00:00:00+00:00", job["key"]),
+        )
+    status, payload = get_api(
+        base,
+        "/v1/dashboard/workers/worker-a",
+        "viewer-token",
+    )
+    assert status == 200
+    assert [row["key"] for row in payload["recoverable_jobs"]] == [job["key"]]
