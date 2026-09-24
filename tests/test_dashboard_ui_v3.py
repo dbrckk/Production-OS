@@ -335,7 +335,8 @@ def test_overview_renders_storage_maintenance_card():
     assert "/v1/dashboard/maintenance" in DASHBOARD_HTML
     assert "Stockage & rétention" in DASHBOARD_HTML
     assert "maintenance.database_size_bytes" in DASHBOARD_HTML
-    assert "maintenance.candidate_rows" in DASHBOARD_HTML
+    assert "maintenance.prunable_candidate_rows" in DASHBOARD_HTML
+    assert "maintenance.protected_candidate_rows" in DASHBOARD_HTML
     assert "row.retention_days" in DASHBOARD_HTML
     assert "row.invalid_timestamps" in DASHBOARD_HTML
 
