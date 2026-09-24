@@ -44,3 +44,49 @@ def test_backend_profile_marks_ui_and_assets_not_applicable():
 def test_confidence_thresholds_are_stable():
     assert CONFIDENCE_HIGH==0.80
     assert CONFIDENCE_MEDIUM==0.50
+
+
+def test_build_project_evidence_derives_dimensions_from_observed_facts():
+    from production_os.project_progress import build_project_evidence
+
+    evidence = build_project_evidence(
+        workflow={
+            "tasks": [
+                {"status": "succeeded", "estimated_minutes": 20},
+                {"status": "running", "estimated_minutes": 20},
+            ]
+        },
+        repository_snapshot={
+            "ci_status": "success",
+            "latest_release": "v1.2.0",
+            "tests_detected": True,
+            "tests_passing": 18,
+            "tests_failing": 2,
+        },
+        executions=[
+            {"status": "succeeded"},
+            {"status": "succeeded"},
+            {"status": "failed"},
+        ],
+        events=[],
+        visual_quality=None,
+    )
+
+    assert evidence["dimensions"]["code"]["score"] == 50.0
+    assert evidence["dimensions"]["tests"]["score"] == 90.0
+    assert evidence["dimensions"]["stability"]["score"] == 66.67
+    assert evidence["dimensions"]["release"]["score"] == 100.0
+
+
+def test_build_project_evidence_keeps_missing_facts_unknown():
+    from production_os.project_progress import build_project_evidence
+
+    evidence = build_project_evidence(
+        workflow=None,
+        repository_snapshot={"ci_status": None, "latest_release": None},
+        executions=[],
+        events=[],
+        visual_quality=None,
+    )
+
+    assert evidence["dimensions"] == {}
