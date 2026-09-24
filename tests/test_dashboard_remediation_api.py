@@ -146,3 +146,79 @@ def test_direct_control_without_incident_remains_compatible(tmp_path):
         server.shutdown()
         server.server_close()
         thread.join(timeout=2)
+
+
+def test_remediation_history_is_viewer_readable_and_worker_forbidden(tmp_path):
+    control = ControlPlane(str(tmp_path / "remediation-read.sqlite"), authorizer=_auth())
+    incident = _queue_incident(control)
+    control.dashboard_store.append_remediation_event(
+        incident_id=incident["id"],
+        action="kick",
+        worker_id="github-actions-worker",
+        requested_by="operator:dashboard",
+        outcome="scheduled_fallback",
+    )
+    server, thread, base = _server(control)
+    try:
+        status, payload = _request(
+            base,
+            "/v1/dashboard/remediations?limit=10",
+            "viewer",
+            method="GET",
+        )
+        assert status == 200
+        assert len(payload["events"]) == 1
+        assert payload["events"][0]["incident_id"] == incident["id"]
+
+        status, _ = _request(
+            base,
+            "/v1/dashboard/remediations?limit=10",
+            "worker",
+            method="GET",
+        )
+        assert status == 403
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+
+
+def test_remediation_history_filters_by_incident_query(tmp_path):
+    control = ControlPlane(str(tmp_path / "remediation-filter.sqlite"), authorizer=_auth())
+    first = _queue_incident(control)
+    control.workers.register("worker-a", ["python"], 1)
+    second = control.dashboard_store.upsert_dashboard_incident(
+        code="stale_busy_workers",
+        severity="medium",
+        title="Worker stale",
+        message="worker-a",
+        target_type="worker",
+        target_id="worker-a",
+    )
+    control.dashboard_store.append_remediation_event(
+        incident_id=first["id"],
+        action="kick",
+        requested_by="operator:dashboard",
+    )
+    control.dashboard_store.append_remediation_event(
+        incident_id=second["id"],
+        action="inspect-worker",
+        worker_id="worker-a",
+        requested_by="operator:dashboard",
+    )
+    server, thread, base = _server(control)
+    try:
+        status, payload = _request(
+            base,
+            "/v1/dashboard/remediations?limit=10&incident_id="+second["id"],
+            "viewer",
+            method="GET",
+        )
+        assert status == 200
+        assert len(payload["events"]) == 1
+        assert payload["events"][0]["incident_id"] == second["id"]
+        assert payload["events"][0]["action"] == "inspect-worker"
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
