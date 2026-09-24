@@ -653,6 +653,29 @@ async function pruneExpiredHistory(expected){
   if(receipt)receipt.textContent=String(e).replace(/^Error:\\s*/,"");
  }
 }
+async function createVerifiedBackup(){
+ if(!window.confirm(
+  "Créer une sauvegarde SQLite vérifiée côté serveur ? La restauration reste désactivée."
+ ))return;
+ try{
+  const result=await api(
+   "/v1/dashboard/backups/create",
+   {
+    method:"POST",
+    body:JSON.stringify({confirm:"CREATE_VERIFIED_BACKUP"})
+   }
+  );
+  await loadOverview();
+  const receipt=document.getElementById("backup-status-message");
+  if(receipt){
+   receipt.textContent="Sauvegarde vérifiée créée · "+esc(String(result.backup_id||""))+" · "+formatBytes(result.size_bytes);
+  }
+ }catch(e){
+  await loadOverview();
+  const receipt=document.getElementById("backup-status-message");
+  if(receipt)receipt.textContent=String(e).replace(/^Error:\s*/,"");
+ }
+}
 async function loadOverview(){
  const el=document.getElementById("overview-metrics");
  try{
@@ -662,9 +685,12 @@ async function loadOverview(){
    api("/v1/dashboard/incidents?limit=20"),
    api("/v1/dashboard/maintenance").catch(function(){
     return {status:"unknown",database_size_bytes:null,total_rows:null,candidate_rows:null,tables:[],errors:[{error:"unavailable"}]};
+   }),
+   api("/v1/dashboard/backups").catch(function(){
+    return {status:"unknown",backend_kind:"unknown",create_supported:false,restore_enabled:false,backups:[]};
    })
   ]);
-  const data=results[0],health=results[1]||{},incidentData=results[2]||{},maintenance=results[3]||{};
+  const data=results[0],health=results[1]||{},incidentData=results[2]||{},maintenance=results[3]||{},backups=results[4]||{};
   const w=data.workers||{},p=data.productions||{},u=data.usage||{},c=data.commits||{},perf=data.performance||{},alerts=data.alerts||[];
   const healthReasons=health.reasons||[];
   const incidents=incidentData.incidents||[];
@@ -706,6 +732,19 @@ async function loadOverview(){
    '<div style="margin-top:10px">'+pruneButton+'</div>'+
    '<div id="maintenance-prune-status" class="status-message"></div>'+
    '</div>';
+  const backupRows=backups.backups||[];
+  const lastBackup=backupRows.length?backupRows[0]:null;
+  const backupButton=backups.create_supported===true
+   ?'<button class="secondary-btn" type="button" onclick="createVerifiedBackup()">Créer une sauvegarde vérifiée</button>'
+   :'';
+  const backupHtml=
+   '<div class="card"><div class="section-head"><h2>Sauvegarde</h2><span class="badge">'+esc(String(backups.status||"unknown"))+'</span></div>'+
+   '<p class="small"><strong>Backend :</strong> '+esc(String(backups.backend_kind||"inconnu"))+' · <strong>Restauration :</strong> '+(backups.restore_enabled?'activée':'désactivée')+'</p>'+
+   '<p class="small"><strong>Dernière sauvegarde vérifiée :</strong> '+(lastBackup?esc(String(lastBackup.created_at||""))+' · '+formatBytes(lastBackup.size_bytes):'Aucune')+'</p>'+
+   (backups.message?'<p class="small">'+esc(String(backups.message))+'</p>':'')+
+   '<div style="margin-top:10px">'+backupButton+'</div>'+
+   '<div id="backup-status-message" class="status-message"></div>'+
+   '</div>';
   el.innerHTML=
    '<div class="status-grid">'+
    '<div class="status-card"><div class="status-label">Workers en ligne</div><div class="status-value">'+formatNumber(w.online)+' / '+formatNumber(w.total)+'</div></div>'+
@@ -718,6 +757,7 @@ async function loadOverview(){
    '<p class="small">Taux de réussite : '+formatNumber(perf.success_rate)+' % · temps d’exécution : '+formatNumber(perf.execution_seconds)+' s</p></div>'+
    healthHtml+
    maintenanceHtml+
+   backupHtml+
    incidentsHtml+
    alertsHtml;
  }catch(e){el.innerHTML=errorCard(e)}

@@ -1,0 +1,146 @@
+from __future__ import annotations
+
+import json
+import threading
+import urllib.error
+import urllib.request
+from http.server import ThreadingHTTPServer
+
+from production_os.api_auth import TokenAuthorizer, token_digest
+from production_os.control_plane import ControlPlane, make_handler
+
+
+def _auth():
+    return TokenAuthorizer([
+        {"name":"viewer","role":"viewer","sha256":token_digest("viewer")},
+        {"name":"operator","role":"operator","sha256":token_digest("operator")},
+        {"name":"worker","role":"worker","sha256":token_digest("worker")},
+    ])
+
+
+def _request(base, path, token, *, method="GET", body=None):
+    data = None if body is None else json.dumps(body).encode("utf-8")
+    request = urllib.request.Request(
+        base + path,
+        data=data,
+        method=method,
+        headers={
+            "Authorization":f"Bearer {token}",
+            **({"Content-Type":"application/json"} if data is not None else {}),
+        },
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=3) as response:
+            return response.status, json.loads(response.read() or b"{}")
+    except urllib.error.HTTPError as exc:
+        return exc.code, json.loads(exc.read() or b"{}")
+
+
+def _server(control):
+    server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    return server, thread, f"http://127.0.0.1:{server.server_port}"
+
+
+def test_backup_catalog_is_viewer_readable_and_worker_forbidden(tmp_path, monkeypatch):
+    backup_dir = tmp_path / "backups"
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    control = ControlPlane(str(tmp_path / "control.sqlite"), authorizer=_auth())
+    server, thread, base = _server(control)
+    try:
+        status, payload = _request(
+            base,
+            "/v1/dashboard/backups",
+            "viewer",
+        )
+        assert status == 200
+        assert payload["backend_kind"] == "sqlite"
+        assert payload["status"] == "ready"
+        assert payload["create_supported"] is True
+        assert payload["restore_enabled"] is False
+        assert payload["backups"] == []
+
+        status, _ = _request(
+            base,
+            "/v1/dashboard/backups",
+            "worker",
+        )
+        assert status == 403
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+
+
+def test_backup_creation_requires_operator_and_exact_confirmation(tmp_path, monkeypatch):
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(tmp_path / "backups"))
+    control = ControlPlane(str(tmp_path / "control.sqlite"), authorizer=_auth())
+    server, thread, base = _server(control)
+    try:
+        status, _ = _request(
+            base,
+            "/v1/dashboard/backups/create",
+            "viewer",
+            method="POST",
+            body={"confirm":"CREATE_VERIFIED_BACKUP"},
+        )
+        assert status == 403
+
+        status, _ = _request(
+            base,
+            "/v1/dashboard/backups/create",
+            "operator",
+            method="POST",
+            body={"confirm":"wrong"},
+        )
+        assert status == 400
+        assert control.dashboard_store.control_audit_events(limit=10) == []
+
+        status, payload = _request(
+            base,
+            "/v1/dashboard/backups/create",
+            "operator",
+            method="POST",
+            body={"confirm":"CREATE_VERIFIED_BACKUP"},
+        )
+        assert status == 201
+        assert payload["verified"] is True
+        assert payload["backend_kind"] == "sqlite"
+        assert payload["restore_enabled"] is False
+        assert "path" not in payload
+        assert "dsn" not in payload
+
+        audit = control.dashboard_store.control_audit_events(limit=10)
+        assert len(audit) == 1
+        assert audit[0]["action"] == "backup-create"
+        assert audit[0]["outcome"] == "succeeded"
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+
+
+def test_unconfigured_backup_returns_conflict_and_failed_audit(tmp_path, monkeypatch):
+    monkeypatch.delenv("PRODUCTION_OS_BACKUP_DIR", raising=False)
+    control = ControlPlane(str(tmp_path / "control.sqlite"), authorizer=_auth())
+    server, thread, base = _server(control)
+    try:
+        status, payload = _request(
+            base,
+            "/v1/dashboard/backups/create",
+            "operator",
+            method="POST",
+            body={"confirm":"CREATE_VERIFIED_BACKUP"},
+        )
+        assert status == 409
+        assert "not ready" in payload["error"]
+        audit = control.dashboard_store.control_audit_events(limit=10)
+        assert len(audit) == 1
+        assert audit[0]["action"] == "backup-create"
+        assert audit[0]["outcome"] == "failed"
+        assert audit[0]["error_code"] == "backup_unavailable"
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)

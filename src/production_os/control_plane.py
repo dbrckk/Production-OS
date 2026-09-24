@@ -19,6 +19,7 @@ from .dashboard_control import DashboardControl
 from .dashboard_service import DashboardService, DashboardNotFound
 from .dashboard_ui import DASHBOARD_HTML
 from .dashboard_maintenance import RetentionCandidateConflict
+from .dashboard_backups import BackupError
 from .github_webhook import (
     WebhookDeliveryStore,
     WebhookError,
@@ -300,6 +301,8 @@ def make_handler(control: ControlPlane):
                             raise DashboardNotFound(parsed.path)
                     elif parsed.path == "/v1/dashboard/maintenance":
                         payload = service.maintenance()
+                    elif parsed.path == "/v1/dashboard/backups":
+                        payload = service.backups()
                     elif parsed.path == "/v1/dashboard/repositories":
                         payload = service.repositories()
                     elif parsed.path == "/v1/dashboard/projects":
@@ -825,6 +828,50 @@ def make_handler(control: ControlPlane):
 
             try:
                 parts = [part for part in parsed.path.split("/") if part]
+                if parsed.path == "/v1/dashboard/backups/create":
+                    principal = self._require("operator")
+                    if principal is None:
+                        return
+                    if str(body.get("confirm") or "") != "CREATE_VERIFIED_BACKUP":
+                        self._send(
+                            HTTPStatus.BAD_REQUEST,
+                            {"error":"exact backup confirmation required"},
+                        )
+                        return
+                    requested_by = f"{principal.role}:{principal.name}"
+                    audit = control.dashboard_store.append_control_audit(
+                        action="backup-create",
+                        worker_id="control-plane",
+                        requested_by=requested_by,
+                        outcome="requested",
+                    )
+                    try:
+                        result = control.dashboard.create_verified_backup()
+                    except BackupError as exc:
+                        control.dashboard_store.update_control_audit(
+                            audit["id"],
+                            outcome="failed",
+                            error_code="backup_unavailable",
+                        )
+                        self._send(
+                            HTTPStatus.CONFLICT,
+                            {"error":str(exc)},
+                        )
+                        return
+                    except Exception:
+                        control.dashboard_store.update_control_audit(
+                            audit["id"],
+                            outcome="failed",
+                            error_code="backup_failed",
+                        )
+                        raise
+                    control.dashboard_store.update_control_audit(
+                        audit["id"],
+                        outcome="succeeded",
+                    )
+                    self._send(HTTPStatus.CREATED, result)
+                    return
+
                 if parsed.path == "/v1/dashboard/maintenance/prune":
                     principal = self._require("operator")
                     if principal is None:

@@ -696,6 +696,40 @@ Cleanup is never automatic. It is not triggered by alerts, health checks, analyt
 
 Release 13 does not run `VACUUM` in the request path and does not mutate backup/restore state.
 
+## Dashboard Control Center Release 14 — Backup readiness
+
+Production-OS can create verified server-side SQLite backups before any restore capability is enabled.
+
+SQLite backup creation uses the online SQLite backup API, then performs:
+
+```text
+online backup
+-> PRAGMA integrity_check
+-> SHA-256 + size
+-> atomic rename
+-> safe manifest
+```
+
+The backup directory is configured only on the server through:
+
+```text
+PRODUCTION_OS_BACKUP_DIR
+```
+
+No filesystem path, database path, DSN, token, password, or secret is returned by the dashboard API or stored in the backup manifest.
+
+Backup creation is operator-only and requires the exact confirmation phrase:
+
+```text
+CREATE_VERIFIED_BACKUP
+```
+
+Viewer access is limited to backup readiness and verified catalog metadata.
+
+PostgreSQL backup creation is intentionally not claimed in Release 14. The dashboard reports it as unsupported until qualified external `pg_dump` tooling is explicitly integrated.
+
+Restore remains disabled.
+
 ## Design principles
 
 - Evidence over assumptions
