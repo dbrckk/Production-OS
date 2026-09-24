@@ -25,7 +25,7 @@ REQUIRED_EXECUTION_COLUMNS = {
 }
 
 
-def test_postgres_schema_v13_has_execution_columns_control_audit_incidents_and_remediation():
+def test_postgres_schema_v14_has_execution_columns_control_audit_incidents_and_remediation():
     backend = PostgresBackend(DSN)
     with backend.connect() as db:
         with db.cursor() as cur:
@@ -39,7 +39,7 @@ def test_postgres_schema_v13_has_execution_columns_control_audit_incidents_and_r
             )
             columns = {row["column_name"] for row in cur.fetchall()}
 
-    assert backend.SCHEMA_VERSION == 13
+    assert backend.SCHEMA_VERSION == 14
     assert REQUIRED_EXECUTION_COLUMNS <= columns
     with backend.connect() as db:
         with db.cursor() as cur:
@@ -95,6 +95,9 @@ def test_postgres_schema_v13_has_execution_columns_control_audit_incidents_and_r
         "verification_state",
         "verification_checks",
         "verified_at",
+        "resolved_occurrence_count",
+        "recurrence_state",
+        "recurred_at",
     } <= remediation_columns
 
 
