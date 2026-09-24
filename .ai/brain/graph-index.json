@@ -278,6 +278,55 @@
     },
     {
       "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/asset_forge.py"
+      ],
+      "dependents": [
+        "src/production_os/asset_forge.py",
+        "src/production_os/cli.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/dashboard_control.py",
+        "src/production_os/dashboard_service.py",
+        "src/production_os/dashboard_store.py",
+        "src/production_os/execution_feedback.py",
+        "src/production_os/feedback.py",
+        "src/production_os/github_work_state.py",
+        "src/production_os/health.py",
+        "src/production_os/postgres_backend.py",
+        "src/production_os/project_progress.py",
+        "src/production_os/rekor_checkpoint_state.py",
+        "src/production_os/rekor_witness_quorum.py",
+        "src/production_os/release_ledger.py",
+        "src/production_os/runtime_state.py",
+        "src/production_os/scheduler.py",
+        "src/production_os/self_healing.py",
+        "src/production_os/signer_factory.py",
+        "src/production_os/sqlite_backend.py",
+        "src/production_os/transparency_receipts.py",
+        "src/production_os/vault_auth.py",
+        "src/production_os/vault_signer.py",
+        "src/production_os/witness.py",
+        "src/production_os/workflow_engine.py",
+        "tests/test_callgraph_versioning_feedback.py",
+        "tests/test_dashboard_control.py",
+        "tests/test_dashboard_control_api.py",
+        "tests/test_dashboard_control_audit.py",
+        "tests/test_dashboard_remediation_history.py",
+        "tests/test_dashboard_store.py",
+        "tests/test_github_work_state.py",
+        "tests/test_governance.py",
+        "tests/test_incident_history.py",
+        "tests/test_project_progress.py",
+        "tests/test_release_ledger.py",
+        "tests/test_sqlite_migration.py",
+        "tests/test_workflow_engine.py"
+      ],
+      "in_degree": 38,
+      "out_degree": 2,
+      "path": "tests/test_asset_forge.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/api_auth.py",
         "src/production_os/approvals.py",
         "src/production_os/dashboard_control.py",
@@ -323,53 +372,6 @@
       "in_degree": 22,
       "out_degree": 17,
       "path": "src/production_os/control_plane.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/__init__.py",
-        "src/production_os/asset_forge.py"
-      ],
-      "dependents": [
-        "src/production_os/asset_forge.py",
-        "src/production_os/cli.py",
-        "src/production_os/control_plane.py",
-        "src/production_os/dashboard_control.py",
-        "src/production_os/dashboard_service.py",
-        "src/production_os/execution_feedback.py",
-        "src/production_os/feedback.py",
-        "src/production_os/github_work_state.py",
-        "src/production_os/health.py",
-        "src/production_os/postgres_backend.py",
-        "src/production_os/project_progress.py",
-        "src/production_os/rekor_checkpoint_state.py",
-        "src/production_os/rekor_witness_quorum.py",
-        "src/production_os/release_ledger.py",
-        "src/production_os/runtime_state.py",
-        "src/production_os/scheduler.py",
-        "src/production_os/self_healing.py",
-        "src/production_os/signer_factory.py",
-        "src/production_os/sqlite_backend.py",
-        "src/production_os/transparency_receipts.py",
-        "src/production_os/vault_auth.py",
-        "src/production_os/vault_signer.py",
-        "src/production_os/witness.py",
-        "src/production_os/workflow_engine.py",
-        "tests/test_callgraph_versioning_feedback.py",
-        "tests/test_dashboard_control.py",
-        "tests/test_dashboard_control_api.py",
-        "tests/test_dashboard_control_audit.py",
-        "tests/test_dashboard_store.py",
-        "tests/test_github_work_state.py",
-        "tests/test_governance.py",
-        "tests/test_incident_history.py",
-        "tests/test_project_progress.py",
-        "tests/test_release_ledger.py",
-        "tests/test_sqlite_migration.py",
-        "tests/test_workflow_engine.py"
-      ],
-      "in_degree": 36,
-      "out_degree": 2,
-      "path": "tests/test_asset_forge.py"
     },
     {
       "dependencies": [
@@ -876,6 +878,7 @@
         "src/production_os/dashboard_security.py",
         "src/production_os/postgres_backend.py",
         "src/production_os/workers.py",
+        "tests/test_asset_forge.py",
         "tests/test_fairness.py"
       ],
       "dependents": [
@@ -889,7 +892,7 @@
         "tests/test_dashboard_store.py"
       ],
       "in_degree": 8,
-      "out_degree": 4,
+      "out_degree": 5,
       "path": "src/production_os/dashboard_store.py"
     },
     {
@@ -1556,6 +1559,20 @@
     {
       "dependencies": [
         "src/production_os/__init__.py",
+        "src/production_os/dashboard_store.py",
+        "src/production_os/sqlite_backend.py",
+        "src/production_os/workers.py",
+        "tests/test_asset_forge.py",
+        "tests/test_fairness.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 6,
+      "path": "tests/test_dashboard_remediation_history.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/__init__.py",
         "src/production_os/governance.py",
         "src/production_os/policy.py",
         "src/production_os/quarantine.py",
@@ -1566,23 +1583,9 @@
       "in_degree": 0,
       "out_degree": 6,
       "path": "tests/test_governance.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/__init__.py",
-        "src/production_os/release_ledger.py",
-        "src/production_os/sqlite_backend.py",
-        "src/production_os/workers.py",
-        "src/production_os/workflow_engine.py",
-        "tests/test_asset_forge.py"
-      ],
-      "dependents": [],
-      "in_degree": 0,
-      "out_degree": 6,
-      "path": "tests/test_incident_history.py"
     }
   ],
-  "edge_count": 1096,
+  "edge_count": 1098,
   "generated_by": "dbrckk/repo-brain-v7-graph",
   "node_count": 227,
   "schema_version": 1

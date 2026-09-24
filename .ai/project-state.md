@@ -22,19 +22,18 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-24T16:41:10Z
+Generated: 2026-09-24T17:11:30Z
 
 ### Git
 - Branch: `main`
-- Head: `cd15f24c1b2a`
-- Commit date: 2026-09-24T18:40:58+02:00
-- Commit: feat: control center release 6 remediation history
-- Tracked files: 369
+- Head: `4487a4714a46`
+- Commit date: 2026-09-24T19:11:18+02:00
+- Commit: feat: control center release 7 remediation verification
+- Tracked files: 370
 
 ### Recently changed files
 - `README.md`
-- `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-6.md`
-- `src/production_os/control_plane.py`
+- `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-7.md`
 - `src/production_os/dashboard_service.py`
 - `src/production_os/dashboard_store.py`
 - `src/production_os/dashboard_ui.py`
@@ -45,13 +44,14 @@ Generated: 2026-09-24T16:41:10Z
 - `tests/test_dashboard_remediation_history.py`
 - `tests/test_dashboard_store_postgres.py`
 - `tests/test_dashboard_ui_v3.py`
+- `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-6.md`
+- `src/production_os/control_plane.py`
 - `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-5.md`
 - `src/production_os/dashboard_playbooks.py`
 - `tests/test_dashboard_playbook_api.py`
 - `tests/test_dashboard_playbooks.py`
 - `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-4.md`
 - `src/production_os/dashboard_incidents.py`
-- `tests/test_dashboard_control_e2e.py`
 
 ### Project signals
 - `pyproject.toml`

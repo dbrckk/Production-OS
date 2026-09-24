@@ -1,20 +1,19 @@
 # Change impact
 
-Base: da6a8019c3f5d31a4fa53f2a7165079f4c64c20a
-Head: cd15f24c1b2a590a1ba1febfe7d4ce7792dc8a8f
+Base: 9a1edd420b30d1fd4cdbe64b7185fe3527eac093
+Head: 4487a4714a46fb590e7c9caf3f5df4bc066d1e68
 
 ## Changed files
 - M README.md
-- A docs/superpowers/plans/2026-09-24-dashboard-control-center-release-6.md
-- M src/production_os/control_plane.py
+- A docs/superpowers/plans/2026-09-24-dashboard-control-center-release-7.md
 - M src/production_os/dashboard_service.py
 - M src/production_os/dashboard_store.py
 - M src/production_os/dashboard_ui.py
 - M src/production_os/postgres_backend.py
 - M src/production_os/sqlite_backend.py
 - M tests/test_dashboard_control_audit.py
-- A tests/test_dashboard_remediation_api.py
-- A tests/test_dashboard_remediation_history.py
+- M tests/test_dashboard_remediation_api.py
+- M tests/test_dashboard_remediation_history.py
 - M tests/test_dashboard_store_postgres.py
 - M tests/test_dashboard_ui_v3.py
 
@@ -25,7 +24,6 @@ Head: cd15f24c1b2a590a1ba1febfe7d4ce7792dc8a8f
 - tests
 
 ## Related test candidates
-- tests/test_control_plane.py
 - tests/test_dashboard_store.py
 - tests/test_postgres_backend.py
 - tests/test_sqlite_backend.py

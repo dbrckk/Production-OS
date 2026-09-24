@@ -3179,6 +3179,9 @@ recoverable_jobs = [dict(row) for row in found]
 ⋮----
 job = self.control.queue.get(str(item.get("target_id")))
 ⋮----
+# Refresh durable incident state first so verification reflects
+# current server facts rather than stale browser state.
+⋮----
 def control_audit(self, limit: int = 100) -> dict
 ⋮----
 def workers(self)
@@ -3366,6 +3369,12 @@ row = self._fetchone(
 incident = self._fetchone(
 ⋮----
 timestamp = completed_at or _now()
+⋮----
+updated: list[dict] = []
+⋮----
+state = (
+⋮----
+current = self._fetchone(
 ⋮----
 def control_audit_events(self, *, limit: int = 100) -> list[dict]
 ⋮----
@@ -4749,7 +4758,7 @@ def _utcnow() -> str
 ⋮----
 class PostgresBackend
 ⋮----
-SCHEMA_VERSION = 12
+SCHEMA_VERSION = 13
 ⋮----
 def __init__(self, dsn: str)
 ⋮----
@@ -6089,7 +6098,7 @@ def _utcnow() -> str
 ⋮----
 class SQLiteBackend
 ⋮----
-SCHEMA_VERSION = 12
+SCHEMA_VERSION = 13
 ⋮----
 def __init__(self, path: str | Path)
 ⋮----
@@ -6103,6 +6112,8 @@ connection = sqlite3.connect(
 connection = self.connect()
 ⋮----
 def initialize(self) -> None
+⋮----
+remediation_columns = {
 ⋮----
 cursor = db.execute(
 ⋮----
@@ -8046,7 +8057,7 @@ base = f"http://127.0.0.1:{server.server_port}"
 ⋮----
 events = payload["events"]
 ⋮----
-def test_release6_schema_is_v12_and_contains_control_audit_and_remediation(tmp_path)
+def test_release7_schema_is_v13_and_contains_control_audit_and_remediation(tmp_path)
 ⋮----
 backend = SQLiteBackend(tmp_path / "schema.sqlite")
 ⋮----
@@ -8528,6 +8539,21 @@ control = ControlPlane(str(tmp_path / "remediation-filter.sqlite"), authorizer=_
 first = _queue_incident(control)
 ⋮----
 second = control.dashboard_store.upsert_dashboard_incident(
+⋮----
+def test_remediation_history_verifies_active_then_resolved_incident(tmp_path)
+⋮----
+control = ControlPlane(
+⋮----
+event = control.dashboard_store.append_remediation_event(
+⋮----
+active = control.dashboard.remediation_history(limit=10)["events"][0]
+⋮----
+resolved = control.dashboard.remediation_history(limit=10)["events"][0]
+⋮----
+def test_remediation_history_does_not_verify_incomplete_request(tmp_path)
+⋮----
+payload = control.dashboard.remediation_history(limit=10)
+row = next(item for item in payload["events"] if item["id"] == event["id"])
 ````
 
 ## File: tests/test_dashboard_remediation_history.py
@@ -8564,6 +8590,53 @@ def test_remediation_ledger_has_no_freeform_secret_payload(tmp_path)
 ⋮----
 row = store.append_remediation_event(
 forbidden = {
+⋮----
+def test_failed_remediation_is_not_applicable_for_verification(tmp_path)
+⋮----
+store = _store(tmp_path / "failed.sqlite")
+⋮----
+failed = store.update_remediation_event(
+⋮----
+def test_completed_remediation_tracks_active_then_resolved_incident(tmp_path)
+⋮----
+store = _store(tmp_path / "verification.sqlite")
+⋮----
+active = store.verify_remediation_events()
+⋮----
+resolved = store.verify_remediation_events()
+⋮----
+def test_resolved_verification_never_regresses_after_incident_reopens(tmp_path)
+⋮----
+store = _store(tmp_path / "terminal.sqlite")
+⋮----
+before = store.remediation_events(limit=1)[0]
+⋮----
+reopened = store.upsert_dashboard_incident(
+⋮----
+after = store.remediation_events(limit=1)[0]
+⋮----
+def test_sqlite_v12_database_is_migrated_additively_to_v13(tmp_path)
+⋮----
+path = tmp_path / "migration.sqlite"
+db = sqlite3.connect(path)
+⋮----
+backend = SQLiteBackend(path)
+⋮----
+version = conn.execute(
+columns = {
+row = conn.execute(
+⋮----
+def test_repeated_active_verification_is_idempotent(tmp_path)
+⋮----
+store = _store(tmp_path / "idempotent.sqlite")
+⋮----
+first = store.verify_remediation_events()
+⋮----
+row = store.remediation_events(limit=1)[0]
+⋮----
+verified_at = row["verified_at"]
+⋮----
+second = store.verify_remediation_events()
 ````
 
 ## File: tests/test_dashboard_security.py
@@ -8582,7 +8655,7 @@ pytestmark = pytest.mark.skipif(
 ⋮----
 REQUIRED_EXECUTION_COLUMNS = {
 ⋮----
-def test_postgres_schema_v12_has_execution_columns_control_audit_incidents_and_remediation()
+def test_postgres_schema_v13_has_execution_columns_control_audit_incidents_and_remediation()
 ⋮----
 backend = PostgresBackend(DSN)
 ⋮----
@@ -8593,6 +8666,8 @@ audit_table = cur.fetchone()
 incident_table = cur.fetchone()
 ⋮----
 remediation_table = cur.fetchone()
+⋮----
+remediation_columns = {
 ⋮----
 def test_dashboard_service_project_queries_work_on_postgres()
 ⋮----
@@ -8739,6 +8814,8 @@ def test_incident_playbook_actions_send_incident_id()
 def test_activity_view_renders_remediation_history()
 ⋮----
 def test_direct_worker_controls_do_not_require_incident_id()
+⋮----
+def test_activity_view_renders_remediation_verification_status()
 ````
 
 ## File: tests/test_dashboard_usage.py
@@ -11476,6 +11553,42 @@ Historique des remédiations
 ```
 
 so operators can distinguish ordinary control actions from incident-driven remediation.
+
+## Dashboard Control Center Release 7 — Remediation verification
+
+Incident-linked remediation history now distinguishes the control result from whether the incident was actually cleared.
+
+Verification states are:
+
+```text
+pending
+still_active
+resolved
+not_applicable
+```
+
+Semantics:
+
+- `pending`: the remediation request completed but has not yet been checked against refreshed incident state;
+- `still_active`: the related incident remains open or acknowledged after a verification refresh;
+- `resolved`: the related incident is durably resolved;
+- `not_applicable`: the remediation action itself failed, so effectiveness verification does not apply.
+
+Verification is observational only. It never triggers another kick, retry, cancellation, recovery, pause, resume or drain action.
+
+The verification engine runs from current durable incident state. A resolved verification is terminal and does not regress if the same incident later reopens as a new occurrence.
+
+To avoid write amplification from dashboard polling, repeated checks that would keep the same verification state do not rewrite the remediation ledger or increment the verification counter.
+
+Existing schema v12 databases are migrated additively to schema v13 with:
+
+```text
+verification_state
+verification_checks
+verified_at
+```
+
+The Activity view shows control outcome and remediation verification separately.
 
 ## Design principles
 
