@@ -22,7 +22,7 @@ def _utcnow() -> str:
 
 
 class PostgresBackend:
-    SCHEMA_VERSION = 10
+    SCHEMA_VERSION = 11
 
     def __init__(self, dsn: str):
         if psycopg is None:
@@ -314,6 +314,29 @@ class PostgresBackend:
                 cur.execute("""
                     CREATE INDEX IF NOT EXISTS idx_control_audit_requested_at
                     ON control_audit_events(requested_at DESC)
+                """)
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS dashboard_incidents (
+                        id TEXT PRIMARY KEY,
+                        dedupe_key TEXT NOT NULL UNIQUE,
+                        code TEXT NOT NULL,
+                        severity TEXT NOT NULL,
+                        title TEXT NOT NULL,
+                        message TEXT NOT NULL,
+                        target_type TEXT NOT NULL,
+                        target_id TEXT NOT NULL,
+                        status TEXT NOT NULL DEFAULT 'open',
+                        occurrence_count INTEGER NOT NULL DEFAULT 1,
+                        first_seen_at TEXT NOT NULL,
+                        last_seen_at TEXT NOT NULL,
+                        acknowledged_by TEXT,
+                        acknowledged_at TEXT,
+                        resolved_at TEXT
+                    )
+                """)
+                cur.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_dashboard_incidents_status_time
+                    ON dashboard_incidents(status, last_seen_at DESC)
                 """)
                 cur.execute("""
                     CREATE TABLE IF NOT EXISTS job_executions (id TEXT PRIMARY KEY, job_key TEXT NOT NULL, workflow_id TEXT, workflow_task_id TEXT, repository TEXT NOT NULL, worker_id TEXT NOT NULL, attempt INTEGER NOT NULL DEFAULT 1, status TEXT NOT NULL, started_at TEXT NOT NULL, finished_at TEXT, duration_seconds DOUBLE PRECISION, provider TEXT, model TEXT, api_calls INTEGER NOT NULL DEFAULT 0, input_tokens BIGINT NOT NULL DEFAULT 0, cached_input_tokens BIGINT NOT NULL DEFAULT 0, output_tokens BIGINT NOT NULL DEFAULT 0, reasoning_tokens BIGINT NOT NULL DEFAULT 0, total_tokens BIGINT NOT NULL DEFAULT 0, estimated_cost_usd DOUBLE PRECISION, pricing_catalog_version TEXT, commit_count INTEGER NOT NULL DEFAULT 0, commit_shas_json TEXT NOT NULL DEFAULT '[]', retry_of_execution_id TEXT, error_type TEXT, error_message TEXT, current_stage TEXT, progress_percent DOUBLE PRECISION, live_usage_json TEXT NOT NULL DEFAULT '{}', last_telemetry_at TEXT, result_summary_json TEXT NOT NULL DEFAULT '{}', created_at TEXT NOT NULL)
