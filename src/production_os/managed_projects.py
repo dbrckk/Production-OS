@@ -111,7 +111,14 @@ class ManagedProjects:
     ) -> dict:
         repository = str(repository or "").strip()
         final_goal = str(final_goal or "").strip()
-        if not repository or "/" not in repository:
+        repository_parts = repository.split("/")
+        if (
+            len(repository_parts) != 2
+            or any(
+                not part or part in {".", ".."}
+                for part in repository_parts
+            )
+        ):
             raise ManagedProjectError("repository must be owner/name")
         if not final_goal:
             raise ManagedProjectError("final_goal required")
