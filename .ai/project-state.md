@@ -22,36 +22,36 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-24T15:32:16Z
+Generated: 2026-09-24T15:49:49Z
 
 ### Git
 - Branch: `main`
-- Head: `af361a28c966`
-- Commit date: 2026-09-24T17:32:02+02:00
-- Commit: feat: summarize autopilot capacity and eta
-- Tracked files: 353
+- Head: `1ce17e6b3e89`
+- Commit date: 2026-09-24T17:49:37+02:00
+- Commit: feat: control center release 3 reliability
+- Tracked files: 357
 
 ### Recently changed files
-- `src/production_os/dashboard_service.py`
-- `src/production_os/dashboard_ui.py`
-- `tests/test_dashboard_api.py`
-- `tests/test_dashboard_ui_v3.py`
-- `docs/superpowers/plans/2026-09-24-dashboard-autopilot-release-3.md`
-- `src/production_os/control_plane.py`
 - `README.md`
-- `src/production_os/dashboard_alerts.py`
-- `src/production_os/dashboard_control.py`
+- `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-3.md`
+- `src/production_os/control_plane.py`
+- `src/production_os/dashboard_health.py`
+- `src/production_os/dashboard_service.py`
 - `src/production_os/dashboard_store.py`
+- `src/production_os/dashboard_ui.py`
 - `src/production_os/postgres_backend.py`
 - `src/production_os/sqlite_backend.py`
-- `src/production_os/workflow_engine.py`
-- `tests/test_dashboard_alerts.py`
-- `tests/test_dashboard_control.py`
+- `tests/test_dashboard_api.py`
 - `tests/test_dashboard_control_api.py`
+- `tests/test_dashboard_control_audit.py`
 - `tests/test_dashboard_control_e2e.py`
-- `tests/test_portfolio_claim_api.py`
-- `docs/superpowers/plans/2026-09-22-dashboard-control-center-release-2.md`
-- `docs/superpowers/plans/2026-09-22-dashboard-observability-release-1.md`
+- `tests/test_dashboard_health.py`
+- `tests/test_dashboard_store_postgres.py`
+- `tests/test_dashboard_ui_v3.py`
+- `docs/superpowers/plans/2026-09-24-dashboard-autopilot-release-3.md`
+- `src/production_os/dashboard_alerts.py`
+- `src/production_os/dashboard_control.py`
+- `src/production_os/workflow_engine.py`
 
 ### Project signals
 - `pyproject.toml`

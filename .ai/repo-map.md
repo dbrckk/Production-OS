@@ -82,6 +82,7 @@ src/
     dashboard_alerts.py
     dashboard_control.py
     dashboard_github.py
+    dashboard_health.py
     dashboard_security.py
     dashboard_service.py
     dashboard_store.py
@@ -186,9 +187,11 @@ tests/
   test_dashboard_alerts.py
   test_dashboard_api.py
   test_dashboard_control_api.py
+  test_dashboard_control_audit.py
   test_dashboard_control_e2e.py
   test_dashboard_control.py
   test_dashboard_github.py
+  test_dashboard_health.py
   test_dashboard_launch.py
   test_dashboard_observability_e2e.py
   test_dashboard_security.py
@@ -2366,6 +2369,8 @@ service = control.dashboard
 ⋮----
 payload = service.overview(window)
 ⋮----
+payload = service.health()
+⋮----
 payload = service.autopilot_queue(
 ⋮----
 payload = service.workers()
@@ -2393,6 +2398,8 @@ payload = service.project_usage(repository, window)
 payload = service.project_workflows(repository)
 ⋮----
 payload = service.project_history(repository)
+⋮----
+payload = service.control_audit(
 ⋮----
 payload = service.activity(
 ⋮----
@@ -2457,15 +2464,23 @@ principal = self._require("operator")
 action = str(body.get("action") or "").strip()
 state_by_action = {
 worker_id = parts[3]
+requested_by = f"{principal.role}:{principal.name}"
+audit_job_key = (
+audit_event = control.dashboard_store.append_control_audit(
+⋮----
+# The pre-action reservation remains durable even
+# if result finalization cannot be written.
+⋮----
+job_key = str(body.get("job_key") or "").strip()
+⋮----
+job = control.queue.get(job_key)
+⋮----
+recovered = control.queue.recover_job(
 ⋮----
 kicked = control.dashboard_control.kick_worker(worker_id)
 status = (
 ⋮----
-job_key = str(body.get("job_key") or "").strip()
-⋮----
 retried = control.dashboard_control.retry_job(
-⋮----
-job = control.queue.get(job_key)
 ⋮----
 state = control.dashboard_control.request_job_cancel(
 ⋮----
@@ -2888,6 +2903,34 @@ cached = self.store.latest_repository_snapshot(repository)
 captured = datetime.fromisoformat(str(cached["captured_at"]).replace("Z","+00:00"))
 ````
 
+## File: src/production_os/dashboard_health.py
+````python
+STALE_BUSY_WORKER_SECONDS = 180
+STALE_RUNNING_EXECUTION_SECONDS = 300
+⋮----
+def _dt(value)
+⋮----
+parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+⋮----
+def derive_control_health(snapshot: dict) -> dict
+⋮----
+now = _dt(snapshot.get("generated_at")) or datetime.now(timezone.utc)
+reasons = []
+⋮----
+queued = int((snapshot.get("productions") or {}).get("queued") or 0)
+online = int((snapshot.get("workers") or {}).get("online") or 0)
+⋮----
+stale_workers = []
+⋮----
+last = _dt(worker.get("last_heartbeat"))
+⋮----
+age = max(0.0, (now - last).total_seconds())
+⋮----
+stale_executions = []
+⋮----
+last = _dt(
+````
+
 ## File: src/production_os/dashboard_security.py
 ````python
 _SENSITIVE_KEYS = {
@@ -3045,6 +3088,14 @@ predicted = [
 free_slots = sum(
 summary = {
 ⋮----
+def health(self) -> dict
+⋮----
+job_rows = db.execute(
+execution_rows = db.execute(
+states = {
+⋮----
+def control_audit(self, limit: int = 100) -> dict
+⋮----
 def workers(self)
 ⋮----
 rows=[]
@@ -3058,6 +3109,8 @@ rows=[x for x in self._worker_rows() if x.get("worker_id")==worker_id]
 ⋮----
 worker=dict(rows[0])
 desired=self.control.dashboard_control.worker_state(worker_id)
+⋮----
+recoverable_rows = _execute(
 ⋮----
 def worker_logs(self,worker_id,after,limit)
 ⋮----
@@ -3214,11 +3267,16 @@ live_usage = usage if usage is not None else (row.get("live_usage") or {})
 ⋮----
 result = result or {}; usage = result.get("usage") or {}; commits = result.get("commits") or {}; shas = _valid_commit_shas(commits.get("shas"))
 ⋮----
-def get_worker_control(self, worker_id: str) -> dict | None
-⋮----
+ident = uuid4().hex
 timestamp = at or _now()
 ⋮----
 row = self._fetchone(
+⋮----
+def control_audit_events(self, *, limit: int = 100) -> list[dict]
+⋮----
+bounded = max(1, min(500, int(limit)))
+⋮----
+def get_worker_control(self, worker_id: str) -> dict | None
 ⋮----
 def get_job_control(self, job_key: str) -> dict | None
 ⋮----
@@ -4598,7 +4656,7 @@ def _utcnow() -> str
 ⋮----
 class PostgresBackend
 ⋮----
-SCHEMA_VERSION = 9
+SCHEMA_VERSION = 10
 ⋮----
 def __init__(self, dsn: str)
 ⋮----
@@ -4755,13 +4813,17 @@ def fail(self, key: str, worker_id: str, reason: str) -> dict
 ⋮----
 def cancel(self, key: str, worker_id: str, reason: str = "operator cancel") -> dict
 ⋮----
-def recover_expired(self, *, max_attempts: int = 3) -> list[dict]
-⋮----
-actions = []
+def recover_job(self, key: str, *, max_attempts: int = 3) -> dict
 ⋮----
 target = (
 ⋮----
 action = {
+⋮----
+updated = cur.fetchone()
+⋮----
+def recover_expired(self, *, max_attempts: int = 3) -> list[dict]
+⋮----
+actions = []
 ````
 
 ## File: src/production_os/preemption.py
@@ -5934,7 +5996,7 @@ def _utcnow() -> str
 ⋮----
 class SQLiteBackend
 ⋮----
-SCHEMA_VERSION = 9
+SCHEMA_VERSION = 10
 ⋮----
 def __init__(self, path: str | Path)
 ⋮----
@@ -6110,13 +6172,15 @@ def fail(self, key: str, worker_id: str, reason: str) -> dict
 ⋮----
 def cancel(self, key: str, worker_id: str, reason: str = "operator cancel") -> dict
 ⋮----
-def recover_expired(self, *, max_attempts: int = 3) -> list[dict]
-⋮----
-actions = []
+def recover_job(self, key: str, *, max_attempts: int = 3) -> dict
 ⋮----
 target = (
 ⋮----
 action = {
+⋮----
+def recover_expired(self, *, max_attempts: int = 3) -> list[dict]
+⋮----
+actions = []
 ````
 
 ## File: src/production_os/sqlite_migration.py
@@ -7749,6 +7813,10 @@ stale = control.queue.enqueue({
 healthy = control.queue.enqueue({
 ⋮----
 summary = payload["summary"]
+⋮----
+def test_dashboard_health_requires_viewer_and_has_stable_shape(running_control_plane)
+⋮----
+def test_worker_detail_includes_recoverable_jobs(running_control_plane)
 ````
 
 ## File: tests/test_dashboard_control_api.py
@@ -7837,6 +7905,78 @@ after = control.workflows.get(workflow["id"])
 task_b = next(x for x in after["tasks"] if x["task_id"] == "task-b")
 ⋮----
 queued = control.queue.peek_candidates(limit=100)
+⋮----
+def test_recover_stuck_requires_expired_claim_and_is_audited(tmp_path)
+⋮----
+failed = control.dashboard_store.control_audit_events(limit=1)[0]
+⋮----
+audit = control.dashboard_store.control_audit_events(limit=1)[0]
+⋮----
+def test_recover_stuck_respects_max_attempts(tmp_path)
+````
+
+## File: tests/test_dashboard_control_audit.py
+````python
+def test_control_audit_is_durable_and_newest_first(tmp_path)
+⋮----
+store = DashboardStore(SQLiteBackend(tmp_path / "db.sqlite"))
+first = store.append_control_audit(
+second = store.append_control_audit(
+rows = store.control_audit_events(limit=10)
+⋮----
+def test_control_audit_schema_cannot_store_credentials(tmp_path)
+⋮----
+row = store.append_control_audit(
+forbidden = {"token", "authorization", "headers", "secret", "github_token"}
+⋮----
+def test_control_audit_limit_is_bounded(tmp_path)
+⋮----
+def _auth()
+⋮----
+def _request(base, path, token, *, method="GET", body=None)
+⋮----
+data = None if body is None else json.dumps(body).encode("utf-8")
+request = urllib.request.Request(
+⋮----
+raw = response.read()
+⋮----
+raw = exc.read()
+⋮----
+def test_operator_control_api_writes_success_and_failure_audit(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "api.sqlite"), authorizer=_auth())
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+base = f"http://127.0.0.1:{server.server_port}"
+⋮----
+events = payload["events"]
+⋮----
+def test_release3_schema_is_v10_and_contains_control_audit(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "schema.sqlite")
+⋮----
+version = db.execute(
+table = db.execute(
+⋮----
+def test_control_action_remains_traced_if_audit_finalization_fails(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "audit-failure.sqlite"), authorizer=_auth())
+⋮----
+original = control.dashboard_store.update_control_audit
+⋮----
+def fail_finalize(*args, **kwargs)
+⋮----
+rows = control.dashboard_store.control_audit_events(limit=1)
+⋮----
+def test_control_audit_does_not_echo_reason_or_credentials(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "secret-audit.sqlite"), authorizer=_auth())
+⋮----
+secret = "Bearer super-secret-token"
+⋮----
+serialized = json.dumps(payload, sort_keys=True)
 ````
 
 ## File: tests/test_dashboard_control_e2e.py
@@ -7882,6 +8022,16 @@ current = control.workflows.get(workflow["id"])
 task = current["tasks"][0]
 ⋮----
 github = _FakeGitHub()
+⋮----
+def test_release3_audit_and_recovery_survive_control_plane_restart(tmp_path)
+⋮----
+database = str(tmp_path / "release3.db")
+⋮----
+job = first.queue.enqueue({
+⋮----
+persisted = second.dashboard_store.control_audit_events(limit=10)
+⋮----
+latest = second.dashboard_store.control_audit_events(limit=1)[0]
 ````
 
 ## File: tests/test_dashboard_control.py
@@ -7962,6 +8112,19 @@ def test_snapshotter_rejects_invalid_repository(tmp_path)
 def test_snapshotter_counts_distinct_production_os_commits(tmp_path)
 ⋮----
 snapshot = RepositorySnapshotter(FakeGitHub(), store).refresh("dbrckk/example")
+````
+
+## File: tests/test_dashboard_health.py
+````python
+def test_health_is_healthy_without_operational_problems()
+⋮----
+result = derive_control_health({
+⋮----
+def test_queue_without_worker_degrades_health()
+⋮----
+def test_stale_busy_worker_and_running_execution_are_explained()
+⋮----
+codes = {item["code"] for item in result["reasons"]}
 ````
 
 ## File: tests/test_dashboard_launch.py
@@ -8079,11 +8242,13 @@ pytestmark = pytest.mark.skipif(
 ⋮----
 REQUIRED_EXECUTION_COLUMNS = {
 ⋮----
-def test_postgres_schema_v9_has_execution_columns()
+def test_postgres_schema_v10_has_execution_columns_and_control_audit()
 ⋮----
 backend = PostgresBackend(DSN)
 ⋮----
 columns = {row["column_name"] for row in cur.fetchall()}
+⋮----
+audit_table = cur.fetchone()
 ⋮----
 def test_dashboard_service_project_queries_work_on_postgres()
 ⋮----
@@ -8210,6 +8375,12 @@ def test_autopilot_navigation_preserves_polling_scroll_contract()
 def test_autopilot_surfaces_degraded_ranking_state()
 ⋮----
 def test_autopilot_view_shows_capacity_summary()
+⋮----
+def test_activity_view_renders_operator_control_audit()
+⋮----
+def test_overview_renders_operational_health()
+⋮----
+def test_worker_control_exposes_recover_stuck_only_from_recoverable_jobs()
 ````
 
 ## File: tests/test_dashboard_usage.py
@@ -10783,6 +10954,67 @@ PRODUCTION_OS_ACTIONS_REF=main
 ```
 
 The GitHub token remains server-side and is never returned to dashboard JavaScript.
+
+## Dashboard Control Center Release 3
+
+Release 3 hardens day-to-day operation of the control center.
+
+### Operator audit
+
+Every operator control action is written to a dedicated durable audit log with:
+
+```text
+action
+worker_id
+optional job_key
+requested_by
+outcome
+optional error_code
+requested_at
+```
+
+The audit schema intentionally has no columns for bearer tokens, authorization headers, GitHub tokens, or arbitrary secret metadata.
+
+Dashboard viewers can inspect:
+
+```text
+GET /v1/dashboard/control-audit?limit=100
+```
+
+Worker credentials cannot read dashboard audit history.
+
+### Operational health
+
+The liveness endpoint `/health` only answers whether the HTTP service is alive.
+
+Operational health is separate:
+
+```text
+GET /v1/dashboard/health
+```
+
+It reports `healthy` or `degraded` with explicit reasons such as:
+
+- queued work with no online worker;
+- a busy worker whose heartbeat is stale;
+- a running execution whose telemetry is stale.
+
+These diagnostics do not automatically cancel or mutate work.
+
+### Targeted stuck-job recovery
+
+The dashboard exposes a recovery action only for jobs that are still in `claimed` state and whose acknowledgement deadline has expired.
+
+```text
+recover-stuck
+```
+
+Recovery is job-scoped and requires an explicit `job_key`. A non-expired claim is rejected. The attempt budget is preserved:
+
+- below `max_attempts` → return the job to `queued`;
+- at or above `max_attempts` → move the job to `dead-letter`.
+
+The action is audited whether it succeeds or is rejected.
 
 ## Design principles
 

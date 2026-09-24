@@ -1,21 +1,17 @@
 # CI status
 
-Summary: 4 success / 3 failure / 1 active
+Summary: 2 success / 5 failure / 1 active
 
-- CI: in_progress / pending (af361a28)
-- CI: completed / success (9173fd9d)
-- CI: completed / success (ac4ca00a)
-- CI: completed / success (add81f6c)
-- CI: completed / success (67b3d10f)
-- CI: completed / failure (28b5345c)
-- CI: completed / failure (02f8c33f)
-- CI: completed / failure (c77d9a2c)
+- CI: in_progress / pending (1ce17e6b)
+- CI: completed / success (4a3ef6e9)
+- CI: completed / success (9874195a)
+- CI: completed / failure (079ed084)
+- CI: completed / failure (f03ff93e)
+- CI: completed / failure (169c4444)
+- CI: completed / failure (297c4184)
+- CI: completed / failure (b3a47874)
 
 ## Latest failed run structure
-- Job: python-compat (3.11)
-  - Failed step: Compatibility tests
-- Job: python-compat (3.12)
-  - Failed step: Compatibility tests
 - Job: test
   - Failed step: Unit tests
 
