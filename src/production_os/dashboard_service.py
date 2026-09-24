@@ -157,9 +157,9 @@ class DashboardService:
             "tests_score":snapshot.get("tests_score"),
             "stability_score":snapshot.get("stability_score"),
             "release_score":snapshot.get("release_score"),
-            "evidence":snapshot.get("evidence") or {},
-            "remaining_work":snapshot.get("remaining_work") or [],
-            "blockers":snapshot.get("blockers") or [],
+            "evidence":snapshot.get("evidence") or snapshot.get("evidence_json") or {},
+            "remaining_work":snapshot.get("remaining_work") or snapshot.get("remaining_work_json") or [],
+            "blockers":snapshot.get("blockers") or snapshot.get("blockers_json") or [],
             "calculation_version":snapshot.get("calculation_version"),
         }
 
@@ -191,7 +191,6 @@ class DashboardService:
         calculated["blockers"]=evidence.get("blockers") or []
         components=calculated.get("components") or {}
         candidate={
-            "id":repository+":"+str(workflow.get("id") if workflow else "none")+":"+str(production.get("percent"))+":"+str(calculated.get("score"))+":"+str(calculated.get("confidence")),
             "repository":repository,
             "current_workflow_id":workflow.get("id") if workflow else None,
             "production_progress":production.get("percent"),
@@ -209,15 +208,11 @@ class DashboardService:
             "calculation_version":calculated.get("calculation_version"),
             "captured_at":calculated.get("captured_at"),
         }
+        candidate_state=self._progress_snapshot_state(candidate)
+        fingerprint=hashlib.sha256(json.dumps(candidate_state,sort_keys=True,separators=(",",":"),default=str).encode()).hexdigest()
+        candidate["id"]=repository+":"+fingerprint
         persisted=self.store.latest_progress_snapshot(repository)
-        meaningful=(
-            persisted is None
-            or persisted.get("current_workflow_id") != candidate["current_workflow_id"]
-            or persisted.get("production_progress") != candidate["production_progress"]
-            or persisted.get("project_progress") != candidate["project_progress"]
-            or persisted.get("confidence") != candidate["confidence"]
-            or persisted.get("calculation_version") != candidate["calculation_version"]
-        )
+        meaningful=self._progress_snapshot_state(persisted) != candidate_state
         if meaningful:
             persisted=self.store.save_progress_snapshot(candidate)
         if persisted:
