@@ -100,3 +100,15 @@ def test_postgres_readiness_is_truthfully_unsupported(tmp_path, monkeypatch):
     assert readiness["create_supported"] is False
     assert readiness["restore_enabled"] is False
     assert readiness["backups"] == []
+
+
+def test_backup_readiness_does_not_create_configured_directory(tmp_path, monkeypatch):
+    backup_dir = tmp_path / "backups"
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    backend = SQLiteBackend(tmp_path / "production.sqlite")
+
+    readiness = backup_readiness(backend)
+
+    assert readiness["status"] == "ready"
+    assert readiness["create_supported"] is True
+    assert not backup_dir.exists()
