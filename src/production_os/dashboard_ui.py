@@ -926,7 +926,10 @@ async function loadActivityView(){
    (remediations.length?remediations.map(function(row){
     const target=row.job_key?('job '+String(row.job_key)):('worker '+String(row.worker_id||"—"));
     const error=row.error_code?(' · erreur '+String(row.error_code)):'';
-    return '<div class="small"><strong>'+esc(String(row.action||"action"))+'</strong> · incident '+esc(String(row.incident_id||""))+' · '+esc(target)+' · '+esc(String(row.outcome||""))+' · '+esc(String(row.requested_by||""))+' · '+esc(String(row.requested_at||""))+esc(error)+'</div>';
+    const verification=String(row.verification_state||"pending");
+    const verified=row.verified_at?(' · vérifié '+String(row.verified_at)):'';
+    const checks=Number(row.verification_checks||0);
+    return '<div class="small"><strong>'+esc(String(row.action||"action"))+'</strong> · incident '+esc(String(row.incident_id||""))+' · '+esc(target)+' · résultat '+esc(String(row.outcome||""))+' · vérification '+esc(verification)+' ('+formatNumber(checks)+' contrôle(s))'+esc(verified)+' · '+esc(String(row.requested_by||""))+' · '+esc(String(row.requested_at||""))+esc(error)+'</div>';
    }).join(""):'<div class="empty">Aucune remédiation liée à un incident.</div>')+
    '</div>';
   const activityHtml=rows.length?rows.slice().reverse().map(function(row){
