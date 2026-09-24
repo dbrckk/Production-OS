@@ -277,3 +277,11 @@ def test_activity_view_renders_remediation_history():
 def test_direct_worker_controls_do_not_require_incident_id():
     assert "async function runWorkerControl(workerId,action,jobKey=null,incidentId=null)" in DASHBOARD_HTML
     assert "if(incidentId)body.incident_id=incidentId" in DASHBOARD_HTML
+
+
+def test_activity_view_renders_remediation_verification_status():
+    assert "row.verification_state" in DASHBOARD_HTML
+    assert "row.verification_checks" in DASHBOARD_HTML
+    assert "row.verified_at" in DASHBOARD_HTML
+    assert "résultat " in DASHBOARD_HTML
+    assert "vérification " in DASHBOARD_HTML
