@@ -160,15 +160,13 @@ def test_dashboard_autopilot_queue_ranks_jobs_and_explains_worker_eligibility(
 
     low = control.queue.enqueue({
         "idempotency_key":"autopilot-low",
-        "handoff":{"repository":"dbrckk/example","task":"Low"},
+        "handoff":{"repository":"dbrckk/example","task":"Low","priority":1},
         "required_capabilities":["python"],
-        "priority":1,
     })
     high = control.queue.enqueue({
         "idempotency_key":"autopilot-high",
-        "handoff":{"repository":"dbrckk/example","task":"High"},
+        "handoff":{"repository":"dbrckk/example","task":"High","priority":10},
         "required_capabilities":["python"],
-        "priority":10,
     })
 
     status, payload = get_api(
@@ -201,15 +199,13 @@ def test_dashboard_autopilot_respects_pause_capacity_and_capabilities(
 
     paused_job = control.queue.enqueue({
         "idempotency_key":"autopilot-paused",
-        "handoff":{"repository":"dbrckk/example","task":"Paused"},
+        "handoff":{"repository":"dbrckk/example","task":"Paused","priority":30},
         "required_capabilities":["python"],
-        "priority":30,
     })
     missing_job = control.queue.enqueue({
         "idempotency_key":"autopilot-missing",
-        "handoff":{"repository":"dbrckk/example","task":"Android"},
+        "handoff":{"repository":"dbrckk/example","task":"Android","priority":20},
         "required_capabilities":["android"],
-        "priority":20,
     })
 
     status, payload = get_api(
@@ -246,10 +242,9 @@ def test_dashboard_autopilot_honors_assigned_worker_and_access_rules(
 
     job = control.queue.enqueue({
         "idempotency_key":"autopilot-assigned",
-        "handoff":{"repository":"dbrckk/example","task":"Pinned"},
+        "handoff":{"repository":"dbrckk/example","task":"Pinned","priority":50},
         "required_capabilities":["python"],
         "worker_id":"worker-b",
-        "priority":50,
     })
     status, payload = get_api(
         base,
@@ -282,17 +277,15 @@ def test_dashboard_autopilot_survives_stale_workflow_reference(
 
     stale = control.queue.enqueue({
         "idempotency_key":"autopilot-stale",
-        "handoff":{"repository":"dbrckk/example","task":"Stale workflow"},
+        "handoff":{"repository":"dbrckk/example","task":"Stale workflow","priority":80},
         "workflow_id":"missing-workflow",
         "workflow_task_id":"task-a",
         "required_capabilities":["python"],
-        "priority":80,
     })
     healthy = control.queue.enqueue({
         "idempotency_key":"autopilot-healthy",
-        "handoff":{"repository":"dbrckk/example","task":"Healthy"},
+        "handoff":{"repository":"dbrckk/example","task":"Healthy","priority":10},
         "required_capabilities":["python"],
-        "priority":10,
     })
 
     status, payload = get_api(
