@@ -77,3 +77,26 @@ Storage card exposes:
 - SQLite/PostgreSQL parity
 - audit row created
 - full CI + Python 3.11/3.12 green before merge
+
+
+## Implemented in current branch
+
+- retention diagnostics separate prunable and protected candidates
+- terminal-only execution pruning
+- invalid timestamps and recent rows protected
+- incidents/remediation history fully protected
+- transactional fresh candidate recount
+- expected-count conflict protection with zero deletion
+- operator-only prune endpoint with exact confirmation phrase
+- successful/conflicted prune requests recorded in control audit
+- maintenance cache invalidated and refreshed after success
+- explicit dashboard confirmation and prune receipt
+- SQLite safety/API tests
+- PostgreSQL safety-classification parity contract
+- README documentation and UI regression coverage
+
+## Remaining before Release 13 completion
+
+- final CI qualification on complete head
+- final diff/security review
+- mark PR ready and merge only after green final head
