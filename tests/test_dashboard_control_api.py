@@ -321,3 +321,123 @@ def test_cancel_current_converges_workflow_task_without_auto_retry(tmp_path):
         assert control.workflows.dispatch_ready(workflow["id"]) == []
     finally:
         server.shutdown(); server.server_close()
+
+
+def test_retry_cancelled_workflow_task_creates_new_attempt_once(tmp_path):
+    control, server, base = _fixture(tmp_path)
+    workflow = control.workflows.create(
+        name="retry-flow",
+        repository="dbrckk/example",
+        tasks=[
+            WorkflowTaskSpec(
+                "task-a",
+                "Retryable task",
+                {"required_capabilities":["python"]},
+                max_attempts=2,
+            )
+        ],
+    )
+    first = control.workflows.dispatch_ready(workflow["id"])[0]
+    assert control.queue.claim_key(first["key"], "worker-a") is not None
+    control.queue.ack(first["key"], "worker-a")
+    control.dashboard_store.start_execution(control.queue.get(first["key"]), "worker-a")
+    try:
+        status, _ = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"cancel-current","job_key":first["key"]},
+        )
+        assert status == 202
+        status, _ = _post(
+            base,
+            "/v1/workers/heartbeat",
+            "worker",
+            {
+                "worker_id":"worker-a",
+                "active_tasks":1,
+                "active_job_keys":[first["key"]],
+                "job_control_states":{first["key"]:"cancel_requested"},
+            },
+        )
+        assert status == 200
+        first_execution = control.dashboard_store.latest_execution(first["key"])
+        assert first_execution["status"] == "cancelled"
+
+        status, retried = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"retry","job_key":first["key"]},
+        )
+        assert status == 201
+        second = retried["job"]
+        assert second["key"] != first["key"]
+        assert second["status"] == "queued"
+        assert control.queue.get(first["key"])["status"] == "cancelled"
+        task = control.workflows.get(workflow["id"])["tasks"][0]
+        assert task["attempts"] == 2
+        assert task["claimed_job_key"] == second["key"]
+
+        status, payload = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"retry","job_key":first["key"]},
+        )
+        assert status == 409
+        assert "cannot retry from queued" in payload["error"]
+        assert control.workflows.get(workflow["id"])["tasks"][0]["attempts"] == 2
+    finally:
+        server.shutdown(); server.server_close()
+
+
+def test_retry_refuses_exhausted_attempt_budget(tmp_path):
+    control, server, base = _fixture(tmp_path)
+    workflow = control.workflows.create(
+        name="retry-exhausted",
+        repository="dbrckk/example",
+        tasks=[
+            WorkflowTaskSpec(
+                "task-a",
+                "One shot",
+                {"required_capabilities":["python"]},
+                max_attempts=1,
+            )
+        ],
+    )
+    first = control.workflows.dispatch_ready(workflow["id"])[0]
+    assert control.queue.claim_key(first["key"], "worker-a") is not None
+    control.queue.ack(first["key"], "worker-a")
+    control.dashboard_store.start_execution(control.queue.get(first["key"]), "worker-a")
+    try:
+        status, _ = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"cancel-current","job_key":first["key"]},
+        )
+        assert status == 202
+        status, _ = _post(
+            base,
+            "/v1/workers/heartbeat",
+            "worker",
+            {
+                "worker_id":"worker-a",
+                "active_tasks":1,
+                "active_job_keys":[first["key"]],
+                "job_control_states":{first["key"]:"cancel_requested"},
+            },
+        )
+        assert status == 200
+
+        status, payload = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"retry","job_key":first["key"]},
+        )
+        assert status == 409
+        assert "max attempts reached" in payload["error"]
+    finally:
+        server.shutdown(); server.server_close()
