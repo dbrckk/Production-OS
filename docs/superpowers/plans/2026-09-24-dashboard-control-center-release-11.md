@@ -37,6 +37,7 @@ Make the existing smartphone launch flow truly minimal and server-backed: open P
 - archived repositories excluded
 - deterministic repository sorting
 - browser no longer calls GitHub repository API directly
+- GitHub outage degrades to locally observed repositories
 - existing repo + instruction launch workflow preserved
 - API/UI/redirect regression coverage
 - README documentation
