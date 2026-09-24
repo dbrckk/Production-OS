@@ -3027,6 +3027,11 @@ durations = []
 completed = _parse_time(row.get("completed_at"))
 verified = _parse_time(row.get("verified_at"))
 ⋮----
+watching = sum(
+recurred = sum(
+recurrence_denominator = watching + recurred
+recurrence_rate = (
+⋮----
 current = now or datetime.now(timezone.utc)
 ⋮----
 current = current.replace(tzinfo=timezone.utc)
@@ -4808,7 +4813,7 @@ def _utcnow() -> str
 ⋮----
 class PostgresBackend
 ⋮----
-SCHEMA_VERSION = 13
+SCHEMA_VERSION = 14
 ⋮----
 def __init__(self, dsn: str)
 ⋮----
@@ -6148,7 +6153,7 @@ def _utcnow() -> str
 ⋮----
 class SQLiteBackend
 ⋮----
-SCHEMA_VERSION = 13
+SCHEMA_VERSION = 14
 ⋮----
 def __init__(self, path: str | Path)
 ⋮----
@@ -8107,13 +8112,14 @@ base = f"http://127.0.0.1:{server.server_port}"
 ⋮----
 events = payload["events"]
 ⋮----
-def test_release7_schema_is_v13_and_contains_control_audit_and_remediation(tmp_path)
+def test_release9_schema_is_v14_and_contains_control_audit_and_recurrence(tmp_path)
 ⋮----
 backend = SQLiteBackend(tmp_path / "schema.sqlite")
 ⋮----
 version = db.execute(
 table = db.execute(
 remediation = db.execute(
+remediation_columns = {
 ⋮----
 def test_control_action_remains_traced_if_audit_finalization_fails(tmp_path)
 ⋮----
@@ -8669,7 +8675,7 @@ reopened = store.upsert_dashboard_incident(
 ⋮----
 after = store.remediation_events(limit=1)[0]
 ⋮----
-def test_sqlite_v12_database_is_migrated_additively_to_v13(tmp_path)
+def test_sqlite_v13_database_is_migrated_additively_to_v14(tmp_path)
 ⋮----
 path = tmp_path / "migration.sqlite"
 db = sqlite3.connect(path)
@@ -8691,6 +8697,30 @@ row = store.remediation_events(limit=1)[0]
 verified_at = row["verified_at"]
 ⋮----
 second = store.verify_remediation_events()
+⋮----
+def test_resolved_remediation_snapshots_occurrence_and_watches_recurrence(tmp_path)
+⋮----
+store = _store(tmp_path / "recurrence-watch.sqlite")
+⋮----
+resolved = store.verify_remediation_events()[0]
+⋮----
+def test_reopened_incident_marks_resolved_remediation_recurred(tmp_path)
+⋮----
+store = _store(tmp_path / "recurrence-reopen.sqlite")
+⋮----
+updated = store.verify_remediation_recurrence()
+⋮----
+def test_recurrence_watching_is_idempotent_until_reopen(tmp_path)
+⋮----
+store = _store(tmp_path / "recurrence-idempotent.sqlite")
+⋮----
+def test_recurred_state_is_terminal(tmp_path)
+⋮----
+store = _store(tmp_path / "recurrence-terminal.sqlite")
+⋮----
+first = store.verify_remediation_recurrence()[0]
+⋮----
+recurred_at = first["recurred_at"]
 ````
 
 ## File: tests/test_dashboard_remediation_metrics.py
@@ -8710,6 +8740,12 @@ def test_window_filter_and_breakdowns_are_deterministic()
 def test_zero_denominator_has_no_resolution_rate()
 ⋮----
 def test_invalid_window_is_rejected()
+⋮----
+def test_recurrence_denominator_excludes_unresolved_remediations()
+⋮----
+result = aggregate_remediation_analytics(rows, window="24h", now=NOW)
+⋮----
+def test_zero_recurrence_denominator_has_no_rate()
 ````
 
 ## File: tests/test_dashboard_security.py
@@ -8728,7 +8764,7 @@ pytestmark = pytest.mark.skipif(
 ⋮----
 REQUIRED_EXECUTION_COLUMNS = {
 ⋮----
-def test_postgres_schema_v13_has_execution_columns_control_audit_incidents_and_remediation()
+def test_postgres_schema_v14_has_execution_columns_control_audit_incidents_and_remediation()
 ⋮----
 backend = PostgresBackend(DSN)
 ⋮----
@@ -8891,6 +8927,8 @@ def test_direct_worker_controls_do_not_require_incident_id()
 def test_activity_view_renders_remediation_verification_status()
 ⋮----
 def test_activity_view_renders_remediation_analytics_with_sample_sizes()
+⋮----
+def test_activity_view_renders_remediation_recurrence_status()
 ````
 
 ## File: tests/test_dashboard_usage.py
@@ -11704,6 +11742,39 @@ The median resolution-detection duration is calculated only from resolved events
 Breakdowns are available by control action and by incident code. Every rate is displayed with its observed sample size. A zero-size effectiveness sample produces no rate rather than an inferred value.
 
 These analytics are read-only. They never rank playbooks, launch controls, or change worker, job, workflow, incident, or remediation state beyond the existing incident refresh needed to read current verification facts.
+
+## Dashboard Control Center Release 9 — Remediation recurrence
+
+Resolved remediation events are now monitored for incident recurrence.
+
+When a remediation verification becomes `resolved`, Production-OS stores the incident's current `occurrence_count` and starts a read-only recurrence watch.
+
+If the same durable incident later reopens and its `occurrence_count` becomes greater than the stored resolution snapshot, the remediation event is marked:
+
+```text
+recurrence_state = recurred
+```
+
+The recurrence lifecycle is:
+
+```text
+not_evaluated -> watching -> recurred
+```
+
+`recurred` is terminal for that remediation event. Pending, still-active and not-applicable remediations do not enter recurrence tracking.
+
+Recurrence is observational only. It never triggers retry, cancellation, recovery, pause, drain, kick or any other control action.
+
+Remediation analytics expose recurrence with explicit denominators:
+
+```text
+watching_recurrence
+recurred
+recurrence_denominator
+observed_recurrence_rate
+```
+
+The dashboard Activity view presents recurrence separately from control outcome and remediation verification.
 
 ## Design principles
 
