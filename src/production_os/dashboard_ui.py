@@ -676,6 +676,31 @@ async function createVerifiedBackup(){
   if(receipt)receipt.textContent=String(e).replace(/^Error:\s*/,"");
  }
 }
+async function verifyBackupReadiness(backupId){
+ if(!backupId)return;
+ if(!window.confirm(
+  "Vérifier que cette sauvegarde est restaurable ? Aucune restauration ne sera exécutée."
+ ))return;
+ try{
+  const result=await api(
+   "/v1/dashboard/backups/"+encodeURIComponent(backupId)+"/verify",
+   {
+    method:"POST",
+    body:JSON.stringify({confirm:"VERIFY_BACKUP_FOR_RESTORE"})
+   }
+  );
+  const receipt=document.getElementById("backup-status-message");
+  if(receipt){
+   receipt.textContent=
+    "Restaurabilité vérifiée · schéma "+String(result.schema_version||"—")+
+    " · intégrité "+String(result.integrity||"—")+
+    " · restauration toujours désactivée";
+  }
+ }catch(e){
+  const receipt=document.getElementById("backup-status-message");
+  if(receipt)receipt.textContent=String(e).replace(/^Error:\\s*/,"");
+ }
+}
 async function loadOverview(){
  const el=document.getElementById("overview-metrics");
  try{
@@ -737,11 +762,17 @@ async function loadOverview(){
   const backupButton=backups.create_supported===true
    ?'<button class="secondary-btn" type="button" onclick="createVerifiedBackup()">Créer une sauvegarde vérifiée</button>'
    :'';
+  const backupCatalogHtml=backupRows.length?backupRows.slice(0,5).map(function(row){
+   const id=String(row.backup_id||"");
+   return '<div class="small"><strong>'+esc(String(row.created_at||id))+'</strong> · '+formatBytes(row.size_bytes)+
+    ' <button class="secondary-btn" type="button" data-backup-id="'+esc(id)+'" onclick="verifyBackupReadiness(this.dataset.backupId)">Vérifier restaurabilité</button></div>';
+  }).join(""):'<div class="small">Aucune sauvegarde vérifiée.</div>';
   const backupHtml=
    '<div class="card"><div class="section-head"><h2>Sauvegarde</h2><span class="badge">'+esc(String(backups.status||"unknown"))+'</span></div>'+
    '<p class="small"><strong>Backend :</strong> '+esc(String(backups.backend_kind||"inconnu"))+' · <strong>Restauration :</strong> '+(backups.restore_enabled?'activée':'désactivée')+'</p>'+
    '<p class="small"><strong>Dernière sauvegarde vérifiée :</strong> '+(lastBackup?esc(String(lastBackup.created_at||""))+' · '+formatBytes(lastBackup.size_bytes):'Aucune')+'</p>'+
    (backups.message?'<p class="small">'+esc(String(backups.message))+'</p>':'')+
+   backupCatalogHtml+
    '<div style="margin-top:10px">'+backupButton+'</div>'+
    '<div id="backup-status-message" class="status-message"></div>'+
    '</div>';
