@@ -128,4 +128,26 @@ class DashboardControl:
         return self._job_view(row, job_key)
 
     def retry_job(self, job_key: str, *, requested_by: str) -> dict:
-        raise DashboardControlError("retry is not implemented yet")
+        job = self.queue.get(job_key)
+        payload = job.get("payload") or {}
+        workflow_id = str(payload.get("workflow_id") or "").strip()
+        task_id = str(payload.get("workflow_task_id") or "").strip()
+        if not workflow_id or not task_id:
+            raise DashboardControlError("job is not linked to a workflow task")
+        current = self.job_state(job_key)
+        if (
+            current["desired_state"] == "cancel_requested"
+            and current.get("acknowledged_at") is None
+        ):
+            raise DashboardControlError("job cancellation is not acknowledged")
+        try:
+            replacement = self.workflows.retry_task(workflow_id, task_id)
+        except (KeyError, RuntimeError) as exc:
+            raise DashboardControlError(str(exc)) from exc
+        return {
+            "requested_by":requested_by,
+            "source_job_key":job_key,
+            "replacement_job":replacement,
+            "workflow_id":workflow_id,
+            "workflow_task_id":task_id,
+        }
