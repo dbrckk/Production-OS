@@ -2,7 +2,18 @@
   "area": "src-production-os",
   "files": [
     {
-      "path": "src/production_os/dashboard_service.py",
+      "path": "src/production_os/sqlite_backend.py",
+      "reasons": [
+        "changed",
+        "changed-source",
+        "dependency-neighbor",
+        "impact",
+        "symbol-indexed"
+      ],
+      "score": 2000
+    },
+    {
+      "path": "src/production_os/control_plane.py",
       "reasons": [
         "changed",
         "changed-source",
@@ -11,10 +22,50 @@
         "reverse-dependency-neighbor",
         "symbol-indexed"
       ],
-      "score": 595
+      "score": 1675
     },
     {
-      "path": "src/production_os/dashboard_playbooks.py",
+      "path": "src/production_os/__init__.py",
+      "reasons": [
+        "dependency-neighbor"
+      ],
+      "score": 1275
+    },
+    {
+      "path": "src/production_os/workers.py",
+      "reasons": [
+        "dependency-neighbor"
+      ],
+      "score": 1025
+    },
+    {
+      "path": "src/production_os/api_auth.py",
+      "reasons": [
+        "dependency-neighbor"
+      ],
+      "score": 975
+    },
+    {
+      "path": "src/production_os/dashboard_store.py",
+      "reasons": [
+        "changed",
+        "changed-source",
+        "dependency-neighbor",
+        "impact",
+        "reverse-dependency-neighbor",
+        "symbol-indexed"
+      ],
+      "score": 960
+    },
+    {
+      "path": "src/production_os/workflow_engine.py",
+      "reasons": [
+        "dependency-neighbor"
+      ],
+      "score": 925
+    },
+    {
+      "path": "src/production_os/postgres_backend.py",
       "reasons": [
         "changed",
         "changed-source",
@@ -22,7 +73,27 @@
         "impact",
         "symbol-indexed"
       ],
-      "score": 355
+      "score": 875
+    },
+    {
+      "path": "src/production_os/cli.py",
+      "reasons": [
+        "impact",
+        "reverse-dependency-neighbor",
+        "symbol-indexed"
+      ],
+      "score": 600
+    },
+    {
+      "path": "src/production_os/dashboard_service.py",
+      "reasons": [
+        "changed",
+        "changed-source",
+        "dependency-neighbor",
+        "impact",
+        "symbol-indexed"
+      ],
+      "score": 570
     },
     {
       "path": "src/production_os/dashboard_ui.py",
@@ -35,42 +106,31 @@
       "score": 350
     },
     {
-      "path": "src/production_os/control_plane.py",
+      "path": "src/production_os/dashboard_control.py",
       "reasons": [
         "dependency-neighbor",
         "impact",
         "reverse-dependency-neighbor",
         "symbol-indexed"
       ],
-      "score": 330
+      "score": 305
     },
     {
-      "path": "src/production_os/workers.py",
+      "path": "src/production_os/execution_optimizer.py",
       "reasons": [
         "dependency-neighbor"
       ],
-      "score": 175
+      "score": 300
     },
     {
-      "path": "src/production_os/__init__.py",
+      "path": "src/production_os/storage.py",
       "reasons": [
-        "dependency-neighbor"
+        "dependency-neighbor",
+        "impact",
+        "reverse-dependency-neighbor",
+        "symbol-indexed"
       ],
-      "score": 100
-    },
-    {
-      "path": "src/production_os/api_auth.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 100
-    },
-    {
-      "path": "src/production_os/cli.py",
-      "reasons": [
-        "reverse-dependency-neighbor"
-      ],
-      "score": 60
+      "score": 280
     }
   ],
   "generated_by": "dbrckk/repo-brain-v6",

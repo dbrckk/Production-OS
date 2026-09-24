@@ -200,6 +200,8 @@ tests/
   test_dashboard_observability_e2e.py
   test_dashboard_playbook_api.py
   test_dashboard_playbooks.py
+  test_dashboard_remediation_api.py
+  test_dashboard_remediation_history.py
   test_dashboard_security.py
   test_dashboard_store_postgres.py
   test_dashboard_store.py
@@ -2407,6 +2409,8 @@ payload = service.project_history(repository)
 ⋮----
 payload = service.control_audit(
 ⋮----
+payload = service.remediation_history(
+⋮----
 payload = service.incidents(
 ⋮----
 payload = service.activity(
@@ -2478,10 +2482,22 @@ state_by_action = {
 worker_id = parts[3]
 requested_by = f"{principal.role}:{principal.name}"
 audit_job_key = (
+⋮----
+remediation_event = None
+⋮----
+incident_rows = control.dashboard.incidents(
+incident = next(
+⋮----
+matched = next(
+⋮----
+remediation_event = (
 audit_event = control.dashboard_store.append_control_audit(
 ⋮----
 # The pre-action reservation remains durable even
 # if result finalization cannot be written.
+⋮----
+# Keep the requested remediation event durable
+# even if final outcome persistence fails.
 ⋮----
 job_key = str(body.get("job_key") or "").strip()
 ⋮----
@@ -3346,6 +3362,10 @@ rows = self._fetchall(
 resolved = []
 ⋮----
 row = self._fetchone(
+⋮----
+incident = self._fetchone(
+⋮----
+timestamp = completed_at or _now()
 ⋮----
 def control_audit_events(self, *, limit: int = 100) -> list[dict]
 ⋮----
@@ -4729,7 +4749,7 @@ def _utcnow() -> str
 ⋮----
 class PostgresBackend
 ⋮----
-SCHEMA_VERSION = 11
+SCHEMA_VERSION = 12
 ⋮----
 def __init__(self, dsn: str)
 ⋮----
@@ -6069,7 +6089,7 @@ def _utcnow() -> str
 ⋮----
 class SQLiteBackend
 ⋮----
-SCHEMA_VERSION = 11
+SCHEMA_VERSION = 12
 ⋮----
 def __init__(self, path: str | Path)
 ⋮----
@@ -8026,12 +8046,13 @@ base = f"http://127.0.0.1:{server.server_port}"
 ⋮----
 events = payload["events"]
 ⋮----
-def test_release4_schema_is_v11_and_contains_control_audit(tmp_path)
+def test_release6_schema_is_v12_and_contains_control_audit_and_remediation(tmp_path)
 ⋮----
 backend = SQLiteBackend(tmp_path / "schema.sqlite")
 ⋮----
 version = db.execute(
 table = db.execute(
+remediation = db.execute(
 ⋮----
 def test_control_action_remains_traced_if_audit_finalization_fails(tmp_path)
 ⋮----
@@ -8456,6 +8477,95 @@ inspect = next(x for x in result["suggestions"] if x["action"] == "inspect-job")
 cancel = next(x for x in result["suggestions"] if x["action"] == "cancel-current")
 ````
 
+## File: tests/test_dashboard_remediation_api.py
+````python
+def _auth()
+⋮----
+def _request(base, path, token, *, method="POST", body=None)
+⋮----
+data = None if body is None else json.dumps(body).encode("utf-8")
+request = urllib.request.Request(
+⋮----
+raw = response.read()
+⋮----
+raw = exc.read()
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+def _queue_incident(control)
+⋮----
+def test_valid_incident_linked_kick_is_traced(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "remediation-api.sqlite"), authorizer=_auth())
+incident = _queue_incident(control)
+⋮----
+rows = control.dashboard_store.remediation_events(limit=10)
+⋮----
+def test_incident_link_rejects_unsuggested_control_before_mutation(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "remediation-reject.sqlite"), authorizer=_auth())
+⋮----
+def test_incident_link_rejects_wrong_worker_target(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "remediation-target.sqlite"), authorizer=_auth())
+⋮----
+def test_direct_control_without_incident_remains_compatible(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "direct-control.sqlite"), authorizer=_auth())
+⋮----
+audit = control.dashboard_store.control_audit_events(limit=10)
+⋮----
+def test_remediation_history_is_viewer_readable_and_worker_forbidden(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "remediation-read.sqlite"), authorizer=_auth())
+⋮----
+def test_remediation_history_filters_by_incident_query(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "remediation-filter.sqlite"), authorizer=_auth())
+first = _queue_incident(control)
+⋮----
+second = control.dashboard_store.upsert_dashboard_incident(
+````
+
+## File: tests/test_dashboard_remediation_history.py
+````python
+def _store(path)
+⋮----
+def _incident(store)
+⋮----
+def test_remediation_event_is_durable_across_restart(tmp_path)
+⋮----
+path = tmp_path / "remediation.sqlite"
+first = _store(path)
+incident = _incident(first)
+event = first.append_remediation_event(
+⋮----
+second = _store(path)
+rows = second.remediation_events(limit=10)
+⋮----
+def test_remediation_event_outcome_can_be_finalized(tmp_path)
+⋮----
+store = _store(tmp_path / "remediation.sqlite")
+incident = _incident(store)
+event = store.append_remediation_event(
+done = store.update_remediation_event(
+⋮----
+def test_remediation_history_filters_by_incident(tmp_path)
+⋮----
+first = _incident(store)
+second = store.upsert_dashboard_incident(
+⋮----
+rows = store.remediation_events(limit=10, incident_id=second["id"])
+⋮----
+def test_remediation_ledger_has_no_freeform_secret_payload(tmp_path)
+⋮----
+row = store.append_remediation_event(
+forbidden = {
+````
+
 ## File: tests/test_dashboard_security.py
 ````python
 def test_recursive_redaction_removes_sensitive_values()
@@ -8472,7 +8582,7 @@ pytestmark = pytest.mark.skipif(
 ⋮----
 REQUIRED_EXECUTION_COLUMNS = {
 ⋮----
-def test_postgres_schema_v11_has_execution_columns_control_audit_and_incidents()
+def test_postgres_schema_v12_has_execution_columns_control_audit_incidents_and_remediation()
 ⋮----
 backend = PostgresBackend(DSN)
 ⋮----
@@ -8481,6 +8591,8 @@ columns = {row["column_name"] for row in cur.fetchall()}
 audit_table = cur.fetchone()
 ⋮----
 incident_table = cur.fetchone()
+⋮----
+remediation_table = cur.fetchone()
 ⋮----
 def test_dashboard_service_project_queries_work_on_postgres()
 ⋮----
@@ -8621,6 +8733,12 @@ def test_overview_renders_server_backed_incident_playbooks()
 def test_incident_playbook_actions_are_explicit_and_reuse_control_api()
 ⋮----
 def test_incident_inspection_playbooks_only_navigate()
+⋮----
+def test_incident_playbook_actions_send_incident_id()
+⋮----
+def test_activity_view_renders_remediation_history()
+⋮----
+def test_direct_worker_controls_do_not_require_incident_id()
 ````
 
 ## File: tests/test_dashboard_usage.py
@@ -11323,6 +11441,41 @@ Playbook generation is read-only and deterministic. It does not mutate the queue
 Interrupting remediation always requires an explicit operator action and reuses the existing validated control API, including the same confirmation flow used by direct worker controls. Inspection suggestions are navigation-only.
 
 The browser receives no GitHub, worker, or operator credentials from playbook generation.
+
+## Dashboard Control Center Release 6 — Remediation history
+
+Incident-linked remediation actions now have durable lineage in a dedicated remediation ledger.
+
+This ledger is separate from the generic control audit and records only structured fields:
+
+```text
+incident_id
+action
+worker_id
+job_key
+requested_by
+outcome
+error_code
+requested_at
+completed_at
+```
+
+No credentials, authorization headers, tokens, arbitrary metadata or free-form request payloads are stored.
+
+When a playbook action is executed from the dashboard, the browser sends the incident id together with the existing worker control request. The server then re-derives the current incident playbook and verifies the exact action, worker target, job target and availability before any control mutation occurs.
+
+If the incident is stale, resolved, the target changed, or the suggested action is no longer available, the server returns a conflict and does not create control or remediation state.
+
+Direct operator controls remain supported without an incident id and continue to use the existing control audit only.
+
+The dashboard Activity view exposes both:
+
+```text
+Audit des contrôles
+Historique des remédiations
+```
+
+so operators can distinguish ordinary control actions from incident-driven remediation.
 
 ## Design principles
 

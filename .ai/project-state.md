@@ -22,36 +22,36 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-24T16:27:50Z
+Generated: 2026-09-24T16:41:10Z
 
 ### Git
 - Branch: `main`
-- Head: `6546c5527245`
-- Commit date: 2026-09-24T18:27:37+02:00
-- Commit: feat: control center release 5 playbooks
-- Tracked files: 365
+- Head: `cd15f24c1b2a`
+- Commit date: 2026-09-24T18:40:58+02:00
+- Commit: feat: control center release 6 remediation history
+- Tracked files: 369
 
 ### Recently changed files
 - `README.md`
-- `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-5.md`
-- `src/production_os/dashboard_playbooks.py`
-- `src/production_os/dashboard_service.py`
-- `src/production_os/dashboard_ui.py`
-- `tests/test_dashboard_playbook_api.py`
-- `tests/test_dashboard_playbooks.py`
-- `tests/test_dashboard_ui_v3.py`
-- `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-4.md`
+- `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-6.md`
 - `src/production_os/control_plane.py`
-- `src/production_os/dashboard_incidents.py`
+- `src/production_os/dashboard_service.py`
 - `src/production_os/dashboard_store.py`
+- `src/production_os/dashboard_ui.py`
 - `src/production_os/postgres_backend.py`
 - `src/production_os/sqlite_backend.py`
 - `tests/test_dashboard_control_audit.py`
-- `tests/test_dashboard_control_e2e.py`
-- `tests/test_dashboard_incident_signals.py`
-- `tests/test_dashboard_incidents.py`
+- `tests/test_dashboard_remediation_api.py`
+- `tests/test_dashboard_remediation_history.py`
 - `tests/test_dashboard_store_postgres.py`
-- `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-3.md`
+- `tests/test_dashboard_ui_v3.py`
+- `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-5.md`
+- `src/production_os/dashboard_playbooks.py`
+- `tests/test_dashboard_playbook_api.py`
+- `tests/test_dashboard_playbooks.py`
+- `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-4.md`
+- `src/production_os/dashboard_incidents.py`
+- `tests/test_dashboard_control_e2e.py`
 
 ### Project signals
 - `pyproject.toml`

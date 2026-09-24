@@ -48,6 +48,8 @@
         "tests/test_dashboard_observability_e2e.py",
         "tests/test_dashboard_playbook_api.py",
         "tests/test_dashboard_playbooks.py",
+        "tests/test_dashboard_remediation_api.py",
+        "tests/test_dashboard_remediation_history.py",
         "tests/test_dashboard_security.py",
         "tests/test_dashboard_store.py",
         "tests/test_dashboard_store_postgres.py",
@@ -127,7 +129,7 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 115,
+      "in_degree": 117,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -175,6 +177,7 @@
         "tests/test_dashboard_incidents.py",
         "tests/test_dashboard_observability_e2e.py",
         "tests/test_dashboard_playbook_api.py",
+        "tests/test_dashboard_remediation_api.py",
         "tests/test_http_security_headers.py",
         "tests/test_portfolio_claim_api.py",
         "tests/test_production_stack_e2e.py",
@@ -182,7 +185,7 @@
         "tests/test_speculation_api.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 20,
+      "in_degree": 21,
       "out_degree": 1
     },
     "src/production_os/approvals.py": {
@@ -564,6 +567,7 @@
         "tests/test_dashboard_launch.py",
         "tests/test_dashboard_observability_e2e.py",
         "tests/test_dashboard_playbook_api.py",
+        "tests/test_dashboard_remediation_api.py",
         "tests/test_dashboard_store_postgres.py",
         "tests/test_http_security_headers.py",
         "tests/test_portfolio_claim_api.py",
@@ -572,7 +576,7 @@
         "tests/test_speculation_api.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 21,
+      "in_degree": 22,
       "out_degree": 17
     },
     "src/production_os/control_surface.py": {
@@ -730,9 +734,10 @@
         "tests/test_dashboard_control_audit.py",
         "tests/test_dashboard_github.py",
         "tests/test_dashboard_incidents.py",
+        "tests/test_dashboard_remediation_history.py",
         "tests/test_dashboard_store.py"
       ],
-      "in_degree": 7,
+      "in_degree": 8,
       "out_degree": 4
     },
     "src/production_os/dashboard_ui.py": {
@@ -1581,6 +1586,7 @@
         "tests/test_dashboard_control_audit.py",
         "tests/test_dashboard_github.py",
         "tests/test_dashboard_incidents.py",
+        "tests/test_dashboard_remediation_history.py",
         "tests/test_dashboard_store.py",
         "tests/test_execution_optimizer.py",
         "tests/test_github_webhook.py",
@@ -1604,7 +1610,7 @@
         "tests/test_workflow_engine.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 28,
+      "in_degree": 29,
       "out_degree": 5
     },
     "src/production_os/sqlite_migration.py": {
@@ -1833,6 +1839,8 @@
         "tests/test_dashboard_observability_e2e.py",
         "tests/test_dashboard_playbook_api.py",
         "tests/test_dashboard_playbooks.py",
+        "tests/test_dashboard_remediation_api.py",
+        "tests/test_dashboard_remediation_history.py",
         "tests/test_dashboard_store.py",
         "tests/test_dashboard_ui_v3.py",
         "tests/test_execution_optimizer.py",
@@ -1853,7 +1861,7 @@
         "tests/test_workers.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 60,
+      "in_degree": 62,
       "out_degree": 2
     },
     "src/production_os/workflow_engine.py": {
@@ -2355,6 +2363,30 @@
       "in_degree": 0,
       "out_degree": 4
     },
+    "tests/test_dashboard_remediation_api.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/api_auth.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/workers.py",
+        "tests/test_fairness.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 5
+    },
+    "tests/test_dashboard_remediation_history.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/dashboard_store.py",
+        "src/production_os/sqlite_backend.py",
+        "src/production_os/workers.py",
+        "tests/test_fairness.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 5
+    },
     "tests/test_dashboard_security.py": {
       "dependencies": [
         "src/production_os/__init__.py",
@@ -2491,13 +2523,15 @@
         "tests/test_dashboard_control_e2e.py",
         "tests/test_dashboard_playbook_api.py",
         "tests/test_dashboard_playbooks.py",
+        "tests/test_dashboard_remediation_api.py",
+        "tests/test_dashboard_remediation_history.py",
         "tests/test_dashboard_ui_v3.py",
         "tests/test_github_webhook.py",
         "tests/test_queue_audit_checkpoint.py",
         "tests/test_scheduler.py",
         "tests/test_scoring.py"
       ],
-      "in_degree": 30,
+      "in_degree": 32,
       "out_degree": 2
     },
     "tests/test_github_client_pr_files.py": {
