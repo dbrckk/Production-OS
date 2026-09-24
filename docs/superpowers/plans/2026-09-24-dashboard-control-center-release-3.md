@@ -40,3 +40,25 @@ Harden Production-OS for day-to-day operation after Release 2 by making control 
 - safe recovery actions for stuck jobs
 - alert acknowledgement / incident history
 - release qualification and mobile polish
+
+
+## Implemented in current branch
+
+- durable SQLite/PostgreSQL control audit table
+- operator control audit for success/fallback/failure outcomes
+- viewer-readable / worker-forbidden control audit API
+- Activity UI control-audit panel
+- deterministic operational health derivation
+- dashboard health endpoint and overview rendering
+- targeted expired-claim recovery in SQLite/PostgreSQL
+- audited `recover-stuck` operator action
+- worker detail exposes only truly recoverable expired claims
+- UI recovery button is shown only for server-confirmed recoverable jobs
+
+## Remaining before Release 3 completion
+
+- complete CI qualification on both Python compatibility jobs and full test suite
+- add README operational notes for audit/health/recovery
+- add restart/E2E qualification covering audit persistence and recover-stuck
+- final security review for audit payloads and role boundaries
+- final UI/mobile regression check
