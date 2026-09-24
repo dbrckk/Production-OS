@@ -54,3 +54,13 @@ def test_snapshotter_rejects_invalid_repository(tmp_path):
     store = DashboardStore(SQLiteBackend(tmp_path / "production.db"))
     with pytest.raises(ValueError):
         RepositorySnapshotter(FakeGitHub(), store).refresh("../bad")
+
+
+def test_snapshotter_counts_distinct_production_os_commits(tmp_path):
+    store = DashboardStore(SQLiteBackend(tmp_path / "production.db"))
+    store.executions_for_repository = lambda repository, limit=500: [
+        {"commit_shas": ["b"*40, "c"*40]},
+        {"commit_shas": ["b"*40, "not-a-sha"]},
+    ]
+    snapshot = RepositorySnapshotter(FakeGitHub(), store).refresh("dbrckk/example")
+    assert snapshot["production_os_commits"] == 2
