@@ -1160,6 +1160,71 @@ class WorkflowEngine:
             refreshed = self.refresh(workflow_id)
         return refreshed
 
+    def retry_task(
+        self,
+        workflow_id: str,
+        task_id: str,
+    ) -> dict:
+        self.assert_generation_current(workflow_id)
+        now = _now()
+        with self.backend.transaction() as db:
+            row = _execute(
+                db,
+                self.backend,
+                """
+                SELECT * FROM workflow_tasks
+                WHERE workflow_id=? AND task_id=?
+                """,
+                (workflow_id, task_id),
+            ).fetchone()
+            if row is None:
+                raise KeyError(f"{workflow_id}/{task_id}")
+            if row["status"] not in {"cancelled", "failed"}:
+                raise RuntimeError(
+                    f"workflow task cannot retry from {row['status']}"
+                )
+            if int(row["attempts"]) >= int(row["max_attempts"]):
+                raise RuntimeError("workflow task max attempts reached")
+            updated = _execute(
+                db,
+                self.backend,
+                """
+                UPDATE workflow_tasks
+                SET status='ready', result_json=NULL,
+                    claimed_job_key=NULL, updated_at=?
+                WHERE workflow_id=? AND task_id=?
+                  AND status IN ('cancelled','failed')
+                  AND attempts < max_attempts
+                  AND claimed_job_key IS NULL
+                """,
+                (now, workflow_id, task_id),
+            )
+            if updated.rowcount != 1:
+                raise RuntimeError("workflow task retry race")
+            self.backend.append_event(
+                db,
+                "workflow-task-retry-requested",
+                {
+                    "workflow_id":workflow_id,
+                    "task_id":task_id,
+                },
+            )
+        self.refresh(workflow_id)
+        dispatched = self.dispatch_ready(workflow_id, limit=100)
+        for job in dispatched:
+            payload = job.get("payload") or {}
+            if str(payload.get("workflow_task_id") or "") == str(task_id):
+                return job
+        current = self.get(workflow_id)
+        task = next(
+            item for item in current["tasks"]
+            if item["task_id"] == task_id
+        )
+        key = task.get("claimed_job_key")
+        if key:
+            return self.queue.get(str(key))
+        raise RuntimeError("retry did not dispatch workflow task")
+
     def record_cancelled(
         self,
         workflow_id: str,
