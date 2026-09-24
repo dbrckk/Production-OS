@@ -577,6 +577,28 @@ observed_recurrence_rate
 
 The dashboard Activity view presents recurrence separately from control outcome and remediation verification.
 
+## Dashboard Control Center Release 10 — Remediation durability
+
+Remediation analytics now measure observed durability after a verified resolution.
+
+For remediations that later recur, Production-OS derives:
+
+```text
+median_time_to_recurrence_seconds
+min_time_to_recurrence_seconds
+max_time_to_recurrence_seconds
+```
+
+For resolved remediations that remain under recurrence watch, Production-OS exposes:
+
+```text
+median_watching_age_seconds
+```
+
+These metrics are descriptive only. They never trigger retry, cancel, recovery, pause, drain, kick or any other control action.
+
+Invalid or chronologically inconsistent timestamps are ignored instead of being converted into misleading durations.
+
 ## Design principles
 
 - Evidence over assumptions
