@@ -208,3 +208,11 @@ def test_autopilot_view_shows_capacity_summary():
     assert "summary.ready_now" in DASHBOARD_HTML
     assert "summary.free_slots" in DASHBOARD_HTML
     assert "summary.known_eta_minutes" in DASHBOARD_HTML
+
+
+def test_activity_view_renders_operator_control_audit():
+    assert "Audit des contrôles" in DASHBOARD_HTML
+    assert "/v1/dashboard/control-audit?limit=50" in DASHBOARD_HTML
+    assert "row.requested_by" in DASHBOARD_HTML
+    assert "row.outcome" in DASHBOARD_HTML
+    assert "row.error_code" in DASHBOARD_HTML
