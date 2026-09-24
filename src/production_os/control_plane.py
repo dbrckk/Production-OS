@@ -19,6 +19,7 @@ from .dashboard_control import DashboardControl
 from .dashboard_service import DashboardService, DashboardNotFound
 from .dashboard_ui import DASHBOARD_HTML
 from .dashboard_maintenance import RetentionCandidateConflict
+from .dashboard_backups import BackupError
 from .github_webhook import (
     WebhookDeliveryStore,
     WebhookError,
