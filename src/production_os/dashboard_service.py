@@ -8,6 +8,7 @@ import hashlib
 from .dashboard_usage import aggregate_usage
 from .dashboard_alerts import derive_alerts
 from .dashboard_health import derive_control_health
+from .dashboard_incidents import dedupe_key, signals_from_health
 from .project_progress import ProjectProgressEngine, build_project_evidence, workflow_progress
 
 
@@ -358,6 +359,32 @@ class DashboardService:
             "running_executions":[dict(row) for row in execution_rows],
         }
         return derive_control_health(snapshot)
+
+    def incidents(
+        self,
+        *,
+        limit: int = 100,
+        status: str | None = None,
+    ) -> dict:
+        health = self.health()
+        signals = signals_from_health(health)
+        active_keys: set[str] = set()
+        for signal in signals:
+            active_keys.add(dedupe_key(signal))
+            self.store.upsert_dashboard_incident(**signal)
+        self.store.resolve_dashboard_incidents_except(active_keys)
+        if status is not None and status not in {
+            "open","acknowledged","resolved"
+        }:
+            raise ValueError("invalid incident status")
+        return {
+            "incidents":self.store.dashboard_incidents(
+                limit=limit,
+                status=status,
+            ),
+            "health_status":health["status"],
+            "generated_at":_now(),
+        }
 
     def control_audit(self, limit: int = 100) -> dict:
         return {

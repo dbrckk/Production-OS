@@ -316,6 +316,11 @@ def make_handler(control: ControlPlane):
                         payload = service.control_audit(
                             int(query.get("limit", ["100"])[0])
                         )
+                    elif parsed.path == "/v1/dashboard/incidents":
+                        payload = service.incidents(
+                            limit=int(query.get("limit", ["100"])[0]),
+                            status=query.get("status", [None])[0],
+                        )
                     elif parsed.path == "/v1/dashboard/activity":
                         payload = service.activity(
                             repository=query.get("repository",[None])[0],
@@ -799,6 +804,34 @@ def make_handler(control: ControlPlane):
 
             try:
                 parts = [part for part in parsed.path.split("/") if part]
+                if (
+                    len(parts) == 5
+                    and parts[0] == "v1"
+                    and parts[1] == "dashboard"
+                    and parts[2] == "incidents"
+                    and parts[4] == "acknowledge"
+                ):
+                    principal = self._require("operator")
+                    if principal is None:
+                        return
+                    incident_id = parts[3]
+                    try:
+                        incident = control.dashboard_store.acknowledge_dashboard_incident(
+                            incident_id,
+                            acknowledged_by=f"{principal.role}:{principal.name}",
+                        )
+                    except KeyError:
+                        self._send(
+                            HTTPStatus.NOT_FOUND,
+                            {"error":"incident not found"},
+                        )
+                        return
+                    self._send(
+                        HTTPStatus.OK,
+                        {"incident":incident},
+                    )
+                    return
+
                 if (
                     len(parts) == 5
                     and parts[0] == "v1"

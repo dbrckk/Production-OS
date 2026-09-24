@@ -570,11 +570,22 @@ async function loadOverview(){
  try{
   const results=await Promise.all([
    api("/v1/dashboard/overview?window="+encodeURIComponent(appState.window)),
-   api("/v1/dashboard/health")
+   api("/v1/dashboard/health"),
+   api("/v1/dashboard/incidents?limit=20")
   ]);
-  const data=results[0],health=results[1]||{};
+  const data=results[0],health=results[1]||{},incidentData=results[2]||{};
   const w=data.workers||{},p=data.productions||{},u=data.usage||{},c=data.commits||{},perf=data.performance||{},alerts=data.alerts||[];
   const healthReasons=health.reasons||[];
+  const incidents=incidentData.incidents||[];
+  const incidentsHtml=
+   '<div class="card"><div class="section-head"><h2>Incidents</h2><span class="badge">'+formatNumber(incidents.length)+'</span></div>'+
+   (incidents.length?incidents.map(function(item){
+    const ack=item.status==="open"
+     ?'<button class="secondary-btn" type="button" data-incident-id="'+esc(String(item.id||""))+'" onclick="acknowledgeIncident(this.dataset.incidentId)">Acquitter</button>'
+     :'';
+    return '<div class="small"><strong>'+esc(String(item.title||item.code||"Incident"))+'</strong> · '+esc(String(item.status||""))+' · '+esc(String(item.severity||""))+' · '+esc(String(item.target_type||""))+':'+esc(String(item.target_id||""))+' '+ack+'</div>';
+   }).join(""):'<div class="small">Aucun incident durable.</div>')+
+   '</div>';
   const healthHtml=
    '<div class="card"><div class="section-head"><h2>Santé opérationnelle</h2><span class="badge">'+esc(String(health.status||"inconnu"))+'</span></div>'+
    (healthReasons.length?healthReasons.map(function(item){
@@ -597,6 +608,7 @@ async function loadOverview(){
    '<p class="small">Commits Production-OS : '+formatNumber(c.production_os)+' · branche par défaut GitHub : '+formatNumber(c.github_default_branch)+'</p>'+
    '<p class="small">Taux de réussite : '+formatNumber(perf.success_rate)+' % · temps d’exécution : '+formatNumber(perf.execution_seconds)+' s</p></div>'+
    healthHtml+
+   incidentsHtml+
    alertsHtml;
  }catch(e){el.innerHTML=errorCard(e)}
 }
@@ -651,6 +663,21 @@ async function loadAutopilot(){
   el.innerHTML=errorCard(e);
  }
 }
+async function acknowledgeIncident(incidentId){
+ try{
+  await api(
+   "/v1/dashboard/incidents/"+encodeURIComponent(incidentId)+"/acknowledge",
+   {method:"POST",body:"{}"}
+  );
+  await loadOverview();
+ }catch(e){
+  document.getElementById("overview-metrics").insertAdjacentHTML(
+   "afterbegin",
+   errorCard(e)
+  );
+ }
+}
+
 function openProject(encoded){
  navigate({view:"projects",repository:decodeURIComponent(encoded),workerId:null,tab:"overview"});
 }

@@ -301,3 +301,35 @@ def test_release3_audit_and_recovery_survive_control_plane_restart(tmp_path):
     finally:
         server.shutdown()
         server.server_close()
+
+
+def test_release4_incident_lifecycle_survives_restart(tmp_path):
+    database = str(tmp_path / "release4-incidents.db")
+    first = ControlPlane(database, authorizer=_auth())
+    first.queue.enqueue({
+        "handoff":{"repository":"dbrckk/example","task":"wait for worker"},
+        "required_capabilities":["python"],
+    })
+    incident = first.dashboard.incidents()["incidents"][0]
+    assert incident["status"] == "open"
+    first.dashboard_store.acknowledge_dashboard_incident(
+        incident["id"],
+        acknowledged_by="operator:operator",
+    )
+
+    second = ControlPlane(database, authorizer=_auth())
+    persisted = second.dashboard_store.dashboard_incidents(limit=10)
+    assert persisted[0]["id"] == incident["id"]
+    assert persisted[0]["status"] == "acknowledged"
+    assert persisted[0]["acknowledged_by"] == "operator:operator"
+
+    second.workers.register("worker-a", ["python"], 1)
+    reconciled = second.dashboard.incidents()["incidents"]
+    resolved = next(row for row in reconciled if row["id"] == incident["id"])
+    assert resolved["status"] == "resolved"
+    assert resolved["resolved_at"] is not None
+
+    third = ControlPlane(database, authorizer=_auth())
+    final = third.dashboard_store.dashboard_incidents(limit=10)
+    assert final[0]["id"] == incident["id"]
+    assert final[0]["status"] == "resolved"

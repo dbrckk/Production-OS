@@ -144,6 +144,167 @@ class DashboardStore:
                          (f"{row['id']}:{index}", row["id"], worker_id, row["repository"], item.get("provider"), item.get("model"), int(item.get("api_calls") or 0), int(item.get("input_tokens") or 0), int(item.get("cached_input_tokens") or 0), int(item.get("output_tokens") or 0), int(item.get("reasoning_tokens") or 0), int(item.get("total_tokens") or 0), item.get("estimated_cost_usd"), item.get("pricing_catalog_version"), finished_at or _now()))
             return self._fetchone(db, "SELECT * FROM job_executions WHERE id=?", (row["id"],))
 
+    def upsert_dashboard_incident(
+        self,
+        *,
+        code: str,
+        severity: str,
+        title: str,
+        message: str,
+        target_type: str,
+        target_id: str,
+        at: str | None = None,
+    ) -> dict:
+        timestamp = at or _now()
+        dedupe_key = f"{code}:{target_type}:{target_id}"
+        ident = uuid4().hex
+        with self.backend.transaction() as db:
+            _execute(
+                db,
+                self.backend,
+                """INSERT INTO dashboard_incidents(
+                    id, dedupe_key, code, severity, title, message,
+                    target_type, target_id, status, occurrence_count,
+                    first_seen_at, last_seen_at
+                ) VALUES(?,?,?,?,?,?,?,?,'open',1,?,?)
+                ON CONFLICT(dedupe_key) DO UPDATE SET
+                    severity=excluded.severity,
+                    title=excluded.title,
+                    message=excluded.message,
+                    occurrence_count=CASE
+                        WHEN dashboard_incidents.status='resolved'
+                        THEN dashboard_incidents.occurrence_count+1
+                        ELSE dashboard_incidents.occurrence_count
+                    END,
+                    last_seen_at=excluded.last_seen_at,
+                    status=CASE
+                        WHEN dashboard_incidents.status='resolved'
+                        THEN 'open'
+                        ELSE dashboard_incidents.status
+                    END,
+                    acknowledged_by=CASE
+                        WHEN dashboard_incidents.status='resolved'
+                        THEN NULL
+                        ELSE dashboard_incidents.acknowledged_by
+                    END,
+                    acknowledged_at=CASE
+                        WHEN dashboard_incidents.status='resolved'
+                        THEN NULL
+                        ELSE dashboard_incidents.acknowledged_at
+                    END,
+                    resolved_at=NULL""",
+                (
+                    ident,
+                    dedupe_key,
+                    code,
+                    severity,
+                    title,
+                    message,
+                    target_type,
+                    target_id,
+                    timestamp,
+                    timestamp,
+                ),
+            )
+            return self._fetchone(
+                db,
+                "SELECT * FROM dashboard_incidents WHERE dedupe_key=?",
+                (dedupe_key,),
+            )
+
+    def dashboard_incidents(
+        self,
+        *,
+        limit: int = 100,
+        status: str | None = None,
+    ) -> list[dict]:
+        bounded = max(1, min(500, int(limit)))
+        with self.backend.connect() as db:
+            if status is None:
+                return self._fetchall(
+                    db,
+                    """SELECT * FROM dashboard_incidents
+                       ORDER BY last_seen_at DESC, id DESC
+                       LIMIT ?""",
+                    (bounded,),
+                )
+            return self._fetchall(
+                db,
+                """SELECT * FROM dashboard_incidents
+                   WHERE status=?
+                   ORDER BY last_seen_at DESC, id DESC
+                   LIMIT ?""",
+                (status, bounded),
+            )
+
+    def resolve_dashboard_incidents_except(
+        self,
+        active_dedupe_keys: set[str],
+        *,
+        at: str | None = None,
+    ) -> list[dict]:
+        timestamp = at or _now()
+        with self.backend.transaction() as db:
+            rows = self._fetchall(
+                db,
+                """SELECT * FROM dashboard_incidents
+                   WHERE status IN ('open','acknowledged')""",
+            )
+            resolved = []
+            for row in rows:
+                if row["dedupe_key"] in active_dedupe_keys:
+                    continue
+                _execute(
+                    db,
+                    self.backend,
+                    """UPDATE dashboard_incidents
+                       SET status='resolved', resolved_at=?
+                       WHERE id=?""",
+                    (timestamp, row["id"]),
+                )
+                resolved.append(
+                    self._fetchone(
+                        db,
+                        "SELECT * FROM dashboard_incidents WHERE id=?",
+                        (row["id"],),
+                    )
+                )
+            return resolved
+
+    def acknowledge_dashboard_incident(
+        self,
+        incident_id: str,
+        *,
+        acknowledged_by: str,
+        at: str | None = None,
+    ) -> dict:
+        timestamp = at or _now()
+        with self.backend.transaction() as db:
+            row = self._fetchone(
+                db,
+                "SELECT * FROM dashboard_incidents WHERE id=?",
+                (incident_id,),
+            )
+            if row is None:
+                raise KeyError(incident_id)
+            if row["status"] == "resolved":
+                raise RuntimeError("resolved incident cannot be acknowledged")
+            _execute(
+                db,
+                self.backend,
+                """UPDATE dashboard_incidents
+                   SET status='acknowledged',
+                       acknowledged_by=?,
+                       acknowledged_at=?
+                   WHERE id=?""",
+                (acknowledged_by, timestamp, incident_id),
+            )
+            return self._fetchone(
+                db,
+                "SELECT * FROM dashboard_incidents WHERE id=?",
+                (incident_id,),
+            )
+
     def append_control_audit(
         self,
         *,

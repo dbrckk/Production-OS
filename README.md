@@ -365,6 +365,37 @@ Recovery is job-scoped and requires an explicit `job_key`. A non-expired claim i
 
 The action is audited whether it succeeds or is rejected.
 
+## Dashboard Control Center Release 4
+
+Release 4 adds durable operational incident management on top of Release 3 health diagnostics.
+
+Incidents follow the lifecycle:
+
+```text
+open → acknowledged → resolved
+```
+
+Health diagnostics are converted into targeted incidents for:
+
+- the global control plane;
+- an individual worker;
+- an individual job.
+
+Repeated polling does not inflate the occurrence counter when the evidence is unchanged. If an incident clears, it is marked `resolved` rather than deleted. If the same condition later returns, the incident reopens as `open`, increments its occurrence count, and clears the previous acknowledgement.
+
+Dashboard endpoints:
+
+```text
+GET  /v1/dashboard/incidents
+POST /v1/dashboard/incidents/{incident_id}/acknowledge
+```
+
+Viewer and operator roles may read incidents. Acknowledgement requires operator. Worker credentials cannot read dashboard incident history.
+
+Acknowledgement records the operator identity and timestamp. Incident records deliberately avoid arbitrary payload, metadata, authorization headers, or credential fields.
+
+Incident reconciliation is observational only. It does not automatically pause workers, cancel jobs, retry work, or run stuck-job recovery.
+
 ## Design principles
 
 - Evidence over assumptions
