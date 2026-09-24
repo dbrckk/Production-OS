@@ -144,6 +144,80 @@ class DashboardStore:
                          (f"{row['id']}:{index}", row["id"], worker_id, row["repository"], item.get("provider"), item.get("model"), int(item.get("api_calls") or 0), int(item.get("input_tokens") or 0), int(item.get("cached_input_tokens") or 0), int(item.get("output_tokens") or 0), int(item.get("reasoning_tokens") or 0), int(item.get("total_tokens") or 0), item.get("estimated_cost_usd"), item.get("pricing_catalog_version"), finished_at or _now()))
             return self._fetchone(db, "SELECT * FROM job_executions WHERE id=?", (row["id"],))
 
+    def append_control_audit(
+        self,
+        *,
+        action: str,
+        worker_id: str,
+        requested_by: str,
+        outcome: str,
+        job_key: str | None = None,
+        error_code: str | None = None,
+        at: str | None = None,
+    ) -> dict:
+        ident = uuid4().hex
+        timestamp = at or _now()
+        with self.backend.transaction() as db:
+            _execute(
+                db,
+                self.backend,
+                """INSERT INTO control_audit_events(
+                    id, action, worker_id, job_key, requested_by,
+                    outcome, error_code, requested_at
+                ) VALUES(?,?,?,?,?,?,?,?)""",
+                (
+                    ident,
+                    action,
+                    worker_id,
+                    job_key,
+                    requested_by,
+                    outcome,
+                    error_code,
+                    timestamp,
+                ),
+            )
+            return self._fetchone(
+                db,
+                "SELECT * FROM control_audit_events WHERE id=?",
+                (ident,),
+            )
+
+    def update_control_audit(
+        self,
+        event_id: str,
+        *,
+        outcome: str,
+        error_code: str | None = None,
+    ) -> dict:
+        with self.backend.transaction() as db:
+            _execute(
+                db,
+                self.backend,
+                """UPDATE control_audit_events
+                   SET outcome=?, error_code=?
+                   WHERE id=?""",
+                (outcome, error_code, event_id),
+            )
+            row = self._fetchone(
+                db,
+                "SELECT * FROM control_audit_events WHERE id=?",
+                (event_id,),
+            )
+            if row is None:
+                raise KeyError(event_id)
+            return row
+
+    def control_audit_events(self, *, limit: int = 100) -> list[dict]:
+        bounded = max(1, min(500, int(limit)))
+        with self.backend.connect() as db:
+            return self._fetchall(
+                db,
+                """SELECT * FROM control_audit_events
+                   ORDER BY requested_at DESC, id DESC
+                   LIMIT ?""",
+                (bounded,),
+            )
+
     def get_worker_control(self, worker_id: str) -> dict | None:
         with self.backend.connect() as db:
             return self._fetchone(

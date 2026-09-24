@@ -638,3 +638,79 @@ def test_retry_dispatches_only_targeted_task(tmp_path):
         )
     finally:
         server.shutdown(); server.server_close()
+
+
+def test_recover_stuck_requires_expired_claim_and_is_audited(tmp_path):
+    control, server, base = _fixture(tmp_path)
+    job = control.queue.enqueue({
+        "handoff":{"repository":"dbrckk/example","task":"Recover me"},
+        "required_capabilities":["python"],
+    })
+    claimed = control.queue.claim_key(job["key"], "worker-a")
+    assert claimed is not None
+    try:
+        status, payload = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"recover-stuck","job_key":job["key"]},
+        )
+        assert status == 409
+        assert "not expired" in payload["error"]
+        failed = control.dashboard_store.control_audit_events(limit=1)[0]
+        assert failed["action"] == "recover-stuck"
+        assert failed["outcome"] == "failed"
+        assert failed["error_code"] == "job_not_recoverable"
+
+        with control.backend.transaction() as db:
+            db.execute(
+                "UPDATE jobs SET ack_deadline=? WHERE key=?",
+                ("2000-01-01T00:00:00+00:00", job["key"]),
+            )
+
+        status, recovered = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"recover-stuck","job_key":job["key"]},
+        )
+        assert status == 200
+        assert recovered["job"]["status"] == "queued"
+        assert recovered["job"]["claimed_by"] is None
+        audit = control.dashboard_store.control_audit_events(limit=1)[0]
+        assert audit["action"] == "recover-stuck"
+        assert audit["outcome"] == "queued"
+        assert audit["job_key"] == job["key"]
+    finally:
+        server.shutdown(); server.server_close()
+
+
+def test_recover_stuck_respects_max_attempts(tmp_path):
+    control, server, base = _fixture(tmp_path)
+    job = control.queue.enqueue({
+        "handoff":{"repository":"dbrckk/example","task":"Dead letter me"},
+        "required_capabilities":["python"],
+    })
+    claimed = control.queue.claim_key(job["key"], "worker-a")
+    assert claimed is not None
+    with control.backend.transaction() as db:
+        db.execute(
+            "UPDATE jobs SET ack_deadline=? WHERE key=?",
+            ("2000-01-01T00:00:00+00:00", job["key"]),
+        )
+    try:
+        status, recovered = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {
+                "action":"recover-stuck",
+                "job_key":job["key"],
+                "max_attempts":1,
+            },
+        )
+        assert status == 200
+        assert recovered["job"]["status"] == "dead-letter"
+        assert control.queue.get(job["key"])["status"] == "dead-letter"
+    finally:
+        server.shutdown(); server.server_close()

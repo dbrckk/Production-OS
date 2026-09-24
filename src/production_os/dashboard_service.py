@@ -7,6 +7,7 @@ import hashlib
 
 from .dashboard_usage import aggregate_usage
 from .dashboard_alerts import derive_alerts
+from .dashboard_health import derive_control_health
 from .project_progress import ProjectProgressEngine, build_project_evidence, workflow_progress
 
 
@@ -327,6 +328,43 @@ class DashboardService:
             "jobs":jobs,
         }
 
+    def health(self) -> dict:
+        workers = self._worker_rows()
+        with self.control.backend.connect() as db:
+            job_rows = db.execute(
+                "SELECT status, COUNT(*) AS count FROM jobs GROUP BY status"
+            ).fetchall()
+            execution_rows = db.execute(
+                """SELECT job_key, worker_id, started_at, last_telemetry_at
+                   FROM job_executions
+                   WHERE status='running'"""
+            ).fetchall()
+        states = {
+            str(row["status"]):int(row["count"])
+            for row in job_rows
+        }
+        snapshot = {
+            "generated_at":_now(),
+            "workers":{
+                "online":sum(
+                    row.get("status") == "online"
+                    for row in workers
+                ),
+            },
+            "productions":{
+                "queued":states.get("queued", 0),
+            },
+            "worker_rows":workers,
+            "running_executions":[dict(row) for row in execution_rows],
+        }
+        return derive_control_health(snapshot)
+
+    def control_audit(self, limit: int = 100) -> dict:
+        return {
+            "events":self.store.control_audit_events(limit=limit),
+            "generated_at":_now(),
+        }
+
     def workers(self):
         rows=[]
         for worker in self._worker_rows():
@@ -351,7 +389,23 @@ class DashboardService:
         worker["control_acknowledged_at"]=desired.get("acknowledged_at")
         if desired["desired_state"] == "draining" and int(worker.get("active_tasks") or 0) == 0:
             worker["display_state"]="drained"
-        return {"worker":worker,"executions":self.store.executions_for_worker(worker_id),"generated_at":_now()}
+        with self.control.backend.connect() as db:
+            recoverable_rows = _execute(
+                db,
+                self.control.backend,
+                """SELECT key, repository, task, delivery_attempt, ack_deadline
+                   FROM jobs
+                   WHERE claimed_by=? AND status='claimed'
+                     AND ack_deadline IS NOT NULL AND ack_deadline <= ?
+                   ORDER BY ack_deadline ASC""",
+                (worker_id, _now()),
+            ).fetchall()
+        return {
+            "worker":worker,
+            "executions":self.store.executions_for_worker(worker_id),
+            "recoverable_jobs":[dict(row) for row in recoverable_rows],
+            "generated_at":_now(),
+        }
 
     def worker_logs(self,worker_id,after,limit):
         self.worker_detail(worker_id)

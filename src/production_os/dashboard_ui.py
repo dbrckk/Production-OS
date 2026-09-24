@@ -568,8 +568,19 @@ function repoApiPath(repository){
 async function loadOverview(){
  const el=document.getElementById("overview-metrics");
  try{
-  const data=await api("/v1/dashboard/overview?window="+encodeURIComponent(appState.window));
+  const results=await Promise.all([
+   api("/v1/dashboard/overview?window="+encodeURIComponent(appState.window)),
+   api("/v1/dashboard/health")
+  ]);
+  const data=results[0],health=results[1]||{};
   const w=data.workers||{},p=data.productions||{},u=data.usage||{},c=data.commits||{},perf=data.performance||{},alerts=data.alerts||[];
+  const healthReasons=health.reasons||[];
+  const healthHtml=
+   '<div class="card"><div class="section-head"><h2>Santé opérationnelle</h2><span class="badge">'+esc(String(health.status||"inconnu"))+'</span></div>'+
+   (healthReasons.length?healthReasons.map(function(item){
+    return '<div class="small"><strong>'+esc(String(item.code||"diagnostic"))+'</strong> · '+esc(String(item.severity||""))+'</div>';
+   }).join(""):'<div class="small">Aucune dégradation opérationnelle détectée.</div>')+
+   '</div>';
   const alertsHtml=alerts.length?
    '<div class="card"><div class="section-head"><h2>Alertes opérationnelles</h2><span class="badge">'+formatNumber(alerts.length)+'</span></div>'+
    alerts.map(function(item){
@@ -585,6 +596,7 @@ async function loadOverview(){
    '<p class="small">API calls : '+formatNumber(u.api_calls)+' · coût estimé : '+formatNumber(u.estimated_cost_usd)+' USD</p>'+
    '<p class="small">Commits Production-OS : '+formatNumber(c.production_os)+' · branche par défaut GitHub : '+formatNumber(c.github_default_branch)+'</p>'+
    '<p class="small">Taux de réussite : '+formatNumber(perf.success_rate)+' % · temps d’exécution : '+formatNumber(perf.execution_seconds)+' s</p></div>'+
+   healthHtml+
    alertsHtml;
  }catch(e){el.innerHTML=errorCard(e)}
 }
@@ -729,9 +741,12 @@ async function loadWorkersView(){
  }catch(e){list.innerHTML=errorCard(e)}
 }
 function confirmControlAction(action,jobKey){
- if(action!=="cancel-current"&&action!=="retry")return true;
+ if(!["cancel-current","retry","recover-stuck"].includes(action))return true;
  const target=jobKey?(" sur "+jobKey):"";
- return window.confirm((action==="retry"?"Relancer cette tentative":"Annuler cette tâche")+target+" ?");
+ const label=action==="retry"
+  ?"Relancer cette tentative"
+  :(action==="recover-stuck"?"Récupérer ce job bloqué":"Annuler cette tâche");
+ return window.confirm(label+target+" ?");
 }
 function renderControlReceipt(result){
  const el=document.getElementById("worker-control-receipt");
@@ -773,6 +788,7 @@ async function loadWorkerDetail(workerId){
   ]);
   const detail=results[0],logs=results[1],usage=results[2],worker=detail.worker||{},totals=usage.totals||{};
   const executions=detail.executions||[];
+  const recoverableJobs=detail.recoverable_jobs||[];
   const activeExecution=executions.find(function(row){return row.status==="running"})||null;
   const retryExecution=executions.find(function(row){return row.status==="failed"||row.status==="cancelled"})||null;
   const currentTask=activeExecution?(activeExecution.workflow_task_id||activeExecution.job_key||"En cours"):"Aucune";
@@ -806,6 +822,10 @@ async function loadWorkerDetail(workerId){
    '<button class="secondary-btn" data-control-action="kick" onclick="runWorkerControl('+JSON.stringify(workerId)+',\'kick\')">Kick</button>'+
    (activeJobKey?'<button class="secondary-btn" data-control-action="cancel-current" data-job-key="'+esc(activeJobKey)+'" onclick="runWorkerControl('+JSON.stringify(workerId)+',\'cancel-current\',this.dataset.jobKey)">Annuler '+esc(activeJobKey)+'</button>':'')+
    (retryJobKey?'<button class="secondary-btn" data-control-action="retry" data-job-key="'+esc(retryJobKey)+'" onclick="runWorkerControl('+JSON.stringify(workerId)+',\'retry\',this.dataset.jobKey)">Retry '+esc(retryJobKey)+'</button>':'')+
+   recoverableJobs.map(function(row){
+    const key=String(row.key||"");
+    return '<button class="secondary-btn" data-control-action="recover-stuck" data-job-key="'+esc(key)+'" onclick="runWorkerControl('+JSON.stringify(workerId)+',\'recover-stuck\',this.dataset.jobKey)">Récupérer '+esc(key)+'</button>';
+   }).join("")+
    '</div><div id="worker-control-receipt" class="status-message"></div>'+
    '<h3 style="font-size:.85rem;margin:15px 0 6px">Historique d’exécution</h3>'+
    (executions.length?executions.slice(0,8).map(function(row){return '<div class="small"><strong>Résultat :</strong> '+esc(String(row.status||"inconnu"))+' · '+esc(String(row.started_at||""))+' · <strong>Durée :</strong> '+(row.duration_seconds==null?'—':formatNumber(row.duration_seconds)+' s')+'</div>'}).join(""):'<div class="empty">Aucune exécution enregistrée.</div>')+
@@ -815,11 +835,23 @@ async function loadWorkerDetail(workerId){
 async function loadActivityView(){
  const el=document.getElementById("activity-list");
  try{
-  const data=await api("/v1/dashboard/activity?limit=100");
-  const rows=data.events||[];
-  el.innerHTML=rows.length?rows.slice().reverse().map(function(row){
+  const results=await Promise.all([
+   api("/v1/dashboard/activity?limit=100"),
+   api("/v1/dashboard/control-audit?limit=50")
+  ]);
+  const data=results[0],audit=results[1],rows=data.events||[],controls=audit.events||[];
+  const auditHtml=
+   '<div class="card"><div class="section-head"><h2>Audit des contrôles</h2><span class="badge">'+formatNumber(controls.length)+'</span></div>'+
+   (controls.length?controls.map(function(row){
+    const target=row.job_key?(' · job '+String(row.job_key)):(' · worker '+String(row.worker_id||""));
+    const error=row.error_code?(' · erreur '+String(row.error_code)):'';
+    return '<div class="small"><strong>'+esc(String(row.action||"action"))+'</strong>'+esc(target)+' · '+esc(String(row.outcome||""))+' · '+esc(String(row.requested_by||""))+' · '+esc(String(row.requested_at||""))+esc(error)+'</div>';
+   }).join(""):'<div class="empty">Aucune action opérateur enregistrée.</div>')+
+   '</div>';
+  const activityHtml=rows.length?rows.slice().reverse().map(function(row){
    return '<div class="card"><div class="section-head"><strong>'+esc(String(row.event_type||"événement"))+'</strong><span class="badge">'+esc(String(row.repository||"global"))+'</span></div><div class="small">'+esc(String(row.created_at||""))+'</div></div>';
   }).join(""):'<div class="empty">Aucune activité enregistrée.</div>';
+  el.innerHTML=auditHtml+activityHtml;
  }catch(e){el.innerHTML=errorCard(e)}
 }
 function navigate(next){

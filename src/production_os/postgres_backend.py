@@ -22,7 +22,7 @@ def _utcnow() -> str:
 
 
 class PostgresBackend:
-    SCHEMA_VERSION = 9
+    SCHEMA_VERSION = 10
 
     def __init__(self, dsn: str):
         if psycopg is None:
@@ -298,6 +298,22 @@ class PostgresBackend:
                 """)
                 cur.execute("""
                     CREATE TABLE IF NOT EXISTS job_control_state (job_key TEXT PRIMARY KEY, desired_state TEXT NOT NULL DEFAULT 'active', reason TEXT, requested_by TEXT, requested_at TEXT NOT NULL, acknowledged_at TEXT, updated_at TEXT NOT NULL)
+                """)
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS control_audit_events (
+                        id TEXT PRIMARY KEY,
+                        action TEXT NOT NULL,
+                        worker_id TEXT NOT NULL,
+                        job_key TEXT,
+                        requested_by TEXT NOT NULL,
+                        outcome TEXT NOT NULL,
+                        error_code TEXT,
+                        requested_at TEXT NOT NULL
+                    )
+                """)
+                cur.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_control_audit_requested_at
+                    ON control_audit_events(requested_at DESC)
                 """)
                 cur.execute("""
                     CREATE TABLE IF NOT EXISTS job_executions (id TEXT PRIMARY KEY, job_key TEXT NOT NULL, workflow_id TEXT, workflow_task_id TEXT, repository TEXT NOT NULL, worker_id TEXT NOT NULL, attempt INTEGER NOT NULL DEFAULT 1, status TEXT NOT NULL, started_at TEXT NOT NULL, finished_at TEXT, duration_seconds DOUBLE PRECISION, provider TEXT, model TEXT, api_calls INTEGER NOT NULL DEFAULT 0, input_tokens BIGINT NOT NULL DEFAULT 0, cached_input_tokens BIGINT NOT NULL DEFAULT 0, output_tokens BIGINT NOT NULL DEFAULT 0, reasoning_tokens BIGINT NOT NULL DEFAULT 0, total_tokens BIGINT NOT NULL DEFAULT 0, estimated_cost_usd DOUBLE PRECISION, pricing_catalog_version TEXT, commit_count INTEGER NOT NULL DEFAULT 0, commit_shas_json TEXT NOT NULL DEFAULT '[]', retry_of_execution_id TEXT, error_type TEXT, error_message TEXT, current_stage TEXT, progress_percent DOUBLE PRECISION, live_usage_json TEXT NOT NULL DEFAULT '{}', last_telemetry_at TEXT, result_summary_json TEXT NOT NULL DEFAULT '{}', created_at TEXT NOT NULL)
@@ -1420,6 +1436,53 @@ class PostgresJobQueue:
                 )
                 row = cur.fetchone()
         return self._job_dict(row)
+
+    def recover_job(self, key: str, *, max_attempts: int = 3) -> dict:
+        now = _utcnow()
+        with self.backend.transaction() as db:
+            with db.cursor() as cur:
+                cur.execute(
+                    "SELECT * FROM jobs WHERE key=%s FOR UPDATE",
+                    (key,),
+                )
+                row = cur.fetchone()
+                if row is None:
+                    raise KeyError(key)
+                if row["status"] != "claimed":
+                    raise RuntimeError(
+                        f"job is not recoverable from {row['status']}"
+                    )
+                if not row["ack_deadline"] or row["ack_deadline"] > now:
+                    raise RuntimeError("job claim has not expired")
+                target = (
+                    "dead-letter"
+                    if int(row["delivery_attempt"]) >= int(max_attempts)
+                    else "queued"
+                )
+                cur.execute(
+                    """
+                    UPDATE jobs
+                    SET status=%s, claimed_by=NULL, claimed_at=NULL,
+                        ack_deadline=NULL, updated_at=%s
+                    WHERE key=%s
+                    """,
+                    (target, now, key),
+                )
+                action = {
+                    "key":key,
+                    "action":target,
+                    "delivery_attempt":row["delivery_attempt"],
+                }
+                self.backend.append_event(
+                    db,
+                    "job-recovered",
+                    action,
+                    repository=row["repository"],
+                    task_key_value=key,
+                )
+                cur.execute("SELECT * FROM jobs WHERE key=%s", (key,))
+                updated = cur.fetchone()
+        return self._job_dict(updated)
 
     def recover_expired(self, *, max_attempts: int = 3) -> list[dict]:
         now = _utcnow()

@@ -272,6 +272,8 @@ def make_handler(control: ControlPlane):
                     service = control.dashboard
                     if parsed.path == "/v1/dashboard/overview":
                         payload = service.overview(window)
+                    elif parsed.path == "/v1/dashboard/health":
+                        payload = service.health()
                     elif parsed.path == "/v1/dashboard/autopilot":
                         payload = service.autopilot_queue(
                             int(query.get("limit", ["50"])[0])
@@ -310,6 +312,10 @@ def make_handler(control: ControlPlane):
                             payload = service.project_history(repository)
                         else:
                             raise DashboardNotFound(parsed.path)
+                    elif parsed.path == "/v1/dashboard/control-audit":
+                        payload = service.control_audit(
+                            int(query.get("limit", ["100"])[0])
+                        )
                     elif parsed.path == "/v1/dashboard/activity":
                         payload = service.activity(
                             repository=query.get("repository",[None])[0],
@@ -810,12 +816,112 @@ def make_handler(control: ControlPlane):
                         "drain":"draining",
                     }
                     worker_id = parts[3]
+                    requested_by = f"{principal.role}:{principal.name}"
+                    audit_job_key = (
+                        str(body.get("job_key") or "").strip() or None
+                    )
+                    audit_event = control.dashboard_store.append_control_audit(
+                        action=action or "invalid",
+                        worker_id=worker_id,
+                        job_key=audit_job_key,
+                        requested_by=requested_by,
+                        outcome="requested",
+                    )
+
+                    def audit_control(
+                        outcome: str,
+                        *,
+                        job_key: str | None = None,
+                        error_code: str | None = None,
+                    ) -> None:
+                        del job_key
+                        try:
+                            control.dashboard_store.update_control_audit(
+                                audit_event["id"],
+                                outcome=outcome,
+                                error_code=error_code,
+                            )
+                        except Exception:
+                            # The pre-action reservation remains durable even
+                            # if result finalization cannot be written.
+                            pass
+
+                    if action == "recover-stuck":
+                        job_key = str(body.get("job_key") or "").strip()
+                        if not job_key:
+                            audit_control(
+                                "failed",
+                                error_code="job_key_required",
+                            )
+                            self._send(
+                                HTTPStatus.BAD_REQUEST,
+                                {"error":"job_key required"},
+                            )
+                            return
+                        try:
+                            job = control.queue.get(job_key)
+                        except KeyError:
+                            audit_control(
+                                "failed",
+                                job_key=job_key,
+                                error_code="job_not_found",
+                            )
+                            self._send(
+                                HTTPStatus.NOT_FOUND,
+                                {"error":"job not found"},
+                            )
+                            return
+                        if str(job.get("claimed_by") or "") != worker_id:
+                            audit_control(
+                                "failed",
+                                job_key=job_key,
+                                error_code="job_not_claimed_by_worker",
+                            )
+                            self._send(
+                                HTTPStatus.CONFLICT,
+                                {"error":"job not claimed by worker"},
+                            )
+                            return
+                        try:
+                            recovered = control.queue.recover_job(
+                                job_key,
+                                max_attempts=int(body.get("max_attempts", 3)),
+                            )
+                        except RuntimeError:
+                            audit_control(
+                                "failed",
+                                job_key=job_key,
+                                error_code="job_not_recoverable",
+                            )
+                            raise
+                        audit_control(
+                            str(recovered.get("status") or "recovered"),
+                            job_key=job_key,
+                        )
+                        self._send(
+                            HTTPStatus.OK,
+                            {
+                                "accepted":True,
+                                "worker_id":worker_id,
+                                "job":recovered,
+                            },
+                        )
+                        return
+
                     if action == "kick":
                         kicked = control.dashboard_control.kick_worker(worker_id)
                         status = (
                             HTTPStatus.BAD_GATEWAY
                             if kicked.get("status") == "failed"
                             else HTTPStatus.ACCEPTED
+                        )
+                        audit_control(
+                            str(kicked.get("status") or "failed"),
+                            error_code=(
+                                str(kicked.get("error"))
+                                if kicked.get("status") == "failed"
+                                else None
+                            ),
                         )
                         self._send(
                             status,
@@ -830,15 +936,25 @@ def make_handler(control: ControlPlane):
                     if action == "retry":
                         job_key = str(body.get("job_key") or "").strip()
                         if not job_key:
+                            audit_control("failed", error_code="job_key_required")
                             self._send(
                                 HTTPStatus.BAD_REQUEST,
                                 {"error":"job_key required"},
                             )
                             return
-                        retried = control.dashboard_control.retry_job(
-                            job_key,
-                            requested_by=f"{principal.role}:{principal.name}",
-                        )
+                        try:
+                            retried = control.dashboard_control.retry_job(
+                                job_key,
+                                requested_by=requested_by,
+                            )
+                        except RuntimeError:
+                            audit_control(
+                                "failed",
+                                job_key=job_key,
+                                error_code="retry_rejected",
+                            )
+                            raise
+                        audit_control("accepted", job_key=job_key)
                         self._send(
                             HTTPStatus.CREATED,
                             {
@@ -854,6 +970,7 @@ def make_handler(control: ControlPlane):
                     if action == "cancel-current":
                         job_key = str(body.get("job_key") or "").strip()
                         if not job_key:
+                            audit_control("failed", error_code="job_key_required")
                             self._send(
                                 HTTPStatus.BAD_REQUEST,
                                 {"error":"job_key required"},
@@ -862,12 +979,22 @@ def make_handler(control: ControlPlane):
                         try:
                             job = control.queue.get(job_key)
                         except KeyError:
+                            audit_control(
+                                "failed",
+                                job_key=job_key,
+                                error_code="job_not_found",
+                            )
                             self._send(
                                 HTTPStatus.NOT_FOUND,
                                 {"error":"job not found"},
                             )
                             return
                         if str(job.get("claimed_by") or "") != worker_id:
+                            audit_control(
+                                "failed",
+                                job_key=job_key,
+                                error_code="job_not_claimed_by_worker",
+                            )
                             self._send(
                                 HTTPStatus.CONFLICT,
                                 {"error":"job not claimed by worker"},
@@ -876,6 +1003,11 @@ def make_handler(control: ControlPlane):
                         if str(job.get("status") or "") not in {
                             "claimed","acked","running"
                         }:
+                            audit_control(
+                                "failed",
+                                job_key=job_key,
+                                error_code="job_not_active",
+                            )
                             self._send(
                                 HTTPStatus.CONFLICT,
                                 {"error":"job is not active"},
@@ -883,13 +1015,14 @@ def make_handler(control: ControlPlane):
                             return
                         state = control.dashboard_control.request_job_cancel(
                             job_key,
-                            requested_by=f"{principal.role}:{principal.name}",
+                            requested_by=requested_by,
                             reason=(
                                 str(body.get("reason")).strip()
                                 if body.get("reason") is not None
                                 else None
                             ),
                         )
+                        audit_control("accepted", job_key=job_key)
                         self._send(
                             HTTPStatus.ACCEPTED,
                             {
@@ -906,6 +1039,10 @@ def make_handler(control: ControlPlane):
 
                     desired_state = state_by_action.get(action)
                     if desired_state is None:
+                        audit_control(
+                            "failed",
+                            error_code="invalid_worker_control_action",
+                        )
                         self._send(
                             HTTPStatus.BAD_REQUEST,
                             {"error":"invalid worker control action"},
@@ -914,13 +1051,14 @@ def make_handler(control: ControlPlane):
                     state = control.dashboard_control.set_worker_state(
                         worker_id,
                         desired_state,
-                        requested_by=f"{principal.role}:{principal.name}",
+                        requested_by=requested_by,
                         reason=(
                             str(body.get("reason")).strip()
                             if body.get("reason") is not None
                             else None
                         ),
                     )
+                    audit_control("accepted")
                     self._send(
                         HTTPStatus.ACCEPTED,
                         {
