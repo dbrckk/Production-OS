@@ -620,6 +620,7 @@ async function loadAutopilot(){
     '<p class="small"><strong>Projet :</strong> '+esc(String(row.repository||""))+'</p>'+
     '<p class="small"><strong>Score :</strong> '+formatNumber(row.score)+' · <strong>ETA :</strong> '+formatNumber(row.predicted_minutes)+' min · <strong>Âge :</strong> '+formatNumber(row.age_minutes)+' min</p>'+
     '<p class="small"><strong>Chemin critique :</strong> '+(row.critical?'Oui':'Non')+' · <strong>Dépendants :</strong> '+formatNumber(row.descendants)+'</p>'+
+    (row.ranking_status==="degraded"?'<p class="small"><strong>Ranking :</strong> Dégradé · workflow de référence indisponible</p>':'')+
     '<p class="small"><strong>Capacités requises :</strong> '+esc(caps)+'</p>'+
     '<p class="small"><strong>Worker préféré :</strong> '+esc(worker)+'</p>'+
     '<p class="small"><strong>État :</strong> '+esc(autopilotWaitLabel(row.wait_reason))+'</p>'+
