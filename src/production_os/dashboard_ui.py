@@ -815,11 +815,23 @@ async function loadWorkerDetail(workerId){
 async function loadActivityView(){
  const el=document.getElementById("activity-list");
  try{
-  const data=await api("/v1/dashboard/activity?limit=100");
-  const rows=data.events||[];
-  el.innerHTML=rows.length?rows.slice().reverse().map(function(row){
+  const results=await Promise.all([
+   api("/v1/dashboard/activity?limit=100"),
+   api("/v1/dashboard/control-audit?limit=50")
+  ]);
+  const data=results[0],audit=results[1],rows=data.events||[],controls=audit.events||[];
+  const auditHtml=
+   '<div class="card"><div class="section-head"><h2>Audit des contrôles</h2><span class="badge">'+formatNumber(controls.length)+'</span></div>'+
+   (controls.length?controls.map(function(row){
+    const target=row.job_key?(' · job '+String(row.job_key)):(' · worker '+String(row.worker_id||""));
+    const error=row.error_code?(' · erreur '+String(row.error_code)):'';
+    return '<div class="small"><strong>'+esc(String(row.action||"action"))+'</strong>'+esc(target)+' · '+esc(String(row.outcome||""))+' · '+esc(String(row.requested_by||""))+' · '+esc(String(row.requested_at||""))+esc(error)+'</div>';
+   }).join(""):'<div class="empty">Aucune action opérateur enregistrée.</div>')+
+   '</div>';
+  const activityHtml=rows.length?rows.slice().reverse().map(function(row){
    return '<div class="card"><div class="section-head"><strong>'+esc(String(row.event_type||"événement"))+'</strong><span class="badge">'+esc(String(row.repository||"global"))+'</span></div><div class="small">'+esc(String(row.created_at||""))+'</div></div>';
   }).join(""):'<div class="empty">Aucune activité enregistrée.</div>';
+  el.innerHTML=auditHtml+activityHtml;
  }catch(e){el.innerHTML=errorCard(e)}
 }
 function navigate(next){
