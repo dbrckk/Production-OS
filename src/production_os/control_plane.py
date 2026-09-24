@@ -321,6 +321,10 @@ def make_handler(control: ControlPlane):
                             limit=int(query.get("limit", ["100"])[0]),
                             incident_id=query.get("incident_id", [None])[0],
                         )
+                    elif parsed.path == "/v1/dashboard/remediation-analytics":
+                        payload = service.remediation_analytics(
+                            query.get("window", ["24h"])[0],
+                        )
                     elif parsed.path == "/v1/dashboard/incidents":
                         payload = service.incidents(
                             limit=int(query.get("limit", ["100"])[0]),
