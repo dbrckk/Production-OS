@@ -229,6 +229,7 @@
     "src/production_os/control_plane.py": [
       "__future__",
       "api_auth",
+      "dashboard_control",
       "dashboard_service",
       "dashboard_store",
       "dashboard_ui",
@@ -238,6 +239,7 @@
       "http",
       "http.server",
       "json",
+      "os",
       "portfolio_optimizer",
       "release_ledger",
       "speculation",
@@ -286,6 +288,14 @@
       "time",
       "workers"
     ],
+    "src/production_os/dashboard_alerts.py": [
+      "__future__",
+      "datetime"
+    ],
+    "src/production_os/dashboard_control.py": [
+      "__future__",
+      "dashboard_store"
+    ],
     "src/production_os/dashboard_github.py": [
       "__future__",
       "datetime",
@@ -297,6 +307,7 @@
     ],
     "src/production_os/dashboard_service.py": [
       "__future__",
+      "dashboard_alerts",
       "dashboard_usage",
       "datetime",
       "hashlib",
@@ -1011,6 +1022,11 @@
       "tempfile",
       "types"
     ],
+    "tests/test_dashboard_alerts.py": [
+      "datetime",
+      "production_os.dashboard_alerts",
+      "production_os.dashboard_service"
+    ],
     "tests/test_dashboard_api.py": [
       "__future__",
       "http.server",
@@ -1018,6 +1034,35 @@
       "production_os.api_auth",
       "production_os.control_plane",
       "pytest",
+      "threading",
+      "urllib.error",
+      "urllib.request"
+    ],
+    "tests/test_dashboard_control.py": [
+      "__future__",
+      "production_os.dashboard_control",
+      "production_os.dashboard_store",
+      "production_os.sqlite_backend",
+      "pytest"
+    ],
+    "tests/test_dashboard_control_api.py": [
+      "__future__",
+      "http.server",
+      "json",
+      "production_os.api_auth",
+      "production_os.control_plane",
+      "production_os.workflow_engine",
+      "threading",
+      "urllib.error",
+      "urllib.request"
+    ],
+    "tests/test_dashboard_control_e2e.py": [
+      "__future__",
+      "http.server",
+      "json",
+      "production_os.api_auth",
+      "production_os.control_plane",
+      "production_os.workflow_engine",
       "threading",
       "urllib.error",
       "urllib.request"

@@ -1,37 +1,37 @@
 # Repo Brain
 
 - Index mode: incremental
-- Files indexed: 210
-- Files reparsed this run: 21
-- Symbols: 1521
-- Internal import edges: 581
-- Impacted files: 64
-- Selected tests: 49
+- Files indexed: 216
+- Files reparsed this run: 15
+- Symbols: 1596
+- Internal import edges: 599
+- Impacted files: 58
+- Selected tests: 46
 
 ## Languages
-- python: 210 files
+- python: 216 files
 
 ## Highest-density symbol files
 - src/production_os/cli.py: 80 symbols
 - tests/test_asset_forge.py: 56 symbols
-- src/production_os/postgres_backend.py: 53 symbols
-- src/production_os/sqlite_backend.py: 53 symbols
+- src/production_os/postgres_backend.py: 54 symbols
+- src/production_os/sqlite_backend.py: 54 symbols
+- src/production_os/dashboard_store.py: 36 symbols
 - src/production_os/github_client.py: 36 symbols
-- src/production_os/workflow_engine.py: 33 symbols
-- src/production_os/dashboard_store.py: 30 symbols
+- src/production_os/workflow_engine.py: 35 symbols
 - tests/test_transparency_receipts.py: 29 symbols
-- src/production_os/dashboard_service.py: 27 symbols
+- src/production_os/dashboard_service.py: 28 symbols
 - src/production_os/rekor_checkpoint_state.py: 22 symbols
 - src/production_os/release_ledger.py: 22 symbols
+- tests/test_dashboard_ui_v3.py: 22 symbols
 - tests/test_release_ledger.py: 22 symbols
 - src/production_os/asset_forge.py: 21 symbols
 - src/production_os/control_plane.py: 21 symbols
 - src/production_os/transparency_receipts.py: 21 symbols
-- tests/test_dashboard_ui_v3.py: 18 symbols
 - tests/test_workflow_engine.py: 18 symbols
 - src/production_os/runtime_state.py: 17 symbols
+- tests/test_dashboard_control_api.py: 17 symbols
 - src/production_os/rekor_witness_quorum.py: 16 symbols
-- tests/test_dashboard_launch.py: 16 symbols
 
 ## Agent routing
 - Read impact.json first after project/change context.
@@ -42,10 +42,10 @@
 ## ast-grep enrichment
 - ast-grep outline: available
 - AST index mode: incremental
-- AST files reparsed this run: 21
-- outline files retained: 210
-- top-level items retained: 1939
-- direct members retained: 774
+- AST files reparsed this run: 15
+- outline files retained: 216
+- top-level items retained: 2021
+- direct members retained: 800
 - symbol shards: 25
 - route named symbols via ast-routing.json, then fetch one ast-symbols/<initial>.json shard
 

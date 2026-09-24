@@ -22,36 +22,36 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-24T13:59:28Z
+Generated: 2026-09-24T15:03:32Z
 
 ### Git
 - Branch: `main`
-- Head: `5846e966858e`
-- Commit date: 2026-09-24T15:59:14+02:00
-- Commit: feat: dashboard observability release 1
-- Tracked files: 345
+- Head: `e3c61df28b5c`
+- Commit date: 2026-09-24T17:03:19+02:00
+- Commit: feat: dashboard control center release 2
+- Tracked files: 351
 
 ### Recently changed files
 - `README.md`
-- `docs/superpowers/plans/2026-09-22-dashboard-control-center-release-2.md`
-- `docs/superpowers/plans/2026-09-22-dashboard-observability-release-1.md`
-- `docs/superpowers/specs/2026-09-22-dashboard-observability-control-center-design.md`
 - `src/production_os/control_plane.py`
-- `src/production_os/dashboard_github.py`
-- `src/production_os/dashboard_security.py`
+- `src/production_os/dashboard_alerts.py`
+- `src/production_os/dashboard_control.py`
 - `src/production_os/dashboard_service.py`
 - `src/production_os/dashboard_store.py`
 - `src/production_os/dashboard_ui.py`
-- `src/production_os/dashboard_usage.py`
-- `src/production_os/github_client.py`
 - `src/production_os/postgres_backend.py`
-- `src/production_os/project_progress.py`
 - `src/production_os/sqlite_backend.py`
-- `tests/test_dashboard_api.py`
-- `tests/test_dashboard_github.py`
-- `tests/test_dashboard_observability_e2e.py`
-- `tests/test_dashboard_security.py`
-- `tests/test_dashboard_store.py`
+- `src/production_os/workflow_engine.py`
+- `tests/test_dashboard_alerts.py`
+- `tests/test_dashboard_control.py`
+- `tests/test_dashboard_control_api.py`
+- `tests/test_dashboard_control_e2e.py`
+- `tests/test_dashboard_ui_v3.py`
+- `tests/test_portfolio_claim_api.py`
+- `docs/superpowers/plans/2026-09-22-dashboard-control-center-release-2.md`
+- `docs/superpowers/plans/2026-09-22-dashboard-observability-release-1.md`
+- `docs/superpowers/specs/2026-09-22-dashboard-observability-control-center-design.md`
+- `src/production_os/dashboard_github.py`
 
 ### Project signals
 - `pyproject.toml`

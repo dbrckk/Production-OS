@@ -79,6 +79,8 @@ src/
     control_plane.py
     control_surface.py
     controller.py
+    dashboard_alerts.py
+    dashboard_control.py
     dashboard_github.py
     dashboard_security.py
     dashboard_service.py
@@ -181,7 +183,11 @@ tests/
   test_control_plane_webhook.py
   test_control_plane.py
   test_controller_asset_capabilities.py
+  test_dashboard_alerts.py
   test_dashboard_api.py
+  test_dashboard_control_api.py
+  test_dashboard_control_e2e.py
+  test_dashboard_control.py
   test_dashboard_github.py
   test_dashboard_launch.py
   test_dashboard_observability_e2e.py
@@ -2287,6 +2293,11 @@ key = (component.path, component.kind, component.name)
 ````python
 class ControlPlane
 ⋮----
+github_token = str(os.getenv("GITHUB_TOKEN") or "").strip()
+actions_repository = str(
+actions_workflow = str(
+actions_ref = str(
+⋮----
 def _json_bytes(payload: dict | list) -> bytes
 ⋮----
 class RequestBodyTooLarge(ValueError)
@@ -2441,6 +2452,25 @@ body = self._read_json()
 ⋮----
 principal = self._require("operator")
 ⋮----
+action = str(body.get("action") or "").strip()
+state_by_action = {
+worker_id = parts[3]
+⋮----
+kicked = control.dashboard_control.kick_worker(worker_id)
+status = (
+⋮----
+job_key = str(body.get("job_key") or "").strip()
+⋮----
+retried = control.dashboard_control.retry_job(
+⋮----
+job = control.queue.get(job_key)
+⋮----
+state = control.dashboard_control.request_job_cancel(
+⋮----
+desired_state = state_by_action.get(action)
+⋮----
+state = control.dashboard_control.set_worker_state(
+⋮----
 stragglers = control.optimizer.stragglers(
 spawned = []
 skipped = []
@@ -2489,6 +2519,24 @@ stale_job_keys = []
 ⋮----
 job = control.queue.get(str(key))
 ⋮----
+control_state = body.get("control_state")
+⋮----
+current_control = control.dashboard_control.worker_state(
+⋮----
+current_control = (
+⋮----
+job_control_states = body.get("job_control_states", {})
+⋮----
+job_key = str(raw_key)
+reported_state = str(raw_state)
+current_job_control = control.dashboard_control.job_state(job_key)
+⋮----
+cancelled_job = control.queue.cancel(
+⋮----
+payload = cancelled_job.get("payload") or {}
+workflow_id = payload.get("workflow_id")
+workflow_task_id = payload.get("workflow_task_id")
+⋮----
 allowed = {"validator_id", "builder_id", "key_id"}
 unknown = sorted(set(body) - allowed)
 ⋮----
@@ -2504,6 +2552,8 @@ job = control.queue.enqueue(body)
 ⋮----
 worker_id = str(body["worker_id"])
 capabilities = [
+⋮----
+desired = control.dashboard_control.worker_state(worker_id)
 ⋮----
 compatible = []
 ⋮----
@@ -2706,6 +2756,96 @@ database_path = kwargs.get("database_path")
 state = (
 ````
 
+## File: src/production_os/dashboard_alerts.py
+````python
+CONSECUTIVE_FAILURE_THRESHOLD = 3
+COST_SPIKE_RATIO = 2.0
+BUSY_TELEMETRY_STALE_SECONDS = 180
+⋮----
+def _parse_time(value)
+⋮----
+parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+⋮----
+parsed = parsed.replace(tzinfo=timezone.utc)
+⋮----
+def derive_alerts(snapshot: dict) -> list[dict]
+⋮----
+alerts = []
+workers = dict(snapshot.get("workers") or {})
+productions = dict(snapshot.get("productions") or {})
+performance = dict(snapshot.get("performance") or {})
+usage = dict(snapshot.get("usage") or {})
+⋮----
+queued = int(productions.get("queued") or 0)
+online = int(workers.get("online") or 0)
+⋮----
+consecutive_failures = int(performance.get("recent_failures") or 0)
+⋮----
+current_cost = usage.get("estimated_cost_usd")
+baseline = usage.get("cost_baseline_usd")
+⋮----
+ratio = float(current_cost) / float(baseline)
+⋮----
+now = _parse_time(snapshot.get("generated_at")) or datetime.now(timezone.utc)
+stale_workers = []
+⋮----
+last = _parse_time(worker.get("last_heartbeat"))
+⋮----
+age = max(0.0, (now - last).total_seconds())
+⋮----
+severity_order = {"high":0, "medium":1, "low":2}
+````
+
+## File: src/production_os/dashboard_control.py
+````python
+WORKER_STATES = {"active", "paused", "draining"}
+JOB_STATES = {"active", "cancel_requested"}
+⋮----
+class DashboardControlError(RuntimeError)
+⋮----
+class DashboardControl
+⋮----
+@staticmethod
+    def _worker_view(row: dict | None, worker_id: str) -> dict
+⋮----
+value = dict(row)
+⋮----
+requested = value.get("requested_at")
+updated = value.get("updated_at")
+⋮----
+@staticmethod
+    def _job_view(row: dict | None, job_key: str) -> dict
+⋮----
+def worker_state(self, worker_id: str) -> dict
+⋮----
+row = self.store.set_worker_control(
+⋮----
+current = self.store.get_worker_control(worker_id)
+⋮----
+row = self.store.acknowledge_worker_control(worker_id, desired_state, at=at)
+⋮----
+def job_state(self, job_key: str) -> dict
+⋮----
+row = self.store.set_job_control(
+⋮----
+def acknowledge_job_cancel(self, job_key: str, *, at: str | None = None) -> dict
+⋮----
+row = self.store.acknowledge_job_control(job_key, at=at)
+⋮----
+def kick_worker(self, worker_id: str) -> dict
+⋮----
+def retry_job(self, job_key: str, *, requested_by: str) -> dict
+⋮----
+job = self.queue.get(job_key)
+payload = job.get("payload") or {}
+workflow_id = str(payload.get("workflow_id") or "").strip()
+task_id = str(payload.get("workflow_task_id") or "").strip()
+⋮----
+current = self.job_state(job_key)
+⋮----
+replacement = self.workflows.retry_task(
+````
+
 ## File: src/production_os/dashboard_github.py
 ````python
 _REPOSITORY = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
@@ -2805,9 +2945,32 @@ parsed=datetime.fromisoformat(str(raw).replace("Z","+00:00"))
 ⋮----
 parsed=parsed.replace(tzinfo=timezone.utc)
 ⋮----
+@staticmethod
+    def _previous_window_cost(rows: list[dict], window: str)
+⋮----
+seconds = {"24h":86400, "7d":604800, "30d":2592000}.get(window)
+⋮----
+now = datetime.now(timezone.utc)
+start = now - timedelta(seconds=seconds * 2)
+end = now - timedelta(seconds=seconds)
+total = 0.0
+found = False
+⋮----
+raw = row.get("occurred_at")
+⋮----
+occurred = datetime.fromisoformat(str(raw).replace("Z", "+00:00"))
+⋮----
+occurred = occurred.replace(tzinfo=timezone.utc)
+⋮----
+cost = row.get("estimated_cost_usd")
+⋮----
+found = True
+⋮----
 def overview(self, window: str) -> dict
 ⋮----
-usage=aggregate_usage(self.store.usage_events(),window=window,
+usage_rows=self.store.usage_events()
+usage=aggregate_usage(usage_rows,window=window,
+previous_cost=self._previous_window_cost(usage_rows, window)
 workers=self._worker_rows()
 executions=[]
 ⋮----
@@ -2817,12 +2980,24 @@ jobs=db.execute("SELECT status,COUNT(*) AS count FROM jobs GROUP BY status").fet
 states={str(x["status"]):int(x["count"]) for x in jobs}
 succeeded=sum(x.get("status")=="succeeded" for x in executions)
 finished=sum(x.get("status") in {"succeeded","failed","cancelled"} for x in executions)
+terminal = sorted(
+recent_failures=0
 ⋮----
-def workers(self): return {"workers":self._worker_rows(),"generated_at":_now()}
+snapshot = {
+⋮----
+def workers(self)
+⋮----
+rows=[]
+⋮----
+desired=self.control.dashboard_control.worker_state(worker["worker_id"])
+item=dict(worker)
 ⋮----
 def worker_detail(self, worker_id)
 ⋮----
 rows=[x for x in self._worker_rows() if x.get("worker_id")==worker_id]
+⋮----
+worker=dict(rows[0])
+desired=self.control.dashboard_control.worker_state(worker_id)
 ⋮----
 def worker_logs(self,worker_id,after,limit)
 ⋮----
@@ -2978,6 +3153,14 @@ old = row.get("progress_percent"); stage = telemetry.get("stage", row.get("curre
 live_usage = usage if usage is not None else (row.get("live_usage") or {})
 ⋮----
 result = result or {}; usage = result.get("usage") or {}; commits = result.get("commits") or {}; shas = _valid_commit_shas(commits.get("shas"))
+⋮----
+def get_worker_control(self, worker_id: str) -> dict | None
+⋮----
+timestamp = at or _now()
+⋮----
+row = self._fetchone(
+⋮----
+def get_job_control(self, job_key: str) -> dict | None
 ⋮----
 def executions_for_worker(self, worker_id: str, *, limit: int = 100) -> list[dict]
 ⋮----
@@ -4510,6 +4693,8 @@ def complete(self, key: str, worker_id: str) -> dict
 ⋮----
 def fail(self, key: str, worker_id: str, reason: str) -> dict
 ⋮----
+def cancel(self, key: str, worker_id: str, reason: str = "operator cancel") -> dict
+⋮----
 def recover_expired(self, *, max_attempts: int = 3) -> list[dict]
 ⋮----
 actions = []
@@ -5863,6 +6048,8 @@ def complete(self, key: str, worker_id: str) -> dict
 ⋮----
 def fail(self, key: str, worker_id: str, reason: str) -> dict
 ⋮----
+def cancel(self, key: str, worker_id: str, reason: str = "operator cancel") -> dict
+⋮----
 def recover_expired(self, *, max_attempts: int = 3) -> list[dict]
 ⋮----
 actions = []
@@ -6660,6 +6847,14 @@ task_payload = json.loads(row["payload_json"])
 ⋮----
 refreshed = self.refresh(workflow_id)
 ⋮----
+dispatched = self.dispatch_ready(
+⋮----
+payload = job.get("payload") or {}
+⋮----
+current = self.get(workflow_id)
+task = next(
+key = task.get("claimed_job_key")
+⋮----
 def cancel(self, workflow_id: str) -> dict
 ⋮----
 expected_revision = metadata.get("github_pr_head_sha")
@@ -7410,6 +7605,30 @@ registry = WorkerRegistry(Path(td) / "workers.json")
 worker = select_worker(registry, required)
 ````
 
+## File: tests/test_dashboard_alerts.py
+````python
+def test_offline_worker_with_queued_work_is_high_alert()
+⋮----
+alerts = derive_alerts({
+⋮----
+def test_three_consecutive_failures_are_high_alert()
+⋮----
+def test_cost_spike_requires_real_baseline()
+⋮----
+no_baseline = derive_alerts({
+⋮----
+spike = next(item for item in alerts if item["code"] == "cost_spike")
+⋮----
+def test_stale_busy_worker_is_medium_alert()
+⋮----
+stale = next(item for item in alerts if item["code"] == "stale_busy_worker")
+⋮----
+def test_previous_window_cost_uses_observed_historical_cost_only()
+⋮----
+now = datetime.now(timezone.utc)
+rows = [
+````
+
 ## File: tests/test_dashboard_api.py
 ````python
 def _auth()
@@ -7453,6 +7672,187 @@ def test_dashboard_rejects_invalid_window(running_control_plane)
 def test_dashboard_worker_routes_and_unknown_worker(running_control_plane)
 ⋮----
 def test_dashboard_project_and_activity_routes(running_control_plane)
+````
+
+## File: tests/test_dashboard_control_api.py
+````python
+def _post(base, path, token, payload)
+⋮----
+request = urllib.request.Request(
+⋮----
+raw = response.read()
+⋮----
+raw = exc.read()
+⋮----
+def _fixture(tmp_path)
+⋮----
+auth = TokenAuthorizer([
+control = ControlPlane(str(tmp_path / "db.sqlite"), authorizer=auth)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+def test_worker_control_requires_operator(tmp_path)
+⋮----
+def test_pause_returns_requested_state_not_fake_remote_ack(tmp_path)
+⋮----
+def test_resume_and_drain_map_to_durable_states(tmp_path)
+⋮----
+def test_invalid_worker_control_action_is_rejected(tmp_path)
+⋮----
+def test_cancel_current_requires_explicit_job_key(tmp_path)
+⋮----
+def test_cancel_current_targets_only_named_active_job(tmp_path)
+⋮----
+job = control.queue.enqueue({
+claimed = control.queue.claim_key(job["key"], "worker-a")
+⋮----
+sibling = control.queue.enqueue({
+⋮----
+def test_worker_heartbeat_acknowledges_and_cancels_target_job(tmp_path)
+⋮----
+state = control.dashboard_control.job_state(job["key"])
+⋮----
+def test_late_complete_after_cancel_is_rejected_and_job_stays_cancelled(tmp_path)
+⋮----
+def test_cancel_request_after_complete_is_rejected(tmp_path)
+⋮----
+def test_cancel_current_converges_workflow_task_without_auto_retry(tmp_path)
+⋮----
+workflow = control.workflows.create(
+dispatched = control.workflows.dispatch_ready(workflow["id"])
+⋮----
+job = dispatched[0]
+⋮----
+current = control.workflows.get(workflow["id"])
+task = next(item for item in current["tasks"] if item["task_id"] == "task-a")
+⋮----
+def test_retry_cancelled_workflow_task_creates_new_attempt_once(tmp_path)
+⋮----
+first = control.workflows.dispatch_ready(workflow["id"])[0]
+⋮----
+first_execution = control.dashboard_store.latest_execution(first["key"])
+⋮----
+second = retried["job"]
+⋮----
+task = control.workflows.get(workflow["id"])["tasks"][0]
+⋮----
+def test_retry_refuses_exhausted_attempt_budget(tmp_path)
+⋮----
+def test_retry_rejects_superseded_workflow_generation_without_new_job(tmp_path)
+⋮----
+before = {
+⋮----
+after = {
+⋮----
+def test_retry_allows_current_pr_workflow_generation(tmp_path)
+⋮----
+head_sha = "b" * 40
+⋮----
+def test_retry_dispatches_only_targeted_task(tmp_path)
+⋮----
+first = control.workflows.dispatch_ready(workflow["id"], limit=1)[0]
+⋮----
+before = control.workflows.get(workflow["id"])
+task_b = next(x for x in before["tasks"] if x["task_id"] == "task-b")
+⋮----
+after = control.workflows.get(workflow["id"])
+task_b = next(x for x in after["tasks"] if x["task_id"] == "task-b")
+⋮----
+queued = control.queue.peek_candidates(limit=100)
+````
+
+## File: tests/test_dashboard_control_e2e.py
+````python
+def _auth()
+⋮----
+def _post(base, path, token, payload)
+⋮----
+request = urllib.request.Request(
+⋮----
+raw = response.read()
+⋮----
+raw = exc.read()
+⋮----
+class _FakeGitHub
+⋮----
+def __init__(self)
+⋮----
+def dispatch_workflow(self, repository, workflow, *, ref="main", inputs=None)
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+def test_paused_state_survives_control_plane_restart(tmp_path)
+⋮----
+database = str(tmp_path / "production.db")
+first = ControlPlane(database, authorizer=_auth())
+⋮----
+second = ControlPlane(database, authorizer=_auth())
+⋮----
+def test_release2_control_flow_pause_drain_cancel_retry_complete(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "production.db"), authorizer=_auth())
+⋮----
+workflow = control.workflows.create(
+first = control.workflows.dispatch_ready(workflow["id"])[0]
+⋮----
+second = retried["job"]
+⋮----
+current = control.workflows.get(workflow["id"])
+task = current["tasks"][0]
+⋮----
+github = _FakeGitHub()
+````
+
+## File: tests/test_dashboard_control.py
+````python
+def _store(tmp_path)
+⋮----
+def test_missing_worker_control_row_defaults_to_active(tmp_path)
+⋮----
+control = DashboardControl(_store(tmp_path), None, None)
+state = control.worker_state("worker-a")
+⋮----
+def test_pause_and_drain_are_durable(tmp_path)
+⋮----
+paused = control.set_worker_state(
+⋮----
+drained = control.set_worker_state(
+⋮----
+def test_invalid_worker_desired_state_is_rejected(tmp_path)
+⋮----
+def test_worker_acknowledgement_requires_current_desired_state(tmp_path)
+⋮----
+ack = control.acknowledge_worker_state("worker-a", "paused")
+⋮----
+def test_missing_job_control_row_defaults_to_active(tmp_path)
+⋮----
+state = control.job_state("job-a")
+⋮----
+def test_job_cancel_request_and_acknowledgement_are_durable(tmp_path)
+⋮----
+requested = control.request_job_cancel(
+⋮----
+acknowledged = control.acknowledge_job_cancel("job-a")
+⋮----
+class _FakeGitHub
+⋮----
+def __init__(self, fail=False)
+⋮----
+def dispatch_workflow(self, repository, workflow, *, ref="main", inputs=None)
+⋮----
+def test_kick_dispatches_actions_worker_when_configured(tmp_path)
+⋮----
+github = _FakeGitHub()
+control = DashboardControl(
+result = control.kick_worker("github-actions-worker")
+⋮----
+def test_kick_reports_scheduled_fallback_without_dispatch_credentials(tmp_path)
+⋮----
+def test_kick_reports_failed_when_dispatch_errors(tmp_path)
 ````
 
 ## File: tests/test_dashboard_github.py
@@ -7713,6 +8113,16 @@ def test_project_detail_exposes_progress_components()
 def test_project_detail_exposes_commit_window_and_sources()
 ⋮----
 def test_project_detail_exposes_api_usage_breakdown()
+⋮----
+def test_worker_control_tab_has_safe_actions()
+⋮----
+html = DASHBOARD_HTML
+⋮----
+def test_ui_distinguishes_requested_from_acknowledged()
+⋮----
+def test_control_refresh_preserves_navigation_and_scroll_contract()
+⋮----
+def test_overview_renders_operational_alerts()
 ````
 
 ## File: tests/test_dashboard_usage.py
@@ -8204,6 +8614,10 @@ server=ThreadingHTTPServer(("127.0.0.1",0),make_handler(control))
 thread=threading.Thread(target=server.serve_forever,daemon=True)
 ⋮----
 base=f"http://127.0.0.1:{server.server_port}"
+⋮----
+def test_paused_worker_cannot_claim_but_can_heartbeat(tmp_path)
+⋮----
+def test_heartbeat_acknowledges_current_worker_desired_state(tmp_path)
 ````
 
 ## File: tests/test_portfolio_optimizer.py
@@ -10234,6 +10648,54 @@ The control surface shows execution lanes, repository/task priorities, blockers,
 - [x] long-term trend history
 - [x] automatic execution feedback loop
 - [x] mobile/dashboard control surface
+
+## Dashboard Control Center Release 2
+
+The dashboard control center separates **desired control intent** from **observed worker state**.
+
+Worker controls:
+
+- `pause`: blocks new claims and lets the current task continue;
+- `drain`: blocks new claims and lets active tasks finish before the worker becomes drained;
+- `resume`: returns the worker desired state to `active`;
+- `cancel-current`: cooperatively cancels one explicitly named active `job_key`;
+- `retry`: creates a new workflow attempt with a new job key while preserving prior execution history;
+- `kick`: requests an immediate GitHub Actions worker run only when server-side GitHub dispatch credentials are configured.
+
+All dashboard control endpoints require the `operator` role.
+
+Cancellation is job-scoped rather than worker-wide. A cancellation request is not considered acknowledged until the worker reports the matching `cancel_requested` state. Terminal job transitions are exclusive: once cancellation wins, a late completion is rejected; once completion wins, a later cancel-current request is rejected.
+
+Retries preserve lineage. The previous failed or cancelled execution remains immutable, the replacement receives a new idempotency/job key, workflow generation checks still apply, and `max_attempts` cannot be bypassed by repeated control requests.
+
+GitHub Actions kick outcomes are reported honestly:
+
+```text
+dispatched
+scheduled_fallback
+failed
+```
+
+`scheduled_fallback` means no immediate dispatch was possible and the existing five-minute scheduled worker poll remains the next wake-up path. It must not be presented as a started worker.
+
+The UI separately presents:
+
+```text
+Action demandée
+Confirmée par le worker
+```
+
+so operator intent is never displayed as runtime acknowledgement before heartbeat evidence exists.
+
+Optional server-side configuration:
+
+```text
+PRODUCTION_OS_ACTIONS_REPOSITORY=dbrckk/ai-dev-server
+PRODUCTION_OS_ACTIONS_WORKFLOW=production-os-actions-worker.yml
+PRODUCTION_OS_ACTIONS_REF=main
+```
+
+The GitHub token remains server-side and is never returned to dashboard JavaScript.
 
 ## Design principles
 
