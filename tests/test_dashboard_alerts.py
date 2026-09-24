@@ -1,3 +1,4 @@
+from production_os.dashboard_service import DashboardService
 from production_os.dashboard_alerts import derive_alerts
 
 
@@ -58,3 +59,20 @@ def test_stale_busy_worker_is_medium_alert():
     })
     stale = next(item for item in alerts if item["code"] == "stale_busy_worker")
     assert stale["severity"] == "medium"
+
+
+def test_previous_window_cost_uses_observed_historical_cost_only():
+    rows = [
+        {
+            "occurred_at":"2026-09-23T12:00:00+00:00",
+            "estimated_cost_usd":5.0,
+        },
+        {
+            "occurred_at":"2026-09-24T12:00:00+00:00",
+            "estimated_cost_usd":12.0,
+        },
+    ]
+    # Use a broad invariant rather than wall-clock-sensitive equality:
+    # without an event in the previous window there must be no baseline.
+    assert DashboardService._previous_window_cost([], "24h") is None
+    assert DashboardService._previous_window_cost(rows, "all") is None
