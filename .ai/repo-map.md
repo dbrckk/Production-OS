@@ -85,6 +85,7 @@ src/
     dashboard_health.py
     dashboard_incidents.py
     dashboard_playbooks.py
+    dashboard_remediation_metrics.py
     dashboard_security.py
     dashboard_service.py
     dashboard_store.py
@@ -202,6 +203,7 @@ tests/
   test_dashboard_playbooks.py
   test_dashboard_remediation_api.py
   test_dashboard_remediation_history.py
+  test_dashboard_remediation_metrics.py
   test_dashboard_security.py
   test_dashboard_store_postgres.py
   test_dashboard_store.py
@@ -2411,6 +2413,8 @@ payload = service.control_audit(
 ⋮----
 payload = service.remediation_history(
 ⋮----
+payload = service.remediation_analytics(
+⋮----
 payload = service.incidents(
 ⋮----
 payload = service.activity(
@@ -2999,6 +3003,46 @@ owner = str((job or {}).get("claimed_by") or "")
 status = str((job or {}).get("status") or "")
 ````
 
+## File: src/production_os/dashboard_remediation_metrics.py
+````python
+WINDOW_SECONDS = {
+⋮----
+def _parse_time(value)
+⋮----
+parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+⋮----
+parsed = parsed.replace(tzinfo=timezone.utc)
+⋮----
+def _bucket(rows: list[dict]) -> dict
+⋮----
+total = len(rows)
+resolved = sum(
+still_active = sum(
+pending = sum(
+not_applicable = sum(
+denominator = resolved + still_active
+resolution_rate = (
+durations = []
+⋮----
+completed = _parse_time(row.get("completed_at"))
+verified = _parse_time(row.get("verified_at"))
+⋮----
+current = now or datetime.now(timezone.utc)
+⋮----
+current = current.replace(tzinfo=timezone.utc)
+seconds = WINDOW_SECONDS[window]
+cutoff = (
+selected = []
+⋮----
+requested = _parse_time(row.get("requested_at"))
+⋮----
+def grouped(key: str) -> list[dict]
+⋮----
+groups: dict[str, list[dict]] = {}
+⋮----
+value = str(row.get(key) or "unknown")
+````
+
 ## File: src/production_os/dashboard_security.py
 ````python
 _SENSITIVE_KEYS = {
@@ -3181,6 +3225,10 @@ job = self.control.queue.get(str(item.get("target_id")))
 ⋮----
 # Refresh durable incident state first so verification reflects
 # current server facts rather than stale browser state.
+⋮----
+def remediation_analytics(self, window: str) -> dict
+⋮----
+payload = aggregate_remediation_analytics(
 ⋮----
 def control_audit(self, limit: int = 100) -> dict
 ⋮----
@@ -3375,6 +3423,8 @@ updated: list[dict] = []
 state = (
 ⋮----
 current = self._fetchone(
+⋮----
+def remediation_analytics_rows(self) -> list[dict]
 ⋮----
 def control_audit_events(self, *, limit: int = 100) -> list[dict]
 ⋮----
@@ -8554,6 +8604,10 @@ def test_remediation_history_does_not_verify_incomplete_request(tmp_path)
 ⋮----
 payload = control.dashboard.remediation_history(limit=10)
 row = next(item for item in payload["events"] if item["id"] == event["id"])
+⋮----
+def test_remediation_analytics_api_is_viewer_readable_and_worker_forbidden(tmp_path)
+⋮----
+def test_remediation_analytics_api_rejects_invalid_window(tmp_path)
 ````
 
 ## File: tests/test_dashboard_remediation_history.py
@@ -8637,6 +8691,25 @@ row = store.remediation_events(limit=1)[0]
 verified_at = row["verified_at"]
 ⋮----
 second = store.verify_remediation_events()
+````
+
+## File: tests/test_dashboard_remediation_metrics.py
+````python
+NOW = datetime(2026, 9, 24, 17, 0, tzinfo=timezone.utc)
+⋮----
+def test_effectiveness_denominator_excludes_pending_and_not_applicable()
+⋮----
+rows = [
+result = aggregate_remediation_analytics(
+summary = result["summary"]
+⋮----
+def test_median_resolution_detection_uses_only_valid_resolved_rows()
+⋮----
+def test_window_filter_and_breakdowns_are_deterministic()
+⋮----
+def test_zero_denominator_has_no_resolution_rate()
+⋮----
+def test_invalid_window_is_rejected()
 ````
 
 ## File: tests/test_dashboard_security.py
@@ -8816,6 +8889,8 @@ def test_activity_view_renders_remediation_history()
 def test_direct_worker_controls_do_not_require_incident_id()
 ⋮----
 def test_activity_view_renders_remediation_verification_status()
+⋮----
+def test_activity_view_renders_remediation_analytics_with_sample_sizes()
 ````
 
 ## File: tests/test_dashboard_usage.py
@@ -11589,6 +11664,46 @@ verified_at
 ```
 
 The Activity view shows control outcome and remediation verification separately.
+
+## Dashboard Control Center Release 8 — Remediation analytics
+
+The dashboard can summarize observed remediation effectiveness without turning historical metrics into automatic control decisions.
+
+Analytics support the existing dashboard windows:
+
+```text
+24h
+7d
+30d
+all
+```
+
+The summary exposes:
+
+```text
+total
+resolved
+still_active
+pending
+not_applicable
+effectiveness_denominator
+observed_resolution_rate
+median_resolution_detection_seconds
+```
+
+The observed resolution rate uses only remediation events with a verification state of `resolved` or `still_active`:
+
+```text
+resolved / (resolved + still_active)
+```
+
+Pending and not-applicable events are excluded from that denominator.
+
+The median resolution-detection duration is calculated only from resolved events with valid `completed_at` and `verified_at` timestamps.
+
+Breakdowns are available by control action and by incident code. Every rate is displayed with its observed sample size. A zero-size effectiveness sample produces no rate rather than an inferred value.
+
+These analytics are read-only. They never rank playbooks, launch controls, or change worker, job, workflow, incident, or remediation state beyond the existing incident refresh needed to read current verification facts.
 
 ## Design principles
 

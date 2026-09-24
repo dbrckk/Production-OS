@@ -1,20 +1,18 @@
 # Change impact
 
-Base: 9a1edd420b30d1fd4cdbe64b7185fe3527eac093
-Head: 4487a4714a46fb590e7c9caf3f5df4bc066d1e68
+Base: f8c644b610df03cda3cfed78b7e8ff8a238552c3
+Head: a66fa9fa4bcdb9296c0384c4344db0acccfb0c0c
 
 ## Changed files
 - M README.md
-- A docs/superpowers/plans/2026-09-24-dashboard-control-center-release-7.md
+- A docs/superpowers/plans/2026-09-24-dashboard-control-center-release-8.md
+- M src/production_os/control_plane.py
+- A src/production_os/dashboard_remediation_metrics.py
 - M src/production_os/dashboard_service.py
 - M src/production_os/dashboard_store.py
 - M src/production_os/dashboard_ui.py
-- M src/production_os/postgres_backend.py
-- M src/production_os/sqlite_backend.py
-- M tests/test_dashboard_control_audit.py
 - M tests/test_dashboard_remediation_api.py
-- M tests/test_dashboard_remediation_history.py
-- M tests/test_dashboard_store_postgres.py
+- A tests/test_dashboard_remediation_metrics.py
 - M tests/test_dashboard_ui_v3.py
 
 ## Affected areas
@@ -24,9 +22,9 @@ Head: 4487a4714a46fb590e7c9caf3f5df4bc066d1e68
 - tests
 
 ## Related test candidates
+- tests/test_control_plane.py
+- tests/test_dashboard_remediation_metrics.py
 - tests/test_dashboard_store.py
-- tests/test_postgres_backend.py
-- tests/test_sqlite_backend.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.
