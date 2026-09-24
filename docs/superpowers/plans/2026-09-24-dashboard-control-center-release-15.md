@@ -72,3 +72,26 @@ Backup card:
 - operator exact confirmation required
 - PostgreSQL remains unsupported
 - full CI + Python 3.11/3.12 green before merge
+
+
+## Implemented in current branch
+
+- strict server-issued backup_id validation
+- server-side manifest/file resolution from PRODUCTION_OS_BACKUP_DIR
+- exact size and SHA-256 revalidation
+- SQLite read-only open
+- PRAGMA integrity_check
+- schema_meta schema_version verification
+- live database remains unchanged during verification
+- operator-only verification with exact confirmation
+- backup-verify audit trail
+- tampered file/manifest, traversal id and missing-file rejection
+- mobile restore-readiness verification UI
+- no destructive restore action exposed
+- README documentation and engine/API/UI regression coverage
+
+## Remaining before Release 15 completion
+
+- final CI qualification on the complete head
+- final diff/security review
+- mark PR ready and merge only after green final head
