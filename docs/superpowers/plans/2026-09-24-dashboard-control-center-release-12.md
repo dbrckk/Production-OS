@@ -49,3 +49,25 @@ Dashboard Overview renders a compact Storage maintenance card.
 - invalid/missing timestamps do not invent candidate counts
 - viewer-readable, worker forbidden through dashboard authorization
 - full CI + Python 3.11/3.12 green before merge
+
+
+## Implemented in current branch
+
+- read-only storage maintenance snapshot engine
+- SQLite database size including WAL/SHM without exposing filesystem paths
+- PostgreSQL pg_database_size support without exposing DSN
+- durable table row counts and valid/invalid timestamp accounting
+- configurable retention windows with safe defaults
+- exact retention candidate counts from parsed timestamps
+- viewer-readable /v1/dashboard/maintenance
+- worker role remains forbidden by dashboard authorization
+- Overview Storage & retention card with independent degraded mode
+- deterministic SQLite/API/UI tests
+- PostgreSQL parity contract
+- README documentation
+
+## Remaining before Release 12 completion
+
+- final CI qualification on the complete head
+- final diff/security review
+- mark PR ready and merge only after green final head
