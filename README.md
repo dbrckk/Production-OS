@@ -304,6 +304,67 @@ PRODUCTION_OS_ACTIONS_REF=main
 
 The GitHub token remains server-side and is never returned to dashboard JavaScript.
 
+## Dashboard Control Center Release 3
+
+Release 3 hardens day-to-day operation of the control center.
+
+### Operator audit
+
+Every operator control action is written to a dedicated durable audit log with:
+
+```text
+action
+worker_id
+optional job_key
+requested_by
+outcome
+optional error_code
+requested_at
+```
+
+The audit schema intentionally has no columns for bearer tokens, authorization headers, GitHub tokens, or arbitrary secret metadata.
+
+Dashboard viewers can inspect:
+
+```text
+GET /v1/dashboard/control-audit?limit=100
+```
+
+Worker credentials cannot read dashboard audit history.
+
+### Operational health
+
+The liveness endpoint `/health` only answers whether the HTTP service is alive.
+
+Operational health is separate:
+
+```text
+GET /v1/dashboard/health
+```
+
+It reports `healthy` or `degraded` with explicit reasons such as:
+
+- queued work with no online worker;
+- a busy worker whose heartbeat is stale;
+- a running execution whose telemetry is stale.
+
+These diagnostics do not automatically cancel or mutate work.
+
+### Targeted stuck-job recovery
+
+The dashboard exposes a recovery action only for jobs that are still in `claimed` state and whose acknowledgement deadline has expired.
+
+```text
+recover-stuck
+```
+
+Recovery is job-scoped and requires an explicit `job_key`. A non-expired claim is rejected. The attempt budget is preserved:
+
+- below `max_attempts` → return the job to `queued`;
+- at or above `max_attempts` → move the job to `dead-letter`.
+
+The action is audited whether it succeeds or is rejected.
+
 ## Design principles
 
 - Evidence over assumptions
