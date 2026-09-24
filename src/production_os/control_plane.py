@@ -833,6 +833,68 @@ def make_handler(control: ControlPlane):
                             error_code=error_code,
                         )
 
+                    if action == "recover-stuck":
+                        job_key = str(body.get("job_key") or "").strip()
+                        if not job_key:
+                            audit_control(
+                                "failed",
+                                error_code="job_key_required",
+                            )
+                            self._send(
+                                HTTPStatus.BAD_REQUEST,
+                                {"error":"job_key required"},
+                            )
+                            return
+                        try:
+                            job = control.queue.get(job_key)
+                        except KeyError:
+                            audit_control(
+                                "failed",
+                                job_key=job_key,
+                                error_code="job_not_found",
+                            )
+                            self._send(
+                                HTTPStatus.NOT_FOUND,
+                                {"error":"job not found"},
+                            )
+                            return
+                        if str(job.get("claimed_by") or "") != worker_id:
+                            audit_control(
+                                "failed",
+                                job_key=job_key,
+                                error_code="job_not_claimed_by_worker",
+                            )
+                            self._send(
+                                HTTPStatus.CONFLICT,
+                                {"error":"job not claimed by worker"},
+                            )
+                            return
+                        try:
+                            recovered = control.queue.recover_job(
+                                job_key,
+                                max_attempts=int(body.get("max_attempts", 3)),
+                            )
+                        except RuntimeError:
+                            audit_control(
+                                "failed",
+                                job_key=job_key,
+                                error_code="job_not_recoverable",
+                            )
+                            raise
+                        audit_control(
+                            str(recovered.get("status") or "recovered"),
+                            job_key=job_key,
+                        )
+                        self._send(
+                            HTTPStatus.OK,
+                            {
+                                "accepted":True,
+                                "worker_id":worker_id,
+                                "job":recovered,
+                            },
+                        )
+                        return
+
                     if action == "kick":
                         kicked = control.dashboard_control.kick_worker(worker_id)
                         status = (
