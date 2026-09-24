@@ -154,3 +154,35 @@ def test_release3_schema_is_v10_and_contains_control_audit(tmp_path):
         ).fetchone()
     assert version == "10"
     assert table["name"] == "control_audit_events"
+
+
+def test_control_action_remains_traced_if_audit_finalization_fails(tmp_path):
+    control = ControlPlane(str(tmp_path / "audit-failure.sqlite"), authorizer=_auth())
+    control.workers.register("worker-a", ["python"], 1)
+    original = control.dashboard_store.update_control_audit
+
+    def fail_finalize(*args, **kwargs):
+        raise RuntimeError("audit finalize unavailable")
+
+    control.dashboard_store.update_control_audit = fail_finalize
+    server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    base = f"http://127.0.0.1:{server.server_port}"
+    try:
+        status, _ = _request(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            method="POST",
+            body={"action":"pause"},
+        )
+        assert status == 202
+        assert control.dashboard_control.worker_state("worker-a")["desired_state"] == "paused"
+        rows = control.dashboard_store.control_audit_events(limit=1)
+        assert rows[0]["action"] == "pause"
+        assert rows[0]["outcome"] == "requested"
+    finally:
+        control.dashboard_store.update_control_audit = original
+        server.shutdown()
+        server.server_close()
