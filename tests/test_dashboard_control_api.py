@@ -112,3 +112,47 @@ def test_invalid_worker_control_action_is_rejected(tmp_path):
         assert payload["error"] == "invalid worker control action"
     finally:
         server.shutdown(); server.server_close()
+
+
+def test_cancel_current_requires_explicit_job_key(tmp_path):
+    control, server, base = _fixture(tmp_path)
+    try:
+        status, payload = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"cancel-current"},
+        )
+        assert status == 400
+        assert payload["error"] == "job_key required"
+    finally:
+        server.shutdown(); server.server_close()
+
+
+def test_cancel_current_targets_only_named_active_job(tmp_path):
+    control, server, base = _fixture(tmp_path)
+    job = control.queue.enqueue({
+        "handoff":{"repository":"dbrckk/example","task":"Ship"},
+        "required_capabilities":["python"],
+    })
+    claimed = control.queue.claim_key(job["key"], "worker-a")
+    assert claimed is not None
+    control.queue.ack(job["key"], "worker-a")
+    sibling = control.queue.enqueue({
+        "handoff":{"repository":"dbrckk/example","task":"Other"},
+        "required_capabilities":["python"],
+    })
+    try:
+        status, payload = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"cancel-current","job_key":job["key"]},
+        )
+        assert status == 202
+        assert payload["job_key"] == job["key"]
+        assert payload["desired_state"] == "cancel_requested"
+        assert control.dashboard_control.job_state(job["key"])["desired_state"] == "cancel_requested"
+        assert control.dashboard_store.get_job_control(sibling["key"]) is None
+    finally:
+        server.shutdown(); server.server_close()
