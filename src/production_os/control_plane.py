@@ -817,6 +817,16 @@ def make_handler(control: ControlPlane):
                     }
                     worker_id = parts[3]
                     requested_by = f"{principal.role}:{principal.name}"
+                    audit_job_key = (
+                        str(body.get("job_key") or "").strip() or None
+                    )
+                    audit_event = control.dashboard_store.append_control_audit(
+                        action=action or "invalid",
+                        worker_id=worker_id,
+                        job_key=audit_job_key,
+                        requested_by=requested_by,
+                        outcome="requested",
+                    )
 
                     def audit_control(
                         outcome: str,
@@ -824,14 +834,17 @@ def make_handler(control: ControlPlane):
                         job_key: str | None = None,
                         error_code: str | None = None,
                     ) -> None:
-                        control.dashboard_store.append_control_audit(
-                            action=action or "invalid",
-                            worker_id=worker_id,
-                            job_key=job_key,
-                            requested_by=requested_by,
-                            outcome=outcome,
-                            error_code=error_code,
-                        )
+                        del job_key
+                        try:
+                            control.dashboard_store.update_control_audit(
+                                audit_event["id"],
+                                outcome=outcome,
+                                error_code=error_code,
+                            )
+                        except Exception:
+                            # The pre-action reservation remains durable even
+                            # if result finalization cannot be written.
+                            pass
 
                     if action == "recover-stuck":
                         job_key = str(body.get("job_key") or "").strip()
