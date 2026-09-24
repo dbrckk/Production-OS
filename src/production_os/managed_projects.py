@@ -143,6 +143,7 @@ class ManagedProjects:
                 instruction=final_goal,
                 generation=1,
                 kind="initial",
+                dispatch=False,
             )
         except Exception:
             with self.backend.transaction() as db:
@@ -154,33 +155,50 @@ class ManagedProjects:
                 )
             raise
         run_id = uuid4().hex
-        with self.backend.transaction() as db:
-            _execute(
-                db,
-                self.backend,
-                """UPDATE managed_projects
-                   SET current_workflow_id=?, updated_at=?
-                   WHERE id=?""",
-                (workflow["id"], _now(), project_id),
-            )
-            _execute(
-                db,
-                self.backend,
-                """INSERT INTO managed_project_runs(
-                    id, project_id, generation, kind, instruction,
-                    workflow_id, requested_by, created_at
-                ) VALUES(?,?,?,?,?,?,?,?)""",
-                (
-                    run_id,
-                    project_id,
-                    1,
-                    "initial",
-                    final_goal,
-                    workflow["id"],
-                    requested_by,
-                    now,
-                ),
-            )
+        try:
+            with self.backend.transaction() as db:
+                _execute(
+                    db,
+                    self.backend,
+                    """UPDATE managed_projects
+                       SET current_workflow_id=?, updated_at=?
+                       WHERE id=?""",
+                    (workflow["id"], _now(), project_id),
+                )
+                _execute(
+                    db,
+                    self.backend,
+                    """INSERT INTO managed_project_runs(
+                        id, project_id, generation, kind, instruction,
+                        workflow_id, requested_by, created_at
+                    ) VALUES(?,?,?,?,?,?,?,?)""",
+                    (
+                        run_id,
+                        project_id,
+                        1,
+                        "initial",
+                        final_goal,
+                        workflow["id"],
+                        requested_by,
+                        now,
+                    ),
+                )
+        except Exception:
+            with self.backend.transaction() as db:
+                _execute(
+                    db,
+                    self.backend,
+                    "DELETE FROM workflows WHERE id=?",
+                    (workflow["id"],),
+                )
+                _execute(
+                    db,
+                    self.backend,
+                    "DELETE FROM managed_projects WHERE id=?",
+                    (project_id,),
+                )
+            raise
+        self.workflows.dispatch_ready(workflow["id"], limit=1)
         return self.get(project_id)
 
     def _get_raw(self, project_id: str) -> dict:
