@@ -249,7 +249,7 @@ def test_overview_renders_server_backed_incident_playbooks():
 
 def test_incident_playbook_actions_are_explicit_and_reuse_control_api():
     assert "runIncidentPlaybookAction" in DASHBOARD_HTML
-    assert "runWorkerControl(workerId,action,jobKey||null)" in DASHBOARD_HTML
+    assert "runWorkerControl(workerId,action,jobKey||null,incidentId||null)" in DASHBOARD_HTML
     assert "confirmControlAction" in DASHBOARD_HTML
     assert "disabled" in DASHBOARD_HTML
 
