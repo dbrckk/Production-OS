@@ -3013,7 +3013,7 @@ parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
 ⋮----
 parsed = parsed.replace(tzinfo=timezone.utc)
 ⋮----
-def _bucket(rows: list[dict]) -> dict
+def _bucket(rows: list[dict], *, now: datetime) -> dict
 ⋮----
 total = len(rows)
 resolved = sum(
@@ -3031,6 +3031,12 @@ watching = sum(
 recurred = sum(
 recurrence_denominator = watching + recurred
 recurrence_rate = (
+recurrence_durations = []
+watching_ages = []
+⋮----
+state = str(row.get("recurrence_state") or "not_evaluated")
+⋮----
+recurred_at = _parse_time(row.get("recurred_at"))
 ⋮----
 current = now or datetime.now(timezone.utc)
 ⋮----
@@ -8746,6 +8752,14 @@ def test_recurrence_denominator_excludes_unresolved_remediations()
 result = aggregate_remediation_analytics(rows, window="24h", now=NOW)
 ⋮----
 def test_zero_recurrence_denominator_has_no_rate()
+⋮----
+def test_durability_timing_uses_only_valid_recurred_rows()
+⋮----
+def test_watching_age_is_observed_not_final_durability()
+⋮----
+def test_invalid_durability_timestamps_are_ignored()
+⋮----
+rows = [{
 ````
 
 ## File: tests/test_dashboard_security.py
@@ -8929,6 +8943,8 @@ def test_activity_view_renders_remediation_verification_status()
 def test_activity_view_renders_remediation_analytics_with_sample_sizes()
 ⋮----
 def test_activity_view_renders_remediation_recurrence_status()
+⋮----
+def test_activity_view_renders_remediation_durability_timing()
 ````
 
 ## File: tests/test_dashboard_usage.py
@@ -11775,6 +11791,28 @@ observed_recurrence_rate
 ```
 
 The dashboard Activity view presents recurrence separately from control outcome and remediation verification.
+
+## Dashboard Control Center Release 10 — Remediation durability
+
+Remediation analytics now measure observed durability after a verified resolution.
+
+For remediations that later recur, Production-OS derives:
+
+```text
+median_time_to_recurrence_seconds
+min_time_to_recurrence_seconds
+max_time_to_recurrence_seconds
+```
+
+For resolved remediations that remain under recurrence watch, Production-OS exposes:
+
+```text
+median_watching_age_seconds
+```
+
+These metrics are descriptive only. They never trigger retry, cancel, recovery, pause, drain, kick or any other control action.
+
+Invalid or chronologically inconsistent timestamps are ignored instead of being converted into misleading durations.
 
 ## Design principles
 

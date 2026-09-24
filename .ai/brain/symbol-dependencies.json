@@ -18,7 +18,7 @@
       "source": {
         "file": "src/production_os/dashboard_remediation_metrics.py",
         "start": 27,
-        "end": 91
+        "end": 127
       },
       "symbol_dependencies": [
         {
@@ -39,8 +39,8 @@
     "aggregate_remediation_analytics": {
       "source": {
         "file": "src/production_os/dashboard_remediation_metrics.py",
-        "start": 94,
-        "end": 135
+        "start": 130,
+        "end": 171
       },
       "symbol_dependencies": [
         {
@@ -72,7 +72,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_remediation_metrics.py",
-              "line": 120,
+              "line": 156,
               "kind": "function",
               "language": "python"
             }
@@ -85,8 +85,8 @@
     "grouped": {
       "source": {
         "file": "src/production_os/dashboard_remediation_metrics.py",
-        "start": 120,
-        "end": 240
+        "start": 156,
+        "end": 276
       },
       "symbol_dependencies": [
         {
@@ -104,3777 +104,620 @@
       ],
       "dependency_count": 1
     },
-    "DashboardNotFound": {
+    "test_effectiveness_denominator_excludes_pending_and_not_applicable": {
       "source": {
-        "file": "src/production_os/dashboard_service.py",
+        "file": "tests/test_dashboard_remediation_metrics.py",
+        "start": 15,
+        "end": 56
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "aggregate_remediation_analytics",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_remediation_metrics.py",
+              "line": 130,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "test_median_resolution_detection_uses_only_valid_resolved_rows": {
+      "source": {
+        "file": "tests/test_dashboard_remediation_metrics.py",
+        "start": 59,
+        "end": 91
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "aggregate_remediation_analytics",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_remediation_metrics.py",
+              "line": 130,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "test_window_filter_and_breakdowns_are_deterministic": {
+      "source": {
+        "file": "tests/test_dashboard_remediation_metrics.py",
+        "start": 94,
+        "end": 120
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "aggregate_remediation_analytics",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_remediation_metrics.py",
+              "line": 130,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "test_zero_denominator_has_no_resolution_rate": {
+      "source": {
+        "file": "tests/test_dashboard_remediation_metrics.py",
+        "start": 123,
+        "end": 135
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "aggregate_remediation_analytics",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_remediation_metrics.py",
+              "line": 130,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "test_invalid_window_is_rejected": {
+      "source": {
+        "file": "tests/test_dashboard_remediation_metrics.py",
+        "start": 138,
+        "end": 140
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "aggregate_remediation_analytics",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_remediation_metrics.py",
+              "line": 130,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "test_recurrence_denominator_excludes_unresolved_remediations": {
+      "source": {
+        "file": "tests/test_dashboard_remediation_metrics.py",
+        "start": 143,
+        "end": 172
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "aggregate_remediation_analytics",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_remediation_metrics.py",
+              "line": 130,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "test_zero_recurrence_denominator_has_no_rate": {
+      "source": {
+        "file": "tests/test_dashboard_remediation_metrics.py",
+        "start": 175,
+        "end": 188
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "aggregate_remediation_analytics",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_remediation_metrics.py",
+              "line": 130,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "test_durability_timing_uses_only_valid_recurred_rows": {
+      "source": {
+        "file": "tests/test_dashboard_remediation_metrics.py",
+        "start": 191,
+        "end": 225
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "aggregate_remediation_analytics",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_remediation_metrics.py",
+              "line": 130,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "test_watching_age_is_observed_not_final_durability": {
+      "source": {
+        "file": "tests/test_dashboard_remediation_metrics.py",
+        "start": 228,
+        "end": 248
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "aggregate_remediation_analytics",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_remediation_metrics.py",
+              "line": 130,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "test_invalid_durability_timestamps_are_ignored": {
+      "source": {
+        "file": "tests/test_dashboard_remediation_metrics.py",
+        "start": 251,
+        "end": 264
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "aggregate_remediation_analytics",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_remediation_metrics.py",
+              "line": 130,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "test_dashboard_has_primary_views_and_clickable_entities": {
+      "source": {
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 4,
+        "end": 8
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "test_polling_does_not_reload_or_replace_location": {
+      "source": {
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 11,
+        "end": 14
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "test_dashboard_has_worker_and_project_detail_tabs": {
+      "source": {
+        "file": "tests/test_dashboard_ui_v3.py",
         "start": 17,
-        "end": 18
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "_now": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 21,
-        "end": 22
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "_is_postgres": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 25,
-        "end": 26
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "_execute": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 29,
-        "end": 31
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_is_postgres",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 25,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "DashboardService": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 34,
-        "end": 734
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "DashboardNotFound",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "ProjectProgressEngine",
-          "definitions": [
-            {
-              "file": "src/production_os/project_progress.py",
-              "line": 125,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "__init__",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 35,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_distinct_commit_shas",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 45,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 29,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_executions_in_window",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 62,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_legacy_workflow_usage_rows",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 641,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 21,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_previous_window_cost",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 82,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_progress_snapshot_state",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 550,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_repositories",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 525,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_require_project",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 541,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_window_cutoff",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 55,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_worker_capabilities",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 163,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_worker_rows",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 39,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "activity",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 727,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "aggregate_remediation_analytics",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_remediation_metrics.py",
-              "line": 94,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "aggregate_usage",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_usage.py",
-              "line": 74,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "autopilot_queue",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 177,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "build_project_evidence",
-          "definitions": [
-            {
-              "file": "src/production_os/project_progress.py",
-              "line": 40,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "calculate",
-          "definitions": [
-            {
-              "file": "src/production_os/project_progress.py",
-              "line": 126,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "control_audit",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 467,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "dedupe_key",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_incidents.py",
-              "line": 51,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "derive_alerts",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_alerts.py",
-              "line": 22,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "derive_control_health",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_health.py",
-              "line": 19,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "derive_incident_playbook",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_playbooks.py",
-              "line": 7,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "estimate",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_usage.py",
-              "line": 44,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "health",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 334,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "incidents",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 365,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "overview",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 109,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "project_commits",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 633,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "project_detail",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 544,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "project_history",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 705,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "project_progress",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 570,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "project_usage",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 690,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "project_workflows",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 699,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "projects",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 536,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "remediation_analytics",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 456,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "remediation_history",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 439,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "signals_from_health",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_incidents.py",
-              "line": 4,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 40
-    },
-    "__init__": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 35,
-        "end": 155
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_distinct_commit_shas",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 45,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_executions_in_window",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 62,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 21,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_previous_window_cost",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 82,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_window_cutoff",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 55,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_worker_rows",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 39,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "aggregate_usage",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_usage.py",
-              "line": 74,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "overview",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 109,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "workers",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 473,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 9
-    },
-    "_worker_rows": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 39,
-        "end": 42
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "workers",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 473,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "_distinct_commit_shas": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 45,
-        "end": 52
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "_window_cutoff": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 55,
-        "end": 60
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "_executions_in_window": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 62,
-        "end": 79
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_window_cutoff",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 55,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "_previous_window_cost": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 82,
-        "end": 107
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "overview": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 109,
-        "end": 160
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_distinct_commit_shas",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 45,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_executions_in_window",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 62,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 21,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_previous_window_cost",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 82,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_worker_rows",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 39,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "aggregate_usage",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_usage.py",
-              "line": 74,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "derive_alerts",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_alerts.py",
-              "line": 22,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "projects",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 536,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "workers",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 473,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 9
-    },
-    "_worker_capabilities": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 163,
-        "end": 175
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "autopilot_queue": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 177,
-        "end": 332
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 21,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_worker_capabilities",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 163,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_worker_rows",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 39,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "workers",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 473,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "health": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 334,
-        "end": 363
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 21,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_worker_rows",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 39,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "derive_control_health",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_health.py",
-              "line": 19,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "workers",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 473,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "incidents": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 365,
-        "end": 437
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 29,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 21,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "dedupe_key",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_incidents.py",
-              "line": 51,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "derive_incident_playbook",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_playbooks.py",
-              "line": 7,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "health",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 334,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "signals_from_health",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_incidents.py",
-              "line": 4,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 6
-    },
-    "remediation_history": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 439,
-        "end": 454
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 21,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "incidents",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 365,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "remediation_analytics": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 456,
-        "end": 465
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 21,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "aggregate_remediation_analytics",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_remediation_metrics.py",
-              "line": 94,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "incidents",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 365,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "control_audit": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 467,
-        "end": 471
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 21,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "workers": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 473,
-        "end": 484
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 21,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_worker_rows",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 39,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "worker_detail": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 486,
-        "end": 513
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "DashboardNotFound",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 29,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 21,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_worker_rows",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 39,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "worker_logs": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 515,
-        "end": 518
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 21,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "worker_detail",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 486,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "worker_usage": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 520,
-        "end": 523
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "aggregate_usage",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_usage.py",
-              "line": 74,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "worker_detail",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 486,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "_repositories": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 525,
-        "end": 534
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "projects": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 536,
-        "end": 539
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 21,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_repositories",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 525,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "_require_project": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 541,
-        "end": 542
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "DashboardNotFound",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_repositories",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 525,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "project_detail": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 544,
-        "end": 547
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 21,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_require_project",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 541,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "_progress_snapshot_state": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 550,
-        "end": 568
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "project_progress",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 570,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "project_progress": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 570,
-        "end": 631
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ProjectProgressEngine",
-          "definitions": [
-            {
-              "file": "src/production_os/project_progress.py",
-              "line": 125,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 29,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 21,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_progress_snapshot_state",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 550,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_require_project",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 541,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "build_project_evidence",
-          "definitions": [
-            {
-              "file": "src/production_os/project_progress.py",
-              "line": 40,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "calculate",
-          "definitions": [
-            {
-              "file": "src/production_os/project_progress.py",
-              "line": 126,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "estimate",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_usage.py",
-              "line": 44,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "workflow_progress",
-          "definitions": [
-            {
-              "file": "src/production_os/project_progress.py",
-              "line": 17,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 9
-    },
-    "project_commits": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 633,
-        "end": 639
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_distinct_commit_shas",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 45,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_executions_in_window",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 62,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 21,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_require_project",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 541,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "_legacy_workflow_usage_rows": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 641,
-        "end": 688
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 29,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "project_usage": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 690,
-        "end": 697
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_legacy_workflow_usage_rows",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 641,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_require_project",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 541,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "aggregate_usage",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_usage.py",
-              "line": 74,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "project_workflows": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 699,
-        "end": 703
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 29,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 21,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_require_project",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 541,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "project_history": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 705,
-        "end": 725
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 29,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 21,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_require_project",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 541,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "activity": {
-      "source": {
-        "file": "src/production_os/dashboard_service.py",
-        "start": 727,
-        "end": 734
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_service.py",
-              "line": 21,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "_sql": {
-      "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 18,
         "end": 19
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "_is_postgres",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 14,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
+      "symbol_dependencies": [],
+      "dependency_count": 0
     },
-    "execution_id": {
+    "test_dashboard_preserves_launch_and_mobile_accessibility": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 30,
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 22,
         "end": 31
       },
       "symbol_dependencies": [],
       "dependency_count": 0
     },
-    "_bounded_progress": {
+    "test_dashboard_overview_is_bound_to_observability_api": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
+        "file": "tests/test_dashboard_ui_v3.py",
         "start": 34,
-        "end": 40
+        "end": 37
       },
       "symbol_dependencies": [],
       "dependency_count": 0
     },
-    "_valid_commit_shas": {
+    "test_dashboard_v3_has_usage_window_controls": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 43,
-        "end": 54
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 40,
+        "end": 43
       },
       "symbol_dependencies": [],
       "dependency_count": 0
     },
-    "_decode": {
+    "test_dashboard_workers_view_is_bound_to_observability_api": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 57,
-        "end": 79
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 46,
+        "end": 51
       },
       "symbol_dependencies": [],
       "dependency_count": 0
     },
-    "DashboardStore": {
+    "test_dashboard_projects_view_is_bound_to_observability_api": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 82,
-        "end": 818
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 54,
+        "end": 59
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "__init__",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 83,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_bounded_progress",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 34,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_decode",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 57,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 22,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_fetchall",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 90,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_fetchone",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 86,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 10,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_save_snapshot",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 795,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_valid_commit_shas",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 43,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "acknowledge_dashboard_incident",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 274,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "acknowledge_job_control",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 734,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "acknowledge_worker_control",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 663,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "append_control_audit",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 550,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "append_logs",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 777,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "append_remediation_event",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 308,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "control_audit_events",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 613,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "dashboard_incidents",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 215,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "execution_count",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 108,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "execution_id",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 30,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "executions_for_repository",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 766,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "executions_for_worker",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 763,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "finish_execution",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 132,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_job_control",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 693,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_worker_control",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 624,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "latest_execution",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 114,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "latest_progress_snapshot",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 812,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "latest_provider_quota_snapshots",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 817,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "latest_repository_snapshot",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 809,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "logs_for_worker",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 787,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "progress_history",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 814,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "redact_log_value",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_security.py",
-              "line": 21,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "remediation_analytics_rows",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 536,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "remediation_events",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 511,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "resolve_dashboard_incidents_except",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 240,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "save_progress_snapshot",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 811,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "save_provider_quota_snapshot",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 816,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "save_repository_snapshot",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 808,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "set_job_control",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 701,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "set_worker_control",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 632,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "start_execution",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 94,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 40
+      "symbol_dependencies": [],
+      "dependency_count": 0
     },
-    "_fetchone": {
+    "test_dashboard_activity_view_is_bound_to_observability_api": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 86,
-        "end": 88
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 62,
+        "end": 65
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "_decode",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 57,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 22,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
+      "symbol_dependencies": [],
+      "dependency_count": 0
     },
-    "_fetchall": {
+    "test_worker_detail_exposes_live_task_and_health_information": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 90,
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 68,
+        "end": 72
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "test_worker_detail_exposes_api_usage_breakdown": {
+      "source": {
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 75,
+        "end": 78
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "test_worker_detail_exposes_execution_history": {
+      "source": {
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 81,
+        "end": 85
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "test_worker_detail_exposes_structured_recent_logs": {
+      "source": {
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 88,
         "end": 92
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "_decode",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 57,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 22,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
+      "symbol_dependencies": [],
+      "dependency_count": 0
     },
-    "start_execution": {
+    "test_worker_detail_exposes_capabilities_and_health": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 94,
-        "end": 106
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 95,
+        "end": 100
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 22,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_fetchone",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 86,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 10,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "execution_id",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 30,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
+      "symbol_dependencies": [],
+      "dependency_count": 0
     },
-    "execution_count": {
+    "test_project_detail_exposes_progress_evidence": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 108,
-        "end": 112
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 103,
+        "end": 108
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 22,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
+      "symbol_dependencies": [],
+      "dependency_count": 0
     },
-    "latest_execution": {
+    "test_project_detail_exposes_progress_components": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 114,
-        "end": 116
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 111,
+        "end": 114
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "_fetchone",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 86,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
+      "symbol_dependencies": [],
+      "dependency_count": 0
     },
-    "update_live_execution": {
+    "test_project_detail_exposes_commit_window_and_sources": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 118,
-        "end": 130
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 117,
+        "end": 122
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "_bounded_progress",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 34,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 22,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_fetchone",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 86,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 10,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
+      "symbol_dependencies": [],
+      "dependency_count": 0
     },
-    "finish_execution": {
+    "test_project_detail_exposes_api_usage_breakdown": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 125,
+        "end": 129
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "test_worker_control_tab_has_safe_actions": {
+      "source": {
+        "file": "tests/test_dashboard_ui_v3.py",
         "start": 132,
-        "end": 145
+        "end": 139
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 22,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_fetchone",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 86,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 10,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_valid_commit_shas",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 43,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "execution_id",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 30,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 5
+      "symbol_dependencies": [],
+      "dependency_count": 0
     },
-    "upsert_dashboard_incident": {
+    "test_ui_distinguishes_requested_from_acknowledged": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 147,
-        "end": 213
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 142,
+        "end": 146
       },
       "symbol_dependencies": [
         {
-          "symbol": "_execute",
+          "symbol": "Action",
           "definitions": [
             {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 22,
-              "kind": "function",
+              "file": "tests/test_fairness.py",
+              "line": 4,
+              "kind": "class",
               "language": "python"
             }
           ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_fetchone",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 86,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 10,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "dashboard_incidents",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 215,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "dashboard_incidents": {
-      "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 215,
-        "end": 238
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_fetchall",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 90,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
+          "relation": "class_like"
         }
       ],
       "dependency_count": 1
     },
-    "resolve_dashboard_incidents_except": {
+    "test_control_refresh_preserves_navigation_and_scroll_contract": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 240,
-        "end": 272
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 149,
+        "end": 153
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 22,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_fetchall",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 90,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_fetchone",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 86,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 10,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "dashboard_incidents",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 215,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 5
+      "symbol_dependencies": [],
+      "dependency_count": 0
     },
-    "acknowledge_dashboard_incident": {
+    "test_overview_renders_operational_alerts": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 274,
-        "end": 306
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 156,
+        "end": 160
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 22,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_fetchone",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 86,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 10,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "dashboard_incidents",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 215,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
+      "symbol_dependencies": [],
+      "dependency_count": 0
     },
-    "append_remediation_event": {
+    "test_dashboard_has_autopilot_primary_view": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 308,
-        "end": 354
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 163,
+        "end": 168
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 22,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_fetchone",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 86,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 10,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "dashboard_incidents",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 215,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
+      "symbol_dependencies": [],
+      "dependency_count": 0
     },
-    "update_remediation_event": {
+    "test_autopilot_view_exposes_queue_explanations": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 356,
-        "end": 397
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 171,
+        "end": 183
       },
       "symbol_dependencies": [
         {
-          "symbol": "_execute",
+          "symbol": "Worker",
           "definitions": [
             {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 22,
-              "kind": "function",
+              "file": "src/production_os/workers.py",
+              "line": 13,
+              "kind": "class",
               "language": "python"
             }
           ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_fetchone",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 86,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 10,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "verify_remediation_events": {
-      "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 399,
-        "end": 464
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 22,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_fetchall",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 90,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_fetchone",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 86,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 10,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "dashboard_incidents",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 215,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 5
-    },
-    "verify_remediation_recurrence": {
-      "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 466,
-        "end": 509
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 22,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_fetchall",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 90,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_fetchone",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 86,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 10,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "dashboard_incidents",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 215,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 5
-    },
-    "remediation_events": {
-      "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 511,
-        "end": 534
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_fetchall",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 90,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
+          "relation": "class_like"
         }
       ],
       "dependency_count": 1
     },
-    "remediation_analytics_rows": {
+    "test_autopilot_navigation_preserves_polling_scroll_contract": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 536,
-        "end": 548
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 186,
+        "end": 190
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "_fetchall",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 90,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "dashboard_incidents",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 215,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
+      "symbol_dependencies": [],
+      "dependency_count": 0
     },
-    "append_control_audit": {
+    "test_autopilot_surfaces_degraded_ranking_state": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 550,
-        "end": 586
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 193,
+        "end": 196
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 22,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_fetchone",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 86,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 10,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "control_audit_events",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 613,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
+      "symbol_dependencies": [],
+      "dependency_count": 0
     },
-    "update_control_audit": {
+    "test_autopilot_view_shows_capacity_summary": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 588,
-        "end": 611
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 199,
+        "end": 210
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 22,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_fetchone",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 86,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "control_audit_events",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 613,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 3
+      "symbol_dependencies": [],
+      "dependency_count": 0
     },
-    "control_audit_events": {
+    "test_activity_view_renders_operator_control_audit": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 613,
-        "end": 622
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 213,
+        "end": 218
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "_fetchall",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 90,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
+      "symbol_dependencies": [],
+      "dependency_count": 0
     },
-    "get_worker_control": {
+    "test_overview_renders_operational_health": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 624,
-        "end": 630
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 221,
+        "end": 225
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "_fetchone",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 86,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
+      "symbol_dependencies": [],
+      "dependency_count": 0
     },
-    "set_worker_control": {
+    "test_worker_control_exposes_recover_stuck_only_from_recoverable_jobs": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 632,
-        "end": 661
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 228,
+        "end": 231
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 22,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_fetchone",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 86,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 10,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 3
+      "symbol_dependencies": [],
+      "dependency_count": 0
     },
-    "acknowledge_worker_control": {
+    "test_overview_renders_and_acknowledges_durable_incidents": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 663,
-        "end": 691
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 234,
+        "end": 239
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 22,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_fetchone",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 86,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 10,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 3
+      "symbol_dependencies": [],
+      "dependency_count": 0
     },
-    "get_job_control": {
+    "test_overview_renders_server_backed_incident_playbooks": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 693,
-        "end": 699
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 242,
+        "end": 247
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "_fetchone",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 86,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
+      "symbol_dependencies": [],
+      "dependency_count": 0
     },
-    "set_job_control": {
+    "test_incident_playbook_actions_are_explicit_and_reuse_control_api": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 701,
-        "end": 732
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 250,
+        "end": 254
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 22,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_fetchone",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 86,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 10,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 3
+      "symbol_dependencies": [],
+      "dependency_count": 0
     },
-    "acknowledge_job_control": {
+    "test_incident_inspection_playbooks_only_navigate": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 734,
-        "end": 761
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 257,
+        "end": 260
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 22,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_fetchone",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 86,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 10,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 3
+      "symbol_dependencies": [],
+      "dependency_count": 0
     },
-    "executions_for_worker": {
+    "test_incident_playbook_actions_send_incident_id": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 763,
-        "end": 764
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 263,
+        "end": 266
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "_fetchall",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 90,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
+      "symbol_dependencies": [],
+      "dependency_count": 0
     },
-    "executions_for_repository": {
+    "test_activity_view_renders_remediation_history": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 766,
-        "end": 767
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 269,
+        "end": 274
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "_fetchall",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 90,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
+      "symbol_dependencies": [],
+      "dependency_count": 0
     },
-    "usage_events": {
+    "test_direct_worker_controls_do_not_require_incident_id": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 769,
-        "end": 775
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 277,
+        "end": 279
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "_fetchall",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 90,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
+      "symbol_dependencies": [],
+      "dependency_count": 0
     },
-    "append_logs": {
+    "test_activity_view_renders_remediation_verification_status": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 777,
-        "end": 785
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 282,
+        "end": 287
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 22,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_fetchone",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 86,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 10,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "redact_log_value",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_security.py",
-              "line": 21,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 4
+      "symbol_dependencies": [],
+      "dependency_count": 0
     },
-    "logs_for_worker": {
+    "test_activity_view_renders_remediation_analytics_with_sample_sizes": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 787,
-        "end": 793
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 290,
+        "end": 298
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "_fetchall",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 90,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_fetchone",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 86,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
+      "symbol_dependencies": [],
+      "dependency_count": 0
     },
-    "_save_snapshot": {
+    "test_activity_view_renders_remediation_recurrence_status": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 795,
-        "end": 806
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 301,
+        "end": 308
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 22,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_fetchone",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 86,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
+      "symbol_dependencies": [],
+      "dependency_count": 0
     },
-    "save_repository_snapshot": {
+    "test_activity_view_renders_remediation_durability_timing": {
       "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 808,
-        "end": 808
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 311,
+        "end": 317
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "_save_snapshot",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 795,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "latest_repository_snapshot": {
-      "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 809,
-        "end": 810
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_fetchone",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 86,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "save_progress_snapshot": {
-      "source": {
-        "file": "src/production_os/dashboard_store.py",
-        "start": 811,
-        "end": 811
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_save_snapshot",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 795,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
+      "symbol_dependencies": [],
+      "dependency_count": 0
     }
   }
 }

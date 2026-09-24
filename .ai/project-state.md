@@ -22,36 +22,35 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-24T17:46:01Z
+Generated: 2026-09-24T17:58:52Z
 
 ### Git
 - Branch: `main`
-- Head: `9819074f6051`
-- Commit date: 2026-09-24T19:45:46+02:00
-- Commit: feat: control center release 9 recurrence tracking
-- Tracked files: 374
+- Head: `a3c2e16803a5`
+- Commit date: 2026-09-24T19:58:41+02:00
+- Commit: feat: control center release 10 remediation durability
+- Tracked files: 375
 
 ### Recently changed files
 - `README.md`
-- `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-9.md`
+- `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-10.md`
 - `src/production_os/dashboard_remediation_metrics.py`
+- `src/production_os/dashboard_ui.py`
+- `tests/test_dashboard_remediation_metrics.py`
+- `tests/test_dashboard_ui_v3.py`
+- `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-9.md`
 - `src/production_os/dashboard_service.py`
 - `src/production_os/dashboard_store.py`
-- `src/production_os/dashboard_ui.py`
 - `src/production_os/postgres_backend.py`
 - `src/production_os/sqlite_backend.py`
 - `tests/test_dashboard_control_audit.py`
 - `tests/test_dashboard_remediation_history.py`
-- `tests/test_dashboard_remediation_metrics.py`
 - `tests/test_dashboard_store_postgres.py`
-- `tests/test_dashboard_ui_v3.py`
 - `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-8.md`
 - `src/production_os/control_plane.py`
 - `tests/test_dashboard_remediation_api.py`
 - `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-7.md`
 - `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-6.md`
-- `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-5.md`
-- `src/production_os/dashboard_playbooks.py`
 
 ### Project signals
 - `pyproject.toml`
