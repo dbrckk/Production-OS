@@ -143,7 +143,7 @@ def test_operator_control_api_writes_success_and_failure_audit(tmp_path):
         server.server_close()
 
 
-def test_release6_schema_is_v12_and_contains_control_audit_and_remediation(tmp_path):
+def test_release7_schema_is_v13_and_contains_control_audit_and_remediation(tmp_path):
     backend = SQLiteBackend(tmp_path / "schema.sqlite")
     with backend.connect() as db:
         version = db.execute(
@@ -155,7 +155,7 @@ def test_release6_schema_is_v12_and_contains_control_audit_and_remediation(tmp_p
         remediation = db.execute(
             "SELECT name FROM sqlite_master WHERE type='table' AND name='dashboard_remediation_events'"
         ).fetchone()
-    assert version == "12"
+    assert version == "13"
     assert table["name"] == "control_audit_events"
     assert remediation["name"] == "dashboard_remediation_events"
 
