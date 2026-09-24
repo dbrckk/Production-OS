@@ -342,3 +342,12 @@ def test_dashboard_autopilot_summary_reports_capacity_and_eta(
     assert summary["known_eta_minutes"] == 10.0
     assert summary["eta_coverage_jobs"] == 2
     assert summary["eta_total_jobs"] == 2
+
+
+def test_dashboard_health_requires_viewer_and_has_stable_shape(running_control_plane):
+    base, _ = running_control_plane
+    status, payload = get_api(base, "/v1/dashboard/health", "viewer-token")
+    assert status == 200
+    assert payload["status"] in {"healthy", "degraded"}
+    assert isinstance(payload["reasons"], list)
+    assert get_api(base, "/v1/dashboard/health", "worker-a-token")[0] == 403
