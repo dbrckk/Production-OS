@@ -138,3 +138,51 @@ def test_zero_denominator_has_no_resolution_rate():
 def test_invalid_window_is_rejected():
     with pytest.raises(ValueError, match="invalid window"):
         aggregate_remediation_analytics([], window="90d", now=NOW)
+
+
+def test_recurrence_denominator_excludes_unresolved_remediations():
+    rows = [
+        {
+            "action":"kick",
+            "incident_code":"queue_without_worker",
+            "verification_state":"resolved",
+            "recurrence_state":"watching",
+            "requested_at":"2026-09-24T16:00:00+00:00",
+        },
+        {
+            "action":"kick",
+            "incident_code":"queue_without_worker",
+            "verification_state":"resolved",
+            "recurrence_state":"recurred",
+            "requested_at":"2026-09-24T16:05:00+00:00",
+        },
+        {
+            "action":"kick",
+            "incident_code":"queue_without_worker",
+            "verification_state":"pending",
+            "recurrence_state":"not_evaluated",
+            "requested_at":"2026-09-24T16:10:00+00:00",
+        },
+    ]
+    result = aggregate_remediation_analytics(rows, window="24h", now=NOW)
+    summary = result["summary"]
+    assert summary["watching_recurrence"] == 1
+    assert summary["recurred"] == 1
+    assert summary["recurrence_denominator"] == 2
+    assert summary["observed_recurrence_rate"] == 50.0
+
+
+def test_zero_recurrence_denominator_has_no_rate():
+    result = aggregate_remediation_analytics(
+        [{
+            "action":"kick",
+            "incident_code":"queue_without_worker",
+            "verification_state":"still_active",
+            "recurrence_state":"not_evaluated",
+            "requested_at":"2026-09-24T16:00:00+00:00",
+        }],
+        window="24h",
+        now=NOW,
+    )
+    assert result["summary"]["recurrence_denominator"] == 0
+    assert result["summary"]["observed_recurrence_rate"] is None
