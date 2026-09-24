@@ -22,18 +22,36 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-22T10:00:07Z
+Generated: 2026-09-24T13:59:28Z
 
 ### Git
 - Branch: `main`
-- Head: `acf5fc8f510a`
-- Commit date: 2026-09-22T11:59:55+02:00
-- Commit: Merge pull request #17 from dbrckk/feat/dashboard-v2-runtime-status
-- Tracked files: 326
+- Head: `5846e966858e`
+- Commit date: 2026-09-24T15:59:14+02:00
+- Commit: feat: dashboard observability release 1
+- Tracked files: 345
 
 ### Recently changed files
+- `README.md`
+- `docs/superpowers/plans/2026-09-22-dashboard-control-center-release-2.md`
+- `docs/superpowers/plans/2026-09-22-dashboard-observability-release-1.md`
+- `docs/superpowers/specs/2026-09-22-dashboard-observability-control-center-design.md`
 - `src/production_os/control_plane.py`
-- `tests/test_dashboard_launch.py`
+- `src/production_os/dashboard_github.py`
+- `src/production_os/dashboard_security.py`
+- `src/production_os/dashboard_service.py`
+- `src/production_os/dashboard_store.py`
+- `src/production_os/dashboard_ui.py`
+- `src/production_os/dashboard_usage.py`
+- `src/production_os/github_client.py`
+- `src/production_os/postgres_backend.py`
+- `src/production_os/project_progress.py`
+- `src/production_os/sqlite_backend.py`
+- `tests/test_dashboard_api.py`
+- `tests/test_dashboard_github.py`
+- `tests/test_dashboard_observability_e2e.py`
+- `tests/test_dashboard_security.py`
+- `tests/test_dashboard_store.py`
 
 ### Project signals
 - `pyproject.toml`

@@ -79,6 +79,12 @@ src/
     control_plane.py
     control_surface.py
     controller.py
+    dashboard_github.py
+    dashboard_security.py
+    dashboard_service.py
+    dashboard_store.py
+    dashboard_ui.py
+    dashboard_usage.py
     deep_fingerprint.py
     delivery.py
     dispatch.py
@@ -112,6 +118,7 @@ src/
     portfolio_optimizer.py
     postgres_backend.py
     preemption.py
+    project_progress.py
     quarantine.py
     queue_maintenance.py
     rate_limit.py
@@ -174,7 +181,15 @@ tests/
   test_control_plane_webhook.py
   test_control_plane.py
   test_controller_asset_capabilities.py
+  test_dashboard_api.py
+  test_dashboard_github.py
   test_dashboard_launch.py
+  test_dashboard_observability_e2e.py
+  test_dashboard_security.py
+  test_dashboard_store_postgres.py
+  test_dashboard_store.py
+  test_dashboard_ui_v3.py
+  test_dashboard_usage.py
   test_deep_fingerprint_starlist.py
   test_emergency_key_revocation.py
   test_execution_feedback_trends.py
@@ -202,6 +217,7 @@ tests/
   test_postgres_backend.py
   test_preemption.py
   test_production_stack_e2e.py
+  test_project_progress.py
   test_provenance_signer.py
   test_queue_audit_checkpoint.py
   test_reconciliation_dispatch.py
@@ -2273,8 +2289,6 @@ class ControlPlane
 ⋮----
 def _json_bytes(payload: dict | list) -> bytes
 ⋮----
-DASHBOARD_HTML = """<!doctype html>
-⋮----
 class RequestBodyTooLarge(ValueError)
 ⋮----
 def make_handler(control: ControlPlane)
@@ -2333,11 +2347,45 @@ parsed = urlparse(self.path)
 ⋮----
 principal = self._require("viewer")
 ⋮----
+query = parse_qs(parsed.query)
+⋮----
+window = query.get("window", ["7d"])[0]
+parts = [part for part in parsed.path.split("/") if part]
+service = control.dashboard
+⋮----
+payload = service.overview(window)
+⋮----
+payload = service.workers()
+⋮----
+worker_id = parts[3] if len(parts) >= 4 else ""
+⋮----
+payload = service.worker_detail(worker_id)
+⋮----
+payload = service.worker_logs(worker_id, query.get("after",[None])[0], query.get("limit",["100"])[0])
+⋮----
+payload = service.worker_usage(worker_id, window)
+⋮----
+payload = service.projects()
+⋮----
+repository = parts[3] + "/" + parts[4]
+⋮----
+payload = service.project_detail(repository)
+⋮----
+payload = service.project_progress(repository)
+⋮----
+payload = service.project_commits(repository, window)
+⋮----
+payload = service.project_usage(repository, window)
+⋮----
+payload = service.project_workflows(repository)
+⋮----
+payload = service.project_history(repository)
+⋮----
+payload = service.activity(
+⋮----
 rows = db.execute(
 workers = db.execute(
 workflow_rows = db.execute(
-⋮----
-query = parse_qs(parsed.query)
 ⋮----
 after = int(query.get("after", ["0"])[0])
 limit = int(query.get("limit", ["100"])[0])
@@ -2345,8 +2393,6 @@ limit = int(query.get("limit", ["100"])[0])
 key = parsed.path.split("/", 3)[-1]
 ⋮----
 job = control.queue.get(key)
-⋮----
-parts = [part for part in parsed.path.split("/") if part]
 ⋮----
 workflow_id = parts[2]
 ⋮----
@@ -2425,6 +2471,18 @@ worker = control.workers.register(
 principal = self._require("worker")
 ⋮----
 worker = control.workers.heartbeat(
+capacity = body.get("capacity")
+⋮----
+source = str(capacity.get("source") or "").strip()
+source_status = str(capacity.get("status") or "unavailable")
+used = capacity.get("used_this_month")
+remaining = capacity.get("remaining_tokens")
+⋮----
+authenticated = (
+used_value = used if authenticated and isinstance(used, int) else None
+remaining_value = (
+limit_value = (
+⋮----
 active_job_keys = body.get(
 ⋮----
 stale_job_keys = []
@@ -2467,7 +2525,15 @@ job = control.queue.claim_key(
 key = str(body["key"])
 before = control.queue.get(key)
 ⋮----
-job = control.queue.ack(
+job = control.queue.ack(key, worker_id)
+⋮----
+key = parts[2]
+worker_id = str(body.get("worker_id") or "")
+⋮----
+execution = control.dashboard_store.update_live_execution(
+logs = body.get("logs") or []
+⋮----
+enriched = [
 ⋮----
 checkpoint_ref = str(
 ⋮----
@@ -2480,6 +2546,7 @@ group_id = control.speculation.group_for_job(key)
 job = control.speculation.cancel_job(key)
 ⋮----
 job = control.queue.complete(key, worker_id)
+⋮----
 cancelled = []
 ⋮----
 cancelled = control.speculation.cancel_losers(
@@ -2637,6 +2704,390 @@ runtime_state_path = kwargs.get("runtime_state_path")
 database_path = kwargs.get("database_path")
 ⋮----
 state = (
+````
+
+## File: src/production_os/dashboard_github.py
+````python
+_REPOSITORY = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
+⋮----
+class RepositorySnapshotUnavailable(RuntimeError)
+⋮----
+def _now() -> str
+⋮----
+class RepositorySnapshotter
+⋮----
+def __init__(self, github, store)
+⋮----
+@staticmethod
+    def _validate(repository: str) -> str
+⋮----
+value = str(repository or "").strip()
+⋮----
+def refresh(self, repository: str) -> dict
+⋮----
+repository = self._validate(repository)
+meta = self.github.repository(repository)
+branch = str(meta.get("default_branch") or "")
+⋮----
+latest = self.github.latest_commit(repository, branch) or {}
+release = self.github.latest_release(repository)
+captured = _now()
+commit_shas = set()
+⋮----
+sha = str(raw_sha).strip().lower()
+⋮----
+snapshot = {
+stored = self.store.save_repository_snapshot(snapshot)
+⋮----
+def get(self, repository: str, *, max_age_seconds: int = 300) -> dict
+⋮----
+cached = self.store.latest_repository_snapshot(repository)
+⋮----
+captured = datetime.fromisoformat(str(cached["captured_at"]).replace("Z","+00:00"))
+````
+
+## File: src/production_os/dashboard_security.py
+````python
+_SENSITIVE_KEYS = {
+⋮----
+_PATTERNS = (
+⋮----
+def _scrub_secret_patterns(value: str) -> str
+⋮----
+value = pattern.sub(r"\1[REDACTED]", value)
+⋮----
+def redact_log_value(value: object) -> object
+````
+
+## File: src/production_os/dashboard_service.py
+````python
+class DashboardNotFound(KeyError)
+⋮----
+def _now()
+⋮----
+def _is_postgres(backend) -> bool
+⋮----
+def _execute(db, backend, statement: str, params: tuple = ())
+⋮----
+sql = statement.replace("?", "%s") if _is_postgres(backend) else statement
+⋮----
+class DashboardService
+⋮----
+def __init__(self, control)
+⋮----
+def _worker_rows(self)
+⋮----
+rows=db.execute("SELECT * FROM workers ORDER BY worker_id").fetchall()
+⋮----
+@staticmethod
+    def _distinct_commit_shas(executions: list[dict]) -> set[str]
+⋮----
+shas: set[str] = set()
+⋮----
+value = str(sha).strip().lower()
+⋮----
+@staticmethod
+    def _window_cutoff(window: str)
+⋮----
+seconds={"24h":86400,"7d":604800,"30d":2592000,"all":None}
+⋮----
+value=seconds[window]
+⋮----
+def _executions_in_window(self, executions: list[dict], window: str) -> list[dict]
+⋮----
+cutoff=self._window_cutoff(window)
+⋮----
+selected=[]
+⋮----
+raw=row.get("finished_at") or row.get("started_at")
+⋮----
+parsed=datetime.fromisoformat(str(raw).replace("Z","+00:00"))
+⋮----
+parsed=parsed.replace(tzinfo=timezone.utc)
+⋮----
+def overview(self, window: str) -> dict
+⋮----
+usage=aggregate_usage(self.store.usage_events(),window=window,
+workers=self._worker_rows()
+executions=[]
+⋮----
+rows=db.execute("SELECT * FROM job_executions").fetchall()
+executions=[dict(x) for x in rows]
+jobs=db.execute("SELECT status,COUNT(*) AS count FROM jobs GROUP BY status").fetchall()
+states={str(x["status"]):int(x["count"]) for x in jobs}
+succeeded=sum(x.get("status")=="succeeded" for x in executions)
+finished=sum(x.get("status") in {"succeeded","failed","cancelled"} for x in executions)
+⋮----
+def workers(self): return {"workers":self._worker_rows(),"generated_at":_now()}
+⋮----
+def worker_detail(self, worker_id)
+⋮----
+rows=[x for x in self._worker_rows() if x.get("worker_id")==worker_id]
+⋮----
+def worker_logs(self,worker_id,after,limit)
+⋮----
+limit=max(1,min(500,int(limit)))
+⋮----
+def worker_usage(self,worker_id,window)
+⋮----
+def _repositories(self)
+⋮----
+found=set()
+⋮----
+rows=db.execute(f"SELECT DISTINCT repository FROM {table} WHERE repository IS NOT NULL").fetchall()
+⋮----
+def projects(self)
+⋮----
+def _require_project(self,repository)
+⋮----
+def project_detail(self,repository)
+⋮----
+@staticmethod
+    def _progress_snapshot_state(snapshot)
+⋮----
+def project_progress(self,repository)
+⋮----
+rows=_execute(
+workflow=self.control.workflows.get(str(rows[0]["id"])) if rows else None
+production=workflow_progress(workflow) if workflow else {
+snapshot=self.store.latest_repository_snapshot(repository)
+executions=self.store.executions_for_repository(repository,limit=500)
+events=self.control.backend.events_after(0,500)
+evidence=build_project_evidence(
+calculated=ProjectProgressEngine().calculate(repository,evidence)
+⋮----
+components=calculated.get("components") or {}
+candidate={
+candidate_state=self._progress_snapshot_state(candidate)
+fingerprint=hashlib.sha256(json.dumps(candidate_state,sort_keys=True,separators=(",",":"),default=str).encode()).hexdigest()
+⋮----
+persisted=self.store.latest_progress_snapshot(repository)
+meaningful=self._progress_snapshot_state(persisted) != candidate_state
+⋮----
+persisted=self.store.save_progress_snapshot(candidate)
+⋮----
+def project_commits(self,repository,window)
+⋮----
+executions=self._executions_in_window(self.store.executions_for_repository(repository,limit=500),window)
+⋮----
+def _legacy_workflow_usage_rows(self, repository)
+⋮----
+modern_rows=_execute(
+modern_pairs={
+⋮----
+usage_rows=[]
+⋮----
+result=json.loads(row["result_json"]) if isinstance(row["result_json"],str) else row["result_json"]
+⋮----
+usage=(result or {}).get("usage") if isinstance(result,dict) else None
+providers=usage.get("providers") if isinstance(usage,dict) else None
+⋮----
+def project_usage(self,repository,window)
+⋮----
+current=self.store.usage_events(repository=repository)
+legacy=self._legacy_workflow_usage_rows(repository)
+payload=aggregate_usage(current+legacy,window=window,
+⋮----
+def project_workflows(self,repository)
+⋮----
+rows=_execute(db,self.control.backend,"SELECT id,name,status,created_at,updated_at FROM workflows WHERE repository=? ORDER BY created_at DESC LIMIT 100",(repository,)).fetchall()
+⋮----
+def project_history(self,repository)
+⋮----
+executions=self.store.executions_for_repository(repository,limit=100)
+⋮----
+legacy=[dict(x) for x in rows]
+coverage="complete"
+⋮----
+coverage="partial"
+⋮----
+def activity(self,*,repository=None,worker_id=None,event_type=None,after=0,limit=100)
+⋮----
+rows=self.control.backend.events_after(int(after),limit)
+if repository: rows=[x for x in rows if x.get("repository")==repository]
+⋮----
+rows=[x for x in rows if str((x.get("payload") or {}).get("worker_id") or "")==worker_id]
+if event_type: rows=[x for x in rows if x.get("event_type")==event_type]
+````
+
+## File: src/production_os/dashboard_store.py
+````python
+def _now() -> str
+⋮----
+def _is_postgres(backend) -> bool
+⋮----
+def _sql(backend, statement: str) -> str
+⋮----
+def _execute(db, backend, statement: str, params: tuple = ())
+⋮----
+cursor = db.cursor()
+⋮----
+def execution_id(job_key: str, attempt: int) -> str
+⋮----
+def _bounded_progress(value)
+⋮----
+value = float(value)
+⋮----
+def _valid_commit_shas(values) -> list[str]
+⋮----
+shas = []
+seen = set()
+⋮----
+sha = value.strip().lower()
+⋮----
+def _decode(row) -> dict | None
+⋮----
+value = dict(row)
+⋮----
+evidence = value.get("evidence") or {}
+⋮----
+class DashboardStore
+⋮----
+def __init__(self, backend)
+⋮----
+def _fetchone(self, db, statement, params=())
+⋮----
+cur = _execute(db, self.backend, statement, tuple(params))
+⋮----
+def _fetchall(self, db, statement, params=())
+⋮----
+def start_execution(self, job: dict, worker_id: str, *, started_at: str | None = None) -> dict
+⋮----
+attempt = max(1, int(job.get("delivery_attempt") or 1))
+ident = execution_id(job["key"], attempt)
+payload = job.get("payload") or {}
+at = started_at or _now()
+⋮----
+row = self._fetchone(db, "SELECT * FROM job_executions WHERE id=?", (ident,))
+⋮----
+def execution_count(self, job_key: str) -> int
+⋮----
+cur = _execute(db, self.backend, "SELECT COUNT(*) AS n FROM job_executions WHERE job_key=?", (job_key,))
+row = cur.fetchone()
+⋮----
+def latest_execution(self, job_key: str) -> dict | None
+⋮----
+def update_live_execution(self, job_key: str, worker_id: str, telemetry: dict, *, at: str | None = None) -> dict
+⋮----
+progress = _bounded_progress(telemetry.get("progress")); usage = telemetry.get("usage")
+⋮----
+row = self._fetchone(db, "SELECT * FROM job_executions WHERE job_key=? ORDER BY attempt DESC LIMIT 1", (job_key,))
+⋮----
+old = row.get("progress_percent"); stage = telemetry.get("stage", row.get("current_stage"))
+⋮----
+live_usage = usage if usage is not None else (row.get("live_usage") or {})
+⋮----
+result = result or {}; usage = result.get("usage") or {}; commits = result.get("commits") or {}; shas = _valid_commit_shas(commits.get("shas"))
+⋮----
+def executions_for_worker(self, worker_id: str, *, limit: int = 100) -> list[dict]
+⋮----
+def executions_for_repository(self, repository: str, *, limit: int = 100) -> list[dict]
+⋮----
+def usage_events(self, *, worker_id=None, repository=None, since=None) -> list[dict]
+⋮----
+where = (" WHERE " + " AND ".join(clauses)) if clauses else ""
+⋮----
+def append_logs(self, worker_id: str, rows: list[dict]) -> list[dict]
+⋮----
+saved=[]
+⋮----
+row=redact_log_value(source); ident=str(row.get("id") or uuid4()); created=row.get("created_at") or _now()
+⋮----
+def logs_for_worker(self, worker_id: str, *, after: str | None = None, limit: int = 100) -> list[dict]
+⋮----
+limit=max(1,min(int(limit),500))
+⋮----
+cursor=self._fetchone(db,"SELECT * FROM worker_log_events WHERE id=? AND worker_id=?",(after,worker_id))
+⋮----
+def _save_snapshot(self, table: str, snapshot: dict, json_fields: tuple[str, ...]) -> dict
+⋮----
+allowed={
+values=dict(snapshot)
+⋮----
+cols=[x for x in allowed if x in values]
+⋮----
+def save_repository_snapshot(self, snapshot: dict) -> dict: return self._save_snapshot("project_repository_snapshots",snapshot,("snapshot_json",))
+def latest_repository_snapshot(self, repository: str) -> dict | None
+def save_progress_snapshot(self, snapshot: dict) -> dict: return self._save_snapshot("project_progress_snapshots",snapshot,("evidence_json","remaining_work_json","blockers_json"))
+def latest_progress_snapshot(self, repository: str) -> dict | None
+def progress_history(self, repository: str, *, limit: int = 100) -> list[dict]
+def save_provider_quota_snapshot(self, snapshot: dict) -> dict: return self._save_snapshot("provider_quota_snapshots",snapshot,())
+def latest_provider_quota_snapshots(self) -> list[dict]
+````
+
+## File: src/production_os/dashboard_ui.py
+````python
+DASHBOARD_HTML = """<!doctype html>
+````
+
+## File: src/production_os/dashboard_usage.py
+````python
+"""Versioned pricing and safe historical API-usage aggregation."""
+⋮----
+WINDOW_SECONDS = {
+_TOKEN_FIELDS = (
+⋮----
+def _dt(value)
+⋮----
+raw = str(value or "").strip()
+⋮----
+raw = raw[:-1] + "+00:00"
+parsed = datetime.fromisoformat(raw)
+⋮----
+class PricingCatalog
+⋮----
+def __init__(self, version, rules)
+⋮----
+@classmethod
+    def from_mapping(cls, payload)
+⋮----
+rules = payload.get("rules", [])
+⋮----
+def estimate(self, provider, model, usage, at)
+⋮----
+when = _dt(at)
+⋮----
+start = _dt(rule["valid_from"])
+end = _dt(rule["valid_to"]) if rule.get("valid_to") else None
+⋮----
+rates = {
+⋮----
+cost = sum(
+⋮----
+def aggregate_usage(rows, *, window, quota_rows=None, now=None)
+⋮----
+now = _dt(now or datetime.now(timezone.utc))
+seconds = WINDOW_SECONDS[window]
+cutoff = None if seconds is None else now - timedelta(seconds=seconds)
+selected = []
+⋮----
+occurred = _dt(row.get("occurred_at"))
+⋮----
+totals = {
+breakdown = {}
+daily = {}
+known_cost = 0.0
+any_cost = False
+⋮----
+key = (str(row.get("provider") or "unknown"), str(row.get("model") or "unknown"))
+bucket = breakdown.setdefault(key, {
+day = daily.setdefault(occurred.date().isoformat(), {
+⋮----
+value = row.get(field)
+⋮----
+cost = row.get("estimated_cost_usd")
+⋮----
+any_cost = True
+⋮----
+latest = {}
+⋮----
+captured = _dt(row.get("captured_at"))
+⋮----
+provider = str(row["provider"])
+⋮----
+quotas = []
+⋮----
+row = latest[provider][1]
 ````
 
 ## File: src/production_os/deep_fingerprint.py
@@ -2957,11 +3408,16 @@ API = "https://api.github.com"
 ⋮----
 def __init__(self, token: str | None = None, timeout: float = 20.0)
 ⋮----
-def _get(self, path: str) -> Any
+def _headers(self) -> dict[str, str]
 ⋮----
 request = urllib.request.Request(
 ⋮----
+body = response.read()
+payload = json.loads(body.decode("utf-8")) if body else None
+⋮----
 body = exc.read().decode("utf-8", errors="replace")
+⋮----
+def _get(self, path: str) -> Any
 ⋮----
 def _request(self, method: str, path: str, payload: dict[str, Any] | None = None) -> Any
 ⋮----
@@ -2969,7 +3425,32 @@ data = None
 ⋮----
 data = json.dumps(payload, separators=(",", ":")).encode("utf-8")
 ⋮----
-body = response.read()
+def repository(self, full_name: str) -> dict[str, Any]
+⋮----
+payload = self._get(f"/repos/{full_name}")
+⋮----
+def default_branch_commit_count(self, full_name: str, branch: str) -> int
+⋮----
+encoded = urllib.parse.quote(str(branch), safe="")
+⋮----
+link = headers.get("Link") or headers.get("link") or ""
+match = re.search(r"[?&]page=(\d+)>;\s*rel=\"last\"", link)
+⋮----
+def open_pull_request_count(self, full_name: str) -> int
+⋮----
+payload = self._get(f"/repos/{full_name}/pulls?state=open&per_page=100")
+⋮----
+def latest_release(self, full_name: str) -> dict[str, Any] | None
+⋮----
+payload = self._get(f"/repos/{full_name}/releases/latest")
+⋮----
+def latest_commit(self, full_name: str, branch: str) -> dict[str, Any] | None
+⋮----
+payload = self._get(f"/repos/{full_name}/commits?sha={encoded}&per_page=1")
+⋮----
+def latest_ci_status(self, full_name: str, branch: str) -> str | None
+⋮----
+run = self._latest_workflow_run(full_name, branch)
 ⋮----
 ref_name = branch.removeprefix("refs/heads/")
 ref = self._get(
@@ -3874,7 +4355,7 @@ def _utcnow() -> str
 ⋮----
 class PostgresBackend
 ⋮----
-SCHEMA_VERSION = 8
+SCHEMA_VERSION = 9
 ⋮----
 def __init__(self, dsn: str)
 ⋮----
@@ -4063,6 +4544,73 @@ gap = incoming_priority - current_priority
 victim = candidates[0][-1]
 ⋮----
 record = runtime_state.get(repository, task)
+````
+
+## File: src/production_os/project_progress.py
+````python
+PROFILES = {
+DIMENSIONS=("code","ui_ux","assets","tests","stability","release")
+CALCULATION_VERSION="project-progress/v1"
+CONFIDENCE_HIGH=.80
+CONFIDENCE_MEDIUM=.50
+_COMPLETE={"succeeded","impact_skipped"}
+⋮----
+def workflow_progress(workflow: dict) -> dict
+⋮----
+tasks=workflow.get("tasks") or []
+total=0.0; completed=0.0
+⋮----
+try: weight=max(0.0,float(task.get("estimated_minutes") or 0))
+except (TypeError,ValueError): weight=0.0
+⋮----
+def _execution_summary(rows)
+⋮----
+total=len(rows); succeeded=sum(str(x.get("status"))=="succeeded" for x in rows)
+⋮----
+def _relevant_progress_events(rows)
+⋮----
+def build_project_evidence(*,workflow,repository_snapshot,executions,events,visual_quality)
+⋮----
+executions=executions or []
+out={"dimensions":{},"remaining_work":[],"blockers":[],
+⋮----
+progress=workflow_progress(workflow)
+⋮----
+repository={k:repository_snapshot.get(k) for k in
+⋮----
+passing=repository.get("tests_passing")
+failing=repository.get("tests_failing")
+⋮----
+test_score=round(float(passing)/(float(passing)+float(failing))*100,2)
+⋮----
+ci_status=str(repository.get("ci_status") or "").lower()
+⋮----
+summary=out["execution_summary"]
+⋮----
+score=visual_quality.get("score")
+⋮----
+class ProjectProgressEngine
+⋮----
+def calculate(self,repository: str,evidence: dict,*,captured_at: str|None=None)->dict
+⋮----
+profile=str(evidence.get("profile") or "generic")
+weights=PROFILES.get(profile,PROFILES["generic"])
+supplied=evidence.get("dimensions") or {}
+components={}
+weighted=0.0; known_weight=0.0; fresh_weight=0.0
+stale_critical=False
+⋮----
+item=supplied.get(name)
+⋮----
+score=max(0.0,min(100.0,float(item["score"])))
+fresh=item.get("fresh") is True
+⋮----
+w=weights[name]; weighted+=score*w; known_weight+=w
+⋮----
+elif name in {"code","tests","stability","release"}: stale_critical=True
+score=round(weighted/known_weight,2) if known_weight else None
+coverage=fresh_weight/sum(weights.values()) if weights else 0.0
+confidence=("high" if coverage>=CONFIDENCE_HIGH and not stale_critical
 ````
 
 ## File: src/production_os/quarantine.py
@@ -5141,7 +5689,7 @@ def _utcnow() -> str
 ⋮----
 class SQLiteBackend
 ⋮----
-SCHEMA_VERSION = 8
+SCHEMA_VERSION = 9
 ⋮----
 def __init__(self, path: str | Path)
 ⋮----
@@ -6862,6 +7410,83 @@ registry = WorkerRegistry(Path(td) / "workers.json")
 worker = select_worker(registry, required)
 ````
 
+## File: tests/test_dashboard_api.py
+````python
+def _auth()
+⋮----
+@pytest.fixture()
+def running_control_plane(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "db.sqlite"), authorizer=_auth())
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+def get_api(base, path, token)
+⋮----
+req = Request(base + path, method="GET", headers=(
+⋮----
+def api(base, path, token, body)
+⋮----
+data = json.dumps(body).encode()
+req = Request(base + path, data=data, method="POST", headers={
+⋮----
+def _owned_execution(control)
+⋮----
+job = control.queue.enqueue({"idempotency_key":"job-telemetry", "handoff":{"repository":"dbrckk/example","task":"ship"}, "workflow_id":"wf"})
+claimed = control.queue.claim_next("worker-a", capabilities=["python"])
+acked = control.queue.ack(claimed["key"], "worker-a")
+⋮----
+def test_worker_can_publish_owned_job_telemetry(running_control_plane)
+⋮----
+job = _owned_execution(control)
+⋮----
+def test_other_worker_and_viewer_cannot_publish_telemetry(running_control_plane)
+⋮----
+def test_heartbeat_persists_only_authenticated_quota_values(running_control_plane)
+⋮----
+quota = control.dashboard_store.latest_provider_quota_snapshots()[0]
+⋮----
+def test_dashboard_overview_requires_viewer_and_has_stable_envelope(running_control_plane)
+⋮----
+def test_dashboard_rejects_invalid_window(running_control_plane)
+⋮----
+def test_dashboard_worker_routes_and_unknown_worker(running_control_plane)
+⋮----
+def test_dashboard_project_and_activity_routes(running_control_plane)
+````
+
+## File: tests/test_dashboard_github.py
+````python
+class FakeGitHub
+⋮----
+def __init__(self)
+def repository(self, repository)
+def default_branch_commit_count(self, repository, branch)
+def open_pull_request_count(self, repository)
+def latest_release(self, repository)
+def latest_commit(self, repository, branch)
+def latest_ci_status(self, repository, branch)
+⋮----
+def test_snapshotter_returns_cached_snapshot_as_degraded_on_github_failure(tmp_path)
+⋮----
+store = DashboardStore(SQLiteBackend(tmp_path / "production.db"))
+github = FakeGitHub()
+snapshotter = RepositorySnapshotter(github, store)
+cached = snapshotter.refresh("dbrckk/example")
+⋮----
+result = snapshotter.get("dbrckk/example", max_age_seconds=0)
+⋮----
+def test_snapshotter_raises_typed_error_without_cache(tmp_path)
+⋮----
+github = FakeGitHub(); github.fail = True
+⋮----
+def test_snapshotter_rejects_invalid_repository(tmp_path)
+⋮----
+def test_snapshotter_counts_distinct_production_os_commits(tmp_path)
+⋮----
+snapshot = RepositorySnapshotter(FakeGitHub(), store).refresh("dbrckk/example")
+````
+
 ## File: tests/test_dashboard_launch.py
 ````python
 def test_dashboard_daily_surface_is_repo_instruction_only()
@@ -6895,6 +7520,223 @@ def test_dashboard_v2_explains_offline_worker_and_queued_launch()
 def test_dashboard_v2_has_readable_auth_errors()
 ⋮----
 def test_dashboard_v2_has_mobile_primary_launch_action()
+````
+
+## File: tests/test_dashboard_observability_e2e.py
+````python
+def _auth()
+⋮----
+def test_observability_lifecycle_uses_final_usage_and_attributed_commits(tmp_path)
+⋮----
+control=ControlPlane(str(tmp_path/"db.sqlite"),authorizer=_auth())
+workflow=control.workflows.create(
+⋮----
+job=control.queue.claim_next("worker-a",capabilities=["python"])
+job=control.queue.ack(job["key"],"worker-a")
+⋮----
+result={"usage":{"total_tokens":900,"providers":[{"provider":"test-provider","model":"test-model","api_calls":1,"input_tokens":700,"cached_input_tokens":0,"output_tokens":200,"reasoning_tokens":0,"total_tokens":900}]},"commits":{"count":1,"shas":["a"*40]}}
+⋮----
+def test_attributed_commit_count_deduplicates_sha_across_executions(tmp_path)
+⋮----
+control=ControlPlane(str(tmp_path/"db.sqlite"),authorizer=_auth()); store=control.dashboard_store
+⋮----
+job={"key":f"job-{index}","repository":"dbrckk/example","task":"ship","delivery_attempt":1,"payload":{}}
+⋮----
+def test_secret_like_log_values_are_redacted_before_persistence(tmp_path)
+⋮----
+row=control.dashboard_store.logs_for_worker("worker-a")[0]
+⋮----
+def test_project_progress_exposes_weighted_current_workflow(tmp_path)
+⋮----
+workflow=control.workflows.create(name="progress-e2e",repository="dbrckk/example",tasks=[WorkflowTaskSpec(task_id="done",title="Done",payload={},estimated_minutes=10),WorkflowTaskSpec(task_id="todo",title="Todo",payload={},estimated_minutes=30)])
+⋮----
+progress=control.dashboard.project_progress("dbrckk/example")
+⋮----
+def test_activity_worker_filter_uses_event_payload(tmp_path)
+⋮----
+rows=control.dashboard.activity(worker_id="worker-a")["events"]
+⋮----
+def test_project_history_marks_legacy_backfill_partial(tmp_path)
+⋮----
+history=control.dashboard.project_history("dbrckk/example")
+⋮----
+def test_project_usage_backfills_legacy_workflow_result_usage(tmp_path)
+⋮----
+workflow=control.workflows.create(name="legacy-usage",repository="dbrckk/example",tasks=[WorkflowTaskSpec(task_id="done",title="Done",payload={})])
+result_json=json.dumps({"usage":{"providers":[{"provider":"legacy-provider","model":"legacy-model","api_calls":1,"input_tokens":200,"cached_input_tokens":0,"output_tokens":100,"reasoning_tokens":0,"total_tokens":300}]}})
+⋮----
+usage=control.dashboard.project_usage("dbrckk/example","all")
+⋮----
+def test_project_progress_persists_snapshot_only_when_meaningful_state_changes(tmp_path)
+⋮----
+workflow=control.workflows.create(name="snapshot-progress",repository="dbrckk/example",tasks=[WorkflowTaskSpec(task_id="build",title="Build",payload={},estimated_minutes=10)])
+first=control.dashboard.project_progress("dbrckk/example"); second=control.dashboard.project_progress("dbrckk/example")
+history=control.dashboard_store.progress_history("dbrckk/example")
+⋮----
+changed=control.dashboard.project_progress("dbrckk/example"); history=control.dashboard_store.progress_history("dbrckk/example")
+⋮----
+def test_project_progress_persists_when_auditable_evidence_changes(tmp_path)
+⋮----
+before=control.dashboard_store.progress_history("dbrckk/example")
+⋮----
+after=control.dashboard_store.progress_history("dbrckk/example")
+⋮----
+def test_project_progress_snapshot_persists_selected_profile(tmp_path)
+⋮----
+snapshot=control.dashboard_store.latest_progress_snapshot("dbrckk/example")
+````
+
+## File: tests/test_dashboard_security.py
+````python
+def test_recursive_redaction_removes_sensitive_values()
+⋮----
+value = {
+redacted = redact_log_value(value)
+````
+
+## File: tests/test_dashboard_store_postgres.py
+````python
+DSN = os.getenv("PRODUCTION_OS_TEST_POSTGRES")
+⋮----
+pytestmark = pytest.mark.skipif(
+⋮----
+REQUIRED_EXECUTION_COLUMNS = {
+⋮----
+def test_postgres_schema_v9_has_execution_columns()
+⋮----
+backend = PostgresBackend(DSN)
+⋮----
+columns = {row["column_name"] for row in cur.fetchall()}
+⋮----
+def test_dashboard_service_project_queries_work_on_postgres()
+⋮----
+control = ControlPlane(DSN)
+repository = "dbrckk/postgres-dashboard"
+workflow = control.workflows.create(
+payload = control.dashboard.project_workflows(repository)
+⋮----
+progress = control.dashboard.project_progress(repository)
+````
+
+## File: tests/test_dashboard_store.py
+````python
+def _store(tmp_path): return DashboardStore(SQLiteBackend(tmp_path/"db.sqlite"))
+⋮----
+def _sample_job()
+⋮----
+def test_execution_lifecycle_and_attempt_identity(tmp_path)
+⋮----
+store=_store(tmp_path); job=_sample_job()
+first=store.start_execution(job,"worker-a")
+duplicate=store.start_execution(job,"worker-a")
+⋮----
+live=store.update_live_execution("job-1","worker-a",{"stage":"tests","progress":50,"usage":{"total_tokens":10}})
+⋮----
+result={"usage":{"api_calls":1,"input_tokens":4,"cached_input_tokens":1,"output_tokens":3,
+done=store.finish_execution("job-1","worker-a",status="succeeded",duration_seconds=12,result=result)
+⋮----
+retry={**job,"delivery_attempt":2}
+⋮----
+def test_live_progress_cannot_move_backward_in_same_stage(tmp_path)
+⋮----
+store=_store(tmp_path); store.start_execution(_sample_job(),"worker-a")
+⋮----
+def test_finish_execution_is_idempotent(tmp_path)
+⋮----
+first=store.finish_execution("job-1","worker-a",status="succeeded",duration_seconds=2,result={})
+second=store.finish_execution("job-1","worker-a",status="failed",duration_seconds=9,result={})
+⋮----
+def test_log_cursor_is_deterministic(tmp_path)
+⋮----
+store=_store(tmp_path)
+⋮----
+rows=store.logs_for_worker("worker-a",limit=1)
+⋮----
+older=store.logs_for_worker("worker-a",after="b",limit=10)
+⋮----
+def test_snapshot_roundtrip_and_usage_query(tmp_path)
+⋮----
+repo=store.save_repository_snapshot({"id":"r1","repository":"dbrckk/example","default_branch":"main",
+⋮----
+progress=store.save_progress_snapshot({"id":"p1","repository":"dbrckk/example","confidence":"high",
+⋮----
+def test_append_logs_generates_collision_safe_ids(tmp_path)
+⋮----
+store=_store(tmp_path); at="2026-09-22T10:00:00+00:00"
+rows=store.append_logs("worker-a",[{"created_at":at,"message":"same"},{"created_at":at,"message":"same"}])
+⋮----
+def test_finish_execution_ignores_malformed_commit_shas(tmp_path)
+⋮----
+store=_store(tmp_path); store.start_execution(_sample_job(),"worker-a"); valid="a"*40
+row=store.finish_execution("job-1","worker-a",status="succeeded",duration_seconds=1,result={
+⋮----
+def test_progress_snapshot_order_is_deterministic_when_timestamps_tie(tmp_path)
+⋮----
+store=_store(tmp_path); captured="2026-09-24T04:00:00+00:00"
+base={"repository":"dbrckk/example","captured_at":captured,"calculation_version":"project-progress/v1","confidence":"low"}
+````
+
+## File: tests/test_dashboard_ui_v3.py
+````python
+def test_dashboard_has_primary_views_and_clickable_entities()
+⋮----
+def test_polling_does_not_reload_or_replace_location()
+⋮----
+def test_dashboard_has_worker_and_project_detail_tabs()
+⋮----
+def test_dashboard_preserves_launch_and_mobile_accessibility()
+⋮----
+def test_dashboard_overview_is_bound_to_observability_api()
+⋮----
+def test_dashboard_v3_has_usage_window_controls()
+⋮----
+def test_dashboard_workers_view_is_bound_to_observability_api()
+⋮----
+def test_dashboard_projects_view_is_bound_to_observability_api()
+⋮----
+def test_dashboard_activity_view_is_bound_to_observability_api()
+⋮----
+def test_worker_detail_exposes_live_task_and_health_information()
+⋮----
+def test_worker_detail_exposes_api_usage_breakdown()
+⋮----
+def test_worker_detail_exposes_execution_history()
+⋮----
+def test_worker_detail_exposes_structured_recent_logs()
+⋮----
+def test_worker_detail_exposes_capabilities_and_health()
+⋮----
+def test_project_detail_exposes_progress_evidence()
+⋮----
+def test_project_detail_exposes_progress_components()
+⋮----
+def test_project_detail_exposes_commit_window_and_sources()
+⋮----
+def test_project_detail_exposes_api_usage_breakdown()
+````
+
+## File: tests/test_dashboard_usage.py
+````python
+def test_pricing_returns_unknown_for_unlisted_model()
+⋮----
+catalog = PricingCatalog.from_mapping({"version":"2026-09-22","rules":[]})
+⋮----
+def test_pricing_uses_exact_versioned_rule_and_zero_is_zero()
+⋮----
+catalog = PricingCatalog.from_mapping({
+⋮----
+def test_pricing_missing_token_field_is_unknown()
+⋮----
+def test_usage_aggregation_does_not_mix_live_snapshot_with_final_events()
+⋮----
+rows = [{
+result = aggregate_usage(
+⋮----
+def test_usage_aggregation_hides_unauthenticated_quota_numbers()
+⋮----
+quotas = {row["provider"]: row for row in result["quotas"]}
+⋮----
+def test_usage_aggregation_rejects_unknown_window()
 ````
 
 ## File: tests/test_deep_fingerprint_starlist.py
@@ -7016,6 +7858,12 @@ client = FakeGitHubClient([
 def test_list_pull_request_files_rejects_invalid_payload()
 ⋮----
 client = FakeGitHubClient([{"files":[]}])
+⋮----
+def test_default_branch_commit_count_uses_last_link_page()
+⋮----
+client = GitHubClient("token")
+⋮----
+def test_default_branch_commit_count_handles_single_and_empty()
 ````
 
 ## File: tests/test_github_client_put_file.py
@@ -7470,6 +8318,33 @@ attestation = create_validation_attestation(
 release = promoted_payload["release"]
 ⋮----
 verification = verified_payload["verification"]
+````
+
+## File: tests/test_project_progress.py
+````python
+def test_workflow_progress_is_weighted_by_estimated_minutes()
+⋮----
+workflow={"tasks":[{"status":"succeeded","estimated_minutes":10},{"status":"running","estimated_minutes":30}]}
+result=workflow_progress(workflow)
+⋮----
+def test_zero_minute_virtual_barrier_does_not_distort_progress()
+⋮----
+workflow={"tasks":[{"status":"succeeded","estimated_minutes":10},{"status":"pending","estimated_minutes":0}]}
+⋮----
+def test_terminal_semantics_and_no_executable_weight()
+⋮----
+def test_backend_profile_marks_ui_and_assets_not_applicable()
+⋮----
+engine=ProjectProgressEngine()
+result=engine.calculate("dbrckk/api",{"profile":"backend","dimensions":{
+⋮----
+def test_confidence_thresholds_are_stable()
+⋮----
+def test_build_project_evidence_derives_dimensions_from_observed_facts()
+⋮----
+evidence = build_project_evidence(
+⋮----
+def test_build_project_evidence_keeps_missing_facts_unknown()
 ````
 
 ## File: tests/test_provenance_signer.py
@@ -12188,4 +13063,30 @@ Incident history entries are SHA-256 hash chained. Rewriting a persisted report
 or breaking the previous-hash chain causes verification to fail. Unchanged
 snapshots are deduplicated while genuine blast-radius changes append a new
 entry.
+
+
+## Dashboard observability — Release 1
+
+The authenticated workspace remains available at `/dashboard`. Pair the browser
+with a viewer or operator credential to read observability data; worker-only
+credentials cannot read dashboard routes. The workspace provides **Vue générale**,
+**Projets**, **Workers**, and **Activité**, while the existing repository +
+instruction launch form remains available.
+
+Project pages distinguish **Production actuelle** from **Projet estimé**. The
+first is deterministic workflow progress weighted by task estimates. The second
+is a versioned evidence-based estimate and is always accompanied by confidence
+and evidence coverage; unavailable evidence stays unknown rather than being
+invented.
+
+API cost is an estimate only when an exact provider/model price is known for the
+execution date. Token totals remain useful when cost cannot be calculated.
+Production-OS-attributed commits are reported separately from total commits on
+the repository default branch; the latter comes from GitHub snapshots and may be
+marked degraded when cached data is used.
+
+Workers publish live execution telemetry through
+`POST /v1/jobs/{job_key}/telemetry`; this endpoint requires the owning worker
+credential. Release 1 dashboard observability is read-only: pause, drain,
+cancellation, retry and kick controls belong to Release 2.
 ````

@@ -229,6 +229,9 @@
     "src/production_os/control_plane.py": [
       "__future__",
       "api_auth",
+      "dashboard_service",
+      "dashboard_store",
+      "dashboard_ui",
       "execution_optimizer",
       "github_client",
       "github_webhook",
@@ -282,6 +285,38 @@
       "task_capabilities",
       "time",
       "workers"
+    ],
+    "src/production_os/dashboard_github.py": [
+      "__future__",
+      "datetime",
+      "re"
+    ],
+    "src/production_os/dashboard_security.py": [
+      "__future__",
+      "re"
+    ],
+    "src/production_os/dashboard_service.py": [
+      "__future__",
+      "dashboard_usage",
+      "datetime",
+      "hashlib",
+      "json",
+      "project_progress",
+      "uuid"
+    ],
+    "src/production_os/dashboard_store.py": [
+      "__future__",
+      "dashboard_security",
+      "datetime",
+      "json",
+      "uuid"
+    ],
+    "src/production_os/dashboard_ui.py": [
+      "__future__"
+    ],
+    "src/production_os/dashboard_usage.py": [
+      "__future__",
+      "datetime"
     ],
     "src/production_os/deep_fingerprint.py": [
       "__future__",
@@ -352,6 +387,7 @@
       "json",
       "models",
       "os",
+      "re",
       "source_tree",
       "time",
       "typing",
@@ -513,6 +549,10 @@
       "dataclasses",
       "runtime_state",
       "workers"
+    ],
+    "src/production_os/project_progress.py": [
+      "__future__",
+      "datetime"
     ],
     "src/production_os/quarantine.py": [
       "__future__",
@@ -971,8 +1011,58 @@
       "tempfile",
       "types"
     ],
+    "tests/test_dashboard_api.py": [
+      "__future__",
+      "http.server",
+      "json",
+      "production_os.api_auth",
+      "production_os.control_plane",
+      "pytest",
+      "threading",
+      "urllib.error",
+      "urllib.request"
+    ],
+    "tests/test_dashboard_github.py": [
+      "__future__",
+      "json",
+      "production_os.dashboard_github",
+      "production_os.dashboard_store",
+      "production_os.sqlite_backend",
+      "pytest"
+    ],
     "tests/test_dashboard_launch.py": [
       "production_os.control_plane"
+    ],
+    "tests/test_dashboard_observability_e2e.py": [
+      "__future__",
+      "json",
+      "production_os.api_auth",
+      "production_os.control_plane",
+      "production_os.workflow_engine"
+    ],
+    "tests/test_dashboard_security.py": [
+      "production_os.dashboard_security"
+    ],
+    "tests/test_dashboard_store.py": [
+      "__future__",
+      "production_os.dashboard_store",
+      "production_os.sqlite_backend"
+    ],
+    "tests/test_dashboard_store_postgres.py": [
+      "os",
+      "production_os.control_plane",
+      "production_os.postgres_backend",
+      "production_os.workflow_engine",
+      "pytest"
+    ],
+    "tests/test_dashboard_ui_v3.py": [
+      "production_os.dashboard_ui"
+    ],
+    "tests/test_dashboard_usage.py": [
+      "__future__",
+      "datetime",
+      "production_os.dashboard_usage",
+      "pytest"
     ],
     "tests/test_deep_fingerprint_starlist.py": [
       "production_os.deep_fingerprint",
@@ -1127,6 +1217,10 @@
       "threading",
       "urllib.request",
       "uuid"
+    ],
+    "tests/test_project_progress.py": [
+      "__future__",
+      "production_os.project_progress"
     ],
     "tests/test_provenance_signer.py": [
       "production_os.asymmetric_attestations",
