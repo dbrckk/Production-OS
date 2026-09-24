@@ -468,6 +468,42 @@ Historique des remédiations
 
 so operators can distinguish ordinary control actions from incident-driven remediation.
 
+## Dashboard Control Center Release 7 — Remediation verification
+
+Incident-linked remediation history now distinguishes the control result from whether the incident was actually cleared.
+
+Verification states are:
+
+```text
+pending
+still_active
+resolved
+not_applicable
+```
+
+Semantics:
+
+- `pending`: the remediation request completed but has not yet been checked against refreshed incident state;
+- `still_active`: the related incident remains open or acknowledged after a verification refresh;
+- `resolved`: the related incident is durably resolved;
+- `not_applicable`: the remediation action itself failed, so effectiveness verification does not apply.
+
+Verification is observational only. It never triggers another kick, retry, cancellation, recovery, pause, resume or drain action.
+
+The verification engine runs from current durable incident state. A resolved verification is terminal and does not regress if the same incident later reopens as a new occurrence.
+
+To avoid write amplification from dashboard polling, repeated checks that would keep the same verification state do not rewrite the remediation ledger or increment the verification counter.
+
+Existing schema v12 databases are migrated additively to schema v13 with:
+
+```text
+verification_state
+verification_checks
+verified_at
+```
+
+The Activity view shows control outcome and remediation verification separately.
+
 ## Design principles
 
 - Evidence over assumptions

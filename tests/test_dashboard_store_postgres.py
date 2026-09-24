@@ -25,7 +25,7 @@ REQUIRED_EXECUTION_COLUMNS = {
 }
 
 
-def test_postgres_schema_v12_has_execution_columns_control_audit_incidents_and_remediation():
+def test_postgres_schema_v13_has_execution_columns_control_audit_incidents_and_remediation():
     backend = PostgresBackend(DSN)
     with backend.connect() as db:
         with db.cursor() as cur:
@@ -39,7 +39,7 @@ def test_postgres_schema_v12_has_execution_columns_control_audit_incidents_and_r
             )
             columns = {row["column_name"] for row in cur.fetchall()}
 
-    assert backend.SCHEMA_VERSION == 12
+    assert backend.SCHEMA_VERSION == 13
     assert REQUIRED_EXECUTION_COLUMNS <= columns
     with backend.connect() as db:
         with db.cursor() as cur:
@@ -77,6 +77,25 @@ def test_postgres_schema_v12_has_execution_columns_control_audit_incidents_and_r
             )
             remediation_table = cur.fetchone()
     assert remediation_table["table_name"] == "dashboard_remediation_events"
+    with backend.connect() as db:
+        with db.cursor() as cur:
+            cur.execute(
+                """
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_schema = current_schema()
+                  AND table_name = 'dashboard_remediation_events'
+                """
+            )
+            remediation_columns = {
+                row["column_name"]
+                for row in cur.fetchall()
+            }
+    assert {
+        "verification_state",
+        "verification_checks",
+        "verified_at",
+    } <= remediation_columns
 
 
 def test_dashboard_service_project_queries_work_on_postgres():

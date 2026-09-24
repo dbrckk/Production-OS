@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import sqlite3
+
 from production_os.dashboard_store import DashboardStore
 from production_os.sqlite_backend import SQLiteBackend
 
@@ -100,3 +102,186 @@ def test_remediation_ledger_has_no_freeform_secret_payload(tmp_path):
         "payload", "metadata", "reason",
     }
     assert forbidden.isdisjoint(row.keys())
+
+
+def test_failed_remediation_is_not_applicable_for_verification(tmp_path):
+    store = _store(tmp_path / "failed.sqlite")
+    incident = _incident(store)
+    event = store.append_remediation_event(
+        incident_id=incident["id"],
+        action="kick",
+        requested_by="operator:dashboard",
+    )
+    failed = store.update_remediation_event(
+        event["id"],
+        outcome="failed",
+        error_code="github_dispatch_failed",
+    )
+    assert failed["verification_state"] == "not_applicable"
+    assert failed["verified_at"] is not None
+    assert failed["verification_checks"] == 0
+
+
+def test_completed_remediation_tracks_active_then_resolved_incident(tmp_path):
+    store = _store(tmp_path / "verification.sqlite")
+    incident = _incident(store)
+    event = store.append_remediation_event(
+        incident_id=incident["id"],
+        action="kick",
+        requested_by="operator:dashboard",
+    )
+    store.update_remediation_event(
+        event["id"],
+        outcome="scheduled_fallback",
+    )
+
+    active = store.verify_remediation_events()
+    assert active[0]["verification_state"] == "still_active"
+    assert active[0]["verification_checks"] == 1
+    assert active[0]["verified_at"] is not None
+
+    store.resolve_dashboard_incidents_except(set())
+    resolved = store.verify_remediation_events()
+    assert resolved[0]["verification_state"] == "resolved"
+    assert resolved[0]["verification_checks"] == 2
+
+
+def test_resolved_verification_never_regresses_after_incident_reopens(tmp_path):
+    store = _store(tmp_path / "terminal.sqlite")
+    incident = _incident(store)
+    event = store.append_remediation_event(
+        incident_id=incident["id"],
+        action="kick",
+        requested_by="operator:dashboard",
+    )
+    store.update_remediation_event(
+        event["id"],
+        outcome="scheduled_fallback",
+    )
+    store.resolve_dashboard_incidents_except(set())
+    store.verify_remediation_events()
+    before = store.remediation_events(limit=1)[0]
+    assert before["verification_state"] == "resolved"
+
+    reopened = store.upsert_dashboard_incident(
+        code="queue_without_worker",
+        severity="high",
+        title="Queue sans worker",
+        message="2 jobs en attente",
+        target_type="control-plane",
+        target_id="global",
+    )
+    assert reopened["id"] == incident["id"]
+    store.verify_remediation_events()
+    after = store.remediation_events(limit=1)[0]
+    assert after["verification_state"] == "resolved"
+    assert after["verification_checks"] == before["verification_checks"]
+
+
+def test_sqlite_v12_database_is_migrated_additively_to_v13(tmp_path):
+    path = tmp_path / "migration.sqlite"
+    db = sqlite3.connect(path)
+    db.executescript(
+        """
+        CREATE TABLE schema_meta (
+            key TEXT PRIMARY KEY,
+            value TEXT NOT NULL
+        );
+        INSERT INTO schema_meta(key, value) VALUES('schema_version', '12');
+        CREATE TABLE dashboard_incidents (
+            id TEXT PRIMARY KEY,
+            dedupe_key TEXT NOT NULL UNIQUE,
+            code TEXT NOT NULL,
+            severity TEXT NOT NULL,
+            title TEXT NOT NULL,
+            message TEXT NOT NULL,
+            target_type TEXT NOT NULL,
+            target_id TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'open',
+            occurrence_count INTEGER NOT NULL DEFAULT 1,
+            first_seen_at TEXT NOT NULL,
+            last_seen_at TEXT NOT NULL,
+            acknowledged_by TEXT,
+            acknowledged_at TEXT,
+            resolved_at TEXT
+        );
+        CREATE TABLE dashboard_remediation_events (
+            id TEXT PRIMARY KEY,
+            incident_id TEXT NOT NULL,
+            action TEXT NOT NULL,
+            worker_id TEXT,
+            job_key TEXT,
+            requested_by TEXT NOT NULL,
+            outcome TEXT NOT NULL,
+            error_code TEXT,
+            requested_at TEXT NOT NULL,
+            completed_at TEXT
+        );
+        INSERT INTO dashboard_incidents(
+            id,dedupe_key,code,severity,title,message,
+            target_type,target_id,status,occurrence_count,
+            first_seen_at,last_seen_at
+        ) VALUES(
+            'incident-1','queue_without_worker:control-plane:global',
+            'queue_without_worker','high','Queue','Waiting',
+            'control-plane','global','open',1,
+            '2026-09-24T00:00:00+00:00','2026-09-24T00:00:00+00:00'
+        );
+        INSERT INTO dashboard_remediation_events(
+            id,incident_id,action,requested_by,outcome,requested_at,completed_at
+        ) VALUES(
+            'remediation-1','incident-1','kick','operator:dashboard',
+            'scheduled_fallback','2026-09-24T00:01:00+00:00',
+            '2026-09-24T00:01:01+00:00'
+        );
+        """
+    )
+    db.commit()
+    db.close()
+
+    backend = SQLiteBackend(path)
+    with backend.connect() as conn:
+        version = conn.execute(
+            "SELECT value FROM schema_meta WHERE key='schema_version'"
+        ).fetchone()["value"]
+        columns = {
+            row["name"]
+            for row in conn.execute(
+                "PRAGMA table_info(dashboard_remediation_events)"
+            ).fetchall()
+        }
+        row = conn.execute(
+            "SELECT * FROM dashboard_remediation_events WHERE id='remediation-1'"
+        ).fetchone()
+    assert version == "13"
+    assert {"verification_state","verification_checks","verified_at"} <= columns
+    assert row["verification_state"] == "pending"
+    assert row["verification_checks"] == 0
+
+
+def test_repeated_active_verification_is_idempotent(tmp_path):
+    store = _store(tmp_path / "idempotent.sqlite")
+    incident = _incident(store)
+    event = store.append_remediation_event(
+        incident_id=incident["id"],
+        action="kick",
+        requested_by="operator:dashboard",
+    )
+    store.update_remediation_event(
+        event["id"],
+        outcome="scheduled_fallback",
+    )
+
+    first = store.verify_remediation_events()
+    assert len(first) == 1
+    row = store.remediation_events(limit=1)[0]
+    assert row["verification_state"] == "still_active"
+    assert row["verification_checks"] == 1
+    verified_at = row["verified_at"]
+
+    second = store.verify_remediation_events()
+    assert second == []
+    row = store.remediation_events(limit=1)[0]
+    assert row["verification_state"] == "still_active"
+    assert row["verification_checks"] == 1
+    assert row["verified_at"] == verified_at

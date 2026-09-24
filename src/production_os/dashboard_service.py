@@ -374,6 +374,7 @@ class DashboardService:
             active_keys.add(dedupe_key(signal))
             self.store.upsert_dashboard_incident(**signal)
         self.store.resolve_dashboard_incidents_except(active_keys)
+        self.store.verify_remediation_events()
         if status is not None and status not in {
             "open","acknowledged","resolved"
         }:
@@ -439,6 +440,9 @@ class DashboardService:
         limit: int = 100,
         incident_id: str | None = None,
     ) -> dict:
+        # Refresh durable incident state first so verification reflects
+        # current server facts rather than stale browser state.
+        self.incidents(limit=500)
         return {
             "events":self.store.remediation_events(
                 limit=limit,

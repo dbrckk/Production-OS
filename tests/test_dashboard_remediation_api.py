@@ -222,3 +222,50 @@ def test_remediation_history_filters_by_incident_query(tmp_path):
         server.shutdown()
         server.server_close()
         thread.join(timeout=2)
+
+
+def test_remediation_history_verifies_active_then_resolved_incident(tmp_path):
+    control = ControlPlane(
+        str(tmp_path / "remediation-verification.sqlite"),
+        authorizer=_auth(),
+    )
+    incident = _queue_incident(control)
+    event = control.dashboard_store.append_remediation_event(
+        incident_id=incident["id"],
+        action="kick",
+        worker_id="github-actions-worker",
+        requested_by="operator:dashboard",
+    )
+    control.dashboard_store.update_remediation_event(
+        event["id"],
+        outcome="scheduled_fallback",
+    )
+
+    active = control.dashboard.remediation_history(limit=10)["events"][0]
+    assert active["verification_state"] == "still_active"
+    assert active["verification_checks"] == 1
+
+    control.workers.register("worker-a", ["python"], 1)
+    resolved = control.dashboard.remediation_history(limit=10)["events"][0]
+    assert resolved["verification_state"] == "resolved"
+    assert resolved["verification_checks"] == 2
+    assert resolved["verified_at"] is not None
+
+
+def test_remediation_history_does_not_verify_incomplete_request(tmp_path):
+    control = ControlPlane(
+        str(tmp_path / "remediation-pending.sqlite"),
+        authorizer=_auth(),
+    )
+    incident = _queue_incident(control)
+    event = control.dashboard_store.append_remediation_event(
+        incident_id=incident["id"],
+        action="kick",
+        worker_id="github-actions-worker",
+        requested_by="operator:dashboard",
+    )
+    payload = control.dashboard.remediation_history(limit=10)
+    row = next(item for item in payload["events"] if item["id"] == event["id"])
+    assert row["verification_state"] == "pending"
+    assert row["verification_checks"] == 0
+    assert row["verified_at"] is None
