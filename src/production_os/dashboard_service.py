@@ -101,12 +101,31 @@ class DashboardService:
                          "execution_seconds":sum(float(x.get("duration_seconds") or 0) for x in executions)},
           "projects":self.projects()["projects"],"errors":[]}
 
-    def workers(self): return {"workers":self._worker_rows(),"generated_at":_now()}
+    def workers(self):
+        rows=[]
+        for worker in self._worker_rows():
+            desired=self.control.dashboard_control.worker_state(worker["worker_id"])
+            item=dict(worker)
+            item["desired_state"]=desired["desired_state"]
+            item["control_requested_at"]=desired.get("requested_at")
+            item["control_reason"]=desired.get("reason")
+            if desired["desired_state"] == "draining" and int(item.get("active_tasks") or 0) == 0:
+                item["display_state"]="drained"
+            rows.append(item)
+        return {"workers":rows,"generated_at":_now()}
 
     def worker_detail(self, worker_id):
         rows=[x for x in self._worker_rows() if x.get("worker_id")==worker_id]
         if not rows: raise DashboardNotFound(worker_id)
-        return {"worker":rows[0],"executions":self.store.executions_for_worker(worker_id),"generated_at":_now()}
+        worker=dict(rows[0])
+        desired=self.control.dashboard_control.worker_state(worker_id)
+        worker["desired_state"]=desired["desired_state"]
+        worker["control_requested_at"]=desired.get("requested_at")
+        worker["control_reason"]=desired.get("reason")
+        worker["control_acknowledged_at"]=desired.get("acknowledged_at")
+        if desired["desired_state"] == "draining" and int(worker.get("active_tasks") or 0) == 0:
+            worker["display_state"]="drained"
+        return {"worker":worker,"executions":self.store.executions_for_worker(worker_id),"generated_at":_now()}
 
     def worker_logs(self,worker_id,after,limit):
         self.worker_detail(worker_id)
