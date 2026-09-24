@@ -506,3 +506,62 @@ def test_retry_rejects_superseded_workflow_generation_without_new_job(tmp_path):
         assert after == before
     finally:
         server.shutdown(); server.server_close()
+
+
+def test_retry_allows_current_pr_workflow_generation(tmp_path):
+    control, server, base = _fixture(tmp_path)
+    head_sha = "b" * 40
+    workflow = control.workflows.create(
+        name="current-pr-retry",
+        repository="dbrckk/example",
+        metadata={
+            "github_pr_head_sha":head_sha,
+            "github_pr_generation":3,
+        },
+        tasks=[
+            WorkflowTaskSpec(
+                "task-a",
+                "Current PR retry",
+                {"required_capabilities":["python"]},
+                max_attempts=2,
+            )
+        ],
+    )
+    first = control.workflows.dispatch_ready(workflow["id"])[0]
+    assert first["payload"]["source_revision"] == head_sha
+    assert first["payload"]["workflow_generation"] == 3
+    assert control.queue.claim_key(first["key"], "worker-a") is not None
+    control.queue.ack(first["key"], "worker-a")
+    control.dashboard_store.start_execution(control.queue.get(first["key"]), "worker-a")
+    try:
+        status, _ = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"cancel-current","job_key":first["key"]},
+        )
+        assert status == 202
+        status, _ = _post(
+            base,
+            "/v1/workers/heartbeat",
+            "worker",
+            {
+                "worker_id":"worker-a",
+                "active_tasks":1,
+                "active_job_keys":[first["key"]],
+                "job_control_states":{first["key"]:"cancel_requested"},
+            },
+        )
+        assert status == 200
+
+        status, retried = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"retry","job_key":first["key"]},
+        )
+        assert status == 201
+        assert retried["job"]["payload"]["source_revision"] == head_sha
+        assert retried["job"]["payload"]["workflow_generation"] == 3
+    finally:
+        server.shutdown(); server.server_close()
