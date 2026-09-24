@@ -5,6 +5,7 @@ from uuid import uuid4
 import json
 import os
 import hashlib
+import time
 
 from .dashboard_usage import aggregate_usage
 from .dashboard_alerts import derive_alerts
@@ -38,6 +39,8 @@ class DashboardService:
     def __init__(self, control):
         self.control=control
         self.store=control.dashboard_store
+        self._maintenance_cache=None
+        self._maintenance_cache_at=0.0
 
     def _worker_rows(self):
         with self.control.backend.connect() as db:
@@ -537,7 +540,16 @@ class DashboardService:
         return sorted(found)
 
     def maintenance(self) -> dict:
-        return storage_maintenance_snapshot(self.control.backend)
+        now = time.monotonic()
+        cached = self._maintenance_cache
+        if cached is not None:
+            ttl = 30.0 if cached.get("status") == "unknown" else 300.0
+            if now - self._maintenance_cache_at < ttl:
+                return {**cached, "cached":True}
+        payload = storage_maintenance_snapshot(self.control.backend)
+        self._maintenance_cache = dict(payload)
+        self._maintenance_cache_at = now
+        return {**payload, "cached":False}
 
     def repositories(self) -> dict:
         owner = str(
