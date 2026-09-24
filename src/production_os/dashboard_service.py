@@ -12,6 +12,7 @@ from .dashboard_health import derive_control_health
 from .dashboard_incidents import dedupe_key, signals_from_health
 from .dashboard_playbooks import derive_incident_playbook
 from .dashboard_remediation_metrics import aggregate_remediation_analytics
+from .dashboard_maintenance import storage_maintenance_snapshot
 from .project_progress import ProjectProgressEngine, build_project_evidence, workflow_progress
 from .github_client import GitHubAPIError, GitHubClient
 
@@ -534,6 +535,9 @@ class DashboardService:
                 except Exception:
                     continue
         return sorted(found)
+
+    def maintenance(self) -> dict:
+        return storage_maintenance_snapshot(self.control.backend)
 
     def repositories(self) -> dict:
         owner = str(
