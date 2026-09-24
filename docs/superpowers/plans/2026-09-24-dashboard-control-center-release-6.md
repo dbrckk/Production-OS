@@ -45,3 +45,27 @@ Make incident remediation actions durably traceable from recommendation to opera
 - Restart persistence.
 - No secrets in ledger payloads.
 - Python 3.11/3.12 and full CI green before merge.
+
+
+## Implemented in current branch
+
+- schema v12 SQLite/PostgreSQL remediation ledger
+- durable append/update/list remediation store APIs
+- restart persistence and secret-shape tests
+- optional incident_id on existing worker control requests
+- server re-validation of exact playbook action + worker + job + availability
+- stale/forged incident remediation rejected before audit/control mutation
+- remediation outcome finalized alongside control audit outcome
+- viewer-readable remediation history API
+- worker role remains forbidden from dashboard history
+- incident-filtered history queries
+- dashboard playbook buttons transmit incident_id
+- Activity view renders remediation lineage
+- direct controls remain backward compatible without incident_id
+- README documentation and UI/API regression coverage
+
+## Remaining before Release 6 completion
+
+- final CI qualification on the complete head
+- final diff/security review
+- mark PR ready and merge only after green final head
