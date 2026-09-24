@@ -127,6 +127,32 @@ class DashboardControl:
         row = self.store.acknowledge_job_control(job_key, at=at)
         return self._job_view(row, job_key)
 
+    def kick_worker(self, worker_id: str) -> dict:
+        del worker_id
+        if (
+            self.github is None
+            or not self.actions_repository
+            or not self.actions_workflow
+        ):
+            return {
+                "status":"scheduled_fallback",
+                "poll_interval_seconds":300,
+            }
+        try:
+            self.github.dispatch_workflow(
+                self.actions_repository,
+                self.actions_workflow,
+                ref=self.actions_ref,
+            )
+        except Exception:
+            return {
+                "status":"failed",
+                "error":"github_dispatch_failed",
+            }
+        return {
+            "status":"dispatched",
+        }
+
     def retry_job(self, job_key: str, *, requested_by: str) -> dict:
         job = self.queue.get(job_key)
         payload = job.get("payload") or {}
