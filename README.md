@@ -599,6 +599,24 @@ These metrics are descriptive only. They never trigger retry, cancel, recovery, 
 
 Invalid or chronologically inconsistent timestamps are ignored instead of being converted into misleading durations.
 
+## Dashboard Control Center Release 11 — Simplified launch UX
+
+The default operator workflow is intentionally minimal:
+
+```text
+select repository
+enter instruction
+launch production
+```
+
+Opening the Production-OS service root redirects to `/dashboard`. Machine health checks remain available at `/health` and `/healthz`.
+
+Repository discovery is performed by Production-OS on the server through `GitHubClient`. The browser no longer calls GitHub's repository API directly.
+
+When a server-side GitHub token is available, Production-OS lists repositories accessible to that credential for the configured owner. If not, it falls back to the owner's public repositories.
+
+No additional operator credential, token field or launch parameter is introduced.
+
 ## Design principles
 
 - Evidence over assumptions
