@@ -441,3 +441,68 @@ def test_retry_refuses_exhausted_attempt_budget(tmp_path):
         assert "max attempts reached" in payload["error"]
     finally:
         server.shutdown(); server.server_close()
+
+
+def test_retry_rejects_superseded_workflow_generation_without_new_job(tmp_path):
+    control, server, base = _fixture(tmp_path)
+    workflow = control.workflows.create(
+        name="stale-retry",
+        repository="dbrckk/example",
+        tasks=[
+            WorkflowTaskSpec(
+                "task-a",
+                "Stale retry",
+                {"required_capabilities":["python"]},
+                max_attempts=2,
+            )
+        ],
+    )
+    first = control.workflows.dispatch_ready(workflow["id"])[0]
+    assert control.queue.claim_key(first["key"], "worker-a") is not None
+    control.queue.ack(first["key"], "worker-a")
+    control.dashboard_store.start_execution(control.queue.get(first["key"]), "worker-a")
+    try:
+        status, _ = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"cancel-current","job_key":first["key"]},
+        )
+        assert status == 202
+        status, _ = _post(
+            base,
+            "/v1/workers/heartbeat",
+            "worker",
+            {
+                "worker_id":"worker-a",
+                "active_tasks":1,
+                "active_job_keys":[first["key"]],
+                "job_control_states":{first["key"]:"cancel_requested"},
+            },
+        )
+        assert status == 200
+        control.workflows.supersede(
+            workflow["id"],
+            superseded_by="replacement-workflow",
+            head_sha="a" * 40,
+        )
+
+        before = {
+            row["key"]
+            for row in control.queue.peek_candidates(limit=100)
+        }
+        status, payload = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"retry","job_key":first["key"]},
+        )
+        assert status == 409
+        assert "stale workflow generation" in payload["error"]
+        after = {
+            row["key"]
+            for row in control.queue.peek_candidates(limit=100)
+        }
+        assert after == before
+    finally:
+        server.shutdown(); server.server_close()
