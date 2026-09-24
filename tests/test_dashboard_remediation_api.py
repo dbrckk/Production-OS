@@ -269,3 +269,70 @@ def test_remediation_history_does_not_verify_incomplete_request(tmp_path):
     assert row["verification_state"] == "pending"
     assert row["verification_checks"] == 0
     assert row["verified_at"] is None
+
+
+def test_remediation_analytics_api_is_viewer_readable_and_worker_forbidden(tmp_path):
+    control = ControlPlane(
+        str(tmp_path / "remediation-analytics.sqlite"),
+        authorizer=_auth(),
+    )
+    incident = _queue_incident(control)
+    event = control.dashboard_store.append_remediation_event(
+        incident_id=incident["id"],
+        action="kick",
+        worker_id="github-actions-worker",
+        requested_by="operator:dashboard",
+    )
+    control.dashboard_store.update_remediation_event(
+        event["id"],
+        outcome="scheduled_fallback",
+    )
+    control.dashboard.remediation_history(limit=10)
+
+    server, thread, base = _server(control)
+    try:
+        status, payload = _request(
+            base,
+            "/v1/dashboard/remediation-analytics?window=24h",
+            "viewer",
+            method="GET",
+        )
+        assert status == 200
+        assert payload["window"] == "24h"
+        assert payload["summary"]["total"] == 1
+        assert payload["summary"]["effectiveness_denominator"] == 1
+        assert payload["by_action"][0]["name"] == "kick"
+        assert payload["by_incident_code"][0]["name"] == "queue_without_worker"
+
+        status, _ = _request(
+            base,
+            "/v1/dashboard/remediation-analytics?window=24h",
+            "worker",
+            method="GET",
+        )
+        assert status == 403
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+
+
+def test_remediation_analytics_api_rejects_invalid_window(tmp_path):
+    control = ControlPlane(
+        str(tmp_path / "remediation-analytics-window.sqlite"),
+        authorizer=_auth(),
+    )
+    server, thread, base = _server(control)
+    try:
+        status, payload = _request(
+            base,
+            "/v1/dashboard/remediation-analytics?window=90d",
+            "viewer",
+            method="GET",
+        )
+        assert status == 400
+        assert payload["error"] == "invalid dashboard query"
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)

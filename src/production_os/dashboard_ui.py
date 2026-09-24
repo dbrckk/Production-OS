@@ -910,9 +910,13 @@ async function loadActivityView(){
   const results=await Promise.all([
    api("/v1/dashboard/activity?limit=100"),
    api("/v1/dashboard/control-audit?limit=50"),
-   api("/v1/dashboard/remediations?limit=50")
+   api("/v1/dashboard/remediations?limit=50"),
+   api("/v1/dashboard/remediation-analytics?window="+encodeURIComponent(appState.window))
   ]);
-  const data=results[0],audit=results[1],remediation=results[2],rows=data.events||[],controls=audit.events||[],remediations=remediation.events||[];
+  const data=results[0],audit=results[1],remediation=results[2],analytics=results[3]||{},rows=data.events||[],controls=audit.events||[],remediations=remediation.events||[];
+  const remediationSummary=analytics.summary||{};
+  const remediationByAction=analytics.by_action||[];
+  const remediationByIncident=analytics.by_incident_code||[];
   const auditHtml=
    '<div class="card"><div class="section-head"><h2>Audit des contrôles</h2><span class="badge">'+formatNumber(controls.length)+'</span></div>'+
    (controls.length?controls.map(function(row){
@@ -920,6 +924,19 @@ async function loadActivityView(){
     const error=row.error_code?(' · erreur '+String(row.error_code)):'';
     return '<div class="small"><strong>'+esc(String(row.action||"action"))+'</strong>'+esc(target)+' · '+esc(String(row.outcome||""))+' · '+esc(String(row.requested_by||""))+' · '+esc(String(row.requested_at||""))+esc(error)+'</div>';
    }).join(""):'<div class="empty">Aucune action opérateur enregistrée.</div>')+
+   '</div>';
+  const remediationAnalyticsHtml=
+   '<div class="card"><div class="section-head"><h2>Analytics des remédiations</h2><span class="badge">'+esc(appState.window)+'</span></div>'+
+   '<p class="small"><strong>Total :</strong> '+formatNumber(remediationSummary.total)+' · <strong>Résolues :</strong> '+formatNumber(remediationSummary.resolved)+' · <strong>Toujours actives :</strong> '+formatNumber(remediationSummary.still_active)+' · <strong>En attente :</strong> '+formatNumber(remediationSummary.pending)+' · <strong>Non applicables :</strong> '+formatNumber(remediationSummary.not_applicable)+'</p>'+
+   '<p class="small"><strong>Taux de résolution observé :</strong> '+(remediationSummary.observed_resolution_rate==null?'Indisponible':formatNumber(remediationSummary.observed_resolution_rate)+' %')+' · <strong>Échantillon d’efficacité :</strong> '+formatNumber(remediationSummary.effectiveness_denominator)+' · <strong>Médiane détection résolution :</strong> '+(remediationSummary.median_resolution_detection_seconds==null?'Indisponible':formatNumber(remediationSummary.median_resolution_detection_seconds)+' s')+'</p>'+
+   '<h3 style="font-size:.85rem;margin:12px 0 6px">Par action</h3>'+
+   (remediationByAction.length?remediationByAction.map(function(row){
+    return '<div class="small"><strong>'+esc(String(row.name||"action"))+'</strong> · '+formatNumber(row.resolved)+' résolue(s) / '+formatNumber(row.effectiveness_denominator)+' vérifiée(s) · taux '+(row.observed_resolution_rate==null?'—':formatNumber(row.observed_resolution_rate)+' %')+'</div>';
+   }).join(""):'<div class="empty">Aucune donnée vérifiée.</div>')+
+   '<h3 style="font-size:.85rem;margin:12px 0 6px">Par incident</h3>'+
+   (remediationByIncident.length?remediationByIncident.map(function(row){
+    return '<div class="small"><strong>'+esc(String(row.name||"incident"))+'</strong> · '+formatNumber(row.resolved)+' résolue(s) / '+formatNumber(row.effectiveness_denominator)+' vérifiée(s) · taux '+(row.observed_resolution_rate==null?'—':formatNumber(row.observed_resolution_rate)+' %')+'</div>';
+   }).join(""):'<div class="empty">Aucune donnée vérifiée.</div>')+
    '</div>';
   const remediationHtml=
    '<div class="card"><div class="section-head"><h2>Historique des remédiations</h2><span class="badge">'+formatNumber(remediations.length)+'</span></div>'+
@@ -935,7 +952,7 @@ async function loadActivityView(){
   const activityHtml=rows.length?rows.slice().reverse().map(function(row){
    return '<div class="card"><div class="section-head"><strong>'+esc(String(row.event_type||"événement"))+'</strong><span class="badge">'+esc(String(row.repository||"global"))+'</span></div><div class="small">'+esc(String(row.created_at||""))+'</div></div>';
   }).join(""):'<div class="empty">Aucune activité enregistrée.</div>';
-  el.innerHTML=remediationHtml+auditHtml+activityHtml;
+  el.innerHTML=remediationAnalyticsHtml+remediationHtml+auditHtml+activityHtml;
  }catch(e){el.innerHTML=errorCard(e)}
 }
 function navigate(next){

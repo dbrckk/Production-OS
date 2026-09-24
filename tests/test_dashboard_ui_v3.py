@@ -285,3 +285,14 @@ def test_activity_view_renders_remediation_verification_status():
     assert "row.verified_at" in DASHBOARD_HTML
     assert "résultat " in DASHBOARD_HTML
     assert "vérification " in DASHBOARD_HTML
+
+
+def test_activity_view_renders_remediation_analytics_with_sample_sizes():
+    assert "/v1/dashboard/remediation-analytics?window=" in DASHBOARD_HTML
+    assert "Analytics des remédiations" in DASHBOARD_HTML
+    assert "Taux de résolution observé" in DASHBOARD_HTML
+    assert "Échantillon d’efficacité" in DASHBOARD_HTML
+    assert "remediationSummary.effectiveness_denominator" in DASHBOARD_HTML
+    assert "row.effectiveness_denominator" in DASHBOARD_HTML
+    assert "Par action" in DASHBOARD_HTML
+    assert "Par incident" in DASHBOARD_HTML
