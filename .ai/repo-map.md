@@ -3041,6 +3041,10 @@ wait_reason = "capacity_full"
 ⋮----
 wait_reason = "no_online_worker"
 ⋮----
+predicted = [
+free_slots = sum(
+summary = {
+⋮----
 def workers(self)
 ⋮----
 rows=[]
@@ -7743,6 +7747,8 @@ row = next(item for item in payload["jobs"] if item["job_key"] == job["key"])
 ⋮----
 stale = control.queue.enqueue({
 healthy = control.queue.enqueue({
+⋮----
+summary = payload["summary"]
 ````
 
 ## File: tests/test_dashboard_control_api.py
@@ -8202,6 +8208,8 @@ def test_autopilot_view_exposes_queue_explanations()
 def test_autopilot_navigation_preserves_polling_scroll_contract()
 ⋮----
 def test_autopilot_surfaces_degraded_ranking_state()
+⋮----
+def test_autopilot_view_shows_capacity_summary()
 ````
 
 ## File: tests/test_dashboard_usage.py

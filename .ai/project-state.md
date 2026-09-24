@@ -22,22 +22,22 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-24T15:29:09Z
+Generated: 2026-09-24T15:32:16Z
 
 ### Git
 - Branch: `main`
-- Head: `ac4ca00a8fc1`
-- Commit date: 2026-09-24T17:28:58+02:00
-- Commit: feat: dashboard autopilot queue release 3
-- Tracked files: 352
+- Head: `af361a28c966`
+- Commit date: 2026-09-24T17:32:02+02:00
+- Commit: feat: summarize autopilot capacity and eta
+- Tracked files: 353
 
 ### Recently changed files
-- `docs/superpowers/plans/2026-09-24-dashboard-autopilot-release-3.md`
-- `src/production_os/control_plane.py`
 - `src/production_os/dashboard_service.py`
 - `src/production_os/dashboard_ui.py`
 - `tests/test_dashboard_api.py`
 - `tests/test_dashboard_ui_v3.py`
+- `docs/superpowers/plans/2026-09-24-dashboard-autopilot-release-3.md`
+- `src/production_os/control_plane.py`
 - `README.md`
 - `src/production_os/dashboard_alerts.py`
 - `src/production_os/dashboard_control.py`
