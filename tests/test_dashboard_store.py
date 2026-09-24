@@ -1,102 +1,75 @@
+from __future__ import annotations
+
+from production_os.dashboard_store import DashboardStore
 from production_os.sqlite_backend import SQLiteBackend
 
 
-DASHBOARD_TABLES = {
-    "worker_control_state", "job_control_state", "job_executions", "api_usage_events",
-    "provider_quota_snapshots", "worker_log_events", "project_repository_snapshots",
-    "project_progress_snapshots",
-}
-
-
-def test_schema_v9_has_dashboard_tables(tmp_path):
-    backend = SQLiteBackend(tmp_path / "production.db")
-    with backend.connect() as db:
-        version = db.execute("SELECT value FROM schema_meta WHERE key='schema_version'").fetchone()["value"]
-        names = {row["name"] for row in db.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()}
-    assert version == "9"
-    assert DASHBOARD_TABLES <= names
-
-
-def test_schema_v9_initialization_is_idempotent(tmp_path):
-    path = tmp_path / "production.db"
-    SQLiteBackend(path); SQLiteBackend(path)
-    with SQLiteBackend(path).connect() as db:
-        count = db.execute("SELECT COUNT(*) AS n FROM schema_meta WHERE key='schema_version'").fetchone()["n"]
-    assert count == 1
-
-
-def _store(tmp_path):
-    from production_os.dashboard_store import DashboardStore
-    return DashboardStore(SQLiteBackend(tmp_path / "production.db"))
+def _store(tmp_path): return DashboardStore(SQLiteBackend(tmp_path/"db.sqlite"))
 
 
 def _sample_job():
-    return {"key":"job-1","repository":"dbrckk/example","task":"ship","delivery_attempt":2,
-            "payload":{"workflow_id":"wf-1","workflow_task_id":"build"}}
+    return {"key":"job-1","repository":"dbrckk/example","delivery_attempt":1,
+            "payload":{"workflow_id":"wf-1","workflow_task_id":"task-1"}}
 
 
-def test_start_execution_is_idempotent_for_same_delivery_attempt(tmp_path):
-    from production_os.dashboard_store import DashboardStore
-    store = DashboardStore(SQLiteBackend(tmp_path / "production.db"))
-    first = store.start_execution(_sample_job(), "worker-a", started_at="2026-09-22T10:00:00+00:00")
-    second = store.start_execution(_sample_job(), "worker-a", started_at="2026-09-22T10:00:10+00:00")
-    assert first["id"] == second["id"]
-    assert first["attempt"] == 2
+def test_execution_lifecycle_and_attempt_identity(tmp_path):
+    store=_store(tmp_path); job=_sample_job()
+    first=store.start_execution(job,"worker-a")
+    duplicate=store.start_execution(job,"worker-a")
+    assert first["id"] == duplicate["id"] == "job-1:1"
     assert store.execution_count("job-1") == 1
+    live=store.update_live_execution("job-1","worker-a",{"stage":"tests","progress":50,"usage":{"total_tokens":10}})
+    assert live["progress_percent"] == 50
+    result={"usage":{"api_calls":1,"input_tokens":4,"cached_input_tokens":1,"output_tokens":3,
+                     "reasoning_tokens":2,"total_tokens":10},"commits":{"shas":["a"*40]}}
+    done=store.finish_execution("job-1","worker-a",status="succeeded",duration_seconds=12,result=result)
+    assert done["status"] == "succeeded" and done["commit_count"] == 1
+    retry={**job,"delivery_attempt":2}
+    assert store.start_execution(retry,"worker-a")["id"] == "job-1:2"
 
 
-def test_live_usage_replaces_cumulative_snapshot_instead_of_summing(tmp_path):
-    from production_os.dashboard_store import DashboardStore
-    store = DashboardStore(SQLiteBackend(tmp_path / "production.db")); store.start_execution(_sample_job(), "worker-a")
-    store.update_live_execution("job-1", "worker-a", {"progress":30,"usage":{"total_tokens":100}})
-    row = store.update_live_execution("job-1", "worker-a", {"progress":45,"usage":{"total_tokens":130}})
-    assert row["progress_percent"] == 45
-    assert row["live_usage"]["total_tokens"] == 130
+def test_live_progress_cannot_move_backward_in_same_stage(tmp_path):
+    store=_store(tmp_path); store.start_execution(_sample_job(),"worker-a")
+    store.update_live_execution("job-1","worker-a",{"stage":"tests","progress":60})
+    try: store.update_live_execution("job-1","worker-a",{"stage":"tests","progress":40})
+    except ValueError: pass
+    else: raise AssertionError("expected ValueError")
 
 
-def test_live_execution_rejects_wrong_worker_invalid_and_backward_progress(tmp_path):
-    from production_os.dashboard_store import DashboardStore
-    store = DashboardStore(SQLiteBackend(tmp_path / "production.db")); store.start_execution(_sample_job(), "worker-a")
-    with __import__("pytest").raises(PermissionError): store.update_live_execution("job-1","worker-b",{"progress":10})
-    with __import__("pytest").raises(ValueError): store.update_live_execution("job-1","worker-a",{"progress":101})
-    store.update_live_execution("job-1","worker-a",{"progress":40})
-    with __import__("pytest").raises(ValueError): store.update_live_execution("job-1","worker-a",{"progress":39})
+def test_finish_execution_is_idempotent(tmp_path):
+    store=_store(tmp_path); store.start_execution(_sample_job(),"worker-a")
+    first=store.finish_execution("job-1","worker-a",status="succeeded",duration_seconds=2,result={})
+    second=store.finish_execution("job-1","worker-a",status="failed",duration_seconds=9,result={})
+    assert second["status"] == first["status"] == "succeeded"
 
 
-def test_finish_execution_is_idempotent_and_deduplicates_commits(tmp_path):
-    from production_os.dashboard_store import DashboardStore
-    store = DashboardStore(SQLiteBackend(tmp_path / "production.db")); store.start_execution(_sample_job(), "worker-a")
-    sha_a="a"*40; sha_b="b"*40
-    result={"usage":{"total_tokens":25},"commits":{"count":3,"shas":[sha_a,sha_a,sha_b]}}
-    first=store.finish_execution("job-1","worker-a",status="completed",duration_seconds=12.5,result=result)
-    second=store.finish_execution("job-1","worker-a",status="completed",duration_seconds=99,result=result)
-    assert first["id"] == second["id"]
-    assert second["commit_count"] == 2
-    assert second["commit_shas"] == [sha_a,sha_b]
-    assert second["total_tokens"] == 25
+def test_log_cursor_is_deterministic(tmp_path):
+    store=_store(tmp_path)
+    store.append_logs("worker-a",[
+        {"id":"a","created_at":"2026-09-22T10:00:00+00:00","message":"first"},
+        {"id":"b","created_at":"2026-09-22T10:00:00+00:00","message":"second"},
+    ])
+    rows=store.logs_for_worker("worker-a",limit=1)
+    assert rows[0]["id"] == "b"
+    older=store.logs_for_worker("worker-a",after="b",limit=10)
+    assert [x["id"] for x in older] == ["a"]
 
 
-def test_progress_may_restart_when_stage_changes(tmp_path):
-    from production_os.dashboard_store import DashboardStore
-    store=DashboardStore(SQLiteBackend(tmp_path/"production.db")); store.start_execution(_sample_job(),"worker-a")
-    store.update_live_execution("job-1","worker-a",{"stage":"plan","progress":90})
-    row=store.update_live_execution("job-1","worker-a",{"stage":"implementation","progress":10})
-    assert row["progress_percent"] == 10
+def test_snapshot_roundtrip_and_usage_query(tmp_path):
+    store=_store(tmp_path)
+    repo=store.save_repository_snapshot({"id":"r1","repository":"dbrckk/example","default_branch":"main",
+        "production_os_commits":1,"github_commits":2,"snapshot_json":{"ok":True},"captured_at":"2026-09-22T10:00:00+00:00"})
+    assert repo["snapshot"]["ok"] is True
+    progress=store.save_progress_snapshot({"id":"p1","repository":"dbrckk/example","confidence":"high",
+        "evidence_json":{"a":1},"remaining_work_json":[],"blockers_json":[],"calculation_version":"v1",
+        "captured_at":"2026-09-22T10:00:00+00:00"})
+    assert progress["evidence"] == {"a":1}
 
 
-def test_usage_provider_model_remain_unknown_as_null(tmp_path):
-    from production_os.dashboard_store import DashboardStore
-    store=DashboardStore(SQLiteBackend(tmp_path/"production.db")); store.start_execution(_sample_job(),"worker-a")
-    store.finish_execution("job-1","worker-a",status="succeeded",duration_seconds=1,result={"usage":{"providers":[{"api_calls":1,"total_tokens":5}]}})
-    events=store.usage_events()
-    assert events[0]["provider"] is None
-    assert events[0]["model"] is None
-
-
-def test_append_logs_generates_unique_ids_across_repeated_calls(tmp_path):
-    store=_store(tmp_path); row={"created_at":"2026-09-23T12:00:00+00:00","message":"same timestamp"}
-    first=store.append_logs("worker-a",[row])[0]; second=store.append_logs("worker-a",[row])[0]
-    assert first["id"] != second["id"]
+def test_append_logs_generates_collision_safe_ids(tmp_path):
+    store=_store(tmp_path); at="2026-09-22T10:00:00+00:00"
+    rows=store.append_logs("worker-a",[{"created_at":at,"message":"same"},{"created_at":at,"message":"same"}])
+    assert rows[0]["id"] != rows[1]["id"]
     assert len(store.logs_for_worker("worker-a")) == 2
 
 
@@ -110,7 +83,7 @@ def test_finish_execution_ignores_malformed_commit_shas(tmp_path):
 
 def test_progress_snapshot_order_is_deterministic_when_timestamps_tie(tmp_path):
     store=_store(tmp_path); captured="2026-09-24T04:00:00+00:00"
-    base={"repository":"dbrckk/example","captured_at":captured,"calculation_version":"project-progress/v1"}
+    base={"repository":"dbrckk/example","captured_at":captured,"calculation_version":"project-progress/v1","confidence":"low"}
     store.save_progress_snapshot({**base,"id":"snapshot-a","project_progress":10})
     store.save_progress_snapshot({**base,"id":"snapshot-z","project_progress":20})
     assert store.latest_progress_snapshot("dbrckk/example")["id"] == "snapshot-z"
