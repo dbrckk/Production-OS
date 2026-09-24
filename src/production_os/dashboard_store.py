@@ -470,6 +470,19 @@ class DashboardStore:
                 (incident_id, bounded),
             )
 
+    def remediation_analytics_rows(self) -> list[dict]:
+        with self.backend.connect() as db:
+            return self._fetchall(
+                db,
+                """SELECT remediation.*,
+                          incident.code AS incident_code
+                   FROM dashboard_remediation_events AS remediation
+                   JOIN dashboard_incidents AS incident
+                     ON incident.id=remediation.incident_id
+                   ORDER BY remediation.requested_at DESC,
+                            remediation.id DESC""",
+            )
+
     def append_control_audit(
         self,
         *,
