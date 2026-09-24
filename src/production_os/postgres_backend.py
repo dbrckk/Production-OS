@@ -1437,6 +1437,53 @@ class PostgresJobQueue:
                 row = cur.fetchone()
         return self._job_dict(row)
 
+    def recover_job(self, key: str, *, max_attempts: int = 3) -> dict:
+        now = _utcnow()
+        with self.backend.transaction() as db:
+            with db.cursor() as cur:
+                cur.execute(
+                    "SELECT * FROM jobs WHERE key=%s FOR UPDATE",
+                    (key,),
+                )
+                row = cur.fetchone()
+                if row is None:
+                    raise KeyError(key)
+                if row["status"] != "claimed":
+                    raise RuntimeError(
+                        f"job is not recoverable from {row['status']}"
+                    )
+                if not row["ack_deadline"] or row["ack_deadline"] > now:
+                    raise RuntimeError("job claim has not expired")
+                target = (
+                    "dead-letter"
+                    if int(row["delivery_attempt"]) >= int(max_attempts)
+                    else "queued"
+                )
+                cur.execute(
+                    """
+                    UPDATE jobs
+                    SET status=%s, claimed_by=NULL, claimed_at=NULL,
+                        ack_deadline=NULL, updated_at=%s
+                    WHERE key=%s
+                    """,
+                    (target, now, key),
+                )
+                action = {
+                    "key":key,
+                    "action":target,
+                    "delivery_attempt":row["delivery_attempt"],
+                }
+                self.backend.append_event(
+                    db,
+                    "job-recovered",
+                    action,
+                    repository=row["repository"],
+                    task_key_value=key,
+                )
+                cur.execute("SELECT * FROM jobs WHERE key=%s", (key,))
+                updated = cur.fetchone()
+        return self._job_dict(updated)
+
     def recover_expired(self, *, max_attempts: int = 3) -> list[dict]:
         now = _utcnow()
         actions = []
