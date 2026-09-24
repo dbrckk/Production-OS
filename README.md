@@ -613,7 +613,7 @@ Opening the Production-OS service root redirects to `/dashboard`. Machine health
 
 Repository discovery is performed by Production-OS on the server through `GitHubClient`. The browser no longer calls GitHub's repository API directly.
 
-When a server-side GitHub token is available, Production-OS lists repositories accessible to that credential for the configured owner. If not, it falls back to the owner's public repositories.
+When a server-side GitHub token is available, Production-OS lists repositories accessible to that credential for the configured owner. If not, it falls back to the owner's public repositories. If GitHub itself is unavailable, the picker degrades to repositories already observed locally by Production-OS.
 
 No additional operator credential, token field or launch parameter is introduced.
 
