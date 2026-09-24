@@ -155,6 +155,153 @@ class DashboardService:
         snapshot.pop("busy_workers", None)
         return snapshot
 
+    @staticmethod
+    def _worker_capabilities(worker: dict) -> list[str]:
+        value = worker.get("capabilities")
+        if isinstance(value, list):
+            return sorted({str(item) for item in value})
+        raw = worker.get("capabilities_json")
+        if isinstance(raw, str):
+            try:
+                parsed = json.loads(raw)
+            except json.JSONDecodeError:
+                parsed = []
+            if isinstance(parsed, list):
+                return sorted({str(item) for item in parsed})
+        return []
+
+    def autopilot_queue(self, limit: int = 50) -> dict:
+        limit = max(1, min(200, int(limit)))
+        queued = self.control.queue.peek_candidates(limit=limit)
+        ranked = []
+        for job in queued:
+            try:
+                ranked_item = self.control.portfolio.rank([job])[0]
+                ranked_item["ranking_status"] = "ok"
+                ranked_item["ranking_error"] = None
+            except (KeyError, RuntimeError, ValueError):
+                ranked_item = {
+                    "job":job,
+                    "score":float(job.get("priority") or 0.0),
+                    "critical":False,
+                    "descendants":0,
+                    "predicted_minutes":None,
+                    "age_minutes":None,
+                    "ranking_status":"degraded",
+                    "ranking_error":"workflow_unavailable",
+                }
+            ranked.append(ranked_item)
+        ranked.sort(
+            key=lambda item: (
+                -float(item["score"]),
+                str(item["job"].get("created_at") or ""),
+                str(item["job"].get("key") or ""),
+            )
+        )
+        workers = self._worker_rows()
+
+        worker_views = []
+        for worker in workers:
+            worker_id = str(worker.get("worker_id") or "")
+            desired = self.control.dashboard_control.worker_state(worker_id)
+            item = {
+                **worker,
+                "worker_id":worker_id,
+                "capabilities":self._worker_capabilities(worker),
+                "desired_state":desired["desired_state"],
+            }
+            item["available"] = (
+                item.get("status") == "online"
+                and item["desired_state"] == "active"
+                and int(item.get("active_tasks") or 0)
+                    < int(item.get("max_concurrency") or 0)
+            )
+            worker_views.append(item)
+
+        jobs = []
+        for position, ranked_item in enumerate(ranked, start=1):
+            job = ranked_item["job"]
+            payload = dict(job.get("payload") or {})
+            required = sorted({
+                str(value)
+                for value in payload.get("required_capabilities", [])
+            })
+            assigned = str(job.get("assigned_worker") or "").strip() or None
+
+            scoped = [
+                worker for worker in worker_views
+                if assigned is None or worker["worker_id"] == assigned
+            ]
+            capable = [
+                worker for worker in scoped
+                if set(required).issubset(set(worker["capabilities"]))
+            ]
+            eligible = [
+                worker for worker in capable
+                if worker["available"]
+            ]
+            eligible.sort(
+                key=lambda worker: (
+                    int(worker.get("active_tasks") or 0)
+                    / max(1, int(worker.get("max_concurrency") or 1)),
+                    int(worker.get("active_tasks") or 0),
+                    worker["worker_id"],
+                )
+            )
+
+            wait_reason = None
+            if not eligible:
+                if assigned and not scoped:
+                    wait_reason = "assigned_worker_unavailable"
+                elif not scoped:
+                    wait_reason = "no_worker"
+                elif required and not capable:
+                    wait_reason = "missing_capability"
+                elif any(
+                    worker.get("status") == "online"
+                    and worker.get("desired_state") in {"paused", "draining"}
+                    for worker in capable
+                ):
+                    wait_reason = "worker_controlled"
+                elif any(
+                    worker.get("status") == "online"
+                    and int(worker.get("active_tasks") or 0)
+                        >= int(worker.get("max_concurrency") or 0)
+                    for worker in capable
+                ):
+                    wait_reason = "capacity_full"
+                else:
+                    wait_reason = "no_online_worker"
+
+            jobs.append({
+                "position":position,
+                "job_key":job["key"],
+                "repository":job["repository"],
+                "task":job["task"],
+                "priority":job.get("priority"),
+                "score":ranked_item["score"],
+                "ranking_status":ranked_item.get("ranking_status", "ok"),
+                "ranking_error":ranked_item.get("ranking_error"),
+                "critical":ranked_item["critical"],
+                "descendants":ranked_item["descendants"],
+                "predicted_minutes":ranked_item["predicted_minutes"],
+                "age_minutes":ranked_item["age_minutes"],
+                "required_capabilities":required,
+                "assigned_worker":assigned,
+                "eligible_workers":[worker["worker_id"] for worker in eligible],
+                "preferred_worker":eligible[0]["worker_id"] if eligible else None,
+                "wait_reason":wait_reason,
+                "created_at":job.get("created_at"),
+            })
+
+        return {
+            "schema_version":"production-os/dashboard-autopilot/v1",
+            "generated_at":_now(),
+            "queued":len(jobs),
+            "workers_available":sum(1 for worker in worker_views if worker["available"]),
+            "jobs":jobs,
+        }
+
     def workers(self):
         rows=[]
         for worker in self._worker_rows():

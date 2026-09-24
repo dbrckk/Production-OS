@@ -158,3 +158,39 @@ def test_overview_renders_operational_alerts():
     assert "data.alerts" in DASHBOARD_HTML
     assert "item.severity" in DASHBOARD_HTML
     assert "item.message" in DASHBOARD_HTML
+
+
+def test_dashboard_has_autopilot_primary_view():
+    assert 'data-view="autopilot"' in DASHBOARD_HTML
+    assert 'id="view-autopilot"' in DASHBOARD_HTML
+    assert 'id="autopilot-list"' in DASHBOARD_HTML
+    assert "async function loadAutopilot" in DASHBOARD_HTML
+    assert "/v1/dashboard/autopilot?limit=50" in DASHBOARD_HTML
+
+
+def test_autopilot_view_exposes_queue_explanations():
+    for label in (
+        "Worker préféré",
+        "Capacités requises",
+        "Chemin critique",
+        "ETA",
+        "Capacité worker saturée",
+        "Worker en pause ou drain",
+    ):
+        assert label in DASHBOARD_HTML
+    assert "row.predicted_minutes" in DASHBOARD_HTML
+    assert "row.wait_reason" in DASHBOARD_HTML
+    assert "row.preferred_worker" in DASHBOARD_HTML
+
+
+def test_autopilot_navigation_preserves_polling_scroll_contract():
+    assert "autopilot:loadAutopilot" in DASHBOARD_HTML
+    assert "window.scrollY" in DASHBOARD_HTML
+    assert "window.scrollTo" in DASHBOARD_HTML
+    assert "location.reload(" not in DASHBOARD_HTML
+
+
+def test_autopilot_surfaces_degraded_ranking_state():
+    assert "Ranking :" in DASHBOARD_HTML
+    assert "Dégradé · workflow de référence indisponible" in DASHBOARD_HTML
+    assert 'row.ranking_status==="degraded"' in DASHBOARD_HTML

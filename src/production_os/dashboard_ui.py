@@ -112,7 +112,7 @@ textarea{resize:vertical;min-height:150px;line-height:1.45}
 }
 
 body{overflow-x:hidden}
-.v3-nav{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;position:sticky;top:0;z-index:20;padding:8px;background:rgba(8,13,24,.94);backdrop-filter:blur(12px)}
+.v3-nav{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;position:sticky;top:0;z-index:20;padding:8px;background:rgba(8,13,24,.94);backdrop-filter:blur(12px)}
 .v3-nav button{border:1px solid var(--line);background:var(--panel);color:var(--text);padding:10px 6px;border-radius:12px;font-weight:700}
 .v3-workspace{margin:12px 0}.v3-view{display:none}.v3-view.active{display:block}.v3-tabs{display:flex;gap:6px;overflow-x:auto;padding:6px 0}.v3-tabs button{white-space:nowrap}
 @media(max-width:640px){.shell{padding-left:10px;padding-right:10px}.v3-nav{font-size:12px}}
@@ -124,12 +124,14 @@ body{overflow-x:hidden}
 <button data-view="overview" onclick="navigate({view:'overview',workerId:null,repository:null,tab:null})">Vue générale</button>
 <button data-view="projects" onclick="navigate({view:'projects',workerId:null,repository:null,tab:null})">Projets</button>
 <button data-view="workers" onclick="navigate({view:'workers',workerId:null,repository:null,tab:null})">Workers</button>
+<button data-view="autopilot" onclick="navigate({view:'autopilot',workerId:null,repository:null,tab:null})">Autopilot</button>
 <button data-view="activity" onclick="navigate({view:'activity',workerId:null,repository:null,tab:null})">Activité</button>
 </nav>
 <section class="v3-workspace" aria-live="polite">
 <div id="view-overview" class="v3-view active"><div class="section-head"><h2>Vue générale</h2><div class="v3-tabs" aria-label="Période"><button type="button" onclick="setDashboardWindow('24h')">24h</button><button type="button" onclick="setDashboardWindow('7d')">7d</button><button type="button" onclick="setDashboardWindow('30d')">30d</button></div></div><div id="overview-metrics"></div></div>
 <div id="view-projects" class="v3-view"><h2>Projets</h2><div id="projects-list"></div><div class="v3-tabs" aria-label="Détail projet"><button>Aperçu</button><button>Avancement</button><button>Commits</button><button>API</button><button>Workflows</button><button>Qualité</button><button>Historique</button></div><div id="project-detail"></div></div>
 <div id="view-workers" class="v3-view"><h2>Workers</h2><div id="workers-list"></div><div class="v3-tabs" aria-label="Détail worker"><button>Aperçu</button><button>Tâches</button><button>Logs</button><button>API</button><button>Historique</button><button data-worker-tab="control">Control</button></div><div id="worker-detail"></div></div>
+<div id="view-autopilot" class="v3-view"><div class="section-head"><h2>Autopilot</h2><span id="autopilot-count" class="badge">0</span></div><div id="autopilot-list"></div></div>
 <div id="view-activity" class="v3-view"><h2>Activité</h2><div id="activity-list"></div></div>
 </section>
  <div class="topbar">
@@ -383,7 +385,7 @@ function githubAssetUrls(repository,path){
  const encoded=value.split('/').map(encodeURIComponent).join('/');
  return {view:'https://github.com/'+repo+'/blob/main/'+encoded,raw:'https://raw.githubusercontent.com/'+repo+'/main/'+encoded};
 }
-function isPreviewableAsset(path){return /\.(png|webp|jpe?g|gif|svg)$/i.test(String(path||''))}
+function isPreviewableAsset(path){return /\\.(png|webp|jpe?g|gif|svg)$/i.test(String(path||''))}
 function qualityView(status){
  if(status==='ok') return ['OK','quality-ok'];
  if(status==='regenerated') return ['Régénéré','quality-regenerated'];
@@ -538,7 +540,7 @@ const appState={view:"overview",workerId:null,repository:null,tab:null,window:"7
 (function restoreNavigation(){
  const q=new URLSearchParams(window.location.search);
  const view=q.get("view");
- if(["overview","projects","workers","activity"].includes(view))appState.view=view;
+ if(["overview","projects","workers","autopilot","activity"].includes(view))appState.view=view;
  appState.workerId=q.get("worker")||null;
  appState.repository=q.get("repo")||null;
  appState.tab=q.get("tab")||null;
@@ -585,6 +587,49 @@ async function loadOverview(){
    '<p class="small">Taux de réussite : '+formatNumber(perf.success_rate)+' % · temps d’exécution : '+formatNumber(perf.execution_seconds)+' s</p></div>'+
    alertsHtml;
  }catch(e){el.innerHTML=errorCard(e)}
+}
+function autopilotWaitLabel(value){
+ const labels={
+  assigned_worker_unavailable:"Worker assigné indisponible",
+  no_worker:"Aucun worker enregistré",
+  missing_capability:"Capacité requise indisponible",
+  worker_controlled:"Worker en pause ou drain",
+  capacity_full:"Capacité worker saturée",
+  no_online_worker:"Aucun worker en ligne"
+ };
+ return value?(labels[value]||String(value)):"Prêt à être pris";
+}
+async function loadAutopilot(){
+ const el=document.getElementById("autopilot-list");
+ const count=document.getElementById("autopilot-count");
+ try{
+  const data=await api("/v1/dashboard/autopilot?limit=50");
+  const jobs=data.jobs||[];
+  count.textContent=String(jobs.length);
+  if(!jobs.length){
+   el.innerHTML='<div class="empty">Aucun job en attente.</div>';
+   return;
+  }
+  el.innerHTML=jobs.map(function(row){
+   const ready=!row.wait_reason;
+   const worker=row.preferred_worker||"—";
+   const caps=(row.required_capabilities||[]).join(", ")||"Aucune";
+   return '<div class="card">'+
+    '<div class="section-head"><h2>#'+esc(String(row.position))+' · '+esc(String(row.task||row.job_key))+'</h2>'+
+    '<span class="badge">'+(ready?'Prêt':'En attente')+'</span></div>'+
+    '<p class="small"><strong>Projet :</strong> '+esc(String(row.repository||""))+'</p>'+
+    '<p class="small"><strong>Score :</strong> '+formatNumber(row.score)+' · <strong>ETA :</strong> '+formatNumber(row.predicted_minutes)+' min · <strong>Âge :</strong> '+formatNumber(row.age_minutes)+' min</p>'+
+    '<p class="small"><strong>Chemin critique :</strong> '+(row.critical?'Oui':'Non')+' · <strong>Dépendants :</strong> '+formatNumber(row.descendants)+'</p>'+
+    (row.ranking_status==="degraded"?'<p class="small"><strong>Ranking :</strong> Dégradé · workflow de référence indisponible</p>':'')+
+    '<p class="small"><strong>Capacités requises :</strong> '+esc(caps)+'</p>'+
+    '<p class="small"><strong>Worker préféré :</strong> '+esc(worker)+'</p>'+
+    '<p class="small"><strong>État :</strong> '+esc(autopilotWaitLabel(row.wait_reason))+'</p>'+
+    '</div>';
+  }).join("");
+ }catch(e){
+  count.textContent="—";
+  el.innerHTML=errorCard(e);
+ }
 }
 function openProject(encoded){
  navigate({view:"projects",repository:decodeURIComponent(encoded),workerId:null,tab:"overview"});
@@ -784,7 +829,7 @@ async function renderActiveView(){
  const target=document.getElementById("view-"+appState.view);
  if(target)target.classList.add("active");
  clearViewPolls();
- const loaders={overview:loadOverview,projects:loadProjectsView,workers:loadWorkersView,activity:loadActivityView};
+ const loaders={overview:loadOverview,projects:loadProjectsView,workers:loadWorkersView,autopilot:loadAutopilot,activity:loadActivityView};
  const loader=loaders[appState.view]||loadOverview;
  await loader();
  schedulePoll("active-view",appState.view==="overview"?15000:5000,loader);
