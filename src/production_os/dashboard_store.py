@@ -183,6 +183,16 @@ class DashboardStore:
                         THEN 'open'
                         ELSE dashboard_incidents.status
                     END,
+                    acknowledged_by=CASE
+                        WHEN dashboard_incidents.status='resolved'
+                        THEN NULL
+                        ELSE dashboard_incidents.acknowledged_by
+                    END,
+                    acknowledged_at=CASE
+                        WHEN dashboard_incidents.status='resolved'
+                        THEN NULL
+                        ELSE dashboard_incidents.acknowledged_at
+                    END,
                     resolved_at=NULL""",
                 (
                     ident,
