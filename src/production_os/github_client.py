@@ -452,6 +452,42 @@ class GitHubClient:
         runs = payload.get("workflow_runs", [])
         return runs if isinstance(runs, list) else []
 
+    def list_accessible_repositories(self, owner: str) -> list[dict[str, Any]]:
+        owner = str(owner or "").strip()
+        if not owner:
+            raise ValueError("owner is required")
+        if not self.token:
+            return self.list_repositories(owner)
+
+        repos: list[dict[str, Any]] = []
+        page = 1
+        try:
+            while True:
+                payload = self._get(
+                    "/user/repos"
+                    f"?per_page=100&page={page}"
+                    "&sort=pushed&direction=desc"
+                    "&affiliation=owner,collaborator,organization_member"
+                )
+                if not isinstance(payload, list):
+                    raise GitHubAPIError(
+                        "GitHub accessible repositories response was not a list"
+                    )
+                repos.extend(
+                    item
+                    for item in payload
+                    if isinstance(item, dict)
+                    and str(
+                        ((item.get("owner") or {}).get("login") or "")
+                    ).lower() == owner.lower()
+                )
+                if len(payload) < 100:
+                    break
+                page += 1
+        except GitHubAPIError:
+            return self.list_repositories(owner)
+        return repos
+
     def list_repositories(self, owner: str) -> list[dict[str, Any]]:
         repos: list[dict[str, Any]] = []
         page = 1

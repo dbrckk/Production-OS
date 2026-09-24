@@ -264,6 +264,7 @@ async function savePairing(){
   setSettingsOpen(false);
   setState('pair-state','ok','Appairé');
   status.textContent='Appareil appairé.';
+  await loadRepositories();
   await refreshDashboard();
  }catch(e){
   if(previous) localStorage.setItem(TOKEN_KEY,previous); else localStorage.removeItem(TOKEN_KEY);
@@ -284,20 +285,26 @@ function clearPairing(){
 }
 
 async function loadRepositories(){
+ if(!token()) return;
  try{
-  const r=await fetch('https://api.github.com/users/dbrckk/repos?per_page=100&sort=pushed');
-  if(!r.ok) return;
-  const repos=await r.json();
+  const data=await api('/v1/dashboard/repositories');
+  const repos=data.repositories||[];
   const select=document.getElementById('repository');
   const selected=select.value;
   select.innerHTML='';
-  repos.filter(function(x){return !x.archived}).sort(function(a,b){return a.name.localeCompare(b.name)}).forEach(function(x){
+  repos.forEach(function(x){
    const option=document.createElement('option');
    option.value=x.full_name;
-   option.textContent=x.full_name;
+   option.textContent=x.full_name+(x.private?' · privé':'');
    if(x.full_name===selected||(!selected&&x.full_name==='dbrckk/Jumpy')) option.selected=true;
    select.appendChild(option);
   });
+  if(!repos.length){
+   const option=document.createElement('option');
+   option.value='dbrckk/Jumpy';
+   option.textContent='dbrckk/Jumpy';
+   select.appendChild(option);
+  }
  }catch(_e){}
 }
 

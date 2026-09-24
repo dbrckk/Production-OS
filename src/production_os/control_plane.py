@@ -243,7 +243,14 @@ def make_handler(control: ControlPlane):
                 self._send_html(HTTPStatus.OK, DASHBOARD_HTML)
                 return
 
-            if parsed.path in {"/", "/health", "/healthz"}:
+            if parsed.path == "/":
+                self.send_response(HTTPStatus.FOUND)
+                self.send_header("Location", "/dashboard")
+                self.send_header("Cache-Control", "no-store")
+                self.end_headers()
+                return
+
+            if parsed.path in {"/health", "/healthz"}:
                 self._send(
                     HTTPStatus.OK,
                     {
@@ -290,6 +297,8 @@ def make_handler(control: ControlPlane):
                             payload = service.worker_usage(worker_id, window)
                         else:
                             raise DashboardNotFound(parsed.path)
+                    elif parsed.path == "/v1/dashboard/repositories":
+                        payload = service.repositories()
                     elif parsed.path == "/v1/dashboard/projects":
                         payload = service.projects()
                     elif len(parts) >= 4 and parts[1] == "dashboard" and parts[2] == "projects":
