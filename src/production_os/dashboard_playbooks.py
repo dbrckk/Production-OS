@@ -71,8 +71,12 @@ def derive_incident_playbook(
             "action":"inspect-job",
             "worker_id":owner or None,
             "job_key":target_id,
-            "availability":"available",
-            "reason":"Inspecter l'exécution et sa télémétrie avant intervention.",
+            "availability":"available" if owner else "unavailable",
+            "reason":(
+                "Inspecter l'exécution et sa télémétrie avant intervention."
+                if owner
+                else "Le propriétaire du job n'est plus établi; l'inspection worker ciblée n'est pas disponible."
+            ),
             "interrupting":False,
         })
         if owner and status in ACTIVE_JOB_STATUSES:
