@@ -565,6 +565,49 @@ function errorCard(error){
 function repoApiPath(repository){
  return String(repository).split("/").map(encodeURIComponent).join("/");
 }
+function incidentPlaybookActionLabel(action){
+ const labels={
+  "kick":"Réveiller le worker GitHub Actions",
+  "inspect-worker":"Inspecter le worker",
+  "recover-stuck":"Récupérer le job expiré",
+  "inspect-job":"Inspecter le job",
+  "cancel-current":"Annuler le job actif"
+ };
+ return labels[action]||String(action||"Action");
+}
+async function runIncidentPlaybookAction(action,workerId,jobKey){
+ if(action==="inspect-worker"){
+  if(workerId)openWorker(encodeURIComponent(workerId));
+  return;
+ }
+ if(action==="inspect-job"){
+  if(workerId)openWorker(encodeURIComponent(workerId));
+  return;
+ }
+ if(!workerId)throw new Error("Worker requis pour cette remédiation.");
+ await runWorkerControl(workerId,action,jobKey||null);
+ await loadOverview();
+}
+function renderIncidentPlaybook(item){
+ const playbook=item&&item.playbook||{};
+ const suggestions=playbook.suggestions||[];
+ if(!suggestions.length)return '<div class="small">Aucune remédiation proposée.</div>';
+ return '<div class="small"><strong>Playbook :</strong></div>'+
+  suggestions.map(function(suggestion){
+   const action=String(suggestion.action||"");
+   const availability=String(suggestion.availability||"unavailable");
+   const available=availability==="available"||availability==="fallback";
+   const workerId=suggestion.worker_id==null?"":String(suggestion.worker_id);
+   const jobKey=suggestion.job_key==null?"":String(suggestion.job_key);
+   const badge=availability==="fallback"?"fallback":availability;
+   const button=available
+    ?'<button class="secondary-btn" type="button" data-playbook-action="'+esc(action)+'" data-worker-id="'+esc(workerId)+'" data-job-key="'+esc(jobKey)+'" onclick="runIncidentPlaybookAction(this.dataset.playbookAction,this.dataset.workerId,this.dataset.jobKey)">'+esc(incidentPlaybookActionLabel(action))+'</button>'
+    :'<button class="secondary-btn" type="button" disabled>'+esc(incidentPlaybookActionLabel(action))+'</button>';
+   return '<div class="small" style="margin-top:8px">'+button+
+    ' <span class="badge">'+esc(badge)+'</span><br>'+
+    esc(String(suggestion.reason||""))+'</div>';
+  }).join("");
+}
 async function loadOverview(){
  const el=document.getElementById("overview-metrics");
  try{
@@ -583,7 +626,8 @@ async function loadOverview(){
     const ack=item.status==="open"
      ?'<button class="secondary-btn" type="button" data-incident-id="'+esc(String(item.id||""))+'" onclick="acknowledgeIncident(this.dataset.incidentId)">Acquitter</button>'
      :'';
-    return '<div class="small"><strong>'+esc(String(item.title||item.code||"Incident"))+'</strong> · '+esc(String(item.status||""))+' · '+esc(String(item.severity||""))+' · '+esc(String(item.target_type||""))+':'+esc(String(item.target_id||""))+' '+ack+'</div>';
+    return '<div class="small"><strong>'+esc(String(item.title||item.code||"Incident"))+'</strong> · '+esc(String(item.status||""))+' · '+esc(String(item.severity||""))+' · '+esc(String(item.target_type||""))+':'+esc(String(item.target_id||""))+' '+ack+
+     '<div style="margin:8px 0 14px">'+renderIncidentPlaybook(item)+'</div></div>';
    }).join(""):'<div class="small">Aucun incident durable.</div>')+
    '</div>';
   const healthHtml=
