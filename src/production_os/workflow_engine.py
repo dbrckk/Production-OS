@@ -1160,6 +1160,56 @@ class WorkflowEngine:
             refreshed = self.refresh(workflow_id)
         return refreshed
 
+    def record_cancelled(
+        self,
+        workflow_id: str,
+        task_id: str,
+        *,
+        result: dict | None = None,
+    ) -> dict:
+        now = _now()
+        with self.backend.transaction() as db:
+            row = _execute(
+                db,
+                self.backend,
+                """
+                SELECT * FROM workflow_tasks
+                WHERE workflow_id=? AND task_id=?
+                """,
+                (workflow_id, task_id),
+            ).fetchone()
+            if row is None:
+                raise KeyError(f"{workflow_id}/{task_id}")
+            if row["status"] == "succeeded":
+                raise RuntimeError("succeeded workflow task cannot be cancelled")
+            _execute(
+                db,
+                self.backend,
+                """
+                UPDATE workflow_tasks
+                SET status='cancelled', result_json=?,
+                    claimed_job_key=NULL, updated_at=?
+                WHERE workflow_id=? AND task_id=?
+                  AND status NOT IN ('succeeded','failed','cancelled')
+                """,
+                (
+                    json.dumps(result or {}, ensure_ascii=False),
+                    now,
+                    workflow_id,
+                    task_id,
+                ),
+            )
+            self.backend.append_event(
+                db,
+                "workflow-task-cancelled",
+                {
+                    "workflow_id":workflow_id,
+                    "task_id":task_id,
+                },
+                task_key_value=row["claimed_job_key"],
+            )
+        return self.refresh(workflow_id)
+
     def cancel(self, workflow_id: str) -> dict:
         now = _now()
         with self.backend.transaction() as db:
