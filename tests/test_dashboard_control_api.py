@@ -196,3 +196,74 @@ def test_worker_heartbeat_acknowledges_and_cancels_target_job(tmp_path):
         assert state["acknowledged_at"] is not None
     finally:
         server.shutdown(); server.server_close()
+
+
+def test_late_complete_after_cancel_is_rejected_and_job_stays_cancelled(tmp_path):
+    control, server, base = _fixture(tmp_path)
+    job = control.queue.enqueue({
+        "handoff":{"repository":"dbrckk/example","task":"Race"},
+        "required_capabilities":["python"],
+    })
+    assert control.queue.claim_key(job["key"], "worker-a") is not None
+    control.queue.ack(job["key"], "worker-a")
+    control.dashboard_store.start_execution(control.queue.get(job["key"]), "worker-a")
+    try:
+        status, _ = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"cancel-current","job_key":job["key"]},
+        )
+        assert status == 202
+        status, _ = _post(
+            base,
+            "/v1/workers/heartbeat",
+            "worker",
+            {
+                "worker_id":"worker-a",
+                "active_tasks":1,
+                "active_job_keys":[job["key"]],
+                "job_control_states":{job["key"]:"cancel_requested"},
+            },
+        )
+        assert status == 200
+        assert control.queue.get(job["key"])["status"] == "cancelled"
+
+        status, payload = _post(
+            base,
+            "/v1/jobs/complete",
+            "worker",
+            {
+                "key":job["key"],
+                "worker_id":"worker-a",
+                "result":{"status":"complete"},
+            },
+        )
+        assert status == 409
+        assert "cannot transition from cancelled" in payload["error"]
+        assert control.queue.get(job["key"])["status"] == "cancelled"
+    finally:
+        server.shutdown(); server.server_close()
+
+
+def test_cancel_request_after_complete_is_rejected(tmp_path):
+    control, server, base = _fixture(tmp_path)
+    job = control.queue.enqueue({
+        "handoff":{"repository":"dbrckk/example","task":"Already done"},
+        "required_capabilities":["python"],
+    })
+    assert control.queue.claim_key(job["key"], "worker-a") is not None
+    control.queue.ack(job["key"], "worker-a")
+    control.queue.complete(job["key"], "worker-a")
+    try:
+        status, payload = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"cancel-current","job_key":job["key"]},
+        )
+        assert status == 409
+        assert payload["error"] == "job is not active"
+        assert control.queue.get(job["key"])["status"] == "completed"
+    finally:
+        server.shutdown(); server.server_close()
