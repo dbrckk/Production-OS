@@ -791,6 +791,30 @@ def make_handler(control: ControlPlane):
                         "drain":"draining",
                     }
                     worker_id = parts[3]
+                    if action == "retry":
+                        job_key = str(body.get("job_key") or "").strip()
+                        if not job_key:
+                            self._send(
+                                HTTPStatus.BAD_REQUEST,
+                                {"error":"job_key required"},
+                            )
+                            return
+                        retried = control.dashboard_control.retry_job(
+                            job_key,
+                            requested_by=f"{principal.role}:{principal.name}",
+                        )
+                        self._send(
+                            HTTPStatus.CREATED,
+                            {
+                                "accepted":True,
+                                "source_job_key":job_key,
+                                "workflow_id":retried["workflow_id"],
+                                "workflow_task_id":retried["workflow_task_id"],
+                                "job":retried["replacement_job"],
+                            },
+                        )
+                        return
+
                     if action == "cancel-current":
                         job_key = str(body.get("job_key") or "").strip()
                         if not job_key:
