@@ -853,6 +853,62 @@ def make_handler(control: ControlPlane):
                     audit_job_key = (
                         str(body.get("job_key") or "").strip() or None
                     )
+                    incident_id = (
+                        str(body.get("incident_id") or "").strip() or None
+                    )
+                    remediation_event = None
+                    if incident_id is not None:
+                        incident_rows = control.dashboard.incidents(
+                            limit=500,
+                        )["incidents"]
+                        incident = next(
+                            (
+                                item for item in incident_rows
+                                if str(item.get("id") or "") == incident_id
+                            ),
+                            None,
+                        )
+                        if incident is None:
+                            self._send(
+                                HTTPStatus.NOT_FOUND,
+                                {"error":"incident not found"},
+                            )
+                            return
+                        matched = next(
+                            (
+                                item
+                                for item in (
+                                    (incident.get("playbook") or {}).get(
+                                        "suggestions"
+                                    ) or []
+                                )
+                                if str(item.get("action") or "") == action
+                                and str(item.get("worker_id") or "") == worker_id
+                                and (
+                                    str(item.get("job_key") or "")
+                                    == str(audit_job_key or "")
+                                )
+                                and str(item.get("availability") or "")
+                                in {"available", "fallback"}
+                            ),
+                            None,
+                        )
+                        if matched is None:
+                            self._send(
+                                HTTPStatus.CONFLICT,
+                                {"error":"incident remediation is stale or unavailable"},
+                            )
+                            return
+                        remediation_event = (
+                            control.dashboard_store.append_remediation_event(
+                                incident_id=incident_id,
+                                action=action,
+                                worker_id=worker_id,
+                                job_key=audit_job_key,
+                                requested_by=requested_by,
+                                outcome="requested",
+                            )
+                        )
                     audit_event = control.dashboard_store.append_control_audit(
                         action=action or "invalid",
                         worker_id=worker_id,
@@ -878,6 +934,17 @@ def make_handler(control: ControlPlane):
                             # The pre-action reservation remains durable even
                             # if result finalization cannot be written.
                             pass
+                        if remediation_event is not None:
+                            try:
+                                control.dashboard_store.update_remediation_event(
+                                    remediation_event["id"],
+                                    outcome=outcome,
+                                    error_code=error_code,
+                                )
+                            except Exception:
+                                # Keep the requested remediation event durable
+                                # even if final outcome persistence fails.
+                                pass
 
                     if action == "recover-stuck":
                         job_key = str(body.get("job_key") or "").strip()
