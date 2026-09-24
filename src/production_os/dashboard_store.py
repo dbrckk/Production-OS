@@ -182,6 +182,31 @@ class DashboardStore:
                 (ident,),
             )
 
+    def update_control_audit(
+        self,
+        event_id: str,
+        *,
+        outcome: str,
+        error_code: str | None = None,
+    ) -> dict:
+        with self.backend.transaction() as db:
+            _execute(
+                db,
+                self.backend,
+                """UPDATE control_audit_events
+                   SET outcome=?, error_code=?
+                   WHERE id=?""",
+                (outcome, error_code, event_id),
+            )
+            row = self._fetchone(
+                db,
+                "SELECT * FROM control_audit_events WHERE id=?",
+                (event_id,),
+            )
+            if row is None:
+                raise KeyError(event_id)
+            return row
+
     def control_audit_events(self, *, limit: int = 100) -> list[dict]:
         bounded = max(1, min(500, int(limit)))
         with self.backend.connect() as db:
