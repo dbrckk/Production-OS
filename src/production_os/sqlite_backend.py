@@ -1324,6 +1324,17 @@ class SQLiteJobQueue:
             extra={"reason": reason},
         )
 
+    def cancel(self, key: str, worker_id: str, reason: str = "operator cancel") -> dict:
+        return self._transition(
+            key,
+            worker_id,
+            {"claimed", "acked"},
+            "cancelled",
+            "job-cancelled",
+            completed=True,
+            extra={"reason": reason},
+        )
+
     def _transition(
         self,
         key: str,

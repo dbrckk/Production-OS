@@ -129,7 +129,7 @@ body{overflow-x:hidden}
 <section class="v3-workspace" aria-live="polite">
 <div id="view-overview" class="v3-view active"><div class="section-head"><h2>Vue générale</h2><div class="v3-tabs" aria-label="Période"><button type="button" onclick="setDashboardWindow('24h')">24h</button><button type="button" onclick="setDashboardWindow('7d')">7d</button><button type="button" onclick="setDashboardWindow('30d')">30d</button></div></div><div id="overview-metrics"></div></div>
 <div id="view-projects" class="v3-view"><h2>Projets</h2><div id="projects-list"></div><div class="v3-tabs" aria-label="Détail projet"><button>Aperçu</button><button>Avancement</button><button>Commits</button><button>API</button><button>Workflows</button><button>Qualité</button><button>Historique</button></div><div id="project-detail"></div></div>
-<div id="view-workers" class="v3-view"><h2>Workers</h2><div id="workers-list"></div><div class="v3-tabs" aria-label="Détail worker"><button>Aperçu</button><button>Tâches</button><button>Logs</button><button>API</button><button>Historique</button></div><div id="worker-detail"></div></div>
+<div id="view-workers" class="v3-view"><h2>Workers</h2><div id="workers-list"></div><div class="v3-tabs" aria-label="Détail worker"><button>Aperçu</button><button>Tâches</button><button>Logs</button><button>API</button><button>Historique</button><button data-worker-tab="control">Control</button></div><div id="worker-detail"></div></div>
 <div id="view-activity" class="v3-view"><h2>Activité</h2><div id="activity-list"></div></div>
 </section>
  <div class="topbar">
@@ -266,7 +266,7 @@ async function savePairing(){
  }catch(e){
   if(previous) localStorage.setItem(TOKEN_KEY,previous); else localStorage.removeItem(TOKEN_KEY);
   setState('pair-state','bad','Token refusé');
-  feedback.textContent=String(e).replace(/^Error:\s*/,'');
+  feedback.textContent=String(e).replace(/^Error:\\s*/,'');
   status.textContent='Token opérateur invalide. Vérifie le token puis réessaie.';
  }
 }
@@ -330,7 +330,7 @@ async function loadWorkerStatus(){
    +' · 3D '+(threeD?'✓':'—');
  }catch(e){
   workerOnline=false;
-  const message=String(e).replace(/^Error:\s*/,'');
+  const message=String(e).replace(/^Error:\\s*/,'');
   setState('worker-state','bad','Erreur');
   el.textContent='Capacités worker : indisponibles · '+message;
   warning.classList.add('show');
@@ -372,7 +372,7 @@ async function loadRecentRuns(){
     +'<div class="run-state '+state[1]+'">'+state[0]+'</div></div>';
   }).join('');
  }catch(e){
-  listEl.innerHTML='<div class="empty">Productions indisponibles · '+esc(String(e).replace(/^Error:\s*/,''))+'</div>';
+  listEl.innerHTML='<div class="empty">Productions indisponibles · '+esc(String(e).replace(/^Error:\\s*/,''))+'</div>';
  }
 }
 
@@ -513,7 +513,7 @@ async function launchWorkflow(){
   }
   await loadRecentRuns();
  }catch(e){
-  status.textContent=String(e).replace(/^Error:\s*/,'');
+  status.textContent=String(e).replace(/^Error:\\s*/,'');
  }finally{
   button.disabled=false;button.textContent='Lancer la production';
  }
@@ -567,7 +567,12 @@ async function loadOverview(){
  const el=document.getElementById("overview-metrics");
  try{
   const data=await api("/v1/dashboard/overview?window="+encodeURIComponent(appState.window));
-  const w=data.workers||{},p=data.productions||{},u=data.usage||{},c=data.commits||{},perf=data.performance||{};
+  const w=data.workers||{},p=data.productions||{},u=data.usage||{},c=data.commits||{},perf=data.performance||{},alerts=data.alerts||[];
+  const alertsHtml=alerts.length?
+   '<div class="card"><div class="section-head"><h2>Alertes opérationnelles</h2><span class="badge">'+formatNumber(alerts.length)+'</span></div>'+
+   alerts.map(function(item){
+    return '<div class="small"><strong>'+esc(String(item.title||item.code||"Alerte"))+'</strong> · '+esc(String(item.severity||""))+'<br>'+esc(String(item.message||""))+'</div>';
+   }).join('')+'</div>':'';
   el.innerHTML=
    '<div class="status-grid">'+
    '<div class="status-card"><div class="status-label">Workers en ligne</div><div class="status-value">'+formatNumber(w.online)+' / '+formatNumber(w.total)+'</div></div>'+
@@ -577,7 +582,8 @@ async function loadOverview(){
    '<div class="card"><div class="section-head"><h2>Activité mesurée</h2></div>'+
    '<p class="small">API calls : '+formatNumber(u.api_calls)+' · coût estimé : '+formatNumber(u.estimated_cost_usd)+' USD</p>'+
    '<p class="small">Commits Production-OS : '+formatNumber(c.production_os)+' · branche par défaut GitHub : '+formatNumber(c.github_default_branch)+'</p>'+
-   '<p class="small">Taux de réussite : '+formatNumber(perf.success_rate)+' % · temps d’exécution : '+formatNumber(perf.execution_seconds)+' s</p></div>';
+   '<p class="small">Taux de réussite : '+formatNumber(perf.success_rate)+' % · temps d’exécution : '+formatNumber(perf.execution_seconds)+' s</p></div>'+
+   alertsHtml;
  }catch(e){el.innerHTML=errorCard(e)}
 }
 function openProject(encoded){
@@ -669,6 +675,40 @@ async function loadWorkersView(){
   else document.getElementById("worker-detail").innerHTML='<div class="empty">Sélectionne un worker.</div>';
  }catch(e){list.innerHTML=errorCard(e)}
 }
+function confirmControlAction(action,jobKey){
+ if(action!=="cancel-current"&&action!=="retry")return true;
+ const target=jobKey?(" sur "+jobKey):"";
+ return window.confirm((action==="retry"?"Relancer cette tentative":"Annuler cette tâche")+target+" ?");
+}
+function renderControlReceipt(result){
+ const el=document.getElementById("worker-control-receipt");
+ if(!el)return;
+ const status=String((result&&result.status)||"");
+ if(status==="scheduled_fallback"){
+  el.textContent="Action demandée · Réveil automatique prévu ≤ 5 min";
+  return;
+ }
+ if(status==="dispatched"){
+  el.textContent="Action demandée · Réveil GitHub Actions demandé";
+  return;
+ }
+ if(result&&result.acknowledged===true){
+  el.textContent="Confirmée par le worker";
+  return;
+ }
+ el.textContent="Action demandée · en attente de confirmation du worker";
+}
+async function runWorkerControl(workerId,action,jobKey=null){
+ if(!confirmControlAction(action,jobKey))return;
+ const body={action:action};
+ if(jobKey)body.job_key=jobKey;
+ const result=await api(
+  "/v1/dashboard/workers/"+encodeURIComponent(workerId)+"/control",
+  {method:"POST",body:JSON.stringify(body)}
+ );
+ renderControlReceipt(result);
+ await loadWorkerDetail(workerId);
+}
 async function loadWorkerDetail(workerId){
  const el=document.getElementById("worker-detail");
  try{
@@ -681,8 +721,11 @@ async function loadWorkerDetail(workerId){
   const detail=results[0],logs=results[1],usage=results[2],worker=detail.worker||{},totals=usage.totals||{};
   const executions=detail.executions||[];
   const activeExecution=executions.find(function(row){return row.status==="running"})||null;
+  const retryExecution=executions.find(function(row){return row.status==="failed"||row.status==="cancelled"})||null;
   const currentTask=activeExecution?(activeExecution.workflow_task_id||activeExecution.job_key||"En cours"):"Aucune";
   const currentProgress=activeExecution?activeExecution.progress_percent:null;
+  const activeJobKey=activeExecution&&activeExecution.job_key?String(activeExecution.job_key):"";
+  const retryJobKey=retryExecution&&retryExecution.job_key?String(retryExecution.job_key):"";
   const recent=(logs.logs||[]).slice(0,8);
   el.innerHTML=
    '<div class="card"><div class="section-head"><h2>'+esc(workerId)+'</h2><span class="badge">'+esc(String(worker.status||"inconnu"))+'</span></div>'+
@@ -700,6 +743,17 @@ async function loadWorkerDetail(workerId){
    '</div>'+
    '<h3 style="font-size:.85rem;margin:15px 0 6px">Logs récents</h3>'+
    (recent.length?recent.map(function(row){return '<div class="small">'+esc(String(row.created_at||""))+' · <strong>Niveau :</strong> '+esc(String(row.level||"info"))+' · <strong>Étape :</strong> '+esc(String(row.stage||"—"))+' · '+esc(String(row.message||""))+'</div>'}).join(""):'<div class="empty">Aucun log récent.</div>')+
+   '<h3 style="font-size:.85rem;margin:15px 0 6px">Control</h3>'+
+   '<p class="small"><strong>État demandé :</strong> '+esc(String(worker.desired_state||"active"))+' · <strong>Action demandée :</strong> '+esc(String(worker.control_requested_at||"—"))+'</p>'+
+   '<p class="small"><strong>Confirmée par le worker :</strong> '+esc(String(worker.control_acknowledged_at||"En attente"))+'</p>'+
+   '<div class="v3-tabs">'+
+   '<button class="secondary-btn" data-control-action="pause" onclick="runWorkerControl('+JSON.stringify(workerId)+',\'pause\')">Pause</button>'+
+   '<button class="secondary-btn" data-control-action="resume" onclick="runWorkerControl('+JSON.stringify(workerId)+',\'resume\')">Reprendre</button>'+
+   '<button class="secondary-btn" data-control-action="drain" onclick="runWorkerControl('+JSON.stringify(workerId)+',\'drain\')">Drain</button>'+
+   '<button class="secondary-btn" data-control-action="kick" onclick="runWorkerControl('+JSON.stringify(workerId)+',\'kick\')">Kick</button>'+
+   (activeJobKey?'<button class="secondary-btn" data-control-action="cancel-current" data-job-key="'+esc(activeJobKey)+'" onclick="runWorkerControl('+JSON.stringify(workerId)+',\'cancel-current\',this.dataset.jobKey)">Annuler '+esc(activeJobKey)+'</button>':'')+
+   (retryJobKey?'<button class="secondary-btn" data-control-action="retry" data-job-key="'+esc(retryJobKey)+'" onclick="runWorkerControl('+JSON.stringify(workerId)+',\'retry\',this.dataset.jobKey)">Retry '+esc(retryJobKey)+'</button>':'')+
+   '</div><div id="worker-control-receipt" class="status-message"></div>'+
    '<h3 style="font-size:.85rem;margin:15px 0 6px">Historique d’exécution</h3>'+
    (executions.length?executions.slice(0,8).map(function(row){return '<div class="small"><strong>Résultat :</strong> '+esc(String(row.status||"inconnu"))+' · '+esc(String(row.started_at||""))+' · <strong>Durée :</strong> '+(row.duration_seconds==null?'—':formatNumber(row.duration_seconds)+' s')+'</div>'}).join(""):'<div class="empty">Aucune exécution enregistrée.</div>')+
    '</div>';

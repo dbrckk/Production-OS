@@ -923,6 +923,7 @@ class WorkflowEngine:
         workflow_id: str,
         *,
         limit: int = 10,
+        task_id: str | None = None,
     ) -> list[dict]:
         self.refresh(workflow_id)
         workflow = self.get(workflow_id)
@@ -932,6 +933,7 @@ class WorkflowEngine:
         ready = [
             task for task in workflow["tasks"]
             if task["status"] == "ready"
+            and (task_id is None or task["task_id"] == task_id)
         ]
         ready.sort(
             key=lambda task: (
@@ -1073,6 +1075,7 @@ class WorkflowEngine:
                     self.dispatch_ready(
                         workflow_id,
                         limit=remaining,
+                        task_id=task_id,
                     )
                 )
         return dispatched
@@ -1159,6 +1162,132 @@ class WorkflowEngine:
             self.dispatch_ready(workflow_id)
             refreshed = self.refresh(workflow_id)
         return refreshed
+
+    def retry_task(
+        self,
+        workflow_id: str,
+        task_id: str,
+        *,
+        source_revision: str | None = None,
+        workflow_generation: int | None = None,
+    ) -> dict:
+        self.assert_generation_current(
+            workflow_id,
+            source_revision=source_revision,
+            workflow_generation=workflow_generation,
+        )
+        now = _now()
+        with self.backend.transaction() as db:
+            row = _execute(
+                db,
+                self.backend,
+                """
+                SELECT * FROM workflow_tasks
+                WHERE workflow_id=? AND task_id=?
+                """,
+                (workflow_id, task_id),
+            ).fetchone()
+            if row is None:
+                raise KeyError(f"{workflow_id}/{task_id}")
+            if row["status"] not in {"cancelled", "failed"}:
+                raise RuntimeError(
+                    f"workflow task cannot retry from {row['status']}"
+                )
+            if int(row["attempts"]) >= int(row["max_attempts"]):
+                raise RuntimeError("workflow task max attempts reached")
+            updated = _execute(
+                db,
+                self.backend,
+                """
+                UPDATE workflow_tasks
+                SET status='ready', result_json=NULL,
+                    claimed_job_key=NULL, updated_at=?
+                WHERE workflow_id=? AND task_id=?
+                  AND status IN ('cancelled','failed')
+                  AND attempts < max_attempts
+                  AND claimed_job_key IS NULL
+                """,
+                (now, workflow_id, task_id),
+            )
+            if updated.rowcount != 1:
+                raise RuntimeError("workflow task retry race")
+            self.backend.append_event(
+                db,
+                "workflow-task-retry-requested",
+                {
+                    "workflow_id":workflow_id,
+                    "task_id":task_id,
+                },
+            )
+        self.refresh(workflow_id)
+        dispatched = self.dispatch_ready(
+            workflow_id,
+            limit=1,
+            task_id=task_id,
+        )
+        for job in dispatched:
+            payload = job.get("payload") or {}
+            if str(payload.get("workflow_task_id") or "") == str(task_id):
+                return job
+        current = self.get(workflow_id)
+        task = next(
+            item for item in current["tasks"]
+            if item["task_id"] == task_id
+        )
+        key = task.get("claimed_job_key")
+        if key:
+            return self.queue.get(str(key))
+        raise RuntimeError("retry did not dispatch workflow task")
+
+    def record_cancelled(
+        self,
+        workflow_id: str,
+        task_id: str,
+        *,
+        result: dict | None = None,
+    ) -> dict:
+        now = _now()
+        with self.backend.transaction() as db:
+            row = _execute(
+                db,
+                self.backend,
+                """
+                SELECT * FROM workflow_tasks
+                WHERE workflow_id=? AND task_id=?
+                """,
+                (workflow_id, task_id),
+            ).fetchone()
+            if row is None:
+                raise KeyError(f"{workflow_id}/{task_id}")
+            if row["status"] == "succeeded":
+                raise RuntimeError("succeeded workflow task cannot be cancelled")
+            _execute(
+                db,
+                self.backend,
+                """
+                UPDATE workflow_tasks
+                SET status='cancelled', result_json=?,
+                    claimed_job_key=NULL, updated_at=?
+                WHERE workflow_id=? AND task_id=?
+                  AND status NOT IN ('succeeded','failed','cancelled')
+                """,
+                (
+                    json.dumps(result or {}, ensure_ascii=False),
+                    now,
+                    workflow_id,
+                    task_id,
+                ),
+            )
+            self.backend.append_event(
+                db,
+                "workflow-task-cancelled",
+                {
+                    "workflow_id":workflow_id,
+                    "task_id":task_id,
+                },
+                task_key_value=row["claimed_job_key"],
+            )
+        return self.refresh(workflow_id)
 
     def cancel(self, workflow_id: str) -> dict:
         now = _now()

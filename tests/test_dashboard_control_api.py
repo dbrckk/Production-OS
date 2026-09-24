@@ -1,0 +1,640 @@
+from __future__ import annotations
+
+import json
+import threading
+import urllib.error
+import urllib.request
+from http.server import ThreadingHTTPServer
+
+from production_os.api_auth import TokenAuthorizer, token_digest
+from production_os.control_plane import ControlPlane, make_handler
+from production_os.workflow_engine import WorkflowTaskSpec
+
+
+def _post(base, path, token, payload):
+    request = urllib.request.Request(
+        base + path,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=3) as response:
+            raw = response.read()
+            return response.status, json.loads(raw or b"{}")
+    except urllib.error.HTTPError as exc:
+        raw = exc.read()
+        return exc.code, json.loads(raw or b"{}")
+
+
+def _fixture(tmp_path):
+    auth = TokenAuthorizer([
+        {"name":"viewer","role":"viewer","sha256":token_digest("viewer")},
+        {"name":"operator","role":"operator","sha256":token_digest("operator")},
+        {"name":"worker","role":"worker","sha256":token_digest("worker")},
+    ])
+    control = ControlPlane(str(tmp_path / "db.sqlite"), authorizer=auth)
+    control.workers.register("worker-a", ["python"], 1)
+    server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    return control, server, f"http://127.0.0.1:{server.server_port}"
+
+
+def test_worker_control_requires_operator(tmp_path):
+    control, server, base = _fixture(tmp_path)
+    try:
+        status, payload = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "viewer",
+            {"action":"pause"},
+        )
+        assert status == 403
+        assert payload["required_role"] == "operator"
+    finally:
+        server.shutdown(); server.server_close()
+
+
+def test_pause_returns_requested_state_not_fake_remote_ack(tmp_path):
+    control, server, base = _fixture(tmp_path)
+    try:
+        status, payload = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"pause","reason":"maintenance"},
+        )
+        assert status == 202
+        assert payload["accepted"] is True
+        assert payload["desired_state"] == "paused"
+        assert payload["acknowledged"] is False
+        assert control.dashboard_control.worker_state("worker-a")["desired_state"] == "paused"
+    finally:
+        server.shutdown(); server.server_close()
+
+
+def test_resume_and_drain_map_to_durable_states(tmp_path):
+    control, server, base = _fixture(tmp_path)
+    try:
+        status, resumed = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"resume"},
+        )
+        assert status == 202
+        assert resumed["desired_state"] == "active"
+
+        status, draining = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"drain"},
+        )
+        assert status == 202
+        assert draining["desired_state"] == "draining"
+    finally:
+        server.shutdown(); server.server_close()
+
+
+def test_invalid_worker_control_action_is_rejected(tmp_path):
+    control, server, base = _fixture(tmp_path)
+    try:
+        status, payload = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"explode"},
+        )
+        assert status == 400
+        assert payload["error"] == "invalid worker control action"
+    finally:
+        server.shutdown(); server.server_close()
+
+
+def test_cancel_current_requires_explicit_job_key(tmp_path):
+    control, server, base = _fixture(tmp_path)
+    try:
+        status, payload = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"cancel-current"},
+        )
+        assert status == 400
+        assert payload["error"] == "job_key required"
+    finally:
+        server.shutdown(); server.server_close()
+
+
+def test_cancel_current_targets_only_named_active_job(tmp_path):
+    control, server, base = _fixture(tmp_path)
+    job = control.queue.enqueue({
+        "handoff":{"repository":"dbrckk/example","task":"Ship"},
+        "required_capabilities":["python"],
+    })
+    claimed = control.queue.claim_key(job["key"], "worker-a")
+    assert claimed is not None
+    control.queue.ack(job["key"], "worker-a")
+    sibling = control.queue.enqueue({
+        "handoff":{"repository":"dbrckk/example","task":"Other"},
+        "required_capabilities":["python"],
+    })
+    try:
+        status, payload = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"cancel-current","job_key":job["key"]},
+        )
+        assert status == 202
+        assert payload["job_key"] == job["key"]
+        assert payload["desired_state"] == "cancel_requested"
+        assert control.dashboard_control.job_state(job["key"])["desired_state"] == "cancel_requested"
+        assert control.dashboard_store.get_job_control(sibling["key"]) is None
+    finally:
+        server.shutdown(); server.server_close()
+
+
+def test_worker_heartbeat_acknowledges_and_cancels_target_job(tmp_path):
+    control, server, base = _fixture(tmp_path)
+    job = control.queue.enqueue({
+        "handoff":{"repository":"dbrckk/example","task":"Cancelable"},
+        "required_capabilities":["python"],
+    })
+    claimed = control.queue.claim_key(job["key"], "worker-a")
+    assert claimed is not None
+    control.queue.ack(job["key"], "worker-a")
+    control.dashboard_store.start_execution(control.queue.get(job["key"]), "worker-a")
+    try:
+        status, requested = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"cancel-current","job_key":job["key"]},
+        )
+        assert status == 202
+        assert requested["desired_state"] == "cancel_requested"
+
+        status, heartbeat = _post(
+            base,
+            "/v1/workers/heartbeat",
+            "worker",
+            {
+                "worker_id":"worker-a",
+                "active_tasks":1,
+                "active_job_keys":[job["key"]],
+                "job_control_states":{job["key"]:"cancel_requested"},
+            },
+        )
+        assert status == 200
+        assert control.queue.get(job["key"])["status"] == "cancelled"
+        state = control.dashboard_control.job_state(job["key"])
+        assert state["acknowledged_at"] is not None
+    finally:
+        server.shutdown(); server.server_close()
+
+
+def test_late_complete_after_cancel_is_rejected_and_job_stays_cancelled(tmp_path):
+    control, server, base = _fixture(tmp_path)
+    job = control.queue.enqueue({
+        "handoff":{"repository":"dbrckk/example","task":"Race"},
+        "required_capabilities":["python"],
+    })
+    assert control.queue.claim_key(job["key"], "worker-a") is not None
+    control.queue.ack(job["key"], "worker-a")
+    control.dashboard_store.start_execution(control.queue.get(job["key"]), "worker-a")
+    try:
+        status, _ = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"cancel-current","job_key":job["key"]},
+        )
+        assert status == 202
+        status, _ = _post(
+            base,
+            "/v1/workers/heartbeat",
+            "worker",
+            {
+                "worker_id":"worker-a",
+                "active_tasks":1,
+                "active_job_keys":[job["key"]],
+                "job_control_states":{job["key"]:"cancel_requested"},
+            },
+        )
+        assert status == 200
+        assert control.queue.get(job["key"])["status"] == "cancelled"
+
+        status, payload = _post(
+            base,
+            "/v1/jobs/complete",
+            "worker",
+            {
+                "key":job["key"],
+                "worker_id":"worker-a",
+                "result":{"status":"complete"},
+            },
+        )
+        assert status == 409
+        assert "cannot transition from cancelled" in payload["error"]
+        assert control.queue.get(job["key"])["status"] == "cancelled"
+    finally:
+        server.shutdown(); server.server_close()
+
+
+def test_cancel_request_after_complete_is_rejected(tmp_path):
+    control, server, base = _fixture(tmp_path)
+    job = control.queue.enqueue({
+        "handoff":{"repository":"dbrckk/example","task":"Already done"},
+        "required_capabilities":["python"],
+    })
+    assert control.queue.claim_key(job["key"], "worker-a") is not None
+    control.queue.ack(job["key"], "worker-a")
+    control.queue.complete(job["key"], "worker-a")
+    try:
+        status, payload = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"cancel-current","job_key":job["key"]},
+        )
+        assert status == 409
+        assert payload["error"] == "job is not active"
+        assert control.queue.get(job["key"])["status"] == "completed"
+    finally:
+        server.shutdown(); server.server_close()
+
+
+def test_cancel_current_converges_workflow_task_without_auto_retry(tmp_path):
+    control, server, base = _fixture(tmp_path)
+    workflow = control.workflows.create(
+        name="cancel-flow",
+        repository="dbrckk/example",
+        tasks=[
+            WorkflowTaskSpec(
+                "task-a",
+                "Cancelable workflow task",
+                {"required_capabilities":["python"]},
+                max_attempts=2,
+            )
+        ],
+    )
+    dispatched = control.workflows.dispatch_ready(workflow["id"])
+    assert len(dispatched) == 1
+    job = dispatched[0]
+    assert control.queue.claim_key(job["key"], "worker-a") is not None
+    control.queue.ack(job["key"], "worker-a")
+    control.dashboard_store.start_execution(control.queue.get(job["key"]), "worker-a")
+    try:
+        status, _ = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"cancel-current","job_key":job["key"]},
+        )
+        assert status == 202
+
+        status, _ = _post(
+            base,
+            "/v1/workers/heartbeat",
+            "worker",
+            {
+                "worker_id":"worker-a",
+                "active_tasks":1,
+                "active_job_keys":[job["key"]],
+                "job_control_states":{job["key"]:"cancel_requested"},
+            },
+        )
+        assert status == 200
+
+        current = control.workflows.get(workflow["id"])
+        task = next(item for item in current["tasks"] if item["task_id"] == "task-a")
+        assert task["status"] == "cancelled"
+        assert task["attempts"] == 1
+        assert task["claimed_job_key"] is None
+        assert current["status"] == "cancelled"
+        assert control.workflows.dispatch_ready(workflow["id"]) == []
+    finally:
+        server.shutdown(); server.server_close()
+
+
+def test_retry_cancelled_workflow_task_creates_new_attempt_once(tmp_path):
+    control, server, base = _fixture(tmp_path)
+    workflow = control.workflows.create(
+        name="retry-flow",
+        repository="dbrckk/example",
+        tasks=[
+            WorkflowTaskSpec(
+                "task-a",
+                "Retryable task",
+                {"required_capabilities":["python"]},
+                max_attempts=2,
+            )
+        ],
+    )
+    first = control.workflows.dispatch_ready(workflow["id"])[0]
+    assert control.queue.claim_key(first["key"], "worker-a") is not None
+    control.queue.ack(first["key"], "worker-a")
+    control.dashboard_store.start_execution(control.queue.get(first["key"]), "worker-a")
+    try:
+        status, _ = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"cancel-current","job_key":first["key"]},
+        )
+        assert status == 202
+        status, _ = _post(
+            base,
+            "/v1/workers/heartbeat",
+            "worker",
+            {
+                "worker_id":"worker-a",
+                "active_tasks":1,
+                "active_job_keys":[first["key"]],
+                "job_control_states":{first["key"]:"cancel_requested"},
+            },
+        )
+        assert status == 200
+        first_execution = control.dashboard_store.latest_execution(first["key"])
+        assert first_execution["status"] == "cancelled"
+
+        status, retried = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"retry","job_key":first["key"]},
+        )
+        assert status == 201
+        second = retried["job"]
+        assert second["key"] != first["key"]
+        assert second["status"] == "queued"
+        assert control.queue.get(first["key"])["status"] == "cancelled"
+        task = control.workflows.get(workflow["id"])["tasks"][0]
+        assert task["attempts"] == 2
+        assert task["claimed_job_key"] == second["key"]
+
+        status, payload = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"retry","job_key":first["key"]},
+        )
+        assert status == 409
+        assert "cannot retry from queued" in payload["error"]
+        assert control.workflows.get(workflow["id"])["tasks"][0]["attempts"] == 2
+    finally:
+        server.shutdown(); server.server_close()
+
+
+def test_retry_refuses_exhausted_attempt_budget(tmp_path):
+    control, server, base = _fixture(tmp_path)
+    workflow = control.workflows.create(
+        name="retry-exhausted",
+        repository="dbrckk/example",
+        tasks=[
+            WorkflowTaskSpec(
+                "task-a",
+                "One shot",
+                {"required_capabilities":["python"]},
+                max_attempts=1,
+            )
+        ],
+    )
+    first = control.workflows.dispatch_ready(workflow["id"])[0]
+    assert control.queue.claim_key(first["key"], "worker-a") is not None
+    control.queue.ack(first["key"], "worker-a")
+    control.dashboard_store.start_execution(control.queue.get(first["key"]), "worker-a")
+    try:
+        status, _ = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"cancel-current","job_key":first["key"]},
+        )
+        assert status == 202
+        status, _ = _post(
+            base,
+            "/v1/workers/heartbeat",
+            "worker",
+            {
+                "worker_id":"worker-a",
+                "active_tasks":1,
+                "active_job_keys":[first["key"]],
+                "job_control_states":{first["key"]:"cancel_requested"},
+            },
+        )
+        assert status == 200
+
+        status, payload = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"retry","job_key":first["key"]},
+        )
+        assert status == 409
+        assert "max attempts reached" in payload["error"]
+    finally:
+        server.shutdown(); server.server_close()
+
+
+def test_retry_rejects_superseded_workflow_generation_without_new_job(tmp_path):
+    control, server, base = _fixture(tmp_path)
+    workflow = control.workflows.create(
+        name="stale-retry",
+        repository="dbrckk/example",
+        tasks=[
+            WorkflowTaskSpec(
+                "task-a",
+                "Stale retry",
+                {"required_capabilities":["python"]},
+                max_attempts=2,
+            )
+        ],
+    )
+    first = control.workflows.dispatch_ready(workflow["id"])[0]
+    assert control.queue.claim_key(first["key"], "worker-a") is not None
+    control.queue.ack(first["key"], "worker-a")
+    control.dashboard_store.start_execution(control.queue.get(first["key"]), "worker-a")
+    try:
+        status, _ = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"cancel-current","job_key":first["key"]},
+        )
+        assert status == 202
+        status, _ = _post(
+            base,
+            "/v1/workers/heartbeat",
+            "worker",
+            {
+                "worker_id":"worker-a",
+                "active_tasks":1,
+                "active_job_keys":[first["key"]],
+                "job_control_states":{first["key"]:"cancel_requested"},
+            },
+        )
+        assert status == 200
+        control.workflows.supersede(
+            workflow["id"],
+            superseded_by="replacement-workflow",
+            head_sha="a" * 40,
+        )
+
+        before = {
+            row["key"]
+            for row in control.queue.peek_candidates(limit=100)
+        }
+        status, payload = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"retry","job_key":first["key"]},
+        )
+        assert status == 409
+        assert "stale workflow generation" in payload["error"]
+        after = {
+            row["key"]
+            for row in control.queue.peek_candidates(limit=100)
+        }
+        assert after == before
+    finally:
+        server.shutdown(); server.server_close()
+
+
+def test_retry_allows_current_pr_workflow_generation(tmp_path):
+    control, server, base = _fixture(tmp_path)
+    head_sha = "b" * 40
+    workflow = control.workflows.create(
+        name="current-pr-retry",
+        repository="dbrckk/example",
+        metadata={
+            "github_pr_head_sha":head_sha,
+            "github_pr_generation":3,
+        },
+        tasks=[
+            WorkflowTaskSpec(
+                "task-a",
+                "Current PR retry",
+                {"required_capabilities":["python"]},
+                max_attempts=2,
+            )
+        ],
+    )
+    first = control.workflows.dispatch_ready(workflow["id"])[0]
+    assert first["payload"]["source_revision"] == head_sha
+    assert first["payload"]["workflow_generation"] == 3
+    assert control.queue.claim_key(first["key"], "worker-a") is not None
+    control.queue.ack(first["key"], "worker-a")
+    control.dashboard_store.start_execution(control.queue.get(first["key"]), "worker-a")
+    try:
+        status, _ = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"cancel-current","job_key":first["key"]},
+        )
+        assert status == 202
+        status, _ = _post(
+            base,
+            "/v1/workers/heartbeat",
+            "worker",
+            {
+                "worker_id":"worker-a",
+                "active_tasks":1,
+                "active_job_keys":[first["key"]],
+                "job_control_states":{first["key"]:"cancel_requested"},
+            },
+        )
+        assert status == 200
+
+        status, retried = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"retry","job_key":first["key"]},
+        )
+        assert status == 201
+        assert retried["job"]["payload"]["source_revision"] == head_sha
+        assert retried["job"]["payload"]["workflow_generation"] == 3
+    finally:
+        server.shutdown(); server.server_close()
+
+
+def test_retry_dispatches_only_targeted_task(tmp_path):
+    control, server, base = _fixture(tmp_path)
+    workflow = control.workflows.create(
+        name="targeted-retry",
+        repository="dbrckk/example",
+        tasks=[
+            WorkflowTaskSpec(
+                "task-a",
+                "Retry target",
+                {"required_capabilities":["python"]},
+                max_attempts=2,
+            ),
+            WorkflowTaskSpec(
+                "task-b",
+                "Independent ready task",
+                {"required_capabilities":["python"]},
+                max_attempts=1,
+            ),
+        ],
+    )
+    first = control.workflows.dispatch_ready(workflow["id"], limit=1)[0]
+    assert first["payload"]["workflow_task_id"] == "task-a"
+    assert control.queue.claim_key(first["key"], "worker-a") is not None
+    control.queue.ack(first["key"], "worker-a")
+    control.dashboard_store.start_execution(control.queue.get(first["key"]), "worker-a")
+    try:
+        status, _ = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"cancel-current","job_key":first["key"]},
+        )
+        assert status == 202
+        status, _ = _post(
+            base,
+            "/v1/workers/heartbeat",
+            "worker",
+            {
+                "worker_id":"worker-a",
+                "active_tasks":1,
+                "active_job_keys":[first["key"]],
+                "job_control_states":{first["key"]:"cancel_requested"},
+            },
+        )
+        assert status == 200
+
+        before = control.workflows.get(workflow["id"])
+        task_b = next(x for x in before["tasks"] if x["task_id"] == "task-b")
+        assert task_b["status"] == "ready"
+        assert task_b["claimed_job_key"] is None
+
+        status, retried = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"retry","job_key":first["key"]},
+        )
+        assert status == 201
+        assert retried["job"]["payload"]["workflow_task_id"] == "task-a"
+
+        after = control.workflows.get(workflow["id"])
+        task_b = next(x for x in after["tasks"] if x["task_id"] == "task-b")
+        assert task_b["status"] == "ready"
+        assert task_b["claimed_job_key"] is None
+        queued = control.queue.peek_candidates(limit=100)
+        assert all(
+            row["payload"]["workflow_task_id"] != "task-b"
+            for row in queued
+        )
+    finally:
+        server.shutdown(); server.server_close()

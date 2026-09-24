@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import json
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -14,6 +15,7 @@ from .portfolio_optimizer import PortfolioOptimizer
 from .github_client import GitHubClient
 from .release_ledger import ReleaseLedger
 from .dashboard_store import DashboardStore
+from .dashboard_control import DashboardControl
 from .dashboard_service import DashboardService, DashboardNotFound
 from .dashboard_ui import DASHBOARD_HTML
 from .github_webhook import (
@@ -48,10 +50,29 @@ class ControlPlane:
     ):
         self.backend = open_backend(database)
         self.dashboard_store = DashboardStore(self.backend)
-        self.dashboard = DashboardService(self)
         self.queue = job_queue_for(self.backend)
         self.workers = worker_registry_for(self.backend)
         self.workflows = WorkflowEngine(self.backend, self.queue)
+        github_token = str(os.getenv("GITHUB_TOKEN") or "").strip()
+        actions_repository = str(
+            os.getenv("PRODUCTION_OS_ACTIONS_REPOSITORY") or ""
+        ).strip() or None
+        actions_workflow = str(
+            os.getenv("PRODUCTION_OS_ACTIONS_WORKFLOW") or ""
+        ).strip() or None
+        actions_ref = str(
+            os.getenv("PRODUCTION_OS_ACTIONS_REF") or "main"
+        ).strip() or "main"
+        self.dashboard_control = DashboardControl(
+            self.dashboard_store,
+            self.queue,
+            self.workflows,
+            github=GitHubClient(github_token) if github_token else None,
+            actions_repository=actions_repository,
+            actions_workflow=actions_workflow,
+            actions_ref=actions_ref,
+        )
+        self.dashboard = DashboardService(self)
         self.optimizer = ExecutionOptimizer(self.backend)
         self.speculation = SpeculationManager(self.backend, self.queue)
         self.portfolio = PortfolioOptimizer(self.workflows, self.optimizer)
@@ -767,6 +788,148 @@ def make_handler(control: ControlPlane):
                 return
 
             try:
+                parts = [part for part in parsed.path.split("/") if part]
+                if (
+                    len(parts) == 5
+                    and parts[0] == "v1"
+                    and parts[1] == "dashboard"
+                    and parts[2] == "workers"
+                    and parts[4] == "control"
+                ):
+                    principal = self._require("operator")
+                    if principal is None:
+                        return
+                    action = str(body.get("action") or "").strip()
+                    state_by_action = {
+                        "pause":"paused",
+                        "resume":"active",
+                        "drain":"draining",
+                    }
+                    worker_id = parts[3]
+                    if action == "kick":
+                        kicked = control.dashboard_control.kick_worker(worker_id)
+                        status = (
+                            HTTPStatus.BAD_GATEWAY
+                            if kicked.get("status") == "failed"
+                            else HTTPStatus.ACCEPTED
+                        )
+                        self._send(
+                            status,
+                            {
+                                "accepted":kicked.get("status") != "failed",
+                                "worker_id":worker_id,
+                                **kicked,
+                            },
+                        )
+                        return
+
+                    if action == "retry":
+                        job_key = str(body.get("job_key") or "").strip()
+                        if not job_key:
+                            self._send(
+                                HTTPStatus.BAD_REQUEST,
+                                {"error":"job_key required"},
+                            )
+                            return
+                        retried = control.dashboard_control.retry_job(
+                            job_key,
+                            requested_by=f"{principal.role}:{principal.name}",
+                        )
+                        self._send(
+                            HTTPStatus.CREATED,
+                            {
+                                "accepted":True,
+                                "source_job_key":job_key,
+                                "workflow_id":retried["workflow_id"],
+                                "workflow_task_id":retried["workflow_task_id"],
+                                "job":retried["replacement_job"],
+                            },
+                        )
+                        return
+
+                    if action == "cancel-current":
+                        job_key = str(body.get("job_key") or "").strip()
+                        if not job_key:
+                            self._send(
+                                HTTPStatus.BAD_REQUEST,
+                                {"error":"job_key required"},
+                            )
+                            return
+                        try:
+                            job = control.queue.get(job_key)
+                        except KeyError:
+                            self._send(
+                                HTTPStatus.NOT_FOUND,
+                                {"error":"job not found"},
+                            )
+                            return
+                        if str(job.get("claimed_by") or "") != worker_id:
+                            self._send(
+                                HTTPStatus.CONFLICT,
+                                {"error":"job not claimed by worker"},
+                            )
+                            return
+                        if str(job.get("status") or "") not in {
+                            "claimed","acked","running"
+                        }:
+                            self._send(
+                                HTTPStatus.CONFLICT,
+                                {"error":"job is not active"},
+                            )
+                            return
+                        state = control.dashboard_control.request_job_cancel(
+                            job_key,
+                            requested_by=f"{principal.role}:{principal.name}",
+                            reason=(
+                                str(body.get("reason")).strip()
+                                if body.get("reason") is not None
+                                else None
+                            ),
+                        )
+                        self._send(
+                            HTTPStatus.ACCEPTED,
+                            {
+                                "accepted":True,
+                                "worker_id":worker_id,
+                                "job_key":job_key,
+                                "desired_state":state["desired_state"],
+                                "requested_at":state.get("requested_at"),
+                                "acknowledged":state.get("acknowledged_at") is not None,
+                                "acknowledged_at":state.get("acknowledged_at"),
+                            },
+                        )
+                        return
+
+                    desired_state = state_by_action.get(action)
+                    if desired_state is None:
+                        self._send(
+                            HTTPStatus.BAD_REQUEST,
+                            {"error":"invalid worker control action"},
+                        )
+                        return
+                    state = control.dashboard_control.set_worker_state(
+                        worker_id,
+                        desired_state,
+                        requested_by=f"{principal.role}:{principal.name}",
+                        reason=(
+                            str(body.get("reason")).strip()
+                            if body.get("reason") is not None
+                            else None
+                        ),
+                    )
+                    self._send(
+                        HTTPStatus.ACCEPTED,
+                        {
+                            "accepted":True,
+                            "worker_id":worker_id,
+                            "desired_state":state["desired_state"],
+                            "requested_at":state.get("requested_at"),
+                            "acknowledged":state.get("acknowledged_at") is not None,
+                            "acknowledged_at":state.get("acknowledged_at"),
+                        },
+                    )
+                    return
+
                 if parsed.path == "/v1/stragglers/speculate":
                     principal = self._require("operator")
                     if principal is None:
@@ -1109,11 +1272,72 @@ def make_handler(control: ControlPlane):
                             job
                         ):
                             stale_job_keys.append(str(key))
+                    control_state = body.get("control_state")
+                    if control_state is not None:
+                        current_control = control.dashboard_control.worker_state(
+                            str(body["worker_id"])
+                        )
+                        if str(control_state) == current_control["desired_state"]:
+                            current_control = (
+                                control.dashboard_control.acknowledge_worker_state(
+                                    str(body["worker_id"]),
+                                    str(control_state),
+                                )
+                            )
+                    else:
+                        current_control = control.dashboard_control.worker_state(
+                            str(body["worker_id"])
+                        )
+
+                    job_control_states = body.get("job_control_states", {})
+                    if not isinstance(job_control_states, dict):
+                        raise ValueError("job_control_states must be an object")
+                    for raw_key, raw_state in job_control_states.items():
+                        job_key = str(raw_key)
+                        reported_state = str(raw_state)
+                        current_job_control = control.dashboard_control.job_state(job_key)
+                        if (
+                            reported_state == "cancel_requested"
+                            and current_job_control["desired_state"] == "cancel_requested"
+                            and current_job_control.get("acknowledged_at") is None
+                        ):
+                            job = control.queue.get(job_key)
+                            if str(job.get("claimed_by") or "") != str(body["worker_id"]):
+                                raise RuntimeError("job claim owner mismatch")
+                            cancelled_job = control.queue.cancel(
+                                job_key,
+                                str(body["worker_id"]),
+                            )
+                            control.dashboard_control.acknowledge_job_cancel(job_key)
+                            control.dashboard_store.finish_execution(
+                                job_key,
+                                str(body["worker_id"]),
+                                status="cancelled",
+                                duration_seconds=None,
+                                result={"reason":"operator cancel"},
+                            )
+                            payload = cancelled_job.get("payload") or {}
+                            workflow_id = payload.get("workflow_id")
+                            workflow_task_id = payload.get("workflow_task_id")
+                            if workflow_id and workflow_task_id:
+                                control.workflows.record_cancelled(
+                                    str(workflow_id),
+                                    str(workflow_task_id),
+                                    result={"reason":"operator cancel"},
+                                )
+
                     self._send(
                         HTTPStatus.OK,
                         {
                             "worker":worker.to_dict(),
                             "stale_job_keys":stale_job_keys,
+                            "control":{
+                                "worker":current_control,
+                                "jobs":{
+                                    str(key):control.dashboard_control.job_state(str(key))
+                                    for key in active_job_keys
+                                },
+                            },
                         },
                     )
                     return
@@ -1215,6 +1439,11 @@ def make_handler(control: ControlPlane):
                     capabilities = [
                         str(x) for x in body.get("capabilities", [])
                     ]
+
+                    desired = control.dashboard_control.worker_state(worker_id)
+                    if desired["desired_state"] in {"paused", "draining"}:
+                        self._send(HTTPStatus.NO_CONTENT, {})
+                        return
 
                     compatible = []
                     for queued in control.queue.peek_candidates(

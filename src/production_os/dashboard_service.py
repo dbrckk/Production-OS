@@ -6,6 +6,7 @@ import json
 import hashlib
 
 from .dashboard_usage import aggregate_usage
+from .dashboard_alerts import derive_alerts
 from .project_progress import ProjectProgressEngine, build_project_evidence, workflow_progress
 
 
@@ -73,9 +74,39 @@ class DashboardService:
                 selected.append(row)
         return selected
 
+    @staticmethod
+    def _previous_window_cost(rows: list[dict], window: str):
+        seconds = {"24h":86400, "7d":604800, "30d":2592000}.get(window)
+        if seconds is None:
+            return None
+        now = datetime.now(timezone.utc)
+        start = now - timedelta(seconds=seconds * 2)
+        end = now - timedelta(seconds=seconds)
+        total = 0.0
+        found = False
+        for row in rows:
+            raw = row.get("occurred_at")
+            if not raw:
+                continue
+            try:
+                occurred = datetime.fromisoformat(str(raw).replace("Z", "+00:00"))
+                if occurred.tzinfo is None:
+                    occurred = occurred.replace(tzinfo=timezone.utc)
+            except ValueError:
+                continue
+            if not (start <= occurred < end):
+                continue
+            cost = row.get("estimated_cost_usd")
+            if isinstance(cost, (int, float)) and not isinstance(cost, bool):
+                total += float(cost)
+                found = True
+        return total if found else None
+
     def overview(self, window: str) -> dict:
-        usage=aggregate_usage(self.store.usage_events(),window=window,
+        usage_rows=self.store.usage_events()
+        usage=aggregate_usage(usage_rows,window=window,
                               quota_rows=self.store.latest_provider_quota_snapshots())
+        previous_cost=self._previous_window_cost(usage_rows, window)
         workers=self._worker_rows()
         executions=[]
         with self.control.backend.connect() as db:
@@ -85,28 +116,70 @@ class DashboardService:
         states={str(x["status"]):int(x["count"]) for x in jobs}
         succeeded=sum(x.get("status")=="succeeded" for x in executions)
         finished=sum(x.get("status") in {"succeeded","failed","cancelled"} for x in executions)
-        return {
+        terminal = sorted(
+            (
+                row for row in executions
+                if row.get("status") in {"succeeded","failed","cancelled"}
+            ),
+            key=lambda row: str(row.get("finished_at") or row.get("started_at") or ""),
+            reverse=True,
+        )
+        recent_failures=0
+        for row in terminal:
+            if row.get("status") != "failed":
+                break
+            recent_failures += 1
+        snapshot = {
           "schema_version":"production-os/dashboard-overview/v1","generated_at":_now(),
           "workers":{"total":len(workers),"online":sum(x.get("status")=="online" for x in workers),
                      "busy":sum(int(x.get("active_tasks") or 0)>0 for x in workers),
-                     "paused":0,"offline":sum(x.get("status")!="online" for x in workers)},
+                     "paused":sum(
+                         self.control.dashboard_control.worker_state(x["worker_id"])["desired_state"]=="paused"
+                         for x in workers
+                     ),
+                     "offline":sum(x.get("status")!="online" for x in workers)},
           "productions":{"running":states.get("running",0),"queued":states.get("queued",0),
                          "succeeded":states.get("succeeded",0),"failed":states.get("failed",0)},
           "usage":{"api_calls":usage["totals"].get("api_calls"),
                    "tokens":usage["totals"].get("total_tokens"),
-                   "estimated_cost_usd":usage["totals"].get("estimated_cost_usd")},
+                   "estimated_cost_usd":usage["totals"].get("estimated_cost_usd"),
+                   "cost_baseline_usd":previous_cost},
           "commits":{"production_os":len(self._distinct_commit_shas(self._executions_in_window(executions,window))),
                      "github_default_branch":None},
           "performance":{"success_rate":round(succeeded/finished*100,2) if finished else None,
-                         "execution_seconds":sum(float(x.get("duration_seconds") or 0) for x in executions)},
+                         "execution_seconds":sum(float(x.get("duration_seconds") or 0) for x in executions),
+                         "recent_failures":recent_failures},
+          "busy_workers":[x for x in workers if int(x.get("active_tasks") or 0)>0],
           "projects":self.projects()["projects"],"errors":[]}
+        snapshot["alerts"]=derive_alerts(snapshot)
+        snapshot.pop("busy_workers", None)
+        return snapshot
 
-    def workers(self): return {"workers":self._worker_rows(),"generated_at":_now()}
+    def workers(self):
+        rows=[]
+        for worker in self._worker_rows():
+            desired=self.control.dashboard_control.worker_state(worker["worker_id"])
+            item=dict(worker)
+            item["desired_state"]=desired["desired_state"]
+            item["control_requested_at"]=desired.get("requested_at")
+            item["control_reason"]=desired.get("reason")
+            if desired["desired_state"] == "draining" and int(item.get("active_tasks") or 0) == 0:
+                item["display_state"]="drained"
+            rows.append(item)
+        return {"workers":rows,"generated_at":_now()}
 
     def worker_detail(self, worker_id):
         rows=[x for x in self._worker_rows() if x.get("worker_id")==worker_id]
         if not rows: raise DashboardNotFound(worker_id)
-        return {"worker":rows[0],"executions":self.store.executions_for_worker(worker_id),"generated_at":_now()}
+        worker=dict(rows[0])
+        desired=self.control.dashboard_control.worker_state(worker_id)
+        worker["desired_state"]=desired["desired_state"]
+        worker["control_requested_at"]=desired.get("requested_at")
+        worker["control_reason"]=desired.get("reason")
+        worker["control_acknowledged_at"]=desired.get("acknowledged_at")
+        if desired["desired_state"] == "draining" and int(worker.get("active_tasks") or 0) == 0:
+            worker["display_state"]="drained"
+        return {"worker":worker,"executions":self.store.executions_for_worker(worker_id),"generated_at":_now()}
 
     def worker_logs(self,worker_id,after,limit):
         self.worker_detail(worker_id)
