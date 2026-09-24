@@ -249,7 +249,7 @@ def test_overview_renders_server_backed_incident_playbooks():
 
 def test_incident_playbook_actions_are_explicit_and_reuse_control_api():
     assert "runIncidentPlaybookAction" in DASHBOARD_HTML
-    assert "runWorkerControl(workerId,action,jobKey||null)" in DASHBOARD_HTML
+    assert "runWorkerControl(workerId,action,jobKey||null,incidentId||null)" in DASHBOARD_HTML
     assert "confirmControlAction" in DASHBOARD_HTML
     assert "disabled" in DASHBOARD_HTML
 
@@ -258,3 +258,22 @@ def test_incident_inspection_playbooks_only_navigate():
     assert 'action==="inspect-worker"' in DASHBOARD_HTML
     assert 'action==="inspect-job"' in DASHBOARD_HTML
     assert "openWorker(encodeURIComponent(workerId))" in DASHBOARD_HTML
+
+
+def test_incident_playbook_actions_send_incident_id():
+    assert "data-incident-id" in DASHBOARD_HTML
+    assert "this.dataset.incidentId" in DASHBOARD_HTML
+    assert "body.incident_id=incidentId" in DASHBOARD_HTML
+
+
+def test_activity_view_renders_remediation_history():
+    assert "/v1/dashboard/remediations?limit=50" in DASHBOARD_HTML
+    assert "Historique des remédiations" in DASHBOARD_HTML
+    assert "row.incident_id" in DASHBOARD_HTML
+    assert "row.outcome" in DASHBOARD_HTML
+    assert "row.requested_by" in DASHBOARD_HTML
+
+
+def test_direct_worker_controls_do_not_require_incident_id():
+    assert "async function runWorkerControl(workerId,action,jobKey=null,incidentId=null)" in DASHBOARD_HTML
+    assert "if(incidentId)body.incident_id=incidentId" in DASHBOARD_HTML

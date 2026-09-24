@@ -305,6 +305,106 @@ class DashboardStore:
                 (incident_id,),
             )
 
+    def append_remediation_event(
+        self,
+        *,
+        incident_id: str,
+        action: str,
+        requested_by: str,
+        worker_id: str | None = None,
+        job_key: str | None = None,
+        outcome: str = "requested",
+        error_code: str | None = None,
+        at: str | None = None,
+    ) -> dict:
+        ident = uuid4().hex
+        timestamp = at or _now()
+        with self.backend.transaction() as db:
+            incident = self._fetchone(
+                db,
+                "SELECT id FROM dashboard_incidents WHERE id=?",
+                (incident_id,),
+            )
+            if incident is None:
+                raise KeyError(incident_id)
+            _execute(
+                db,
+                self.backend,
+                """INSERT INTO dashboard_remediation_events(
+                    id, incident_id, action, worker_id, job_key,
+                    requested_by, outcome, error_code, requested_at,
+                    completed_at
+                ) VALUES(?,?,?,?,?,?,?,?,?,NULL)""",
+                (
+                    ident,
+                    incident_id,
+                    action,
+                    worker_id,
+                    job_key,
+                    requested_by,
+                    outcome,
+                    error_code,
+                    timestamp,
+                ),
+            )
+            return self._fetchone(
+                db,
+                "SELECT * FROM dashboard_remediation_events WHERE id=?",
+                (ident,),
+            )
+
+    def update_remediation_event(
+        self,
+        event_id: str,
+        *,
+        outcome: str,
+        error_code: str | None = None,
+        completed_at: str | None = None,
+    ) -> dict:
+        timestamp = completed_at or _now()
+        with self.backend.transaction() as db:
+            _execute(
+                db,
+                self.backend,
+                """UPDATE dashboard_remediation_events
+                   SET outcome=?, error_code=?, completed_at=?
+                   WHERE id=?""",
+                (outcome, error_code, timestamp, event_id),
+            )
+            row = self._fetchone(
+                db,
+                "SELECT * FROM dashboard_remediation_events WHERE id=?",
+                (event_id,),
+            )
+            if row is None:
+                raise KeyError(event_id)
+            return row
+
+    def remediation_events(
+        self,
+        *,
+        limit: int = 100,
+        incident_id: str | None = None,
+    ) -> list[dict]:
+        bounded = max(1, min(500, int(limit)))
+        with self.backend.connect() as db:
+            if incident_id is None:
+                return self._fetchall(
+                    db,
+                    """SELECT * FROM dashboard_remediation_events
+                       ORDER BY requested_at DESC, id DESC
+                       LIMIT ?""",
+                    (bounded,),
+                )
+            return self._fetchall(
+                db,
+                """SELECT * FROM dashboard_remediation_events
+                   WHERE incident_id=?
+                   ORDER BY requested_at DESC, id DESC
+                   LIMIT ?""",
+                (incident_id, bounded),
+            )
+
     def append_control_audit(
         self,
         *,

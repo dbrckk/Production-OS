@@ -433,6 +433,41 @@ Interrupting remediation always requires an explicit operator action and reuses 
 
 The browser receives no GitHub, worker, or operator credentials from playbook generation.
 
+## Dashboard Control Center Release 6 — Remediation history
+
+Incident-linked remediation actions now have durable lineage in a dedicated remediation ledger.
+
+This ledger is separate from the generic control audit and records only structured fields:
+
+```text
+incident_id
+action
+worker_id
+job_key
+requested_by
+outcome
+error_code
+requested_at
+completed_at
+```
+
+No credentials, authorization headers, tokens, arbitrary metadata or free-form request payloads are stored.
+
+When a playbook action is executed from the dashboard, the browser sends the incident id together with the existing worker control request. The server then re-derives the current incident playbook and verifies the exact action, worker target, job target and availability before any control mutation occurs.
+
+If the incident is stale, resolved, the target changed, or the suggested action is no longer available, the server returns a conflict and does not create control or remediation state.
+
+Direct operator controls remain supported without an incident id and continue to use the existing control audit only.
+
+The dashboard Activity view exposes both:
+
+```text
+Audit des contrôles
+Historique des remédiations
+```
+
+so operators can distinguish ordinary control actions from incident-driven remediation.
+
 ## Design principles
 
 - Evidence over assumptions

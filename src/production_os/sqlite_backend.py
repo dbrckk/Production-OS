@@ -18,7 +18,7 @@ def _utcnow() -> str:
 
 
 class SQLiteBackend:
-    SCHEMA_VERSION = 11
+    SCHEMA_VERSION = 12
 
     def __init__(self, path: str | Path):
         self.path = Path(path)
@@ -339,6 +339,24 @@ class SQLiteBackend:
                 );
                 CREATE INDEX IF NOT EXISTS idx_dashboard_incidents_status_time
                 ON dashboard_incidents(status, last_seen_at DESC);
+                CREATE TABLE IF NOT EXISTS dashboard_remediation_events (
+                    id TEXT PRIMARY KEY,
+                    incident_id TEXT NOT NULL,
+                    action TEXT NOT NULL,
+                    worker_id TEXT,
+                    job_key TEXT,
+                    requested_by TEXT NOT NULL,
+                    outcome TEXT NOT NULL,
+                    error_code TEXT,
+                    requested_at TEXT NOT NULL,
+                    completed_at TEXT,
+                    FOREIGN KEY(incident_id) REFERENCES dashboard_incidents(id)
+                        ON DELETE RESTRICT
+                );
+                CREATE INDEX IF NOT EXISTS idx_dashboard_remediation_incident_time
+                ON dashboard_remediation_events(incident_id, requested_at DESC);
+                CREATE INDEX IF NOT EXISTS idx_dashboard_remediation_requested_at
+                ON dashboard_remediation_events(requested_at DESC);
                 CREATE TABLE IF NOT EXISTS job_executions (
                     id TEXT PRIMARY KEY, job_key TEXT NOT NULL, workflow_id TEXT,
                     workflow_task_id TEXT, repository TEXT NOT NULL, worker_id TEXT NOT NULL,
