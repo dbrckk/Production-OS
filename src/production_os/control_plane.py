@@ -14,6 +14,7 @@ from .portfolio_optimizer import PortfolioOptimizer
 from .github_client import GitHubClient
 from .release_ledger import ReleaseLedger
 from .dashboard_store import DashboardStore
+from .dashboard_control import DashboardControl
 from .dashboard_service import DashboardService, DashboardNotFound
 from .dashboard_ui import DASHBOARD_HTML
 from .github_webhook import (
@@ -48,10 +49,15 @@ class ControlPlane:
     ):
         self.backend = open_backend(database)
         self.dashboard_store = DashboardStore(self.backend)
-        self.dashboard = DashboardService(self)
         self.queue = job_queue_for(self.backend)
         self.workers = worker_registry_for(self.backend)
         self.workflows = WorkflowEngine(self.backend, self.queue)
+        self.dashboard_control = DashboardControl(
+            self.dashboard_store,
+            self.queue,
+            self.workflows,
+        )
+        self.dashboard = DashboardService(self)
         self.optimizer = ExecutionOptimizer(self.backend)
         self.speculation = SpeculationManager(self.backend, self.queue)
         self.portfolio = PortfolioOptimizer(self.workflows, self.optimizer)
@@ -1109,11 +1115,34 @@ def make_handler(control: ControlPlane):
                             job
                         ):
                             stale_job_keys.append(str(key))
+                    control_state = body.get("control_state")
+                    if control_state is not None:
+                        current_control = control.dashboard_control.worker_state(
+                            str(body["worker_id"])
+                        )
+                        if str(control_state) == current_control["desired_state"]:
+                            current_control = (
+                                control.dashboard_control.acknowledge_worker_state(
+                                    str(body["worker_id"]),
+                                    str(control_state),
+                                )
+                            )
+                    else:
+                        current_control = control.dashboard_control.worker_state(
+                            str(body["worker_id"])
+                        )
                     self._send(
                         HTTPStatus.OK,
                         {
                             "worker":worker.to_dict(),
                             "stale_job_keys":stale_job_keys,
+                            "control":{
+                                "worker":current_control,
+                                "jobs":{
+                                    str(key):control.dashboard_control.job_state(str(key))
+                                    for key in active_job_keys
+                                },
+                            },
                         },
                     )
                     return
@@ -1215,6 +1244,11 @@ def make_handler(control: ControlPlane):
                     capabilities = [
                         str(x) for x in body.get("capabilities", [])
                     ]
+
+                    desired = control.dashboard_control.worker_state(worker_id)
+                    if desired["desired_state"] in {"paused", "draining"}:
+                        self._send(HTTPStatus.NO_CONTENT, {})
+                        return
 
                     compatible = []
                     for queued in control.queue.peek_candidates(
