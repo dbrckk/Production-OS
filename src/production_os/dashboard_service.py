@@ -9,6 +9,7 @@ from .dashboard_usage import aggregate_usage
 from .dashboard_alerts import derive_alerts
 from .dashboard_health import derive_control_health
 from .dashboard_incidents import dedupe_key, signals_from_health
+from .dashboard_playbooks import derive_incident_playbook
 from .project_progress import ProjectProgressEngine, build_project_evidence, workflow_progress
 
 
@@ -377,11 +378,57 @@ class DashboardService:
             "open","acknowledged","resolved"
         }:
             raise ValueError("invalid incident status")
+        rows = self.store.dashboard_incidents(
+            limit=limit,
+            status=status,
+        )
+        kick_mode = (
+            "immediate"
+            if (
+                self.control.dashboard_control.github is not None
+                and self.control.dashboard_control.actions_repository
+                and self.control.dashboard_control.actions_workflow
+            )
+            else "scheduled_fallback"
+        )
+        enriched = []
+        for incident in rows:
+            item = dict(incident)
+            recoverable_jobs = []
+            job = None
+            if (
+                item.get("code") == "stale_busy_workers"
+                and item.get("target_type") == "worker"
+            ):
+                with self.control.backend.connect() as db:
+                    found = _execute(
+                        db,
+                        self.control.backend,
+                        """SELECT key, repository, task, delivery_attempt, ack_deadline
+                           FROM jobs
+                           WHERE claimed_by=? AND status='claimed'
+                             AND ack_deadline IS NOT NULL AND ack_deadline <= ?
+                           ORDER BY ack_deadline ASC""",
+                        (item.get("target_id"), _now()),
+                    ).fetchall()
+                recoverable_jobs = [dict(row) for row in found]
+            elif (
+                item.get("code") == "stale_running_executions"
+                and item.get("target_type") == "job"
+            ):
+                try:
+                    job = self.control.queue.get(str(item.get("target_id")))
+                except KeyError:
+                    job = None
+            item["playbook"] = derive_incident_playbook(
+                item,
+                actions_kick_mode=kick_mode,
+                recoverable_jobs=recoverable_jobs,
+                job=job,
+            )
+            enriched.append(item)
         return {
-            "incidents":self.store.dashboard_incidents(
-                limit=limit,
-                status=status,
-            ),
+            "incidents":enriched,
             "health_status":health["status"],
             "generated_at":_now(),
         }
