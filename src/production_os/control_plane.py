@@ -828,6 +828,61 @@ def make_handler(control: ControlPlane):
 
             try:
                 parts = [part for part in parsed.path.split("/") if part]
+                if (
+                    len(parts) == 5
+                    and parts[0] == "v1"
+                    and parts[1] == "dashboard"
+                    and parts[2] == "backups"
+                    and parts[4] == "verify"
+                ):
+                    principal = self._require("operator")
+                    if principal is None:
+                        return
+                    if str(body.get("confirm") or "") != "VERIFY_BACKUP_FOR_RESTORE":
+                        self._send(
+                            HTTPStatus.BAD_REQUEST,
+                            {"error":"exact restore verification confirmation required"},
+                        )
+                        return
+                    backup_id = parts[3]
+                    requested_by = f"{principal.role}:{principal.name}"
+                    audit = control.dashboard_store.append_control_audit(
+                        action="backup-verify",
+                        worker_id="control-plane",
+                        requested_by=requested_by,
+                        outcome="requested",
+                    )
+                    try:
+                        result = (
+                            control.dashboard.verify_backup_restore_readiness(
+                                backup_id
+                            )
+                        )
+                    except BackupError as exc:
+                        control.dashboard_store.update_control_audit(
+                            audit["id"],
+                            outcome="failed",
+                            error_code="backup_verify_failed",
+                        )
+                        self._send(
+                            HTTPStatus.CONFLICT,
+                            {"error":str(exc)},
+                        )
+                        return
+                    except Exception:
+                        control.dashboard_store.update_control_audit(
+                            audit["id"],
+                            outcome="failed",
+                            error_code="backup_verify_failed",
+                        )
+                        raise
+                    control.dashboard_store.update_control_audit(
+                        audit["id"],
+                        outcome="succeeded",
+                    )
+                    self._send(HTTPStatus.OK, result)
+                    return
+
                 if parsed.path == "/v1/dashboard/backups/create":
                     principal = self._require("operator")
                     if principal is None:
