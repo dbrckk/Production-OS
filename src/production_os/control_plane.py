@@ -773,6 +773,54 @@ def make_handler(control: ControlPlane):
                 return
 
             try:
+                parts = [part for part in parsed.path.split("/") if part]
+                if (
+                    len(parts) == 5
+                    and parts[0] == "v1"
+                    and parts[1] == "dashboard"
+                    and parts[2] == "workers"
+                    and parts[4] == "control"
+                ):
+                    principal = self._require("operator")
+                    if principal is None:
+                        return
+                    action = str(body.get("action") or "").strip()
+                    state_by_action = {
+                        "pause":"paused",
+                        "resume":"active",
+                        "drain":"draining",
+                    }
+                    desired_state = state_by_action.get(action)
+                    if desired_state is None:
+                        self._send(
+                            HTTPStatus.BAD_REQUEST,
+                            {"error":"invalid worker control action"},
+                        )
+                        return
+                    worker_id = parts[3]
+                    state = control.dashboard_control.set_worker_state(
+                        worker_id,
+                        desired_state,
+                        requested_by=f"{principal.role}:{principal.name}",
+                        reason=(
+                            str(body.get("reason")).strip()
+                            if body.get("reason") is not None
+                            else None
+                        ),
+                    )
+                    self._send(
+                        HTTPStatus.ACCEPTED,
+                        {
+                            "accepted":True,
+                            "worker_id":worker_id,
+                            "desired_state":state["desired_state"],
+                            "requested_at":state.get("requested_at"),
+                            "acknowledged":state.get("acknowledged_at") is not None,
+                            "acknowledged_at":state.get("acknowledged_at"),
+                        },
+                    )
+                    return
+
                 if parsed.path == "/v1/stragglers/speculate":
                     principal = self._require("operator")
                     if principal is None:
