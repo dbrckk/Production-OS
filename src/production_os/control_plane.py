@@ -310,6 +310,10 @@ def make_handler(control: ControlPlane):
                             payload = service.project_history(repository)
                         else:
                             raise DashboardNotFound(parsed.path)
+                    elif parsed.path == "/v1/dashboard/control-audit":
+                        payload = service.control_audit(
+                            int(query.get("limit", ["100"])[0])
+                        )
                     elif parsed.path == "/v1/dashboard/activity":
                         payload = service.activity(
                             repository=query.get("repository",[None])[0],
