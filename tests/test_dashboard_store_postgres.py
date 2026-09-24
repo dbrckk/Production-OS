@@ -1,3 +1,4 @@
+from uuid import uuid4
 import os
 
 import pytest
@@ -145,3 +146,58 @@ def test_postgres_storage_maintenance_snapshot_has_size_and_no_dsn():
     } <= names
     assert "dsn" not in payload
     assert str(DSN) not in str(payload)
+
+
+def test_postgres_retention_classifies_terminal_and_running_executions_safely():
+    backend = PostgresBackend(DSN)
+    suffix = uuid4().hex
+    old = "2020-01-01T00:00:00+00:00"
+    running_id = "retention-running-" + suffix
+    terminal_id = "retention-terminal-" + suffix
+    with backend.transaction() as db:
+        db.execute(
+            """INSERT INTO job_executions(
+                id, job_key, repository, worker_id, status,
+                started_at, finished_at, created_at
+            ) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)""",
+            (
+                running_id,
+                "job-running-" + suffix,
+                "dbrckk/retention-parity",
+                "worker-a",
+                "running",
+                old,
+                None,
+                old,
+            ),
+        )
+        db.execute(
+            """INSERT INTO job_executions(
+                id, job_key, repository, worker_id, status,
+                started_at, finished_at, created_at
+            ) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)""",
+            (
+                terminal_id,
+                "job-terminal-" + suffix,
+                "dbrckk/retention-parity",
+                "worker-a",
+                "succeeded",
+                old,
+                old,
+                old,
+            ),
+        )
+    try:
+        payload = storage_maintenance_snapshot(backend)
+        executions = next(
+            row for row in payload["tables"]
+            if row["name"] == "executions"
+        )
+        assert executions["prunable_candidate_rows"] >= 1
+        assert executions["protected_candidate_rows"] >= 1
+    finally:
+        with backend.transaction() as db:
+            db.execute(
+                "DELETE FROM job_executions WHERE id IN (%s,%s)",
+                (running_id, terminal_id),
+            )

@@ -624,6 +624,35 @@ function renderIncidentPlaybook(item){
     esc(String(suggestion.reason||""))+'</div>';
   }).join("");
 }
+async function pruneExpiredHistory(expected){
+ const count=Number(expected);
+ if(!Number.isInteger(count)||count<=0)return;
+ if(!window.confirm(
+  "Supprimer définitivement "+count+
+  " ligne(s) historiques expirée(s) ? Les données protégées seront conservées."
+ ))return;
+ try{
+  const result=await api(
+   "/v1/dashboard/maintenance/prune",
+   {
+    method:"POST",
+    body:JSON.stringify({
+     confirm:"PRUNE_EXPIRED_HISTORY",
+     expected_candidate_rows:count
+    })
+   }
+  );
+  await loadOverview();
+  const receipt=document.getElementById("maintenance-prune-status");
+  if(receipt){
+   receipt.textContent="Nettoyage terminé · "+formatNumber(result.deleted_rows)+" ligne(s) supprimée(s).";
+  }
+ }catch(e){
+  await loadOverview();
+  const receipt=document.getElementById("maintenance-prune-status");
+  if(receipt)receipt.textContent=String(e).replace(/^Error:\\s*/,"");
+ }
+}
 async function loadOverview(){
  const el=document.getElementById("overview-metrics");
  try{
@@ -661,13 +690,21 @@ async function loadOverview(){
     return '<div class="small"><strong>'+esc(String(item.title||item.code||"Alerte"))+'</strong> · '+esc(String(item.severity||""))+'<br>'+esc(String(item.message||""))+'</div>';
    }).join('')+'</div>':'';
   const maintenanceTables=maintenance.tables||[];
+  const prunable=Number(maintenance.prunable_candidate_rows||0);
+  const protectedRows=Number(maintenance.protected_candidate_rows||0);
+  const pruneButton=prunable>0
+   ?'<button class="secondary-btn" type="button" data-prunable="'+esc(String(prunable))+'" onclick="pruneExpiredHistory(Number(this.dataset.prunable))">Nettoyer l’historique expiré</button>'
+   :'';
   const maintenanceHtml=
    '<div class="card"><div class="section-head"><h2>Stockage & rétention</h2><span class="badge">'+esc(String(maintenance.status||"unknown"))+'</span></div>'+
-   '<p class="small"><strong>Backend :</strong> '+esc(String(maintenance.backend_kind||"inconnu"))+' · <strong>Taille :</strong> '+esc(formatBytes(maintenance.database_size_bytes))+' · <strong>Lignes suivies :</strong> '+formatNumber(maintenance.total_rows)+' · <strong>Candidates :</strong> '+formatNumber(maintenance.candidate_rows)+'</p>'+
+   '<p class="small"><strong>Backend :</strong> '+esc(String(maintenance.backend_kind||"inconnu"))+' · <strong>Taille :</strong> '+esc(formatBytes(maintenance.database_size_bytes))+' · <strong>Lignes suivies :</strong> '+formatNumber(maintenance.total_rows)+'</p>'+
+   '<p class="small"><strong>Prunables :</strong> '+formatNumber(prunable)+' · <strong>Protégées :</strong> '+formatNumber(protectedRows)+'</p>'+
    (maintenanceTables.length?maintenanceTables.map(function(row){
     const invalid=Number(row.invalid_timestamps||0);
-    return '<div class="small"><strong>'+esc(String(row.name||row.table||"table"))+'</strong> · '+formatNumber(row.rows)+' lignes · rétention '+formatNumber(row.retention_days)+' j · candidates '+formatNumber(row.candidate_rows)+(invalid?' · timestamps invalides '+formatNumber(invalid):'')+'</div>';
+    return '<div class="small"><strong>'+esc(String(row.name||row.table||"table"))+'</strong> · '+formatNumber(row.rows)+' lignes · rétention '+formatNumber(row.retention_days)+' j · prunables '+formatNumber(row.prunable_candidate_rows)+' · protégées '+formatNumber(row.protected_candidate_rows)+(invalid?' · timestamps invalides '+formatNumber(invalid):'')+'</div>';
    }).join(""):'<div class="small">Diagnostic de stockage indisponible.</div>')+
+   '<div style="margin-top:10px">'+pruneButton+'</div>'+
+   '<div id="maintenance-prune-status" class="status-message"></div>'+
    '</div>';
   el.innerHTML=
    '<div class="status-grid">'+

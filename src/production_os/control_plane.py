@@ -18,6 +18,7 @@ from .dashboard_store import DashboardStore
 from .dashboard_control import DashboardControl
 from .dashboard_service import DashboardService, DashboardNotFound
 from .dashboard_ui import DASHBOARD_HTML
+from .dashboard_maintenance import RetentionCandidateConflict
 from .github_webhook import (
     WebhookDeliveryStore,
     WebhookError,
@@ -824,6 +825,77 @@ def make_handler(control: ControlPlane):
 
             try:
                 parts = [part for part in parsed.path.split("/") if part]
+                if parsed.path == "/v1/dashboard/maintenance/prune":
+                    principal = self._require("operator")
+                    if principal is None:
+                        return
+                    if str(body.get("confirm") or "") != "PRUNE_EXPIRED_HISTORY":
+                        self._send(
+                            HTTPStatus.BAD_REQUEST,
+                            {"error":"exact prune confirmation required"},
+                        )
+                        return
+                    expected = body.get("expected_candidate_rows")
+                    if (
+                        isinstance(expected, bool)
+                        or not isinstance(expected, int)
+                        or expected < 0
+                    ):
+                        self._send(
+                            HTTPStatus.BAD_REQUEST,
+                            {"error":"expected_candidate_rows must be a non-negative integer"},
+                        )
+                        return
+                    requested_by = f"{principal.role}:{principal.name}"
+                    audit = control.dashboard_store.append_control_audit(
+                        action="retention-prune",
+                        worker_id="control-plane",
+                        requested_by=requested_by,
+                        outcome="requested",
+                    )
+                    try:
+                        result = control.dashboard.prune_maintenance(expected)
+                    except RetentionCandidateConflict as exc:
+                        control.dashboard_store.update_control_audit(
+                            audit["id"],
+                            outcome="conflict",
+                            error_code="candidate_count_mismatch",
+                        )
+                        self._send(
+                            HTTPStatus.CONFLICT,
+                            {
+                                "error":"retention candidate count changed",
+                                "expected_candidate_rows":exc.expected,
+                                "actual_candidate_rows":exc.actual,
+                                "deleted_rows":0,
+                            },
+                        )
+                        return
+                    except Exception:
+                        control.dashboard_store.update_control_audit(
+                            audit["id"],
+                            outcome="failed",
+                            error_code="retention_prune_failed",
+                        )
+                        raise
+                    control.dashboard_store.update_control_audit(
+                        audit["id"],
+                        outcome="succeeded",
+                    )
+                    self._send(
+                        HTTPStatus.OK,
+                        {
+                            **result,
+                            "protected_candidate_rows":(
+                                result.get("maintenance", {}).get(
+                                    "protected_candidate_rows",
+                                    0,
+                                )
+                            ),
+                        },
+                    )
+                    return
+
                 if (
                     len(parts) == 5
                     and parts[0] == "v1"
