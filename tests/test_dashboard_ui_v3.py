@@ -188,3 +188,9 @@ def test_autopilot_navigation_preserves_polling_scroll_contract():
     assert "window.scrollY" in DASHBOARD_HTML
     assert "window.scrollTo" in DASHBOARD_HTML
     assert "location.reload(" not in DASHBOARD_HTML
+
+
+def test_autopilot_surfaces_degraded_ranking_state():
+    assert "Ranking :" in DASHBOARD_HTML
+    assert "Dégradé · workflow de référence indisponible" in DASHBOARD_HTML
+    assert 'row.ranking_status==="degraded"' in DASHBOARD_HTML
