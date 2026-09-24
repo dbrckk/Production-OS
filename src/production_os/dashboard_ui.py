@@ -129,7 +129,7 @@ body{overflow-x:hidden}
 </nav>
 <section class="v3-workspace" aria-live="polite">
 <div id="view-overview" class="v3-view active"><div class="section-head"><h2>Vue générale</h2><div class="v3-tabs" aria-label="Période"><button type="button" onclick="setDashboardWindow('24h')">24h</button><button type="button" onclick="setDashboardWindow('7d')">7d</button><button type="button" onclick="setDashboardWindow('30d')">30d</button></div></div><div id="overview-metrics"></div></div>
-<div id="view-projects" class="v3-view"><h2>Projets</h2><div id="projects-list"></div><div class="v3-tabs" aria-label="Détail projet"><button>Aperçu</button><button>Avancement</button><button>Commits</button><button>API</button><button>Workflows</button><button>Qualité</button><button>Historique</button></div><div id="project-detail"></div></div>
+<div id="view-projects" class="v3-view"><h2>Projets</h2><div class="card"><h3>Projet suivi</h3><label for="managed-repository">Repository</label><input id="managed-repository" placeholder="owner/repo"><label for="managed-goal">Objectif final</label><textarea id="managed-goal" rows="4" placeholder="Décris le résultat final à atteindre puis valider."></textarea><button class="primary-btn" type="button" onclick="createManagedProject()">Créer le projet suivi</button><div id="managed-project-create-status" class="status-message"></div></div><div id="managed-projects-list"></div><h3 style="margin-top:18px">Projets observés</h3><div id="projects-list"></div><div class="v3-tabs" aria-label="Détail projet"><button>Aperçu</button><button>Avancement</button><button>Commits</button><button>API</button><button>Workflows</button><button>Qualité</button><button>Historique</button></div><div id="project-detail"></div></div>
 <div id="view-workers" class="v3-view"><h2>Workers</h2><div id="workers-list"></div><div class="v3-tabs" aria-label="Détail worker"><button>Aperçu</button><button>Tâches</button><button>Logs</button><button>API</button><button>Historique</button><button data-worker-tab="control">Control</button></div><div id="worker-detail"></div></div>
 <div id="view-autopilot" class="v3-view"><div class="section-head"><h2>Autopilot</h2><span id="autopilot-count" class="badge">0</span></div><div id="autopilot-list"></div></div>
 <div id="view-activity" class="v3-view"><h2>Activité</h2><div id="activity-list"></div></div>
@@ -862,18 +862,96 @@ async function acknowledgeIncident(incidentId){
 function openProject(encoded){
  navigate({view:"projects",repository:decodeURIComponent(encoded),workerId:null,tab:"overview"});
 }
+async function createManagedProject(){
+ const repository=document.getElementById("managed-repository").value.trim();
+ const finalGoal=document.getElementById("managed-goal").value.trim();
+ const status=document.getElementById("managed-project-create-status");
+ if(!repository||!finalGoal){
+  status.textContent="Repository et objectif final requis.";
+  return;
+ }
+ try{
+  const result=await api(
+   "/v1/dashboard/managed-projects",
+   {
+    method:"POST",
+    body:JSON.stringify({
+     repository:repository,
+     final_goal:finalGoal
+    })
+   }
+  );
+  status.textContent="Projet suivi créé · génération "+String((result.project||{}).generation||1);
+  document.getElementById("managed-goal").value="";
+  await loadProjectsView();
+ }catch(e){
+  status.textContent=String(e).replace(/^Error:\\s*/,"");
+ }
+}
+async function runManagedProjectAction(projectId,action){
+ const projectKey=String(projectId||"");
+ let body={};
+ if(action==="instruction"){
+  const field=document.getElementById("managed-instruction-"+projectKey);
+  const instruction=field?field.value.trim():"";
+  if(!instruction)return;
+  body={instruction:instruction};
+ }
+ if(action==="complete"){
+  if(!window.confirm("Valider définitivement ce projet comme terminé ?"))return;
+  body={confirm:"MARK_PROJECT_DONE"};
+ }
+ try{
+  await api(
+   "/v1/dashboard/managed-projects/"+encodeURIComponent(projectKey)+"/"+action,
+   {method:"POST",body:JSON.stringify(body)}
+  );
+  await loadProjectsView();
+ }catch(e){
+  const target=document.getElementById("managed-action-status-"+projectKey);
+  if(target)target.textContent=String(e).replace(/^Error:\\s*/,"");
+ }
+}
+function renderManagedProjects(rows){
+ if(!rows.length)return '<div class="empty">Aucun projet suivi.</div>';
+ return rows.map(function(project){
+  const id=String(project.id||"");
+  const state=String(project.status||"");
+  const canFollow=state==="REVIEW_REQUIRED"||state==="NEEDS_ATTENTION";
+  const canComplete=state==="REVIEW_REQUIRED";
+  const runs=project.runs||[];
+  const workflow=project.current_workflow||{};
+  return '<div class="card">'+
+   '<div class="section-head"><h2>'+esc(String(project.repository||""))+'</h2><span class="badge">'+esc(state)+'</span></div>'+
+   '<p class="small"><strong>Objectif final :</strong> '+esc(String(project.final_goal||""))+'</p>'+
+   '<p class="small"><strong>Génération :</strong> '+formatNumber(project.generation)+' · <strong>Workflow :</strong> '+esc(String(workflow.status||"indisponible"))+'</p>'+
+   '<p class="small"><strong>Historique :</strong> '+formatNumber(runs.length)+' génération(s)</p>'+
+   (canFollow?'<textarea id="managed-instruction-'+esc(id)+'" rows="3" placeholder="Instruction supplémentaire"></textarea><div class="v3-tabs"><button class="secondary-btn" type="button" data-project-id="'+esc(id)+'" onclick="runManagedProjectAction(this.dataset.projectId,\'instruction\')">Ajouter une instruction</button><button class="secondary-btn" type="button" data-project-id="'+esc(id)+'" onclick="runManagedProjectAction(this.dataset.projectId,\'retest\')">Retester</button>'+(canComplete?'<button class="secondary-btn" type="button" data-project-id="'+esc(id)+'" onclick="runManagedProjectAction(this.dataset.projectId,\'complete\')">Valider terminé</button>':'')+'</div>':'')+
+   '<div id="managed-action-status-'+esc(id)+'" class="status-message"></div>'+
+   '</div>';
+ }).join("");
+}
 async function loadProjectsView(){
  const list=document.getElementById("projects-list");
+ const managedList=document.getElementById("managed-projects-list");
  try{
-  const data=await api("/v1/dashboard/projects");
+  const results=await Promise.all([
+   api("/v1/dashboard/projects"),
+   api("/v1/dashboard/managed-projects?limit=50")
+  ]);
+  const data=results[0],managed=results[1]||{};
   const rows=data.projects||[];
+  managedList.innerHTML=renderManagedProjects(managed.projects||[]);
   list.innerHTML=rows.length?rows.map(function(item){
    const repo=String(item.repository||"");
    return '<button class="secondary-btn" type="button" data-repo="'+esc(encodeURIComponent(repo))+'" onclick="openProject(this.dataset.repo)">'+esc(repo)+'</button>';
   }).join(" "):'<div class="empty">Aucun projet observé.</div>';
   if(appState.repository)await loadProjectDetail(appState.repository);
   else document.getElementById("project-detail").innerHTML='<div class="empty">Sélectionne un projet.</div>';
- }catch(e){list.innerHTML=errorCard(e)}
+ }catch(e){
+  list.innerHTML=errorCard(e);
+  if(managedList)managedList.innerHTML=errorCard(e);
+ }
 }
 async function loadProjectDetail(repository){
  const el=document.getElementById("project-detail");
