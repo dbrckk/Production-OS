@@ -623,6 +623,22 @@ class DashboardService:
             "generated_at":_now(),
         }
 
+    def managed_projects(self, *, limit: int = 100) -> dict:
+        return {
+            "projects":self.control.managed_projects.list(limit=limit),
+            "generated_at":_now(),
+        }
+
+    def managed_project(self, project_id: str) -> dict:
+        try:
+            project = self.control.managed_projects.get(project_id)
+        except KeyError as exc:
+            raise DashboardNotFound(project_id) from exc
+        return {
+            "project":project,
+            "generated_at":_now(),
+        }
+
     def projects(self):
         return {"projects":[{"repository":r,"snapshot":self.store.latest_repository_snapshot(r),
                              "progress":self.store.latest_progress_snapshot(r)} for r in self._repositories()],
