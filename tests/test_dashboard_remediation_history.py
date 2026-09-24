@@ -178,7 +178,7 @@ def test_resolved_verification_never_regresses_after_incident_reopens(tmp_path):
     assert after["verification_checks"] == before["verification_checks"]
 
 
-def test_sqlite_v13_database_is_migrated_additively_to_v14(tmp_path):
+def test_sqlite_v13_database_is_migrated_additively_to_v15(tmp_path):
     path = tmp_path / "migration.sqlite"
     db = sqlite3.connect(path)
     db.executescript(
@@ -256,7 +256,13 @@ def test_sqlite_v13_database_is_migrated_additively_to_v14(tmp_path):
         row = conn.execute(
             "SELECT * FROM dashboard_remediation_events WHERE id='remediation-1'"
         ).fetchone()
-    assert version == "14"
+        managed = conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='managed_projects'"
+        ).fetchone()
+        managed_runs = conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='managed_project_runs'"
+        ).fetchone()
+    assert version == "15"
     assert {
         "verification_state",
         "verification_checks",
@@ -268,6 +274,8 @@ def test_sqlite_v13_database_is_migrated_additively_to_v14(tmp_path):
     assert row["verification_state"] == "pending"
     assert row["verification_checks"] == 0
     assert row["recurrence_state"] == "not_evaluated"
+    assert managed["name"] == "managed_projects"
+    assert managed_runs["name"] == "managed_project_runs"
 
 
 def test_repeated_active_verification_is_idempotent(tmp_path):
