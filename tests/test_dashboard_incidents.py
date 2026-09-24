@@ -35,7 +35,7 @@ def test_incident_upsert_deduplicates_and_counts_occurrences(tmp_path):
         target_id="global",
     )
     assert second["id"] == first["id"]
-    assert second["occurrence_count"] == 2
+    assert second["occurrence_count"] == 1
     assert second["message"] == "3 jobs en attente"
     rows = store.dashboard_incidents(limit=10)
     assert len(rows) == 1
@@ -266,3 +266,26 @@ def test_resolved_incident_cannot_be_acknowledged(tmp_path):
     finally:
         server.shutdown()
         server.server_close()
+
+
+def test_stale_incident_age_updates_do_not_create_new_occurrences(tmp_path):
+    store = _store(tmp_path)
+    first = store.upsert_dashboard_incident(
+        code="stale_busy_workers",
+        severity="medium",
+        title="Worker stale",
+        message="worker-a stale depuis 200.0 s",
+        target_type="worker",
+        target_id="worker-a",
+    )
+    second = store.upsert_dashboard_incident(
+        code="stale_busy_workers",
+        severity="medium",
+        title="Worker stale",
+        message="worker-a stale depuis 205.0 s",
+        target_type="worker",
+        target_id="worker-a",
+    )
+    assert second["id"] == first["id"]
+    assert second["occurrence_count"] == 1
+    assert second["message"] == "worker-a stale depuis 205.0 s"
