@@ -81,3 +81,21 @@ def test_resolved_incident_has_no_remediation_actions():
         "status":"resolved",
     }, actions_kick_mode="immediate")
     assert result["suggestions"] == []
+
+
+def test_stale_job_inspection_is_unavailable_without_owner():
+    incident = {
+        "id":"i6",
+        "code":"stale_running_executions",
+        "target_type":"job",
+        "target_id":"job-orphan",
+    }
+    result = derive_incident_playbook(
+        incident,
+        job={"key":"job-orphan","status":"running","claimed_by":None},
+    )
+    inspect = next(x for x in result["suggestions"] if x["action"] == "inspect-job")
+    cancel = next(x for x in result["suggestions"] if x["action"] == "cancel-current")
+    assert inspect["availability"] == "unavailable"
+    assert "propriétaire" in inspect["reason"]
+    assert cancel["availability"] == "unavailable"
