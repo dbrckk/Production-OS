@@ -223,3 +223,9 @@ def test_overview_renders_operational_health():
     assert "Santé opérationnelle" in DASHBOARD_HTML
     assert "health.status" in DASHBOARD_HTML
     assert "health.reasons" in DASHBOARD_HTML
+
+
+def test_worker_control_exposes_recover_stuck_only_from_recoverable_jobs():
+    assert 'data-control-action="recover-stuck"' in DASHBOARD_HTML
+    assert "detail.recoverable_jobs" in DASHBOARD_HTML
+    assert "Récupérer ce job bloqué" in DASHBOARD_HTML
