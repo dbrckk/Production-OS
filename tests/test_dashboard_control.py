@@ -66,3 +66,61 @@ def test_job_cancel_request_and_acknowledgement_are_durable(tmp_path):
     assert requested["acknowledged_at"] is None
     acknowledged = control.acknowledge_job_cancel("job-a")
     assert acknowledged["acknowledged_at"] is not None
+
+
+class _FakeGitHub:
+    def __init__(self, fail=False):
+        self.fail = fail
+        self.calls = []
+
+    def dispatch_workflow(self, repository, workflow, *, ref="main", inputs=None):
+        self.calls.append((repository, workflow, ref))
+        if self.fail:
+            raise RuntimeError("dispatch failed")
+
+
+def test_kick_dispatches_actions_worker_when_configured(control_fixture):
+    github = _FakeGitHub()
+    control = DashboardControl(
+        control_fixture.dashboard_store,
+        control_fixture.queue,
+        control_fixture.workflows,
+        github=github,
+        actions_repository="dbrckk/ai-dev-server",
+        actions_workflow="production-os-actions-worker.yml",
+        actions_ref="main",
+    )
+    result = control.kick_worker("github-actions-worker")
+    assert result["status"] == "dispatched"
+    assert github.calls == [(
+        "dbrckk/ai-dev-server",
+        "production-os-actions-worker.yml",
+        "main",
+    )]
+
+
+def test_kick_reports_scheduled_fallback_without_dispatch_credentials(control_fixture):
+    control = DashboardControl(
+        control_fixture.dashboard_store,
+        control_fixture.queue,
+        control_fixture.workflows,
+    )
+    assert control.kick_worker("github-actions-worker") == {
+        "status":"scheduled_fallback",
+        "poll_interval_seconds":300,
+    }
+
+
+def test_kick_reports_failed_when_dispatch_errors(control_fixture):
+    control = DashboardControl(
+        control_fixture.dashboard_store,
+        control_fixture.queue,
+        control_fixture.workflows,
+        github=_FakeGitHub(fail=True),
+        actions_repository="dbrckk/ai-dev-server",
+        actions_workflow="production-os-actions-worker.yml",
+    )
+    assert control.kick_worker("github-actions-worker") == {
+        "status":"failed",
+        "error":"github_dispatch_failed",
+    }
