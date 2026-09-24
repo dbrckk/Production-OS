@@ -106,3 +106,12 @@ def test_finish_execution_ignores_malformed_commit_shas(tmp_path):
         "commits":{"count":5,"shas":[valid,valid,"not-a-sha","b"*39,"G"*40,None,123]}})
     assert row["commit_count"] == 1
     assert row["commit_shas"] == [valid]
+
+
+def test_progress_snapshot_order_is_deterministic_when_timestamps_tie(tmp_path):
+    store=_store(tmp_path); captured="2026-09-24T04:00:00+00:00"
+    base={"repository":"dbrckk/example","captured_at":captured,"calculation_version":"project-progress/v1"}
+    store.save_progress_snapshot({**base,"id":"snapshot-a","project_progress":10})
+    store.save_progress_snapshot({**base,"id":"snapshot-z","project_progress":20})
+    assert store.latest_progress_snapshot("dbrckk/example")["id"] == "snapshot-z"
+    assert [row["id"] for row in store.progress_history("dbrckk/example")] == ["snapshot-z","snapshot-a"]
