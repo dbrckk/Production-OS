@@ -80,6 +80,7 @@ src/
     control_surface.py
     controller.py
     dashboard_alerts.py
+    dashboard_backups.py
     dashboard_control.py
     dashboard_github.py
     dashboard_health.py
@@ -190,6 +191,8 @@ tests/
   test_controller_asset_capabilities.py
   test_dashboard_alerts.py
   test_dashboard_api.py
+  test_dashboard_backup_api.py
+  test_dashboard_backups.py
   test_dashboard_control_api.py
   test_dashboard_control_audit.py
   test_dashboard_control_e2e.py
@@ -2399,6 +2402,8 @@ payload = service.worker_usage(worker_id, window)
 ⋮----
 payload = service.maintenance()
 ⋮----
+payload = service.backups()
+⋮----
 payload = service.repositories()
 ⋮----
 payload = service.projects()
@@ -2485,10 +2490,12 @@ body = self._read_json()
 ⋮----
 principal = self._require("operator")
 ⋮----
-expected = body.get("expected_candidate_rows")
-⋮----
 requested_by = f"{principal.role}:{principal.name}"
 audit = control.dashboard_store.append_control_audit(
+⋮----
+result = control.dashboard.create_verified_backup()
+⋮----
+expected = body.get("expected_candidate_rows")
 ⋮----
 result = control.dashboard.prune_maintenance(expected)
 ⋮----
@@ -2858,6 +2865,62 @@ last = _parse_time(worker.get("last_heartbeat"))
 age = max(0.0, (now - last).total_seconds())
 ⋮----
 severity_order = {"high":0, "medium":1, "low":2}
+````
+
+## File: src/production_os/dashboard_backups.py
+````python
+class BackupError(RuntimeError)
+⋮----
+def _now() -> str
+⋮----
+def _backend_kind(backend) -> str
+⋮----
+name = backend.__class__.__name__.lower()
+⋮----
+def _configured_dir() -> Path | None
+⋮----
+raw = str(os.getenv("PRODUCTION_OS_BACKUP_DIR") or "").strip()
+⋮----
+def _safe_manifest(path: Path) -> dict | None
+⋮----
+data = json.loads(path.read_text(encoding="utf-8"))
+⋮----
+allowed = {
+⋮----
+def backup_readiness(backend) -> dict
+⋮----
+kind = _backend_kind(backend)
+directory = _configured_dir()
+⋮----
+manifests = []
+⋮----
+item = _safe_manifest(path)
+⋮----
+parent = directory.parent
+⋮----
+def create_verified_sqlite_backup(backend) -> dict
+⋮----
+readiness = backup_readiness(backend)
+⋮----
+backup_id = (
+temp_path = directory / f".{backup_id}.sqlite.tmp"
+final_path = directory / f"{backup_id}.sqlite"
+manifest_path = directory / f"{backup_id}.json"
+temp_manifest = directory / f".{backup_id}.json.tmp"
+⋮----
+source = backend.connect()
+⋮----
+destination = sqlite3.connect(temp_path)
+⋮----
+row = destination.execute("PRAGMA integrity_check").fetchone()
+integrity = row[0] if row else None
+⋮----
+digest = sha256()
+size = 0
+⋮----
+chunk = handle.read(1024 * 1024)
+⋮----
+manifest = {
 ````
 
 ## File: src/production_os/dashboard_control.py
@@ -3374,6 +3437,10 @@ job = self.control.queue.get(str(item.get("target_id")))
 def remediation_analytics(self, window: str) -> dict
 ⋮----
 payload = aggregate_remediation_analytics(
+⋮----
+def backups(self) -> dict
+⋮----
+def create_verified_backup(self) -> dict
 ⋮----
 def control_audit(self, limit: int = 100) -> dict
 ⋮----
@@ -8149,6 +8216,75 @@ def test_dashboard_health_requires_viewer_and_has_stable_shape(running_control_p
 def test_worker_detail_includes_recoverable_jobs(running_control_plane)
 ````
 
+## File: tests/test_dashboard_backup_api.py
+````python
+def _auth()
+⋮----
+def _request(base, path, token, *, method="GET", body=None)
+⋮----
+data = None if body is None else json.dumps(body).encode("utf-8")
+request = urllib.request.Request(
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+def test_backup_catalog_is_viewer_readable_and_worker_forbidden(tmp_path, monkeypatch)
+⋮----
+backup_dir = tmp_path / "backups"
+⋮----
+control = ControlPlane(str(tmp_path / "control.sqlite"), authorizer=_auth())
+⋮----
+def test_backup_creation_requires_operator_and_exact_confirmation(tmp_path, monkeypatch)
+⋮----
+audit = control.dashboard_store.control_audit_events(limit=10)
+⋮----
+def test_unconfigured_backup_returns_conflict_and_failed_audit(tmp_path, monkeypatch)
+````
+
+## File: tests/test_dashboard_backups.py
+````python
+def test_sqlite_backup_contains_committed_durable_data(tmp_path, monkeypatch)
+⋮----
+db_path = tmp_path / "production.sqlite"
+backup_dir = tmp_path / "backups"
+⋮----
+backend = SQLiteBackend(db_path)
+⋮----
+manifest = create_verified_sqlite_backup(backend)
+backup_file = backup_dir / f"{manifest['backup_id']}.sqlite"
+⋮----
+value = db.execute(
+integrity = db.execute("PRAGMA integrity_check").fetchone()[0]
+⋮----
+def test_backup_hash_and_size_match_file_bytes(tmp_path, monkeypatch)
+⋮----
+backend = SQLiteBackend(tmp_path / "production.sqlite")
+⋮----
+payload = (backup_dir / f"{manifest['backup_id']}.sqlite").read_bytes()
+⋮----
+def test_manifest_contains_only_safe_metadata(tmp_path, monkeypatch)
+⋮----
+backend = SQLiteBackend(tmp_path / "secret-source.sqlite")
+⋮----
+on_disk = json.loads(
+⋮----
+encoded = json.dumps(on_disk).lower()
+⋮----
+def test_missing_backup_directory_configuration_writes_nothing(tmp_path, monkeypatch)
+⋮----
+readiness = backup_readiness(backend)
+⋮----
+class _FakePostgres
+⋮----
+def test_postgres_readiness_is_truthfully_unsupported(tmp_path, monkeypatch)
+⋮----
+readiness = backup_readiness(_FakePostgres())
+⋮----
+def test_backup_readiness_does_not_create_configured_directory(tmp_path, monkeypatch)
+````
+
 ## File: tests/test_dashboard_control_api.py
 ````python
 def _post(base, path, token, payload)
@@ -9284,6 +9420,10 @@ def test_storage_retention_ui_separates_prunable_and_protected_rows()
 def test_retention_prune_requires_explicit_confirmation_and_exact_phrase()
 ⋮----
 def test_retention_prune_button_only_renders_for_positive_prunable_count()
+⋮----
+def test_overview_renders_backup_readiness_and_safe_create_button()
+⋮----
+def test_backup_ui_does_not_render_server_paths()
 ````
 
 ## File: tests/test_dashboard_usage.py
@@ -12249,6 +12389,40 @@ Protected data includes:
 Cleanup is never automatic. It is not triggered by alerts, health checks, analytics or dashboard polling. The UI requires an explicit browser confirmation, and every accepted/conflicted cleanup request is recorded in the control audit.
 
 Release 13 does not run `VACUUM` in the request path and does not mutate backup/restore state.
+
+## Dashboard Control Center Release 14 — Backup readiness
+
+Production-OS can create verified server-side SQLite backups before any restore capability is enabled.
+
+SQLite backup creation uses the online SQLite backup API, then performs:
+
+```text
+online backup
+-> PRAGMA integrity_check
+-> SHA-256 + size
+-> atomic rename
+-> safe manifest
+```
+
+The backup directory is configured only on the server through:
+
+```text
+PRODUCTION_OS_BACKUP_DIR
+```
+
+No filesystem path, database path, DSN, token, password, or secret is returned by the dashboard API or stored in the backup manifest.
+
+Backup creation is operator-only and requires the exact confirmation phrase:
+
+```text
+CREATE_VERIFIED_BACKUP
+```
+
+Viewer access is limited to backup readiness and verified catalog metadata.
+
+PostgreSQL backup creation is intentionally not claimed in Release 14. The dashboard reports it as unsupported until qualified external `pg_dump` tooling is explicitly integrated.
+
+Restore remains disabled.
 
 ## Design principles
 

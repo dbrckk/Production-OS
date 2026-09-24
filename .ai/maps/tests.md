@@ -63,6 +63,8 @@ test_control_plane.py
 test_controller_asset_capabilities.py
 test_dashboard_alerts.py
 test_dashboard_api.py
+test_dashboard_backup_api.py
+test_dashboard_backups.py
 test_dashboard_control_api.py
 test_dashboard_control_audit.py
 test_dashboard_control_e2e.py
@@ -968,6 +970,75 @@ summary = payload["summary"]
 def test_dashboard_health_requires_viewer_and_has_stable_shape(running_control_plane)
 ⋮----
 def test_worker_detail_includes_recoverable_jobs(running_control_plane)
+```
+
+## File: test_dashboard_backup_api.py
+```python
+def _auth()
+⋮----
+def _request(base, path, token, *, method="GET", body=None)
+⋮----
+data = None if body is None else json.dumps(body).encode("utf-8")
+request = urllib.request.Request(
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+def test_backup_catalog_is_viewer_readable_and_worker_forbidden(tmp_path, monkeypatch)
+⋮----
+backup_dir = tmp_path / "backups"
+⋮----
+control = ControlPlane(str(tmp_path / "control.sqlite"), authorizer=_auth())
+⋮----
+def test_backup_creation_requires_operator_and_exact_confirmation(tmp_path, monkeypatch)
+⋮----
+audit = control.dashboard_store.control_audit_events(limit=10)
+⋮----
+def test_unconfigured_backup_returns_conflict_and_failed_audit(tmp_path, monkeypatch)
+```
+
+## File: test_dashboard_backups.py
+```python
+def test_sqlite_backup_contains_committed_durable_data(tmp_path, monkeypatch)
+⋮----
+db_path = tmp_path / "production.sqlite"
+backup_dir = tmp_path / "backups"
+⋮----
+backend = SQLiteBackend(db_path)
+⋮----
+manifest = create_verified_sqlite_backup(backend)
+backup_file = backup_dir / f"{manifest['backup_id']}.sqlite"
+⋮----
+value = db.execute(
+integrity = db.execute("PRAGMA integrity_check").fetchone()[0]
+⋮----
+def test_backup_hash_and_size_match_file_bytes(tmp_path, monkeypatch)
+⋮----
+backend = SQLiteBackend(tmp_path / "production.sqlite")
+⋮----
+payload = (backup_dir / f"{manifest['backup_id']}.sqlite").read_bytes()
+⋮----
+def test_manifest_contains_only_safe_metadata(tmp_path, monkeypatch)
+⋮----
+backend = SQLiteBackend(tmp_path / "secret-source.sqlite")
+⋮----
+on_disk = json.loads(
+⋮----
+encoded = json.dumps(on_disk).lower()
+⋮----
+def test_missing_backup_directory_configuration_writes_nothing(tmp_path, monkeypatch)
+⋮----
+readiness = backup_readiness(backend)
+⋮----
+class _FakePostgres
+⋮----
+def test_postgres_readiness_is_truthfully_unsupported(tmp_path, monkeypatch)
+⋮----
+readiness = backup_readiness(_FakePostgres())
+⋮----
+def test_backup_readiness_does_not_create_configured_directory(tmp_path, monkeypatch)
 ```
 
 ## File: test_dashboard_control_api.py
@@ -2105,6 +2176,10 @@ def test_storage_retention_ui_separates_prunable_and_protected_rows()
 def test_retention_prune_requires_explicit_confirmation_and_exact_phrase()
 ⋮----
 def test_retention_prune_button_only_renders_for_positive_prunable_count()
+⋮----
+def test_overview_renders_backup_readiness_and_safe_create_button()
+⋮----
+def test_backup_ui_does_not_render_server_paths()
 ```
 
 ## File: test_dashboard_usage.py

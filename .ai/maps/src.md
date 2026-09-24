@@ -65,6 +65,7 @@ production_os/
   control_surface.py
   controller.py
   dashboard_alerts.py
+  dashboard_backups.py
   dashboard_control.py
   dashboard_github.py
   dashboard_health.py
@@ -1889,6 +1890,8 @@ payload = service.worker_usage(worker_id, window)
 ⋮----
 payload = service.maintenance()
 ⋮----
+payload = service.backups()
+⋮----
 payload = service.repositories()
 ⋮----
 payload = service.projects()
@@ -1975,10 +1978,12 @@ body = self._read_json()
 ⋮----
 principal = self._require("operator")
 ⋮----
-expected = body.get("expected_candidate_rows")
-⋮----
 requested_by = f"{principal.role}:{principal.name}"
 audit = control.dashboard_store.append_control_audit(
+⋮----
+result = control.dashboard.create_verified_backup()
+⋮----
+expected = body.get("expected_candidate_rows")
 ⋮----
 result = control.dashboard.prune_maintenance(expected)
 ⋮----
@@ -2348,6 +2353,62 @@ last = _parse_time(worker.get("last_heartbeat"))
 age = max(0.0, (now - last).total_seconds())
 ⋮----
 severity_order = {"high":0, "medium":1, "low":2}
+```
+
+## File: production_os/dashboard_backups.py
+```python
+class BackupError(RuntimeError)
+⋮----
+def _now() -> str
+⋮----
+def _backend_kind(backend) -> str
+⋮----
+name = backend.__class__.__name__.lower()
+⋮----
+def _configured_dir() -> Path | None
+⋮----
+raw = str(os.getenv("PRODUCTION_OS_BACKUP_DIR") or "").strip()
+⋮----
+def _safe_manifest(path: Path) -> dict | None
+⋮----
+data = json.loads(path.read_text(encoding="utf-8"))
+⋮----
+allowed = {
+⋮----
+def backup_readiness(backend) -> dict
+⋮----
+kind = _backend_kind(backend)
+directory = _configured_dir()
+⋮----
+manifests = []
+⋮----
+item = _safe_manifest(path)
+⋮----
+parent = directory.parent
+⋮----
+def create_verified_sqlite_backup(backend) -> dict
+⋮----
+readiness = backup_readiness(backend)
+⋮----
+backup_id = (
+temp_path = directory / f".{backup_id}.sqlite.tmp"
+final_path = directory / f"{backup_id}.sqlite"
+manifest_path = directory / f"{backup_id}.json"
+temp_manifest = directory / f".{backup_id}.json.tmp"
+⋮----
+source = backend.connect()
+⋮----
+destination = sqlite3.connect(temp_path)
+⋮----
+row = destination.execute("PRAGMA integrity_check").fetchone()
+integrity = row[0] if row else None
+⋮----
+digest = sha256()
+size = 0
+⋮----
+chunk = handle.read(1024 * 1024)
+⋮----
+manifest = {
 ```
 
 ## File: production_os/dashboard_control.py
@@ -2864,6 +2925,10 @@ job = self.control.queue.get(str(item.get("target_id")))
 def remediation_analytics(self, window: str) -> dict
 ⋮----
 payload = aggregate_remediation_analytics(
+⋮----
+def backups(self) -> dict
+⋮----
+def create_verified_backup(self) -> dict
 ⋮----
 def control_audit(self, limit: int = 100) -> dict
 ⋮----
