@@ -60,6 +60,7 @@ Dashboard Overview renders a compact Storage maintenance card.
 - configurable retention windows with safe defaults
 - exact retention candidate counts from parsed timestamps
 - bounded-memory streaming timestamp scans for large tables
+- five-minute server cache for healthy/attention snapshots; 30-second retry cache for unknown state
 - viewer-readable /v1/dashboard/maintenance
 - worker role remains forbidden by dashboard authorization
 - Overview Storage & retention card with independent degraded mode
