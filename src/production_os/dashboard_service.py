@@ -173,7 +173,31 @@ class DashboardService:
     def autopilot_queue(self, limit: int = 50) -> dict:
         limit = max(1, min(200, int(limit)))
         queued = self.control.queue.peek_candidates(limit=limit)
-        ranked = self.control.portfolio.rank(queued)
+        ranked = []
+        for job in queued:
+            try:
+                ranked_item = self.control.portfolio.rank([job])[0]
+                ranked_item["ranking_status"] = "ok"
+                ranked_item["ranking_error"] = None
+            except (KeyError, RuntimeError, ValueError):
+                ranked_item = {
+                    "job":job,
+                    "score":float(job.get("priority") or 0.0),
+                    "critical":False,
+                    "descendants":0,
+                    "predicted_minutes":None,
+                    "age_minutes":None,
+                    "ranking_status":"degraded",
+                    "ranking_error":"workflow_unavailable",
+                }
+            ranked.append(ranked_item)
+        ranked.sort(
+            key=lambda item: (
+                -float(item["score"]),
+                str(item["job"].get("created_at") or ""),
+                str(item["job"].get("key") or ""),
+            )
+        )
         workers = self._worker_rows()
 
         worker_views = []
@@ -256,6 +280,8 @@ class DashboardService:
                 "task":job["task"],
                 "priority":job.get("priority"),
                 "score":ranked_item["score"],
+                "ranking_status":ranked_item.get("ranking_status", "ok"),
+                "ranking_error":ranked_item.get("ranking_error"),
                 "critical":ranked_item["critical"],
                 "descendants":ranked_item["descendants"],
                 "predicted_minutes":ranked_item["predicted_minutes"],
