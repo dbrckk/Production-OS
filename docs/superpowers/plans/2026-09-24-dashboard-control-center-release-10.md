@@ -43,3 +43,21 @@ Breakdowns by action and incident code keep the same explicit denominators.
 - window semantics preserved
 - no control mutation
 - full CI + Python 3.11/3.12 green before merge
+
+
+## Implemented in current branch
+
+- deterministic time-to-recurrence metrics
+- median/min/max recurrence delay for valid recurred events
+- observed age median for resolved events still under recurrence watch
+- invalid or negative timestamp durations ignored
+- existing window semantics and explicit recurrence denominators preserved
+- Activity view durability display
+- unit/UI regression coverage
+- README documentation
+
+## Remaining before Release 10 completion
+
+- final CI qualification on the complete head
+- final diff/security review
+- mark PR ready and merge only after green final head
