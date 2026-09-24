@@ -13,7 +13,7 @@ from .dashboard_incidents import dedupe_key, signals_from_health
 from .dashboard_playbooks import derive_incident_playbook
 from .dashboard_remediation_metrics import aggregate_remediation_analytics
 from .project_progress import ProjectProgressEngine, build_project_evidence, workflow_progress
-from .github_client import GitHubClient
+from .github_client import GitHubAPIError, GitHubClient
 
 
 class DashboardNotFound(KeyError):
@@ -540,7 +540,21 @@ class DashboardService:
             os.getenv("PRODUCTION_OS_GITHUB_OWNER") or "dbrckk"
         ).strip() or "dbrckk"
         github = GitHubClient()
-        rows = github.list_accessible_repositories(owner)
+        source = "github"
+        try:
+            rows = github.list_accessible_repositories(owner)
+        except GitHubAPIError:
+            source = "observed-projects"
+            rows = [
+                {
+                    "full_name":item.get("repository"),
+                    "private":False,
+                    "archived":False,
+                    "default_branch":None,
+                    "pushed_at":None,
+                }
+                for item in self.projects().get("projects", [])
+            ]
         repositories = []
         for row in rows:
             if not isinstance(row, dict) or bool(row.get("archived", False)):
@@ -557,6 +571,7 @@ class DashboardService:
         repositories.sort(key=lambda item: item["full_name"].lower())
         return {
             "owner":owner,
+            "source":source,
             "repositories":repositories,
             "generated_at":_now(),
         }
