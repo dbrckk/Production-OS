@@ -3,6 +3,7 @@ import os
 import pytest
 
 from production_os.postgres_backend import PostgresBackend
+from production_os.dashboard_maintenance import storage_maintenance_snapshot
 
 
 DSN = os.getenv("PRODUCTION_OS_TEST_POSTGRES")
@@ -123,3 +124,24 @@ def test_dashboard_service_project_queries_work_on_postgres():
     assert any(row["id"] == workflow["id"] for row in payload["workflows"])
     progress = control.dashboard.project_progress(repository)
     assert progress["current_workflow_id"] == workflow["id"]
+
+
+def test_postgres_storage_maintenance_snapshot_has_size_and_no_dsn():
+    backend = PostgresBackend(DSN)
+    payload = storage_maintenance_snapshot(backend)
+    assert payload["backend_kind"] == "postgres"
+    assert isinstance(payload["database_size_bytes"], int)
+    assert payload["database_size_bytes"] > 0
+    names = {row["name"] for row in payload["tables"]}
+    assert {
+        "worker_logs",
+        "api_usage",
+        "executions",
+        "control_audit",
+        "remediations",
+        "repository_snapshots",
+        "progress_snapshots",
+        "events",
+    } <= names
+    assert "dsn" not in payload
+    assert str(DSN) not in str(payload)
