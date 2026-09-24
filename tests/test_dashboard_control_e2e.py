@@ -37,6 +37,14 @@ def _post(base, path, token, payload):
         return exc.code, json.loads(raw or b"{}")
 
 
+class _FakeGitHub:
+    def __init__(self):
+        self.calls = []
+
+    def dispatch_workflow(self, repository, workflow, *, ref="main", inputs=None):
+        self.calls.append((repository, workflow, ref))
+
+
 def _server(control):
     server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
     thread = threading.Thread(target=server.serve_forever, daemon=True)
@@ -215,6 +223,25 @@ def test_release2_control_flow_pause_drain_cancel_retry_complete(tmp_path):
         assert current["status"] == "succeeded"
         assert control.queue.get(first["key"])["status"] == "cancelled"
         assert control.queue.get(second["key"])["status"] == "completed"
+
+        github = _FakeGitHub()
+        control.dashboard_control.github = github
+        control.dashboard_control.actions_repository = "dbrckk/ai-dev-server"
+        control.dashboard_control.actions_workflow = "production-os-actions-worker.yml"
+        control.dashboard_control.actions_ref = "main"
+        status, kicked = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"kick"},
+        )
+        assert status == 202
+        assert kicked["status"] == "dispatched"
+        assert github.calls == [(
+            "dbrckk/ai-dev-server",
+            "production-os-actions-worker.yml",
+            "main",
+        )]
     finally:
         server.shutdown()
         server.server_close()
