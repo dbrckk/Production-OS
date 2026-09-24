@@ -80,30 +80,39 @@ def _table_snapshot(
     retention_days: int,
     now: datetime,
 ) -> dict:
-    with backend.connect() as db:
-        rows = db.execute(
-            f"SELECT {timestamp_column} AS timestamp FROM {table}"
-        ).fetchall()
-
-    valid: list[datetime] = []
-    invalid = 0
-    for row in rows:
-        parsed = _parse_time(row["timestamp"])
-        if parsed is None:
-            invalid += 1
-            continue
-        valid.append(parsed)
-
     cutoff = now - timedelta(days=retention_days)
-    candidates = sum(value < cutoff for value in valid)
+    total = 0
+    valid_count = 0
+    invalid = 0
+    candidates = 0
+    oldest = None
+    newest = None
+    with backend.connect() as db:
+        cursor = db.execute(
+            f"SELECT {timestamp_column} AS timestamp FROM {table}"
+        )
+        for row in cursor:
+            total += 1
+            parsed = _parse_time(row["timestamp"])
+            if parsed is None:
+                invalid += 1
+                continue
+            valid_count += 1
+            if oldest is None or parsed < oldest:
+                oldest = parsed
+            if newest is None or parsed > newest:
+                newest = parsed
+            if parsed < cutoff:
+                candidates += 1
+
     return {
         "name":label,
         "table":table,
-        "rows":len(rows),
-        "valid_timestamps":len(valid),
+        "rows":total,
+        "valid_timestamps":valid_count,
         "invalid_timestamps":invalid,
-        "oldest_at":min(valid).isoformat() if valid else None,
-        "newest_at":max(valid).isoformat() if valid else None,
+        "oldest_at":oldest.isoformat() if oldest is not None else None,
+        "newest_at":newest.isoformat() if newest is not None else None,
         "retention_days":retention_days,
         "cutoff_at":cutoff.isoformat(),
         "candidate_rows":candidates,
