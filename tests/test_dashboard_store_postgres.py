@@ -27,7 +27,7 @@ REQUIRED_EXECUTION_COLUMNS = {
 }
 
 
-def test_postgres_schema_v14_has_execution_columns_control_audit_incidents_and_remediation():
+def test_postgres_schema_v15_has_execution_columns_control_audit_incidents_remediation_and_managed_projects():
     backend = PostgresBackend(DSN)
     with backend.connect() as db:
         with db.cursor() as cur:
@@ -41,7 +41,7 @@ def test_postgres_schema_v14_has_execution_columns_control_audit_incidents_and_r
             )
             columns = {row["column_name"] for row in cur.fetchall()}
 
-    assert backend.SCHEMA_VERSION == 14
+    assert backend.SCHEMA_VERSION == 15
     assert REQUIRED_EXECUTION_COLUMNS <= columns
     with backend.connect() as db:
         with db.cursor() as cur:
@@ -101,6 +101,21 @@ def test_postgres_schema_v14_has_execution_columns_control_audit_incidents_and_r
         "recurrence_state",
         "recurred_at",
     } <= remediation_columns
+    with backend.connect() as db:
+        with db.cursor() as cur:
+            cur.execute(
+                """
+                SELECT table_name
+                FROM information_schema.tables
+                WHERE table_schema = current_schema()
+                  AND table_name IN ('managed_projects','managed_project_runs')
+                """
+            )
+            managed_tables = {
+                row["table_name"]
+                for row in cur.fetchall()
+            }
+    assert managed_tables == {"managed_projects","managed_project_runs"}
 
 
 def test_dashboard_service_project_queries_work_on_postgres():
