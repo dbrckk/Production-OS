@@ -923,6 +923,7 @@ class WorkflowEngine:
         workflow_id: str,
         *,
         limit: int = 10,
+        task_id: str | None = None,
     ) -> list[dict]:
         self.refresh(workflow_id)
         workflow = self.get(workflow_id)
@@ -932,6 +933,7 @@ class WorkflowEngine:
         ready = [
             task for task in workflow["tasks"]
             if task["status"] == "ready"
+            and (task_id is None or task["task_id"] == task_id)
         ]
         ready.sort(
             key=lambda task: (
@@ -1073,6 +1075,7 @@ class WorkflowEngine:
                     self.dispatch_ready(
                         workflow_id,
                         limit=remaining,
+                        task_id=task_id,
                     )
                 )
         return dispatched
@@ -1217,7 +1220,11 @@ class WorkflowEngine:
                 },
             )
         self.refresh(workflow_id)
-        dispatched = self.dispatch_ready(workflow_id, limit=100)
+        dispatched = self.dispatch_ready(
+            workflow_id,
+            limit=1,
+            task_id=task_id,
+        )
         for job in dispatched:
             payload = job.get("payload") or {}
             if str(payload.get("workflow_task_id") or "") == str(task_id):
