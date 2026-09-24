@@ -400,3 +400,28 @@ def test_restore_readiness_ui_never_exposes_restore_action_or_paths():
     assert "RESTORE_BACKUP" not in DASHBOARD_HTML
     assert "PRODUCTION_OS_BACKUP_DIR" not in DASHBOARD_HTML
     assert "backup_path" not in DASHBOARD_HTML
+
+
+def test_projects_view_exposes_managed_project_lifecycle():
+    assert 'id="managed-repository"' in DASHBOARD_HTML
+    assert 'id="managed-goal"' in DASHBOARD_HTML
+    assert "createManagedProject" in DASHBOARD_HTML
+    assert "/v1/dashboard/managed-projects" in DASHBOARD_HTML
+    assert "renderManagedProjects" in DASHBOARD_HTML
+    assert "REVIEW_REQUIRED" in DASHBOARD_HTML
+    assert "NEEDS_ATTENTION" in DASHBOARD_HTML
+
+
+def test_managed_project_actions_are_explicit_and_state_gated():
+    assert "runManagedProjectAction" in DASHBOARD_HTML
+    assert "Ajouter une instruction" in DASHBOARD_HTML
+    assert "Retester" in DASHBOARD_HTML
+    assert "Valider terminé" in DASHBOARD_HTML
+    assert "MARK_PROJECT_DONE" in DASHBOARD_HTML
+    assert 'state==="REVIEW_REQUIRED"||state==="NEEDS_ATTENTION"' in DASHBOARD_HTML
+    assert 'state==="REVIEW_REQUIRED"' in DASHBOARD_HTML
+
+
+def test_managed_project_completion_requires_browser_confirmation():
+    assert "Valider définitivement ce projet comme terminé ?" in DASHBOARD_HTML
+    assert 'action==="complete"' in DASHBOARD_HTML
