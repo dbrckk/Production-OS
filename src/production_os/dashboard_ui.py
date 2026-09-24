@@ -266,7 +266,7 @@ async function savePairing(){
  }catch(e){
   if(previous) localStorage.setItem(TOKEN_KEY,previous); else localStorage.removeItem(TOKEN_KEY);
   setState('pair-state','bad','Token refusé');
-  feedback.textContent=String(e).replace(/^Error:\s*/,'');
+  feedback.textContent=String(e).replace(/^Error:\\s*/,'');
   status.textContent='Token opérateur invalide. Vérifie le token puis réessaie.';
  }
 }
@@ -330,7 +330,7 @@ async function loadWorkerStatus(){
    +' · 3D '+(threeD?'✓':'—');
  }catch(e){
   workerOnline=false;
-  const message=String(e).replace(/^Error:\s*/,'');
+  const message=String(e).replace(/^Error:\\s*/,'');
   setState('worker-state','bad','Erreur');
   el.textContent='Capacités worker : indisponibles · '+message;
   warning.classList.add('show');
@@ -372,7 +372,7 @@ async function loadRecentRuns(){
     +'<div class="run-state '+state[1]+'">'+state[0]+'</div></div>';
   }).join('');
  }catch(e){
-  listEl.innerHTML='<div class="empty">Productions indisponibles · '+esc(String(e).replace(/^Error:\s*/,''))+'</div>';
+  listEl.innerHTML='<div class="empty">Productions indisponibles · '+esc(String(e).replace(/^Error:\\s*/,''))+'</div>';
  }
 }
 
@@ -513,7 +513,7 @@ async function launchWorkflow(){
   }
   await loadRecentRuns();
  }catch(e){
-  status.textContent=String(e).replace(/^Error:\s*/,'');
+  status.textContent=String(e).replace(/^Error:\\s*/,'');
  }finally{
   button.disabled=false;button.textContent='Lancer la production';
  }
