@@ -272,3 +272,38 @@ def test_dashboard_autopilot_honors_assigned_worker_and_access_rules(
         "/v1/dashboard/autopilot?limit=0",
         "viewer-token",
     )[0] == 200
+
+
+def test_dashboard_autopilot_survives_stale_workflow_reference(
+    running_control_plane,
+):
+    base, control = running_control_plane
+    control.workers.register("worker-a", ["python"], 1)
+
+    stale = control.queue.enqueue({
+        "idempotency_key":"autopilot-stale",
+        "handoff":{"repository":"dbrckk/example","task":"Stale workflow"},
+        "workflow_id":"missing-workflow",
+        "workflow_task_id":"task-a",
+        "required_capabilities":["python"],
+        "priority":80,
+    })
+    healthy = control.queue.enqueue({
+        "idempotency_key":"autopilot-healthy",
+        "handoff":{"repository":"dbrckk/example","task":"Healthy"},
+        "required_capabilities":["python"],
+        "priority":10,
+    })
+
+    status, payload = get_api(
+        base,
+        "/v1/dashboard/autopilot",
+        "viewer-token",
+    )
+    assert status == 200
+    rows = {row["job_key"]:row for row in payload["jobs"]}
+    assert rows[stale["key"]]["ranking_status"] == "degraded"
+    assert rows[stale["key"]]["ranking_error"] == "workflow_unavailable"
+    assert rows[stale["key"]]["score"] == 80.0
+    assert rows[healthy["key"]]["ranking_status"] == "ok"
+    assert rows[healthy["key"]]["preferred_worker"] == "worker-a"
