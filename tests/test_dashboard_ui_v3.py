@@ -306,3 +306,12 @@ def test_activity_view_renders_remediation_recurrence_status():
     assert "Taux de récidive observé" in DASHBOARD_HTML
     assert "remediationSummary.recurrence_denominator" in DASHBOARD_HTML
     assert "remediationSummary.observed_recurrence_rate" in DASHBOARD_HTML
+
+
+def test_activity_view_renders_remediation_durability_timing():
+    assert "Médiane avant récidive" in DASHBOARD_HTML
+    assert "Âge médian des résolutions surveillées" in DASHBOARD_HTML
+    assert "remediationSummary.median_time_to_recurrence_seconds" in DASHBOARD_HTML
+    assert "remediationSummary.min_time_to_recurrence_seconds" in DASHBOARD_HTML
+    assert "remediationSummary.max_time_to_recurrence_seconds" in DASHBOARD_HTML
+    assert "remediationSummary.median_watching_age_seconds" in DASHBOARD_HTML
