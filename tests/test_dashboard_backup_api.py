@@ -144,3 +144,88 @@ def test_unconfigured_backup_returns_conflict_and_failed_audit(tmp_path, monkeyp
         server.shutdown()
         server.server_close()
         thread.join(timeout=2)
+
+
+def test_restore_readiness_api_requires_operator_and_exact_confirmation(
+    tmp_path,
+    monkeypatch,
+):
+    backup_dir = tmp_path / "backups"
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    control = ControlPlane(str(tmp_path / "control.sqlite"), authorizer=_auth())
+    created = control.dashboard.create_verified_backup()
+    backup_id = created["backup_id"]
+    server, thread, base = _server(control)
+    try:
+        path = f"/v1/dashboard/backups/{backup_id}/verify"
+        status, _ = _request(
+            base,
+            path,
+            "viewer",
+            method="POST",
+            body={"confirm":"VERIFY_BACKUP_FOR_RESTORE"},
+        )
+        assert status == 403
+
+        status, _ = _request(
+            base,
+            path,
+            "operator",
+            method="POST",
+            body={"confirm":"wrong"},
+        )
+        assert status == 400
+
+        status, payload = _request(
+            base,
+            path,
+            "operator",
+            method="POST",
+            body={"confirm":"VERIFY_BACKUP_FOR_RESTORE"},
+        )
+        assert status == 200
+        assert payload["restorable"] is True
+        assert payload["integrity"] == "ok"
+        assert payload["restore_enabled"] is False
+        assert payload["schema_version"] == str(control.backend.SCHEMA_VERSION)
+
+        audit = control.dashboard_store.control_audit_events(limit=10)
+        verify = next(row for row in audit if row["action"] == "backup-verify")
+        assert verify["outcome"] == "succeeded"
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+
+
+def test_restore_readiness_api_rejects_tampered_backup_and_audits_failure(
+    tmp_path,
+    monkeypatch,
+):
+    backup_dir = tmp_path / "backups"
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    control = ControlPlane(str(tmp_path / "control.sqlite"), authorizer=_auth())
+    created = control.dashboard.create_verified_backup()
+    backup_id = created["backup_id"]
+    backup_file = backup_dir / f"{backup_id}.sqlite"
+    backup_file.write_bytes(backup_file.read_bytes() + b"tamper")
+    server, thread, base = _server(control)
+    try:
+        status, payload = _request(
+            base,
+            f"/v1/dashboard/backups/{backup_id}/verify",
+            "operator",
+            method="POST",
+            body={"confirm":"VERIFY_BACKUP_FOR_RESTORE"},
+        )
+        assert status == 409
+        assert "manifest" in payload["error"] or "hash" in payload["error"] or "size" in payload["error"]
+
+        audit = control.dashboard_store.control_audit_events(limit=10)
+        verify = next(row for row in audit if row["action"] == "backup-verify")
+        assert verify["outcome"] == "failed"
+        assert verify["error_code"] == "backup_verify_failed"
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
