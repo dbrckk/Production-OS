@@ -171,7 +171,12 @@ class DashboardStore:
                     severity=excluded.severity,
                     title=excluded.title,
                     message=excluded.message,
-                    occurrence_count=dashboard_incidents.occurrence_count+1,
+                    occurrence_count=CASE
+                        WHEN dashboard_incidents.message<>excluded.message
+                          OR dashboard_incidents.status='resolved'
+                        THEN dashboard_incidents.occurrence_count+1
+                        ELSE dashboard_incidents.occurrence_count
+                    END,
                     last_seen_at=excluded.last_seen_at,
                     status=CASE
                         WHEN dashboard_incidents.status='resolved'
