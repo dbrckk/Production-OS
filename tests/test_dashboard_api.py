@@ -300,3 +300,45 @@ def test_dashboard_autopilot_survives_stale_workflow_reference(
     assert rows[stale["key"]]["score"] == 80.0
     assert rows[healthy["key"]]["ranking_status"] == "ok"
     assert rows[healthy["key"]]["preferred_worker"] == "worker-a"
+
+
+def test_dashboard_autopilot_summary_reports_capacity_and_eta(
+    running_control_plane,
+):
+    base, control = running_control_plane
+    control.workers.register("worker-a", ["python"], 2)
+    control.workers.heartbeat("worker-a", active_tasks=1)
+    control.queue.enqueue({
+        "idempotency_key":"autopilot-summary-ready",
+        "handoff":{
+            "repository":"dbrckk/example",
+            "task":"Ready",
+            "priority":20,
+            "estimated_minutes":4,
+        },
+        "required_capabilities":["python"],
+    })
+    control.queue.enqueue({
+        "idempotency_key":"autopilot-summary-blocked",
+        "handoff":{
+            "repository":"dbrckk/example",
+            "task":"Blocked",
+            "priority":10,
+            "estimated_minutes":6,
+        },
+        "required_capabilities":["android"],
+    })
+
+    status, payload = get_api(
+        base,
+        "/v1/dashboard/autopilot",
+        "viewer-token",
+    )
+    assert status == 200
+    summary = payload["summary"]
+    assert summary["ready_now"] == 1
+    assert summary["blocked"] == 1
+    assert summary["free_slots"] == 1
+    assert summary["known_eta_minutes"] == 10.0
+    assert summary["eta_coverage_jobs"] == 2
+    assert summary["eta_total_jobs"] == 2

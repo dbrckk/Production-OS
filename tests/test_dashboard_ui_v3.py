@@ -194,3 +194,17 @@ def test_autopilot_surfaces_degraded_ranking_state():
     assert "Ranking :" in DASHBOARD_HTML
     assert "Dégradé · workflow de référence indisponible" in DASHBOARD_HTML
     assert 'row.ranking_status==="degraded"' in DASHBOARD_HTML
+
+
+def test_autopilot_view_shows_capacity_summary():
+    for label in (
+        "Prêts maintenant",
+        "Bloqués",
+        "Slots libres",
+        "ETA connue",
+        "Couverture",
+    ):
+        assert label in DASHBOARD_HTML
+    assert "summary.ready_now" in DASHBOARD_HTML
+    assert "summary.free_slots" in DASHBOARD_HTML
+    assert "summary.known_eta_minutes" in DASHBOARD_HTML

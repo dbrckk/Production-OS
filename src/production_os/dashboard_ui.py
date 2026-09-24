@@ -604,13 +604,21 @@ async function loadAutopilot(){
  const count=document.getElementById("autopilot-count");
  try{
   const data=await api("/v1/dashboard/autopilot?limit=50");
-  const jobs=data.jobs||[];
+  const jobs=data.jobs||[],summary=data.summary||{};
   count.textContent=String(jobs.length);
+  const summaryHtml=
+   '<div class="status-grid">'+
+   '<div class="status-card"><div class="status-label">Prêts maintenant</div><div class="status-value">'+formatNumber(summary.ready_now)+'</div></div>'+
+   '<div class="status-card"><div class="status-label">Bloqués</div><div class="status-value">'+formatNumber(summary.blocked)+'</div></div>'+
+   '<div class="status-card"><div class="status-label">Slots libres</div><div class="status-value">'+formatNumber(summary.free_slots)+'</div></div>'+
+   '</div>'+
+   '<div class="card"><p class="small"><strong>ETA connue :</strong> '+(summary.known_eta_minutes==null?'Indisponible':formatNumber(summary.known_eta_minutes)+' min')+
+   ' · <strong>Couverture :</strong> '+formatNumber(summary.eta_coverage_jobs)+' / '+formatNumber(summary.eta_total_jobs)+' jobs</p></div>';
   if(!jobs.length){
-   el.innerHTML='<div class="empty">Aucun job en attente.</div>';
+   el.innerHTML=summaryHtml+'<div class="empty">Aucun job en attente.</div>';
    return;
   }
-  el.innerHTML=jobs.map(function(row){
+  el.innerHTML=summaryHtml+jobs.map(function(row){
    const ready=!row.wait_reason;
    const worker=row.preferred_worker||"—";
    const caps=(row.required_capabilities||[]).join(", ")||"Aucune";
