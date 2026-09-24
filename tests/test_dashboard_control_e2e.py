@@ -245,3 +245,59 @@ def test_release2_control_flow_pause_drain_cancel_retry_complete(tmp_path):
     finally:
         server.shutdown()
         server.server_close()
+
+
+def test_release3_audit_and_recovery_survive_control_plane_restart(tmp_path):
+    database = str(tmp_path / "release3.db")
+    first = ControlPlane(database, authorizer=_auth())
+    first.workers.register("worker-a", ["python"], 1)
+    job = first.queue.enqueue({
+        "handoff":{"repository":"dbrckk/example","task":"recover after restart"},
+        "required_capabilities":["python"],
+    })
+    assert first.queue.claim_key(job["key"], "worker-a") is not None
+    with first.backend.transaction() as db:
+        db.execute(
+            "UPDATE jobs SET ack_deadline=? WHERE key=?",
+            ("2000-01-01T00:00:00+00:00", job["key"]),
+        )
+    server, base = _server(first)
+    try:
+        status, _ = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"pause"},
+        )
+        assert status == 202
+    finally:
+        server.shutdown()
+        server.server_close()
+
+    second = ControlPlane(database, authorizer=_auth())
+    persisted = second.dashboard_store.control_audit_events(limit=10)
+    assert any(
+        row["action"] == "pause"
+        and row["worker_id"] == "worker-a"
+        and row["outcome"] == "accepted"
+        for row in persisted
+    )
+
+    server, base = _server(second)
+    try:
+        status, recovered = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"recover-stuck","job_key":job["key"]},
+        )
+        assert status == 200
+        assert recovered["job"]["status"] == "queued"
+        assert second.queue.get(job["key"])["claimed_by"] is None
+        latest = second.dashboard_store.control_audit_events(limit=1)[0]
+        assert latest["action"] == "recover-stuck"
+        assert latest["job_key"] == job["key"]
+        assert latest["outcome"] == "queued"
+    finally:
+        server.shutdown()
+        server.server_close()
