@@ -267,18 +267,18 @@ class DashboardStore:
 
     def latest_repository_snapshot(self, repository: str) -> dict | None:
         with self.backend.connect() as db:
-            return self._fetchone(db, "SELECT * FROM project_repository_snapshots WHERE repository=? ORDER BY captured_at DESC LIMIT 1", (repository,))
+            return self._fetchone(db, "SELECT * FROM project_repository_snapshots WHERE repository=? ORDER BY captured_at DESC, id DESC LIMIT 1", (repository,))
 
     def save_progress_snapshot(self, snapshot: dict) -> dict:
         return self._save_snapshot("project_progress_snapshots", snapshot, ("evidence_json","remaining_work_json","blockers_json"))
 
     def latest_progress_snapshot(self, repository: str) -> dict | None:
         with self.backend.connect() as db:
-            return self._fetchone(db, "SELECT * FROM project_progress_snapshots WHERE repository=? ORDER BY captured_at DESC LIMIT 1", (repository,))
+            return self._fetchone(db, "SELECT * FROM project_progress_snapshots WHERE repository=? ORDER BY captured_at DESC, id DESC LIMIT 1", (repository,))
 
     def progress_history(self, repository: str, *, limit: int = 100) -> list[dict]:
         with self.backend.connect() as db:
-            return self._fetchall(db, "SELECT * FROM project_progress_snapshots WHERE repository=? ORDER BY captured_at DESC LIMIT ?", (repository, max(1,min(limit,500))))
+            return self._fetchall(db, "SELECT * FROM project_progress_snapshots WHERE repository=? ORDER BY captured_at DESC, id DESC LIMIT ?", (repository, max(1,min(limit,500))))
 
     def save_provider_quota_snapshot(self, snapshot: dict) -> dict:
         return self._save_snapshot("provider_quota_snapshots", snapshot, ())
