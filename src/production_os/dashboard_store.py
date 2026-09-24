@@ -144,6 +144,145 @@ class DashboardStore:
                          (f"{row['id']}:{index}", row["id"], worker_id, row["repository"], item.get("provider"), item.get("model"), int(item.get("api_calls") or 0), int(item.get("input_tokens") or 0), int(item.get("cached_input_tokens") or 0), int(item.get("output_tokens") or 0), int(item.get("reasoning_tokens") or 0), int(item.get("total_tokens") or 0), item.get("estimated_cost_usd"), item.get("pricing_catalog_version"), finished_at or _now()))
             return self._fetchone(db, "SELECT * FROM job_executions WHERE id=?", (row["id"],))
 
+    def get_worker_control(self, worker_id: str) -> dict | None:
+        with self.backend.connect() as db:
+            return self._fetchone(
+                db,
+                "SELECT * FROM worker_control_state WHERE worker_id=?",
+                (worker_id,),
+            )
+
+    def set_worker_control(
+        self,
+        worker_id: str,
+        desired_state: str,
+        *,
+        requested_by: str,
+        reason: str | None = None,
+        at: str | None = None,
+    ) -> dict:
+        timestamp = at or _now()
+        with self.backend.transaction() as db:
+            _execute(
+                db,
+                self.backend,
+                """INSERT INTO worker_control_state(
+                    worker_id, desired_state, reason, requested_by, requested_at, updated_at
+                ) VALUES(?,?,?,?,?,?)
+                ON CONFLICT(worker_id) DO UPDATE SET
+                    desired_state=excluded.desired_state,
+                    reason=excluded.reason,
+                    requested_by=excluded.requested_by,
+                    requested_at=excluded.requested_at,
+                    updated_at=excluded.updated_at""",
+                (worker_id, desired_state, reason, requested_by, timestamp, timestamp),
+            )
+            return self._fetchone(
+                db,
+                "SELECT * FROM worker_control_state WHERE worker_id=?",
+                (worker_id,),
+            )
+
+    def acknowledge_worker_control(
+        self,
+        worker_id: str,
+        desired_state: str,
+        *,
+        at: str | None = None,
+    ) -> dict:
+        timestamp = at or _now()
+        with self.backend.transaction() as db:
+            row = self._fetchone(
+                db,
+                "SELECT * FROM worker_control_state WHERE worker_id=?",
+                (worker_id,),
+            )
+            if row is None:
+                raise KeyError("worker control state not found")
+            if row.get("desired_state") != desired_state:
+                raise ValueError("stale worker desired state")
+            _execute(
+                db,
+                self.backend,
+                "UPDATE worker_control_state SET updated_at=? WHERE worker_id=?",
+                (timestamp, worker_id),
+            )
+            return self._fetchone(
+                db,
+                "SELECT * FROM worker_control_state WHERE worker_id=?",
+                (worker_id,),
+            )
+
+    def get_job_control(self, job_key: str) -> dict | None:
+        with self.backend.connect() as db:
+            return self._fetchone(
+                db,
+                "SELECT * FROM job_control_state WHERE job_key=?",
+                (job_key,),
+            )
+
+    def set_job_control(
+        self,
+        job_key: str,
+        desired_state: str,
+        *,
+        requested_by: str,
+        reason: str | None = None,
+        at: str | None = None,
+    ) -> dict:
+        timestamp = at or _now()
+        with self.backend.transaction() as db:
+            _execute(
+                db,
+                self.backend,
+                """INSERT INTO job_control_state(
+                    job_key, desired_state, reason, requested_by, requested_at,
+                    acknowledged_at, updated_at
+                ) VALUES(?,?,?,?,?,NULL,?)
+                ON CONFLICT(job_key) DO UPDATE SET
+                    desired_state=excluded.desired_state,
+                    reason=excluded.reason,
+                    requested_by=excluded.requested_by,
+                    requested_at=excluded.requested_at,
+                    acknowledged_at=NULL,
+                    updated_at=excluded.updated_at""",
+                (job_key, desired_state, reason, requested_by, timestamp, timestamp),
+            )
+            return self._fetchone(
+                db,
+                "SELECT * FROM job_control_state WHERE job_key=?",
+                (job_key,),
+            )
+
+    def acknowledge_job_control(
+        self,
+        job_key: str,
+        *,
+        at: str | None = None,
+    ) -> dict:
+        timestamp = at or _now()
+        with self.backend.transaction() as db:
+            row = self._fetchone(
+                db,
+                "SELECT * FROM job_control_state WHERE job_key=?",
+                (job_key,),
+            )
+            if row is None:
+                raise KeyError("job control state not found")
+            _execute(
+                db,
+                self.backend,
+                """UPDATE job_control_state
+                   SET acknowledged_at=?, updated_at=?
+                   WHERE job_key=?""",
+                (timestamp, timestamp, job_key),
+            )
+            return self._fetchone(
+                db,
+                "SELECT * FROM job_control_state WHERE job_key=?",
+                (job_key,),
+            )
+
     def executions_for_worker(self, worker_id: str, *, limit: int = 100) -> list[dict]:
         with self.backend.connect() as db: return self._fetchall(db, "SELECT * FROM job_executions WHERE worker_id=? ORDER BY started_at DESC LIMIT ?", (worker_id, max(1,min(limit,500))))
 
