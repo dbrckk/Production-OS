@@ -315,3 +315,17 @@ def test_activity_view_renders_remediation_durability_timing():
     assert "remediationSummary.min_time_to_recurrence_seconds" in DASHBOARD_HTML
     assert "remediationSummary.max_time_to_recurrence_seconds" in DASHBOARD_HTML
     assert "remediationSummary.median_watching_age_seconds" in DASHBOARD_HTML
+
+
+def test_launch_repository_picker_is_server_backed():
+    assert "/v1/dashboard/repositories" in DASHBOARD_HTML
+    assert "https://api.github.com/users/dbrckk/repos" not in DASHBOARD_HTML
+    assert "async function loadRepositories" in DASHBOARD_HTML
+
+
+def test_mobile_launch_flow_remains_repo_plus_instruction():
+    assert 'id="repository"' in DASHBOARD_HTML
+    assert 'id="instruction"' in DASHBOARD_HTML
+    assert "Lancer la production" in DASHBOARD_HTML
+    assert "async function launchWorkflow" in DASHBOARD_HTML
+    assert "final_goal:task" in DASHBOARD_HTML
