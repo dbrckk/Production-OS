@@ -617,6 +617,42 @@ When a server-side GitHub token is available, Production-OS lists repositories a
 
 No additional operator credential, token field or launch parameter is introduced.
 
+## Dashboard Control Center Release 12 — Storage maintenance visibility
+
+Production-OS exposes a read-only storage maintenance snapshot at:
+
+```text
+GET /v1/dashboard/maintenance
+```
+
+It reports:
+
+- backend kind (SQLite or PostgreSQL);
+- measurable database size in bytes;
+- row counts for durable operational tables;
+- oldest/newest valid timestamps;
+- invalid timestamp counts;
+- configured retention days and cutoffs;
+- rows currently older than each retention window;
+- total retention candidates;
+- a maintenance status: `healthy`, `attention`, or `unknown`.
+
+Default retention windows are currently diagnostic only:
+
+```text
+worker logs                  30 days
+API usage                    90 days
+job executions               90 days
+control audit               180 days
+remediation history         180 days
+repository/progress snapshots 90 days
+generic event stream         90 days
+```
+
+Release 12 performs no deletion, VACUUM, backup mutation or restore action. It deliberately establishes visibility before destructive maintenance is introduced.
+
+The dashboard never exposes the SQLite path, PostgreSQL DSN, credentials or tokens. If maintenance diagnostics fail, the rest of the Overview remains available and the storage card degrades to `unknown`.
+
 ## Design principles
 
 - Evidence over assumptions
