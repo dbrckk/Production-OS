@@ -58,3 +58,25 @@ Each breakdown exposes:
 - viewer access / worker denial
 - mobile UI regression
 - final CI green before merge
+
+
+## Implemented in current branch
+
+- deterministic remediation analytics aggregator
+- explicit effectiveness denominator semantics
+- pending and not_applicable excluded from effectiveness rates
+- median resolution-detection duration from resolved events only
+- 24h / 7d / 30d / all window filtering
+- breakdown by action and incident code
+- remediation evidence join from durable incident/remediation data
+- viewer-readable remediation analytics API
+- worker role remains forbidden by dashboard authorization
+- Activity view shows summary, sample size, action and incident breakdowns
+- invalid window rejection
+- README and API/UI/unit regression coverage
+
+## Remaining before Release 8 completion
+
+- final CI qualification on the complete head
+- final diff/security review
+- mark PR ready and merge only after green final head
