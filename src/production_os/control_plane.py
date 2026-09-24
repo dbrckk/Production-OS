@@ -1254,6 +1254,7 @@ def make_handler(control: ControlPlane):
                                 job_key,
                                 str(body["worker_id"]),
                                 status="cancelled",
+                                duration_seconds=None,
                                 result={"reason":"operator cancel"},
                             )
 
