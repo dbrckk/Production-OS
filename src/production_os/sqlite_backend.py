@@ -18,7 +18,7 @@ def _utcnow() -> str:
 
 
 class SQLiteBackend:
-    SCHEMA_VERSION = 12
+    SCHEMA_VERSION = 13
 
     def __init__(self, path: str | Path):
         self.path = Path(path)
@@ -350,6 +350,9 @@ class SQLiteBackend:
                     error_code TEXT,
                     requested_at TEXT NOT NULL,
                     completed_at TEXT,
+                    verification_state TEXT NOT NULL DEFAULT 'pending',
+                    verification_checks INTEGER NOT NULL DEFAULT 0,
+                    verified_at TEXT,
                     FOREIGN KEY(incident_id) REFERENCES dashboard_incidents(id)
                         ON DELETE RESTRICT
                 );
@@ -414,6 +417,30 @@ class SQLiteBackend:
                 CREATE INDEX IF NOT EXISTS idx_project_progress_repo_time ON project_progress_snapshots(repository, captured_at DESC);
                 """
             )
+            remediation_columns = {
+                row["name"]
+                for row in db.execute(
+                    "PRAGMA table_info(dashboard_remediation_events)"
+                ).fetchall()
+            }
+            if "verification_state" not in remediation_columns:
+                db.execute(
+                    """ALTER TABLE dashboard_remediation_events
+                       ADD COLUMN verification_state TEXT NOT NULL
+                       DEFAULT 'pending'"""
+                )
+            if "verification_checks" not in remediation_columns:
+                db.execute(
+                    """ALTER TABLE dashboard_remediation_events
+                       ADD COLUMN verification_checks INTEGER NOT NULL
+                       DEFAULT 0"""
+                )
+            if "verified_at" not in remediation_columns:
+                db.execute(
+                    """ALTER TABLE dashboard_remediation_events
+                       ADD COLUMN verified_at TEXT"""
+                )
+
             db.execute(
                 """
                 INSERT INTO schema_meta(key, value)
