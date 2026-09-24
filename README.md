@@ -396,6 +396,43 @@ Acknowledgement records the operator identity and timestamp. Incident records de
 
 Incident reconciliation is observational only. It does not automatically pause workers, cancel jobs, retry work, or run stuck-job recovery.
 
+## Dashboard Control Center Release 5 — Safe remediation playbooks
+
+Durable incidents can now expose deterministic remediation guidance derived from current server facts.
+
+The dashboard never decides availability on its own. Each playbook suggestion includes:
+
+```text
+action
+worker_id
+job_key
+availability
+reason
+interrupting
+```
+
+Availability values are:
+
+```text
+available
+fallback
+unavailable
+```
+
+Examples:
+
+- `queue_without_worker` may suggest a GitHub Actions `kick`;
+- `stale_busy_workers` may suggest inspection and a targeted `recover-stuck` only for an expired claimed job;
+- `stale_running_executions` may suggest inspection and an explicit `cancel-current` only while the named job is still active and owned by the named worker.
+
+Resolved incidents expose no remediation actions.
+
+Playbook generation is read-only and deterministic. It does not mutate the queue, pause workers, cancel jobs, retry work, or recover claims.
+
+Interrupting remediation always requires an explicit operator action and reuses the existing validated control API, including the same confirmation flow used by direct worker controls. Inspection suggestions are navigation-only.
+
+The browser receives no GitHub, worker, or operator credentials from playbook generation.
+
 ## Design principles
 
 - Evidence over assumptions
