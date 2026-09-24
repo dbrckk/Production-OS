@@ -8,6 +8,7 @@ from http.server import ThreadingHTTPServer
 
 from production_os.api_auth import TokenAuthorizer, token_digest
 from production_os.control_plane import ControlPlane, make_handler
+from production_os.workflow_engine import WorkflowTaskSpec
 
 
 def _post(base, path, token, payload):
@@ -265,5 +266,58 @@ def test_cancel_request_after_complete_is_rejected(tmp_path):
         assert status == 409
         assert payload["error"] == "job is not active"
         assert control.queue.get(job["key"])["status"] == "completed"
+    finally:
+        server.shutdown(); server.server_close()
+
+
+def test_cancel_current_converges_workflow_task_without_auto_retry(tmp_path):
+    control, server, base = _fixture(tmp_path)
+    workflow = control.workflows.create(
+        name="cancel-flow",
+        repository="dbrckk/example",
+        tasks=[
+            WorkflowTaskSpec(
+                "task-a",
+                "Cancelable workflow task",
+                {"required_capabilities":["python"]},
+                max_attempts=2,
+            )
+        ],
+    )
+    dispatched = control.workflows.dispatch_ready(workflow["id"])
+    assert len(dispatched) == 1
+    job = dispatched[0]
+    assert control.queue.claim_key(job["key"], "worker-a") is not None
+    control.queue.ack(job["key"], "worker-a")
+    control.dashboard_store.start_execution(control.queue.get(job["key"]), "worker-a")
+    try:
+        status, _ = _post(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            {"action":"cancel-current","job_key":job["key"]},
+        )
+        assert status == 202
+
+        status, _ = _post(
+            base,
+            "/v1/workers/heartbeat",
+            "worker",
+            {
+                "worker_id":"worker-a",
+                "active_tasks":1,
+                "active_job_keys":[job["key"]],
+                "job_control_states":{job["key"]:"cancel_requested"},
+            },
+        )
+        assert status == 200
+
+        current = control.workflows.get(workflow["id"])
+        task = next(item for item in current["tasks"] if item["task_id"] == "task-a")
+        assert task["status"] == "cancelled"
+        assert task["attempts"] == 1
+        assert task["claimed_job_key"] is None
+        assert current["status"] == "cancelled"
+        assert control.workflows.dispatch_ready(workflow["id"]) == []
     finally:
         server.shutdown(); server.server_close()
