@@ -1232,6 +1232,31 @@ def make_handler(control: ControlPlane):
                         current_control = control.dashboard_control.worker_state(
                             str(body["worker_id"])
                         )
+
+                    job_control_states = body.get("job_control_states", {})
+                    if not isinstance(job_control_states, dict):
+                        raise ValueError("job_control_states must be an object")
+                    for raw_key, raw_state in job_control_states.items():
+                        job_key = str(raw_key)
+                        reported_state = str(raw_state)
+                        current_job_control = control.dashboard_control.job_state(job_key)
+                        if (
+                            reported_state == "cancel_requested"
+                            and current_job_control["desired_state"] == "cancel_requested"
+                            and current_job_control.get("acknowledged_at") is None
+                        ):
+                            job = control.queue.get(job_key)
+                            if str(job.get("claimed_by") or "") != str(body["worker_id"]):
+                                raise RuntimeError("job claim owner mismatch")
+                            control.queue.cancel(job_key, str(body["worker_id"]))
+                            control.dashboard_control.acknowledge_job_cancel(job_key)
+                            control.dashboard_store.finish_execution(
+                                job_key,
+                                str(body["worker_id"]),
+                                status="cancelled",
+                                result={"reason":"operator cancel"},
+                            )
+
                     self._send(
                         HTTPStatus.OK,
                         {
