@@ -10,7 +10,7 @@ import sqlite3
 from uuid import uuid4
 
 
-BACKUP_ID_RE = re.compile(r"^\\d{8}T\\d{6}Z-[0-9a-f]{12}$")
+BACKUP_ID_RE = re.compile(r"^\d{8}T\d{6}Z-[0-9a-f]{12}$")
 
 
 class BackupError(RuntimeError):
