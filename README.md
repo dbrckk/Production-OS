@@ -757,6 +757,47 @@ Restore remains disabled in Release 15. PostgreSQL restore verification remains 
 
 No database path, backup path, DSN, token, password or secret is returned by the API or rendered in the dashboard.
 
+## Release 17 — Managed Projects
+
+Managed Projects track a repository goal across multiple immutable workflow generations until explicit human validation.
+
+Lifecycle:
+
+```text
+ACTIVE
+-> REVIEW_REQUIRED
+-> ACTIVE        (instruction or retest)
+-> REVIEW_REQUIRED
+-> DONE
+```
+
+A failed or cancelled current workflow moves the managed project to:
+
+```text
+NEEDS_ATTENTION
+```
+
+Every initial run, follow-up instruction and retest creates a new normal Production-OS workflow. Completed workflows are never mutated or reused.
+
+Each workflow carries:
+
+```text
+managed_project_id
+managed_project_generation
+managed_project_kind
+final_goal
+```
+
+The current generation is the only active generation. Follow-up work is accepted only while the project is in `REVIEW_REQUIRED` or `NEEDS_ATTENTION`.
+
+Marking a project complete is operator-only and requires the exact confirmation:
+
+```text
+MARK_PROJECT_DONE
+```
+
+The dashboard Projects view exposes mobile-friendly creation with `repository + final goal`, current state, generation history, additional instructions, retest and final validation.
+
 ## Design principles
 
 - Evidence over assumptions
