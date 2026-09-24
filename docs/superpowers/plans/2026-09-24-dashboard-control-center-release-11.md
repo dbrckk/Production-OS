@@ -26,3 +26,23 @@ Make the existing smartphone launch flow truly minimal and server-backed: open P
 - browser contains no direct api.github.com repository fetch
 - launch flow unchanged
 - mobile UI tests and full CI green before merge
+
+
+## Implemented in current branch
+
+- root URL redirects to /dashboard
+- /health and /healthz remain JSON health endpoints
+- server-backed /v1/dashboard/repositories
+- GitHub token-aware accessible repository discovery with public fallback
+- archived repositories excluded
+- deterministic repository sorting
+- browser no longer calls GitHub repository API directly
+- existing repo + instruction launch workflow preserved
+- API/UI/redirect regression coverage
+- README documentation
+
+## Remaining before Release 11 completion
+
+- final CI qualification
+- final diff review
+- mark PR ready and merge after green head
