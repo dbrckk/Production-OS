@@ -294,11 +294,36 @@ class DashboardService:
                 "created_at":job.get("created_at"),
             })
 
+        predicted = [
+            float(job["predicted_minutes"])
+            for job in jobs
+            if isinstance(job.get("predicted_minutes"), (int, float))
+            and not isinstance(job.get("predicted_minutes"), bool)
+        ]
+        free_slots = sum(
+            max(
+                0,
+                int(worker.get("max_concurrency") or 0)
+                - int(worker.get("active_tasks") or 0),
+            )
+            for worker in worker_views
+            if worker.get("status") == "online"
+            and worker.get("desired_state") == "active"
+        )
+        summary = {
+            "ready_now":sum(1 for job in jobs if job.get("wait_reason") is None),
+            "blocked":sum(1 for job in jobs if job.get("wait_reason") is not None),
+            "free_slots":free_slots,
+            "known_eta_minutes":round(sum(predicted), 2) if predicted else None,
+            "eta_coverage_jobs":len(predicted),
+            "eta_total_jobs":len(jobs),
+        }
         return {
             "schema_version":"production-os/dashboard-autopilot/v1",
             "generated_at":_now(),
             "queued":len(jobs),
             "workers_available":sum(1 for worker in worker_views if worker["available"]),
+            "summary":summary,
             "jobs":jobs,
         }
 
