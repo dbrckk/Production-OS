@@ -790,6 +790,60 @@ def make_handler(control: ControlPlane):
                         "resume":"active",
                         "drain":"draining",
                     }
+                    worker_id = parts[3]
+                    if action == "cancel-current":
+                        job_key = str(body.get("job_key") or "").strip()
+                        if not job_key:
+                            self._send(
+                                HTTPStatus.BAD_REQUEST,
+                                {"error":"job_key required"},
+                            )
+                            return
+                        try:
+                            job = control.queue.get(job_key)
+                        except KeyError:
+                            self._send(
+                                HTTPStatus.NOT_FOUND,
+                                {"error":"job not found"},
+                            )
+                            return
+                        if str(job.get("claimed_by") or "") != worker_id:
+                            self._send(
+                                HTTPStatus.CONFLICT,
+                                {"error":"job not claimed by worker"},
+                            )
+                            return
+                        if str(job.get("status") or "") not in {
+                            "claimed","acked","running"
+                        }:
+                            self._send(
+                                HTTPStatus.CONFLICT,
+                                {"error":"job is not active"},
+                            )
+                            return
+                        state = control.dashboard_control.request_job_cancel(
+                            job_key,
+                            requested_by=f"{principal.role}:{principal.name}",
+                            reason=(
+                                str(body.get("reason")).strip()
+                                if body.get("reason") is not None
+                                else None
+                            ),
+                        )
+                        self._send(
+                            HTTPStatus.ACCEPTED,
+                            {
+                                "accepted":True,
+                                "worker_id":worker_id,
+                                "job_key":job_key,
+                                "desired_state":state["desired_state"],
+                                "requested_at":state.get("requested_at"),
+                                "acknowledged":state.get("acknowledged_at") is not None,
+                                "acknowledged_at":state.get("acknowledged_at"),
+                            },
+                        )
+                        return
+
                     desired_state = state_by_action.get(action)
                     if desired_state is None:
                         self._send(
@@ -797,7 +851,6 @@ def make_handler(control: ControlPlane):
                             {"error":"invalid worker control action"},
                         )
                         return
-                    worker_id = parts[3]
                     state = control.dashboard_control.set_worker_state(
                         worker_id,
                         desired_state,
