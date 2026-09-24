@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta, timezone
 from production_os.dashboard_service import DashboardService
 from production_os.dashboard_alerts import derive_alerts
 
@@ -62,17 +63,17 @@ def test_stale_busy_worker_is_medium_alert():
 
 
 def test_previous_window_cost_uses_observed_historical_cost_only():
+    now = datetime.now(timezone.utc)
     rows = [
         {
-            "occurred_at":"2026-09-23T12:00:00+00:00",
+            "occurred_at":(now - timedelta(hours=30)).isoformat(),
             "estimated_cost_usd":5.0,
         },
         {
-            "occurred_at":"2026-09-24T12:00:00+00:00",
+            "occurred_at":(now - timedelta(hours=2)).isoformat(),
             "estimated_cost_usd":12.0,
         },
     ]
-    # Use a broad invariant rather than wall-clock-sensitive equality:
-    # without an event in the previous window there must be no baseline.
+    assert DashboardService._previous_window_cost(rows, "24h") == 5.0
     assert DashboardService._previous_window_cost([], "24h") is None
     assert DashboardService._previous_window_cost(rows, "all") is None
