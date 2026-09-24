@@ -308,6 +308,18 @@ class SQLiteBackend:
                     reason TEXT, requested_by TEXT, requested_at TEXT NOT NULL,
                     acknowledged_at TEXT, updated_at TEXT NOT NULL
                 );
+                CREATE TABLE IF NOT EXISTS control_audit_events (
+                    id TEXT PRIMARY KEY,
+                    action TEXT NOT NULL,
+                    worker_id TEXT NOT NULL,
+                    job_key TEXT,
+                    requested_by TEXT NOT NULL,
+                    outcome TEXT NOT NULL,
+                    error_code TEXT,
+                    requested_at TEXT NOT NULL
+                );
+                CREATE INDEX IF NOT EXISTS idx_control_audit_requested_at
+                ON control_audit_events(requested_at DESC);
                 CREATE TABLE IF NOT EXISTS job_executions (
                     id TEXT PRIMARY KEY, job_key TEXT NOT NULL, workflow_id TEXT,
                     workflow_task_id TEXT, repository TEXT NOT NULL, worker_id TEXT NOT NULL,
