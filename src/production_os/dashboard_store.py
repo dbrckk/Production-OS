@@ -408,7 +408,8 @@ class DashboardStore:
                 db,
                 """SELECT remediation.id AS remediation_id,
                           remediation.verification_state AS verification_state,
-                          incident.status AS incident_status
+                          incident.status AS incident_status,
+                          incident.occurrence_count AS incident_occurrence_count
                    FROM dashboard_remediation_events AS remediation
                    JOIN dashboard_incidents AS incident
                      ON incident.id=remediation.incident_id
@@ -430,11 +431,73 @@ class DashboardStore:
                     """UPDATE dashboard_remediation_events
                        SET verification_state=?,
                            verification_checks=verification_checks+1,
-                           verified_at=?
+                           verified_at=?,
+                           resolved_occurrence_count=CASE
+                               WHEN ?='resolved'
+                               THEN ?
+                               ELSE resolved_occurrence_count
+                           END,
+                           recurrence_state=CASE
+                               WHEN ?='resolved'
+                               THEN 'watching'
+                               ELSE recurrence_state
+                           END
                        WHERE id=?
                          AND verification_state
                              NOT IN ('resolved','not_applicable')""",
-                    (state, timestamp, row["remediation_id"]),
+                    (
+                        state,
+                        timestamp,
+                        state,
+                        int(row["incident_occurrence_count"] or 0),
+                        state,
+                        row["remediation_id"],
+                    ),
+                )
+                current = self._fetchone(
+                    db,
+                    "SELECT * FROM dashboard_remediation_events WHERE id=?",
+                    (row["remediation_id"],),
+                )
+                if current is not None:
+                    updated.append(current)
+        return updated
+
+    def verify_remediation_recurrence(
+        self,
+        *,
+        at: str | None = None,
+    ) -> list[dict]:
+        timestamp = at or _now()
+        updated: list[dict] = []
+        with self.backend.transaction() as db:
+            rows = self._fetchall(
+                db,
+                """SELECT remediation.id AS remediation_id,
+                          remediation.resolved_occurrence_count
+                              AS resolved_occurrence_count,
+                          remediation.recurrence_state AS recurrence_state,
+                          incident.occurrence_count AS incident_occurrence_count
+                   FROM dashboard_remediation_events AS remediation
+                   JOIN dashboard_incidents AS incident
+                     ON incident.id=remediation.incident_id
+                   WHERE remediation.verification_state='resolved'
+                     AND remediation.recurrence_state='watching'
+                     AND remediation.resolved_occurrence_count IS NOT NULL""",
+            )
+            for row in rows:
+                if int(row["incident_occurrence_count"] or 0) <= int(
+                    row["resolved_occurrence_count"] or 0
+                ):
+                    continue
+                _execute(
+                    db,
+                    self.backend,
+                    """UPDATE dashboard_remediation_events
+                       SET recurrence_state='recurred',
+                           recurred_at=?
+                       WHERE id=? AND recurrence_state='watching'""",
+                    (timestamp, row["remediation_id"]),
                 )
                 current = self._fetchone(
                     db,
@@ -475,7 +538,8 @@ class DashboardStore:
             return self._fetchall(
                 db,
                 """SELECT remediation.*,
-                          incident.code AS incident_code
+                          incident.code AS incident_code,
+                          incident.occurrence_count AS incident_occurrence_count
                    FROM dashboard_remediation_events AS remediation
                    JOIN dashboard_incidents AS incident
                      ON incident.id=remediation.incident_id

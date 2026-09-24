@@ -544,6 +544,39 @@ Breakdowns are available by control action and by incident code. Every rate is d
 
 These analytics are read-only. They never rank playbooks, launch controls, or change worker, job, workflow, incident, or remediation state beyond the existing incident refresh needed to read current verification facts.
 
+## Dashboard Control Center Release 9 — Remediation recurrence
+
+Resolved remediation events are now monitored for incident recurrence.
+
+When a remediation verification becomes `resolved`, Production-OS stores the incident's current `occurrence_count` and starts a read-only recurrence watch.
+
+If the same durable incident later reopens and its `occurrence_count` becomes greater than the stored resolution snapshot, the remediation event is marked:
+
+```text
+recurrence_state = recurred
+```
+
+The recurrence lifecycle is:
+
+```text
+not_evaluated -> watching -> recurred
+```
+
+`recurred` is terminal for that remediation event. Pending, still-active and not-applicable remediations do not enter recurrence tracking.
+
+Recurrence is observational only. It never triggers retry, cancellation, recovery, pause, drain, kick or any other control action.
+
+Remediation analytics expose recurrence with explicit denominators:
+
+```text
+watching_recurrence
+recurred
+recurrence_denominator
+observed_recurrence_rate
+```
+
+The dashboard Activity view presents recurrence separately from control outcome and remediation verification.
+
 ## Design principles
 
 - Evidence over assumptions

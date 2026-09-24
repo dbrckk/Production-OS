@@ -22,7 +22,7 @@ def _utcnow() -> str:
 
 
 class PostgresBackend:
-    SCHEMA_VERSION = 13
+    SCHEMA_VERSION = 14
 
     def __init__(self, dsn: str):
         if psycopg is None:
@@ -353,6 +353,9 @@ class PostgresBackend:
                         verification_state TEXT NOT NULL DEFAULT 'pending',
                         verification_checks INTEGER NOT NULL DEFAULT 0,
                         verified_at TEXT,
+                        resolved_occurrence_count INTEGER,
+                        recurrence_state TEXT NOT NULL DEFAULT 'not_evaluated',
+                        recurred_at TEXT,
                         FOREIGN KEY(incident_id) REFERENCES dashboard_incidents(id)
                             ON DELETE RESTRICT
                     )
@@ -423,6 +426,19 @@ class PostgresBackend:
                 cur.execute("""
                     ALTER TABLE dashboard_remediation_events
                     ADD COLUMN IF NOT EXISTS verified_at TEXT
+                """)
+                cur.execute("""
+                    ALTER TABLE dashboard_remediation_events
+                    ADD COLUMN IF NOT EXISTS resolved_occurrence_count INTEGER
+                """)
+                cur.execute("""
+                    ALTER TABLE dashboard_remediation_events
+                    ADD COLUMN IF NOT EXISTS recurrence_state TEXT
+                    NOT NULL DEFAULT 'not_evaluated'
+                """)
+                cur.execute("""
+                    ALTER TABLE dashboard_remediation_events
+                    ADD COLUMN IF NOT EXISTS recurred_at TEXT
                 """)
                 cur.execute("""
                     INSERT INTO schema_meta(key, value)

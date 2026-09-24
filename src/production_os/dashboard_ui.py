@@ -929,6 +929,7 @@ async function loadActivityView(){
    '<div class="card"><div class="section-head"><h2>Analytics des remédiations</h2><span class="badge">'+esc(appState.window)+'</span></div>'+
    '<p class="small"><strong>Total :</strong> '+formatNumber(remediationSummary.total)+' · <strong>Résolues :</strong> '+formatNumber(remediationSummary.resolved)+' · <strong>Toujours actives :</strong> '+formatNumber(remediationSummary.still_active)+' · <strong>En attente :</strong> '+formatNumber(remediationSummary.pending)+' · <strong>Non applicables :</strong> '+formatNumber(remediationSummary.not_applicable)+'</p>'+
    '<p class="small"><strong>Taux de résolution observé :</strong> '+(remediationSummary.observed_resolution_rate==null?'Indisponible':formatNumber(remediationSummary.observed_resolution_rate)+' %')+' · <strong>Échantillon d’efficacité :</strong> '+formatNumber(remediationSummary.effectiveness_denominator)+' · <strong>Médiane détection résolution :</strong> '+(remediationSummary.median_resolution_detection_seconds==null?'Indisponible':formatNumber(remediationSummary.median_resolution_detection_seconds)+' s')+'</p>'+
+   '<p class="small"><strong>Surveillance de récidive :</strong> '+formatNumber(remediationSummary.watching_recurrence)+' · <strong>Récidives observées :</strong> '+formatNumber(remediationSummary.recurred)+' · <strong>Taux de récidive observé :</strong> '+(remediationSummary.observed_recurrence_rate==null?'Indisponible':formatNumber(remediationSummary.observed_recurrence_rate)+' %')+' · <strong>Échantillon récidive :</strong> '+formatNumber(remediationSummary.recurrence_denominator)+'</p>'+
    '<h3 style="font-size:.85rem;margin:12px 0 6px">Par action</h3>'+
    (remediationByAction.length?remediationByAction.map(function(row){
     return '<div class="small"><strong>'+esc(String(row.name||"action"))+'</strong> · '+formatNumber(row.resolved)+' résolue(s) / '+formatNumber(row.effectiveness_denominator)+' vérifiée(s) · taux '+(row.observed_resolution_rate==null?'—':formatNumber(row.observed_resolution_rate)+' %')+'</div>';
@@ -945,8 +946,10 @@ async function loadActivityView(){
     const error=row.error_code?(' · erreur '+String(row.error_code)):'';
     const verification=String(row.verification_state||"pending");
     const verified=row.verified_at?(' · vérifié '+String(row.verified_at)):'';
+    const recurrence=String(row.recurrence_state||"not_evaluated");
+    const recurred=row.recurred_at?(' · récidive '+String(row.recurred_at)):'';
     const checks=Number(row.verification_checks||0);
-    return '<div class="small"><strong>'+esc(String(row.action||"action"))+'</strong> · incident '+esc(String(row.incident_id||""))+' · '+esc(target)+' · résultat '+esc(String(row.outcome||""))+' · vérification '+esc(verification)+' ('+formatNumber(checks)+' contrôle(s))'+esc(verified)+' · '+esc(String(row.requested_by||""))+' · '+esc(String(row.requested_at||""))+esc(error)+'</div>';
+    return '<div class="small"><strong>'+esc(String(row.action||"action"))+'</strong> · incident '+esc(String(row.incident_id||""))+' · '+esc(target)+' · résultat '+esc(String(row.outcome||""))+' · vérification '+esc(verification)+' ('+formatNumber(checks)+' contrôle(s))'+esc(verified)+' · récidive '+esc(recurrence)+esc(recurred)+' · '+esc(String(row.requested_by||""))+' · '+esc(String(row.requested_at||""))+esc(error)+'</div>';
    }).join(""):'<div class="empty">Aucune remédiation liée à un incident.</div>')+
    '</div>';
   const activityHtml=rows.length?rows.slice().reverse().map(function(row){

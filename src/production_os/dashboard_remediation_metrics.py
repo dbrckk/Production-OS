@@ -57,6 +57,20 @@ def _bucket(rows: list[dict]) -> dict:
         if completed is None or verified is None or verified < completed:
             continue
         durations.append((verified - completed).total_seconds())
+    watching = sum(
+        str(row.get("recurrence_state") or "not_evaluated") == "watching"
+        for row in rows
+    )
+    recurred = sum(
+        str(row.get("recurrence_state") or "") == "recurred"
+        for row in rows
+    )
+    recurrence_denominator = watching + recurred
+    recurrence_rate = (
+        round(recurred / recurrence_denominator * 100, 2)
+        if recurrence_denominator
+        else None
+    )
     return {
         "total":total,
         "resolved":resolved,
@@ -65,6 +79,10 @@ def _bucket(rows: list[dict]) -> dict:
         "not_applicable":not_applicable,
         "effectiveness_denominator":denominator,
         "observed_resolution_rate":resolution_rate,
+        "watching_recurrence":watching,
+        "recurred":recurred,
+        "recurrence_denominator":recurrence_denominator,
+        "observed_recurrence_rate":recurrence_rate,
         "median_resolution_detection_seconds":(
             round(float(median(durations)), 2)
             if durations

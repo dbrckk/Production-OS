@@ -18,7 +18,7 @@ def _utcnow() -> str:
 
 
 class SQLiteBackend:
-    SCHEMA_VERSION = 13
+    SCHEMA_VERSION = 14
 
     def __init__(self, path: str | Path):
         self.path = Path(path)
@@ -353,6 +353,9 @@ class SQLiteBackend:
                     verification_state TEXT NOT NULL DEFAULT 'pending',
                     verification_checks INTEGER NOT NULL DEFAULT 0,
                     verified_at TEXT,
+                    resolved_occurrence_count INTEGER,
+                    recurrence_state TEXT NOT NULL DEFAULT 'not_evaluated',
+                    recurred_at TEXT,
                     FOREIGN KEY(incident_id) REFERENCES dashboard_incidents(id)
                         ON DELETE RESTRICT
                 );
@@ -439,6 +442,22 @@ class SQLiteBackend:
                 db.execute(
                     """ALTER TABLE dashboard_remediation_events
                        ADD COLUMN verified_at TEXT"""
+                )
+            if "resolved_occurrence_count" not in remediation_columns:
+                db.execute(
+                    """ALTER TABLE dashboard_remediation_events
+                       ADD COLUMN resolved_occurrence_count INTEGER"""
+                )
+            if "recurrence_state" not in remediation_columns:
+                db.execute(
+                    """ALTER TABLE dashboard_remediation_events
+                       ADD COLUMN recurrence_state TEXT NOT NULL
+                       DEFAULT 'not_evaluated'"""
+                )
+            if "recurred_at" not in remediation_columns:
+                db.execute(
+                    """ALTER TABLE dashboard_remediation_events
+                       ADD COLUMN recurred_at TEXT"""
                 )
 
             db.execute(

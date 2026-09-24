@@ -143,7 +143,7 @@ def test_operator_control_api_writes_success_and_failure_audit(tmp_path):
         server.server_close()
 
 
-def test_release7_schema_is_v13_and_contains_control_audit_and_remediation(tmp_path):
+def test_release9_schema_is_v14_and_contains_control_audit_and_recurrence(tmp_path):
     backend = SQLiteBackend(tmp_path / "schema.sqlite")
     with backend.connect() as db:
         version = db.execute(
@@ -155,9 +155,20 @@ def test_release7_schema_is_v13_and_contains_control_audit_and_remediation(tmp_p
         remediation = db.execute(
             "SELECT name FROM sqlite_master WHERE type='table' AND name='dashboard_remediation_events'"
         ).fetchone()
-    assert version == "13"
+        remediation_columns = {
+            row["name"]
+            for row in db.execute(
+                "PRAGMA table_info(dashboard_remediation_events)"
+            ).fetchall()
+        }
+    assert version == "14"
     assert table["name"] == "control_audit_events"
     assert remediation["name"] == "dashboard_remediation_events"
+    assert {
+        "resolved_occurrence_count",
+        "recurrence_state",
+        "recurred_at",
+    } <= remediation_columns
 
 
 def test_control_action_remains_traced_if_audit_finalization_fails(tmp_path):

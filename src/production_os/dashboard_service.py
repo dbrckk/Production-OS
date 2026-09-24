@@ -376,6 +376,7 @@ class DashboardService:
             self.store.upsert_dashboard_incident(**signal)
         self.store.resolve_dashboard_incidents_except(active_keys)
         self.store.verify_remediation_events()
+        self.store.verify_remediation_recurrence()
         if status is not None and status not in {
             "open","acknowledged","resolved"
         }:

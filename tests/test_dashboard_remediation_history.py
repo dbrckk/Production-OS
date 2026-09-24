@@ -178,7 +178,7 @@ def test_resolved_verification_never_regresses_after_incident_reopens(tmp_path):
     assert after["verification_checks"] == before["verification_checks"]
 
 
-def test_sqlite_v12_database_is_migrated_additively_to_v13(tmp_path):
+def test_sqlite_v13_database_is_migrated_additively_to_v14(tmp_path):
     path = tmp_path / "migration.sqlite"
     db = sqlite3.connect(path)
     db.executescript(
@@ -187,7 +187,7 @@ def test_sqlite_v12_database_is_migrated_additively_to_v13(tmp_path):
             key TEXT PRIMARY KEY,
             value TEXT NOT NULL
         );
-        INSERT INTO schema_meta(key, value) VALUES('schema_version', '12');
+        INSERT INTO schema_meta(key, value) VALUES('schema_version', '13');
         CREATE TABLE dashboard_incidents (
             id TEXT PRIMARY KEY,
             dedupe_key TEXT NOT NULL UNIQUE,
@@ -215,7 +215,10 @@ def test_sqlite_v12_database_is_migrated_additively_to_v13(tmp_path):
             outcome TEXT NOT NULL,
             error_code TEXT,
             requested_at TEXT NOT NULL,
-            completed_at TEXT
+            completed_at TEXT,
+            verification_state TEXT NOT NULL DEFAULT 'pending',
+            verification_checks INTEGER NOT NULL DEFAULT 0,
+            verified_at TEXT
         );
         INSERT INTO dashboard_incidents(
             id,dedupe_key,code,severity,title,message,
@@ -253,10 +256,18 @@ def test_sqlite_v12_database_is_migrated_additively_to_v13(tmp_path):
         row = conn.execute(
             "SELECT * FROM dashboard_remediation_events WHERE id='remediation-1'"
         ).fetchone()
-    assert version == "13"
-    assert {"verification_state","verification_checks","verified_at"} <= columns
+    assert version == "14"
+    assert {
+        "verification_state",
+        "verification_checks",
+        "verified_at",
+        "resolved_occurrence_count",
+        "recurrence_state",
+        "recurred_at",
+    } <= columns
     assert row["verification_state"] == "pending"
     assert row["verification_checks"] == 0
+    assert row["recurrence_state"] == "not_evaluated"
 
 
 def test_repeated_active_verification_is_idempotent(tmp_path):
@@ -285,3 +296,107 @@ def test_repeated_active_verification_is_idempotent(tmp_path):
     assert row["verification_state"] == "still_active"
     assert row["verification_checks"] == 1
     assert row["verified_at"] == verified_at
+
+
+def test_resolved_remediation_snapshots_occurrence_and_watches_recurrence(tmp_path):
+    store = _store(tmp_path / "recurrence-watch.sqlite")
+    incident = _incident(store)
+    event = store.append_remediation_event(
+        incident_id=incident["id"],
+        action="kick",
+        requested_by="operator:dashboard",
+    )
+    store.update_remediation_event(
+        event["id"],
+        outcome="scheduled_fallback",
+    )
+    store.resolve_dashboard_incidents_except(set())
+    resolved = store.verify_remediation_events()[0]
+    assert resolved["verification_state"] == "resolved"
+    assert resolved["resolved_occurrence_count"] == 1
+    assert resolved["recurrence_state"] == "watching"
+    assert resolved["recurred_at"] is None
+
+
+def test_reopened_incident_marks_resolved_remediation_recurred(tmp_path):
+    store = _store(tmp_path / "recurrence-reopen.sqlite")
+    incident = _incident(store)
+    event = store.append_remediation_event(
+        incident_id=incident["id"],
+        action="kick",
+        requested_by="operator:dashboard",
+    )
+    store.update_remediation_event(
+        event["id"],
+        outcome="scheduled_fallback",
+    )
+    store.resolve_dashboard_incidents_except(set())
+    store.verify_remediation_events()
+
+    reopened = store.upsert_dashboard_incident(
+        code="queue_without_worker",
+        severity="high",
+        title="Queue sans worker",
+        message="2 jobs en attente",
+        target_type="control-plane",
+        target_id="global",
+    )
+    assert reopened["occurrence_count"] == 2
+    updated = store.verify_remediation_recurrence()
+    assert len(updated) == 1
+    assert updated[0]["recurrence_state"] == "recurred"
+    assert updated[0]["recurred_at"] is not None
+
+
+def test_recurrence_watching_is_idempotent_until_reopen(tmp_path):
+    store = _store(tmp_path / "recurrence-idempotent.sqlite")
+    incident = _incident(store)
+    event = store.append_remediation_event(
+        incident_id=incident["id"],
+        action="kick",
+        requested_by="operator:dashboard",
+    )
+    store.update_remediation_event(
+        event["id"],
+        outcome="scheduled_fallback",
+    )
+    store.resolve_dashboard_incidents_except(set())
+    store.verify_remediation_events()
+    before = store.remediation_events(limit=1)[0]
+
+    assert store.verify_remediation_recurrence() == []
+    after = store.remediation_events(limit=1)[0]
+    assert after["recurrence_state"] == "watching"
+    assert after["recurred_at"] == before["recurred_at"]
+
+
+def test_recurred_state_is_terminal(tmp_path):
+    store = _store(tmp_path / "recurrence-terminal.sqlite")
+    incident = _incident(store)
+    event = store.append_remediation_event(
+        incident_id=incident["id"],
+        action="kick",
+        requested_by="operator:dashboard",
+    )
+    store.update_remediation_event(
+        event["id"],
+        outcome="scheduled_fallback",
+    )
+    store.resolve_dashboard_incidents_except(set())
+    store.verify_remediation_events()
+    store.upsert_dashboard_incident(
+        code="queue_without_worker",
+        severity="high",
+        title="Queue sans worker",
+        message="2 jobs en attente",
+        target_type="control-plane",
+        target_id="global",
+    )
+    first = store.verify_remediation_recurrence()[0]
+    assert first["recurrence_state"] == "recurred"
+    recurred_at = first["recurred_at"]
+
+    assert store.verify_remediation_recurrence() == []
+    after = store.remediation_events(limit=1)[0]
+    assert after["recurrence_state"] == "recurred"
+    assert after["recurred_at"] == recurred_at
