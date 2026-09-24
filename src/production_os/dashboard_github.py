@@ -38,11 +38,17 @@ class RepositorySnapshotter:
         latest = self.github.latest_commit(repository, branch) or {}
         release = self.github.latest_release(repository)
         captured = _now()
+        commit_shas = set()
+        for execution in self.store.executions_for_repository(repository, limit=500):
+            for raw_sha in execution.get("commit_shas") or []:
+                sha = str(raw_sha).strip().lower()
+                if len(sha) == 40 and all(ch in "0123456789abcdef" for ch in sha):
+                    commit_shas.add(sha)
         snapshot = {
             "id": f"{repository}:{captured}",
             "repository": repository,
             "default_branch": branch,
-            "production_os_commits": 0,
+            "production_os_commits": len(commit_shas),
             "github_commits": self.github.default_branch_commit_count(repository, branch),
             "open_issues": None,
             "open_pull_requests": self.github.open_pull_request_count(repository),
