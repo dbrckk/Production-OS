@@ -367,9 +367,25 @@ class DashboardStore:
                 db,
                 self.backend,
                 """UPDATE dashboard_remediation_events
-                   SET outcome=?, error_code=?, completed_at=?
+                   SET outcome=?, error_code=?, completed_at=?,
+                       verification_state=CASE
+                           WHEN ?='failed' THEN 'not_applicable'
+                           ELSE verification_state
+                       END,
+                       verified_at=CASE
+                           WHEN ?='failed' THEN ?
+                           ELSE verified_at
+                       END
                    WHERE id=?""",
-                (outcome, error_code, timestamp, event_id),
+                (
+                    outcome,
+                    error_code,
+                    timestamp,
+                    outcome,
+                    outcome,
+                    timestamp,
+                    event_id,
+                ),
             )
             row = self._fetchone(
                 db,
@@ -379,6 +395,53 @@ class DashboardStore:
             if row is None:
                 raise KeyError(event_id)
             return row
+
+    def verify_remediation_events(
+        self,
+        *,
+        at: str | None = None,
+    ) -> list[dict]:
+        timestamp = at or _now()
+        updated: list[dict] = []
+        with self.backend.transaction() as db:
+            rows = self._fetchall(
+                db,
+                """SELECT remediation.id AS remediation_id,
+                          remediation.verification_state AS verification_state,
+                          incident.status AS incident_status
+                   FROM dashboard_remediation_events AS remediation
+                   JOIN dashboard_incidents AS incident
+                     ON incident.id=remediation.incident_id
+                   WHERE remediation.completed_at IS NOT NULL
+                     AND remediation.verification_state
+                         NOT IN ('resolved','not_applicable')""",
+            )
+            for row in rows:
+                state = (
+                    "resolved"
+                    if row["incident_status"] == "resolved"
+                    else "still_active"
+                )
+                _execute(
+                    db,
+                    self.backend,
+                    """UPDATE dashboard_remediation_events
+                       SET verification_state=?,
+                           verification_checks=verification_checks+1,
+                           verified_at=?
+                       WHERE id=?
+                         AND verification_state
+                             NOT IN ('resolved','not_applicable')""",
+                    (state, timestamp, row["remediation_id"]),
+                )
+                current = self._fetchone(
+                    db,
+                    "SELECT * FROM dashboard_remediation_events WHERE id=?",
+                    (row["remediation_id"],),
+                )
+                if current is not None:
+                    updated.append(current)
+        return updated
 
     def remediation_events(
         self,
