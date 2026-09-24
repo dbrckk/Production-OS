@@ -2366,6 +2366,8 @@ service = control.dashboard
 ⋮----
 payload = service.overview(window)
 ⋮----
+payload = service.autopilot_queue(
+⋮----
 payload = service.workers()
 ⋮----
 worker_id = parts[3] if len(parts) >= 4 else ""
@@ -2984,6 +2986,60 @@ terminal = sorted(
 recent_failures=0
 ⋮----
 snapshot = {
+⋮----
+@staticmethod
+    def _worker_capabilities(worker: dict) -> list[str]
+⋮----
+value = worker.get("capabilities")
+⋮----
+raw = worker.get("capabilities_json")
+⋮----
+parsed = json.loads(raw)
+⋮----
+parsed = []
+⋮----
+def autopilot_queue(self, limit: int = 50) -> dict
+⋮----
+limit = max(1, min(200, int(limit)))
+queued = self.control.queue.peek_candidates(limit=limit)
+ranked = []
+⋮----
+ranked_item = self.control.portfolio.rank([job])[0]
+⋮----
+ranked_item = {
+⋮----
+workers = self._worker_rows()
+⋮----
+worker_views = []
+⋮----
+worker_id = str(worker.get("worker_id") or "")
+desired = self.control.dashboard_control.worker_state(worker_id)
+item = {
+⋮----
+jobs = []
+⋮----
+job = ranked_item["job"]
+payload = dict(job.get("payload") or {})
+required = sorted({
+assigned = str(job.get("assigned_worker") or "").strip() or None
+⋮----
+scoped = [
+capable = [
+eligible = [
+⋮----
+wait_reason = None
+⋮----
+wait_reason = "assigned_worker_unavailable"
+⋮----
+wait_reason = "no_worker"
+⋮----
+wait_reason = "missing_capability"
+⋮----
+wait_reason = "worker_controlled"
+⋮----
+wait_reason = "capacity_full"
+⋮----
+wait_reason = "no_online_worker"
 ⋮----
 def workers(self)
 ⋮----
@@ -7672,6 +7728,21 @@ def test_dashboard_rejects_invalid_window(running_control_plane)
 def test_dashboard_worker_routes_and_unknown_worker(running_control_plane)
 ⋮----
 def test_dashboard_project_and_activity_routes(running_control_plane)
+⋮----
+low = control.queue.enqueue({
+high = control.queue.enqueue({
+⋮----
+paused_job = control.queue.enqueue({
+missing_job = control.queue.enqueue({
+⋮----
+rows = {row["job_key"]:row for row in payload["jobs"]}
+⋮----
+job = control.queue.enqueue({
+⋮----
+row = next(item for item in payload["jobs"] if item["job_key"] == job["key"])
+⋮----
+stale = control.queue.enqueue({
+healthy = control.queue.enqueue({
 ````
 
 ## File: tests/test_dashboard_control_api.py
@@ -8123,6 +8194,14 @@ def test_ui_distinguishes_requested_from_acknowledged()
 def test_control_refresh_preserves_navigation_and_scroll_contract()
 ⋮----
 def test_overview_renders_operational_alerts()
+⋮----
+def test_dashboard_has_autopilot_primary_view()
+⋮----
+def test_autopilot_view_exposes_queue_explanations()
+⋮----
+def test_autopilot_navigation_preserves_polling_scroll_contract()
+⋮----
+def test_autopilot_surfaces_degraded_ranking_state()
 ````
 
 ## File: tests/test_dashboard_usage.py
