@@ -197,6 +197,7 @@ tests/
   test_dashboard_health.py
   test_dashboard_incident_signals.py
   test_dashboard_incidents.py
+  test_dashboard_launch_ux.py
   test_dashboard_launch.py
   test_dashboard_observability_e2e.py
   test_dashboard_playbook_api.py
@@ -2393,6 +2394,8 @@ payload = service.worker_logs(worker_id, query.get("after",[None])[0], query.get
 ⋮----
 payload = service.worker_usage(worker_id, window)
 ⋮----
+payload = service.repositories()
+⋮----
 payload = service.projects()
 ⋮----
 repository = parts[3] + "/" + parts[4]
@@ -3271,6 +3274,20 @@ found=set()
 ⋮----
 rows=db.execute(f"SELECT DISTINCT repository FROM {table} WHERE repository IS NOT NULL").fetchall()
 ⋮----
+def repositories(self) -> dict
+⋮----
+owner = str(
+github = GitHubClient()
+source = "github"
+⋮----
+rows = github.list_accessible_repositories(owner)
+⋮----
+source = "observed-projects"
+rows = [
+repositories = []
+⋮----
+full_name = str(row.get("full_name") or "").strip()
+⋮----
 def projects(self)
 ⋮----
 def _require_project(self,repository)
@@ -3994,9 +4011,13 @@ def get_commit_workflow_runs(self, full_name: str, commit_sha: str) -> list[dict
 ⋮----
 runs = payload.get("workflow_runs", [])
 ⋮----
-def list_repositories(self, owner: str) -> list[dict[str, Any]]
+def list_accessible_repositories(self, owner: str) -> list[dict[str, Any]]
+⋮----
+owner = str(owner or "").strip()
 ⋮----
 repos: list[dict[str, Any]] = []
+⋮----
+def list_repositories(self, owner: str) -> list[dict[str, Any]]
 ⋮----
 def _contents(self, full_name: str, path: str = "") -> list[dict[str, Any]]
 ⋮----
@@ -8391,6 +8412,47 @@ current = control.dashboard_store.dashboard_incidents(limit=1)[0]
 def test_stale_incident_age_updates_do_not_create_new_occurrences(tmp_path)
 ````
 
+## File: tests/test_dashboard_launch_ux.py
+````python
+def _auth()
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+def _get(url, token=None, *, follow_redirects=True)
+⋮----
+request = urllib.request.Request(
+opener = urllib.request.build_opener()
+⋮----
+class NoRedirect(urllib.request.HTTPRedirectHandler)
+⋮----
+def redirect_request(self, req, fp, code, msg, headers, newurl)
+opener = urllib.request.build_opener(NoRedirect())
+⋮----
+raw = response.read()
+content_type = response.headers.get("Content-Type", "")
+⋮----
+raw = exc.read()
+⋮----
+payload = json.loads(raw or b"{}")
+⋮----
+payload = raw.decode("utf-8", errors="replace")
+⋮----
+def test_root_redirects_to_dashboard_and_health_stays_json(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "launch-ux.sqlite"), authorizer=_auth())
+⋮----
+control = ControlPlane(str(tmp_path / "repos.sqlite"), authorizer=_auth())
+⋮----
+def fake_repos(self, owner)
+⋮----
+control = ControlPlane(
+⋮----
+def fail_repos(self, owner)
+````
+
 ## File: tests/test_dashboard_launch.py
 ````python
 def test_dashboard_daily_surface_is_repo_instruction_only()
@@ -8945,6 +9007,10 @@ def test_activity_view_renders_remediation_analytics_with_sample_sizes()
 def test_activity_view_renders_remediation_recurrence_status()
 ⋮----
 def test_activity_view_renders_remediation_durability_timing()
+⋮----
+def test_launch_repository_picker_is_server_backed()
+⋮----
+def test_mobile_launch_flow_remains_repo_plus_instruction()
 ````
 
 ## File: tests/test_dashboard_usage.py
@@ -11813,6 +11879,24 @@ median_watching_age_seconds
 These metrics are descriptive only. They never trigger retry, cancel, recovery, pause, drain, kick or any other control action.
 
 Invalid or chronologically inconsistent timestamps are ignored instead of being converted into misleading durations.
+
+## Dashboard Control Center Release 11 — Simplified launch UX
+
+The default operator workflow is intentionally minimal:
+
+```text
+select repository
+enter instruction
+launch production
+```
+
+Opening the Production-OS service root redirects to `/dashboard`. Machine health checks remain available at `/health` and `/healthz`.
+
+Repository discovery is performed by Production-OS on the server through `GitHubClient`. The browser no longer calls GitHub's repository API directly.
+
+When a server-side GitHub token is available, Production-OS lists repositories accessible to that credential for the configured owner. If not, it falls back to the owner's public repositories. If GitHub itself is unavailable, the picker degrades to repositories already observed locally by Production-OS.
+
+No additional operator credential, token field or launch parameter is introduced.
 
 ## Design principles
 

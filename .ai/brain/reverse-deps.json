@@ -45,6 +45,7 @@
         "tests/test_dashboard_incident_signals.py",
         "tests/test_dashboard_incidents.py",
         "tests/test_dashboard_launch.py",
+        "tests/test_dashboard_launch_ux.py",
         "tests/test_dashboard_observability_e2e.py",
         "tests/test_dashboard_playbook_api.py",
         "tests/test_dashboard_playbooks.py",
@@ -130,7 +131,7 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 118,
+      "in_degree": 119,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -176,6 +177,7 @@
         "tests/test_dashboard_control_audit.py",
         "tests/test_dashboard_control_e2e.py",
         "tests/test_dashboard_incidents.py",
+        "tests/test_dashboard_launch_ux.py",
         "tests/test_dashboard_observability_e2e.py",
         "tests/test_dashboard_playbook_api.py",
         "tests/test_dashboard_remediation_api.py",
@@ -186,7 +188,7 @@
         "tests/test_speculation_api.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 21,
+      "in_degree": 22,
       "out_degree": 1
     },
     "src/production_os/approvals.py": {
@@ -566,6 +568,7 @@
         "tests/test_dashboard_control_e2e.py",
         "tests/test_dashboard_incidents.py",
         "tests/test_dashboard_launch.py",
+        "tests/test_dashboard_launch_ux.py",
         "tests/test_dashboard_observability_e2e.py",
         "tests/test_dashboard_playbook_api.py",
         "tests/test_dashboard_remediation_api.py",
@@ -577,7 +580,7 @@
         "tests/test_speculation_api.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 22,
+      "in_degree": 23,
       "out_degree": 17
     },
     "src/production_os/control_surface.py": {
@@ -722,16 +725,18 @@
         "src/production_os/dashboard_playbooks.py",
         "src/production_os/dashboard_remediation_metrics.py",
         "src/production_os/dashboard_usage.py",
+        "src/production_os/github_client.py",
         "src/production_os/project_progress.py",
         "src/production_os/workers.py",
         "tests/test_asset_forge.py"
       ],
       "dependents": [
         "src/production_os/control_plane.py",
-        "tests/test_dashboard_alerts.py"
+        "tests/test_dashboard_alerts.py",
+        "tests/test_dashboard_launch_ux.py"
       ],
-      "in_degree": 2,
-      "out_degree": 9
+      "in_degree": 3,
+      "out_degree": 10
     },
     "src/production_os/dashboard_store.py": {
       "dependencies": [
@@ -903,13 +908,15 @@
         "src/production_os/cli.py",
         "src/production_os/control_plane.py",
         "src/production_os/controller.py",
+        "src/production_os/dashboard_service.py",
         "src/production_os/github_work_state.py",
         "tests/test_control_plane_pr_impact.py",
         "tests/test_control_plane_webhook.py",
+        "tests/test_dashboard_launch_ux.py",
         "tests/test_github_client_pr_files.py",
         "tests/test_github_client_put_file.py"
       ],
-      "in_degree": 9,
+      "in_degree": 11,
       "out_degree": 2
     },
     "src/production_os/github_webhook.py": {
@@ -1850,6 +1857,7 @@
         "tests/test_dashboard_incident_signals.py",
         "tests/test_dashboard_incidents.py",
         "tests/test_dashboard_launch.py",
+        "tests/test_dashboard_launch_ux.py",
         "tests/test_dashboard_observability_e2e.py",
         "tests/test_dashboard_playbook_api.py",
         "tests/test_dashboard_playbooks.py",
@@ -1875,7 +1883,7 @@
         "tests/test_workers.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 62,
+      "in_degree": 63,
       "out_degree": 2
     },
     "src/production_os/workflow_engine.py": {
@@ -2343,6 +2351,19 @@
       "dependents": [],
       "in_degree": 0,
       "out_degree": 3
+    },
+    "tests/test_dashboard_launch_ux.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/api_auth.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/dashboard_service.py",
+        "src/production_os/github_client.py",
+        "src/production_os/workers.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 6
     },
     "tests/test_dashboard_observability_e2e.py": {
       "dependencies": [
