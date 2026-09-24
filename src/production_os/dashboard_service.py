@@ -327,6 +327,12 @@ class DashboardService:
             "jobs":jobs,
         }
 
+    def control_audit(self, limit: int = 100) -> dict:
+        return {
+            "events":self.store.control_audit_events(limit=limit),
+            "generated_at":_now(),
+        }
+
     def workers(self):
         rows=[]
         for worker in self._worker_rows():
