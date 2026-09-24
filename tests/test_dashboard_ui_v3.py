@@ -237,3 +237,24 @@ def test_overview_renders_and_acknowledges_durable_incidents():
     assert "Acquitter" in DASHBOARD_HTML
     assert "item.target_type" in DASHBOARD_HTML
     assert "item.target_id" in DASHBOARD_HTML
+
+
+def test_overview_renders_server_backed_incident_playbooks():
+    assert "renderIncidentPlaybook" in DASHBOARD_HTML
+    assert "item.playbook" in DASHBOARD_HTML
+    assert "suggestion.availability" in DASHBOARD_HTML
+    assert "suggestion.reason" in DASHBOARD_HTML
+    assert 'data-playbook-action="' in DASHBOARD_HTML
+
+
+def test_incident_playbook_actions_are_explicit_and_reuse_control_api():
+    assert "runIncidentPlaybookAction" in DASHBOARD_HTML
+    assert "runWorkerControl(workerId,action,jobKey||null)" in DASHBOARD_HTML
+    assert "confirmControlAction" in DASHBOARD_HTML
+    assert "disabled" in DASHBOARD_HTML
+
+
+def test_incident_inspection_playbooks_only_navigate():
+    assert 'action==="inspect-worker"' in DASHBOARD_HTML
+    assert 'action==="inspect-job"' in DASHBOARD_HTML
+    assert "openWorker(encodeURIComponent(workerId))" in DASHBOARD_HTML
