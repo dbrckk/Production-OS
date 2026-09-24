@@ -257,3 +257,31 @@ def test_sqlite_v12_database_is_migrated_additively_to_v13(tmp_path):
     assert {"verification_state","verification_checks","verified_at"} <= columns
     assert row["verification_state"] == "pending"
     assert row["verification_checks"] == 0
+
+
+def test_repeated_active_verification_is_idempotent(tmp_path):
+    store = _store(tmp_path / "idempotent.sqlite")
+    incident = _incident(store)
+    event = store.append_remediation_event(
+        incident_id=incident["id"],
+        action="kick",
+        requested_by="operator:dashboard",
+    )
+    store.update_remediation_event(
+        event["id"],
+        outcome="scheduled_fallback",
+    )
+
+    first = store.verify_remediation_events()
+    assert len(first) == 1
+    row = store.remediation_events(limit=1)[0]
+    assert row["verification_state"] == "still_active"
+    assert row["verification_checks"] == 1
+    verified_at = row["verified_at"]
+
+    second = store.verify_remediation_events()
+    assert second == []
+    row = store.remediation_events(limit=1)[0]
+    assert row["verification_state"] == "still_active"
+    assert row["verification_checks"] == 1
+    assert row["verified_at"] == verified_at
