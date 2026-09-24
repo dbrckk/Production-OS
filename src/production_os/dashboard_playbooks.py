@@ -16,6 +16,13 @@ def derive_incident_playbook(
     target_id = str(incident.get("target_id") or "")
     suggestions: list[dict] = []
 
+    if str(incident.get("status") or "") == "resolved":
+        return {
+            "incident_id":incident.get("id"),
+            "code":code,
+            "suggestions":[],
+        }
+
     if code == "queue_without_worker":
         availability = (
             "available"
