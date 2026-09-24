@@ -566,6 +566,15 @@ function formatNumber(value){
  if(value===null||value===undefined)return "—";
  return new Intl.NumberFormat("fr-FR",{maximumFractionDigits:2}).format(value);
 }
+function formatBytes(value){
+ if(value===null||value===undefined)return "Indisponible";
+ const bytes=Number(value);
+ if(!Number.isFinite(bytes)||bytes<0)return "Indisponible";
+ const units=["o","Ko","Mo","Go","To"];
+ let amount=bytes,index=0;
+ while(amount>=1024&&index<units.length-1){amount/=1024;index++}
+ return new Intl.NumberFormat("fr-FR",{maximumFractionDigits:2}).format(amount)+" "+units[index];
+}
 function errorCard(error){
  return '<div class="card"><div class="small">'+esc(String(error).replace(/^Error:\\s*/,''))+'</div></div>';
 }
@@ -621,9 +630,12 @@ async function loadOverview(){
   const results=await Promise.all([
    api("/v1/dashboard/overview?window="+encodeURIComponent(appState.window)),
    api("/v1/dashboard/health"),
-   api("/v1/dashboard/incidents?limit=20")
+   api("/v1/dashboard/incidents?limit=20"),
+   api("/v1/dashboard/maintenance").catch(function(){
+    return {status:"unknown",database_size_bytes:null,total_rows:null,candidate_rows:null,tables:[],errors:[{error:"unavailable"}]};
+   })
   ]);
-  const data=results[0],health=results[1]||{},incidentData=results[2]||{};
+  const data=results[0],health=results[1]||{},incidentData=results[2]||{},maintenance=results[3]||{};
   const w=data.workers||{},p=data.productions||{},u=data.usage||{},c=data.commits||{},perf=data.performance||{},alerts=data.alerts||[];
   const healthReasons=health.reasons||[];
   const incidents=incidentData.incidents||[];
@@ -648,6 +660,15 @@ async function loadOverview(){
    alerts.map(function(item){
     return '<div class="small"><strong>'+esc(String(item.title||item.code||"Alerte"))+'</strong> · '+esc(String(item.severity||""))+'<br>'+esc(String(item.message||""))+'</div>';
    }).join('')+'</div>':'';
+  const maintenanceTables=maintenance.tables||[];
+  const maintenanceHtml=
+   '<div class="card"><div class="section-head"><h2>Stockage & rétention</h2><span class="badge">'+esc(String(maintenance.status||"unknown"))+'</span></div>'+
+   '<p class="small"><strong>Backend :</strong> '+esc(String(maintenance.backend_kind||"inconnu"))+' · <strong>Taille :</strong> '+esc(formatBytes(maintenance.database_size_bytes))+' · <strong>Lignes suivies :</strong> '+formatNumber(maintenance.total_rows)+' · <strong>Candidates :</strong> '+formatNumber(maintenance.candidate_rows)+'</p>'+
+   (maintenanceTables.length?maintenanceTables.map(function(row){
+    const invalid=Number(row.invalid_timestamps||0);
+    return '<div class="small"><strong>'+esc(String(row.name||row.table||"table"))+'</strong> · '+formatNumber(row.rows)+' lignes · rétention '+formatNumber(row.retention_days)+' j · candidates '+formatNumber(row.candidate_rows)+(invalid?' · timestamps invalides '+formatNumber(invalid):'')+'</div>';
+   }).join(""):'<div class="small">Diagnostic de stockage indisponible.</div>')+
+   '</div>';
   el.innerHTML=
    '<div class="status-grid">'+
    '<div class="status-card"><div class="status-label">Workers en ligne</div><div class="status-value">'+formatNumber(w.online)+' / '+formatNumber(w.total)+'</div></div>'+
@@ -659,6 +680,7 @@ async function loadOverview(){
    '<p class="small">Commits Production-OS : '+formatNumber(c.production_os)+' · branche par défaut GitHub : '+formatNumber(c.github_default_branch)+'</p>'+
    '<p class="small">Taux de réussite : '+formatNumber(perf.success_rate)+' % · temps d’exécution : '+formatNumber(perf.execution_seconds)+' s</p></div>'+
    healthHtml+
+   maintenanceHtml+
    incidentsHtml+
    alertsHtml;
  }catch(e){el.innerHTML=errorCard(e)}

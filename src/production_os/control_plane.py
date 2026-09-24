@@ -297,6 +297,8 @@ def make_handler(control: ControlPlane):
                             payload = service.worker_usage(worker_id, window)
                         else:
                             raise DashboardNotFound(parsed.path)
+                    elif parsed.path == "/v1/dashboard/maintenance":
+                        payload = service.maintenance()
                     elif parsed.path == "/v1/dashboard/repositories":
                         payload = service.repositories()
                     elif parsed.path == "/v1/dashboard/projects":

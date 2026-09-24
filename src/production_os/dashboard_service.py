@@ -5,6 +5,7 @@ from uuid import uuid4
 import json
 import os
 import hashlib
+import time
 
 from .dashboard_usage import aggregate_usage
 from .dashboard_alerts import derive_alerts
@@ -12,6 +13,7 @@ from .dashboard_health import derive_control_health
 from .dashboard_incidents import dedupe_key, signals_from_health
 from .dashboard_playbooks import derive_incident_playbook
 from .dashboard_remediation_metrics import aggregate_remediation_analytics
+from .dashboard_maintenance import storage_maintenance_snapshot
 from .project_progress import ProjectProgressEngine, build_project_evidence, workflow_progress
 from .github_client import GitHubAPIError, GitHubClient
 
@@ -37,6 +39,8 @@ class DashboardService:
     def __init__(self, control):
         self.control=control
         self.store=control.dashboard_store
+        self._maintenance_cache=None
+        self._maintenance_cache_at=0.0
 
     def _worker_rows(self):
         with self.control.backend.connect() as db:
@@ -534,6 +538,18 @@ class DashboardService:
                 except Exception:
                     continue
         return sorted(found)
+
+    def maintenance(self) -> dict:
+        now = time.monotonic()
+        cached = self._maintenance_cache
+        if cached is not None:
+            ttl = 30.0 if cached.get("status") == "unknown" else 300.0
+            if now - self._maintenance_cache_at < ttl:
+                return {**cached, "cached":True}
+        payload = storage_maintenance_snapshot(self.control.backend)
+        self._maintenance_cache = dict(payload)
+        self._maintenance_cache_at = now
+        return {**payload, "cached":False}
 
     def repositories(self) -> dict:
         owner = str(
