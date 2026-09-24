@@ -1,28 +1,18 @@
 # Change impact
 
-Base: 5374099428c802347d0f6073b04311521900f32c
-Head: 0424e96bee0b65a9cd27a2eaec3423a025425385
+Base: de6ec4ce981bd34afb35367888b799d6b91f5d6b
+Head: 2231341f24ee3db2fece523ca0bbe874655caea4
 
 ## Changed files
-- M README.md
-- A docs/superpowers/plans/2026-09-24-dashboard-control-center-release-15.md
-- M src/production_os/control_plane.py
-- M src/production_os/dashboard_backups.py
-- M src/production_os/dashboard_service.py
-- M src/production_os/dashboard_ui.py
-- M tests/test_dashboard_backup_api.py
-- M tests/test_dashboard_backups.py
-- M tests/test_dashboard_ui_v3.py
+- A docs/superpowers/plans/2026-09-24-release-16-operations-e2e.md
+- A tests/test_release16_operations_e2e.py
 
 ## Affected areas
-- (root)
 - docs
-- src
 - tests
 
 ## Related test candidates
-- tests/test_control_plane.py
-- tests/test_dashboard_backups.py
+- No direct filename-based test match detected.
 
 ## Agent guidance
 - Read this file before broad repository exploration.

@@ -22,16 +22,18 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-24T22:01:12Z
+Generated: 2026-09-24T22:04:53Z
 
 ### Git
 - Branch: `main`
-- Head: `0424e96bee0b`
-- Commit date: 2026-09-25T00:01:01+02:00
-- Commit: feat: control center release 15 restore readiness
-- Tracked files: 391
+- Head: `2231341f24ee`
+- Commit date: 2026-09-25T00:04:41+02:00
+- Commit: test: release 16 operations e2e qualification
+- Tracked files: 393
 
 ### Recently changed files
+- `docs/superpowers/plans/2026-09-24-release-16-operations-e2e.md`
+- `tests/test_release16_operations_e2e.py`
 - `README.md`
 - `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-15.md`
 - `src/production_os/control_plane.py`
@@ -48,9 +50,6 @@ Generated: 2026-09-24T22:01:12Z
 - `tests/test_dashboard_store_postgres.py`
 - `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-12.md`
 - `tests/test_dashboard_maintenance.py`
-- `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-11.md`
-- `src/production_os/github_client.py`
-- `tests/test_dashboard_launch_ux.py`
 
 ### Project signals
 - `pyproject.toml`

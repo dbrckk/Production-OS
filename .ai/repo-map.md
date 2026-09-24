@@ -258,6 +258,7 @@ tests/
   test_rekor_witness_quorum_cli.py
   test_rekor_witness_quorum.py
   test_release_ledger.py
+  test_release16_operations_e2e.py
   test_remote_worker.py
   test_render_start.py
   test_result_cache.py
@@ -10602,6 +10603,48 @@ builder_id="https://builder.example/prod"
 def test_release_verify_rejects_untrusted_builder_repository(tmp_path)
 ⋮----
 def test_trusted_builder_requires_dedicated_signing_key(tmp_path)
+````
+
+## File: tests/test_release16_operations_e2e.py
+````python
+def _auth()
+⋮----
+def _request(base, path, token, *, method="GET", body=None)
+⋮----
+data = None if body is None else json.dumps(body).encode("utf-8")
+request = urllib.request.Request(
+⋮----
+raw = response.read()
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+def test_release16_operator_path_survives_restart(tmp_path, monkeypatch)
+⋮----
+database = str(tmp_path / "production.sqlite")
+backup_dir = tmp_path / "backups"
+⋮----
+first = ControlPlane(database, authorizer=_auth())
+⋮----
+workflow_id = created["workflow"]["id"]
+⋮----
+job_key = dispatched["jobs"][0]["key"]
+⋮----
+incident = next(
+kick = next(
+⋮----
+backup_id = backup["backup_id"]
+⋮----
+remediation_rows = first.dashboard_store.remediation_events(limit=10)
+⋮----
+audit = first.dashboard_store.control_audit_events(limit=50)
+actions = {row["action"] for row in audit}
+⋮----
+second = ControlPlane(database, authorizer=_auth())
+⋮----
+catalog = second.dashboard.backups()
 ````
 
 ## File: tests/test_remote_worker.py
