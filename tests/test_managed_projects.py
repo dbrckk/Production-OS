@@ -159,3 +159,17 @@ def test_project_can_be_completed_only_after_review(tmp_path):
     assert completed["status"] == DONE
     assert completed["completed_at"] is not None
     assert control.managed_projects.get(project["id"])["status"] == DONE
+
+
+@pytest.mark.parametrize(
+    "repository",
+    ["", "owner", "../repo", "owner/..", "owner/repo/extra", "/repo"],
+)
+def test_managed_project_rejects_invalid_repository_identity(tmp_path, repository):
+    control = ControlPlane(str(tmp_path / "managed.sqlite"))
+    with pytest.raises(ManagedProjectError, match="owner/name"):
+        control.managed_projects.create(
+            repository=repository,
+            final_goal="Ship it",
+            requested_by="operator:test",
+        )
