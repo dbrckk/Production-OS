@@ -7,6 +7,7 @@ import hashlib
 
 from .dashboard_usage import aggregate_usage
 from .dashboard_alerts import derive_alerts
+from .dashboard_health import derive_control_health
 from .project_progress import ProjectProgressEngine, build_project_evidence, workflow_progress
 
 
@@ -326,6 +327,37 @@ class DashboardService:
             "summary":summary,
             "jobs":jobs,
         }
+
+    def health(self) -> dict:
+        workers = self._worker_rows()
+        with self.control.backend.connect() as db:
+            job_rows = db.execute(
+                "SELECT status, COUNT(*) AS count FROM jobs GROUP BY status"
+            ).fetchall()
+            execution_rows = db.execute(
+                """SELECT job_key, worker_id, started_at, last_telemetry_at
+                   FROM job_executions
+                   WHERE status='running'"""
+            ).fetchall()
+        states = {
+            str(row["status"]):int(row["count"])
+            for row in job_rows
+        }
+        snapshot = {
+            "generated_at":_now(),
+            "workers":{
+                "online":sum(
+                    row.get("status") == "online"
+                    for row in workers
+                ),
+            },
+            "productions":{
+                "queued":states.get("queued", 0),
+            },
+            "worker_rows":workers,
+            "running_executions":[dict(row) for row in execution_rows],
+        }
+        return derive_control_health(snapshot)
 
     def control_audit(self, limit: int = 100) -> dict:
         return {
