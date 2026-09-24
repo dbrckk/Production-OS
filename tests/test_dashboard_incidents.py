@@ -180,3 +180,37 @@ def test_incident_polling_does_not_inflate_unchanged_occurrence_count(tmp_path):
     assert first["id"] == second["id"]
     assert first["occurrence_count"] == 1
     assert second["occurrence_count"] == 1
+
+
+def test_resolved_incident_reopens_without_stale_acknowledgement(tmp_path):
+    store = _store(tmp_path)
+    incident = store.upsert_dashboard_incident(
+        code="queue_without_worker",
+        severity="high",
+        title="Queue",
+        message="2 jobs",
+        target_type="control-plane",
+        target_id="global",
+    )
+    acknowledged = store.acknowledge_dashboard_incident(
+        incident["id"],
+        acknowledged_by="operator:dashboard",
+    )
+    assert acknowledged["status"] == "acknowledged"
+    store.resolve_dashboard_incidents_except(set())
+    resolved = store.dashboard_incidents(limit=1)[0]
+    assert resolved["status"] == "resolved"
+
+    reopened = store.upsert_dashboard_incident(
+        code="queue_without_worker",
+        severity="high",
+        title="Queue",
+        message="3 jobs",
+        target_type="control-plane",
+        target_id="global",
+    )
+    assert reopened["status"] == "open"
+    assert reopened["occurrence_count"] == 2
+    assert reopened["acknowledged_by"] is None
+    assert reopened["acknowledged_at"] is None
+    assert reopened["resolved_at"] is None
