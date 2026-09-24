@@ -1,16 +1,17 @@
 # Change impact
 
-Base: 3f8e00d37acf676aa302a35b44a425bea3828b2d
-Head: a572a7f898e3d45da70fe10c49ab0ca65b9b7a03
+Base: 7245d81704be7608b4b74967f54250079ca41ce0
+Head: 2bc6e41b04f3e8d92711016ded2683c0f7997729
 
 ## Changed files
 - M README.md
-- A docs/superpowers/plans/2026-09-24-dashboard-control-center-release-11.md
+- A docs/superpowers/plans/2026-09-24-dashboard-control-center-release-12.md
 - M src/production_os/control_plane.py
+- A src/production_os/dashboard_maintenance.py
 - M src/production_os/dashboard_service.py
 - M src/production_os/dashboard_ui.py
-- M src/production_os/github_client.py
-- A tests/test_dashboard_launch_ux.py
+- A tests/test_dashboard_maintenance.py
+- M tests/test_dashboard_store_postgres.py
 - M tests/test_dashboard_ui_v3.py
 
 ## Affected areas
@@ -21,6 +22,7 @@ Head: a572a7f898e3d45da70fe10c49ab0ca65b9b7a03
 
 ## Related test candidates
 - tests/test_control_plane.py
+- tests/test_dashboard_maintenance.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

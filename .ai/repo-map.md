@@ -84,6 +84,7 @@ src/
     dashboard_github.py
     dashboard_health.py
     dashboard_incidents.py
+    dashboard_maintenance.py
     dashboard_playbooks.py
     dashboard_remediation_metrics.py
     dashboard_security.py
@@ -199,6 +200,7 @@ tests/
   test_dashboard_incidents.py
   test_dashboard_launch_ux.py
   test_dashboard_launch.py
+  test_dashboard_maintenance.py
   test_dashboard_observability_e2e.py
   test_dashboard_playbook_api.py
   test_dashboard_playbooks.py
@@ -2394,6 +2396,8 @@ payload = service.worker_logs(worker_id, query.get("after",[None])[0], query.get
 ⋮----
 payload = service.worker_usage(worker_id, window)
 ⋮----
+payload = service.maintenance()
+⋮----
 payload = service.repositories()
 ⋮----
 payload = service.projects()
@@ -2989,6 +2993,70 @@ age = execution.get("age_seconds")
 def dedupe_key(signal: dict) -> str
 ````
 
+## File: src/production_os/dashboard_maintenance.py
+````python
+RETENTION_SPECS = (
+⋮----
+def _parse_time(value)
+⋮----
+parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+⋮----
+parsed = parsed.replace(tzinfo=timezone.utc)
+⋮----
+def _retention_days(env_name: str, default: int) -> int
+⋮----
+raw = str(os.getenv(env_name) or "").strip()
+⋮----
+value = int(raw)
+⋮----
+def _database_size_bytes(backend) -> int | None
+⋮----
+row = db.execute(
+⋮----
+value = row["bytes"]
+⋮----
+path = getattr(backend, "path", None)
+⋮----
+base = Path(path)
+total = 0
+found = False
+⋮----
+found = True
+⋮----
+cutoff = now - timedelta(days=retention_days)
+⋮----
+valid_count = 0
+invalid = 0
+candidates = 0
+oldest = None
+newest = None
+⋮----
+cursor = db.execute(
+⋮----
+parsed = _parse_time(row["timestamp"])
+⋮----
+oldest = parsed
+⋮----
+newest = parsed
+⋮----
+current = now or datetime.now(timezone.utc)
+⋮----
+current = current.replace(tzinfo=timezone.utc)
+current = current.astimezone(timezone.utc)
+⋮----
+tables = []
+errors = []
+⋮----
+total_candidates = sum(
+total_rows = sum(int(row.get("rows") or 0) for row in tables)
+⋮----
+size_bytes = _database_size_bytes(backend)
+⋮----
+size_bytes = None
+⋮----
+status = (
+````
+
 ## File: src/production_os/dashboard_playbooks.py
 ````python
 ACTIVE_JOB_STATUSES = {"claimed", "acked", "running"}
@@ -3273,6 +3341,15 @@ def _repositories(self)
 found=set()
 ⋮----
 rows=db.execute(f"SELECT DISTINCT repository FROM {table} WHERE repository IS NOT NULL").fetchall()
+⋮----
+def maintenance(self) -> dict
+⋮----
+now = time.monotonic()
+cached = self._maintenance_cache
+⋮----
+ttl = 30.0 if cached.get("status") == "unknown" else 300.0
+⋮----
+payload = storage_maintenance_snapshot(self.control.backend)
 ⋮----
 def repositories(self) -> dict
 ⋮----
@@ -8488,6 +8565,45 @@ def test_dashboard_v2_has_readable_auth_errors()
 def test_dashboard_v2_has_mobile_primary_launch_action()
 ````
 
+## File: tests/test_dashboard_maintenance.py
+````python
+NOW = datetime(2026, 9, 24, 18, 0, tzinfo=timezone.utc)
+⋮----
+def _auth()
+⋮----
+def _get(base, path, token)
+⋮----
+request = urllib.request.Request(
+⋮----
+def test_sqlite_maintenance_counts_only_valid_old_rows(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "maintenance.sqlite")
+⋮----
+payload = storage_maintenance_snapshot(backend, now=NOW)
+logs = next(row for row in payload["tables"] if row["name"] == "worker_logs")
+⋮----
+serialized = json.dumps(payload)
+⋮----
+backend = SQLiteBackend(tmp_path / "retention.sqlite")
+⋮----
+def test_maintenance_api_is_viewer_readable_and_worker_forbidden(tmp_path)
+⋮----
+control = ControlPlane(
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+base = f"http://127.0.0.1:{server.server_port}"
+⋮----
+calls = []
+⋮----
+def fake_snapshot(backend)
+⋮----
+moments = iter([100.0, 101.0])
+⋮----
+first = control.dashboard.maintenance()
+second = control.dashboard.maintenance()
+````
+
 ## File: tests/test_dashboard_observability_e2e.py
 ````python
 def _auth()
@@ -8862,6 +8978,12 @@ workflow = control.workflows.create(
 payload = control.dashboard.project_workflows(repository)
 ⋮----
 progress = control.dashboard.project_progress(repository)
+⋮----
+def test_postgres_storage_maintenance_snapshot_has_size_and_no_dsn()
+⋮----
+payload = storage_maintenance_snapshot(backend)
+⋮----
+names = {row["name"] for row in payload["tables"]}
 ````
 
 ## File: tests/test_dashboard_store.py
@@ -9011,6 +9133,10 @@ def test_activity_view_renders_remediation_durability_timing()
 def test_launch_repository_picker_is_server_backed()
 ⋮----
 def test_mobile_launch_flow_remains_repo_plus_instruction()
+⋮----
+def test_overview_renders_storage_maintenance_card()
+⋮----
+def test_storage_maintenance_failure_does_not_break_overview()
 ````
 
 ## File: tests/test_dashboard_usage.py
@@ -11897,6 +12023,42 @@ Repository discovery is performed by Production-OS on the server through `GitHub
 When a server-side GitHub token is available, Production-OS lists repositories accessible to that credential for the configured owner. If not, it falls back to the owner's public repositories. If GitHub itself is unavailable, the picker degrades to repositories already observed locally by Production-OS.
 
 No additional operator credential, token field or launch parameter is introduced.
+
+## Dashboard Control Center Release 12 — Storage maintenance visibility
+
+Production-OS exposes a read-only storage maintenance snapshot at:
+
+```text
+GET /v1/dashboard/maintenance
+```
+
+It reports:
+
+- backend kind (SQLite or PostgreSQL);
+- measurable database size in bytes;
+- row counts for durable operational tables;
+- oldest/newest valid timestamps;
+- invalid timestamp counts;
+- configured retention days and cutoffs;
+- rows currently older than each retention window;
+- total retention candidates;
+- a maintenance status: `healthy`, `attention`, or `unknown`.
+
+Default retention windows are currently diagnostic only:
+
+```text
+worker logs                  30 days
+API usage                    90 days
+job executions               90 days
+control audit               180 days
+remediation history         180 days
+repository/progress snapshots 90 days
+generic event stream         90 days
+```
+
+Release 12 performs no deletion, VACUUM, backup mutation or restore action. It deliberately establishes visibility before destructive maintenance is introduced. Timestamp scans are streamed row by row so large history tables do not need to be loaded fully into memory. The resulting maintenance snapshot is cached server-side for five minutes (30 seconds after an unknown/error state), so normal dashboard polling does not repeatedly rescan large tables.
+
+The dashboard never exposes the SQLite path, PostgreSQL DSN, credentials or tokens. If maintenance diagnostics fail, the rest of the Overview remains available and the storage card degrades to `unknown`.
 
 ## Design principles
 
