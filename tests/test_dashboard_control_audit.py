@@ -1,5 +1,14 @@
 from __future__ import annotations
 
+import json
+import threading
+import urllib.error
+import urllib.request
+from http.server import ThreadingHTTPServer
+
+from production_os.api_auth import TokenAuthorizer, token_digest
+from production_os.control_plane import ControlPlane, make_handler
+
 from production_os.dashboard_store import DashboardStore
 from production_os.sqlite_backend import SQLiteBackend
 
@@ -53,3 +62,82 @@ def test_control_audit_limit_is_bounded(tmp_path):
         )
     assert len(store.control_audit_events(limit=2)) == 2
     assert len(store.control_audit_events(limit=100000)) == 5
+
+
+def _auth():
+    return TokenAuthorizer([
+        {"name":"operator","role":"operator","sha256":token_digest("operator")},
+        {"name":"viewer","role":"viewer","sha256":token_digest("viewer")},
+        {"name":"worker","role":"worker","sha256":token_digest("worker")},
+    ])
+
+
+def _request(base, path, token, *, method="GET", body=None):
+    data = None if body is None else json.dumps(body).encode("utf-8")
+    request = urllib.request.Request(
+        base + path,
+        data=data,
+        method=method,
+        headers={
+            "Authorization":f"Bearer {token}",
+            **({"Content-Type":"application/json"} if data is not None else {}),
+        },
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=3) as response:
+            raw = response.read()
+            return response.status, json.loads(raw or b"{}")
+    except urllib.error.HTTPError as exc:
+        raw = exc.read()
+        return exc.code, json.loads(raw or b"{}")
+
+
+def test_operator_control_api_writes_success_and_failure_audit(tmp_path):
+    control = ControlPlane(str(tmp_path / "api.sqlite"), authorizer=_auth())
+    control.workers.register("worker-a", ["python"], 1)
+    server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    base = f"http://127.0.0.1:{server.server_port}"
+    try:
+        status, _ = _request(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            method="POST",
+            body={"action":"pause"},
+        )
+        assert status == 202
+
+        status, _ = _request(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            method="POST",
+            body={"action":"cancel-current","job_key":"missing-job"},
+        )
+        assert status == 404
+
+        status, payload = _request(
+            base,
+            "/v1/dashboard/control-audit?limit=10",
+            "viewer",
+        )
+        assert status == 200
+        events = payload["events"]
+        assert events[0]["action"] == "cancel-current"
+        assert events[0]["outcome"] == "failed"
+        assert events[0]["error_code"] == "job_not_found"
+        assert events[1]["action"] == "pause"
+        assert events[1]["outcome"] == "accepted"
+        assert events[1]["requested_by"] == "operator:operator"
+
+        status, _ = _request(
+            base,
+            "/v1/dashboard/control-audit",
+            "worker",
+        )
+        assert status == 403
+    finally:
+        server.shutdown()
+        server.server_close()
