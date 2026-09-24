@@ -422,6 +422,8 @@ class DashboardStore:
                     if row["incident_status"] == "resolved"
                     else "still_active"
                 )
+                if row["verification_state"] == state:
+                    continue
                 _execute(
                     db,
                     self.backend,
