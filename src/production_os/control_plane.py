@@ -9,6 +9,7 @@ from urllib.parse import parse_qs, urlparse
 from .api_auth import Principal, TokenAuthorizer
 from .storage import job_queue_for, open_backend, worker_registry_for
 from .workflow_engine import WorkflowEngine, WorkflowTaskSpec
+from .managed_projects import ManagedProjects, ManagedProjectError
 from .execution_optimizer import ExecutionOptimizer
 from .speculation import SpeculationManager
 from .portfolio_optimizer import PortfolioOptimizer
@@ -55,6 +56,10 @@ class ControlPlane:
         self.queue = job_queue_for(self.backend)
         self.workers = worker_registry_for(self.backend)
         self.workflows = WorkflowEngine(self.backend, self.queue)
+        self.managed_projects = ManagedProjects(
+            self.backend,
+            self.workflows,
+        )
         github_token = str(os.getenv("GITHUB_TOKEN") or "").strip()
         actions_repository = str(
             os.getenv("PRODUCTION_OS_ACTIONS_REPOSITORY") or ""
