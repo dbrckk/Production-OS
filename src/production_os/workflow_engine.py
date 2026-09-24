@@ -1164,8 +1164,15 @@ class WorkflowEngine:
         self,
         workflow_id: str,
         task_id: str,
+        *,
+        source_revision: str | None = None,
+        workflow_generation: int | None = None,
     ) -> dict:
-        self.assert_generation_current(workflow_id)
+        self.assert_generation_current(
+            workflow_id,
+            source_revision=source_revision,
+            workflow_generation=workflow_generation,
+        )
         now = _now()
         with self.backend.transaction() as db:
             row = _execute(
