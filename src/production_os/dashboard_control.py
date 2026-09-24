@@ -167,7 +167,20 @@ class DashboardControl:
         ):
             raise DashboardControlError("job cancellation is not acknowledged")
         try:
-            replacement = self.workflows.retry_task(workflow_id, task_id)
+            replacement = self.workflows.retry_task(
+                workflow_id,
+                task_id,
+                source_revision=(
+                    str(payload.get("source_revision"))
+                    if payload.get("source_revision") is not None
+                    else None
+                ),
+                workflow_generation=(
+                    int(payload.get("workflow_generation"))
+                    if payload.get("workflow_generation") is not None
+                    else None
+                ),
+            )
         except (KeyError, RuntimeError) as exc:
             raise DashboardControlError(str(exc)) from exc
         return {
