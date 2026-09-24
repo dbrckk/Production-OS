@@ -13,7 +13,7 @@ from .dashboard_health import derive_control_health
 from .dashboard_incidents import dedupe_key, signals_from_health
 from .dashboard_playbooks import derive_incident_playbook
 from .dashboard_remediation_metrics import aggregate_remediation_analytics
-from .dashboard_maintenance import storage_maintenance_snapshot
+from .dashboard_maintenance import prune_expired_history, storage_maintenance_snapshot
 from .project_progress import ProjectProgressEngine, build_project_evidence, workflow_progress
 from .github_client import GitHubAPIError, GitHubClient
 
@@ -539,10 +539,10 @@ class DashboardService:
                     continue
         return sorted(found)
 
-    def maintenance(self) -> dict:
+    def maintenance(self, *, force: bool = False) -> dict:
         now = time.monotonic()
         cached = self._maintenance_cache
-        if cached is not None:
+        if not force and cached is not None:
             ttl = 30.0 if cached.get("status") == "unknown" else 300.0
             if now - self._maintenance_cache_at < ttl:
                 return {**cached, "cached":True}
@@ -550,6 +550,18 @@ class DashboardService:
         self._maintenance_cache = dict(payload)
         self._maintenance_cache_at = now
         return {**payload, "cached":False}
+
+    def prune_maintenance(self, expected_candidate_rows: int) -> dict:
+        result = prune_expired_history(
+            self.control.backend,
+            expected_candidate_rows=expected_candidate_rows,
+        )
+        self._maintenance_cache = None
+        self._maintenance_cache_at = 0.0
+        return {
+            **result,
+            "maintenance":self.maintenance(force=True),
+        }
 
     def repositories(self) -> dict:
         owner = str(
