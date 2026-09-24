@@ -741,9 +741,12 @@ async function loadWorkersView(){
  }catch(e){list.innerHTML=errorCard(e)}
 }
 function confirmControlAction(action,jobKey){
- if(action!=="cancel-current"&&action!=="retry")return true;
+ if(!["cancel-current","retry","recover-stuck"].includes(action))return true;
  const target=jobKey?(" sur "+jobKey):"";
- return window.confirm((action==="retry"?"Relancer cette tentative":"Annuler cette tâche")+target+" ?");
+ const label=action==="retry"
+  ?"Relancer cette tentative"
+  :(action==="recover-stuck"?"Récupérer ce job bloqué":"Annuler cette tâche");
+ return window.confirm(label+target+" ?");
 }
 function renderControlReceipt(result){
  const el=document.getElementById("worker-control-receipt");
@@ -785,6 +788,7 @@ async function loadWorkerDetail(workerId){
   ]);
   const detail=results[0],logs=results[1],usage=results[2],worker=detail.worker||{},totals=usage.totals||{};
   const executions=detail.executions||[];
+  const recoverableJobs=detail.recoverable_jobs||[];
   const activeExecution=executions.find(function(row){return row.status==="running"})||null;
   const retryExecution=executions.find(function(row){return row.status==="failed"||row.status==="cancelled"})||null;
   const currentTask=activeExecution?(activeExecution.workflow_task_id||activeExecution.job_key||"En cours"):"Aucune";
@@ -818,6 +822,10 @@ async function loadWorkerDetail(workerId){
    '<button class="secondary-btn" data-control-action="kick" onclick="runWorkerControl('+JSON.stringify(workerId)+',\'kick\')">Kick</button>'+
    (activeJobKey?'<button class="secondary-btn" data-control-action="cancel-current" data-job-key="'+esc(activeJobKey)+'" onclick="runWorkerControl('+JSON.stringify(workerId)+',\'cancel-current\',this.dataset.jobKey)">Annuler '+esc(activeJobKey)+'</button>':'')+
    (retryJobKey?'<button class="secondary-btn" data-control-action="retry" data-job-key="'+esc(retryJobKey)+'" onclick="runWorkerControl('+JSON.stringify(workerId)+',\'retry\',this.dataset.jobKey)">Retry '+esc(retryJobKey)+'</button>':'')+
+   recoverableJobs.map(function(row){
+    const key=String(row.key||"");
+    return '<button class="secondary-btn" data-control-action="recover-stuck" data-job-key="'+esc(key)+'" onclick="runWorkerControl('+JSON.stringify(workerId)+',\'recover-stuck\',this.dataset.jobKey)">Récupérer '+esc(key)+'</button>';
+   }).join("")+
    '</div><div id="worker-control-receipt" class="status-message"></div>'+
    '<h3 style="font-size:.85rem;margin:15px 0 6px">Historique d’exécution</h3>'+
    (executions.length?executions.slice(0,8).map(function(row){return '<div class="small"><strong>Résultat :</strong> '+esc(String(row.status||"inconnu"))+' · '+esc(String(row.started_at||""))+' · <strong>Durée :</strong> '+(row.duration_seconds==null?'—':formatNumber(row.duration_seconds)+' s')+'</div>'}).join(""):'<div class="empty">Aucune exécution enregistrée.</div>')+
