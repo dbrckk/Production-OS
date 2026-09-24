@@ -79,12 +79,12 @@ class _FakeGitHub:
             raise RuntimeError("dispatch failed")
 
 
-def test_kick_dispatches_actions_worker_when_configured(control_fixture):
+def test_kick_dispatches_actions_worker_when_configured(tmp_path):
     github = _FakeGitHub()
     control = DashboardControl(
-        control_fixture.dashboard_store,
-        control_fixture.queue,
-        control_fixture.workflows,
+        _store(tmp_path),
+        None,
+        None,
         github=github,
         actions_repository="dbrckk/ai-dev-server",
         actions_workflow="production-os-actions-worker.yml",
@@ -99,11 +99,11 @@ def test_kick_dispatches_actions_worker_when_configured(control_fixture):
     )]
 
 
-def test_kick_reports_scheduled_fallback_without_dispatch_credentials(control_fixture):
+def test_kick_reports_scheduled_fallback_without_dispatch_credentials(tmp_path):
     control = DashboardControl(
-        control_fixture.dashboard_store,
-        control_fixture.queue,
-        control_fixture.workflows,
+        _store(tmp_path),
+        None,
+        None,
     )
     assert control.kick_worker("github-actions-worker") == {
         "status":"scheduled_fallback",
@@ -111,11 +111,11 @@ def test_kick_reports_scheduled_fallback_without_dispatch_credentials(control_fi
     }
 
 
-def test_kick_reports_failed_when_dispatch_errors(control_fixture):
+def test_kick_reports_failed_when_dispatch_errors(tmp_path):
     control = DashboardControl(
-        control_fixture.dashboard_store,
-        control_fixture.queue,
-        control_fixture.workflows,
+        _store(tmp_path),
+        None,
+        None,
         github=_FakeGitHub(fail=True),
         actions_repository="dbrckk/ai-dev-server",
         actions_workflow="production-os-actions-worker.yml",
