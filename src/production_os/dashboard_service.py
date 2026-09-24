@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 import json
+import os
 import hashlib
 
 from .dashboard_usage import aggregate_usage
@@ -12,6 +13,7 @@ from .dashboard_incidents import dedupe_key, signals_from_health
 from .dashboard_playbooks import derive_incident_playbook
 from .dashboard_remediation_metrics import aggregate_remediation_analytics
 from .project_progress import ProjectProgressEngine, build_project_evidence, workflow_progress
+from .github_client import GitHubClient
 
 
 class DashboardNotFound(KeyError):
@@ -532,6 +534,32 @@ class DashboardService:
                 except Exception:
                     continue
         return sorted(found)
+
+    def repositories(self) -> dict:
+        owner = str(
+            os.getenv("PRODUCTION_OS_GITHUB_OWNER") or "dbrckk"
+        ).strip() or "dbrckk"
+        github = GitHubClient()
+        rows = github.list_accessible_repositories(owner)
+        repositories = []
+        for row in rows:
+            if not isinstance(row, dict) or bool(row.get("archived", False)):
+                continue
+            full_name = str(row.get("full_name") or "").strip()
+            if not full_name:
+                continue
+            repositories.append({
+                "full_name":full_name,
+                "private":bool(row.get("private", False)),
+                "default_branch":row.get("default_branch"),
+                "pushed_at":row.get("pushed_at"),
+            })
+        repositories.sort(key=lambda item: item["full_name"].lower())
+        return {
+            "owner":owner,
+            "repositories":repositories,
+            "generated_at":_now(),
+        }
 
     def projects(self):
         return {"projects":[{"repository":r,"snapshot":self.store.latest_repository_snapshot(r),
