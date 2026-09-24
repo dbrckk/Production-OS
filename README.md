@@ -730,6 +730,33 @@ PostgreSQL backup creation is intentionally not claimed in Release 14. The dashb
 
 Restore remains disabled.
 
+## Dashboard Control Center Release 15 — Restore readiness
+
+Production-OS can verify that a server-created SQLite backup is genuinely restorable without modifying the live database.
+
+Restore-readiness verification accepts only the server-issued `backup_id`; clients never provide filesystem paths. The server derives the backup and manifest locations from `PRODUCTION_OS_BACKUP_DIR`, then verifies:
+
+```text
+manifest identity
+-> exact file size
+-> SHA-256
+-> read-only SQLite open
+-> PRAGMA integrity_check
+-> schema_meta schema_version
+```
+
+Verification is operator-only and requires the exact confirmation:
+
+```text
+VERIFY_BACKUP_FOR_RESTORE
+```
+
+The operation is audit logged. It does not write to the live database or the backup database.
+
+Restore remains disabled in Release 15. PostgreSQL restore verification remains unsupported until qualified `pg_dump` / `pg_restore` tooling is integrated.
+
+No database path, backup path, DSN, token, password or secret is returned by the API or rendered in the dashboard.
+
 ## Design principles
 
 - Evidence over assumptions
