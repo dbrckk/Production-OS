@@ -650,7 +650,7 @@ async function pruneExpiredHistory(expected){
  }catch(e){
   await loadOverview();
   const receipt=document.getElementById("maintenance-prune-status");
-  if(receipt)receipt.textContent=String(e).replace(/^Error:\s*/,"");
+  if(receipt)receipt.textContent=String(e).replace(/^Error:\\s*/,"");
  }
 }
 async function loadOverview(){
