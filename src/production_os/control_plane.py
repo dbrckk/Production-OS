@@ -272,6 +272,8 @@ def make_handler(control: ControlPlane):
                     service = control.dashboard
                     if parsed.path == "/v1/dashboard/overview":
                         payload = service.overview(window)
+                    elif parsed.path == "/v1/dashboard/health":
+                        payload = service.health()
                     elif parsed.path == "/v1/dashboard/autopilot":
                         payload = service.autopilot_queue(
                             int(query.get("limit", ["50"])[0])
