@@ -6,6 +6,7 @@ import json
 import hashlib
 
 from .dashboard_usage import aggregate_usage
+from .dashboard_alerts import derive_alerts
 from .project_progress import ProjectProgressEngine, build_project_evidence, workflow_progress
 
 
@@ -85,21 +86,44 @@ class DashboardService:
         states={str(x["status"]):int(x["count"]) for x in jobs}
         succeeded=sum(x.get("status")=="succeeded" for x in executions)
         finished=sum(x.get("status") in {"succeeded","failed","cancelled"} for x in executions)
-        return {
+        terminal = sorted(
+            (
+                row for row in executions
+                if row.get("status") in {"succeeded","failed","cancelled"}
+            ),
+            key=lambda row: str(row.get("finished_at") or row.get("started_at") or ""),
+            reverse=True,
+        )
+        recent_failures=0
+        for row in terminal:
+            if row.get("status") != "failed":
+                break
+            recent_failures += 1
+        snapshot = {
           "schema_version":"production-os/dashboard-overview/v1","generated_at":_now(),
           "workers":{"total":len(workers),"online":sum(x.get("status")=="online" for x in workers),
                      "busy":sum(int(x.get("active_tasks") or 0)>0 for x in workers),
-                     "paused":0,"offline":sum(x.get("status")!="online" for x in workers)},
+                     "paused":sum(
+                         self.control.dashboard_control.worker_state(x["worker_id"])["desired_state"]=="paused"
+                         for x in workers
+                     ),
+                     "offline":sum(x.get("status")!="online" for x in workers)},
           "productions":{"running":states.get("running",0),"queued":states.get("queued",0),
                          "succeeded":states.get("succeeded",0),"failed":states.get("failed",0)},
           "usage":{"api_calls":usage["totals"].get("api_calls"),
                    "tokens":usage["totals"].get("total_tokens"),
-                   "estimated_cost_usd":usage["totals"].get("estimated_cost_usd")},
+                   "estimated_cost_usd":usage["totals"].get("estimated_cost_usd"),
+                   "cost_baseline_usd":None},
           "commits":{"production_os":len(self._distinct_commit_shas(self._executions_in_window(executions,window))),
                      "github_default_branch":None},
           "performance":{"success_rate":round(succeeded/finished*100,2) if finished else None,
-                         "execution_seconds":sum(float(x.get("duration_seconds") or 0) for x in executions)},
+                         "execution_seconds":sum(float(x.get("duration_seconds") or 0) for x in executions),
+                         "recent_failures":recent_failures},
+          "busy_workers":[x for x in workers if int(x.get("active_tasks") or 0)>0],
           "projects":self.projects()["projects"],"errors":[]}
+        snapshot["alerts"]=derive_alerts(snapshot)
+        snapshot.pop("busy_workers", None)
+        return snapshot
 
     def workers(self):
         rows=[]
