@@ -127,3 +127,27 @@ def test_project_detail_exposes_api_usage_breakdown():
         assert label in DASHBOARD_HTML
     assert "usage.providers" in DASHBOARD_HTML
     assert "usage.timeline" in DASHBOARD_HTML
+
+
+def test_worker_control_tab_has_safe_actions():
+    html = DASHBOARD_HTML
+    for action in ("pause", "resume", "drain", "kick"):
+        assert f'data-control-action="{action}"' in html
+    assert 'data-control-action="cancel-current"' in html
+    assert 'data-control-action="retry"' in html
+    assert "confirmControlAction" in html
+    assert "runWorkerControl" in html
+
+
+def test_ui_distinguishes_requested_from_acknowledged():
+    assert "Action demandée" in DASHBOARD_HTML
+    assert "Confirmée par le worker" in DASHBOARD_HTML
+    assert "Réveil automatique prévu ≤ 5 min" in DASHBOARD_HTML
+    assert "Réveil GitHub Actions demandé" in DASHBOARD_HTML
+
+
+def test_control_refresh_preserves_navigation_and_scroll_contract():
+    assert "history.replaceState" in DASHBOARD_HTML
+    assert "window.scrollY" in DASHBOARD_HTML
+    assert "window.scrollTo" in DASHBOARD_HTML
+    assert "location.reload(" not in DASHBOARD_HTML
