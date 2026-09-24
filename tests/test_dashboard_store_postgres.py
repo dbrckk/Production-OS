@@ -25,7 +25,7 @@ REQUIRED_EXECUTION_COLUMNS = {
 }
 
 
-def test_postgres_schema_v9_has_execution_columns():
+def test_postgres_schema_v10_has_execution_columns_and_control_audit():
     backend = PostgresBackend(DSN)
     with backend.connect() as db:
         with db.cursor() as cur:
@@ -39,8 +39,20 @@ def test_postgres_schema_v9_has_execution_columns():
             )
             columns = {row["column_name"] for row in cur.fetchall()}
 
-    assert backend.SCHEMA_VERSION == 9
+    assert backend.SCHEMA_VERSION == 10
     assert REQUIRED_EXECUTION_COLUMNS <= columns
+    with backend.connect() as db:
+        with db.cursor() as cur:
+            cur.execute(
+                """
+                SELECT table_name
+                FROM information_schema.tables
+                WHERE table_schema = current_schema()
+                  AND table_name = 'control_audit_events'
+                """
+            )
+            audit_table = cur.fetchone()
+    assert audit_table["table_name"] == "control_audit_events"
 
 
 def test_dashboard_service_project_queries_work_on_postgres():
