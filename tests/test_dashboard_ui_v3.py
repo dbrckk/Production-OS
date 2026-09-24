@@ -151,3 +151,10 @@ def test_control_refresh_preserves_navigation_and_scroll_contract():
     assert "window.scrollY" in DASHBOARD_HTML
     assert "window.scrollTo" in DASHBOARD_HTML
     assert "location.reload(" not in DASHBOARD_HTML
+
+
+def test_overview_renders_operational_alerts():
+    assert "Alertes opérationnelles" in DASHBOARD_HTML
+    assert "data.alerts" in DASHBOARD_HTML
+    assert "item.severity" in DASHBOARD_HTML
+    assert "item.message" in DASHBOARD_HTML
