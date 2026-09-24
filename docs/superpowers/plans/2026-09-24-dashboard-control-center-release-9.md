@@ -60,3 +60,24 @@ SQLite/PostgreSQL additive migration parity required.
 - pending/not_applicable excluded
 - direct controls unaffected
 - full CI and Python 3.11/3.12 green before merge
+
+
+## Implemented in current branch
+
+- schema v14 SQLite/PostgreSQL recurrence columns
+- additive v13 -> v14 migration
+- resolved remediation occurrence-count snapshot
+- observational watching -> recurred lifecycle
+- unchanged incidents do not amplify writes
+- recurred state is terminal
+- recurrence refresh is integrated into durable incident polling
+- remediation analytics expose watching/recurred counts and explicit recurrence denominator/rate
+- Activity view displays recurrence separately from verification and control outcome
+- migration, lifecycle, analytics, PostgreSQL parity and UI regression coverage
+- README documentation
+
+## Remaining before Release 9 completion
+
+- final CI qualification on the complete head
+- final diff/security review
+- mark PR ready and merge only after green final head
