@@ -344,3 +344,26 @@ def test_storage_maintenance_failure_does_not_break_overview():
     assert '.catch(function(){' in DASHBOARD_HTML
     assert 'status:"unknown"' in DASHBOARD_HTML
     assert "Diagnostic de stockage indisponible." in DASHBOARD_HTML
+
+
+def test_storage_retention_ui_separates_prunable_and_protected_rows():
+    assert "maintenance.prunable_candidate_rows" in DASHBOARD_HTML
+    assert "maintenance.protected_candidate_rows" in DASHBOARD_HTML
+    assert "Prunables :" in DASHBOARD_HTML
+    assert "Protégées :" in DASHBOARD_HTML
+    assert "row.prunable_candidate_rows" in DASHBOARD_HTML
+    assert "row.protected_candidate_rows" in DASHBOARD_HTML
+
+
+def test_retention_prune_requires_explicit_confirmation_and_exact_phrase():
+    assert "async function pruneExpiredHistory" in DASHBOARD_HTML
+    assert "window.confirm(" in DASHBOARD_HTML
+    assert 'confirm:"PRUNE_EXPIRED_HISTORY"' in DASHBOARD_HTML
+    assert "expected_candidate_rows:count" in DASHBOARD_HTML
+    assert "/v1/dashboard/maintenance/prune" in DASHBOARD_HTML
+
+
+def test_retention_prune_button_only_renders_for_positive_prunable_count():
+    assert "const pruneButton=prunable>0" in DASHBOARD_HTML
+    assert 'data-prunable="' in DASHBOARD_HTML
+    assert "Nettoyer l’historique expiré" in DASHBOARD_HTML
