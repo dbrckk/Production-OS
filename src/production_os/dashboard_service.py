@@ -10,6 +10,7 @@ from .dashboard_alerts import derive_alerts
 from .dashboard_health import derive_control_health
 from .dashboard_incidents import dedupe_key, signals_from_health
 from .dashboard_playbooks import derive_incident_playbook
+from .dashboard_remediation_metrics import aggregate_remediation_analytics
 from .project_progress import ProjectProgressEngine, build_project_evidence, workflow_progress
 
 
@@ -448,6 +449,17 @@ class DashboardService:
                 limit=limit,
                 incident_id=incident_id,
             ),
+            "generated_at":_now(),
+        }
+
+    def remediation_analytics(self, window: str) -> dict:
+        self.incidents(limit=500)
+        payload = aggregate_remediation_analytics(
+            self.store.remediation_analytics_rows(),
+            window=window,
+        )
+        return {
+            **payload,
             "generated_at":_now(),
         }
 
