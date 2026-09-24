@@ -22,18 +22,18 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-24T21:52:45Z
+Generated: 2026-09-24T22:01:12Z
 
 ### Git
 - Branch: `main`
-- Head: `90b21908ddfc`
-- Commit date: 2026-09-24T23:52:33+02:00
-- Commit: feat: control center release 14 backup readiness
-- Tracked files: 390
+- Head: `0424e96bee0b`
+- Commit date: 2026-09-25T00:01:01+02:00
+- Commit: feat: control center release 15 restore readiness
+- Tracked files: 391
 
 ### Recently changed files
 - `README.md`
-- `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-14.md`
+- `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-15.md`
 - `src/production_os/control_plane.py`
 - `src/production_os/dashboard_backups.py`
 - `src/production_os/dashboard_service.py`
@@ -41,6 +41,7 @@ Generated: 2026-09-24T21:52:45Z
 - `tests/test_dashboard_backup_api.py`
 - `tests/test_dashboard_backups.py`
 - `tests/test_dashboard_ui_v3.py`
+- `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-14.md`
 - `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-13.md`
 - `src/production_os/dashboard_maintenance.py`
 - `tests/test_dashboard_retention_prune.py`
@@ -50,8 +51,6 @@ Generated: 2026-09-24T21:52:45Z
 - `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-11.md`
 - `src/production_os/github_client.py`
 - `tests/test_dashboard_launch_ux.py`
-- `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-10.md`
-- `src/production_os/dashboard_remediation_metrics.py`
 
 ### Project signals
 - `pyproject.toml`

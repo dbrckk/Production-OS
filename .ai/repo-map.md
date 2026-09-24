@@ -2490,8 +2490,11 @@ body = self._read_json()
 ⋮----
 principal = self._require("operator")
 ⋮----
+backup_id = parts[3]
 requested_by = f"{principal.role}:{principal.name}"
 audit = control.dashboard_store.append_control_audit(
+⋮----
+result = (
 ⋮----
 result = control.dashboard.create_verified_backup()
 ⋮----
@@ -2869,6 +2872,8 @@ severity_order = {"high":0, "medium":1, "low":2}
 
 ## File: src/production_os/dashboard_backups.py
 ````python
+BACKUP_ID_RE = re.compile(r"^\d{8}T\d{6}Z-[0-9a-f]{12}$")
+⋮----
 class BackupError(RuntimeError)
 ⋮----
 def _now() -> str
@@ -2898,14 +2903,41 @@ item = _safe_manifest(path)
 ⋮----
 parent = directory.parent
 ⋮----
-def create_verified_sqlite_backup(backend) -> dict
+def verify_backup_for_restore(backend, backup_id: str) -> dict
+⋮----
+backup_id = str(backup_id or "").strip()
 ⋮----
 readiness = backup_readiness(backend)
+⋮----
+manifest_path = directory / f"{backup_id}.json"
+backup_path = directory / f"{backup_id}.sqlite"
+manifest = _safe_manifest(manifest_path)
+⋮----
+digest = sha256()
+size = 0
+⋮----
+chunk = handle.read(1024 * 1024)
+⋮----
+actual_sha = digest.hexdigest()
+⋮----
+expected_size = manifest.get("size_bytes")
+expected_sha = str(manifest.get("sha256") or "")
+⋮----
+connection = sqlite3.connect(
+⋮----
+integrity_row = connection.execute(
+integrity = integrity_row[0] if integrity_row else None
+⋮----
+schema_row = connection.execute(
+⋮----
+schema_version = str(schema_row[0])
+⋮----
+def create_verified_sqlite_backup(backend) -> dict
 ⋮----
 backup_id = (
 temp_path = directory / f".{backup_id}.sqlite.tmp"
 final_path = directory / f"{backup_id}.sqlite"
-manifest_path = directory / f"{backup_id}.json"
+⋮----
 temp_manifest = directory / f".{backup_id}.json.tmp"
 ⋮----
 source = backend.connect()
@@ -2914,11 +2946,6 @@ destination = sqlite3.connect(temp_path)
 ⋮----
 row = destination.execute("PRAGMA integrity_check").fetchone()
 integrity = row[0] if row else None
-⋮----
-digest = sha256()
-size = 0
-⋮----
-chunk = handle.read(1024 * 1024)
 ⋮----
 manifest = {
 ````
@@ -3441,6 +3468,8 @@ payload = aggregate_remediation_analytics(
 def backups(self) -> dict
 ⋮----
 def create_verified_backup(self) -> dict
+⋮----
+def verify_backup_restore_readiness(self, backup_id: str) -> dict
 ⋮----
 def control_audit(self, limit: int = 100) -> dict
 ⋮----
@@ -8241,6 +8270,15 @@ def test_backup_creation_requires_operator_and_exact_confirmation(tmp_path, monk
 audit = control.dashboard_store.control_audit_events(limit=10)
 ⋮----
 def test_unconfigured_backup_returns_conflict_and_failed_audit(tmp_path, monkeypatch)
+⋮----
+created = control.dashboard.create_verified_backup()
+backup_id = created["backup_id"]
+⋮----
+path = f"/v1/dashboard/backups/{backup_id}/verify"
+⋮----
+verify = next(row for row in audit if row["action"] == "backup-verify")
+⋮----
+backup_file = backup_dir / f"{backup_id}.sqlite"
 ````
 
 ## File: tests/test_dashboard_backups.py
@@ -8283,6 +8321,23 @@ def test_postgres_readiness_is_truthfully_unsupported(tmp_path, monkeypatch)
 readiness = backup_readiness(_FakePostgres())
 ⋮----
 def test_backup_readiness_does_not_create_configured_directory(tmp_path, monkeypatch)
+⋮----
+def test_valid_backup_reports_restore_readiness_and_schema(tmp_path, monkeypatch)
+⋮----
+result = verify_backup_for_restore(backend, manifest["backup_id"])
+⋮----
+def test_tampered_backup_file_is_rejected(tmp_path, monkeypatch)
+⋮----
+path = backup_dir / f"{manifest['backup_id']}.sqlite"
+⋮----
+def test_tampered_manifest_is_rejected(tmp_path, monkeypatch)
+⋮----
+manifest_path = backup_dir / f"{manifest['backup_id']}.json"
+payload = json.loads(manifest_path.read_text())
+⋮----
+def test_restore_verification_rejects_missing_backup_file(tmp_path, monkeypatch)
+⋮----
+def test_restore_verification_never_changes_live_database(tmp_path, monkeypatch)
 ````
 
 ## File: tests/test_dashboard_control_api.py
@@ -9424,6 +9479,10 @@ def test_retention_prune_button_only_renders_for_positive_prunable_count()
 def test_overview_renders_backup_readiness_and_safe_create_button()
 ⋮----
 def test_backup_ui_does_not_render_server_paths()
+⋮----
+def test_backup_catalog_exposes_restore_readiness_verification_only()
+⋮----
+def test_restore_readiness_ui_never_exposes_restore_action_or_paths()
 ````
 
 ## File: tests/test_dashboard_usage.py
@@ -12423,6 +12482,33 @@ Viewer access is limited to backup readiness and verified catalog metadata.
 PostgreSQL backup creation is intentionally not claimed in Release 14. The dashboard reports it as unsupported until qualified external `pg_dump` tooling is explicitly integrated.
 
 Restore remains disabled.
+
+## Dashboard Control Center Release 15 — Restore readiness
+
+Production-OS can verify that a server-created SQLite backup is genuinely restorable without modifying the live database.
+
+Restore-readiness verification accepts only the server-issued `backup_id`; clients never provide filesystem paths. The server derives the backup and manifest locations from `PRODUCTION_OS_BACKUP_DIR`, then verifies:
+
+```text
+manifest identity
+-> exact file size
+-> SHA-256
+-> read-only SQLite open
+-> PRAGMA integrity_check
+-> schema_meta schema_version
+```
+
+Verification is operator-only and requires the exact confirmation:
+
+```text
+VERIFY_BACKUP_FOR_RESTORE
+```
+
+The operation is audit logged. It does not write to the live database or the backup database.
+
+Restore remains disabled in Release 15. PostgreSQL restore verification remains unsupported until qualified `pg_dump` / `pg_restore` tooling is integrated.
+
+No database path, backup path, DSN, token, password or secret is returned by the API or rendered in the dashboard.
 
 ## Design principles
 

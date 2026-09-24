@@ -997,6 +997,15 @@ def test_backup_creation_requires_operator_and_exact_confirmation(tmp_path, monk
 audit = control.dashboard_store.control_audit_events(limit=10)
 ⋮----
 def test_unconfigured_backup_returns_conflict_and_failed_audit(tmp_path, monkeypatch)
+⋮----
+created = control.dashboard.create_verified_backup()
+backup_id = created["backup_id"]
+⋮----
+path = f"/v1/dashboard/backups/{backup_id}/verify"
+⋮----
+verify = next(row for row in audit if row["action"] == "backup-verify")
+⋮----
+backup_file = backup_dir / f"{backup_id}.sqlite"
 ```
 
 ## File: test_dashboard_backups.py
@@ -1039,6 +1048,23 @@ def test_postgres_readiness_is_truthfully_unsupported(tmp_path, monkeypatch)
 readiness = backup_readiness(_FakePostgres())
 ⋮----
 def test_backup_readiness_does_not_create_configured_directory(tmp_path, monkeypatch)
+⋮----
+def test_valid_backup_reports_restore_readiness_and_schema(tmp_path, monkeypatch)
+⋮----
+result = verify_backup_for_restore(backend, manifest["backup_id"])
+⋮----
+def test_tampered_backup_file_is_rejected(tmp_path, monkeypatch)
+⋮----
+path = backup_dir / f"{manifest['backup_id']}.sqlite"
+⋮----
+def test_tampered_manifest_is_rejected(tmp_path, monkeypatch)
+⋮----
+manifest_path = backup_dir / f"{manifest['backup_id']}.json"
+payload = json.loads(manifest_path.read_text())
+⋮----
+def test_restore_verification_rejects_missing_backup_file(tmp_path, monkeypatch)
+⋮----
+def test_restore_verification_never_changes_live_database(tmp_path, monkeypatch)
 ```
 
 ## File: test_dashboard_control_api.py
@@ -2180,6 +2206,10 @@ def test_retention_prune_button_only_renders_for_positive_prunable_count()
 def test_overview_renders_backup_readiness_and_safe_create_button()
 ⋮----
 def test_backup_ui_does_not_render_server_paths()
+⋮----
+def test_backup_catalog_exposes_restore_readiness_verification_only()
+⋮----
+def test_restore_readiness_ui_never_exposes_restore_action_or_paths()
 ```
 
 ## File: test_dashboard_usage.py

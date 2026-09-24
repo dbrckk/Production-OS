@@ -1978,8 +1978,11 @@ body = self._read_json()
 ⋮----
 principal = self._require("operator")
 ⋮----
+backup_id = parts[3]
 requested_by = f"{principal.role}:{principal.name}"
 audit = control.dashboard_store.append_control_audit(
+⋮----
+result = (
 ⋮----
 result = control.dashboard.create_verified_backup()
 ⋮----
@@ -2357,6 +2360,8 @@ severity_order = {"high":0, "medium":1, "low":2}
 
 ## File: production_os/dashboard_backups.py
 ```python
+BACKUP_ID_RE = re.compile(r"^\d{8}T\d{6}Z-[0-9a-f]{12}$")
+⋮----
 class BackupError(RuntimeError)
 ⋮----
 def _now() -> str
@@ -2386,14 +2391,41 @@ item = _safe_manifest(path)
 ⋮----
 parent = directory.parent
 ⋮----
-def create_verified_sqlite_backup(backend) -> dict
+def verify_backup_for_restore(backend, backup_id: str) -> dict
+⋮----
+backup_id = str(backup_id or "").strip()
 ⋮----
 readiness = backup_readiness(backend)
+⋮----
+manifest_path = directory / f"{backup_id}.json"
+backup_path = directory / f"{backup_id}.sqlite"
+manifest = _safe_manifest(manifest_path)
+⋮----
+digest = sha256()
+size = 0
+⋮----
+chunk = handle.read(1024 * 1024)
+⋮----
+actual_sha = digest.hexdigest()
+⋮----
+expected_size = manifest.get("size_bytes")
+expected_sha = str(manifest.get("sha256") or "")
+⋮----
+connection = sqlite3.connect(
+⋮----
+integrity_row = connection.execute(
+integrity = integrity_row[0] if integrity_row else None
+⋮----
+schema_row = connection.execute(
+⋮----
+schema_version = str(schema_row[0])
+⋮----
+def create_verified_sqlite_backup(backend) -> dict
 ⋮----
 backup_id = (
 temp_path = directory / f".{backup_id}.sqlite.tmp"
 final_path = directory / f"{backup_id}.sqlite"
-manifest_path = directory / f"{backup_id}.json"
+⋮----
 temp_manifest = directory / f".{backup_id}.json.tmp"
 ⋮----
 source = backend.connect()
@@ -2402,11 +2434,6 @@ destination = sqlite3.connect(temp_path)
 ⋮----
 row = destination.execute("PRAGMA integrity_check").fetchone()
 integrity = row[0] if row else None
-⋮----
-digest = sha256()
-size = 0
-⋮----
-chunk = handle.read(1024 * 1024)
 ⋮----
 manifest = {
 ```
@@ -2929,6 +2956,8 @@ payload = aggregate_remediation_analytics(
 def backups(self) -> dict
 ⋮----
 def create_verified_backup(self) -> dict
+⋮----
+def verify_backup_restore_readiness(self, backup_id: str) -> dict
 ⋮----
 def control_audit(self, limit: int = 100) -> dict
 ⋮----
