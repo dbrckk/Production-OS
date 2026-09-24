@@ -1,5 +1,6 @@
-import sqlite3
 from __future__ import annotations
+
+import sqlite3
 
 from production_os.dashboard_store import DashboardStore
 from production_os.sqlite_backend import SQLiteBackend
