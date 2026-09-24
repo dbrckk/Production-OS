@@ -223,6 +223,40 @@ class DashboardStore:
                 (status, bounded),
             )
 
+    def resolve_dashboard_incidents_except(
+        self,
+        active_dedupe_keys: set[str],
+        *,
+        at: str | None = None,
+    ) -> list[dict]:
+        timestamp = at or _now()
+        with self.backend.transaction() as db:
+            rows = self._fetchall(
+                db,
+                """SELECT * FROM dashboard_incidents
+                   WHERE status IN ('open','acknowledged')""",
+            )
+            resolved = []
+            for row in rows:
+                if row["dedupe_key"] in active_dedupe_keys:
+                    continue
+                _execute(
+                    db,
+                    self.backend,
+                    """UPDATE dashboard_incidents
+                       SET status='resolved', resolved_at=?
+                       WHERE id=?""",
+                    (timestamp, row["id"]),
+                )
+                resolved.append(
+                    self._fetchone(
+                        db,
+                        "SELECT * FROM dashboard_incidents WHERE id=?",
+                        (row["id"],),
+                    )
+                )
+            return resolved
+
     def acknowledge_dashboard_incident(
         self,
         incident_id: str,
