@@ -141,3 +141,16 @@ def test_operator_control_api_writes_success_and_failure_audit(tmp_path):
     finally:
         server.shutdown()
         server.server_close()
+
+
+def test_release3_schema_is_v10_and_contains_control_audit(tmp_path):
+    backend = SQLiteBackend(tmp_path / "schema.sqlite")
+    with backend.connect() as db:
+        version = db.execute(
+            "SELECT value FROM schema_meta WHERE key='schema_version'"
+        ).fetchone()["value"]
+        table = db.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='control_audit_events'"
+        ).fetchone()
+    assert version == "10"
+    assert table["name"] == "control_audit_events"
