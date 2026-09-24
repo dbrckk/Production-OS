@@ -51,3 +51,25 @@ SQLite/PostgreSQL parity required.
 - resolved verification never regresses after incident reopen
 - SQLite/PostgreSQL schema parity
 - Python 3.11/3.12 and full CI green before merge
+
+
+## Implemented in current branch
+
+- schema v13 SQLite/PostgreSQL verification columns
+- additive migration for existing v12 remediation ledgers
+- remediation verification lifecycle: pending / still_active / resolved / not_applicable
+- failed remediation -> not_applicable
+- incident refresh drives observational verification only
+- resolved verification is terminal
+- repeated still-active polling is idempotent and does not amplify writes
+- remediation history refreshes against current incident state
+- Activity view separates control outcome from verification state
+- SQLite migration, lifecycle, terminal-state and polling-idempotence tests
+- PostgreSQL schema parity contract
+- README documentation and UI/API regression coverage
+
+## Remaining before Release 7 completion
+
+- final CI qualification on the complete head
+- final diff/security review
+- mark PR ready and merge only after green final head
