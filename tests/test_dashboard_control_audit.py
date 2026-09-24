@@ -186,3 +186,35 @@ def test_control_action_remains_traced_if_audit_finalization_fails(tmp_path):
         control.dashboard_store.update_control_audit = original
         server.shutdown()
         server.server_close()
+
+
+def test_control_audit_does_not_echo_reason_or_credentials(tmp_path):
+    control = ControlPlane(str(tmp_path / "secret-audit.sqlite"), authorizer=_auth())
+    control.workers.register("worker-a", ["python"], 1)
+    server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    base = f"http://127.0.0.1:{server.server_port}"
+    secret = "Bearer super-secret-token"
+    try:
+        status, _ = _request(
+            base,
+            "/v1/dashboard/workers/worker-a/control",
+            "operator",
+            method="POST",
+            body={"action":"pause","reason":secret},
+        )
+        assert status == 202
+        status, payload = _request(
+            base,
+            "/v1/dashboard/control-audit?limit=10",
+            "viewer",
+        )
+        assert status == 200
+        serialized = json.dumps(payload, sort_keys=True)
+        assert secret not in serialized
+        assert "authorization" not in serialized.lower()
+        assert "github_token" not in serialized.lower()
+    finally:
+        server.shutdown()
+        server.server_close()
