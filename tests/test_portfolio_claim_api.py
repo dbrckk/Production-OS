@@ -84,3 +84,71 @@ def test_claim_uses_portfolio_criticality(tmp_path):
     finally:
         server.shutdown()
         server.server_close()
+
+
+def test_paused_worker_cannot_claim_but_can_heartbeat(tmp_path):
+    auth=TokenAuthorizer([
+        {"name":"worker","role":"worker","sha256":token_digest("worker")},
+    ])
+    control=ControlPlane(str(tmp_path/"db.sqlite"),authorizer=auth)
+    control.workers.register("w1",["python"],1)
+    control.queue.enqueue({
+        "handoff":{"repository":"o/a","task":"Queued","priority":10},
+        "required_capabilities":["python"],
+    })
+    control.dashboard_control.set_worker_state(
+        "w1","paused",requested_by="operator:test"
+    )
+
+    server=ThreadingHTTPServer(("127.0.0.1",0),make_handler(control))
+    thread=threading.Thread(target=server.serve_forever,daemon=True)
+    thread.start()
+    base=f"http://127.0.0.1:{server.server_port}"
+    try:
+        status,heartbeat=api(base,"/v1/workers/heartbeat","worker",{
+            "worker_id":"w1",
+            "active_tasks":0,
+            "active_job_keys":[],
+        })
+        assert status == 200
+        assert heartbeat["worker"]["status"] == "online"
+        assert heartbeat["control"]["worker"]["desired_state"] == "paused"
+
+        status,payload=api(base,"/v1/jobs/claim","worker",{
+            "worker_id":"w1",
+            "capabilities":["python"],
+        })
+        assert status == 204
+        assert payload == {}
+    finally:
+        server.shutdown()
+        server.server_close()
+
+
+def test_heartbeat_acknowledges_current_worker_desired_state(tmp_path):
+    auth=TokenAuthorizer([
+        {"name":"worker","role":"worker","sha256":token_digest("worker")},
+    ])
+    control=ControlPlane(str(tmp_path/"db.sqlite"),authorizer=auth)
+    control.workers.register("w1",["python"],1)
+    control.dashboard_control.set_worker_state(
+        "w1","draining",requested_by="operator:test"
+    )
+
+    server=ThreadingHTTPServer(("127.0.0.1",0),make_handler(control))
+    thread=threading.Thread(target=server.serve_forever,daemon=True)
+    thread.start()
+    base=f"http://127.0.0.1:{server.server_port}"
+    try:
+        status,heartbeat=api(base,"/v1/workers/heartbeat","worker",{
+            "worker_id":"w1",
+            "active_tasks":0,
+            "active_job_keys":[],
+            "control_state":"draining",
+        })
+        assert status == 200
+        assert heartbeat["control"]["worker"]["desired_state"] == "draining"
+        assert heartbeat["control"]["worker"]["acknowledged_at"] is not None
+    finally:
+        server.shutdown()
+        server.server_close()
