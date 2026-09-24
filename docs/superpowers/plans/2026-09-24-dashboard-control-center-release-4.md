@@ -32,3 +32,26 @@ Turn Release 3 operational health signals into durable, reviewable incident reco
 - Dedupe tests.
 - Role/security tests.
 - Mobile dashboard regression.
+
+
+## Implemented in current branch
+
+- schema v11 with durable dashboard_incidents
+- SQLite/PostgreSQL parity
+- health-signal to targeted-incident derivation
+- stable dedupe by code + target type + target id
+- polling-safe occurrence counting
+- operator-only acknowledgement API
+- viewer-readable / worker-forbidden incident API
+- safe automatic resolution when evidence clears
+- resolved incident history retained
+- resolved incident reopens as open without stale acknowledgement
+- overview incident rendering and acknowledgement control
+- restart E2E lifecycle qualification
+
+## Remaining before Release 4 completion
+
+- final CI qualification on the complete head
+- README operational documentation
+- final diff/security review
+- mark PR ready and merge only after green final head
