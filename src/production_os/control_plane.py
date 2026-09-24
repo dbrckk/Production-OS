@@ -312,6 +312,16 @@ def make_handler(control: ControlPlane):
                         payload = service.repositories()
                     elif parsed.path == "/v1/dashboard/projects":
                         payload = service.projects()
+                    elif parsed.path == "/v1/dashboard/managed-projects":
+                        payload = service.managed_projects(
+                            limit=int(query.get("limit", ["100"])[0]),
+                        )
+                    elif (
+                        len(parts) == 4
+                        and parts[1] == "dashboard"
+                        and parts[2] == "managed-projects"
+                    ):
+                        payload = service.managed_project(parts[3])
                     elif len(parts) >= 4 and parts[1] == "dashboard" and parts[2] == "projects":
                         if len(parts) < 5:
                             raise DashboardNotFound(parsed.path)
@@ -886,6 +896,98 @@ def make_handler(control: ControlPlane):
                         outcome="succeeded",
                     )
                     self._send(HTTPStatus.OK, result)
+                    return
+
+                if parsed.path == "/v1/dashboard/managed-projects":
+                    principal = self._require("operator")
+                    if principal is None:
+                        return
+                    try:
+                        project = control.managed_projects.create(
+                            repository=str(body.get("repository") or ""),
+                            final_goal=str(body.get("final_goal") or ""),
+                            requested_by=f"{principal.role}:{principal.name}",
+                        )
+                    except ManagedProjectError as exc:
+                        self._send(
+                            HTTPStatus.BAD_REQUEST,
+                            {"error":str(exc)},
+                        )
+                        return
+                    self._send(
+                        HTTPStatus.CREATED,
+                        {"project":project},
+                    )
+                    return
+
+                if (
+                    len(parts) == 5
+                    and parts[0] == "v1"
+                    and parts[1] == "dashboard"
+                    and parts[2] == "managed-projects"
+                ):
+                    principal = self._require("operator")
+                    if principal is None:
+                        return
+                    project_id = parts[3]
+                    action = parts[4]
+                    requested_by = f"{principal.role}:{principal.name}"
+                    try:
+                        if action == "instruction":
+                            project = (
+                                control.managed_projects.add_instruction(
+                                    project_id,
+                                    instruction=str(
+                                        body.get("instruction") or ""
+                                    ),
+                                    requested_by=requested_by,
+                                )
+                            )
+                        elif action == "retest":
+                            project = control.managed_projects.retest(
+                                project_id,
+                                requested_by=requested_by,
+                            )
+                        elif action == "complete":
+                            if (
+                                str(body.get("confirm") or "")
+                                != "MARK_PROJECT_DONE"
+                            ):
+                                self._send(
+                                    HTTPStatus.BAD_REQUEST,
+                                    {
+                                        "error":
+                                            "exact project completion "
+                                            "confirmation required"
+                                    },
+                                )
+                                return
+                            project = control.managed_projects.complete(
+                                project_id,
+                                requested_by=requested_by,
+                            )
+                        else:
+                            self._send(
+                                HTTPStatus.BAD_REQUEST,
+                                {"error":"invalid managed project action"},
+                            )
+                            return
+                    except KeyError:
+                        self._send(
+                            HTTPStatus.NOT_FOUND,
+                            {"error":"managed project not found"},
+                        )
+                        return
+                    except ManagedProjectError as exc:
+                        self._send(
+                            HTTPStatus.CONFLICT,
+                            {"error":str(exc)},
+                        )
+                        return
+                    self._send(
+                        HTTPStatus.OK,
+                        {"project":project},
+                    )
                     return
 
                 if parsed.path == "/v1/dashboard/backups/create":
