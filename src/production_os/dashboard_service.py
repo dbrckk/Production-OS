@@ -433,6 +433,20 @@ class DashboardService:
             "generated_at":_now(),
         }
 
+    def remediation_history(
+        self,
+        *,
+        limit: int = 100,
+        incident_id: str | None = None,
+    ) -> dict:
+        return {
+            "events":self.store.remediation_events(
+                limit=limit,
+                incident_id=incident_id,
+            ),
+            "generated_at":_now(),
+        }
+
     def control_audit(self, limit: int = 100) -> dict:
         return {
             "events":self.store.control_audit_events(limit=limit),
