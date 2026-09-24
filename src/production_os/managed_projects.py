@@ -76,6 +76,7 @@ class ManagedProjects:
         instruction: str,
         generation: int,
         kind: str,
+        dispatch: bool = True,
     ) -> dict:
         workflow = self.workflows.create(
             name=f"Managed project: {repository} · g{generation}",
@@ -97,7 +98,8 @@ class ManagedProjects:
                 "final_goal":final_goal,
             },
         )
-        self.workflows.dispatch_ready(workflow["id"], limit=1)
+        if dispatch:
+            self.workflows.dispatch_ready(workflow["id"], limit=1)
         return self.workflows.get(workflow["id"])
 
     def create(
@@ -291,51 +293,76 @@ class ManagedProjects:
             instruction=instruction,
             generation=generation,
             kind=kind,
+            dispatch=False,
         )
         now = _now()
-        with self.backend.transaction() as db:
-            current = _execute(
-                db,
-                self.backend,
-                "SELECT status,generation FROM managed_projects WHERE id=?",
-                (project_id,),
-            ).fetchone()
-            if (
-                current is None
-                or current["status"] not in {
-                    REVIEW_REQUIRED,
-                    NEEDS_ATTENTION,
-                }
-                or int(current["generation"]) != generation - 1
-            ):
-                raise ManagedProjectError("managed project generation changed")
-            _execute(
-                db,
-                self.backend,
-                """UPDATE managed_projects
-                   SET status='ACTIVE', current_workflow_id=?,
-                       generation=?, updated_at=?, reviewed_at=NULL
-                   WHERE id=?""",
-                (workflow["id"], generation, now, project_id),
-            )
-            _execute(
-                db,
-                self.backend,
-                """INSERT INTO managed_project_runs(
-                    id, project_id, generation, kind, instruction,
-                    workflow_id, requested_by, created_at
-                ) VALUES(?,?,?,?,?,?,?,?)""",
-                (
-                    uuid4().hex,
-                    project_id,
-                    generation,
-                    kind,
-                    instruction,
-                    workflow["id"],
-                    requested_by,
-                    now,
-                ),
-            )
+        try:
+            with self.backend.transaction() as db:
+                current = _execute(
+                    db,
+                    self.backend,
+                    "SELECT status,generation FROM managed_projects WHERE id=?",
+                    (project_id,),
+                ).fetchone()
+                if (
+                    current is None
+                    or current["status"] not in {
+                        REVIEW_REQUIRED,
+                        NEEDS_ATTENTION,
+                    }
+                    or int(current["generation"]) != generation - 1
+                ):
+                    raise ManagedProjectError(
+                        "managed project generation changed"
+                    )
+                updated = _execute(
+                    db,
+                    self.backend,
+                    """UPDATE managed_projects
+                       SET status='ACTIVE', current_workflow_id=?,
+                           generation=?, updated_at=?, reviewed_at=NULL
+                       WHERE id=? AND generation=?
+                         AND status IN ('REVIEW_REQUIRED','NEEDS_ATTENTION')""",
+                    (
+                        workflow["id"],
+                        generation,
+                        now,
+                        project_id,
+                        generation - 1,
+                    ),
+                )
+                if updated.rowcount != 1:
+                    raise ManagedProjectError(
+                        "managed project generation changed"
+                    )
+                _execute(
+                    db,
+                    self.backend,
+                    """INSERT INTO managed_project_runs(
+                        id, project_id, generation, kind, instruction,
+                        workflow_id, requested_by, created_at
+                    ) VALUES(?,?,?,?,?,?,?,?)""",
+                    (
+                        uuid4().hex,
+                        project_id,
+                        generation,
+                        kind,
+                        instruction,
+                        workflow["id"],
+                        requested_by,
+                        now,
+                    ),
+                )
+        except Exception:
+            with self.backend.transaction() as db:
+                _execute(
+                    db,
+                    self.backend,
+                    "DELETE FROM workflows WHERE id=?",
+                    (workflow["id"],),
+                )
+            raise
+        self.workflows.dispatch_ready(workflow["id"], limit=1)
         return self.get(project_id)
 
     def add_instruction(
