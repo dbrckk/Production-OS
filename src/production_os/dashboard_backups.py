@@ -69,14 +69,18 @@ def backup_readiness(backend) -> dict:
             "backups":[],
         }
     try:
-        directory.mkdir(parents=True, exist_ok=True)
-        if not directory.is_dir():
-            raise OSError("backup target is not a directory")
         manifests = []
-        for path in sorted(directory.glob("*.json"), reverse=True):
-            item = _safe_manifest(path)
-            if item and item.get("verified") is True:
-                manifests.append(item)
+        if directory.exists():
+            if not directory.is_dir():
+                raise OSError("backup target is not a directory")
+            for path in sorted(directory.glob("*.json"), reverse=True):
+                item = _safe_manifest(path)
+                if item and item.get("verified") is True:
+                    manifests.append(item)
+        else:
+            parent = directory.parent
+            if not parent.exists() or not parent.is_dir() or not os.access(parent, os.W_OK):
+                raise OSError("backup parent directory is unavailable")
         return {
             "backend_kind":"sqlite",
             "status":"ready",
@@ -107,6 +111,7 @@ def create_verified_sqlite_backup(backend) -> dict:
 
     directory = _configured_dir()
     assert directory is not None
+    directory.mkdir(parents=True, exist_ok=True)
     backup_id = (
         datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
         + "-"
@@ -159,7 +164,7 @@ def create_verified_sqlite_backup(backend) -> dict:
         os.replace(temp_manifest, manifest_path)
         return manifest
     except Exception:
-        for path in (temp_path, temp_manifest):
+        for path in (temp_path, temp_manifest, final_path, manifest_path):
             try:
                 path.unlink()
             except FileNotFoundError:
