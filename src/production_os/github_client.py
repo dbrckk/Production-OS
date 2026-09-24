@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import time
 import urllib.error
 import urllib.parse
@@ -24,24 +25,34 @@ class GitHubClient:
         self.token = token or os.getenv("GITHUB_TOKEN")
         self.timeout = timeout
 
-    def _get(self, path: str) -> Any:
+    def _headers(self) -> dict[str, str]:
+        return {
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+            "User-Agent": "Production-OS/1.0",
+            **({"Authorization": f"Bearer {self.token}"} if self.token else {}),
+        }
+
+    def _request_json_with_headers(
+        self, method: str, path: str
+    ) -> tuple[Any, dict[str, str]]:
         request = urllib.request.Request(
-            f"{self.API}{path}",
-            headers={
-                "Accept": "application/vnd.github+json",
-                "X-GitHub-Api-Version": "2022-11-28",
-                "User-Agent": "Production-OS/0.5",
-                **({"Authorization": f"Bearer {self.token}"} if self.token else {}),
-            },
+            f"{self.API}{path}", method=method.upper(), headers=self._headers()
         )
         try:
             with urllib.request.urlopen(request, timeout=self.timeout) as response:
-                return json.loads(response.read().decode("utf-8"))
+                body = response.read()
+                payload = json.loads(body.decode("utf-8")) if body else None
+                return payload, {str(k): str(v) for k, v in response.headers.items()}
         except urllib.error.HTTPError as exc:
             body = exc.read().decode("utf-8", errors="replace")
             raise GitHubAPIError(f"GitHub API {exc.code}: {body}") from exc
         except urllib.error.URLError as exc:
             raise GitHubAPIError(f"GitHub API unavailable: {exc}") from exc
+
+    def _get(self, path: str) -> Any:
+        payload, _headers = self._request_json_with_headers("GET", path)
+        return payload
 
     def _request(self, method: str, path: str, payload: dict[str, Any] | None = None) -> Any:
         data = None
@@ -68,6 +79,51 @@ class GitHubClient:
             raise GitHubAPIError(f"GitHub API {exc.code}: {body}") from exc
         except urllib.error.URLError as exc:
             raise GitHubAPIError(f"GitHub API unavailable: {exc}") from exc
+
+    def repository(self, full_name: str) -> dict[str, Any]:
+        payload = self._get(f"/repos/{full_name}")
+        if not isinstance(payload, dict):
+            raise GitHubAPIError("GitHub repository response must be an object")
+        return payload
+
+    def default_branch_commit_count(self, full_name: str, branch: str) -> int:
+        encoded = urllib.parse.quote(str(branch), safe="")
+        payload, headers = self._request_json_with_headers(
+            "GET", f"/repos/{full_name}/commits?sha={encoded}&per_page=1"
+        )
+        if not isinstance(payload, list):
+            raise GitHubAPIError("GitHub commits response must be a list")
+        if not payload:
+            return 0
+        link = headers.get("Link") or headers.get("link") or ""
+        match = re.search(r"[?&]page=(\d+)>;\s*rel=\"last\"", link)
+        return int(match.group(1)) if match else 1
+
+    def open_pull_request_count(self, full_name: str) -> int:
+        payload = self._get(f"/repos/{full_name}/pulls?state=open&per_page=100")
+        if not isinstance(payload, list):
+            raise GitHubAPIError("GitHub pull requests response must be a list")
+        return len(payload)
+
+    def latest_release(self, full_name: str) -> dict[str, Any] | None:
+        try:
+            payload = self._get(f"/repos/{full_name}/releases/latest")
+        except GitHubAPIError as exc:
+            if "GitHub API 404:" in str(exc):
+                return None
+            raise
+        return payload if isinstance(payload, dict) else None
+
+    def latest_commit(self, full_name: str, branch: str) -> dict[str, Any] | None:
+        encoded = urllib.parse.quote(str(branch), safe="")
+        payload = self._get(f"/repos/{full_name}/commits?sha={encoded}&per_page=1")
+        return payload[0] if isinstance(payload, list) and payload else None
+
+    def latest_ci_status(self, full_name: str, branch: str) -> str | None:
+        run = self._latest_workflow_run(full_name, branch)
+        if not isinstance(run, dict):
+            return None
+        return str(run.get("conclusion") or run.get("status") or "") or None
 
     def commit_files(
         self,

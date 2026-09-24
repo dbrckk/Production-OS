@@ -22,7 +22,7 @@ def _utcnow() -> str:
 
 
 class PostgresBackend:
-    SCHEMA_VERSION = 8
+    SCHEMA_VERSION = 9
 
     def __init__(self, dsn: str):
         if psycopg is None:
@@ -292,6 +292,57 @@ class PostgresBackend:
                 cur.execute("""
                     CREATE INDEX IF NOT EXISTS idx_speculation_members_job
                     ON speculation_members(job_key)
+                """)
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS worker_control_state (worker_id TEXT PRIMARY KEY, desired_state TEXT NOT NULL DEFAULT 'active', reason TEXT, requested_by TEXT, requested_at TEXT NOT NULL, updated_at TEXT NOT NULL)
+                """)
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS job_control_state (job_key TEXT PRIMARY KEY, desired_state TEXT NOT NULL DEFAULT 'active', reason TEXT, requested_by TEXT, requested_at TEXT NOT NULL, acknowledged_at TEXT, updated_at TEXT NOT NULL)
+                """)
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS job_executions (id TEXT PRIMARY KEY, job_key TEXT NOT NULL, workflow_id TEXT, workflow_task_id TEXT, repository TEXT NOT NULL, worker_id TEXT NOT NULL, attempt INTEGER NOT NULL DEFAULT 1, status TEXT NOT NULL, started_at TEXT NOT NULL, finished_at TEXT, duration_seconds DOUBLE PRECISION, provider TEXT, model TEXT, api_calls INTEGER NOT NULL DEFAULT 0, input_tokens BIGINT NOT NULL DEFAULT 0, cached_input_tokens BIGINT NOT NULL DEFAULT 0, output_tokens BIGINT NOT NULL DEFAULT 0, reasoning_tokens BIGINT NOT NULL DEFAULT 0, total_tokens BIGINT NOT NULL DEFAULT 0, estimated_cost_usd DOUBLE PRECISION, pricing_catalog_version TEXT, commit_count INTEGER NOT NULL DEFAULT 0, commit_shas_json TEXT NOT NULL DEFAULT '[]', retry_of_execution_id TEXT, error_type TEXT, error_message TEXT, current_stage TEXT, progress_percent DOUBLE PRECISION, live_usage_json TEXT NOT NULL DEFAULT '{}', last_telemetry_at TEXT, result_summary_json TEXT NOT NULL DEFAULT '{}', created_at TEXT NOT NULL)
+                """)
+                cur.execute("""
+                    CREATE UNIQUE INDEX IF NOT EXISTS idx_job_executions_job_attempt ON job_executions(job_key, attempt)
+                """)
+                cur.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_job_executions_worker_started ON job_executions(worker_id, started_at DESC)
+                """)
+                cur.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_job_executions_repo_started ON job_executions(repository, started_at DESC)
+                """)
+                cur.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_job_executions_workflow_started ON job_executions(workflow_id, started_at DESC)
+                """)
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS api_usage_events (id TEXT PRIMARY KEY, execution_id TEXT NOT NULL, worker_id TEXT NOT NULL, repository TEXT NOT NULL, provider TEXT, model TEXT, api_calls INTEGER NOT NULL DEFAULT 1, input_tokens BIGINT NOT NULL DEFAULT 0, cached_input_tokens BIGINT NOT NULL DEFAULT 0, output_tokens BIGINT NOT NULL DEFAULT 0, reasoning_tokens BIGINT NOT NULL DEFAULT 0, total_tokens BIGINT NOT NULL DEFAULT 0, estimated_cost_usd DOUBLE PRECISION, pricing_catalog_version TEXT, occurred_at TEXT NOT NULL)
+                """)
+                cur.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_api_usage_worker_time ON api_usage_events(worker_id, occurred_at DESC)
+                """)
+                cur.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_api_usage_repo_time ON api_usage_events(repository, occurred_at DESC)
+                """)
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS provider_quota_snapshots (id TEXT PRIMARY KEY, provider TEXT NOT NULL, quota_type TEXT, used_value DOUBLE PRECISION, limit_value DOUBLE PRECISION, remaining_value DOUBLE PRECISION, unit TEXT, source_status TEXT NOT NULL, captured_at TEXT NOT NULL)
+                """)
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS worker_log_events (id TEXT PRIMARY KEY, worker_id TEXT NOT NULL, repository TEXT, workflow_id TEXT, job_key TEXT, level TEXT NOT NULL, stage TEXT, message TEXT NOT NULL, provider TEXT, model TEXT, metadata_json TEXT NOT NULL DEFAULT '{}', created_at TEXT NOT NULL)
+                """)
+                cur.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_worker_logs_worker_time ON worker_log_events(worker_id, created_at DESC)
+                """)
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS project_repository_snapshots (id TEXT PRIMARY KEY, repository TEXT NOT NULL, default_branch TEXT, production_os_commits INTEGER NOT NULL DEFAULT 0, github_commits INTEGER, open_issues INTEGER, open_pull_requests INTEGER, ci_status TEXT, latest_commit_sha TEXT, latest_release TEXT, tests_detected INTEGER, tests_passing INTEGER, tests_failing INTEGER, snapshot_json TEXT NOT NULL DEFAULT '{}', captured_at TEXT NOT NULL)
+                """)
+                cur.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_project_repo_snapshots_repo_time ON project_repository_snapshots(repository, captured_at DESC)
+                """)
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS project_progress_snapshots (id TEXT PRIMARY KEY, repository TEXT NOT NULL, current_workflow_id TEXT, production_progress DOUBLE PRECISION, project_progress DOUBLE PRECISION, confidence TEXT NOT NULL, code_score DOUBLE PRECISION, ui_ux_score DOUBLE PRECISION, assets_score DOUBLE PRECISION, tests_score DOUBLE PRECISION, stability_score DOUBLE PRECISION, release_score DOUBLE PRECISION, evidence_json TEXT NOT NULL DEFAULT '{}', remaining_work_json TEXT NOT NULL DEFAULT '[]', blockers_json TEXT NOT NULL DEFAULT '[]', calculation_version TEXT NOT NULL, captured_at TEXT NOT NULL)
+                """)
+                cur.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_project_progress_repo_time ON project_progress_snapshots(repository, captured_at DESC)
                 """)
                 cur.execute("""
                     INSERT INTO schema_meta(key, value)
