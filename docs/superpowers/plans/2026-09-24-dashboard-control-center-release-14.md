@@ -77,3 +77,26 @@ Overview Storage card gains:
 - operator exact confirmation required
 - PostgreSQL reports unsupported creation honestly
 - full CI + Python 3.11/3.12 green before merge
+
+
+## Implemented in current branch
+
+- verified online SQLite backup engine
+- integrity_check before finalization
+- SHA-256 and size metadata from final backup bytes
+- atomic final backup/manifest rename
+- safe manifest without filesystem path, DSN, token or password
+- read-only viewer readiness/catalog endpoint
+- operator-only create endpoint with exact confirmation
+- control audit for backup creation
+- read-only readiness GET does not create backup directories
+- PostgreSQL creation reported truthfully as unsupported
+- Overview backup readiness card and verified-backup action
+- direct engine/API/UI safety regression coverage
+- README documentation
+
+## Remaining before Release 14 completion
+
+- final CI qualification on the complete head
+- final diff/security review
+- mark PR ready and merge only after green final head
