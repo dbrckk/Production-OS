@@ -10,6 +10,7 @@ from production_os.dashboard_backups import (
     BackupError,
     backup_readiness,
     create_verified_sqlite_backup,
+    verify_backup_for_restore,
 )
 from production_os.sqlite_backend import SQLiteBackend
 
@@ -112,3 +113,101 @@ def test_backup_readiness_does_not_create_configured_directory(tmp_path, monkeyp
     assert readiness["status"] == "ready"
     assert readiness["create_supported"] is True
     assert not backup_dir.exists()
+
+
+def test_valid_backup_reports_restore_readiness_and_schema(tmp_path, monkeypatch):
+    backup_dir = tmp_path / "backups"
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    backend = SQLiteBackend(tmp_path / "production.sqlite")
+    manifest = create_verified_sqlite_backup(backend)
+
+    result = verify_backup_for_restore(backend, manifest["backup_id"])
+
+    assert result["backup_id"] == manifest["backup_id"]
+    assert result["verified"] is True
+    assert result["restorable"] is True
+    assert result["integrity"] == "ok"
+    assert result["schema_version"] == str(backend.SCHEMA_VERSION)
+    assert result["restore_enabled"] is False
+
+
+def test_tampered_backup_file_is_rejected(tmp_path, monkeypatch):
+    backup_dir = tmp_path / "backups"
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    backend = SQLiteBackend(tmp_path / "production.sqlite")
+    manifest = create_verified_sqlite_backup(backend)
+    path = backup_dir / f"{manifest['backup_id']}.sqlite"
+    path.write_bytes(path.read_bytes() + b"tamper")
+
+    with pytest.raises(BackupError, match="size does not match manifest"):
+        verify_backup_for_restore(backend, manifest["backup_id"])
+
+
+def test_tampered_manifest_is_rejected(tmp_path, monkeypatch):
+    backup_dir = tmp_path / "backups"
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    backend = SQLiteBackend(tmp_path / "production.sqlite")
+    manifest = create_verified_sqlite_backup(backend)
+    manifest_path = backup_dir / f"{manifest['backup_id']}.json"
+    payload = json.loads(manifest_path.read_text())
+    payload["sha256"] = "0" * 64
+    manifest_path.write_text(json.dumps(payload))
+
+    with pytest.raises(BackupError, match="hash does not match manifest"):
+        verify_backup_for_restore(backend, manifest["backup_id"])
+
+
+@pytest.mark.parametrize(
+    "backup_id",
+    [
+        "../production.sqlite",
+        "..",
+        "backup.sqlite",
+        "20260924T120000Z-../../bad",
+        "20260924T120000Z-ABCDEF123456",
+    ],
+)
+def test_restore_verification_rejects_malformed_or_traversal_ids(
+    tmp_path,
+    monkeypatch,
+    backup_id,
+):
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(tmp_path / "backups"))
+    backend = SQLiteBackend(tmp_path / "production.sqlite")
+    with pytest.raises(BackupError, match="invalid backup id"):
+        verify_backup_for_restore(backend, backup_id)
+
+
+def test_restore_verification_rejects_missing_backup_file(tmp_path, monkeypatch):
+    backup_dir = tmp_path / "backups"
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    backend = SQLiteBackend(tmp_path / "production.sqlite")
+    manifest = create_verified_sqlite_backup(backend)
+    (backup_dir / f"{manifest['backup_id']}.sqlite").unlink()
+
+    with pytest.raises(BackupError, match="backup file is missing"):
+        verify_backup_for_restore(backend, manifest["backup_id"])
+
+
+def test_restore_verification_never_changes_live_database(tmp_path, monkeypatch):
+    backup_dir = tmp_path / "backups"
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    backend = SQLiteBackend(tmp_path / "production.sqlite")
+    with backend.transaction() as db:
+        db.execute(
+            "INSERT INTO schema_meta(key,value) VALUES('live_probe','before') "
+            "ON CONFLICT(key) DO UPDATE SET value=excluded.value"
+        )
+    manifest = create_verified_sqlite_backup(backend)
+    with backend.transaction() as db:
+        db.execute(
+            "UPDATE schema_meta SET value='after' WHERE key='live_probe'"
+        )
+
+    verify_backup_for_restore(backend, manifest["backup_id"])
+
+    with backend.connect() as db:
+        value = db.execute(
+            "SELECT value FROM schema_meta WHERE key='live_probe'"
+        ).fetchone()["value"]
+    assert value == "after"
