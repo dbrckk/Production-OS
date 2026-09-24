@@ -118,3 +118,11 @@ def test_project_progress_persists_when_auditable_evidence_changes(tmp_path):
     assert len(before) == 1
     assert len(after) == 2
     assert after[0]["evidence"]["repository"]["ci_status"] == "success"
+
+
+def test_project_progress_snapshot_persists_selected_profile(tmp_path):
+    control=ControlPlane(str(tmp_path/"db.sqlite"),authorizer=_auth())
+    control.workflows.create(name="profile-progress",repository="dbrckk/example",tasks=[WorkflowTaskSpec(task_id="build",title="Build",payload={},estimated_minutes=10)])
+    control.dashboard.project_progress("dbrckk/example")
+    snapshot=control.dashboard_store.latest_progress_snapshot("dbrckk/example")
+    assert snapshot["profile"] == "generic"
