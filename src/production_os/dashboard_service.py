@@ -440,6 +440,9 @@ class DashboardService:
         limit: int = 100,
         incident_id: str | None = None,
     ) -> dict:
+        # Refresh durable incident state first so verification reflects
+        # current server facts rather than stale browser state.
+        self.incidents(limit=500)
         return {
             "events":self.store.remediation_events(
                 limit=limit,
