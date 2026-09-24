@@ -300,6 +300,22 @@ class PostgresBackend:
                     CREATE TABLE IF NOT EXISTS job_control_state (job_key TEXT PRIMARY KEY, desired_state TEXT NOT NULL DEFAULT 'active', reason TEXT, requested_by TEXT, requested_at TEXT NOT NULL, acknowledged_at TEXT, updated_at TEXT NOT NULL)
                 """)
                 cur.execute("""
+                    CREATE TABLE IF NOT EXISTS control_audit_events (
+                        id TEXT PRIMARY KEY,
+                        action TEXT NOT NULL,
+                        worker_id TEXT NOT NULL,
+                        job_key TEXT,
+                        requested_by TEXT NOT NULL,
+                        outcome TEXT NOT NULL,
+                        error_code TEXT,
+                        requested_at TEXT NOT NULL
+                    )
+                """)
+                cur.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_control_audit_requested_at
+                    ON control_audit_events(requested_at DESC)
+                """)
+                cur.execute("""
                     CREATE TABLE IF NOT EXISTS job_executions (id TEXT PRIMARY KEY, job_key TEXT NOT NULL, workflow_id TEXT, workflow_task_id TEXT, repository TEXT NOT NULL, worker_id TEXT NOT NULL, attempt INTEGER NOT NULL DEFAULT 1, status TEXT NOT NULL, started_at TEXT NOT NULL, finished_at TEXT, duration_seconds DOUBLE PRECISION, provider TEXT, model TEXT, api_calls INTEGER NOT NULL DEFAULT 0, input_tokens BIGINT NOT NULL DEFAULT 0, cached_input_tokens BIGINT NOT NULL DEFAULT 0, output_tokens BIGINT NOT NULL DEFAULT 0, reasoning_tokens BIGINT NOT NULL DEFAULT 0, total_tokens BIGINT NOT NULL DEFAULT 0, estimated_cost_usd DOUBLE PRECISION, pricing_catalog_version TEXT, commit_count INTEGER NOT NULL DEFAULT 0, commit_shas_json TEXT NOT NULL DEFAULT '[]', retry_of_execution_id TEXT, error_type TEXT, error_message TEXT, current_stage TEXT, progress_percent DOUBLE PRECISION, live_usage_json TEXT NOT NULL DEFAULT '{}', last_telemetry_at TEXT, result_summary_json TEXT NOT NULL DEFAULT '{}', created_at TEXT NOT NULL)
                 """)
                 cur.execute("""
