@@ -389,7 +389,23 @@ class DashboardService:
         worker["control_acknowledged_at"]=desired.get("acknowledged_at")
         if desired["desired_state"] == "draining" and int(worker.get("active_tasks") or 0) == 0:
             worker["display_state"]="drained"
-        return {"worker":worker,"executions":self.store.executions_for_worker(worker_id),"generated_at":_now()}
+        with self.control.backend.connect() as db:
+            recoverable_rows = _execute(
+                db,
+                self.control.backend,
+                """SELECT key, repository, task, delivery_attempt, ack_deadline
+                   FROM jobs
+                   WHERE claimed_by=? AND status='claimed'
+                     AND ack_deadline IS NOT NULL AND ack_deadline <= ?
+                   ORDER BY ack_deadline ASC""",
+                (worker_id, _now()),
+            ).fetchall()
+        return {
+            "worker":worker,
+            "executions":self.store.executions_for_worker(worker_id),
+            "recoverable_jobs":[dict(row) for row in recoverable_rows],
+            "generated_at":_now(),
+        }
 
     def worker_logs(self,worker_id,after,limit):
         self.worker_detail(worker_id)
