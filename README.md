@@ -960,6 +960,38 @@ Only manifests already marked `verified=true` participate in the age summary. In
 
 This release is observational only. It introduces no retention policy, no automatic deletion, no cleanup of verified backups, and no path exposure. The age distribution is intended to provide evidence for a later guarded retention design.
 
+
+## Release 28 — Backup retention preview
+
+Production-OS now computes a read-only preview of which verified SQLite backups could become eligible for a future retention cleanup.
+
+The preview currently uses conservative defaults:
+
+```text
+retention_days = 30
+min_keep_latest = 3
+```
+
+A verified backup is never considered a retention candidate when it is:
+
+- among the newest three verified backups;
+- referenced as a source or rollback backup by restore activation history;
+- newer than the retention threshold;
+- associated with an invalid creation timestamp.
+
+The dashboard exposes only aggregate counts and bytes:
+
+```text
+candidate_count
+candidate_bytes
+protected_count
+protected_reasons
+```
+
+No backup identifiers, file names or server paths are exposed through this preview.
+
+This release is strictly observational. It does not delete or archive backups, change restore behavior, or enable automatic retention. Any future destructive retention action must be implemented separately with explicit operator confirmation and fresh-state race protection.
+
 ## Design principles
 
 - Evidence over assumptions
