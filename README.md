@@ -888,6 +888,24 @@ Malformed receipts are ignored. No paths, DSNs, credentials, tokens or arbitrary
 
 This is visibility only. Restore activation remains unavailable over HTTP and continues to require the offline CLI path, exact confirmation and exclusive maintenance lock.
 
+## Release 24 — Backup storage inventory
+
+The backups dashboard now measures backup and restore storage growth without deleting anything.
+
+For configured SQLite backup storage it exposes aggregate counts and bytes for:
+
+```text
+verified backups
+staged restore candidates
+activation receipts
+temporary files
+unknown files
+```
+
+Only aggregate metrics are returned. Individual file names and server paths are not exposed.
+
+This release is read-only: there is no cleanup action, retention mutation or restore behavior change.
+
 ## Design principles
 
 - Evidence over assumptions

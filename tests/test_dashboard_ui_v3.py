@@ -471,3 +471,16 @@ def test_backup_overview_renders_restore_activation_history():
     assert "row.rollback_backup_id" in DASHBOARD_HTML
     assert "row.activated_at" in DASHBOARD_HTML
     assert "Restaurer maintenant" not in DASHBOARD_HTML
+
+
+def test_backup_overview_renders_storage_inventory_read_only():
+    assert "backups.storage" in DASHBOARD_HTML
+    assert "Stockage backup" in DASHBOARD_HTML
+    assert "backupStorage.total_size_bytes" in DASHBOARD_HTML
+    assert "backupStorage.backup_count" in DASHBOARD_HTML
+    assert "backupStorage.restore_candidate_count" in DASHBOARD_HTML
+    assert "backupStorage.activation_receipt_count" in DASHBOARD_HTML
+    assert "backupStorage.temp_file_count" in DASHBOARD_HTML
+    assert "backupStorage.unknown_file_count" in DASHBOARD_HTML
+    assert "Nettoyer les backups" not in DASHBOARD_HTML
+    assert "Supprimer les backups" not in DASHBOARD_HTML

@@ -9,6 +9,7 @@ import pytest
 from production_os.dashboard_backups import (
     BackupError,
     backup_readiness,
+    backup_storage_inventory,
     activate_staged_sqlite_restore,
     create_verified_sqlite_backup,
     restore_activation_history,
@@ -678,3 +679,78 @@ def test_restore_activation_history_is_empty_when_unconfigured_or_postgres(
 
     monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(tmp_path / "backups"))
     assert restore_activation_history(_FakePostgres()) == []
+
+
+def test_backup_storage_inventory_classifies_files_without_exposing_paths(
+    tmp_path,
+    monkeypatch,
+):
+    backup_dir = tmp_path / "backups"
+    backup_dir.mkdir()
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    backend = SQLiteBackend(tmp_path / "production.sqlite")
+
+    backup_id = "20260925T120000Z-aaaaaaaaaaaa"
+    candidate_id = "20260925T130000Z-bbbbbbbbbbbb"
+    files = {
+        f"{backup_id}.sqlite":b"12345",
+        f"{backup_id}.json":b"12",
+        f"restore-{candidate_id}.sqlite":b"1234567",
+        f"restore-{candidate_id}.json":b"123",
+        f"restore-{candidate_id}.activation.json":b"1234",
+        ".restore-temp.sqlite.tmp":b"123456",
+        "notes.txt":b"12345678",
+    }
+    for name, payload in files.items():
+        (backup_dir / name).write_bytes(payload)
+
+    inventory = backup_storage_inventory(backend)
+
+    assert inventory == {
+        "status":"ready",
+        "backend_kind":"sqlite",
+        "total_size_bytes":35,
+        "backup_count":1,
+        "backup_bytes":7,
+        "restore_candidate_count":1,
+        "restore_candidate_bytes":10,
+        "activation_receipt_count":1,
+        "activation_receipt_bytes":4,
+        "temp_file_count":1,
+        "temp_file_bytes":6,
+        "unknown_file_count":1,
+        "unknown_file_bytes":8,
+    }
+    encoded = json.dumps(inventory).lower()
+    assert str(backup_dir).lower() not in encoded
+    assert backup_id not in encoded
+    assert candidate_id not in encoded
+
+
+def test_backup_storage_inventory_missing_directory_is_zero_and_read_only(
+    tmp_path,
+    monkeypatch,
+):
+    backup_dir = tmp_path / "missing-backups"
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    backend = SQLiteBackend(tmp_path / "production.sqlite")
+
+    inventory = backup_storage_inventory(backend)
+
+    assert inventory["status"] == "ready"
+    assert inventory["total_size_bytes"] == 0
+    assert inventory["backup_count"] == 0
+    assert not backup_dir.exists()
+
+
+def test_backup_storage_inventory_postgres_is_truthfully_unsupported(
+    tmp_path,
+    monkeypatch,
+):
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(tmp_path / "backups"))
+    inventory = backup_storage_inventory(_FakePostgres())
+
+    assert inventory["status"] == "unsupported"
+    assert inventory["backend_kind"] == "postgres"
+    assert inventory["total_size_bytes"] == 0
+    assert inventory["backup_count"] == 0

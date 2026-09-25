@@ -792,6 +792,7 @@ async function loadOverview(){
    '</div>';
   const backupRows=backups.backups||[];
   const activationRows=backups.activations||[];
+  const backupStorage=backups.storage||{};
   const lastBackup=backupRows.length?backupRows[0]:null;
   const backupButton=backups.create_supported===true
    ?'<button class="secondary-btn" type="button" onclick="createVerifiedBackup()">Créer une sauvegarde vérifiée</button>'
@@ -806,6 +807,8 @@ async function loadOverview(){
    '<div class="card"><div class="section-head"><h2>Sauvegarde</h2><span class="badge">'+esc(String(backups.status||"unknown"))+'</span></div>'+
    '<p class="small"><strong>Backend :</strong> '+esc(String(backups.backend_kind||"inconnu"))+' · <strong>Restauration :</strong> '+(backups.restore_enabled?'activée':'désactivée')+'</p>'+
    '<p class="small"><strong>Dernière sauvegarde vérifiée :</strong> '+(lastBackup?esc(String(lastBackup.created_at||""))+' · '+formatBytes(lastBackup.size_bytes):'Aucune')+'</p>'+
+   '<p class="small"><strong>Stockage backup :</strong> '+formatBytes(backupStorage.total_size_bytes)+' · backups '+formatNumber(backupStorage.backup_count)+' · candidats '+formatNumber(backupStorage.restore_candidate_count)+' · reçus '+formatNumber(backupStorage.activation_receipt_count)+'</p>'+
+   '<p class="small"><strong>Temporaires :</strong> '+formatNumber(backupStorage.temp_file_count)+' · <strong>Inconnus :</strong> '+formatNumber(backupStorage.unknown_file_count)+'</p>'+
    (backups.message?'<p class="small">'+esc(String(backups.message))+'</p>':'')+
    backupCatalogHtml+
    '<h3 style="font-size:.85rem;margin:15px 0 6px">Historique des activations</h3>'+
