@@ -559,3 +559,75 @@ def test_production_status_endpoint_is_viewer_visible_and_worker_forbidden(
     assert status == 403
     assert payload["required_role"] == "viewer"
 
+def test_one_tap_launch_request_id_is_idempotent_and_conflict_safe(
+    running_control_plane,
+):
+    base, control = running_control_plane
+    request_id = "android-retry-20260925-001"
+    body = {
+        "repository":"dbrckk/idempotent",
+        "instruction":"Implement exactly once.",
+        "request_id":request_id,
+    }
+
+    first_status, first = api(
+        base,
+        "/v1/dashboard/launch",
+        "operator-token",
+        body,
+    )
+    replay_status, replay = api(
+        base,
+        "/v1/dashboard/launch",
+        "operator-token",
+        body,
+    )
+
+    assert first_status == 201
+    assert replay_status == 201
+    assert first["project"]["project_id"] == replay["project"]["project_id"]
+    assert first["project"]["workflow_id"] == replay["project"]["workflow_id"]
+    assert first["launch"]["request_id"] == request_id
+    assert first["launch"]["idempotent"] is True
+    assert replay["launch"]["request_id"] == request_id
+
+    with control.backend.connect() as db:
+        assert db.execute(
+            "SELECT COUNT(*) AS count FROM managed_projects WHERE repository=?",
+            ("dbrckk/idempotent",),
+        ).fetchone()["count"] == 1
+        assert db.execute(
+            "SELECT COUNT(*) AS count FROM jobs WHERE repository=?",
+            ("dbrckk/idempotent",),
+        ).fetchone()["count"] == 1
+
+    status, payload = api(
+        base,
+        "/v1/dashboard/launch",
+        "operator-token",
+        {
+            "repository":"dbrckk/idempotent",
+            "instruction":"A different instruction must not reuse the request.",
+            "request_id":request_id,
+        },
+    )
+    assert status == 409
+    assert "different launch parameters" in payload["error"]
+
+
+def test_one_tap_launch_rejects_invalid_request_id(running_control_plane):
+    base, _control = running_control_plane
+
+    status, payload = api(
+        base,
+        "/v1/dashboard/launch",
+        "operator-token",
+        {
+            "repository":"dbrckk/example",
+            "instruction":"Ship",
+            "request_id":"../bad",
+        },
+    )
+    assert status == 400
+    assert payload["error"] == "request_id is invalid"
+
