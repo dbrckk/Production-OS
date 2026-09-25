@@ -13,7 +13,9 @@ from production_os.dashboard_backups import (
     BackupError,
     backup_readiness,
     backup_storage_inventory,
+    BackupRetentionCandidateConflict,
     BackupTempCandidateConflict,
+    prune_expired_verified_backups,
     prune_stale_backup_temps,
     activate_staged_sqlite_restore,
     create_verified_sqlite_backup,
@@ -1109,4 +1111,116 @@ def test_storage_inventory_retention_preview_protects_restore_history_and_latest
         "invalid_timestamp":1,
     }
     assert preview["deletion_enabled"] is False
+
+def test_prune_expired_verified_backups_deletes_only_current_candidates(
+    tmp_path,
+    monkeypatch,
+):
+    backup_dir = tmp_path / "backups"
+    backup_dir.mkdir()
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    backend = SQLiteBackend(tmp_path / "production.sqlite")
+    now = datetime.now(timezone.utc)
+    rows = [
+        ("20260925T120000Z-300000000001", now - timedelta(days=1)),
+        ("20260924T120000Z-300000000002", now - timedelta(days=2)),
+        ("20260923T120000Z-300000000003", now - timedelta(days=3)),
+        ("20260806T120000Z-300000000004", now - timedelta(days=50)),
+        ("20260727T120000Z-300000000005", now - timedelta(days=60)),
+    ]
+    for backup_id, created_at in rows:
+        (backup_dir / f"{backup_id}.sqlite").write_bytes(b"backup-bytes")
+        (backup_dir / f"{backup_id}.json").write_text(
+            json.dumps(
+                {
+                    "backup_id":backup_id,
+                    "backend_kind":"sqlite",
+                    "created_at":created_at.isoformat(),
+                    "size_bytes":12,
+                    "sha256":"0" * 64,
+                    "verified":True,
+                }
+            )
+        )
+
+    protected_old = rows[-1][0]
+    receipt_candidate = "20260925T120000Z-400000000001"
+    rollback_id = "20260925T120000Z-400000000002"
+    (backup_dir / f"restore-{receipt_candidate}.activation.json").write_text(
+        json.dumps(
+            {
+                "candidate_id":receipt_candidate,
+                "source_backup_id":protected_old,
+                "rollback_backup_id":rollback_id,
+                "activated_at":now.isoformat(),
+                "schema_version":"15",
+                "sha256":"1" * 64,
+            }
+        )
+    )
+
+    preview = backup_storage_inventory(backend)["retention_preview"]
+    assert preview["candidate_count"] == 1
+    candidate_id = rows[-2][0]
+
+    result = prune_expired_verified_backups(
+        backend,
+        expected_candidate_count=preview["candidate_count"],
+        expected_candidate_fingerprint=preview["candidate_fingerprint"],
+    )
+
+    assert result["deleted_count"] == 1
+    assert result["deleted_bytes"] > 0
+    assert not (backup_dir / f"{candidate_id}.sqlite").exists()
+    assert not (backup_dir / f"{candidate_id}.json").exists()
+    assert (backup_dir / f"{protected_old}.sqlite").exists()
+    assert (backup_dir / f"{protected_old}.json").exists()
+    for backup_id, _ in rows[:3]:
+        assert (backup_dir / f"{backup_id}.sqlite").exists()
+        assert (backup_dir / f"{backup_id}.json").exists()
+
+
+def test_prune_expired_verified_backups_rejects_changed_fingerprint(
+    tmp_path,
+    monkeypatch,
+):
+    backup_dir = tmp_path / "backups"
+    backup_dir.mkdir()
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    backend = SQLiteBackend(tmp_path / "production.sqlite")
+    now = datetime.now(timezone.utc)
+    rows = [
+        ("20260925T120000Z-500000000001", now - timedelta(days=1)),
+        ("20260924T120000Z-500000000002", now - timedelta(days=2)),
+        ("20260923T120000Z-500000000003", now - timedelta(days=3)),
+        ("20260727T120000Z-500000000004", now - timedelta(days=60)),
+    ]
+    for backup_id, created_at in rows:
+        (backup_dir / f"{backup_id}.json").write_text(
+            json.dumps(
+                {
+                    "backup_id":backup_id,
+                    "backend_kind":"sqlite",
+                    "created_at":created_at.isoformat(),
+                    "size_bytes":12,
+                    "sha256":"0" * 64,
+                    "verified":True,
+                }
+            )
+        )
+
+    preview = backup_storage_inventory(backend)["retention_preview"]
+    assert preview["candidate_count"] == 1
+
+    with pytest.raises(BackupRetentionCandidateConflict) as exc:
+        prune_expired_verified_backups(
+            backend,
+            expected_candidate_count=1,
+            expected_candidate_fingerprint="f" * 64,
+        )
+
+    assert exc.value.expected_count == 1
+    assert exc.value.actual_count == 1
+    assert exc.value.fingerprint_changed is True
+    assert (backup_dir / f"{rows[-1][0]}.json").exists()
 
