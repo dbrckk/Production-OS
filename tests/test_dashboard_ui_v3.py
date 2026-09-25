@@ -507,3 +507,14 @@ def test_backup_overview_renders_filesystem_capacity_read_only():
     assert "Disponible :" in DASHBOARD_HTML
     assert "Nettoyer automatiquement" not in DASHBOARD_HTML
     assert "AUTO_PRUNE" not in DASHBOARD_HTML
+
+def test_backup_overview_renders_verified_backup_age_distribution():
+    assert "backupStorage.backup_age" in DASHBOARD_HTML
+    assert "backupAge.buckets" in DASHBOARD_HTML
+    assert "Âge backups vérifiés" in DASHBOARD_HTML
+    assert "backupAgeBuckets.under_24h" in DASHBOARD_HTML
+    assert "backupAgeBuckets.one_to_seven_days" in DASHBOARD_HTML
+    assert "backupAgeBuckets.seven_to_thirty_days" in DASHBOARD_HTML
+    assert "backupAgeBuckets.over_thirty_days" in DASHBOARD_HTML
+    assert "timestamps invalides" in DASHBOARD_HTML
+
