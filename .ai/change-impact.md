@@ -1,18 +1,17 @@
 # Change impact
 
-Base: 1adfb7ce79b572491f54f058acd3c6fadcef5816
-Head: 4421d464c9cbbbf09d5115e99f879f517b5d66a9
+Base: f9d7372e7fc9e9d0ce7cdad2c97355ce190db0fd
+Head: 1816918919c44196ff426be9570b645c894c1a87
 
 ## Changed files
 - M README.md
-- A docs/superpowers/plans/2026-09-25-release-39-production-outcomes.md
+- A docs/superpowers/plans/2026-09-25-release-40-launch-readiness-tracker.md
+- M src/production_os/control_plane.py
 - M src/production_os/dashboard_service.py
 - M src/production_os/dashboard_ui.py
-- M src/production_os/managed_projects.py
-- M tests/test_dashboard_attention.py
+- M tests/test_dashboard_api.py
+- A tests/test_dashboard_launch_readiness.py
 - M tests/test_dashboard_ui_v3.py
-- A tests/test_managed_project_outcome.py
-- M tests/test_release32_one_tap_e2e.py
 
 ## Affected areas
 - (root)
@@ -21,7 +20,7 @@ Head: 4421d464c9cbbbf09d5115e99f879f517b5d66a9
 - tests
 
 ## Related test candidates
-- No direct filename-based test match detected.
+- tests/test_control_plane.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

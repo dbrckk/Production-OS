@@ -22,33 +22,33 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-25T18:44:13Z
+Generated: 2026-09-25T19:19:51Z
 
 ### Git
 - Branch: `main`
-- Head: `4421d464c9cb`
-- Commit date: 2026-09-25T20:43:19+02:00
-- Commit: feat: release 39 production outcome summaries
-- Tracked files: 429
+- Head: `1816918919c4`
+- Commit date: 2026-09-25T21:19:40+02:00
+- Commit: feat: release 40 launch readiness tracker
+- Tracked files: 431
 
 ### Recently changed files
 - `README.md`
-- `docs/superpowers/plans/2026-09-25-release-39-production-outcomes.md`
+- `docs/superpowers/plans/2026-09-25-release-40-launch-readiness-tracker.md`
+- `src/production_os/control_plane.py`
 - `src/production_os/dashboard_service.py`
 - `src/production_os/dashboard_ui.py`
+- `tests/test_dashboard_api.py`
+- `tests/test_dashboard_launch_readiness.py`
+- `tests/test_dashboard_ui_v3.py`
+- `docs/superpowers/plans/2026-09-25-release-39-production-outcomes.md`
 - `src/production_os/managed_projects.py`
 - `tests/test_dashboard_attention.py`
-- `tests/test_dashboard_ui_v3.py`
 - `tests/test_managed_project_outcome.py`
 - `tests/test_release32_one_tap_e2e.py`
 - `docs/superpowers/plans/2026-09-25-release-38-contextual-attention-actions.md`
-- `tests/test_dashboard_api.py`
 - `docs/superpowers/plans/2026-09-25-release-37-attention-center.md`
-- `src/production_os/control_plane.py`
 - `docs/superpowers/plans/2026-09-25-release-36-worker-session-reconciliation.md`
 - `tests/test_release36_worker_session_reconciliation_e2e.py`
-- `docs/superpowers/plans/2026-09-25-release-35-control-plane-restart-reconciliation.md`
-- `tests/test_release35_control_plane_restart_e2e.py`
 
 ### Project signals
 - `pyproject.toml`
