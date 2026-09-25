@@ -1285,6 +1285,37 @@ The mobile dashboard also remembers only the `project_id` of the last One-tap pr
 
 The tracker links directly to the exact Managed Project and remains compatible with the existing attention-first workflow.
 
+
+## Release 41 — Live production tracking
+
+The last-production mobile card now follows the real server execution lifecycle instead of reducing every active Managed Project to a generic `ACTIVE` label.
+
+A viewer-safe endpoint exposes the current execution state:
+
+```text
+GET /v1/dashboard/production-status?project_id=<id>
+```
+
+The runtime view can report:
+
+```text
+preparing
+queued
+claimed
+running
+review_required
+needs_attention
+done
+```
+
+When available it also exposes the current worker, delivery attempt, execution stage, telemetry progress percentage, last telemetry timestamp, job state and observed queue position.
+
+The dashboard polls this status every five seconds for the locally remembered last project id. The project id remains the only production reference persisted by the browser; all lifecycle state and outcome evidence are reloaded from the Control Plane.
+
+When execution becomes terminal, the same card automatically surfaces the normalized Release 39 result summary and validation evidence.
+
+A dedicated E2E qualification follows one One-tap production through queued → claimed → running telemetry → REVIEW_REQUIRED, then restarts the Control Plane and verifies the same live/result state remains readable.
+
 ## Design principles
 
 - Evidence over assumptions
