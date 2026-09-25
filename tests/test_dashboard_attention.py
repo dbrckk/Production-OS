@@ -168,5 +168,5 @@ def test_attention_caps_blocked_job_cards_but_preserves_total_count():
     assert len(blocked) == 8
     assert payload["summary"]["blocked_jobs"] == 12
     assert payload["summary"]["blocked_jobs_shown"] == 8
-    assert payload["summary"]["action_required"] == 8
+    assert payload["summary"]["action_required"] == 12
 
