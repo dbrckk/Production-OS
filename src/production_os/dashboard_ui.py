@@ -46,6 +46,8 @@ body{
 .dot.bad{background:var(--bad);box-shadow:0 0 0 4px rgba(251,113,133,.10)}
 .card{background:rgba(16,24,39,.94);border:1px solid var(--line);border-radius:var(--radius);padding:17px;margin-bottom:14px;box-shadow:var(--shadow)}
 .card h2{font-size:1rem;margin:0 0 14px}
+.launch-card{border-color:rgba(110,168,254,.42);box-shadow:0 22px 60px rgba(79,141,253,.16)}
+.launch-card h2{font-size:1.08rem}
 label{display:block;font-size:.82rem;font-weight:800;color:#cbd5e1;margin-bottom:6px}
 select,textarea,input{
  width:100%;border:1px solid var(--line);background:#0c1422;color:var(--text);
@@ -120,6 +122,36 @@ body{overflow-x:hidden}
 </head>
 <body>
 <div class="shell">
+ <div class="topbar">
+  <div class="brand">
+   <div class="logo">P</div>
+   <div><h1>Production-OS</h1><p>Centre de production autonome</p></div>
+  </div>
+  <button id="settings-button" class="icon-btn" type="button" onclick="toggleSettings()" aria-label="Settings">⚙</button>
+ </div>
+
+ <div class="status-grid">
+  <div class="status-card"><div class="status-label">Serveur</div><div id="server-state" class="status-value"><span class="dot warn"></span>Vérification</div></div>
+  <div class="status-card"><div class="status-label">Appairage</div><div id="pair-state" class="status-value"><span class="dot warn"></span>Non appairé</div></div>
+  <div class="status-card"><div class="status-label">Worker</div><div id="worker-state" class="status-value"><span class="dot warn"></span>Vérification</div></div>
+ </div>
+
+ <div id="one-tap-production" class="card launch-card">
+  <h2>Nouvelle production</h2>
+  <label for="repository">Repository</label>
+  <select id="repository"><option value="dbrckk/Jumpy">dbrckk/Jumpy</option></select>
+  <label for="instruction">Instruction</label>
+  <textarea id="instruction" rows="7" placeholder="Décris le résultat final attendu. Production-OS s'occupe de l'exécution."></textarea>
+  <div class="launch-row">
+   <button id="launch-button" class="primary-btn" onclick="launchWorkflow()">Lancer la production</button>
+   <button class="secondary-btn" type="button" onclick="refreshDashboard()" aria-label="Actualiser">↻</button>
+  </div>
+  <p id="launch-status" class="status-message"></p>
+  <p id="worker-status" class="worker-detail">Capacités worker : vérification...</p>
+  <div id="runtime-warning" class="runtime-warning">Worker hors ligne : la production peut être créée, mais elle restera en attente jusqu'à la reconnexion du moteur d'exécution.</div>
+ </div>
+
+
 <nav class="v3-nav" aria-label="Navigation principale">
 <button data-view="overview" onclick="navigate({view:'overview',workerId:null,repository:null,tab:null})">Vue générale</button>
 <button data-view="projects" onclick="navigate({view:'projects',workerId:null,repository:null,tab:null})">Projets</button>
@@ -136,35 +168,6 @@ body{overflow-x:hidden}
 <div id="view-managed" class="v3-view"><div class="section-head"><h2>Managed Projects</h2><span id="managed-count" class="badge">0</span></div><div class="card"><h3>Nouveau projet managé</h3><label for="managed-create-repository">Repository</label><select id="managed-create-repository"><option value="">Chargement...</option></select><label for="managed-create-goal">Objectif final</label><textarea id="managed-create-goal" rows="4" placeholder="Décris le résultat final à atteindre et valider."></textarea><label for="managed-create-budget">Budget tokens</label><input id="managed-create-budget" type="number" min="1" step="1000" value="30000"><label for="managed-create-agent">Agent préféré</label><select id="managed-create-agent"><option value="auto">Auto</option><option value="codex">Codex</option></select><button class="primary-btn" type="button" onclick="createManagedProject()">Créer et lancer</button><div id="managed-create-status" class="status-message"></div></div><div id="managed-list"></div></div>
 <div id="view-activity" class="v3-view"><h2>Activité</h2><div id="activity-list"></div></div>
 </section>
- <div class="topbar">
-  <div class="brand">
-   <div class="logo">P</div>
-   <div><h1>Production-OS</h1><p>Centre de production autonome</p></div>
-  </div>
-  <button id="settings-button" class="icon-btn" type="button" onclick="toggleSettings()" aria-label="Settings">⚙</button>
- </div>
-
- <div class="status-grid">
-  <div class="status-card"><div class="status-label">Serveur</div><div id="server-state" class="status-value"><span class="dot warn"></span>Vérification</div></div>
-  <div class="status-card"><div class="status-label">Appairage</div><div id="pair-state" class="status-value"><span class="dot warn"></span>Non appairé</div></div>
-  <div class="status-card"><div class="status-label">Worker</div><div id="worker-state" class="status-value"><span class="dot warn"></span>Vérification</div></div>
- </div>
-
- <div class="card">
-  <h2>Nouvelle production</h2>
-  <label for="repository">Repository</label>
-  <select id="repository"><option value="dbrckk/Jumpy">dbrckk/Jumpy</option></select>
-  <label for="instruction">Instruction</label>
-  <textarea id="instruction" rows="7" placeholder="Décris le résultat final attendu. Production-OS s'occupe de l'exécution."></textarea>
-  <div class="launch-row">
-   <button id="launch-button" class="primary-btn" onclick="launchWorkflow()">Lancer la production</button>
-   <button class="secondary-btn" type="button" onclick="refreshDashboard()" aria-label="Actualiser">↻</button>
-  </div>
-  <p id="launch-status" class="status-message"></p>
-  <p id="worker-status" class="worker-detail">Capacités worker : vérification...</p>
-  <div id="runtime-warning" class="runtime-warning">Worker hors ligne : la production peut être créée, mais elle restera en attente jusqu'à la reconnexion du moteur d'exécution.</div>
- </div>
-
  <div class="card">
   <div class="section-head"><h2>Productions récentes</h2><span id="runs-count" class="badge">0</span></div>
   <div id="recent-runs" class="run-list"><div class="empty">Aucune production chargée.</div></div>
@@ -497,37 +500,22 @@ async function launchWorkflow(){
  if(!repository||!task){status.textContent='Sélectionne un repo et écris une instruction.';return}
  button.disabled=true;button.textContent='Lancement…';status.textContent='Création du workflow…';
  try{
-  const created=await api('/v1/workflows',{
+  const created=await api('/v1/dashboard/launch',{
    method:'POST',
    body:JSON.stringify({
-    name:'Dashboard: '+repository,
     repository:repository,
-    tasks:[{
-     task_id:'implementation',
-     title:task.slice(0,120),
-     priority:100,
-     max_attempts:2,
-     estimated_minutes:30,
-     payload:{handoff:{
-      repository:repository,
-      task:task,
-      final_goal:task,
-      agent_preference:'codex',
-      token_budget:30000
-     }}
-    }]
+    instruction:task
    })
   });
-  const id=created.workflow.id;
-  const dispatched=await api('/v1/workflows/'+encodeURIComponent(id)+'/dispatch',{
-   method:'POST',body:JSON.stringify({limit:1})
-  });
-  if((dispatched.jobs||[]).length){
-   status.textContent='Production lancée · '+String(id).slice(0,12);
-  }else{
-   status.textContent='Production créée · en attente du worker · '+String(id).slice(0,12);
-  }
-  await loadRecentRuns();
+  const project=created.project||{};
+  const workflowId=String(project.current_workflow_id||'');
+  const projectId=String(project.project_id||'');
+  status.textContent=workerOnline
+   ?'Production lancée et persistante · '+projectId.slice(0,12)
+   :'Production persistante créée · en attente du worker · '+projectId.slice(0,12);
+  document.getElementById('instruction').value='';
+  await Promise.all([loadRecentRuns(),loadManagedProjects()]);
+  if(workflowId) appState.repository=repository;
  }catch(e){
   status.textContent=String(e).replace(/^Error:\\s*/,'');
  }finally{
@@ -554,7 +542,7 @@ const appState={view:"overview",workerId:null,repository:null,tab:null,window:"7
 (function restoreNavigation(){
  const q=new URLSearchParams(window.location.search);
  const view=q.get("view");
- if(["overview","projects","workers","autopilot","activity"].includes(view))appState.view=view;
+ if(["overview","projects","workers","autopilot","managed","activity"].includes(view))appState.view=view;
  appState.workerId=q.get("worker")||null;
  appState.repository=q.get("repo")||null;
  appState.tab=q.get("tab")||null;
