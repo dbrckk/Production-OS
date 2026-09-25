@@ -15,6 +15,8 @@ from .attestations import (
 from .audit_checkpoint import create_audit_checkpoint, verify_audit_checkpoint
 from .audit_integrity import verify_hash_chain
 from .backup import create_backup, restore_backup
+from .dashboard_backups import BackupError, activate_staged_sqlite_restore
+from .database_maintenance_lock import DatabaseInUseError
 from .budgets import BudgetLedger
 from .claims import ClaimStore
 from .control_plane import serve_control_plane
@@ -309,6 +311,14 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     restore = sub.add_parser("restore", help="Restore or verify a backup manifest")
     restore.add_argument("--manifest", required=True)
     restore.add_argument("--verify-only", action="store_true")
+
+    restoreactivate = sub.add_parser(
+        "restore-activate",
+        help="Activate a staged SQLite restore while the control plane is offline",
+    )
+    restoreactivate.add_argument("--database", required=True)
+    restoreactivate.add_argument("--candidate-id", required=True)
+    restoreactivate.add_argument("--confirm", required=True)
 
     approve = sub.add_parser("approve", help="Approve a gated task key")
     approve.add_argument("--store", required=True)
@@ -1543,6 +1553,35 @@ def run_restore(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_restore_activate(args: argparse.Namespace) -> int:
+    backend = open_backend(args.database)
+    try:
+        payload = activate_staged_sqlite_restore(
+            backend,
+            args.candidate_id,
+            confirmation=args.confirm,
+        )
+    except (BackupError, DatabaseInUseError) as exc:
+        print(
+            json.dumps(
+                {
+                    "schema_version":"production-os/restore-activation/v1",
+                    "activated":False,
+                    "error":str(exc),
+                },
+                indent=2,
+                ensure_ascii=False,
+            ),
+            file=sys.stderr,
+        )
+        return 9
+    print(json.dumps({
+        "schema_version":"production-os/restore-activation/v1",
+        **payload,
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
 
 def run_approve(args: argparse.Namespace) -> int:
     store = ApprovalStore(args.store)
@@ -2638,6 +2677,8 @@ def main(argv: list[str] | None = None) -> int:
         return run_backup(args)
     if args.command == "restore":
         return run_restore(args)
+    if args.command == "restore-activate":
+        return run_restore_activate(args)
     if args.command == "approve":
         return run_approve(args)
     if args.command == "revoke":

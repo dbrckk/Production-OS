@@ -813,6 +813,36 @@ PostgreSQL is unchanged because database-level maintenance coordination must use
 
 This lock is a prerequisite for any future destructive SQLite restore activation. Release 20 itself performs no restore and no live database replacement.
 
+## Release 21 — Offline SQLite restore activation
+
+A staged SQLite restore candidate can be activated only through the CLI while the live control plane is offline.
+
+Example:
+
+```bash
+production-os restore-activate \
+  --database /path/to/production.sqlite \
+  --candidate-id <candidate-id> \
+  --confirm ACTIVATE_STAGED_RESTORE
+```
+
+Activation safety sequence:
+
+1. Revalidate the staged candidate manifest, SHA-256, size, integrity and schema.
+2. Acquire the exclusive Release 20 SQLite maintenance lock.
+3. Revalidate the candidate after the lock is held.
+4. Create a verified rollback backup of the current live database.
+5. Copy the candidate to a temporary file beside the live database.
+6. Verify the temporary candidate.
+7. Remove only the target database WAL/SHM sidecars.
+8. Atomically replace the live SQLite file.
+9. Verify integrity and schema on the restored live database.
+10. If post-replacement verification fails, atomically restore the verified rollback backup.
+
+There is intentionally no HTTP endpoint for restore activation. If the control plane is still running, the CLI fails because it cannot acquire the exclusive database lock.
+
+PostgreSQL restore activation remains unsupported.
+
 ## Design principles
 
 - Evidence over assumptions

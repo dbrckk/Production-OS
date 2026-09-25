@@ -5,7 +5,10 @@ from unittest.mock import patch
 
 import pytest
 
-from production_os.cli import _parse_args, run_asset_forge_batch
+from production_os.cli import _parse_args, run_asset_forge_batch, run_restore_activate
+from production_os.dashboard_backups import create_verified_sqlite_backup, stage_verified_sqlite_restore
+from production_os.database_maintenance_lock import SQLiteDatabaseProcessLock
+from production_os.sqlite_backend import SQLiteBackend
 
 
 def test_control_plane_builder_trust_options_are_registered():
@@ -166,3 +169,47 @@ def test_asset_forge_batch_writes_success_receipt():
 
         assert rc == 0
         assert json.loads(receipt.read_text()) == expected
+
+
+def test_restore_activate_parser_requires_explicit_activation_fields():
+    args = _parse_args([
+        "restore-activate",
+        "--database", "state.sqlite",
+        "--candidate-id", "20260925T120000Z-abcdef123456",
+        "--confirm", "ACTIVATE_STAGED_RESTORE",
+    ])
+    assert args.command == "restore-activate"
+    assert args.database == "state.sqlite"
+    assert args.candidate_id == "20260925T120000Z-abcdef123456"
+    assert args.confirm == "ACTIVATE_STAGED_RESTORE"
+
+
+def test_restore_activate_cli_refuses_live_database_lock(
+    tmp_path,
+    monkeypatch,
+    capsys,
+):
+    backup_dir = tmp_path / "backups"
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    database = tmp_path / "production.sqlite"
+    backend = SQLiteBackend(database)
+    backup = create_verified_sqlite_backup(backend)
+    staged = stage_verified_sqlite_restore(backend, backup["backup_id"])
+    args = _parse_args([
+        "restore-activate",
+        "--database", str(database),
+        "--candidate-id", staged["candidate_id"],
+        "--confirm", "ACTIVATE_STAGED_RESTORE",
+    ])
+
+    lock = SQLiteDatabaseProcessLock(str(database))
+    lock.acquire()
+    try:
+        rc = run_restore_activate(args)
+    finally:
+        lock.release()
+
+    assert rc == 9
+    payload = json.loads(capsys.readouterr().err)
+    assert payload["activated"] is False
+    assert "already locked" in payload["error"]

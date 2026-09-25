@@ -9,9 +9,11 @@ import pytest
 from production_os.dashboard_backups import (
     BackupError,
     backup_readiness,
+    activate_staged_sqlite_restore,
     create_verified_sqlite_backup,
     stage_verified_sqlite_restore,
     verify_backup_for_restore,
+    verify_staged_restore_candidate,
 )
 from production_os.sqlite_backend import SQLiteBackend
 
@@ -298,3 +300,164 @@ def test_stage_restore_manifest_contains_only_safe_metadata(tmp_path, monkeypatc
     encoded = json.dumps(on_disk).lower()
     for forbidden in ("path", "dsn", "token", "password"):
         assert forbidden not in encoded
+
+
+def test_offline_restore_activation_replaces_live_state_and_creates_rollback(
+    tmp_path,
+    monkeypatch,
+):
+    backup_dir = tmp_path / "backups"
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    db_path = tmp_path / "production.sqlite"
+    backend = SQLiteBackend(db_path)
+    with backend.transaction() as db:
+        db.execute(
+            "INSERT INTO schema_meta(key,value) VALUES('activate_probe','backup-state') "
+            "ON CONFLICT(key) DO UPDATE SET value=excluded.value"
+        )
+    backup = create_verified_sqlite_backup(backend)
+    staged = stage_verified_sqlite_restore(backend, backup["backup_id"])
+
+    with backend.transaction() as db:
+        db.execute(
+            "UPDATE schema_meta SET value='live-state' WHERE key='activate_probe'"
+        )
+
+    result = activate_staged_sqlite_restore(
+        backend,
+        staged["candidate_id"],
+        confirmation="ACTIVATE_STAGED_RESTORE",
+    )
+    assert result["activated"] is True
+    assert result["activation_enabled"] is True
+    assert result["rollback_backup_id"]
+
+    with SQLiteBackend(db_path).connect() as db:
+        value = db.execute(
+            "SELECT value FROM schema_meta WHERE key='activate_probe'"
+        ).fetchone()["value"]
+    assert value == "backup-state"
+
+    rollback_path = backup_dir / f"{result['rollback_backup_id']}.sqlite"
+    assert rollback_path.is_file()
+    with sqlite3.connect(rollback_path) as db:
+        rollback_value = db.execute(
+            "SELECT value FROM schema_meta WHERE key='activate_probe'"
+        ).fetchone()[0]
+    assert rollback_value == "live-state"
+
+
+def test_restore_activation_wrong_confirmation_changes_nothing(tmp_path, monkeypatch):
+    backup_dir = tmp_path / "backups"
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    db_path = tmp_path / "production.sqlite"
+    backend = SQLiteBackend(db_path)
+    backup = create_verified_sqlite_backup(backend)
+    staged = stage_verified_sqlite_restore(backend, backup["backup_id"])
+    before = db_path.read_bytes()
+
+    with pytest.raises(BackupError, match="confirmation"):
+        activate_staged_sqlite_restore(
+            backend,
+            staged["candidate_id"],
+            confirmation="wrong",
+        )
+
+    assert db_path.read_bytes() == before
+
+
+def test_restore_activation_rejects_tampered_candidate(tmp_path, monkeypatch):
+    backup_dir = tmp_path / "backups"
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    backend = SQLiteBackend(tmp_path / "production.sqlite")
+    backup = create_verified_sqlite_backup(backend)
+    staged = stage_verified_sqlite_restore(backend, backup["backup_id"])
+    candidate = backup_dir / f"restore-{staged['candidate_id']}.sqlite"
+    candidate.write_bytes(candidate.read_bytes() + b"tamper")
+
+    with pytest.raises(BackupError):
+        activate_staged_sqlite_restore(
+            backend,
+            staged["candidate_id"],
+            confirmation="ACTIVATE_STAGED_RESTORE",
+        )
+
+
+def test_restore_activation_rejects_schema_mismatch(tmp_path, monkeypatch):
+    backup_dir = tmp_path / "backups"
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    backend = SQLiteBackend(tmp_path / "production.sqlite")
+    backup = create_verified_sqlite_backup(backend)
+    staged = stage_verified_sqlite_restore(backend, backup["backup_id"])
+    candidate = backup_dir / f"restore-{staged['candidate_id']}.sqlite"
+    with sqlite3.connect(candidate) as db:
+        db.execute(
+            "UPDATE schema_meta SET value='999' WHERE key='schema_version'"
+        )
+        db.commit()
+    payload = candidate.read_bytes()
+    manifest_path = backup_dir / f"restore-{staged['candidate_id']}.json"
+    manifest = json.loads(manifest_path.read_text())
+    manifest["size_bytes"] = len(payload)
+    manifest["sha256"] = sha256(payload).hexdigest()
+    manifest_path.write_text(json.dumps(manifest))
+
+    with pytest.raises(BackupError, match="schema version"):
+        verify_staged_restore_candidate(backend, staged["candidate_id"])
+
+
+def test_restore_activation_rolls_back_if_post_replace_verification_fails(
+    tmp_path,
+    monkeypatch,
+):
+    backup_dir = tmp_path / "backups"
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    db_path = tmp_path / "production.sqlite"
+    backend = SQLiteBackend(db_path)
+    with backend.transaction() as db:
+        db.execute(
+            "INSERT INTO schema_meta(key,value) VALUES('rollback_probe','backup-state') "
+            "ON CONFLICT(key) DO UPDATE SET value=excluded.value"
+        )
+    backup = create_verified_sqlite_backup(backend)
+    staged = stage_verified_sqlite_restore(backend, backup["backup_id"])
+
+    with backend.transaction() as db:
+        db.execute(
+            "UPDATE schema_meta SET value='live-state' WHERE key='rollback_probe'"
+        )
+
+    import production_os.dashboard_backups as backups_module
+
+    real_connect = backups_module.sqlite3.connect
+    live_verification_failed = {"done": False}
+
+    def failing_connect(target, *args, **kwargs):
+        if (
+            not live_verification_failed["done"]
+            and str(target) == str(db_path)
+        ):
+            live_verification_failed["done"] = True
+            raise sqlite3.DatabaseError("simulated post-replace failure")
+        return real_connect(target, *args, **kwargs)
+
+    monkeypatch.setattr(
+        backups_module.sqlite3,
+        "connect",
+        failing_connect,
+    )
+
+    with pytest.raises(sqlite3.DatabaseError, match="simulated"):
+        activate_staged_sqlite_restore(
+            backend,
+            staged["candidate_id"],
+            confirmation="ACTIVATE_STAGED_RESTORE",
+        )
+
+    with real_connect(db_path) as db:
+        value = db.execute(
+            "SELECT value FROM schema_meta WHERE key='rollback_probe'"
+        ).fetchone()[0]
+        integrity = db.execute("PRAGMA integrity_check").fetchone()[0]
+    assert value == "live-state"
+    assert integrity == "ok"
