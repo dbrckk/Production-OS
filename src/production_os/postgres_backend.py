@@ -107,7 +107,8 @@ class PostgresBackend:
                         status TEXT NOT NULL,
                         claimed_at TEXT NOT NULL,
                         ack_deadline TEXT NOT NULL,
-                        completed_at TEXT
+                        completed_at TEXT,
+                        completed_by TEXT
                     )
                 """)
                 cur.execute("""
