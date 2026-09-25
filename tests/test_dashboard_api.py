@@ -524,3 +524,38 @@ def test_launch_readiness_endpoint_is_viewer_visible_and_worker_forbidden(
     assert status == 403
     assert payload["required_role"] == "viewer"
 
+def test_production_status_endpoint_is_viewer_visible_and_worker_forbidden(
+    running_control_plane,
+):
+    base, control = running_control_plane
+    control.dashboard.production_status = lambda project_id: {
+        "schema_version":"production-os/production-status/v1",
+        "project":{"project_id":project_id},
+        "runtime":{
+            "phase":"running",
+            "message":"En cours · implementation · 50 %",
+            "worker_id":"worker-a",
+            "attempt":1,
+            "stage":"implementation",
+            "progress_percent":50.0,
+        },
+        "generated_at":"2026-09-25T19:00:00+00:00",
+    }
+
+    status, payload = get_api(
+        base,
+        "/v1/dashboard/production-status?project_id=project-live",
+        "viewer-token",
+    )
+    assert status == 200
+    assert payload["project"]["project_id"] == "project-live"
+    assert payload["runtime"]["phase"] == "running"
+
+    status, payload = get_api(
+        base,
+        "/v1/dashboard/production-status?project_id=project-live",
+        "worker-a-token",
+    )
+    assert status == 403
+    assert payload["required_role"] == "viewer"
+
