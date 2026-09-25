@@ -24,12 +24,18 @@ def test_health_signals_expand_to_targeted_incidents():
                     {"job_key":"job-a","worker_id":"worker-a","age_seconds":500.0},
                 ]},
             },
+            {
+                "code":"backup_filesystem_capacity",
+                "severity":"high",
+                "evidence":{"status":"critical","available_percent":4.0},
+            },
         ]
     })
-    assert len(signals) == 4
+    assert len(signals) == 5
     assert {item["target_type"] for item in signals} == {
-        "control-plane","worker","job"
+        "control-plane","worker","job","backup-storage"
     }
     keys = {dedupe_key(item) for item in signals}
     assert "stale_busy_workers:worker:worker-a" in keys
     assert "stale_running_executions:job:job-a" in keys
+    assert "backup_filesystem_capacity:backup-storage:primary" in keys
