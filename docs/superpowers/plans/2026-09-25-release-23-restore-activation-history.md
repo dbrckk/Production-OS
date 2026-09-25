@@ -36,3 +36,21 @@ Expose successful offline restore activations as read-only operational history i
 - Postgres returns empty history
 - no HTTP activation route added
 - full CI + Python 3.11/3.12 green before merge
+
+
+## Implemented in current branch
+
+- strict safe activation receipt parser
+- viewer-readable activations[] in existing backups API
+- malformed receipts ignored
+- PostgreSQL/unconfigured history remains empty
+- mobile backup card renders recent restore activations
+- no HTTP activation route added
+- unit/API/UI regression coverage
+- README documentation
+
+## Remaining before Release 23 completion
+
+- final CI qualification on complete head
+- final diff/security review
+- mark PR ready and merge only after green final head
