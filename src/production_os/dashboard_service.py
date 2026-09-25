@@ -366,6 +366,7 @@ class DashboardService:
             },
             "worker_rows":workers,
             "running_executions":[dict(row) for row in execution_rows],
+            "backup_storage":backup_storage_inventory(self.control.backend),
         }
         return derive_control_health(snapshot)
 
