@@ -44,3 +44,41 @@ def test_stale_busy_worker_and_running_execution_are_explained():
     })
     codes = {item["code"] for item in result["reasons"]}
     assert codes == {"stale_busy_workers","stale_running_executions"}
+
+def test_backup_filesystem_pressure_degrades_health_with_severity():
+    warning = derive_control_health({
+        "generated_at":"2026-09-24T15:00:00+00:00",
+        "workers":{"online":1},
+        "productions":{"queued":0},
+        "worker_rows":[],
+        "running_executions":[],
+        "backup_storage":{
+            "filesystem":{
+                "status":"warning",
+                "available_percent":8.5,
+            }
+        },
+    })
+    assert warning["status"] == "degraded"
+    assert warning["reasons"] == [{
+        "code":"backup_filesystem_capacity",
+        "severity":"medium",
+        "evidence":{"status":"warning","available_percent":8.5},
+    }]
+
+    critical = derive_control_health({
+        "generated_at":"2026-09-24T15:00:00+00:00",
+        "workers":{"online":1},
+        "productions":{"queued":0},
+        "worker_rows":[],
+        "running_executions":[],
+        "backup_storage":{
+            "filesystem":{
+                "status":"critical",
+                "available_percent":4.0,
+            }
+        },
+    })
+    assert critical["status"] == "degraded"
+    assert critical["reasons"][0]["severity"] == "high"
+
