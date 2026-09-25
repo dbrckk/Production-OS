@@ -43,3 +43,23 @@ Dashboard shows cleanup button only when stale temp count > 0.
 - audit success/failure
 - no paths exposed
 - full CI + Python 3.11/3.12 green before merge
+
+
+## Implemented in current branch
+
+- stale temporary detection at >=24 hours
+- storage inventory exposes stale_temp_count/stale_temp_bytes
+- operator-only prune endpoint with exact confirmation
+- expected candidate count race protection
+- verified backups, rollback backups, restore candidates, activation receipts, unknown files and fresh temps protected
+- audit success/conflict/failure outcomes
+- mobile cleanup button only when stale temps exist
+- aggregate-only response with no names or paths
+- backend/API/UI regression coverage
+- README documentation
+
+## Remaining before Release 25 completion
+
+- final CI qualification on complete head
+- final diff/security review
+- mark PR ready and merge only after green final head
