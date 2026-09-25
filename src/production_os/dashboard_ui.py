@@ -73,6 +73,9 @@ textarea{resize:vertical;min-height:150px;line-height:1.45}
 .launch-tracker{margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:14px;background:rgba(12,20,34,.82)}
 .launch-tracker[hidden]{display:none}
 .launch-tracker .outcome-summary{margin-top:7px}
+.live-runtime{margin-top:9px;padding-top:9px;border-top:1px solid var(--line)}
+.live-progress{height:8px;border-radius:999px;background:#1e293b;overflow:hidden;margin-top:8px}
+.live-progress-fill{height:100%;background:linear-gradient(90deg,#4f8dfd,#34d399);border-radius:999px}
 .section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px}
 .section-head h2{margin:0}
 .badge{display:inline-flex;align-items:center;border-radius:999px;padding:5px 9px;font-size:.75rem;font-weight:800;background:#1e293b;color:#cbd5e1}
@@ -562,21 +565,47 @@ async function loadLastProduction(){
   return null;
  }
  try{
-  const data=await api('/v1/managed-projects/'+encodeURIComponent(projectId));
+  const data=await api(
+   '/v1/dashboard/production-status?project_id='+encodeURIComponent(projectId)
+  );
   const project=data.project||{};
+  const runtime=data.runtime||{};
   const outcome=project.outcome||{};
-  const status=String(project.status||project.state||'unknown');
   const generation=Number(project.generation||1);
-  const active=status==='ACTIVE';
-  const label=active?'En cours':status==='REVIEW_REQUIRED'?'À revoir':status==='NEEDS_ATTENTION'?'Action requise':status==='DONE'?'Terminé':status;
+  const phase=String(runtime.phase||'preparing');
+  const labels={
+   preparing:'Préparation',
+   queued:'En file',
+   claimed:'Réclamé',
+   running:'En cours',
+   review_required:'À revoir',
+   needs_attention:'Action requise',
+   done:'Terminé'
+  };
+  const label=labels[phase]||phase;
+  const details=[];
+  if(runtime.worker_id)details.push('worker '+String(runtime.worker_id));
+  if(runtime.attempt!=null)details.push('tentative '+String(runtime.attempt));
+  if(runtime.stage)details.push('stage '+String(runtime.stage));
+  if(runtime.queue_position!=null)details.push('position '+String(runtime.queue_position));
+  if(runtime.last_telemetry_at)details.push('télémétrie '+String(runtime.last_telemetry_at));
+  const rawProgress=Number(runtime.progress_percent);
+  const hasProgress=Number.isFinite(rawProgress);
+  const progress=hasProgress?Math.max(0,Math.min(100,rawProgress)):null;
+  const progressHtml=hasProgress
+   ?'<div class="live-progress" aria-label="Progression '+esc(String(progress))+' %"><div class="live-progress-fill" style="width:'+esc(String(progress))+'%"></div></div>'
+   :'';
   el.hidden=false;
   el.innerHTML=
    '<div class="section-head"><strong>Dernière production</strong><span class="badge">'+esc(label)+'</span></div>'+
    '<div class="small"><strong>'+esc(String(project.repository||''))+'</strong> · génération '+formatNumber(generation)+'</div>'+
    '<div class="small">'+esc(String(project.final_goal||''))+'</div>'+
+   '<div class="live-runtime"><div class="small"><strong>Exécution :</strong> '+esc(String(runtime.message||label))+'</div>'+
+   (details.length?'<div class="small">'+esc(details.join(' · '))+'</div>':'')+
+   progressHtml+'</div>'+
    renderProductionOutcome(outcome,true)+
    '<div class="attention-actions"><button class="secondary-btn" type="button" data-project-id="'+esc(projectId)+'" onclick="openLastProduction(this.dataset.projectId)">Ouvrir le projet</button></div>';
-  return project;
+  return data;
  }catch(e){
   el.hidden=false;
   el.innerHTML='<div class="small">Dernière production indisponible · '+esc(String(e).replace(/^Error:\\s*/,''))+'</div>';
@@ -651,8 +680,8 @@ setInterval(function(){
  loadWorkerStatus();
  loadRecentRuns();
  loadLaunchReadiness();
- loadLastProduction();
 },10000);
+setInterval(loadLastProduction,5000);
 
 const appState={view:"attention",workerId:null,repository:null,tab:null,focus:null,window:"7d",polling:new Map()};
 (function restoreNavigation(){
