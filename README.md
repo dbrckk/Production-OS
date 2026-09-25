@@ -1184,6 +1184,38 @@ The field is optional for backwards compatibility. Existing registration calls t
 
 A dedicated E2E test covers simultaneous Control Plane + worker restart with two One-tap projects. The restarted worker reports an empty active set, its lost ACKed job is immediately recovered, and two workers then finish both projects without creating new workflows.
 
+
+## Release 37 — “À faire maintenant”
+
+The mobile dashboard now opens on an attention-first operational view instead of a broad status overview.
+
+The server exposes a single aggregated feed:
+
+```text
+GET /v1/dashboard/attention
+```
+
+It prioritizes:
+
+- active operational incidents;
+- Managed Projects in `NEEDS_ATTENTION`;
+- failed managed workflow validation / CI state;
+- Managed Projects in `REVIEW_REQUIRED`;
+- queued jobs blocked by missing workers, capabilities, controls or capacity;
+- recently completed Managed Projects as informational context.
+
+The response includes a compact summary with counts for actions required, incidents, projects to review, projects needing attention, blocked jobs and recently completed projects.
+
+The mobile UI renders this as the default `À faire` view. Each actionable card links back into the existing Managed Projects, Autopilot or Overview surfaces rather than duplicating control logic.
+
+The One-tap launch card remains above navigation, so the two primary mobile actions are now:
+
+```text
+Launch a production
+or
+Handle what needs attention
+```
+
 ## Design principles
 
 - Evidence over assumptions
