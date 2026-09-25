@@ -1,16 +1,18 @@
 # Change impact
 
-Base: 192525c8c90093123fa064da312d19360774ad2e
-Head: 0965d35a794df345c7ba4740eb12260751ae3a10
+Base: 1adfb7ce79b572491f54f058acd3c6fadcef5816
+Head: 4421d464c9cbbbf09d5115e99f879f517b5d66a9
 
 ## Changed files
 - M README.md
-- A docs/superpowers/plans/2026-09-25-release-38-contextual-attention-actions.md
+- A docs/superpowers/plans/2026-09-25-release-39-production-outcomes.md
 - M src/production_os/dashboard_service.py
 - M src/production_os/dashboard_ui.py
-- M tests/test_dashboard_api.py
+- M src/production_os/managed_projects.py
 - M tests/test_dashboard_attention.py
 - M tests/test_dashboard_ui_v3.py
+- A tests/test_managed_project_outcome.py
+- M tests/test_release32_one_tap_e2e.py
 
 ## Affected areas
 - (root)

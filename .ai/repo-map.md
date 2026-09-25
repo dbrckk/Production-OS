@@ -238,6 +238,7 @@ tests/
   test_key_registry_validation.py
   test_key_rotation.py
   test_learning_control_surface.py
+  test_managed_project_outcome.py
   test_managed_projects_http_v4.py
   test_managed_projects_v4.py
   test_observability.py
@@ -3776,6 +3777,7 @@ actions = []
 ⋮----
 status = str(project.get("status") or "")
 workflow = project.get("current_workflow") or {}
+outcome = project.get("outcome") or {}
 workflow_status = str(workflow.get("status") or "")
 ⋮----
 failed = workflow_status == "failed"
@@ -5189,6 +5191,62 @@ agents = usage.get("agents")
 clean = {}
 ⋮----
 value = int(count)
+⋮----
+def _clean_commit_shas(values) -> list[str]
+⋮----
+clean: list[str] = []
+⋮----
+value = (
+⋮----
+def _outcome_from_workflow(workflow: dict | None) -> dict
+⋮----
+results = [
+result = results[-1] if results else {}
+evidence = (
+summary = (
+summary = str(summary).strip() if summary is not None else None
+⋮----
+summary = None
+⋮----
+validation = result.get("validation")
+⋮----
+validation = evidence.get("validation")
+⋮----
+validation = {}
+validation_status = (
+⋮----
+raw_tests = (
+validation_tests = (
+⋮----
+raw_commits = (
+⋮----
+raw_commits = [raw_commits]
+commit_shas = _clean_commit_shas(raw_commits)
+⋮----
+artifacts = [
+artifact_names = [
+⋮----
+changed_files = (
+changed_file_count = (
+⋮----
+pr = result.get("pull_request") or evidence.get("pull_request")
+pull_request = None
+⋮----
+number = pr.get("number")
+state = str(pr.get("state") or "").strip() or None
+⋮----
+number = (
+state = (
+⋮----
+number = int(number) if number is not None else None
+⋮----
+number = None
+⋮----
+pull_request = {"number":number, "state":state}
+⋮----
+workflow_status = str(workflow.get("status") or "").strip() or None
+terminal = workflow_status in {"succeeded", "failed", "cancelled"}
+available = terminal or any((
 ⋮----
 class ManagedProjectService
 ⋮----
@@ -10351,6 +10409,8 @@ def test_completed_attention_items_remain_openable_for_inspection()
 load_start = DASHBOARD_HTML.index("async function loadAttention")
 load_end = DASHBOARD_HTML.index("async function loadManagedProjects", load_start)
 attention_body = DASHBOARD_HTML[load_start:load_end]
+⋮----
+def test_managed_and_attention_cards_render_normalized_production_outcome()
 ````
 
 ## File: tests/test_dashboard_usage.py
@@ -10804,6 +10864,21 @@ signals = build_learning_signals(events)
 def test_control_surface_contains_schedule()
 ⋮----
 html = render_control_surface({
+````
+
+## File: tests/test_managed_project_outcome.py
+````python
+def test_outcome_normalizes_worker_result_evidence()
+⋮----
+outcome = _outcome_from_workflow({
+⋮----
+def test_outcome_uses_evidence_fallback_and_keeps_optional_shape_stable()
+⋮----
+empty = _outcome_from_workflow(None)
+⋮----
+def test_outcome_accepts_compact_worker_result_fields_without_exposing_paths()
+⋮----
+def test_terminal_workflow_outcome_is_visible_without_structured_evidence()
 ````
 
 ## File: tests/test_managed_projects_http_v4.py
@@ -14446,6 +14521,28 @@ Opening an attention item now deep-links to the exact Managed Project or Autopil
 To keep the mobile surface usable during queue pressure, the feed shows at most eight individual blocked-job cards while preserving the real blocked-job and action-required totals in the summary.
 
 All contextual mutations reuse existing server contracts and confirmations. In particular, marking a project complete still requires the exact `MARK_PROJECT_DONE` confirmation, and incident remediation still uses the server-backed playbook validation/audit path.
+
+
+## Release 39 — Production outcome summaries
+
+Managed Projects now expose a normalized outcome for the current workflow so the dashboard can explain what was actually delivered instead of showing only a lifecycle state.
+
+The outcome contract is additive and tolerant of existing worker result formats. It can surface:
+
+- workflow status;
+- concise result summary;
+- validation status and test names;
+- commit SHAs;
+- artifact count and artifact names;
+- changed-file count without exposing file paths;
+- pull request number/state when supplied;
+- terminal completion timestamp.
+
+No new worker result schema is required. The normalizer accepts both structured fields such as `summary`, `validation`, `commit_shas` and `pull_request`, and common compact alternatives such as `message`, `validation_status`, `commit_sha` and `pr_number`. Nested `evidence` is also supported.
+
+Terminal workflows remain readable even when older workers supplied no structured evidence: the real workflow status is still exposed.
+
+Both the Managed Projects view and the `À faire maintenant` cards render the normalized outcome. The One-tap E2E qualification also verifies that result summary and validation evidence survive a Control Plane restart.
 
 ## Design principles
 

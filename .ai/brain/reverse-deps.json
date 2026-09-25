@@ -81,6 +81,7 @@
         "tests/test_key_registry_validation.py",
         "tests/test_key_rotation.py",
         "tests/test_learning_control_surface.py",
+        "tests/test_managed_project_outcome.py",
         "tests/test_managed_projects_http_v4.py",
         "tests/test_managed_projects_v4.py",
         "tests/test_observability.py",
@@ -148,7 +149,7 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 136,
+      "in_degree": 137,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -1196,10 +1197,11 @@
       ],
       "dependents": [
         "src/production_os/control_plane.py",
+        "tests/test_managed_project_outcome.py",
         "tests/test_managed_projects_v4.py",
         "tests/test_workflow_postgres.py"
       ],
-      "in_degree": 3,
+      "in_degree": 4,
       "out_degree": 2
     },
     "src/production_os/metrics.py": {
@@ -2002,6 +2004,7 @@
         "tests/test_execution_optimizer.py",
         "tests/test_execution_optimizer_postgres.py",
         "tests/test_incident_history.py",
+        "tests/test_managed_project_outcome.py",
         "tests/test_managed_projects_http_v4.py",
         "tests/test_portfolio_claim_api.py",
         "tests/test_postgres_backend.py",
@@ -2014,7 +2017,6 @@
         "tests/test_release33_auto_worker_recovery_e2e.py",
         "tests/test_release34_safe_running_recovery_e2e.py",
         "tests/test_release35_control_plane_restart_e2e.py",
-        "tests/test_release36_worker_session_reconciliation_e2e.py",
         "tests/test_stragglers.py",
         "tests/test_workers.py"
       ],
@@ -2145,6 +2147,7 @@
         "tests/test_github_work_state.py",
         "tests/test_governance.py",
         "tests/test_incident_history.py",
+        "tests/test_managed_project_outcome.py",
         "tests/test_project_progress.py",
         "tests/test_release34_safe_running_recovery_e2e.py",
         "tests/test_release35_control_plane_restart_e2e.py",
@@ -2153,7 +2156,7 @@
         "tests/test_sqlite_migration.py",
         "tests/test_workflow_engine.py"
       ],
-      "in_degree": 47,
+      "in_degree": 48,
       "out_degree": 2
     },
     "tests/test_asymmetric_attestations.py": {
@@ -2949,6 +2952,17 @@
       "in_degree": 0,
       "out_degree": 3
     },
+    "tests/test_managed_project_outcome.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/managed_projects.py",
+        "src/production_os/workers.py",
+        "tests/test_asset_forge.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 4
+    },
     "tests/test_managed_projects_http_v4.py": {
       "dependencies": [
         "src/production_os/__init__.py",
@@ -3325,12 +3339,11 @@
         "src/production_os/api_auth.py",
         "src/production_os/control_plane.py",
         "src/production_os/remote_worker.py",
-        "src/production_os/workers.py",
         "tests/test_asset_forge.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 6
+      "out_degree": 5
     },
     "tests/test_release_ledger.py": {
       "dependencies": [

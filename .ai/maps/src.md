@@ -3251,6 +3251,7 @@ actions = []
 ⋮----
 status = str(project.get("status") or "")
 workflow = project.get("current_workflow") or {}
+outcome = project.get("outcome") or {}
 workflow_status = str(workflow.get("status") or "")
 ⋮----
 failed = workflow_status == "failed"
@@ -4664,6 +4665,62 @@ agents = usage.get("agents")
 clean = {}
 ⋮----
 value = int(count)
+⋮----
+def _clean_commit_shas(values) -> list[str]
+⋮----
+clean: list[str] = []
+⋮----
+value = (
+⋮----
+def _outcome_from_workflow(workflow: dict | None) -> dict
+⋮----
+results = [
+result = results[-1] if results else {}
+evidence = (
+summary = (
+summary = str(summary).strip() if summary is not None else None
+⋮----
+summary = None
+⋮----
+validation = result.get("validation")
+⋮----
+validation = evidence.get("validation")
+⋮----
+validation = {}
+validation_status = (
+⋮----
+raw_tests = (
+validation_tests = (
+⋮----
+raw_commits = (
+⋮----
+raw_commits = [raw_commits]
+commit_shas = _clean_commit_shas(raw_commits)
+⋮----
+artifacts = [
+artifact_names = [
+⋮----
+changed_files = (
+changed_file_count = (
+⋮----
+pr = result.get("pull_request") or evidence.get("pull_request")
+pull_request = None
+⋮----
+number = pr.get("number")
+state = str(pr.get("state") or "").strip() or None
+⋮----
+number = (
+state = (
+⋮----
+number = int(number) if number is not None else None
+⋮----
+number = None
+⋮----
+pull_request = {"number":number, "state":state}
+⋮----
+workflow_status = str(workflow.get("status") or "").strip() or None
+terminal = workflow_status in {"succeeded", "failed", "cancelled"}
+available = terminal or any((
 ⋮----
 class ManagedProjectService
 ⋮----
