@@ -2807,6 +2807,11 @@ age = max(0.0, (now - last).total_seconds())
 stale_executions = []
 ⋮----
 last = _dt(
+⋮----
+filesystem = (
+filesystem_status = str(filesystem.get("status") or "")
+⋮----
+available_percent = filesystem.get("available_percent")
 ```
 
 ## File: production_os/dashboard_incidents.py
@@ -2820,6 +2825,9 @@ severity = str(reason.get("severity") or "medium")
 evidence = dict(reason.get("evidence") or {})
 ⋮----
 queued = int(evidence.get("queued") or 0)
+⋮----
+status = str(evidence.get("status") or "warning")
+available = evidence.get("available_percent")
 ⋮----
 worker_id = str(worker.get("worker_id") or "")
 ⋮----

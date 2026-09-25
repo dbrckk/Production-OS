@@ -1585,6 +1585,12 @@ def test_queue_without_worker_degrades_health()
 def test_stale_busy_worker_and_running_execution_are_explained()
 ⋮----
 codes = {item["code"] for item in result["reasons"]}
+⋮----
+def test_backup_filesystem_pressure_degrades_health_with_severity()
+⋮----
+warning = derive_control_health({
+⋮----
+critical = derive_control_health({
 ```
 
 ## File: test_dashboard_incident_signals.py

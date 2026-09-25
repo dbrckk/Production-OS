@@ -3326,6 +3326,11 @@ age = max(0.0, (now - last).total_seconds())
 stale_executions = []
 ⋮----
 last = _dt(
+⋮----
+filesystem = (
+filesystem_status = str(filesystem.get("status") or "")
+⋮----
+available_percent = filesystem.get("available_percent")
 ````
 
 ## File: src/production_os/dashboard_incidents.py
@@ -3339,6 +3344,9 @@ severity = str(reason.get("severity") or "medium")
 evidence = dict(reason.get("evidence") or {})
 ⋮----
 queued = int(evidence.get("queued") or 0)
+⋮----
+status = str(evidence.get("status") or "warning")
+available = evidence.get("available_percent")
 ⋮----
 worker_id = str(worker.get("worker_id") or "")
 ⋮----
@@ -9324,6 +9332,12 @@ def test_queue_without_worker_degrades_health()
 def test_stale_busy_worker_and_running_execution_are_explained()
 ⋮----
 codes = {item["code"] for item in result["reasons"]}
+⋮----
+def test_backup_filesystem_pressure_degrades_health_with_severity()
+⋮----
+warning = derive_control_health({
+⋮----
+critical = derive_control_health({
 ````
 
 ## File: tests/test_dashboard_incident_signals.py
@@ -13787,6 +13801,28 @@ Backups remain protected when they are:
 Only the server-derived `<backup_id>.sqlite` and `<backup_id>.json` artifacts for the current candidate set can be removed. Clients never provide file names or paths.
 
 Every accepted or conflicted cleanup request is recorded in the control audit. Cleanup is never triggered automatically by capacity warnings, dashboard polling, health checks or retention previews.
+
+
+## Release 30 — Backup filesystem capacity incidents
+
+Backup filesystem pressure now participates in operational health and durable incident reconciliation.
+
+When configured SQLite backup storage reports:
+
+```text
+available < 10%  -> warning / medium incident
+available < 5%   -> critical / high incident
+```
+
+Production-OS emits the durable incident code:
+
+```text
+backup_filesystem_capacity
+```
+
+The incident targets the backup-storage surface and is automatically resolved when filesystem capacity returns to `ok`.
+
+This remains observational only. Capacity incidents never trigger retention cleanup, temp cleanup, backup creation, restore staging, restore activation, pause, retry, cancellation or any other control action automatically.
 
 ## Design principles
 

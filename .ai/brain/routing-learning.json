@@ -2,27 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat: expose asset-forge dispatch through Production OS CLI",
-      "terms": [
-        "asset-forge",
-        "cli",
-        "dispatch",
-        "expose",
-        "feat",
-        "os",
-        "production",
-        "through"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/asset_forge.py",
-        "src/production_os/cli.py",
-        "src/production_os/github_client.py",
-        "tests/test_asset_forge.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat: expose custom asset source in asset-forge dispatch",
       "terms": [
         "asset",
@@ -1269,6 +1248,26 @@
         "tests/test_dashboard_backups.py",
         "tests/test_dashboard_ui_v3.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "feat: release 30 backup capacity incidents",
+      "terms": [
+        "30",
+        "backup",
+        "capacity",
+        "feat",
+        "incidents",
+        "release"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/dashboard_health.py",
+        "src/production_os/dashboard_incidents.py",
+        "src/production_os/dashboard_service.py",
+        "tests/test_dashboard_health.py",
+        "tests/test_dashboard_incident_signals.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1415,6 +1414,13 @@
       "tests/test_dashboard_backups.py": 4,
       "tests/test_dashboard_ui_v3.py": 4
     },
+    "30": {
+      "src/production_os/dashboard_health.py": 4,
+      "src/production_os/dashboard_incidents.py": 4,
+      "src/production_os/dashboard_service.py": 4,
+      "tests/test_dashboard_health.py": 4,
+      "tests/test_dashboard_incident_signals.py": 4
+    },
     "accept": {
       "src/production_os/asset_forge.py": 4,
       "tests/test_asset_forge.py": 4
@@ -1536,10 +1542,14 @@
     "backup": {
       "src/production_os/control_plane.py": 12,
       "src/production_os/dashboard_backups.py": 28,
-      "src/production_os/dashboard_service.py": 16,
+      "src/production_os/dashboard_health.py": 4,
+      "src/production_os/dashboard_incidents.py": 4,
+      "src/production_os/dashboard_service.py": 20,
       "src/production_os/dashboard_ui.py": 28,
       "tests/test_dashboard_backup_api.py": 20,
       "tests/test_dashboard_backups.py": 28,
+      "tests/test_dashboard_health.py": 4,
+      "tests/test_dashboard_incident_signals.py": 4,
       "tests/test_dashboard_ui_v3.py": 28
     },
     "batch": {
@@ -1572,11 +1582,15 @@
     },
     "capacity": {
       "src/production_os/dashboard_backups.py": 4,
-      "src/production_os/dashboard_service.py": 4,
+      "src/production_os/dashboard_health.py": 4,
+      "src/production_os/dashboard_incidents.py": 4,
+      "src/production_os/dashboard_service.py": 8,
       "src/production_os/dashboard_ui.py": 8,
       "tests/test_dashboard_api.py": 4,
       "tests/test_dashboard_backup_api.py": 4,
       "tests/test_dashboard_backups.py": 4,
+      "tests/test_dashboard_health.py": 4,
+      "tests/test_dashboard_incident_signals.py": 4,
       "tests/test_dashboard_ui_v3.py": 8
     },
     "captured": {
@@ -1868,8 +1882,8 @@
       "src/production_os/dashboard_backups.py": 40,
       "src/production_os/dashboard_control.py": 4,
       "src/production_os/dashboard_github.py": 4,
-      "src/production_os/dashboard_health.py": 4,
-      "src/production_os/dashboard_incidents.py": 4,
+      "src/production_os/dashboard_health.py": 8,
+      "src/production_os/dashboard_incidents.py": 8,
       "src/production_os/dashboard_maintenance.py": 8,
       "src/production_os/dashboard_playbooks.py": 4,
       "src/production_os/dashboard_remediation_metrics.py": 12,
@@ -1896,8 +1910,8 @@
       "tests/test_dashboard_control_audit.py": 24,
       "tests/test_dashboard_control_e2e.py": 12,
       "tests/test_dashboard_github.py": 4,
-      "tests/test_dashboard_health.py": 4,
-      "tests/test_dashboard_incident_signals.py": 4,
+      "tests/test_dashboard_health.py": 8,
+      "tests/test_dashboard_incident_signals.py": 8,
       "tests/test_dashboard_incidents.py": 4,
       "tests/test_dashboard_launch_ux.py": 4,
       "tests/test_dashboard_maintenance.py": 4,
@@ -2020,15 +2034,17 @@
     },
     "incidents": {
       "src/production_os/control_plane.py": 4,
-      "src/production_os/dashboard_incidents.py": 4,
-      "src/production_os/dashboard_service.py": 4,
+      "src/production_os/dashboard_health.py": 4,
+      "src/production_os/dashboard_incidents.py": 8,
+      "src/production_os/dashboard_service.py": 8,
       "src/production_os/dashboard_store.py": 4,
       "src/production_os/dashboard_ui.py": 4,
       "src/production_os/postgres_backend.py": 4,
       "src/production_os/sqlite_backend.py": 4,
       "tests/test_dashboard_control_audit.py": 4,
       "tests/test_dashboard_control_e2e.py": 4,
-      "tests/test_dashboard_incident_signals.py": 4,
+      "tests/test_dashboard_health.py": 4,
+      "tests/test_dashboard_incident_signals.py": 8,
       "tests/test_dashboard_incidents.py": 4,
       "tests/test_dashboard_store_postgres.py": 4,
       "tests/test_dashboard_ui_v3.py": 4
@@ -2352,8 +2368,8 @@
       "src/production_os/dashboard_backups.py": 40,
       "src/production_os/dashboard_control.py": 4,
       "src/production_os/dashboard_github.py": 4,
-      "src/production_os/dashboard_health.py": 4,
-      "src/production_os/dashboard_incidents.py": 4,
+      "src/production_os/dashboard_health.py": 8,
+      "src/production_os/dashboard_incidents.py": 8,
       "src/production_os/dashboard_maintenance.py": 8,
       "src/production_os/dashboard_playbooks.py": 4,
       "src/production_os/dashboard_remediation_metrics.py": 12,
@@ -2378,8 +2394,8 @@
       "tests/test_dashboard_control_audit.py": 20,
       "tests/test_dashboard_control_e2e.py": 12,
       "tests/test_dashboard_github.py": 4,
-      "tests/test_dashboard_health.py": 4,
-      "tests/test_dashboard_incident_signals.py": 4,
+      "tests/test_dashboard_health.py": 8,
+      "tests/test_dashboard_incident_signals.py": 8,
       "tests/test_dashboard_incidents.py": 4,
       "tests/test_dashboard_launch_ux.py": 4,
       "tests/test_dashboard_maintenance.py": 4,
