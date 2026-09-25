@@ -113,6 +113,8 @@ textarea{resize:vertical;min-height:150px;line-height:1.45}
 .attention-focus{outline:2px solid rgba(110,168,254,.7);box-shadow:0 0 0 4px rgba(110,168,254,.12)}
 .attention-inline-instruction{display:grid;gap:8px;width:100%;margin-top:8px}
 .attention-inline-instruction textarea{min-height:62px}
+.outcome-summary{margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
+.outcome-evidence{margin-top:6px}
 @media(max-width:560px){
  .shell{padding:14px 12px 38px}
  .status-grid{grid-template-columns:1fr}
@@ -1222,6 +1224,37 @@ async function managedAction(projectId,action){
   if(status)status.textContent=String(e).replace(/^Error:\\s*/,"");
  }
 }
+function renderProductionOutcome(outcome,includeSummary){
+ const value=outcome||{};
+ if(value.available!==true)return "";
+ const parts=[];
+ if(value.validation_status)parts.push(
+  "<strong>Validation :</strong> "+esc(String(value.validation_status))
+ );
+ const tests=value.validation_tests||[];
+ if(tests.length)parts.push(
+  "<strong>Tests :</strong> "+tests.map(function(x){return esc(String(x))}).join(", ")
+ );
+ const commits=value.commit_shas||[];
+ if(commits.length)parts.push(
+  "<strong>Commits :</strong> "+commits.map(function(x){return esc(String(x).slice(0,12))}).join(", ")
+ );
+ if(Number(value.artifact_count||0)>0)parts.push(
+  "<strong>Artefacts :</strong> "+formatNumber(value.artifact_count)
+ );
+ const pr=value.pull_request||null;
+ if(pr&&(pr.number!=null||pr.state)){
+  parts.push(
+   "<strong>PR :</strong> "+
+   (pr.number!=null?"#"+esc(String(pr.number)):"")+
+   (pr.state?" · "+esc(String(pr.state)):"")
+  );
+ }
+ const summary=includeSummary&&value.summary
+  ?'<div class="small outcome-summary"><strong>Résultat :</strong> '+esc(String(value.summary))+'</div>'
+  :"";
+ return summary+(parts.length?'<div class="small outcome-evidence">'+parts.join(" · ")+'</div>':"");
+}
 function attentionKindLabel(kind){
  const labels={
   incident:"Incident",
@@ -1353,6 +1386,7 @@ async function loadAttention(){
    const required=item.action_required===true;
    const repository=item.repository?'<div class="small"><strong>'+esc(String(item.repository))+'</strong></div>':'';
    const summaryText=item.summary?'<div class="small">'+esc(String(item.summary))+'</div>':'';
+   const outcomeHtml=renderProductionOutcome(item.outcome||{},false);
    const openButton=item.view
     ?'<button class="secondary-btn" type="button" data-view="'+esc(String(item.view||"overview"))+'" data-target-type="'+esc(String(item.target_type||""))+'" data-target-id="'+esc(String(item.target_id||""))+'" onclick="openAttentionItem(this.dataset.view,this.dataset.targetType,this.dataset.targetId)">Ouvrir</button>'
     :'';
@@ -1361,7 +1395,7 @@ async function loadAttention(){
    return '<div class="card attention-card '+(required?'attention-required':'attention-done')+'">'+
     '<div class="section-head"><strong>'+esc(String(item.title||"Action"))+'</strong>'+
     '<span class="badge">'+dot(attentionSeverityClass(String(item.severity||"info")))+esc(attentionKindLabel(item.kind))+'</span></div>'+
-    repository+summaryText+
+    repository+summaryText+outcomeHtml+
     '<div class="small">'+(required?'Action opérateur requise':'Information récente')+(item.updated_at?' · '+esc(String(item.updated_at)):'')+'</div>'+
     '<div class="attention-actions">'+openButton+'</div>'+contextual+
     '<div id="attention-action-status-'+esc(statusId)+'" class="status-message"></div></div>';
@@ -1383,6 +1417,7 @@ async function loadManagedProjects(){
   count.textContent=String(rows.length);
   el.innerHTML=rows.length?rows.map(function(row){
    const usage=row.usage||{};
+   const outcome=row.outcome||{};
    const projectId=String(row.project_id||row.id||row.workflow_id||"");
    const status=String(row.status||row.state||"");
    const canFollow=status==="REVIEW_REQUIRED"||status==="NEEDS_ATTENTION";
@@ -1394,6 +1429,7 @@ async function loadManagedProjects(){
    const history=runs.length?'<div class="small"><strong>Générations :</strong> '+runs.map(function(run){return 'g'+esc(String(run.generation||""))+' '+esc(String(run.kind||""))}).join(" · ")+'</div>':'';
    return '<div class="card'+(appState.focus===projectId?' attention-focus':'')+'" data-managed-project-id="'+esc(projectId)+'"><div class="section-head"><strong>'+esc(String(row.repository||""))+'</strong><span class="badge">'+esc(status)+'</span></div>'+
     '<div class="small"><strong>Objectif :</strong> '+esc(String(row.final_goal||""))+'</div>'+
+    renderProductionOutcome(outcome,true)+
     '<div class="small"><strong>Génération actuelle :</strong> '+formatNumber(row.generation||1)+' · <strong>Budget :</strong> '+formatNumber(row.token_budget)+' tokens · <strong>Utilisés :</strong> '+formatNumber(usage.total_tokens||0)+' · <strong>Agent :</strong> '+esc(String(row.agent_preference||"auto"))+'</div>'+
     history+actions+'</div>';
   }).join(""):'<div class="empty">Aucun projet managé.</div>';
