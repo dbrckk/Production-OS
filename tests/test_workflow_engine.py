@@ -476,3 +476,59 @@ def test_superseded_pr_rejects_artifact_promotion(tmp_path):
             },
         )
 
+
+
+def test_workflow_metadata_can_be_updated_without_recreating_workflow(tmp_path):
+    wf=engine(tmp_path)
+    created=wf.create(
+        name="managed",
+        repository="o/a",
+        metadata={"phase":"initial"},
+        tasks=[WorkflowTaskSpec("goal","Goal",{})],
+    )
+
+    updated=wf.update_metadata(
+        created["id"],
+        {"phase":"review","approved":False},
+    )
+
+    assert updated["id"]==created["id"]
+    assert updated["metadata"]=={"phase":"review","approved":False}
+    assert [task["task_id"] for task in updated["tasks"]]==["goal"]
+
+
+def test_workflow_add_task_validates_dependencies_and_becomes_dispatchable(tmp_path):
+    wf=engine(tmp_path)
+    created=wf.create(
+        name="managed",
+        repository="o/a",
+        tasks=[WorkflowTaskSpec("goal","Goal",{})],
+    )
+    wf.record_result(created["id"],"goal",succeeded=True)
+
+    with pytest.raises(ValueError,match="unknown task dependencies"):
+        wf.add_task(
+            created["id"],
+            WorkflowTaskSpec(
+                "bad",
+                "Bad",
+                {},
+                ("missing",),
+            ),
+        )
+
+    updated=wf.add_task(
+        created["id"],
+        WorkflowTaskSpec(
+            "follow-up",
+            "Follow-up",
+            {},
+            ("goal",),
+        ),
+    )
+    task=next(item for item in updated["tasks"] if item["task_id"]=="follow-up")
+    assert task["status"]=="ready"
+
+    jobs=wf.dispatch_ready(created["id"],task_id="follow-up")
+    assert len(jobs)==1
+    assert jobs[0]["payload"]["workflow_task_id"]=="follow-up"

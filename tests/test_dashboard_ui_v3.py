@@ -400,3 +400,25 @@ def test_restore_readiness_ui_never_exposes_restore_action_or_paths():
     assert "RESTORE_BACKUP" not in DASHBOARD_HTML
     assert "PRODUCTION_OS_BACKUP_DIR" not in DASHBOARD_HTML
     assert "backup_path" not in DASHBOARD_HTML
+
+
+def test_dashboard_has_managed_projects_view():
+    assert 'data-view="managed"' in DASHBOARD_HTML
+    assert 'id="view-managed"' in DASHBOARD_HTML
+    assert "async function loadManagedProjects" in DASHBOARD_HTML
+    assert "/v1/managed-projects" in DASHBOARD_HTML
+
+
+def test_managed_projects_view_exposes_review_actions_only_in_review_state():
+    assert 'row.state==="REVIEW_REQUIRED"' in DASHBOARD_HTML
+    assert "Ajouter instruction" in DASHBOARD_HTML
+    assert "Retester" in DASHBOARD_HTML
+    assert "Valider DONE" in DASHBOARD_HTML
+    assert "managedAction" in DASHBOARD_HTML
+
+
+def test_managed_projects_navigation_preserves_existing_polling_contract():
+    assert "managed:loadManagedProjects" in DASHBOARD_HTML
+    assert "window.scrollY" in DASHBOARD_HTML
+    assert "window.scrollTo" in DASHBOARD_HTML
+    assert "location.reload(" not in DASHBOARD_HTML
