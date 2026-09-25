@@ -2417,6 +2417,33 @@ rows = []
 ⋮----
 item = _safe_activation_receipt(path)
 ⋮----
+def backup_storage_inventory(backend) -> dict
+⋮----
+zero = {
+⋮----
+backup_ids: set[str] = set()
+candidate_ids: set[str] = set()
+metrics = dict(zero)
+backup_sqlite = re.compile(
+backup_manifest = re.compile(
+candidate_sqlite = re.compile(
+candidate_manifest = re.compile(
+activation_receipt = re.compile(
+⋮----
+paths = list(directory.iterdir())
+⋮----
+size = int(path.stat().st_size)
+⋮----
+size = max(0, size)
+⋮----
+name = path.name
+⋮----
+match = activation_receipt.fullmatch(name)
+⋮----
+match = candidate_sqlite.fullmatch(name) or candidate_manifest.fullmatch(name)
+⋮----
+match = backup_sqlite.fullmatch(name) or backup_manifest.fullmatch(name)
+⋮----
 def backup_readiness(backend) -> dict
 ⋮----
 kind = _backend_kind(backend)

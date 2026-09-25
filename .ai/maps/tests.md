@@ -1041,6 +1041,10 @@ source = backup_dir / f"{backup_id}.sqlite"
 receipt = {
 ⋮----
 def test_backup_http_surface_has_no_restore_activation_route(tmp_path, monkeypatch)
+⋮----
+backup_id = "20260925T120000Z-aaaaaaaaaaaa"
+⋮----
+storage = payload["storage"]
 ```
 
 ## File: test_dashboard_backups.py
@@ -1159,6 +1163,18 @@ older = {
 newer = {
 ⋮----
 rows = restore_activation_history(backend)
+⋮----
+backup_id = "20260925T120000Z-aaaaaaaaaaaa"
+candidate_id = "20260925T130000Z-bbbbbbbbbbbb"
+files = {
+⋮----
+inventory = backup_storage_inventory(backend)
+⋮----
+encoded = json.dumps(inventory).lower()
+⋮----
+backup_dir = tmp_path / "missing-backups"
+⋮----
+inventory = backup_storage_inventory(_FakePostgres())
 ```
 
 ## File: test_dashboard_control_api.py
@@ -2329,6 +2345,8 @@ def test_managed_projects_mobile_view_renders_generation_history()
 def test_managed_repository_picker_reuses_server_repository_discovery()
 ⋮----
 def test_backup_overview_renders_restore_activation_history()
+⋮----
+def test_backup_overview_renders_storage_inventory_read_only()
 ```
 
 ## File: test_dashboard_usage.py

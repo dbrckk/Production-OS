@@ -2936,6 +2936,33 @@ rows = []
 ⋮----
 item = _safe_activation_receipt(path)
 ⋮----
+def backup_storage_inventory(backend) -> dict
+⋮----
+zero = {
+⋮----
+backup_ids: set[str] = set()
+candidate_ids: set[str] = set()
+metrics = dict(zero)
+backup_sqlite = re.compile(
+backup_manifest = re.compile(
+candidate_sqlite = re.compile(
+candidate_manifest = re.compile(
+activation_receipt = re.compile(
+⋮----
+paths = list(directory.iterdir())
+⋮----
+size = int(path.stat().st_size)
+⋮----
+size = max(0, size)
+⋮----
+name = path.name
+⋮----
+match = activation_receipt.fullmatch(name)
+⋮----
+match = candidate_sqlite.fullmatch(name) or candidate_manifest.fullmatch(name)
+⋮----
+match = backup_sqlite.fullmatch(name) or backup_manifest.fullmatch(name)
+⋮----
 def backup_readiness(backend) -> dict
 ⋮----
 kind = _backend_kind(backend)
@@ -8628,6 +8655,10 @@ source = backup_dir / f"{backup_id}.sqlite"
 receipt = {
 ⋮----
 def test_backup_http_surface_has_no_restore_activation_route(tmp_path, monkeypatch)
+⋮----
+backup_id = "20260925T120000Z-aaaaaaaaaaaa"
+⋮----
+storage = payload["storage"]
 ````
 
 ## File: tests/test_dashboard_backups.py
@@ -8746,6 +8777,18 @@ older = {
 newer = {
 ⋮----
 rows = restore_activation_history(backend)
+⋮----
+backup_id = "20260925T120000Z-aaaaaaaaaaaa"
+candidate_id = "20260925T130000Z-bbbbbbbbbbbb"
+files = {
+⋮----
+inventory = backup_storage_inventory(backend)
+⋮----
+encoded = json.dumps(inventory).lower()
+⋮----
+backup_dir = tmp_path / "missing-backups"
+⋮----
+inventory = backup_storage_inventory(_FakePostgres())
 ````
 
 ## File: tests/test_dashboard_control_api.py
@@ -9916,6 +9959,8 @@ def test_managed_projects_mobile_view_renders_generation_history()
 def test_managed_repository_picker_reuses_server_repository_discovery()
 ⋮----
 def test_backup_overview_renders_restore_activation_history()
+⋮----
+def test_backup_overview_renders_storage_inventory_read_only()
 ````
 
 ## File: tests/test_dashboard_usage.py
@@ -13388,6 +13433,24 @@ sha256
 Malformed receipts are ignored. No paths, DSNs, credentials, tokens or arbitrary payloads are exposed.
 
 This is visibility only. Restore activation remains unavailable over HTTP and continues to require the offline CLI path, exact confirmation and exclusive maintenance lock.
+
+## Release 24 — Backup storage inventory
+
+The backups dashboard now measures backup and restore storage growth without deleting anything.
+
+For configured SQLite backup storage it exposes aggregate counts and bytes for:
+
+```text
+verified backups
+staged restore candidates
+activation receipts
+temporary files
+unknown files
+```
+
+Only aggregate metrics are returned. Individual file names and server paths are not exposed.
+
+This release is read-only: there is no cleanup action, retention mutation or restore behavior change.
 
 ## Design principles
 

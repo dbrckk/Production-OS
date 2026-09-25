@@ -1,11 +1,11 @@
 # Change impact
 
-Base: 23b2f0cd88a151403ab5cc3a17d8c8f7f672ca1c
-Head: 39c870a20d62e6d7905f7ff16df1b266b5506e73
+Base: 098cd4ffbfc862a5f44d68d881be10117f39239c
+Head: 5ee7971875215e282f05ad1cbf29fa886d73eb60
 
 ## Changed files
 - M README.md
-- A docs/superpowers/plans/2026-09-25-release-23-restore-activation-history.md
+- A docs/superpowers/plans/2026-09-25-release-24-backup-storage-inventory.md
 - M src/production_os/dashboard_backups.py
 - M src/production_os/dashboard_service.py
 - M src/production_os/dashboard_ui.py
