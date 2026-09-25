@@ -1138,6 +1138,18 @@ real_connect = backups_module.sqlite3.connect
 live_verification_failed = {"done": False}
 ⋮----
 def failing_connect(target, *args, **kwargs)
+⋮----
+def test_successful_restore_candidate_cannot_be_replayed(tmp_path, monkeypatch)
+⋮----
+receipt = json.loads(
+⋮----
+encoded = json.dumps(receipt).lower()
+⋮----
+manifest = json.loads(
+⋮----
+failed = {"done":False}
+⋮----
+verified = verify_staged_restore_candidate(
 ```
 
 ## File: test_dashboard_control_api.py

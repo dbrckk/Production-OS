@@ -2995,6 +2995,8 @@ expected_schema = str(getattr(backend, "SCHEMA_VERSION", ""))
 candidate = verify_staged_restore_candidate(backend, candidate_id)
 database_path = Path(getattr(backend, "path", ""))
 ⋮----
+receipt_path = directory / f"restore-{candidate_id}.activation.json"
+⋮----
 # Revalidate after acquiring the exclusive lock so the activation
 # decision is based on the exact bytes we will install.
 ⋮----
@@ -3003,6 +3005,8 @@ rollback_path = directory / f"{rollback['backup_id']}.sqlite"
 ⋮----
 temp_target = database_path.with_name(
 rollback_temp = database_path.with_name(
+receipt_temp = directory / (
+manifest_temp = directory / (
 sidecars = [
 replaced = False
 ⋮----
@@ -3015,6 +3019,9 @@ restored = sqlite3.connect(database_path)
 row = restored.execute("PRAGMA integrity_check").fetchone()
 ⋮----
 schema_row = restored.execute(
+⋮----
+activated_at = _now()
+receipt = {
 ⋮----
 rollback_db = sqlite3.connect(database_path)
 ⋮----
@@ -8701,6 +8708,18 @@ real_connect = backups_module.sqlite3.connect
 live_verification_failed = {"done": False}
 ⋮----
 def failing_connect(target, *args, **kwargs)
+⋮----
+def test_successful_restore_candidate_cannot_be_replayed(tmp_path, monkeypatch)
+⋮----
+receipt = json.loads(
+⋮----
+encoded = json.dumps(receipt).lower()
+⋮----
+manifest = json.loads(
+⋮----
+failed = {"done":False}
+⋮----
+verified = verify_staged_restore_candidate(
 ````
 
 ## File: tests/test_dashboard_control_api.py
@@ -13296,6 +13315,32 @@ Activation safety sequence:
 There is intentionally no HTTP endpoint for restore activation. If the control plane is still running, the CLI fails because it cannot acquire the exclusive database lock.
 
 PostgreSQL restore activation remains unsupported.
+
+## Release 22 — One-shot restore activation
+
+Successful staged SQLite restore candidates are now one-shot.
+
+After the restored live database passes integrity and schema verification:
+
+- the candidate manifest is atomically marked `activation_state=activated`;
+- `activated_at` and the verified rollback backup id are persisted;
+- a separate activation receipt is written with only structured safe metadata;
+- any later attempt to activate the same candidate is rejected before database mutation.
+
+If activation fails and the previous live database is restored successfully, the candidate remains staged and may be retried.
+
+Activation receipts contain only:
+
+```text
+candidate_id
+source_backup_id
+rollback_backup_id
+activated_at
+schema_version
+sha256
+```
+
+No credentials, paths, DSNs, authorization headers or arbitrary request payloads are stored.
 
 ## Design principles
 

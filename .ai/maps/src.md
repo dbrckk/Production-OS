@@ -2476,6 +2476,8 @@ expected_schema = str(getattr(backend, "SCHEMA_VERSION", ""))
 candidate = verify_staged_restore_candidate(backend, candidate_id)
 database_path = Path(getattr(backend, "path", ""))
 ⋮----
+receipt_path = directory / f"restore-{candidate_id}.activation.json"
+⋮----
 # Revalidate after acquiring the exclusive lock so the activation
 # decision is based on the exact bytes we will install.
 ⋮----
@@ -2484,6 +2486,8 @@ rollback_path = directory / f"{rollback['backup_id']}.sqlite"
 ⋮----
 temp_target = database_path.with_name(
 rollback_temp = database_path.with_name(
+receipt_temp = directory / (
+manifest_temp = directory / (
 sidecars = [
 replaced = False
 ⋮----
@@ -2496,6 +2500,9 @@ restored = sqlite3.connect(database_path)
 row = restored.execute("PRAGMA integrity_check").fetchone()
 ⋮----
 schema_row = restored.execute(
+⋮----
+activated_at = _now()
+receipt = {
 ⋮----
 rollback_db = sqlite3.connect(database_path)
 ⋮----

@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "generated_by": "dbrckk/repo-brain",
-  "base": "15ba18d589653f020e296e3a508b39d2348377c1",
-  "head": "f7a346b9d944a878faa38aca4eb31dbb22dcc2dc",
+  "base": "f7a346b9d944a878faa38aca4eb31dbb22dcc2dc",
+  "head": "a1f4e9469b823aedd41a6398cc17276f62b62be1",
   "index_mode": "incremental",
   "changed_files": [
     {
@@ -10,36 +10,21 @@
       "status": "M"
     },
     {
-      "path": "docs/superpowers/plans/2026-09-25-release-21-offline-restore-activation.md",
+      "path": "docs/superpowers/plans/2026-09-25-release-22-restore-replay-protection.md",
       "status": "A"
-    },
-    {
-      "path": "src/production_os/cli.py",
-      "status": "M"
     },
     {
       "path": "src/production_os/dashboard_backups.py",
       "status": "M"
     },
     {
-      "path": "tests/test_cli.py",
-      "status": "M"
-    },
-    {
       "path": "tests/test_dashboard_backups.py",
       "status": "M"
-    },
-    {
-      "path": "tests/test_release21_offline_restore_e2e.py",
-      "status": "A"
     }
   ],
   "changed_source_files": [
-    "src/production_os/cli.py",
     "src/production_os/dashboard_backups.py",
-    "tests/test_cli.py",
-    "tests/test_dashboard_backups.py",
-    "tests/test_release21_offline_restore_e2e.py"
+    "tests/test_dashboard_backups.py"
   ],
   "impacted_files": [
     "src/production_os/cli.py",
@@ -727,13 +712,13 @@
       "name": "activate_staged_sqlite_restore",
       "kind": "function",
       "file": "src/production_os/dashboard_backups.py",
-      "line": 380
+      "line": 385
     },
     {
       "name": "create_verified_sqlite_backup",
       "kind": "function",
       "file": "src/production_os/dashboard_backups.py",
-      "line": 487
+      "line": 549
     },
     {
       "name": "DashboardNotFound",
@@ -1159,31 +1144,61 @@
       "name": "test_restore_activation_wrong_confirmation_changes_nothing",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 350
+      "line": 354
     },
     {
       "name": "test_restore_activation_rejects_tampered_candidate",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 369
+      "line": 373
     },
     {
       "name": "test_restore_activation_rejects_schema_mismatch",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 386
+      "line": 390
     },
     {
       "name": "test_restore_activation_rolls_back_if_post_replace_verification_fails",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 409
+      "line": 413
     },
     {
       "name": "failing_connect",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 435
+      "line": 439
+    },
+    {
+      "name": "test_successful_restore_candidate_cannot_be_replayed",
+      "kind": "function",
+      "file": "tests/test_dashboard_backups.py",
+      "line": 470
+    },
+    {
+      "name": "test_restore_activation_receipt_contains_only_safe_structured_fields",
+      "kind": "function",
+      "file": "tests/test_dashboard_backups.py",
+      "line": 491
+    },
+    {
+      "name": "test_successful_activation_marks_candidate_manifest_consumed",
+      "kind": "function",
+      "file": "tests/test_dashboard_backups.py",
+      "line": 532
+    },
+    {
+      "name": "test_failed_activation_with_rollback_does_not_consume_candidate",
+      "kind": "function",
+      "file": "tests/test_dashboard_backups.py",
+      "line": 559
+    },
+    {
+      "name": "failing_connect",
+      "kind": "function",
+      "file": "tests/test_dashboard_backups.py",
+      "line": 575
     },
     {
       "name": "test_release21_offline_restore_activation_survives_restart",
@@ -1195,12 +1210,6 @@
   "selected_tests": [
     "tests/test_cli.py",
     "tests/test_dashboard_backups.py",
-    "tests/test_github_client_pr_files.py",
-    "tests/test_github_client_put_file.py",
-    "tests/test_rekor_checkpoint_state_cli.py",
-    "tests/test_rekor_consistency_client.py",
-    "tests/test_rekor_witness_quorum_cli.py",
-    "tests/test_release21_offline_restore_e2e.py",
-    "tests/test_transparency_cli.py"
+    "tests/test_release21_offline_restore_e2e.py"
   ]
 }

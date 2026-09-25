@@ -22,22 +22,23 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-25T15:05:44Z
+Generated: 2026-09-25T15:11:58Z
 
 ### Git
 - Branch: `main`
-- Head: `f7a346b9d944`
-- Commit date: 2026-09-25T17:05:32+02:00
-- Commit: feat: release 21 offline restore activation
-- Tracked files: 404
+- Head: `a1f4e9469b82`
+- Commit date: 2026-09-25T17:11:47+02:00
+- Commit: feat: release 22 restore replay protection
+- Tracked files: 405
 
 ### Recently changed files
 - `README.md`
+- `docs/superpowers/plans/2026-09-25-release-22-restore-replay-protection.md`
+- `src/production_os/dashboard_backups.py`
+- `tests/test_dashboard_backups.py`
 - `docs/superpowers/plans/2026-09-25-release-21-offline-restore-activation.md`
 - `src/production_os/cli.py`
-- `src/production_os/dashboard_backups.py`
 - `tests/test_cli.py`
-- `tests/test_dashboard_backups.py`
 - `tests/test_release21_offline_restore_e2e.py`
 - `docs/superpowers/plans/2026-09-25-release-20-maintenance-lock.md`
 - `src/production_os/control_plane.py`
@@ -49,7 +50,6 @@ Generated: 2026-09-25T15:05:44Z
 - `tests/test_dashboard_backup_api.py`
 - `tests/test_dashboard_ui_v3.py`
 - `tests/test_release19_restore_staging_e2e.py`
-- `tests/test_release18_managed_projects_e2e.py`
 
 ### Project signals
 - `pyproject.toml`
