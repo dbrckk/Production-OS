@@ -1144,6 +1144,26 @@ A dedicated One-tap E2E test proves both sides of the contract:
 1. stale worker heartbeat + fresh telemetry does **not** recover the job;
 2. stale heartbeat + stale execution telemetry allows a second worker to reclaim the same job and complete the same generation safely.
 
+
+## Release 35 — Control-plane restart reconciliation
+
+The One-tap execution path is now qualified across a real control-plane restart.
+
+Two end-to-end scenarios are covered:
+
+1. **Active worker reconnects after restart**
+   - the ACKed job, running execution, Managed Project and workflow remain persisted;
+   - the worker reconnects, resumes heartbeat/telemetry, and completes the same attempt;
+   - no duplicate execution is created.
+
+2. **Worker is abandoned across restart**
+   - the persisted job remains ACKed after the server comes back;
+   - if both worker heartbeat and execution telemetry are stale, a healthy worker safely reclaims the same job;
+   - the old attempt is recorded as `worker_abandoned`;
+   - project id, workflow id and generation remain unchanged.
+
+This verifies that restarting the Control Plane itself does not own or reset the production lifecycle.
+
 ## Design principles
 
 - Evidence over assumptions
