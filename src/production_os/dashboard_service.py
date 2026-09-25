@@ -886,6 +886,153 @@ class DashboardService:
             "generated_at":_now(),
         }
 
+    def production_status(self, project_id: str) -> dict:
+        project_id = str(project_id or "").strip()
+        if not project_id:
+            raise ValueError("project_id is required")
+        try:
+            project = self.control.managed_projects.get(project_id)
+        except KeyError as exc:
+            raise DashboardNotFound(project_id) from exc
+
+        workflow = project.get("current_workflow") or {}
+        tasks = [
+            task
+            for task in workflow.get("tasks", [])
+            if isinstance(task, dict)
+        ]
+        current_task = next(
+            (
+                task for task in tasks
+                if task.get("status") not in {
+                    "succeeded", "failed", "cancelled", "blocked"
+                }
+            ),
+            tasks[-1] if tasks else None,
+        )
+        job_key = (
+            str(current_task.get("claimed_job_key") or "").strip()
+            if current_task
+            else ""
+        )
+        job = None
+        execution = None
+        if job_key:
+            try:
+                job = self.control.queue.get(job_key)
+            except KeyError:
+                job = None
+            execution = self.store.latest_execution(job_key)
+
+        project_status = str(project.get("status") or "")
+        workflow_status = str(workflow.get("status") or "")
+        job_status = str((job or {}).get("status") or "")
+        task_status = str((current_task or {}).get("status") or "")
+        execution_status = str((execution or {}).get("status") or "")
+
+        if project_status == "DONE":
+            phase = "done"
+        elif project_status == "REVIEW_REQUIRED":
+            phase = "review_required"
+        elif project_status == "NEEDS_ATTENTION":
+            phase = "needs_attention"
+        elif execution_status == "running" or job_status == "acked":
+            phase = "running"
+        elif job_status == "claimed":
+            phase = "claimed"
+        elif job_status == "queued":
+            phase = "queued"
+        elif task_status in {"pending", "ready"}:
+            phase = "preparing"
+        elif workflow_status == "succeeded":
+            phase = "review_required"
+        elif workflow_status in {"failed", "cancelled"}:
+            phase = "needs_attention"
+        else:
+            phase = "preparing"
+
+        queue_position = None
+        if phase == "queued" and job_key:
+            for index, queued_job in enumerate(
+                self.control.queue.peek_candidates(limit=500),
+                start=1,
+            ):
+                if str(queued_job.get("key") or "") == job_key:
+                    queue_position = index
+                    break
+
+        progress = (execution or {}).get("progress_percent")
+        if isinstance(progress, bool):
+            progress = None
+        elif progress is not None:
+            try:
+                progress = max(0.0, min(100.0, float(progress)))
+            except (TypeError, ValueError):
+                progress = None
+
+        worker_id = (
+            (execution or {}).get("worker_id")
+            or (job or {}).get("claimed_by")
+        )
+        stage = (execution or {}).get("current_stage")
+        attempt = (
+            (execution or {}).get("attempt")
+            or (job or {}).get("delivery_attempt")
+        )
+        telemetry_at = (execution or {}).get("last_telemetry_at")
+
+        if phase == "queued":
+            message = (
+                f"En file · position {queue_position}."
+                if queue_position is not None
+                else "En file d’attente."
+            )
+        elif phase == "claimed":
+            message = (
+                f"Réclamé par {worker_id} · attente ACK."
+                if worker_id
+                else "Réclamé par un worker · attente ACK."
+            )
+        elif phase == "running":
+            details = []
+            if stage:
+                details.append(str(stage))
+            if progress is not None:
+                details.append(f"{progress:g} %")
+            message = "En cours" + (
+                " · " + " · ".join(details)
+                if details
+                else "."
+            )
+        elif phase == "review_required":
+            message = "Résultat prêt à revoir."
+        elif phase == "needs_attention":
+            message = "Une action opérateur est requise."
+        elif phase == "done":
+            message = "Projet terminé."
+        else:
+            message = "Préparation de l’exécution."
+
+        return {
+            "schema_version":"production-os/production-status/v1",
+            "project":project,
+            "runtime":{
+                "phase":phase,
+                "message":message,
+                "workflow_status":workflow_status or None,
+                "task_status":task_status or None,
+                "job_key":job_key or None,
+                "job_status":job_status or None,
+                "worker_id":worker_id,
+                "attempt":int(attempt) if attempt is not None else None,
+                "stage":stage,
+                "progress_percent":progress,
+                "last_telemetry_at":telemetry_at,
+                "queue_position":queue_position,
+            },
+            "generated_at":_now(),
+        }
+
     def repositories(self) -> dict:
         owner = str(
             os.getenv("PRODUCTION_OS_GITHUB_OWNER") or "dbrckk"

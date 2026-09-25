@@ -668,7 +668,7 @@ def test_last_launched_project_survives_dashboard_reload_on_same_device():
     assert "localStorage.setItem(LAST_PROJECT_KEY,value)" in DASHBOARD_HTML
     assert "async function loadLastProduction" in DASHBOARD_HTML
     assert "localStorage.getItem(LAST_PROJECT_KEY)" in DASHBOARD_HTML
-    assert "'/v1/managed-projects/'+encodeURIComponent(projectId)" in DASHBOARD_HTML
+    assert "/v1/dashboard/production-status?project_id=" in DASHBOARD_HTML
     assert 'id="last-production-card"' in DASHBOARD_HTML
     assert "renderProductionOutcome(outcome,true)" in DASHBOARD_HTML
     assert "Ouvrir le projet" in DASHBOARD_HTML
@@ -677,5 +677,26 @@ def test_last_launched_project_survives_dashboard_reload_on_same_device():
 def test_dashboard_refresh_and_repository_change_refresh_launch_readiness():
     assert "loadLaunchReadiness()," in DASHBOARD_HTML
     assert "addEventListener('change',loadLaunchReadiness)" in DASHBOARD_HTML
-    assert "loadLastProduction();" in DASHBOARD_HTML
+    assert "setInterval(loadLastProduction,5000)" in DASHBOARD_HTML
+
+def test_last_production_tracker_renders_live_runtime_status():
+    assert "/v1/dashboard/production-status?project_id=" in DASHBOARD_HTML
+    assert "runtime.phase" in DASHBOARD_HTML
+    assert "runtime.worker_id" in DASHBOARD_HTML
+    assert "runtime.attempt" in DASHBOARD_HTML
+    assert "runtime.stage" in DASHBOARD_HTML
+    assert "runtime.progress_percent" in DASHBOARD_HTML
+    assert "runtime.queue_position" in DASHBOARD_HTML
+    assert "runtime.last_telemetry_at" in DASHBOARD_HTML
+    assert 'class="live-progress"' in DASHBOARD_HTML
+    assert 'class="live-progress-fill"' in DASHBOARD_HTML
+    assert "Résultat prêt à revoir." not in DASHBOARD_HTML
+    assert "setInterval(loadLastProduction,5000)" in DASHBOARD_HTML
+
+
+def test_last_production_tracker_keeps_server_outcome_and_project_deep_link():
+    assert "renderProductionOutcome(outcome,true)" in DASHBOARD_HTML
+    assert "openLastProduction" in DASHBOARD_HTML
+    assert "Ouvrir le projet" in DASHBOARD_HTML
+    assert "LAST_PROJECT_KEY" in DASHBOARD_HTML
 
