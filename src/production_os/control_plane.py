@@ -978,8 +978,14 @@ def make_handler(control: ControlPlane):
                             "persistent":True,
                             "token_budget":30000,
                             "agent_preference":"auto",
-                            "request_id":request_id or None,
-                            "idempotent":bool(request_id),
+                            **(
+                                {
+                                    "request_id":request_id,
+                                    "idempotent":True,
+                                }
+                                if request_id
+                                else {}
+                            ),
                         },
                     },
                 )
