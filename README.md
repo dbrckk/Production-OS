@@ -1260,6 +1260,32 @@ Terminal workflows remain readable even when older workers supplied no structure
 
 Both the Managed Projects view and the `À faire maintenant` cards render the normalized outcome. The One-tap E2E qualification also verifies that result summary and validation evidence survive a Control Plane restart.
 
+
+## Release 40 — Review guidance
+
+Managed Projects now expose server-derived review guidance alongside the normalized production outcome.
+
+The guidance is decision support, not an automatic approval system. It explains:
+
+- whether operator action is currently required;
+- the project review state (`running`, `review`, `needs_attention`, `done`);
+- a concise next-step headline and explanation;
+- which existing actions are available;
+- whether reported validation evidence passed, failed, or is inconclusive;
+- how much structured evidence is available.
+
+Evidence quality is summarized as `none`, `minimal`, `partial`, or `rich` from six observable evidence categories: result summary, validation status, tests, commits, artifacts/changed files, and pull request metadata.
+
+Examples:
+
+- active project → no operator action, production still running;
+- failed validation / `NEEDS_ATTENTION` → add a corrective instruction or retest;
+- `REVIEW_REQUIRED` with passed validation → examine the evidence, then decide whether to mark DONE or request a change;
+- `REVIEW_REQUIRED` without conclusive validation → inspect the result or retest before deciding;
+- DONE → no action required.
+
+The guidance is rendered in both Managed Projects and `À faire maintenant`, and the One-tap restart E2E verifies that review guidance remains consistent after Control Plane restart.
+
 ## Design principles
 
 - Evidence over assumptions
