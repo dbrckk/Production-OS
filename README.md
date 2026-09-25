@@ -920,6 +920,23 @@ Verified backups, rollback backups, restore candidates, activation receipts, unk
 
 The response contains only aggregate deleted counts/bytes and the refreshed storage inventory. File names and server paths remain hidden.
 
+## Release 26 — Backup filesystem capacity
+
+The backups dashboard now reports the capacity of the filesystem that stores SQLite backup artifacts.
+
+It exposes total, free, available and used bytes, plus used/available percentages. When the configured backup directory does not exist yet, Production-OS measures the nearest existing parent without creating the directory.
+
+Capacity status is informational only:
+
+```text
+ok       available >= 10%
+warning  available < 10%
+critical available < 5%
+unknown  measurement unavailable
+```
+
+No automatic cleanup, backup, restore or control action is triggered from this status. Server paths remain hidden.
+
 ## Design principles
 
 - Evidence over assumptions
