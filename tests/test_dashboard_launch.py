@@ -8,8 +8,15 @@ def test_dashboard_daily_surface_is_repo_instruction_only():
     assert 'id="agent"' not in DASHBOARD_HTML
     assert 'id="budget"' not in DASHBOARD_HTML
     assert '<label>Operator token</label>' not in DASHBOARD_HTML
-    assert "agent_preference:'codex'" in DASHBOARD_HTML
-    assert "token_budget:30000" in DASHBOARD_HTML
+    assert "api('/v1/dashboard/launch'" in DASHBOARD_HTML
+    assert "token_budget" not in DASHBOARD_HTML[
+        DASHBOARD_HTML.index("async function launchWorkflow"):
+        DASHBOARD_HTML.index("async function refreshDashboard")
+    ]
+    assert "agent_preference" not in DASHBOARD_HTML[
+        DASHBOARD_HTML.index("async function launchWorkflow"):
+        DASHBOARD_HTML.index("async function refreshDashboard")
+    ]
     assert 'id="worker-status"' in DASHBOARD_HTML
     assert "visual-asset-production" in DASHBOARD_HTML
     assert "visual-asset-3d-production" in DASHBOARD_HTML
@@ -101,7 +108,7 @@ def test_dashboard_v2_surfaces_runtime_health_and_recent_runs():
 def test_dashboard_v2_explains_offline_worker_and_queued_launch():
     assert 'id="runtime-warning"' in DASHBOARD_HTML
     assert "Worker hors ligne" in DASHBOARD_HTML
-    assert "Production créée · en attente du worker" in DASHBOARD_HTML
+    assert "Production persistante créée · en attente du worker" in DASHBOARD_HTML
 
 
 def test_dashboard_v2_has_readable_auth_errors():

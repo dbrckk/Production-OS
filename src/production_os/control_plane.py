@@ -677,6 +677,47 @@ def make_handler(control: ControlPlane):
         def do_POST(self) -> None:
             parsed = urlparse(self.path)
 
+            if parsed.path == "/v1/dashboard/launch":
+                principal = self._require("operator")
+                if principal is None:
+                    return
+                try:
+                    body = self._read_json()
+                    project = control.managed_projects.create(
+                        repository=str(body.get("repository") or ""),
+                        final_goal=str(body.get("instruction") or ""),
+                        token_budget=30000,
+                        agent_preference="auto",
+                        requested_by=(
+                            f"{principal.role}:{principal.name}"
+                        ),
+                    )
+                except ValueError as exc:
+                    self._send(
+                        HTTPStatus.BAD_REQUEST,
+                        {"error":str(exc)},
+                    )
+                    return
+                except RuntimeError as exc:
+                    self._send(
+                        HTTPStatus.CONFLICT,
+                        {"error":str(exc)},
+                    )
+                    return
+                self._send(
+                    HTTPStatus.CREATED,
+                    {
+                        "project":project,
+                        "launch":{
+                            "mode":"managed-project",
+                            "persistent":True,
+                            "token_budget":30000,
+                            "agent_preference":"auto",
+                        },
+                    },
+                )
+                return
+
             if parsed.path == "/v1/managed-projects":
                 principal = self._require("operator")
                 if principal is None:

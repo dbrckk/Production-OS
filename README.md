@@ -1046,6 +1046,38 @@ The incident targets the backup-storage surface and is automatically resolved wh
 
 This remains observational only. Capacity incidents never trigger retention cleanup, temp cleanup, backup creation, restore staging, restore activation, pause, retry, cancellation or any other control action automatically.
 
+
+## Release 31 — One-tap Production
+
+The mobile dashboard now treats production launch as the primary action.
+
+The main path is intentionally reduced to:
+
+```text
+Repository
+Instruction
+Lancer la production
+```
+
+The browser no longer constructs a raw workflow or chooses execution parameters. It sends only the repository and instruction to:
+
+```text
+POST /v1/dashboard/launch
+```
+
+The control plane then creates a persistent Managed Project with server-owned defaults:
+
+```text
+token_budget = 30000
+agent_preference = auto
+```
+
+The managed project is persisted before dispatch and remains available if the browser closes or refreshes. If no worker is currently online, the production remains queued instead of being lost.
+
+Advanced token-budget and agent controls remain available in the Managed Projects view but are collapsed by default. The primary mobile surface exposes no per-run technical tuning.
+
+The one-tap endpoint requires the operator role. Viewer and worker credentials cannot launch production.
+
 ## Design principles
 
 - Evidence over assumptions

@@ -328,7 +328,8 @@ def test_mobile_launch_flow_remains_repo_plus_instruction():
     assert 'id="instruction"' in DASHBOARD_HTML
     assert "Lancer la production" in DASHBOARD_HTML
     assert "async function launchWorkflow" in DASHBOARD_HTML
-    assert "final_goal:task" in DASHBOARD_HTML
+    assert "api('/v1/dashboard/launch'" in DASHBOARD_HTML
+    assert "instruction:task" in DASHBOARD_HTML
 
 
 def test_overview_renders_storage_maintenance_card():
@@ -535,4 +536,31 @@ def test_backup_retention_cleanup_ui_requires_preview_fingerprint():
     assert "backupRetention.candidate_fingerprint" in DASHBOARD_HTML
     assert "Nettoyer anciens backups" in DASHBOARD_HTML
     assert "this.dataset.retentionFingerprint" in DASHBOARD_HTML
+
+def test_one_tap_production_is_primary_and_uses_server_managed_launch():
+    assert 'id="one-tap-production"' in DASHBOARD_HTML
+    assert DASHBOARD_HTML.index('id="one-tap-production"') < DASHBOARD_HTML.index('class="v3-nav"')
+    assert "async function launchWorkflow" in DASHBOARD_HTML
+    assert "api('/v1/dashboard/launch'" in DASHBOARD_HTML
+    assert "repository:repository" in DASHBOARD_HTML
+    assert "instruction:task" in DASHBOARD_HTML
+    launch_start = DASHBOARD_HTML.index("async function launchWorkflow")
+    launch_end = DASHBOARD_HTML.index("async function refreshDashboard", launch_start)
+    launch_body = DASHBOARD_HTML[launch_start:launch_end]
+    assert "/v1/workflows" not in launch_body
+    assert "token_budget" not in launch_body
+    assert "agent_preference" not in launch_body
+    assert "Production lancée et persistante" in launch_body
+
+
+def test_managed_technical_creation_options_are_collapsed_by_default():
+    assert '<details class="advanced-options">' in DASHBOARD_HTML
+    assert "<summary>Options avancées</summary>" in DASHBOARD_HTML
+    assert 'id="managed-create-budget"' in DASHBOARD_HTML
+    assert 'id="managed-create-agent"' in DASHBOARD_HTML
+    assert '<details class="advanced-options" open' not in DASHBOARD_HTML
+
+
+def test_managed_view_can_be_restored_from_navigation_query():
+    assert '["overview","projects","workers","autopilot","managed","activity"]' in DASHBOARD_HTML
 
