@@ -375,6 +375,7 @@ class ManagedProjectService:
         token_budget: int,
         agent_preference: str = "auto",
         requested_by: str = "operator",
+        project_id: str | None = None,
     ) -> dict:
         repository = self._validate_repository(repository)
         final_goal = str(final_goal or "").strip()
@@ -383,11 +384,22 @@ class ManagedProjectService:
         budget = _positive_int(token_budget, field="token_budget")
         agent = str(agent_preference or "auto").strip() or "auto"
         actor = str(requested_by or "operator").strip() or "operator"
-        project_id = uuid4().hex
+        if project_id is None:
+            project_id = uuid4().hex
+        else:
+            project_id = str(project_id or "").strip()
+            if (
+                not (8 <= len(project_id) <= 64)
+                or any(
+                    not (char.isalnum() or char in {"-", "_"})
+                    for char in project_id
+                )
+            ):
+                raise ValueError("project_id is invalid")
         now = _now()
 
         with self.backend.transaction() as db:
-            _execute(
+            inserted = _execute(
                 db,
                 self.backend,
                 """INSERT INTO managed_projects(
@@ -395,7 +407,8 @@ class ManagedProjectService:
                     agent_preference, status, current_workflow_id,
                     generation, created_by, created_at, updated_at,
                     reviewed_at, completed_at, completed_by
-                ) VALUES(?,?,?,?,?,'ACTIVE',NULL,1,?,?,?,NULL,NULL,NULL)""",
+                ) VALUES(?,?,?,?,?,'ACTIVE',NULL,1,?,?,?,NULL,NULL,NULL)
+                ON CONFLICT(id) DO NOTHING""",
                 (
                     project_id,
                     repository,
@@ -407,6 +420,40 @@ class ManagedProjectService:
                     now,
                 ),
             )
+            created_row = inserted.rowcount == 1
+            if not created_row:
+                existing = _execute(
+                    db,
+                    self.backend,
+                    """SELECT repository, final_goal, token_budget,
+                              agent_preference, created_by,
+                              current_workflow_id
+                       FROM managed_projects
+                       WHERE id=?""",
+                    (project_id,),
+                ).fetchone()
+                if existing is None:
+                    raise RuntimeError(
+                        "idempotent managed project reservation disappeared"
+                    )
+                matches = (
+                    str(existing["repository"]) == repository
+                    and str(existing["final_goal"]) == final_goal
+                    and int(existing["token_budget"]) == budget
+                    and str(existing["agent_preference"]) == agent
+                    and str(existing["created_by"]) == actor
+                )
+                if not matches:
+                    raise RuntimeError(
+                        "request_id already used with different launch parameters"
+                    )
+                if not existing["current_workflow_id"]:
+                    raise RuntimeError(
+                        "idempotent launch initialization is still in progress"
+                    )
+
+        if not created_row:
+            return self.get(project_id)
 
         try:
             workflow = self._create_workflow(
