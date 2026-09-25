@@ -849,7 +849,10 @@ class WorkflowEngine:
         task: WorkflowTaskSpec,
     ) -> dict:
         self.get(workflow_id)
-        self._validate([task])
+        if task.task_id in task.dependencies:
+            raise ValueError(
+                f"task {task.task_id} cannot depend on itself"
+            )
         now = _now()
         with self.backend.transaction() as db:
             existing = _execute(
