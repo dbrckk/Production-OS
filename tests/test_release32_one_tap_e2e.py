@@ -144,6 +144,13 @@ def test_release32_one_tap_launch_worker_completion_survives_restart(tmp_path):
         assert project_after_worker["current_workflow"]["status"] == "succeeded"
         assert project_after_worker["current_workflow_id"] == workflow_id
         assert project_after_worker["usage"]["total_tokens"] == 3210
+        assert project_after_worker["outcome"]["available"] is True
+        assert project_after_worker["outcome"]["summary"] == "implemented and validated"
+        assert project_after_worker["outcome"]["validation_status"] == "passed"
+        assert project_after_worker["outcome"]["validation_tests"] == [
+            "unit",
+            "integration",
+        ]
 
         status, listed = _request(
             base,
@@ -170,5 +177,8 @@ def test_release32_one_tap_launch_worker_completion_survives_restart(tmp_path):
     assert restored["current_workflow_id"] == workflow_id
     assert restored["current_workflow"]["status"] == "succeeded"
     assert restored["usage"]["total_tokens"] == 3210
+    assert restored["outcome"]["summary"] == "implemented and validated"
+    assert restored["outcome"]["validation_status"] == "passed"
+    assert restored["outcome"]["validation_tests"] == ["unit", "integration"]
     assert restored["runs"][0]["kind"] == "initial"
     assert restored["runs"][0]["workflow_id"] == workflow_id
