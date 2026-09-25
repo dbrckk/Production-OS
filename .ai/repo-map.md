@@ -2918,10 +2918,27 @@ data = json.loads(path.read_text(encoding="utf-8"))
 ⋮----
 allowed = {
 ⋮----
+def _safe_activation_receipt(path: Path) -> dict | None
+⋮----
+required = {
+⋮----
+candidate_id = str(data.get("candidate_id") or "")
+source_backup_id = str(data.get("source_backup_id") or "")
+rollback_backup_id = str(data.get("rollback_backup_id") or "")
+activated_at = str(data.get("activated_at") or "")
+schema_version = str(data.get("schema_version") or "")
+digest = str(data.get("sha256") or "").lower()
+⋮----
+directory = _configured_dir()
+⋮----
+bounded = max(1, min(200, int(limit)))
+rows = []
+⋮----
+item = _safe_activation_receipt(path)
+⋮----
 def backup_readiness(backend) -> dict
 ⋮----
 kind = _backend_kind(backend)
-directory = _configured_dir()
 ⋮----
 manifests = []
 ⋮----
@@ -8607,6 +8624,10 @@ audit = control.dashboard_store.control_audit_events(limit=20)
 event = next(
 ⋮----
 source = backup_dir / f"{backup_id}.sqlite"
+⋮----
+receipt = {
+⋮----
+def test_backup_http_surface_has_no_restore_activation_route(tmp_path, monkeypatch)
 ````
 
 ## File: tests/test_dashboard_backups.py
@@ -8720,6 +8741,11 @@ manifest = json.loads(
 failed = {"done":False}
 ⋮----
 verified = verify_staged_restore_candidate(
+⋮----
+older = {
+newer = {
+⋮----
+rows = restore_activation_history(backend)
 ````
 
 ## File: tests/test_dashboard_control_api.py
@@ -9888,6 +9914,8 @@ def test_managed_project_instruction_uses_inline_textarea_not_prompt()
 def test_managed_projects_mobile_view_renders_generation_history()
 ⋮----
 def test_managed_repository_picker_reuses_server_repository_discovery()
+⋮----
+def test_backup_overview_renders_restore_activation_history()
 ````
 
 ## File: tests/test_dashboard_usage.py
@@ -13341,6 +13369,25 @@ sha256
 ```
 
 No credentials, paths, DSNs, authorization headers or arbitrary request payloads are stored.
+
+## Release 23 — Restore activation history
+
+The existing backups dashboard now exposes successful offline restore activations as read-only history.
+
+History is derived only from Release 22 activation receipts and contains:
+
+```text
+candidate_id
+source_backup_id
+rollback_backup_id
+activated_at
+schema_version
+sha256
+```
+
+Malformed receipts are ignored. No paths, DSNs, credentials, tokens or arbitrary payloads are exposed.
+
+This is visibility only. Restore activation remains unavailable over HTTP and continues to require the offline CLI path, exact confirmation and exclusive maintenance lock.
 
 ## Design principles
 

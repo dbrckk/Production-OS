@@ -1037,6 +1037,10 @@ audit = control.dashboard_store.control_audit_events(limit=20)
 event = next(
 ⋮----
 source = backup_dir / f"{backup_id}.sqlite"
+⋮----
+receipt = {
+⋮----
+def test_backup_http_surface_has_no_restore_activation_route(tmp_path, monkeypatch)
 ```
 
 ## File: test_dashboard_backups.py
@@ -1150,6 +1154,11 @@ manifest = json.loads(
 failed = {"done":False}
 ⋮----
 verified = verify_staged_restore_candidate(
+⋮----
+older = {
+newer = {
+⋮----
+rows = restore_activation_history(backend)
 ```
 
 ## File: test_dashboard_control_api.py
@@ -2318,6 +2327,8 @@ def test_managed_project_instruction_uses_inline_textarea_not_prompt()
 def test_managed_projects_mobile_view_renders_generation_history()
 ⋮----
 def test_managed_repository_picker_reuses_server_repository_discovery()
+⋮----
+def test_backup_overview_renders_restore_activation_history()
 ```
 
 ## File: test_dashboard_usage.py

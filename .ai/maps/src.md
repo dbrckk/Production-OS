@@ -2399,10 +2399,27 @@ data = json.loads(path.read_text(encoding="utf-8"))
 ⋮----
 allowed = {
 ⋮----
+def _safe_activation_receipt(path: Path) -> dict | None
+⋮----
+required = {
+⋮----
+candidate_id = str(data.get("candidate_id") or "")
+source_backup_id = str(data.get("source_backup_id") or "")
+rollback_backup_id = str(data.get("rollback_backup_id") or "")
+activated_at = str(data.get("activated_at") or "")
+schema_version = str(data.get("schema_version") or "")
+digest = str(data.get("sha256") or "").lower()
+⋮----
+directory = _configured_dir()
+⋮----
+bounded = max(1, min(200, int(limit)))
+rows = []
+⋮----
+item = _safe_activation_receipt(path)
+⋮----
 def backup_readiness(backend) -> dict
 ⋮----
 kind = _backend_kind(backend)
-directory = _configured_dir()
 ⋮----
 manifests = []
 ⋮----

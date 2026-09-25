@@ -2,23 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat: add secure Render deployment bootstrap",
-      "terms": [
-        "add",
-        "bootstrap",
-        "deployment",
-        "feat",
-        "render",
-        "secure"
-      ],
-      "tests": [],
-      "useful": [
-        "scripts/render-start.py",
-        "tests/test_render_start.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "test: cover asset production classification",
       "terms": [
         "asset",
@@ -1259,6 +1242,27 @@
         "src/production_os/dashboard_backups.py",
         "tests/test_dashboard_backups.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "feat: release 23 restore activation history",
+      "terms": [
+        "23",
+        "activation",
+        "feat",
+        "history",
+        "release",
+        "restore"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/dashboard_backups.py",
+        "src/production_os/dashboard_service.py",
+        "src/production_os/dashboard_ui.py",
+        "tests/test_dashboard_backup_api.py",
+        "tests/test_dashboard_backups.py",
+        "tests/test_dashboard_ui_v3.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1352,15 +1356,27 @@
       "src/production_os/dashboard_backups.py": 4,
       "tests/test_dashboard_backups.py": 4
     },
+    "23": {
+      "src/production_os/dashboard_backups.py": 4,
+      "src/production_os/dashboard_service.py": 4,
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_backup_api.py": 4,
+      "tests/test_dashboard_backups.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4
+    },
     "accept": {
       "src/production_os/asset_forge.py": 4,
       "tests/test_asset_forge.py": 4
     },
     "activation": {
       "src/production_os/cli.py": 4,
-      "src/production_os/dashboard_backups.py": 4,
+      "src/production_os/dashboard_backups.py": 8,
+      "src/production_os/dashboard_service.py": 4,
+      "src/production_os/dashboard_ui.py": 4,
       "tests/test_cli.py": 4,
-      "tests/test_dashboard_backups.py": 4,
+      "tests/test_dashboard_backup_api.py": 4,
+      "tests/test_dashboard_backups.py": 8,
+      "tests/test_dashboard_ui_v3.py": 4,
       "tests/test_release21_offline_restore_e2e.py": 4
     },
     "add": {
@@ -1780,7 +1796,7 @@
       "src/production_os/cli.py": 20,
       "src/production_os/control_plane.py": 40,
       "src/production_os/dashboard_alerts.py": 4,
-      "src/production_os/dashboard_backups.py": 20,
+      "src/production_os/dashboard_backups.py": 24,
       "src/production_os/dashboard_control.py": 4,
       "src/production_os/dashboard_github.py": 4,
       "src/production_os/dashboard_health.py": 4,
@@ -1804,8 +1820,8 @@
       "tests/test_cli.py": 4,
       "tests/test_dashboard_alerts.py": 4,
       "tests/test_dashboard_api.py": 16,
-      "tests/test_dashboard_backup_api.py": 12,
-      "tests/test_dashboard_backups.py": 20,
+      "tests/test_dashboard_backup_api.py": 16,
+      "tests/test_dashboard_backups.py": 24,
       "tests/test_dashboard_control.py": 4,
       "tests/test_dashboard_control_api.py": 8,
       "tests/test_dashboard_control_audit.py": 24,
@@ -1883,17 +1899,20 @@
     },
     "history": {
       "src/production_os/control_plane.py": 8,
-      "src/production_os/dashboard_service.py": 4,
+      "src/production_os/dashboard_backups.py": 4,
+      "src/production_os/dashboard_service.py": 8,
       "src/production_os/dashboard_store.py": 4,
-      "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/dashboard_ui.py": 8,
       "src/production_os/postgres_backend.py": 4,
       "src/production_os/sqlite_backend.py": 4,
+      "tests/test_dashboard_backup_api.py": 4,
+      "tests/test_dashboard_backups.py": 4,
       "tests/test_dashboard_control_audit.py": 4,
       "tests/test_dashboard_launch.py": 4,
       "tests/test_dashboard_remediation_api.py": 4,
       "tests/test_dashboard_remediation_history.py": 4,
       "tests/test_dashboard_store_postgres.py": 4,
-      "tests/test_dashboard_ui_v3.py": 4
+      "tests/test_dashboard_ui_v3.py": 8
     },
     "html": {
       "src/production_os/asset_forge.py": 4,
@@ -2220,7 +2239,7 @@
       "src/production_os/cli.py": 4,
       "src/production_os/control_plane.py": 40,
       "src/production_os/dashboard_alerts.py": 4,
-      "src/production_os/dashboard_backups.py": 20,
+      "src/production_os/dashboard_backups.py": 24,
       "src/production_os/dashboard_control.py": 4,
       "src/production_os/dashboard_github.py": 4,
       "src/production_os/dashboard_health.py": 4,
@@ -2242,8 +2261,8 @@
       "tests/test_cli.py": 4,
       "tests/test_dashboard_alerts.py": 4,
       "tests/test_dashboard_api.py": 12,
-      "tests/test_dashboard_backup_api.py": 12,
-      "tests/test_dashboard_backups.py": 20,
+      "tests/test_dashboard_backup_api.py": 16,
+      "tests/test_dashboard_backups.py": 24,
       "tests/test_dashboard_control.py": 4,
       "tests/test_dashboard_control_api.py": 8,
       "tests/test_dashboard_control_audit.py": 20,
@@ -2338,13 +2357,13 @@
     "restore": {
       "src/production_os/cli.py": 4,
       "src/production_os/control_plane.py": 8,
-      "src/production_os/dashboard_backups.py": 16,
-      "src/production_os/dashboard_service.py": 8,
-      "src/production_os/dashboard_ui.py": 8,
+      "src/production_os/dashboard_backups.py": 20,
+      "src/production_os/dashboard_service.py": 12,
+      "src/production_os/dashboard_ui.py": 12,
       "tests/test_cli.py": 4,
-      "tests/test_dashboard_backup_api.py": 8,
-      "tests/test_dashboard_backups.py": 16,
-      "tests/test_dashboard_ui_v3.py": 8,
+      "tests/test_dashboard_backup_api.py": 12,
+      "tests/test_dashboard_backups.py": 20,
+      "tests/test_dashboard_ui_v3.py": 12,
       "tests/test_release19_restore_staging_e2e.py": 4,
       "tests/test_release21_offline_restore_e2e.py": 4
     },
