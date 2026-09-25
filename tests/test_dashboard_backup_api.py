@@ -229,3 +229,98 @@ def test_restore_readiness_api_rejects_tampered_backup_and_audits_failure(
         server.shutdown()
         server.server_close()
         thread.join(timeout=2)
+
+
+def test_restore_staging_requires_operator_and_exact_confirmation(
+    tmp_path,
+    monkeypatch,
+):
+    backup_dir = tmp_path / "backups"
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    control = ControlPlane(str(tmp_path / "control.sqlite"), authorizer=_auth())
+    created = control.dashboard.create_verified_backup()
+    backup_id = created["backup_id"]
+    server, thread, base = _server(control)
+    try:
+        path = f"/v1/dashboard/backups/{backup_id}/stage-restore"
+        status, _ = _request(
+            base,
+            path,
+            "viewer",
+            method="POST",
+            body={"confirm":"STAGE_VERIFIED_RESTORE"},
+        )
+        assert status == 403
+
+        before = sorted(p.name for p in backup_dir.iterdir())
+        status, payload = _request(
+            base,
+            path,
+            "operator",
+            method="POST",
+            body={"confirm":"wrong"},
+        )
+        assert status == 400
+        assert "confirmation" in payload["error"]
+        assert sorted(p.name for p in backup_dir.iterdir()) == before
+
+        status, staged = _request(
+            base,
+            path,
+            "operator",
+            method="POST",
+            body={"confirm":"STAGE_VERIFIED_RESTORE"},
+        )
+        assert status == 201
+        assert staged["verified"] is True
+        assert staged["activation_enabled"] is False
+        assert staged["source_backup_id"] == backup_id
+        assert "path" not in staged
+
+        audit = control.dashboard_store.control_audit_events(limit=20)
+        event = next(
+            row for row in audit
+            if row["action"] == "backup-stage-restore"
+        )
+        assert event["outcome"] == "succeeded"
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+
+
+def test_restore_staging_rejects_tampered_backup_and_audits_failure(
+    tmp_path,
+    monkeypatch,
+):
+    backup_dir = tmp_path / "backups"
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    control = ControlPlane(str(tmp_path / "control.sqlite"), authorizer=_auth())
+    created = control.dashboard.create_verified_backup()
+    backup_id = created["backup_id"]
+    source = backup_dir / f"{backup_id}.sqlite"
+    source.write_bytes(source.read_bytes() + b"tamper")
+    server, thread, base = _server(control)
+    try:
+        status, payload = _request(
+            base,
+            f"/v1/dashboard/backups/{backup_id}/stage-restore",
+            "operator",
+            method="POST",
+            body={"confirm":"STAGE_VERIFIED_RESTORE"},
+        )
+        assert status == 409
+        assert payload["error"]
+        assert list(backup_dir.glob("restore-*.sqlite")) == []
+
+        audit = control.dashboard_store.control_audit_events(limit=20)
+        event = next(
+            row for row in audit
+            if row["action"] == "backup-stage-restore"
+        )
+        assert event["outcome"] == "failed"
+        assert event["error_code"] == "backup_stage_restore_failed"
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)

@@ -386,18 +386,24 @@ def test_backup_ui_does_not_render_server_paths():
     assert "database_path" not in DASHBOARD_HTML
 
 
-def test_backup_catalog_exposes_restore_readiness_verification_only():
+def test_backup_catalog_exposes_restore_readiness_and_safe_staging():
     assert "verifyBackupReadiness" in DASHBOARD_HTML
     assert "VERIFY_BACKUP_FOR_RESTORE" in DASHBOARD_HTML
     assert "Vérifier restaurabilité" in DASHBOARD_HTML
     assert "/verify" in DASHBOARD_HTML
     assert "Aucune restauration ne sera exécutée" in DASHBOARD_HTML
     assert "restauration toujours désactivée" in DASHBOARD_HTML
+    assert "stageBackupRestore" in DASHBOARD_HTML
+    assert "STAGE_VERIFIED_RESTORE" in DASHBOARD_HTML
+    assert "Préparer restauration" in DASHBOARD_HTML
+    assert "/stage-restore" in DASHBOARD_HTML
+    assert "activation désactivée" in DASHBOARD_HTML
 
 
-def test_restore_readiness_ui_never_exposes_restore_action_or_paths():
+def test_restore_staging_ui_never_exposes_live_activation_or_paths():
     assert "Restaurer maintenant" not in DASHBOARD_HTML
     assert "RESTORE_BACKUP" not in DASHBOARD_HTML
+    assert "ACTIVATE_RESTORE" not in DASHBOARD_HTML
     assert "PRODUCTION_OS_BACKUP_DIR" not in DASHBOARD_HTML
     assert "backup_path" not in DASHBOARD_HTML
 

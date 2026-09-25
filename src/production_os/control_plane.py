@@ -975,6 +975,59 @@ def make_handler(control: ControlPlane):
                     and parts[0] == "v1"
                     and parts[1] == "dashboard"
                     and parts[2] == "backups"
+                    and parts[4] == "stage-restore"
+                ):
+                    principal = self._require("operator")
+                    if principal is None:
+                        return
+                    if str(body.get("confirm") or "") != "STAGE_VERIFIED_RESTORE":
+                        self._send(
+                            HTTPStatus.BAD_REQUEST,
+                            {"error":"exact restore staging confirmation required"},
+                        )
+                        return
+                    backup_id = parts[3]
+                    requested_by = f"{principal.role}:{principal.name}"
+                    audit = control.dashboard_store.append_control_audit(
+                        action="backup-stage-restore",
+                        worker_id="control-plane",
+                        requested_by=requested_by,
+                        outcome="requested",
+                    )
+                    try:
+                        result = control.dashboard.stage_backup_restore(
+                            backup_id
+                        )
+                    except BackupError as exc:
+                        control.dashboard_store.update_control_audit(
+                            audit["id"],
+                            outcome="failed",
+                            error_code="backup_stage_restore_failed",
+                        )
+                        self._send(
+                            HTTPStatus.CONFLICT,
+                            {"error":str(exc)},
+                        )
+                        return
+                    except Exception:
+                        control.dashboard_store.update_control_audit(
+                            audit["id"],
+                            outcome="failed",
+                            error_code="backup_stage_restore_failed",
+                        )
+                        raise
+                    control.dashboard_store.update_control_audit(
+                        audit["id"],
+                        outcome="succeeded",
+                    )
+                    self._send(HTTPStatus.CREATED, result)
+                    return
+
+                if (
+                    len(parts) == 5
+                    and parts[0] == "v1"
+                    and parts[1] == "dashboard"
+                    and parts[2] == "backups"
                     and parts[4] == "verify"
                 ):
                     principal = self._require("operator")

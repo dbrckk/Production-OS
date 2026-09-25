@@ -757,6 +757,45 @@ Restore remains disabled in Release 15. PostgreSQL restore verification remains 
 
 No database path, backup path, DSN, token, password or secret is returned by the API or rendered in the dashboard.
 
+## Release 19 — Safe restore staging
+
+Verified SQLite backups can be materialized into an isolated restore candidate without mutating the live database.
+
+The operator action:
+
+```text
+POST /v1/dashboard/backups/{backup_id}/stage-restore
+confirm = STAGE_VERIFIED_RESTORE
+```
+
+performs:
+
+1. Existing backup manifest, size, SHA-256 and SQLite integrity verification.
+2. SQLite backup-copy into a server-generated temporary candidate.
+3. Candidate `PRAGMA integrity_check`.
+4. Candidate schema version read.
+5. Candidate SHA-256 and size calculation.
+6. Atomic rename inside `PRODUCTION_OS_BACKUP_DIR`.
+
+The browser never provides or receives filesystem paths.
+
+The returned candidate metadata includes:
+
+```text
+candidate_id
+source_backup_id
+backend_kind
+verified
+integrity
+schema_version
+size_bytes
+sha256
+staged_at
+activation_enabled = false
+```
+
+Restore staging is deliberately non-destructive. It never swaps or overwrites the active Production-OS database. Live activation remains disabled and must be designed as a separate maintenance-mode operation.
+
 ## Design principles
 
 - Evidence over assumptions
