@@ -1164,6 +1164,26 @@ Two end-to-end scenarios are covered:
 
 This verifies that restarting the Control Plane itself does not own or reset the production lifecycle.
 
+
+## Release 36 — Worker session reconciliation
+
+Production-OS now supports explicit worker-session reconciliation after a worker process restart.
+
+`POST /v1/workers/register` accepts an optional `active_job_keys` list. When supplied, the list is treated as the authoritative set of jobs still held by the restarted worker process.
+
+For that explicit reconciliation path:
+
+- persisted `claimed` or `acked` jobs owned by the worker but absent from `active_job_keys` are fenced and recovered;
+- ACKed executions that disappeared with the old worker process are closed as `worker_restarted`;
+- the worker's persisted `active_tasks` count is reset to the number of reported active jobs;
+- retained active jobs are not duplicated;
+- recovered jobs preserve their job key, Managed Project, workflow and generation;
+- delivery attempts remain monotonic and still respect the dead-letter ceiling.
+
+The field is optional for backwards compatibility. Existing registration calls that do not report `active_job_keys` retain their previous behavior.
+
+A dedicated E2E test covers simultaneous Control Plane + worker restart with two One-tap projects. The restarted worker reports an empty active set, its lost ACKed job is immediately recovered, and two workers then finish both projects without creating new workflows.
+
 ## Design principles
 
 - Evidence over assumptions
