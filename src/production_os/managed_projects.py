@@ -93,6 +93,175 @@ def _usage_from_result(result: dict | None) -> dict:
     return normalized
 
 
+def _clean_commit_shas(values) -> list[str]:
+    if not isinstance(values, (list, tuple)):
+        return []
+    clean: list[str] = []
+    for raw in values:
+        value = (
+            str(raw.get("sha") or "").strip().lower()
+            if isinstance(raw, dict)
+            else str(raw or "").strip().lower()
+        )
+        if (
+            7 <= len(value) <= 40
+            and all(ch in "0123456789abcdef" for ch in value)
+            and value not in clean
+        ):
+            clean.append(value)
+    return clean[:20]
+
+
+def _outcome_from_workflow(workflow: dict | None) -> dict:
+    if not isinstance(workflow, dict):
+        return {
+            "available":False,
+            "workflow_status":None,
+            "summary":None,
+            "validation_status":None,
+            "validation_tests":[],
+            "commit_shas":[],
+            "artifact_count":0,
+            "artifact_names":[],
+            "changed_file_count":0,
+            "pull_request":None,
+            "completed_at":None,
+        }
+
+    results = [
+        task.get("result")
+        for task in workflow.get("tasks", [])
+        if isinstance(task, dict) and isinstance(task.get("result"), dict)
+    ]
+    result = results[-1] if results else {}
+    evidence = (
+        result.get("evidence")
+        if isinstance(result.get("evidence"), dict)
+        else {}
+    )
+    summary = (
+        result.get("summary")
+        or evidence.get("summary")
+        or result.get("message")
+        or evidence.get("message")
+    )
+    summary = str(summary).strip() if summary is not None else None
+    if not summary:
+        summary = None
+
+    validation = result.get("validation")
+    if not isinstance(validation, dict):
+        validation = evidence.get("validation")
+    if not isinstance(validation, dict):
+        validation = {}
+    validation_status = (
+        validation.get("status")
+        or result.get("validation_status")
+        or evidence.get("validation_status")
+    )
+    validation_status = (
+        str(validation_status).strip()
+        if validation_status is not None
+        else None
+    ) or None
+    raw_tests = (
+        validation.get("tests")
+        or result.get("tests")
+        or evidence.get("tests")
+    )
+    validation_tests = (
+        [str(item).strip() for item in raw_tests if str(item).strip()][:20]
+        if isinstance(raw_tests, list)
+        else []
+    )
+
+    raw_commits = (
+        result.get("commit_shas")
+        or evidence.get("commit_shas")
+        or result.get("commits")
+        or evidence.get("commits")
+        or result.get("commit_sha")
+        or evidence.get("commit_sha")
+    )
+    if isinstance(raw_commits, (str, dict)):
+        raw_commits = [raw_commits]
+    commit_shas = _clean_commit_shas(raw_commits)
+
+    artifacts = [
+        artifact
+        for artifact in workflow.get("artifacts", [])
+        if isinstance(artifact, dict)
+    ]
+    artifact_names = [
+        str(artifact.get("name") or "").strip()
+        for artifact in artifacts
+        if str(artifact.get("name") or "").strip()
+    ][:20]
+
+    changed_files = (
+        result.get("changed_files")
+        or evidence.get("changed_files")
+        or []
+    )
+    changed_file_count = (
+        len(changed_files)
+        if isinstance(changed_files, (list, tuple))
+        else 0
+    )
+
+    pr = result.get("pull_request") or evidence.get("pull_request")
+    pull_request = None
+    if isinstance(pr, dict):
+        number = pr.get("number")
+        state = str(pr.get("state") or "").strip() or None
+    else:
+        number = (
+            result.get("pull_request_number")
+            or evidence.get("pull_request_number")
+            or result.get("pr_number")
+            or evidence.get("pr_number")
+        )
+        state = (
+            str(
+                result.get("pull_request_state")
+                or evidence.get("pull_request_state")
+                or ""
+            ).strip()
+            or None
+        )
+    try:
+        number = int(number) if number is not None else None
+    except (TypeError, ValueError):
+        number = None
+    if number is not None or state is not None:
+        pull_request = {"number":number, "state":state}
+
+    workflow_status = str(workflow.get("status") or "").strip() or None
+    terminal = workflow_status in {"succeeded", "failed", "cancelled"}
+    available = terminal or any((
+        summary,
+        validation_status,
+        validation_tests,
+        commit_shas,
+        artifact_names,
+        changed_file_count,
+        pull_request,
+    ))
+    return {
+        "available":bool(available),
+        "workflow_status":workflow_status,
+        "summary":summary,
+        "validation_status":validation_status,
+        "validation_tests":validation_tests,
+        "commit_shas":commit_shas,
+        "artifact_count":len(artifacts),
+        "artifact_names":artifact_names,
+        "changed_file_count":changed_file_count,
+        "pull_request":pull_request,
+        "completed_at":workflow.get("updated_at") if terminal else None,
+    }
+
+
 class ManagedProjectService:
     def __init__(self, workflows: WorkflowEngine):
         self.workflows = workflows
@@ -560,6 +729,7 @@ class ManagedProjectService:
             "completed_at":project.get("completed_at"),
             "runs":runs,
             "current_workflow":current_workflow,
+            "outcome":_outcome_from_workflow(current_workflow),
         }
 
     def list(self, *, limit: int = 100) -> list[dict]:

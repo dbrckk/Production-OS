@@ -1238,6 +1238,28 @@ To keep the mobile surface usable during queue pressure, the feed shows at most 
 
 All contextual mutations reuse existing server contracts and confirmations. In particular, marking a project complete still requires the exact `MARK_PROJECT_DONE` confirmation, and incident remediation still uses the server-backed playbook validation/audit path.
 
+
+## Release 39 — Production outcome summaries
+
+Managed Projects now expose a normalized outcome for the current workflow so the dashboard can explain what was actually delivered instead of showing only a lifecycle state.
+
+The outcome contract is additive and tolerant of existing worker result formats. It can surface:
+
+- workflow status;
+- concise result summary;
+- validation status and test names;
+- commit SHAs;
+- artifact count and artifact names;
+- changed-file count without exposing file paths;
+- pull request number/state when supplied;
+- terminal completion timestamp.
+
+No new worker result schema is required. The normalizer accepts both structured fields such as `summary`, `validation`, `commit_shas` and `pull_request`, and common compact alternatives such as `message`, `validation_status`, `commit_sha` and `pr_number`. Nested `evidence` is also supported.
+
+Terminal workflows remain readable even when older workers supplied no structured evidence: the real workflow status is still exposed.
+
+Both the Managed Projects view and the `À faire maintenant` cards render the normalized outcome. The One-tap E2E qualification also verifies that result summary and validation evidence survive a Control Plane restart.
+
 ## Design principles
 
 - Evidence over assumptions
