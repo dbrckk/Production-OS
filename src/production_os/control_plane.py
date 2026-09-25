@@ -669,6 +669,9 @@ def make_handler(control: ControlPlane):
                         agent_preference=str(
                             body.get("agent_preference") or "auto"
                         ),
+                        requested_by=(
+                            f"{principal.role}:{principal.name}"
+                        ),
                     )
                 except ValueError as exc:
                     self._send(
@@ -693,14 +696,26 @@ def make_handler(control: ControlPlane):
                             project = control.managed_projects.add_instruction(
                                 workflow_id,
                                 str(body.get("instruction") or ""),
+                                requested_by=(
+                                    f"{principal.role}:{principal.name}"
+                                ),
                             )
                         elif action == "verify":
                             project = (
                                 control.managed_projects.request_verification(
-                                    workflow_id
+                                    workflow_id,
+                                    requested_by=(
+                                        f"{principal.role}:{principal.name}"
+                                    ),
                                 )
                             )
                         elif action == "complete":
+                            if str(body.get("confirm") or "") != "MARK_PROJECT_DONE":
+                                self._send(
+                                    HTTPStatus.BAD_REQUEST,
+                                    {"error":"confirm MARK_PROJECT_DONE required"},
+                                )
+                                return
                             project = control.managed_projects.mark_done(
                                 workflow_id,
                                 approved_by=(
