@@ -151,6 +151,11 @@ def test_release32_one_tap_launch_worker_completion_survives_restart(tmp_path):
             "unit",
             "integration",
         ]
+        guidance = project_after_worker["review_guidance"]
+        assert guidance["state"] == "review"
+        assert guidance["validation_passed"] is True
+        assert guidance["headline"] == "Examiner les preuves puis décider"
+        assert guidance["action_required"] is True
 
         status, listed = _request(
             base,
@@ -180,5 +185,7 @@ def test_release32_one_tap_launch_worker_completion_survives_restart(tmp_path):
     assert restored["outcome"]["summary"] == "implemented and validated"
     assert restored["outcome"]["validation_status"] == "passed"
     assert restored["outcome"]["validation_tests"] == ["unit", "integration"]
+    assert restored["review_guidance"]["state"] == "review"
+    assert restored["review_guidance"]["validation_passed"] is True
     assert restored["runs"][0]["kind"] == "initial"
     assert restored["runs"][0]["workflow_id"] == workflow_id
