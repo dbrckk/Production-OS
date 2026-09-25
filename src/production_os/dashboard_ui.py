@@ -67,6 +67,12 @@ textarea{resize:vertical;min-height:150px;line-height:1.45}
 .worker-detail{margin:7px 0 0;color:var(--muted);font-size:.8rem}
 .runtime-warning{display:none;margin-top:10px;padding:10px 12px;border-radius:12px;background:rgba(251,191,36,.10);border:1px solid rgba(251,191,36,.25);color:#fde68a;font-size:.82rem}
 .runtime-warning.show{display:block}
+.launch-readiness{margin:8px 0 0;padding:9px 11px;border-radius:12px;background:#0c1422;border:1px solid var(--line);font-size:.8rem;color:var(--muted)}
+.launch-readiness.ready{border-color:rgba(52,211,153,.35);color:#a7f3d0}
+.launch-readiness.queued{border-color:rgba(251,191,36,.35);color:#fde68a}
+.launch-tracker{margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:14px;background:rgba(12,20,34,.82)}
+.launch-tracker[hidden]{display:none}
+.launch-tracker .outcome-summary{margin-top:7px}
 .section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px}
 .section-head h2{margin:0}
 .badge{display:inline-flex;align-items:center;border-radius:999px;padding:5px 9px;font-size:.75rem;font-weight:800;background:#1e293b;color:#cbd5e1}
@@ -160,8 +166,10 @@ body{overflow-x:hidden}
    <button class="secondary-btn" type="button" onclick="refreshDashboard()" aria-label="Actualiser">↻</button>
   </div>
   <p id="launch-status" class="status-message"></p>
+  <div id="launch-readiness" class="launch-readiness">Disponibilité : vérification...</div>
   <p id="worker-status" class="worker-detail">Capacités worker : vérification...</p>
   <div id="runtime-warning" class="runtime-warning">Worker hors ligne : la production peut être créée, mais elle restera en attente jusqu'à la reconnexion du moteur d'exécution.</div>
+  <div id="last-production-card" class="launch-tracker" hidden></div>
  </div>
 
 
@@ -215,8 +223,10 @@ body{overflow-x:hidden}
 
 <script>
 const TOKEN_KEY='production_os_operator_token';
+const LAST_PROJECT_KEY='production_os_last_project_id';
 let workerOnline=false;
 let refreshBusy=false;
+let launchReadiness=null;
 
 function token(){return localStorage.getItem(TOKEN_KEY)||''}
 function esc(value){return String(value).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})}
@@ -503,6 +513,77 @@ async function loadVisualQuality(){
  }
 }
 
+async function loadLaunchReadiness(){
+ const el=document.getElementById('launch-readiness');
+ const repository=document.getElementById('repository').value.trim();
+ if(!token()||!repository){
+  launchReadiness=null;
+  el.className='launch-readiness';
+  el.textContent='Disponibilité : appairage requis.';
+  return null;
+ }
+ try{
+  const data=await api(
+   '/v1/dashboard/launch-readiness?repository='+encodeURIComponent(repository)
+  );
+  launchReadiness=data;
+  const immediate=data.execution==='immediate';
+  el.className='launch-readiness '+(immediate?'ready':'queued');
+  el.textContent=immediate
+   ?'Prêt · '+String(data.available_workers||0)+' worker(s) disponible(s) · '+String(data.queued_jobs||0)+' job(s) en file.'
+   :'Mise en file sûre · aucun worker disponible immédiatement · '+String(data.queued_jobs||0)+' job(s) déjà en attente.';
+  return data;
+ }catch(e){
+  launchReadiness=null;
+  el.className='launch-readiness';
+  el.textContent='Disponibilité : '+String(e).replace(/^Error:\\s*/,'');
+  return null;
+ }
+}
+function rememberLastProject(projectId){
+ const value=String(projectId||'').trim();
+ if(value)localStorage.setItem(LAST_PROJECT_KEY,value);
+}
+async function openLastProduction(projectId){
+ navigate({
+  view:'managed',
+  workerId:null,
+  repository:null,
+  tab:null,
+  focus:String(projectId||'')||null
+ });
+}
+async function loadLastProduction(){
+ const el=document.getElementById('last-production-card');
+ const projectId=String(localStorage.getItem(LAST_PROJECT_KEY)||'').trim();
+ if(!token()||!projectId){
+  el.hidden=true;
+  el.innerHTML='';
+  return null;
+ }
+ try{
+  const data=await api('/v1/managed-projects/'+encodeURIComponent(projectId));
+  const project=data.project||{};
+  const outcome=project.outcome||{};
+  const status=String(project.status||project.state||'unknown');
+  const generation=Number(project.generation||1);
+  const active=status==='ACTIVE';
+  const label=active?'En cours':status==='REVIEW_REQUIRED'?'À revoir':status==='NEEDS_ATTENTION'?'Action requise':status==='DONE'?'Terminé':status;
+  el.hidden=false;
+  el.innerHTML=
+   '<div class="section-head"><strong>Dernière production</strong><span class="badge">'+esc(label)+'</span></div>'+
+   '<div class="small"><strong>'+esc(String(project.repository||''))+'</strong> · génération '+formatNumber(generation)+'</div>'+
+   '<div class="small">'+esc(String(project.final_goal||''))+'</div>'+
+   renderProductionOutcome(outcome,true)+
+   '<div class="attention-actions"><button class="secondary-btn" type="button" data-project-id="'+esc(projectId)+'" onclick="openLastProduction(this.dataset.projectId)">Ouvrir le projet</button></div>';
+  return project;
+ }catch(e){
+  el.hidden=false;
+  el.innerHTML='<div class="small">Dernière production indisponible · '+esc(String(e).replace(/^Error:\\s*/,''))+'</div>';
+  return null;
+ }
+}
+
 async function launchWorkflow(){
  const status=document.getElementById('launch-status');
  const button=document.getElementById('launch-button');
@@ -525,11 +606,19 @@ async function launchWorkflow(){
   const project=created.project||{};
   const workflowId=String(project.current_workflow_id||'');
   const projectId=String(project.project_id||'');
-  status.textContent=workerOnline
-   ?'Production lancée et persistante · '+projectId.slice(0,12)
-   :'Production persistante créée · en attente du worker · '+projectId.slice(0,12);
+  rememberLastProject(projectId);
+  const immediate=launchReadiness&&launchReadiness.execution==='immediate';
+  status.textContent=immediate
+   ?'Production persistante lancée · exécution disponible · '+projectId.slice(0,12)
+   :'Production persistante créée · mise en file sûre · '+projectId.slice(0,12);
   document.getElementById('instruction').value='';
-  await Promise.all([loadRecentRuns(),loadManagedProjects()]);
+  await Promise.all([
+   loadRecentRuns(),
+   loadManagedProjects(),
+   loadAttention(),
+   loadLastProduction(),
+   loadLaunchReadiness()
+  ]);
   if(workflowId) appState.repository=repository;
  }catch(e){
   status.textContent=String(e).replace(/^Error:\\s*/,'');
@@ -543,15 +632,27 @@ async function refreshDashboard(){
  refreshBusy=true;
  try{
   await checkServer();
-  await Promise.all([loadWorkerStatus(),loadRecentRuns(),loadVisualQuality()]);
+  await Promise.all([
+   loadWorkerStatus(),
+   loadRecentRuns(),
+   loadVisualQuality(),
+   loadLaunchReadiness(),
+   loadLastProduction()
+  ]);
  }finally{refreshBusy=false}
 }
 
 loadRepositories().then(function(){return refreshDashboard()});
 document.getElementById('repository').addEventListener('change',loadVisualQuality);
 document.getElementById('repository').addEventListener('change',loadRecentRuns);
+document.getElementById('repository').addEventListener('change',loadLaunchReadiness);
 setInterval(loadVisualQuality,10000);
-setInterval(function(){loadWorkerStatus();loadRecentRuns()},10000);
+setInterval(function(){
+ loadWorkerStatus();
+ loadRecentRuns();
+ loadLaunchReadiness();
+ loadLastProduction();
+},10000);
 
 const appState={view:"attention",workerId:null,repository:null,tab:null,focus:null,window:"7d",polling:new Map()};
 (function restoreNavigation(){
