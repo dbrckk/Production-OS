@@ -992,6 +992,11 @@ summary = payload["summary"]
 def test_dashboard_health_requires_viewer_and_has_stable_shape(running_control_plane)
 ⋮----
 def test_worker_detail_includes_recoverable_jobs(running_control_plane)
+⋮----
+project = payload["project"]
+launch = payload["launch"]
+⋮----
+persisted = control.managed_projects.get(project["project_id"])
 ```
 
 ## File: test_dashboard_backup_api.py
@@ -2446,6 +2451,16 @@ def test_backup_overview_renders_verified_backup_age_distribution()
 def test_backup_overview_renders_retention_preview_read_only()
 ⋮----
 def test_backup_retention_cleanup_ui_requires_preview_fingerprint()
+⋮----
+def test_one_tap_production_is_primary_and_uses_server_managed_launch()
+⋮----
+launch_start = DASHBOARD_HTML.index("async function launchWorkflow")
+launch_end = DASHBOARD_HTML.index("async function refreshDashboard", launch_start)
+launch_body = DASHBOARD_HTML[launch_start:launch_end]
+⋮----
+def test_managed_technical_creation_options_are_collapsed_by_default()
+⋮----
+def test_managed_view_can_be_restored_from_navigation_query()
 ```
 
 ## File: test_dashboard_usage.py

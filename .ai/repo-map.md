@@ -8739,6 +8739,11 @@ summary = payload["summary"]
 def test_dashboard_health_requires_viewer_and_has_stable_shape(running_control_plane)
 ⋮----
 def test_worker_detail_includes_recoverable_jobs(running_control_plane)
+⋮----
+project = payload["project"]
+launch = payload["launch"]
+⋮----
+persisted = control.managed_projects.get(project["project_id"])
 ````
 
 ## File: tests/test_dashboard_backup_api.py
@@ -10193,6 +10198,16 @@ def test_backup_overview_renders_verified_backup_age_distribution()
 def test_backup_overview_renders_retention_preview_read_only()
 ⋮----
 def test_backup_retention_cleanup_ui_requires_preview_fingerprint()
+⋮----
+def test_one_tap_production_is_primary_and_uses_server_managed_launch()
+⋮----
+launch_start = DASHBOARD_HTML.index("async function launchWorkflow")
+launch_end = DASHBOARD_HTML.index("async function refreshDashboard", launch_start)
+launch_body = DASHBOARD_HTML[launch_start:launch_end]
+⋮----
+def test_managed_technical_creation_options_are_collapsed_by_default()
+⋮----
+def test_managed_view_can_be_restored_from_navigation_query()
 ````
 
 ## File: tests/test_dashboard_usage.py
@@ -13823,6 +13838,38 @@ backup_filesystem_capacity
 The incident targets the backup-storage surface and is automatically resolved when filesystem capacity returns to `ok`.
 
 This remains observational only. Capacity incidents never trigger retention cleanup, temp cleanup, backup creation, restore staging, restore activation, pause, retry, cancellation or any other control action automatically.
+
+
+## Release 31 — One-tap Production
+
+The mobile dashboard now treats production launch as the primary action.
+
+The main path is intentionally reduced to:
+
+```text
+Repository
+Instruction
+Lancer la production
+```
+
+The browser no longer constructs a raw workflow or chooses execution parameters. It sends only the repository and instruction to:
+
+```text
+POST /v1/dashboard/launch
+```
+
+The control plane then creates a persistent Managed Project with server-owned defaults:
+
+```text
+token_budget = 30000
+agent_preference = auto
+```
+
+The managed project is persisted before dispatch and remains available if the browser closes or refreshes. If no worker is currently online, the production remains queued instead of being lost.
+
+Advanced token-budget and agent controls remain available in the Managed Projects view but are collapsed by default. The primary mobile surface exposes no per-run technical tuning.
+
+The one-tap endpoint requires the operator role. Viewer and worker credentials cannot launch production.
 
 ## Design principles
 

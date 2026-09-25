@@ -22,17 +22,23 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-25T16:32:13Z
+Generated: 2026-09-25T16:55:45Z
 
 ### Git
 - Branch: `main`
-- Head: `9e674d0d8110`
-- Commit date: 2026-09-25T18:32:01+02:00
-- Commit: feat: release 30 backup capacity incidents
-- Tracked files: 413
+- Head: `60e090662c81`
+- Commit date: 2026-09-25T18:55:33+02:00
+- Commit: feat: release 31 one-tap production
+- Tracked files: 414
 
 ### Recently changed files
 - `README.md`
+- `docs/superpowers/plans/2026-09-25-release-31-one-tap-production.md`
+- `src/production_os/control_plane.py`
+- `src/production_os/dashboard_ui.py`
+- `tests/test_dashboard_api.py`
+- `tests/test_dashboard_launch.py`
+- `tests/test_dashboard_ui_v3.py`
 - `docs/superpowers/plans/2026-09-25-release-30-backup-capacity-incidents.md`
 - `src/production_os/dashboard_health.py`
 - `src/production_os/dashboard_incidents.py`
@@ -40,15 +46,11 @@ Generated: 2026-09-25T16:32:13Z
 - `tests/test_dashboard_health.py`
 - `tests/test_dashboard_incident_signals.py`
 - `docs/superpowers/plans/2026-09-25-release-29-guarded-backup-retention-prune.md`
-- `src/production_os/control_plane.py`
 - `src/production_os/dashboard_backups.py`
-- `src/production_os/dashboard_ui.py`
 - `tests/test_dashboard_backup_api.py`
 - `tests/test_dashboard_backups.py`
-- `tests/test_dashboard_ui_v3.py`
 - `docs/superpowers/plans/2026-09-25-release-28-backup-retention-preview.md`
 - `docs/superpowers/plans/2026-09-25-release-27-backup-age-observability.md`
-- `docs/superpowers/plans/2026-09-25-release-26-backup-filesystem-capacity.md`
 
 ### Project signals
 - `pyproject.toml`
