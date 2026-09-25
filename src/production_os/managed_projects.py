@@ -533,6 +533,11 @@ class ManagedProjectService:
             except KeyError:
                 current_workflow = None
         usage = self._usage(runs)
+        display_state = (
+            "RUNNING"
+            if project["status"] == ACTIVE
+            else project["status"]
+        )
         return {
             "id":project_id,
             "project_id":project_id,
@@ -542,7 +547,7 @@ class ManagedProjectService:
             "final_goal":project["final_goal"],
             "token_budget":int(project["token_budget"]),
             "agent_preference":project["agent_preference"],
-            "state":project["status"],
+            "state":display_state,
             "status":project["status"],
             "generation":int(project["generation"]),
             "usage":usage,
@@ -604,7 +609,7 @@ class ManagedProjectService:
         requested_by: str,
     ) -> dict:
         current = self.get(identifier)
-        if current["state"] not in {REVIEW_REQUIRED, NEEDS_ATTENTION}:
+        if current["status"] not in {REVIEW_REQUIRED, NEEDS_ATTENTION}:
             raise RuntimeError(
                 "managed project must require review or attention before follow-up"
             )
@@ -732,7 +737,7 @@ class ManagedProjectService:
         approved_by: str,
     ) -> dict:
         current = self.get(identifier)
-        if current["state"] != REVIEW_REQUIRED:
+        if current["status"] != REVIEW_REQUIRED:
             raise RuntimeError(
                 "managed project must be REVIEW_REQUIRED before DONE"
             )
