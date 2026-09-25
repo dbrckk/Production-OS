@@ -26,3 +26,21 @@ Make successful staged SQLite restore activation one-shot and durably auditable.
 - tampered activated manifest remains rejected
 - no HTTP activation route
 - full CI + Python 3.11/3.12 green before merge
+
+
+## Implemented in current branch
+
+- successful activation consumes the staged candidate
+- activated candidate replay rejected before mutation
+- durable safe activation receipt
+- atomic receipt + manifest finalization
+- failed activation with rollback leaves candidate reusable
+- result reports activation disabled after successful consumption
+- replay, receipt, manifest and rollback regression coverage
+- README documentation
+
+## Remaining before Release 22 completion
+
+- final CI qualification on complete head
+- final diff/security review
+- mark PR ready and merge only after green final head
