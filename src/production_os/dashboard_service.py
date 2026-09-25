@@ -832,6 +832,60 @@ class DashboardService:
             "maintenance":self.maintenance(force=True),
         }
 
+    def launch_readiness(self, repository: str) -> dict:
+        repository = str(repository or "").strip()
+        parts = repository.split("/")
+        if (
+            len(parts) != 2
+            or any(not part or part in {".", ".."} for part in parts)
+        ):
+            raise ValueError("repository must be owner/name")
+
+        catalog = self.repositories()
+        known = any(
+            item.get("full_name") == repository
+            for item in catalog.get("repositories", [])
+        )
+        workers = self.workers().get("workers", [])
+        online = [
+            worker
+            for worker in workers
+            if worker.get("status") == "online"
+        ]
+        available = [
+            worker
+            for worker in online
+            if worker.get("desired_state") == "active"
+            and int(worker.get("active_tasks") or 0)
+                < int(worker.get("max_concurrency") or 0)
+        ]
+
+        with self.control.backend.connect() as db:
+            queued_row = db.execute(
+                "SELECT COUNT(*) AS count FROM jobs WHERE status='queued'"
+            ).fetchone()
+        queued = int(queued_row["count"] if queued_row else 0)
+
+        execution = "immediate" if available else "queued"
+        message = (
+            f"{len(available)} worker(s) disponible(s) · lancement exécutable."
+            if available
+            else "Aucun worker disponible immédiatement · le projet sera conservé en file."
+        )
+        return {
+            "schema_version":"production-os/launch-readiness/v1",
+            "repository":repository,
+            "known_repository":known,
+            "repository_source":catalog.get("source"),
+            "can_launch":True,
+            "execution":execution,
+            "available_workers":len(available),
+            "online_workers":len(online),
+            "queued_jobs":queued,
+            "message":message,
+            "generated_at":_now(),
+        }
+
     def repositories(self) -> dict:
         owner = str(
             os.getenv("PRODUCTION_OS_GITHUB_OWNER") or "dbrckk"

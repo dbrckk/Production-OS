@@ -1260,6 +1260,31 @@ Terminal workflows remain readable even when older workers supplied no structure
 
 Both the Managed Projects view and the `À faire maintenant` cards render the normalized outcome. The One-tap E2E qualification also verifies that result summary and validation evidence survive a Control Plane restart.
 
+
+## Release 40 — Launch readiness + persistent last-production tracking
+
+The One-tap launch surface now distinguishes **execution availability** from **launch durability**.
+
+A server-backed preflight endpoint exposes current readiness:
+
+```text
+GET /v1/dashboard/launch-readiness?repository=owner/name
+```
+
+The response reports:
+
+- whether the repository is known to the current discovery source;
+- online worker count;
+- immediately available worker count;
+- current queued-job count;
+- whether execution can begin immediately or the new production will be safely queued.
+
+The endpoint is advisory only. Lack of an immediately available worker does not block launch because Managed Projects are persisted before dispatch.
+
+The mobile dashboard also remembers only the `project_id` of the last One-tap production on that device. On every refresh it reloads the project from the Control Plane and renders the real server state and normalized production outcome. Closing or reopening the dashboard therefore does not create a browser-owned execution state.
+
+The tracker links directly to the exact Managed Project and remains compatible with the existing attention-first workflow.
+
 ## Design principles
 
 - Evidence over assumptions

@@ -653,3 +653,29 @@ def test_managed_and_attention_cards_render_normalized_production_outcome():
     assert "renderProductionOutcome(item.outcome||{},false)" in DASHBOARD_HTML
     assert "renderProductionOutcome(outcome,true)" in DASHBOARD_HTML
 
+def test_launch_preflight_is_server_backed_and_mobile_visible():
+    assert 'id="launch-readiness"' in DASHBOARD_HTML
+    assert "async function loadLaunchReadiness" in DASHBOARD_HTML
+    assert "/v1/dashboard/launch-readiness?repository=" in DASHBOARD_HTML
+    assert "available_workers" in DASHBOARD_HTML
+    assert "queued_jobs" in DASHBOARD_HTML
+    assert "Mise en file sûre" in DASHBOARD_HTML
+
+
+def test_last_launched_project_survives_dashboard_reload_on_same_device():
+    assert "const LAST_PROJECT_KEY='production_os_last_project_id'" in DASHBOARD_HTML
+    assert "rememberLastProject(projectId)" in DASHBOARD_HTML
+    assert "localStorage.setItem(LAST_PROJECT_KEY,value)" in DASHBOARD_HTML
+    assert "async function loadLastProduction" in DASHBOARD_HTML
+    assert "localStorage.getItem(LAST_PROJECT_KEY)" in DASHBOARD_HTML
+    assert "'/v1/managed-projects/'+encodeURIComponent(projectId)" in DASHBOARD_HTML
+    assert 'id="last-production-card"' in DASHBOARD_HTML
+    assert "renderProductionOutcome(outcome,true)" in DASHBOARD_HTML
+    assert "Ouvrir le projet" in DASHBOARD_HTML
+
+
+def test_dashboard_refresh_and_repository_change_refresh_launch_readiness():
+    assert "loadLaunchReadiness()," in DASHBOARD_HTML
+    assert "addEventListener('change',loadLaunchReadiness)" in DASHBOARD_HTML
+    assert "loadLastProduction();" in DASHBOARD_HTML
+

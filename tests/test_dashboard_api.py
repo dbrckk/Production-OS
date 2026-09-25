@@ -491,3 +491,36 @@ def test_attention_action_metadata_does_not_bypass_operator_permissions(
     assert status == 403
     assert payload["required_role"] == "operator"
 
+def test_launch_readiness_endpoint_is_viewer_visible_and_worker_forbidden(
+    running_control_plane,
+):
+    base, control = running_control_plane
+    control.dashboard.launch_readiness = lambda repository: {
+        "schema_version":"production-os/launch-readiness/v1",
+        "repository":repository,
+        "can_launch":True,
+        "execution":"queued",
+        "available_workers":0,
+        "online_workers":0,
+        "queued_jobs":0,
+        "message":"queued",
+        "generated_at":"2026-09-25T19:00:00+00:00",
+    }
+
+    status, payload = get_api(
+        base,
+        "/v1/dashboard/launch-readiness?repository=dbrckk%2Fexample",
+        "viewer-token",
+    )
+    assert status == 200
+    assert payload["repository"] == "dbrckk/example"
+    assert payload["execution"] == "queued"
+
+    status, payload = get_api(
+        base,
+        "/v1/dashboard/launch-readiness?repository=dbrckk%2Fexample",
+        "worker-a-token",
+    )
+    assert status == 403
+    assert payload["required_role"] == "viewer"
+
