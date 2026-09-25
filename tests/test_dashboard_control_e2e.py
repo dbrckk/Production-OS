@@ -333,3 +333,39 @@ def test_release4_incident_lifecycle_survives_restart(tmp_path):
     final = third.dashboard_store.dashboard_incidents(limit=10)
     assert final[0]["id"] == incident["id"]
     assert final[0]["status"] == "resolved"
+
+
+def test_managed_project_review_and_done_survive_restart(tmp_path):
+    database = str(tmp_path / "managed-restart.db")
+    first = ControlPlane(database, authorizer=_auth())
+    project = first.managed_projects.create(
+        repository="dbrckk/example",
+        final_goal="Ship a verified release",
+        token_budget=50000,
+        agent_preference="codex",
+    )
+    first.workflows.record_result(
+        project["workflow_id"],
+        "goal",
+        succeeded=True,
+        result={"usage":{"total_tokens":4321}},
+    )
+    review = first.managed_projects.get(project["workflow_id"])
+    assert review["state"] == "REVIEW_REQUIRED"
+    assert review["usage"]["total_tokens"] == 4321
+
+    second = ControlPlane(database, authorizer=_auth())
+    persisted = second.managed_projects.get(project["workflow_id"])
+    assert persisted["state"] == "REVIEW_REQUIRED"
+    assert persisted["final_goal"] == "Ship a verified release"
+
+    done = second.managed_projects.mark_done(
+        project["workflow_id"],
+        approved_by="operator:test",
+    )
+    assert done["state"] == "DONE"
+
+    third = ControlPlane(database, authorizer=_auth())
+    final = third.managed_projects.get(project["workflow_id"])
+    assert final["state"] == "DONE"
+    assert final["approved_by"] == "operator:test"
