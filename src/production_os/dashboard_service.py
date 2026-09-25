@@ -415,10 +415,10 @@ class DashboardService:
                     "target_type":"managed-project",
                     "target_id":project.get("project_id"),
                     "view":"managed",
-                    "actions":[{
-                        "name":"verify",
-                        "label":"Retester",
-                    }],
+                    "actions":[
+                        {"name":"instructions","label":"Ajouter instruction"},
+                        {"name":"verify","label":"Retester"},
+                    ],
                     "updated_at":project.get("updated_at"),
                 })
             elif status == "REVIEW_REQUIRED":
@@ -435,6 +435,7 @@ class DashboardService:
                     "target_id":project.get("project_id"),
                     "view":"managed",
                     "actions":[
+                        {"name":"instructions","label":"Ajouter instruction"},
                         {"name":"verify","label":"Retester"},
                         {"name":"complete","label":"Valider DONE"},
                     ],
