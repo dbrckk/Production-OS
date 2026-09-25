@@ -434,3 +434,24 @@ def test_one_tap_launch_creates_persistent_managed_project_with_server_defaults(
     assert persisted["current_workflow_id"] == project["current_workflow_id"]
     assert persisted["runs"][0]["kind"] == "initial"
 
+def test_attention_feed_is_viewer_visible_and_worker_forbidden(running_control_plane):
+    base, _control = running_control_plane
+
+    status, payload = get_api(
+        base,
+        "/v1/dashboard/attention?limit=20",
+        "viewer-token",
+    )
+    assert status == 200
+    assert payload["schema_version"] == "production-os/dashboard-attention/v1"
+    assert "summary" in payload
+    assert "items" in payload
+
+    status, payload = get_api(
+        base,
+        "/v1/dashboard/attention?limit=20",
+        "worker-a-token",
+    )
+    assert status == 403
+    assert payload["required_role"] == "viewer"
+
