@@ -397,6 +397,7 @@ class DashboardService:
             status = str(project.get("status") or "")
             workflow = project.get("current_workflow") or {}
             outcome = project.get("outcome") or {}
+            guidance = project.get("review_guidance") or {}
             workflow_status = str(workflow.get("status") or "")
             if status == "NEEDS_ATTENTION":
                 failed = workflow_status == "failed"
@@ -417,6 +418,7 @@ class DashboardService:
                         or ""
                     ),
                     "outcome":outcome,
+                    "review_guidance":guidance,
                     "repository":project.get("repository"),
                     "target_type":"managed-project",
                     "target_id":project.get("project_id"),
@@ -441,6 +443,7 @@ class DashboardService:
                         or ""
                     ),
                     "outcome":outcome,
+                    "review_guidance":guidance,
                     "repository":project.get("repository"),
                     "target_type":"managed-project",
                     "target_id":project.get("project_id"),
@@ -489,6 +492,7 @@ class DashboardService:
         ][:5]
         for project in completed:
             outcome = project.get("outcome") or {}
+            guidance = project.get("review_guidance") or {}
             items.append({
                 "id":f"completed:{project['project_id']}",
                 "kind":"completed_project",
@@ -502,6 +506,7 @@ class DashboardService:
                     or ""
                 ),
                 "outcome":outcome,
+                "review_guidance":guidance,
                 "repository":project.get("repository"),
                 "target_type":"managed-project",
                 "target_id":project.get("project_id"),
