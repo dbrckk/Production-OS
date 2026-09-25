@@ -1125,6 +1125,25 @@ Safety remains bounded:
 
 A dedicated E2E test starts from the One-tap launch endpoint, lets one worker claim and disappear before ACK, then proves a second worker automatically reclaims the same job, completes it, and advances the same generation-1 Managed Project to `REVIEW_REQUIRED`.
 
+
+## Release 34 — Safe recovery after ACK
+
+Production-OS now has a guarded recovery path for jobs whose worker disappears after ACK and during execution.
+
+Automatic recovery requires two independent stale signals:
+
+- the owning worker heartbeat is older than the busy-worker timeout;
+- the running execution telemetry is older than the running-execution timeout.
+
+Only when both are stale is the old worker fenced and the same job returned to the queue. The previous execution attempt is closed as `worker_abandoned`, while the Managed Project, workflow and generation remain unchanged.
+
+This avoids recovering a job merely because a worker is slow or temporarily delayed while still reporting fresh execution telemetry.
+
+A dedicated One-tap E2E test proves both sides of the contract:
+
+1. stale worker heartbeat + fresh telemetry does **not** recover the job;
+2. stale heartbeat + stale execution telemetry allows a second worker to reclaim the same job and complete the same generation safely.
+
 ## Design principles
 
 - Evidence over assumptions
