@@ -1224,6 +1224,13 @@ path_type = type(backup_dir)
 original_iterdir = path_type.iterdir
 ⋮----
 def failing_iterdir(path)
+⋮----
+now = datetime.now(timezone.utc)
+samples = [
+⋮----
+invalid_id = "20260901T120000Z-000000000005"
+⋮----
+age = backup_storage_inventory(backend)["backup_age"]
 ```
 
 ## File: test_dashboard_control_api.py
@@ -2400,6 +2407,8 @@ def test_backup_overview_renders_storage_inventory_read_only()
 def test_backup_temp_cleanup_ui_is_guarded_and_stale_only()
 ⋮----
 def test_backup_overview_renders_filesystem_capacity_read_only()
+⋮----
+def test_backup_overview_renders_verified_backup_age_distribution()
 ```
 
 ## File: test_dashboard_usage.py

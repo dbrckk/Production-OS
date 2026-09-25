@@ -1,14 +1,13 @@
 # Change impact
 
-Base: ba052663b75263e3c1e11a038afece19f8a3eab4
-Head: 3032fd8e017a831986d3f733b7c4e1b397c404b5
+Base: d72de22270307b4a1e3f3247f0c06b5bba2f2058
+Head: 171909a9549fb2066945de57646c4089fd52199f
 
 ## Changed files
 - M README.md
-- A docs/superpowers/plans/2026-09-25-release-26-backup-filesystem-capacity.md
+- A docs/superpowers/plans/2026-09-25-release-27-backup-age-observability.md
 - M src/production_os/dashboard_backups.py
 - M src/production_os/dashboard_ui.py
-- M tests/test_dashboard_backup_api.py
 - M tests/test_dashboard_backups.py
 - M tests/test_dashboard_ui_v3.py
 

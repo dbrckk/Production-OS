@@ -242,11 +242,20 @@
       "symbol_dependencies": [],
       "dependency_count": 0
     },
-    "backup_storage_inventory": {
+    "_backup_age_summary": {
       "source": {
         "file": "src/production_os/dashboard_backups.py",
         "start": 187,
-        "end": 320
+        "end": 223
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "backup_storage_inventory": {
+      "source": {
+        "file": "src/production_os/dashboard_backups.py",
+        "start": 226,
+        "end": 375
       },
       "symbol_dependencies": [
         {
@@ -255,6 +264,18 @@
             {
               "file": "src/production_os/dashboard_backups.py",
               "line": 36,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_backup_age_summary",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_backups.py",
+              "line": 187,
               "kind": "function",
               "language": "python"
             }
@@ -284,15 +305,27 @@
             }
           ],
           "relation": "same_file"
+        },
+        {
+          "symbol": "_safe_manifest",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_backups.py",
+              "line": 46,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
         }
       ],
-      "dependency_count": 3
+      "dependency_count": 5
     },
     "prune_stale_backup_temps": {
       "source": {
         "file": "src/production_os/dashboard_backups.py",
-        "start": 323,
-        "end": 377
+        "start": 378,
+        "end": 432
       },
       "symbol_dependencies": [
         {
@@ -336,7 +369,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 187,
+              "line": 226,
               "kind": "function",
               "language": "python"
             }
@@ -349,8 +382,8 @@
     "backup_readiness": {
       "source": {
         "file": "src/production_os/dashboard_backups.py",
-        "start": 380,
-        "end": 434
+        "start": 435,
+        "end": 489
       },
       "symbol_dependencies": [
         {
@@ -395,8 +428,8 @@
     "verify_backup_for_restore": {
       "source": {
         "file": "src/production_os/dashboard_backups.py",
-        "start": 437,
-        "end": 520
+        "start": 492,
+        "end": 575
       },
       "symbol_dependencies": [
         {
@@ -452,7 +485,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 380,
+              "line": 435,
               "kind": "function",
               "language": "python"
             }
@@ -465,8 +498,8 @@
     "stage_verified_sqlite_restore": {
       "source": {
         "file": "src/production_os/dashboard_backups.py",
-        "start": 523,
-        "end": 622
+        "start": 578,
+        "end": 677
       },
       "symbol_dependencies": [
         {
@@ -510,7 +543,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 437,
+              "line": 492,
               "kind": "function",
               "language": "python"
             }
@@ -523,8 +556,8 @@
     "verify_staged_restore_candidate": {
       "source": {
         "file": "src/production_os/dashboard_backups.py",
-        "start": 625,
-        "end": 707
+        "start": 680,
+        "end": 762
       },
       "symbol_dependencies": [
         {
@@ -569,8 +602,8 @@
     "activate_staged_sqlite_restore": {
       "source": {
         "file": "src/production_os/dashboard_backups.py",
-        "start": 710,
-        "end": 871
+        "start": 765,
+        "end": 926
       },
       "symbol_dependencies": [
         {
@@ -626,7 +659,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 874,
+              "line": 929,
               "kind": "function",
               "language": "python"
             }
@@ -650,7 +683,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 625,
+              "line": 680,
               "kind": "function",
               "language": "python"
             }
@@ -663,8 +696,8 @@
     "create_verified_sqlite_backup": {
       "source": {
         "file": "src/production_os/dashboard_backups.py",
-        "start": 874,
-        "end": 941
+        "start": 929,
+        "end": 996
       },
       "symbol_dependencies": [
         {
@@ -708,826 +741,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 380,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "_auth": {
-      "source": {
-        "file": "tests/test_dashboard_backup_api.py",
-        "start": 15,
-        "end": 20
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "TokenAuthorizer",
-          "definitions": [
-            {
-              "file": "src/production_os/api_auth.py",
-              "line": 31,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "token_digest",
-          "definitions": [
-            {
-              "file": "src/production_os/api_auth.py",
-              "line": 18,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "_request": {
-      "source": {
-        "file": "tests/test_dashboard_backup_api.py",
-        "start": 23,
-        "end": 38
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "_server": {
-      "source": {
-        "file": "tests/test_dashboard_backup_api.py",
-        "start": 41,
-        "end": 45
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "make_handler",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 123,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "test_backup_catalog_is_viewer_readable_and_worker_forbidden": {
-      "source": {
-        "file": "tests/test_dashboard_backup_api.py",
-        "start": 48,
-        "end": 75
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ControlPlane",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 34,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_auth",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 15,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 23,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_server",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 41,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "test_backup_creation_requires_operator_and_exact_confirmation": {
-      "source": {
-        "file": "tests/test_dashboard_backup_api.py",
-        "start": 78,
-        "end": 123
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ControlPlane",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 34,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_auth",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 15,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 23,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_server",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 41,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "test_unconfigured_backup_returns_conflict_and_failed_audit": {
-      "source": {
-        "file": "tests/test_dashboard_backup_api.py",
-        "start": 126,
-        "end": 148
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ControlPlane",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 34,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_auth",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 15,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 23,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_server",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 41,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "test_restore_readiness_api_requires_operator_and_exact_confirmation": {
-      "source": {
-        "file": "tests/test_dashboard_backup_api.py",
-        "start": 151,
-        "end": 200
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ControlPlane",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 34,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_auth",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 15,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 23,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_server",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 41,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "test_restore_readiness_api_rejects_tampered_backup_and_audits_failure": {
-      "source": {
-        "file": "tests/test_dashboard_backup_api.py",
-        "start": 203,
-        "end": 233
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ControlPlane",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 34,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_auth",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 15,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 23,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_server",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 41,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "test_restore_staging_requires_operator_and_exact_confirmation": {
-      "source": {
-        "file": "tests/test_dashboard_backup_api.py",
-        "start": 236,
-        "end": 291
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ControlPlane",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 34,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_auth",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 15,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 23,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_server",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 41,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "test_restore_staging_rejects_tampered_backup_and_audits_failure": {
-      "source": {
-        "file": "tests/test_dashboard_backup_api.py",
-        "start": 294,
-        "end": 328
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ControlPlane",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 34,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_auth",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 15,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 23,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_server",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 41,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "test_backup_catalog_exposes_restore_activation_history_to_viewer": {
-      "source": {
-        "file": "tests/test_dashboard_backup_api.py",
-        "start": 331,
-        "end": 371
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ControlPlane",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 34,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_auth",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 15,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 23,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_server",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 41,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "test_backup_http_surface_has_no_restore_activation_route": {
-      "source": {
-        "file": "tests/test_dashboard_backup_api.py",
-        "start": 374,
-        "end": 390
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ControlPlane",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 34,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_auth",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 15,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 23,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_server",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 41,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "test_backup_catalog_exposes_aggregated_storage_inventory": {
-      "source": {
-        "file": "tests/test_dashboard_backup_api.py",
-        "start": 393,
-        "end": 425
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ControlPlane",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 34,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_auth",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 15,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 23,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_server",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 41,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "test_backup_temp_prune_requires_operator_exact_confirmation_and_expected_count": {
-      "source": {
-        "file": "tests/test_dashboard_backup_api.py",
-        "start": 428,
-        "end": 510
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ControlPlane",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 34,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_auth",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 15,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 23,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_server",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 41,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "test_backup_temp_prune_never_deletes_protected_backup_artifacts": {
-      "source": {
-        "file": "tests/test_dashboard_backup_api.py",
-        "start": 513,
-        "end": 550
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ControlPlane",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 34,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_auth",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 15,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 23,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_server",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 41,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "test_backup_catalog_exposes_filesystem_capacity_without_paths": {
-      "source": {
-        "file": "tests/test_dashboard_backup_api.py",
-        "start": 553,
-        "end": 580
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ControlPlane",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 34,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_auth",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 15,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 23,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_server",
-          "definitions": [
-            {
-              "file": "tests/test_dashboard_backup_api.py",
-              "line": 41,
+              "line": 435,
               "kind": "function",
               "language": "python"
             }
@@ -1540,8 +754,8 @@
     "test_sqlite_backup_contains_committed_durable_data": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 27,
-        "end": 48
+        "start": 28,
+        "end": 49
       },
       "symbol_dependencies": [
         {
@@ -1573,7 +787,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 874,
+              "line": 929,
               "kind": "function",
               "language": "python"
             }
@@ -1598,8 +812,8 @@
     "test_backup_hash_and_size_match_file_bytes": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 51,
-        "end": 60
+        "start": 52,
+        "end": 61
       },
       "symbol_dependencies": [
         {
@@ -1619,7 +833,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 874,
+              "line": 929,
               "kind": "function",
               "language": "python"
             }
@@ -1632,8 +846,8 @@
     "test_manifest_contains_only_safe_metadata": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 63,
-        "end": 82
+        "start": 64,
+        "end": 83
       },
       "symbol_dependencies": [
         {
@@ -1653,7 +867,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 874,
+              "line": 929,
               "kind": "function",
               "language": "python"
             }
@@ -1666,8 +880,8 @@
     "test_missing_backup_directory_configuration_writes_nothing": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 85,
-        "end": 94
+        "start": 86,
+        "end": 95
       },
       "symbol_dependencies": [
         {
@@ -1699,7 +913,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 380,
+              "line": 435,
               "kind": "function",
               "language": "python"
             }
@@ -1711,7 +925,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 874,
+              "line": 929,
               "kind": "function",
               "language": "python"
             }
@@ -1724,8 +938,8 @@
     "_FakePostgres": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 97,
-        "end": 98
+        "start": 98,
+        "end": 99
       },
       "symbol_dependencies": [],
       "dependency_count": 0
@@ -1733,8 +947,8 @@
     "test_postgres_readiness_is_truthfully_unsupported": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 104,
-        "end": 112
+        "start": 105,
+        "end": 113
       },
       "symbol_dependencies": [
         {
@@ -1742,7 +956,7 @@
           "definitions": [
             {
               "file": "tests/test_dashboard_backups.py",
-              "line": 97,
+              "line": 98,
               "kind": "class",
               "language": "python"
             }
@@ -1754,7 +968,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 380,
+              "line": 435,
               "kind": "function",
               "language": "python"
             }
@@ -1767,8 +981,8 @@
     "test_backup_readiness_does_not_create_configured_directory": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 115,
-        "end": 124
+        "start": 116,
+        "end": 125
       },
       "symbol_dependencies": [
         {
@@ -1788,7 +1002,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 380,
+              "line": 435,
               "kind": "function",
               "language": "python"
             }
@@ -1801,8 +1015,8 @@
     "test_valid_backup_reports_restore_readiness_and_schema": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 127,
-        "end": 140
+        "start": 128,
+        "end": 141
       },
       "symbol_dependencies": [
         {
@@ -1822,7 +1036,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 874,
+              "line": 929,
               "kind": "function",
               "language": "python"
             }
@@ -1834,7 +1048,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 437,
+              "line": 492,
               "kind": "function",
               "language": "python"
             }
@@ -1847,8 +1061,8 @@
     "test_tampered_backup_file_is_rejected": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 143,
-        "end": 152
+        "start": 144,
+        "end": 153
       },
       "symbol_dependencies": [
         {
@@ -1880,7 +1094,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 874,
+              "line": 929,
               "kind": "function",
               "language": "python"
             }
@@ -1892,7 +1106,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 437,
+              "line": 492,
               "kind": "function",
               "language": "python"
             }
@@ -1905,8 +1119,8 @@
     "test_tampered_manifest_is_rejected": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 155,
-        "end": 166
+        "start": 156,
+        "end": 167
       },
       "symbol_dependencies": [
         {
@@ -1938,7 +1152,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 874,
+              "line": 929,
               "kind": "function",
               "language": "python"
             }
@@ -1950,7 +1164,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 437,
+              "line": 492,
               "kind": "function",
               "language": "python"
             }
@@ -1963,8 +1177,8 @@
     "test_restore_verification_rejects_malformed_or_traversal_ids": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 179,
-        "end": 187
+        "start": 180,
+        "end": 188
       },
       "symbol_dependencies": [
         {
@@ -1996,7 +1210,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 437,
+              "line": 492,
               "kind": "function",
               "language": "python"
             }
@@ -2009,8 +1223,8 @@
     "test_restore_verification_rejects_missing_backup_file": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 190,
-        "end": 198
+        "start": 191,
+        "end": 199
       },
       "symbol_dependencies": [
         {
@@ -2042,7 +1256,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 874,
+              "line": 929,
               "kind": "function",
               "language": "python"
             }
@@ -2054,7 +1268,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 437,
+              "line": 492,
               "kind": "function",
               "language": "python"
             }
@@ -2067,8 +1281,8 @@
     "test_restore_verification_never_changes_live_database": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 201,
-        "end": 222
+        "start": 202,
+        "end": 223
       },
       "symbol_dependencies": [
         {
@@ -2100,7 +1314,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 874,
+              "line": 929,
               "kind": "function",
               "language": "python"
             }
@@ -2124,7 +1338,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 437,
+              "line": 492,
               "kind": "function",
               "language": "python"
             }
@@ -2137,8 +1351,8 @@
     "test_stage_verified_restore_creates_isolated_candidate": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 225,
-        "end": 266
+        "start": 226,
+        "end": 267
       },
       "symbol_dependencies": [
         {
@@ -2170,7 +1384,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 874,
+              "line": 929,
               "kind": "function",
               "language": "python"
             }
@@ -2182,7 +1396,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 523,
+              "line": 578,
               "kind": "function",
               "language": "python"
             }
@@ -2207,8 +1421,8 @@
     "test_stage_restore_rejects_tampered_source_without_candidate": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 269,
-        "end": 281
+        "start": 270,
+        "end": 282
       },
       "symbol_dependencies": [
         {
@@ -2240,7 +1454,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 874,
+              "line": 929,
               "kind": "function",
               "language": "python"
             }
@@ -2252,7 +1466,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 523,
+              "line": 578,
               "kind": "function",
               "language": "python"
             }
@@ -2265,8 +1479,8 @@
     "test_stage_restore_manifest_contains_only_safe_metadata": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 284,
-        "end": 308
+        "start": 285,
+        "end": 309
       },
       "symbol_dependencies": [
         {
@@ -2286,7 +1500,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 874,
+              "line": 929,
               "kind": "function",
               "language": "python"
             }
@@ -2298,7 +1512,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 523,
+              "line": 578,
               "kind": "function",
               "language": "python"
             }
@@ -2311,8 +1525,8 @@
     "test_offline_restore_activation_replaces_live_state_and_creates_rollback": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 311,
-        "end": 357
+        "start": 312,
+        "end": 358
       },
       "symbol_dependencies": [
         {
@@ -2332,7 +1546,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 710,
+              "line": 765,
               "kind": "function",
               "language": "python"
             }
@@ -2356,7 +1570,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 874,
+              "line": 929,
               "kind": "function",
               "language": "python"
             }
@@ -2368,7 +1582,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 523,
+              "line": 578,
               "kind": "function",
               "language": "python"
             }
@@ -2393,8 +1607,8 @@
     "test_restore_activation_wrong_confirmation_changes_nothing": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 360,
-        "end": 376
+        "start": 361,
+        "end": 377
       },
       "symbol_dependencies": [
         {
@@ -2426,7 +1640,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 710,
+              "line": 765,
               "kind": "function",
               "language": "python"
             }
@@ -2438,7 +1652,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 874,
+              "line": 929,
               "kind": "function",
               "language": "python"
             }
@@ -2450,7 +1664,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 523,
+              "line": 578,
               "kind": "function",
               "language": "python"
             }
@@ -2463,8 +1677,8 @@
     "test_restore_activation_rejects_tampered_candidate": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 379,
-        "end": 393
+        "start": 380,
+        "end": 394
       },
       "symbol_dependencies": [
         {
@@ -2496,7 +1710,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 710,
+              "line": 765,
               "kind": "function",
               "language": "python"
             }
@@ -2508,7 +1722,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 874,
+              "line": 929,
               "kind": "function",
               "language": "python"
             }
@@ -2520,7 +1734,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 523,
+              "line": 578,
               "kind": "function",
               "language": "python"
             }
@@ -2533,8 +1747,8 @@
     "test_restore_activation_rejects_schema_mismatch": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 396,
-        "end": 416
+        "start": 397,
+        "end": 417
       },
       "symbol_dependencies": [
         {
@@ -2578,7 +1792,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 874,
+              "line": 929,
               "kind": "function",
               "language": "python"
             }
@@ -2590,7 +1804,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 523,
+              "line": 578,
               "kind": "function",
               "language": "python"
             }
@@ -2602,7 +1816,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 625,
+              "line": 680,
               "kind": "function",
               "language": "python"
             }
@@ -2615,8 +1829,8 @@
     "test_restore_activation_rolls_back_if_post_replace_verification_fails": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 419,
-        "end": 473
+        "start": 420,
+        "end": 474
       },
       "symbol_dependencies": [
         {
@@ -2636,7 +1850,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 710,
+              "line": 765,
               "kind": "function",
               "language": "python"
             }
@@ -2660,7 +1874,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 874,
+              "line": 929,
               "kind": "function",
               "language": "python"
             }
@@ -2672,13 +1886,13 @@
           "definitions": [
             {
               "file": "tests/test_dashboard_backups.py",
-              "line": 445,
+              "line": 446,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_dashboard_backups.py",
-              "line": 581,
+              "line": 582,
               "kind": "function",
               "language": "python"
             }
@@ -2690,7 +1904,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 523,
+              "line": 578,
               "kind": "function",
               "language": "python"
             }
@@ -2715,8 +1929,8 @@
     "failing_connect": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 445,
-        "end": 565
+        "start": 446,
+        "end": 566
       },
       "symbol_dependencies": [
         {
@@ -2748,7 +1962,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 710,
+              "line": 765,
               "kind": "function",
               "language": "python"
             }
@@ -2772,7 +1986,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 874,
+              "line": 929,
               "kind": "function",
               "language": "python"
             }
@@ -2784,7 +1998,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 523,
+              "line": 578,
               "kind": "function",
               "language": "python"
             }
@@ -2796,7 +2010,7 @@
           "definitions": [
             {
               "file": "tests/test_dashboard_backups.py",
-              "line": 565,
+              "line": 566,
               "kind": "function",
               "language": "python"
             }
@@ -2808,7 +2022,7 @@
           "definitions": [
             {
               "file": "tests/test_dashboard_backups.py",
-              "line": 497,
+              "line": 498,
               "kind": "function",
               "language": "python"
             }
@@ -2820,7 +2034,7 @@
           "definitions": [
             {
               "file": "tests/test_dashboard_backups.py",
-              "line": 538,
+              "line": 539,
               "kind": "function",
               "language": "python"
             }
@@ -2832,7 +2046,7 @@
           "definitions": [
             {
               "file": "tests/test_dashboard_backups.py",
-              "line": 476,
+              "line": 477,
               "kind": "function",
               "language": "python"
             }
@@ -2845,8 +2059,8 @@
     "test_successful_restore_candidate_cannot_be_replayed": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 476,
-        "end": 494
+        "start": 477,
+        "end": 495
       },
       "symbol_dependencies": [
         {
@@ -2878,7 +2092,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 710,
+              "line": 765,
               "kind": "function",
               "language": "python"
             }
@@ -2890,7 +2104,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 874,
+              "line": 929,
               "kind": "function",
               "language": "python"
             }
@@ -2902,7 +2116,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 523,
+              "line": 578,
               "kind": "function",
               "language": "python"
             }
@@ -2915,8 +2129,8 @@
     "test_restore_activation_receipt_contains_only_safe_structured_fields": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 497,
-        "end": 535
+        "start": 498,
+        "end": 536
       },
       "symbol_dependencies": [
         {
@@ -2936,7 +2150,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 710,
+              "line": 765,
               "kind": "function",
               "language": "python"
             }
@@ -2948,7 +2162,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 874,
+              "line": 929,
               "kind": "function",
               "language": "python"
             }
@@ -2960,7 +2174,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 523,
+              "line": 578,
               "kind": "function",
               "language": "python"
             }
@@ -2973,8 +2187,8 @@
     "test_successful_activation_marks_candidate_manifest_consumed": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 538,
-        "end": 562
+        "start": 539,
+        "end": 563
       },
       "symbol_dependencies": [
         {
@@ -2994,7 +2208,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 710,
+              "line": 765,
               "kind": "function",
               "language": "python"
             }
@@ -3006,7 +2220,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 874,
+              "line": 929,
               "kind": "function",
               "language": "python"
             }
@@ -3018,7 +2232,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 523,
+              "line": 578,
               "kind": "function",
               "language": "python"
             }
@@ -3031,8 +2245,8 @@
     "test_failed_activation_with_rollback_does_not_consume_candidate": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 565,
-        "end": 604
+        "start": 566,
+        "end": 605
       },
       "symbol_dependencies": [
         {
@@ -3052,7 +2266,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 710,
+              "line": 765,
               "kind": "function",
               "language": "python"
             }
@@ -3076,7 +2290,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 874,
+              "line": 929,
               "kind": "function",
               "language": "python"
             }
@@ -3088,13 +2302,13 @@
           "definitions": [
             {
               "file": "tests/test_dashboard_backups.py",
-              "line": 445,
+              "line": 446,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "tests/test_dashboard_backups.py",
-              "line": 581,
+              "line": 582,
               "kind": "function",
               "language": "python"
             }
@@ -3106,7 +2320,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 523,
+              "line": 578,
               "kind": "function",
               "language": "python"
             }
@@ -3118,7 +2332,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 625,
+              "line": 680,
               "kind": "function",
               "language": "python"
             }
@@ -3131,8 +2345,8 @@
     "test_restore_activation_history_lists_valid_receipts_newest_first": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 607,
-        "end": 643
+        "start": 608,
+        "end": 644
       },
       "symbol_dependencies": [
         {
@@ -3165,8 +2379,8 @@
     "test_restore_activation_history_ignores_malformed_receipts": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 646,
-        "end": 673
+        "start": 647,
+        "end": 674
       },
       "symbol_dependencies": [
         {
@@ -3199,8 +2413,8 @@
     "test_restore_activation_history_is_empty_when_unconfigured_or_postgres": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 676,
-        "end": 685
+        "start": 677,
+        "end": 686
       },
       "symbol_dependencies": [
         {
@@ -3220,7 +2434,7 @@
           "definitions": [
             {
               "file": "tests/test_dashboard_backups.py",
-              "line": 97,
+              "line": 98,
               "kind": "class",
               "language": "python"
             }
@@ -3245,8 +2459,8 @@
     "test_backup_storage_inventory_classifies_files_without_exposing_paths": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 688,
-        "end": 734
+        "start": 689,
+        "end": 735
       },
       "symbol_dependencies": [
         {
@@ -3266,7 +2480,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 187,
+              "line": 226,
               "kind": "function",
               "language": "python"
             }
@@ -3279,8 +2493,8 @@
     "test_backup_storage_inventory_missing_directory_is_zero_and_read_only": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 737,
-        "end": 750
+        "start": 738,
+        "end": 751
       },
       "symbol_dependencies": [
         {
@@ -3300,7 +2514,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 187,
+              "line": 226,
               "kind": "function",
               "language": "python"
             }
@@ -3313,8 +2527,8 @@
     "test_backup_storage_inventory_postgres_is_truthfully_unsupported": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 753,
-        "end": 763
+        "start": 754,
+        "end": 764
       },
       "symbol_dependencies": [
         {
@@ -3322,7 +2536,7 @@
           "definitions": [
             {
               "file": "tests/test_dashboard_backups.py",
-              "line": 97,
+              "line": 98,
               "kind": "class",
               "language": "python"
             }
@@ -3334,7 +2548,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 187,
+              "line": 226,
               "kind": "function",
               "language": "python"
             }
@@ -3347,8 +2561,8 @@
     "test_backup_storage_inventory_marks_only_old_temps_stale": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 766,
-        "end": 786
+        "start": 767,
+        "end": 787
       },
       "symbol_dependencies": [
         {
@@ -3368,7 +2582,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 187,
+              "line": 226,
               "kind": "function",
               "language": "python"
             }
@@ -3381,8 +2595,8 @@
     "test_prune_stale_backup_temps_deletes_only_stale_temp_files": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 789,
-        "end": 824
+        "start": 790,
+        "end": 825
       },
       "symbol_dependencies": [
         {
@@ -3402,7 +2616,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 323,
+              "line": 378,
               "kind": "function",
               "language": "python"
             }
@@ -3415,8 +2629,8 @@
     "test_prune_stale_backup_temps_count_mismatch_changes_nothing": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 827,
-        "end": 848
+        "start": 828,
+        "end": 849
       },
       "symbol_dependencies": [
         {
@@ -3448,7 +2662,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 323,
+              "line": 378,
               "kind": "function",
               "language": "python"
             }
@@ -3461,8 +2675,8 @@
     "test_backup_filesystem_capacity_uses_existing_parent_for_missing_directory": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 851,
-        "end": 868
+        "start": 852,
+        "end": 869
       },
       "symbol_dependencies": [
         {
@@ -3482,7 +2696,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 187,
+              "line": 226,
               "kind": "function",
               "language": "python"
             }
@@ -3495,8 +2709,8 @@
     "test_backup_filesystem_capacity_is_unavailable_when_unconfigured": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 871,
-        "end": 882
+        "start": 872,
+        "end": 883
       },
       "symbol_dependencies": [
         {
@@ -3516,7 +2730,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 187,
+              "line": 226,
               "kind": "function",
               "language": "python"
             }
@@ -3529,8 +2743,8 @@
     "test_backup_filesystem_capacity_postgres_is_unsupported": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 885,
-        "end": 895
+        "start": 886,
+        "end": 896
       },
       "symbol_dependencies": [
         {
@@ -3538,7 +2752,7 @@
           "definitions": [
             {
               "file": "tests/test_dashboard_backups.py",
-              "line": 97,
+              "line": 98,
               "kind": "class",
               "language": "python"
             }
@@ -3550,7 +2764,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 187,
+              "line": 226,
               "kind": "function",
               "language": "python"
             }
@@ -3563,8 +2777,8 @@
     "test_backup_filesystem_capacity_converts_statvfs_and_thresholds": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 898,
-        "end": 923
+        "start": 899,
+        "end": 924
       },
       "symbol_dependencies": [
         {
@@ -3584,7 +2798,7 @@
           "definitions": [
             {
               "file": "tests/test_dashboard_backups.py",
-              "line": 907,
+              "line": 908,
               "kind": "class",
               "language": "python"
             }
@@ -3596,7 +2810,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 187,
+              "line": 226,
               "kind": "function",
               "language": "python"
             }
@@ -3609,8 +2823,8 @@
     "Stats": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 907,
-        "end": 1027
+        "start": 908,
+        "end": 1028
       },
       "symbol_dependencies": [
         {
@@ -3630,7 +2844,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 187,
+              "line": 226,
               "kind": "function",
               "language": "python"
             }
@@ -3642,7 +2856,7 @@
           "definitions": [
             {
               "file": "tests/test_dashboard_backups.py",
-              "line": 935,
+              "line": 936,
               "kind": "function",
               "language": "python"
             }
@@ -3654,7 +2868,7 @@
           "definitions": [
             {
               "file": "tests/test_dashboard_backups.py",
-              "line": 957,
+              "line": 958,
               "kind": "function",
               "language": "python"
             }
@@ -3666,7 +2880,7 @@
           "definitions": [
             {
               "file": "tests/test_dashboard_backups.py",
-              "line": 926,
+              "line": 927,
               "kind": "function",
               "language": "python"
             }
@@ -3678,7 +2892,19 @@
           "definitions": [
             {
               "file": "tests/test_dashboard_backups.py",
-              "line": 945,
+              "line": 946,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "test_storage_inventory_reports_verified_backup_age_distribution",
+          "definitions": [
+            {
+              "file": "tests/test_dashboard_backups.py",
+              "line": 980,
               "kind": "function",
               "language": "python"
             }
@@ -3686,13 +2912,13 @@
           "relation": "same_file"
         }
       ],
-      "dependency_count": 6
+      "dependency_count": 7
     },
     "test_backup_filesystem_capacity_statvfs_error_is_unknown_not_zero": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 926,
-        "end": 943
+        "start": 927,
+        "end": 944
       },
       "symbol_dependencies": [
         {
@@ -3712,7 +2938,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 187,
+              "line": 226,
               "kind": "function",
               "language": "python"
             }
@@ -3724,7 +2950,7 @@
           "definitions": [
             {
               "file": "tests/test_dashboard_backups.py",
-              "line": 935,
+              "line": 936,
               "kind": "function",
               "language": "python"
             }
@@ -3737,8 +2963,8 @@
     "fail": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 935,
-        "end": 1055
+        "start": 936,
+        "end": 1056
       },
       "symbol_dependencies": [
         {
@@ -3758,7 +2984,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 187,
+              "line": 226,
               "kind": "function",
               "language": "python"
             }
@@ -3770,7 +2996,7 @@
           "definitions": [
             {
               "file": "tests/test_dashboard_backups.py",
-              "line": 957,
+              "line": 958,
               "kind": "function",
               "language": "python"
             }
@@ -3782,7 +3008,19 @@
           "definitions": [
             {
               "file": "tests/test_dashboard_backups.py",
-              "line": 945,
+              "line": 946,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "test_storage_inventory_reports_verified_backup_age_distribution",
+          "definitions": [
+            {
+              "file": "tests/test_dashboard_backups.py",
+              "line": 980,
               "kind": "function",
               "language": "python"
             }
@@ -3790,13 +3028,13 @@
           "relation": "same_file"
         }
       ],
-      "dependency_count": 4
+      "dependency_count": 5
     },
     "test_storage_inventory_keeps_filesystem_shape_when_directory_listing_fails": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 945,
-        "end": 977
+        "start": 946,
+        "end": 978
       },
       "symbol_dependencies": [
         {
@@ -3816,7 +3054,7 @@
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 187,
+              "line": 226,
               "kind": "function",
               "language": "python"
             }
@@ -3828,7 +3066,7 @@
           "definitions": [
             {
               "file": "tests/test_dashboard_backups.py",
-              "line": 957,
+              "line": 958,
               "kind": "function",
               "language": "python"
             }
@@ -3841,16 +3079,74 @@
     "failing_iterdir": {
       "source": {
         "file": "tests/test_dashboard_backups.py",
-        "start": 957,
-        "end": 1077
+        "start": 958,
+        "end": 1078
       },
       "symbol_dependencies": [
+        {
+          "symbol": "SQLiteBackend",
+          "definitions": [
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 20,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
         {
           "symbol": "backup_storage_inventory",
           "definitions": [
             {
               "file": "src/production_os/dashboard_backups.py",
-              "line": 187,
+              "line": 226,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "test_storage_inventory_reports_verified_backup_age_distribution",
+          "definitions": [
+            {
+              "file": "tests/test_dashboard_backups.py",
+              "line": 980,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "test_storage_inventory_reports_verified_backup_age_distribution": {
+      "source": {
+        "file": "tests/test_dashboard_backups.py",
+        "start": 980,
+        "end": 1034
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "SQLiteBackend",
+          "definitions": [
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 20,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "backup_storage_inventory",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_backups.py",
+              "line": 226,
               "kind": "function",
               "language": "python"
             }
@@ -3858,7 +3154,7 @@
           "relation": "imported_module"
         }
       ],
-      "dependency_count": 1
+      "dependency_count": 2
     },
     "test_dashboard_has_primary_views_and_clickable_entities": {
       "source": {
@@ -3874,6 +3170,132 @@
         "file": "tests/test_dashboard_ui_v3.py",
         "start": 11,
         "end": 14
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "test_dashboard_has_worker_and_project_detail_tabs": {
+      "source": {
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 17,
+        "end": 19
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "test_dashboard_preserves_launch_and_mobile_accessibility": {
+      "source": {
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 22,
+        "end": 31
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "test_dashboard_overview_is_bound_to_observability_api": {
+      "source": {
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 34,
+        "end": 37
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "test_dashboard_v3_has_usage_window_controls": {
+      "source": {
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 40,
+        "end": 43
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "test_dashboard_workers_view_is_bound_to_observability_api": {
+      "source": {
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 46,
+        "end": 51
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "test_dashboard_projects_view_is_bound_to_observability_api": {
+      "source": {
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 54,
+        "end": 59
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "test_dashboard_activity_view_is_bound_to_observability_api": {
+      "source": {
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 62,
+        "end": 65
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "test_worker_detail_exposes_live_task_and_health_information": {
+      "source": {
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 68,
+        "end": 72
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "test_worker_detail_exposes_api_usage_breakdown": {
+      "source": {
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 75,
+        "end": 78
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "test_worker_detail_exposes_execution_history": {
+      "source": {
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 81,
+        "end": 85
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "test_worker_detail_exposes_structured_recent_logs": {
+      "source": {
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 88,
+        "end": 92
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "test_worker_detail_exposes_capabilities_and_health": {
+      "source": {
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 95,
+        "end": 100
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "test_project_detail_exposes_progress_evidence": {
+      "source": {
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 103,
+        "end": 108
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "test_project_detail_exposes_progress_components": {
+      "source": {
+        "file": "tests/test_dashboard_ui_v3.py",
+        "start": 111,
+        "end": 114
       },
       "symbol_dependencies": [],
       "dependency_count": 0

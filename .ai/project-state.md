@@ -22,29 +22,29 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-25T15:44:00Z
+Generated: 2026-09-25T16:12:24Z
 
 ### Git
 - Branch: `main`
-- Head: `3032fd8e017a`
-- Commit date: 2026-09-25T17:43:49+02:00
-- Commit: feat: release 26 backup filesystem capacity
-- Tracked files: 409
+- Head: `171909a9549f`
+- Commit date: 2026-09-25T18:12:13+02:00
+- Commit: feat: release 27 backup age observability
+- Tracked files: 410
 
 ### Recently changed files
 - `README.md`
-- `docs/superpowers/plans/2026-09-25-release-26-backup-filesystem-capacity.md`
+- `docs/superpowers/plans/2026-09-25-release-27-backup-age-observability.md`
 - `src/production_os/dashboard_backups.py`
 - `src/production_os/dashboard_ui.py`
-- `tests/test_dashboard_backup_api.py`
 - `tests/test_dashboard_backups.py`
 - `tests/test_dashboard_ui_v3.py`
+- `docs/superpowers/plans/2026-09-25-release-26-backup-filesystem-capacity.md`
+- `tests/test_dashboard_backup_api.py`
 - `docs/superpowers/plans/2026-09-25-release-25-backup-temp-cleanup.md`
 - `src/production_os/control_plane.py`
 - `src/production_os/dashboard_service.py`
 - `docs/superpowers/plans/2026-09-25-release-24-backup-storage-inventory.md`
 - `docs/superpowers/plans/2026-09-25-release-23-restore-activation-history.md`
-- `docs/superpowers/plans/2026-09-25-release-22-restore-replay-protection.md`
 
 ### Project signals
 - `pyproject.toml`
