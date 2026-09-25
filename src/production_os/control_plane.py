@@ -20,6 +20,7 @@ from .dashboard_service import DashboardService, DashboardNotFound
 from .dashboard_ui import DASHBOARD_HTML
 from .dashboard_maintenance import RetentionCandidateConflict
 from .dashboard_backups import BackupError
+from .managed_projects import ManagedProjectService
 from .github_webhook import (
     WebhookDeliveryStore,
     WebhookError,
@@ -55,6 +56,7 @@ class ControlPlane:
         self.queue = job_queue_for(self.backend)
         self.workers = worker_registry_for(self.backend)
         self.workflows = WorkflowEngine(self.backend, self.queue)
+        self.managed_projects = ManagedProjectService(self.workflows)
         github_token = str(os.getenv("GITHUB_TOKEN") or "").strip()
         actions_repository = str(
             os.getenv("PRODUCTION_OS_ACTIONS_REPOSITORY") or ""
@@ -608,6 +610,33 @@ def make_handler(control: ControlPlane):
                     )
                     return
 
+            if parsed.path == "/v1/managed-projects":
+                principal = self._require("viewer")
+                if principal is None:
+                    return
+                self._send(
+                    HTTPStatus.OK,
+                    {"projects":control.managed_projects.list()},
+                )
+                return
+
+            if parsed.path.startswith("/v1/managed-projects/"):
+                principal = self._require("viewer")
+                if principal is None:
+                    return
+                parts = [part for part in parsed.path.split("/") if part]
+                if len(parts) == 3:
+                    try:
+                        project = control.managed_projects.get(parts[2])
+                    except KeyError:
+                        self._send(
+                            HTTPStatus.NOT_FOUND,
+                            {"error":"managed project not found"},
+                        )
+                        return
+                    self._send(HTTPStatus.OK, {"project":project})
+                    return
+
             if parsed.path == "/v1/workers":
                 control.workers.detect_dead()
                 control.workers.load()
@@ -626,6 +655,84 @@ def make_handler(control: ControlPlane):
 
         def do_POST(self) -> None:
             parsed = urlparse(self.path)
+
+            if parsed.path == "/v1/managed-projects":
+                principal = self._require("operator")
+                if principal is None:
+                    return
+                try:
+                    body = self._read_json()
+                    project = control.managed_projects.create(
+                        repository=str(body.get("repository") or ""),
+                        final_goal=str(body.get("final_goal") or ""),
+                        token_budget=body.get("token_budget"),
+                        agent_preference=str(
+                            body.get("agent_preference") or "auto"
+                        ),
+                    )
+                except ValueError as exc:
+                    self._send(
+                        HTTPStatus.BAD_REQUEST,
+                        {"error":str(exc)},
+                    )
+                    return
+                self._send(HTTPStatus.CREATED, {"project":project})
+                return
+
+            if parsed.path.startswith("/v1/managed-projects/"):
+                principal = self._require("operator")
+                if principal is None:
+                    return
+                parts = [part for part in parsed.path.split("/") if part]
+                if len(parts) == 4:
+                    workflow_id = parts[2]
+                    action = parts[3]
+                    try:
+                        body = self._read_json()
+                        if action == "instructions":
+                            project = control.managed_projects.add_instruction(
+                                workflow_id,
+                                str(body.get("instruction") or ""),
+                            )
+                        elif action == "verify":
+                            project = (
+                                control.managed_projects.request_verification(
+                                    workflow_id
+                                )
+                            )
+                        elif action == "complete":
+                            project = control.managed_projects.mark_done(
+                                workflow_id,
+                                approved_by=(
+                                    f"{principal.role}:{principal.name}"
+                                ),
+                            )
+                        else:
+                            self._send(
+                                HTTPStatus.NOT_FOUND,
+                                {"error":"not found"},
+                            )
+                            return
+                    except KeyError:
+                        self._send(
+                            HTTPStatus.NOT_FOUND,
+                            {"error":"managed project not found"},
+                        )
+                        return
+                    except ValueError as exc:
+                        self._send(
+                            HTTPStatus.BAD_REQUEST,
+                            {"error":str(exc)},
+                        )
+                        return
+                    except RuntimeError as exc:
+                        self._send(
+                            HTTPStatus.CONFLICT,
+                            {"error":str(exc)},
+                        )
+                        return
+                    self._send(HTTPStatus.OK, {"project":project})
+                    return
 
             if parsed.path == "/v1/github/webhook":
                 if not control.github_webhook_secret:
