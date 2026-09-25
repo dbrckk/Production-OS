@@ -791,6 +791,7 @@ async function loadOverview(){
    '<div id="maintenance-prune-status" class="status-message"></div>'+
    '</div>';
   const backupRows=backups.backups||[];
+  const activationRows=backups.activations||[];
   const lastBackup=backupRows.length?backupRows[0]:null;
   const backupButton=backups.create_supported===true
    ?'<button class="secondary-btn" type="button" onclick="createVerifiedBackup()">Créer une sauvegarde vérifiée</button>'
@@ -807,6 +808,10 @@ async function loadOverview(){
    '<p class="small"><strong>Dernière sauvegarde vérifiée :</strong> '+(lastBackup?esc(String(lastBackup.created_at||""))+' · '+formatBytes(lastBackup.size_bytes):'Aucune')+'</p>'+
    (backups.message?'<p class="small">'+esc(String(backups.message))+'</p>':'')+
    backupCatalogHtml+
+   '<h3 style="font-size:.85rem;margin:15px 0 6px">Historique des activations</h3>'+
+   (activationRows.length?activationRows.slice(0,5).map(function(row){
+    return '<div class="small"><strong>'+esc(String(row.activated_at||""))+'</strong> · candidat '+esc(String(row.candidate_id||""))+' · rollback '+esc(String(row.rollback_backup_id||""))+'</div>';
+   }).join(""):'<div class="small">Aucune activation de restauration enregistrée.</div>')+
    '<div style="margin-top:10px">'+backupButton+'</div>'+
    '<div id="backup-status-message" class="status-message"></div>'+
    '</div>';
