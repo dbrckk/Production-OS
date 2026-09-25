@@ -937,6 +937,29 @@ unknown  measurement unavailable
 
 No automatic cleanup, backup, restore or control action is triggered from this status. Server paths remain hidden.
 
+
+## Release 27 — Verified backup age observability
+
+The backups dashboard now reports the age distribution of verified SQLite backup manifests without deleting or reclassifying any backup.
+
+The read-only summary includes:
+
+```text
+verified_count
+valid_timestamp_count
+invalid_timestamp_count
+newest_created_at
+oldest_created_at
+under_24h
+one_to_seven_days
+seven_to_thirty_days
+over_thirty_days
+```
+
+Only manifests already marked `verified=true` participate in the age summary. Invalid timestamps are counted explicitly instead of being coerced into an age bucket.
+
+This release is observational only. It introduces no retention policy, no automatic deletion, no cleanup of verified backups, and no path exposure. The age distribution is intended to provide evidence for a later guarded retention design.
+
 ## Design principles
 
 - Evidence over assumptions

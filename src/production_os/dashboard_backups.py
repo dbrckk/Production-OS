@@ -184,7 +184,47 @@ def _backup_filesystem_capacity(directory: Path | None) -> dict:
     }
 
 
+def _backup_age_summary(created_values: list[str], *, now: datetime | None = None) -> dict:
+    now = now or datetime.now(timezone.utc)
+    valid: list[datetime] = []
+    invalid = 0
+    buckets = {
+        "under_24h":0,
+        "one_to_seven_days":0,
+        "seven_to_thirty_days":0,
+        "over_thirty_days":0,
+    }
+    for value in created_values:
+        try:
+            parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        except (TypeError, ValueError):
+            invalid += 1
+            continue
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=timezone.utc)
+        parsed = parsed.astimezone(timezone.utc)
+        age_seconds = max(0.0, (now - parsed).total_seconds())
+        valid.append(parsed)
+        if age_seconds < 86400:
+            buckets["under_24h"] += 1
+        elif age_seconds < 7 * 86400:
+            buckets["one_to_seven_days"] += 1
+        elif age_seconds < 30 * 86400:
+            buckets["seven_to_thirty_days"] += 1
+        else:
+            buckets["over_thirty_days"] += 1
+    return {
+        "verified_count":len(created_values),
+        "valid_timestamp_count":len(valid),
+        "invalid_timestamp_count":invalid,
+        "newest_created_at":max(valid).isoformat() if valid else None,
+        "oldest_created_at":min(valid).isoformat() if valid else None,
+        "buckets":buckets,
+    }
+
+
 def backup_storage_inventory(backend) -> dict:
+    backup_age = _backup_age_summary([])
     zero = {
         "total_size_bytes":0,
         "backup_count":0,
@@ -214,6 +254,7 @@ def backup_storage_inventory(backend) -> dict:
                 "used_percent":None,
                 "available_percent":None,
             },
+            "backup_age":backup_age,
         }
     directory = _configured_dir()
     if directory is None:
@@ -222,6 +263,7 @@ def backup_storage_inventory(backend) -> dict:
             "backend_kind":"sqlite",
             **zero,
             "filesystem":_backup_filesystem_capacity(None),
+            "backup_age":backup_age,
         }
     if not directory.exists():
         return {
@@ -229,6 +271,7 @@ def backup_storage_inventory(backend) -> dict:
             "backend_kind":"sqlite",
             **zero,
             "filesystem":_backup_filesystem_capacity(directory),
+            "backup_age":backup_age,
         }
     if not directory.is_dir():
         return {
@@ -236,11 +279,13 @@ def backup_storage_inventory(backend) -> dict:
             "backend_kind":"sqlite",
             **zero,
             "filesystem":_backup_filesystem_capacity(directory),
+            "backup_age":backup_age,
         }
 
     backup_ids: set[str] = set()
     candidate_ids: set[str] = set()
     metrics = dict(zero)
+    verified_backup_created_at: list[str] = []
     backup_sqlite = re.compile(
         r"^(\d{8}T\d{6}Z-[0-9a-f]{12})\.sqlite$"
     )
@@ -265,6 +310,7 @@ def backup_storage_inventory(backend) -> dict:
             "backend_kind":"sqlite",
             **zero,
             "filesystem":_backup_filesystem_capacity(directory),
+            "backup_age":backup_age,
         }
 
     for path in paths:
@@ -302,10 +348,18 @@ def backup_storage_inventory(backend) -> dict:
             candidate_ids.add(match.group(1))
             metrics["restore_candidate_bytes"] += size
             continue
-        match = backup_sqlite.fullmatch(name) or backup_manifest.fullmatch(name)
+        sqlite_match = backup_sqlite.fullmatch(name)
+        manifest_match = backup_manifest.fullmatch(name)
+        match = sqlite_match or manifest_match
         if match:
             backup_ids.add(match.group(1))
             metrics["backup_bytes"] += size
+            if manifest_match:
+                manifest = _safe_manifest(path)
+                if manifest and manifest.get("verified") is True:
+                    verified_backup_created_at.append(
+                        str(manifest.get("created_at") or "")
+                    )
             continue
         metrics["unknown_file_count"] += 1
         metrics["unknown_file_bytes"] += size
@@ -317,6 +371,7 @@ def backup_storage_inventory(backend) -> dict:
         "backend_kind":"sqlite",
         **metrics,
         "filesystem":_backup_filesystem_capacity(directory),
+        "backup_age":_backup_age_summary(verified_backup_created_at),
     }
 
 
