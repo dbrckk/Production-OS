@@ -2451,13 +2451,28 @@ status = "warning"
 ⋮----
 status = "ok"
 ⋮----
+def _backup_age_summary(created_values: list[str], *, now: datetime | None = None) -> dict
+⋮----
+now = now or datetime.now(timezone.utc)
+valid: list[datetime] = []
+invalid = 0
+buckets = {
+⋮----
+parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+⋮----
+parsed = parsed.replace(tzinfo=timezone.utc)
+parsed = parsed.astimezone(timezone.utc)
+age_seconds = max(0.0, (now - parsed).total_seconds())
+⋮----
 def backup_storage_inventory(backend) -> dict
 ⋮----
+backup_age = _backup_age_summary([])
 zero = {
 ⋮----
 backup_ids: set[str] = set()
 candidate_ids: set[str] = set()
 metrics = dict(zero)
+verified_backup_created_at: list[str] = []
 backup_sqlite = re.compile(
 backup_manifest = re.compile(
 candidate_sqlite = re.compile(
@@ -2480,7 +2495,11 @@ match = activation_receipt.fullmatch(name)
 ⋮----
 match = candidate_sqlite.fullmatch(name) or candidate_manifest.fullmatch(name)
 ⋮----
-match = backup_sqlite.fullmatch(name) or backup_manifest.fullmatch(name)
+sqlite_match = backup_sqlite.fullmatch(name)
+manifest_match = backup_manifest.fullmatch(name)
+match = sqlite_match or manifest_match
+⋮----
+manifest = _safe_manifest(path)
 ⋮----
 inventory = backup_storage_inventory(backend)
 ⋮----

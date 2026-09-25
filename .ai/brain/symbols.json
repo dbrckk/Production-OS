@@ -1775,57 +1775,64 @@
       "file": "src/production_os/dashboard_backups.py",
       "language": "python",
       "kind": "function",
-      "name": "backup_storage_inventory",
+      "name": "_backup_age_summary",
       "line": 187
     },
     {
       "file": "src/production_os/dashboard_backups.py",
       "language": "python",
       "kind": "function",
+      "name": "backup_storage_inventory",
+      "line": 226
+    },
+    {
+      "file": "src/production_os/dashboard_backups.py",
+      "language": "python",
+      "kind": "function",
       "name": "prune_stale_backup_temps",
-      "line": 323
+      "line": 378
     },
     {
       "file": "src/production_os/dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "backup_readiness",
-      "line": 380
+      "line": 435
     },
     {
       "file": "src/production_os/dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "verify_backup_for_restore",
-      "line": 437
+      "line": 492
     },
     {
       "file": "src/production_os/dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "stage_verified_sqlite_restore",
-      "line": 523
+      "line": 578
     },
     {
       "file": "src/production_os/dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "verify_staged_restore_candidate",
-      "line": 625
+      "line": 680
     },
     {
       "file": "src/production_os/dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "activate_staged_sqlite_restore",
-      "line": 710
+      "line": 765
     },
     {
       "file": "src/production_os/dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "create_verified_sqlite_backup",
-      "line": 874
+      "line": 929
     },
     {
       "file": "src/production_os/dashboard_control.py",
@@ -8748,315 +8755,322 @@
       "language": "python",
       "kind": "function",
       "name": "test_sqlite_backup_contains_committed_durable_data",
-      "line": 27
+      "line": 28
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_backup_hash_and_size_match_file_bytes",
-      "line": 51
+      "line": 52
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_manifest_contains_only_safe_metadata",
-      "line": 63
+      "line": 64
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_missing_backup_directory_configuration_writes_nothing",
-      "line": 85
+      "line": 86
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "class",
       "name": "_FakePostgres",
-      "line": 97
+      "line": 98
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_postgres_readiness_is_truthfully_unsupported",
-      "line": 104
+      "line": 105
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_backup_readiness_does_not_create_configured_directory",
-      "line": 115
+      "line": 116
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_valid_backup_reports_restore_readiness_and_schema",
-      "line": 127
+      "line": 128
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_tampered_backup_file_is_rejected",
-      "line": 143
+      "line": 144
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_tampered_manifest_is_rejected",
-      "line": 155
+      "line": 156
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_restore_verification_rejects_malformed_or_traversal_ids",
-      "line": 179
+      "line": 180
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_restore_verification_rejects_missing_backup_file",
-      "line": 190
+      "line": 191
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_restore_verification_never_changes_live_database",
-      "line": 201
+      "line": 202
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_stage_verified_restore_creates_isolated_candidate",
-      "line": 225
+      "line": 226
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_stage_restore_rejects_tampered_source_without_candidate",
-      "line": 269
+      "line": 270
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_stage_restore_manifest_contains_only_safe_metadata",
-      "line": 284
+      "line": 285
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_offline_restore_activation_replaces_live_state_and_creates_rollback",
-      "line": 311
+      "line": 312
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_restore_activation_wrong_confirmation_changes_nothing",
-      "line": 360
+      "line": 361
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_restore_activation_rejects_tampered_candidate",
-      "line": 379
+      "line": 380
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_restore_activation_rejects_schema_mismatch",
-      "line": 396
+      "line": 397
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_restore_activation_rolls_back_if_post_replace_verification_fails",
-      "line": 419
+      "line": 420
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "failing_connect",
-      "line": 445
+      "line": 446
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_successful_restore_candidate_cannot_be_replayed",
-      "line": 476
+      "line": 477
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_restore_activation_receipt_contains_only_safe_structured_fields",
-      "line": 497
+      "line": 498
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_successful_activation_marks_candidate_manifest_consumed",
-      "line": 538
+      "line": 539
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_failed_activation_with_rollback_does_not_consume_candidate",
-      "line": 565
+      "line": 566
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "failing_connect",
-      "line": 581
+      "line": 582
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_restore_activation_history_lists_valid_receipts_newest_first",
-      "line": 607
+      "line": 608
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_restore_activation_history_ignores_malformed_receipts",
-      "line": 646
+      "line": 647
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_restore_activation_history_is_empty_when_unconfigured_or_postgres",
-      "line": 676
+      "line": 677
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_backup_storage_inventory_classifies_files_without_exposing_paths",
-      "line": 688
+      "line": 689
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_backup_storage_inventory_missing_directory_is_zero_and_read_only",
-      "line": 737
+      "line": 738
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_backup_storage_inventory_postgres_is_truthfully_unsupported",
-      "line": 753
+      "line": 754
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_backup_storage_inventory_marks_only_old_temps_stale",
-      "line": 766
+      "line": 767
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_prune_stale_backup_temps_deletes_only_stale_temp_files",
-      "line": 789
+      "line": 790
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_prune_stale_backup_temps_count_mismatch_changes_nothing",
-      "line": 827
+      "line": 828
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_backup_filesystem_capacity_uses_existing_parent_for_missing_directory",
-      "line": 851
+      "line": 852
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_backup_filesystem_capacity_is_unavailable_when_unconfigured",
-      "line": 871
+      "line": 872
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_backup_filesystem_capacity_postgres_is_unsupported",
-      "line": 885
+      "line": 886
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_backup_filesystem_capacity_converts_statvfs_and_thresholds",
-      "line": 898
+      "line": 899
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "class",
       "name": "Stats",
-      "line": 907
+      "line": 908
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_backup_filesystem_capacity_statvfs_error_is_unknown_not_zero",
-      "line": 926
+      "line": 927
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "fail",
-      "line": 935
+      "line": 936
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_storage_inventory_keeps_filesystem_shape_when_directory_listing_fails",
-      "line": 945
+      "line": 946
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "failing_iterdir",
-      "line": 957
+      "line": 958
+    },
+    {
+      "file": "tests/test_dashboard_backups.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_storage_inventory_reports_verified_backup_age_distribution",
+      "line": 980
     },
     {
       "file": "tests/test_dashboard_control.py",
@@ -10891,6 +10905,13 @@
       "kind": "function",
       "name": "test_backup_overview_renders_filesystem_capacity_read_only",
       "line": 501
+    },
+    {
+      "file": "tests/test_dashboard_ui_v3.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_backup_overview_renders_verified_backup_age_distribution",
+      "line": 511
     },
     {
       "file": "tests/test_dashboard_usage.py",

@@ -2,23 +2,23 @@
 
 - Index mode: incremental
 - Files indexed: 245
-- Files reparsed this run: 5
-- Symbols: 1964
+- Files reparsed this run: 4
+- Symbols: 1967
 - Internal import edges: 692
-- Impacted files: 10
-- Selected tests: 5
+- Impacted files: 9
+- Selected tests: 4
 
 ## Languages
 - python: 245 files
 
 ## Highest-density symbol files
 - src/production_os/cli.py: 81 symbols
-- tests/test_dashboard_ui_v3.py: 63 symbols
+- tests/test_dashboard_ui_v3.py: 64 symbols
 - tests/test_asset_forge.py: 56 symbols
 - src/production_os/postgres_backend.py: 55 symbols
 - src/production_os/sqlite_backend.py: 55 symbols
 - src/production_os/dashboard_store.py: 49 symbols
-- tests/test_dashboard_backups.py: 45 symbols
+- tests/test_dashboard_backups.py: 46 symbols
 - src/production_os/dashboard_service.py: 43 symbols
 - src/production_os/github_client.py: 37 symbols
 - src/production_os/workflow_engine.py: 37 symbols
@@ -31,7 +31,7 @@
 - src/production_os/transparency_receipts.py: 21 symbols
 - src/production_os/managed_projects.py: 20 symbols
 - tests/test_workflow_engine.py: 20 symbols
-- tests/test_dashboard_api.py: 19 symbols
+- src/production_os/dashboard_backups.py: 19 symbols
 
 ## Agent routing
 - Read impact.json first after project/change context.
@@ -42,9 +42,9 @@
 ## ast-grep enrichment
 - ast-grep outline: available
 - AST index mode: incremental
-- AST files reparsed this run: 5
+- AST files reparsed this run: 4
 - outline files retained: 245
-- top-level items retained: 2503
+- top-level items retained: 2507
 - direct members retained: 864
 - symbol shards: 25
 - route named symbols via ast-routing.json, then fetch one ast-symbols/<initial>.json shard

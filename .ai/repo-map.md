@@ -2970,13 +2970,28 @@ status = "warning"
 ⋮----
 status = "ok"
 ⋮----
+def _backup_age_summary(created_values: list[str], *, now: datetime | None = None) -> dict
+⋮----
+now = now or datetime.now(timezone.utc)
+valid: list[datetime] = []
+invalid = 0
+buckets = {
+⋮----
+parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+⋮----
+parsed = parsed.replace(tzinfo=timezone.utc)
+parsed = parsed.astimezone(timezone.utc)
+age_seconds = max(0.0, (now - parsed).total_seconds())
+⋮----
 def backup_storage_inventory(backend) -> dict
 ⋮----
+backup_age = _backup_age_summary([])
 zero = {
 ⋮----
 backup_ids: set[str] = set()
 candidate_ids: set[str] = set()
 metrics = dict(zero)
+verified_backup_created_at: list[str] = []
 backup_sqlite = re.compile(
 backup_manifest = re.compile(
 candidate_sqlite = re.compile(
@@ -2999,7 +3014,11 @@ match = activation_receipt.fullmatch(name)
 ⋮----
 match = candidate_sqlite.fullmatch(name) or candidate_manifest.fullmatch(name)
 ⋮----
-match = backup_sqlite.fullmatch(name) or backup_manifest.fullmatch(name)
+sqlite_match = backup_sqlite.fullmatch(name)
+manifest_match = backup_manifest.fullmatch(name)
+match = sqlite_match or manifest_match
+⋮----
+manifest = _safe_manifest(path)
 ⋮----
 inventory = backup_storage_inventory(backend)
 ⋮----
@@ -8890,6 +8909,13 @@ path_type = type(backup_dir)
 original_iterdir = path_type.iterdir
 ⋮----
 def failing_iterdir(path)
+⋮----
+now = datetime.now(timezone.utc)
+samples = [
+⋮----
+invalid_id = "20260901T120000Z-000000000005"
+⋮----
+age = backup_storage_inventory(backend)["backup_age"]
 ````
 
 ## File: tests/test_dashboard_control_api.py
@@ -10066,6 +10092,8 @@ def test_backup_overview_renders_storage_inventory_read_only()
 def test_backup_temp_cleanup_ui_is_guarded_and_stale_only()
 ⋮----
 def test_backup_overview_renders_filesystem_capacity_read_only()
+⋮----
+def test_backup_overview_renders_verified_backup_age_distribution()
 ````
 
 ## File: tests/test_dashboard_usage.py
@@ -13587,6 +13615,29 @@ unknown  measurement unavailable
 ```
 
 No automatic cleanup, backup, restore or control action is triggered from this status. Server paths remain hidden.
+
+
+## Release 27 — Verified backup age observability
+
+The backups dashboard now reports the age distribution of verified SQLite backup manifests without deleting or reclassifying any backup.
+
+The read-only summary includes:
+
+```text
+verified_count
+valid_timestamp_count
+invalid_timestamp_count
+newest_created_at
+oldest_created_at
+under_24h
+one_to_seven_days
+seven_to_thirty_days
+over_thirty_days
+```
+
+Only manifests already marked `verified=true` participate in the age summary. Invalid timestamps are counted explicitly instead of being coerced into an age bucket.
+
+This release is observational only. It introduces no retention policy, no automatic deletion, no cleanup of verified backups, and no path exposure. The age distribution is intended to provide evidence for a later guarded retention design.
 
 ## Design principles
 
