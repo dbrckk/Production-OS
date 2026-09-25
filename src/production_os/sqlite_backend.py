@@ -432,6 +432,7 @@ class SQLiteBackend:
                     updated_at TEXT NOT NULL,
                     reviewed_at TEXT,
                     completed_at TEXT,
+                    completed_by TEXT,
                     FOREIGN KEY(current_workflow_id) REFERENCES workflows(id)
                         ON DELETE RESTRICT
                 );
