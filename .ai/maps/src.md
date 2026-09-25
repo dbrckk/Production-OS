@@ -3247,6 +3247,7 @@ items: list[dict] = []
 severity_priority = {
 ⋮----
 severity = str(incident.get("severity") or "medium")
+actions = []
 ⋮----
 status = str(project.get("status") or "")
 workflow = project.get("current_workflow") or {}
@@ -3255,6 +3256,7 @@ workflow_status = str(workflow.get("status") or "")
 failed = workflow_status == "failed"
 ⋮----
 wait_priorities = {
+blocked_jobs = [
 ⋮----
 reason = job.get("wait_reason")
 ⋮----
