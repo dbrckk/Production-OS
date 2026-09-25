@@ -824,6 +824,7 @@ async function loadOverview(){
   const backupRows=backups.backups||[];
   const activationRows=backups.activations||[];
   const backupStorage=backups.storage||{};
+  const backupFilesystem=backupStorage.filesystem||{};
   const lastBackup=backupRows.length?backupRows[0]:null;
   const backupButton=backups.create_supported===true
    ?'<button class="secondary-btn" type="button" onclick="createVerifiedBackup()">Créer une sauvegarde vérifiée</button>'
@@ -843,6 +844,7 @@ async function loadOverview(){
    '<p class="small"><strong>Backend :</strong> '+esc(String(backups.backend_kind||"inconnu"))+' · <strong>Restauration :</strong> '+(backups.restore_enabled?'activée':'désactivée')+'</p>'+
    '<p class="small"><strong>Dernière sauvegarde vérifiée :</strong> '+(lastBackup?esc(String(lastBackup.created_at||""))+' · '+formatBytes(lastBackup.size_bytes):'Aucune')+'</p>'+
    '<p class="small"><strong>Stockage backup :</strong> '+formatBytes(backupStorage.total_size_bytes)+' · backups '+formatNumber(backupStorage.backup_count)+' · candidats '+formatNumber(backupStorage.restore_candidate_count)+' · reçus '+formatNumber(backupStorage.activation_receipt_count)+'</p>'+
+   '<p class="small"><strong>Filesystem :</strong> '+esc(String(backupFilesystem.status||"unknown"))+' · <strong>Disponible :</strong> '+formatBytes(backupFilesystem.available_bytes)+' · <strong>Utilisé :</strong> '+(backupFilesystem.used_percent==null?'Indisponible':formatNumber(backupFilesystem.used_percent)+' %')+'</p>'+
    '<p class="small"><strong>Temporaires :</strong> '+formatNumber(backupStorage.temp_file_count)+' · <strong>Anciens ≥24 h :</strong> '+formatNumber(staleTempCount)+' · <strong>Inconnus :</strong> '+formatNumber(backupStorage.unknown_file_count)+'</p>'+
    (backups.message?'<p class="small">'+esc(String(backups.message))+'</p>':'')+
    backupCatalogHtml+
