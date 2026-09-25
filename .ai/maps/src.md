@@ -101,6 +101,7 @@ production_os/
   key_registry.py
   learning.py
   locks.py
+  managed_projects.py
   metrics.py
   migration_registry.py
   migrations.py
@@ -1952,7 +1953,22 @@ verification = control.releases.verify(
 ⋮----
 release = control.releases.get(parts[2])
 ⋮----
+project = control.managed_projects.get(parts[2])
+⋮----
 def do_POST(self) -> None
+⋮----
+principal = self._require("operator")
+⋮----
+body = self._read_json()
+project = control.managed_projects.create(
+⋮----
+action = parts[3]
+⋮----
+project = control.managed_projects.add_instruction(
+⋮----
+project = (
+⋮----
+project = control.managed_projects.mark_done(
 ⋮----
 delivery_id = self.headers.get(
 event_name = self.headers.get(
@@ -1973,10 +1989,6 @@ dispatched = []
 ⋮----
 decisions = control.workflows.apply_change_impact(
 jobs = control.workflows.dispatch_ready(
-⋮----
-body = self._read_json()
-⋮----
-principal = self._require("operator")
 ⋮----
 backup_id = parts[3]
 requested_by = f"{principal.role}:{principal.name}"
@@ -2049,8 +2061,6 @@ changed_paths = GitHubClient().list_pull_request_files(
 ⋮----
 tasks = [
 workflow = control.workflows.create(
-⋮----
-action = parts[3]
 ⋮----
 workflow = control.workflows.cancel(workflow_id)
 ⋮----
@@ -4242,6 +4252,113 @@ def __exit__(self, exc_type, exc, tb)
 def sidecar_lock(path: str | Path) -> FileLock
 ⋮----
 target = Path(path)
+```
+
+## File: production_os/managed_projects.py
+```python
+MANAGED_PROJECT_SCHEMA = "production-os/managed-project/v2"
+USAGE_KEYS = (
+⋮----
+def _now() -> str
+⋮----
+def _positive_int(value, *, field: str) -> int
+⋮----
+number = int(value)
+⋮----
+def _usage_from_result(result: dict | None) -> dict
+⋮----
+candidates = [result.get("usage")]
+evidence = result.get("evidence")
+⋮----
+usage = next((item for item in candidates if isinstance(item, dict)), None)
+⋮----
+normalized: dict = {}
+⋮----
+value = usage.get(key)
+⋮----
+runs = usage.get("runs")
+⋮----
+run_count = int(runs)
+⋮----
+run_count = 0
+⋮----
+agents = usage.get("agents")
+⋮----
+clean = {}
+⋮----
+value = int(count)
+⋮----
+class ManagedProjectService
+⋮----
+def __init__(self, workflows: WorkflowEngine)
+⋮----
+repository = str(repository or "").strip()
+final_goal = str(final_goal or "").strip()
+agent_preference = str(agent_preference or "auto").strip() or "auto"
+⋮----
+budget = _positive_int(token_budget, field="token_budget")
+workflow = self.workflows.create(
+⋮----
+def list(self) -> list[dict]
+⋮----
+rows = _execute(
+projects = []
+⋮----
+project = self._project(self.workflows.get(str(row["id"])))
+⋮----
+def get(self, workflow_id: str) -> dict
+⋮----
+project = self._project(self.workflows.get(str(workflow_id)))
+⋮----
+@staticmethod
+    def _next_task_id(workflow: dict, prefix: str) -> str
+⋮----
+known = {str(task.get("task_id") or "") for task in workflow.get("tasks", [])}
+index = 1
+⋮----
+current = self.get(workflow_id)
+⋮----
+workflow = self.workflows.get(workflow_id)
+task_id = self._next_task_id(workflow, prefix)
+dependencies = tuple(str(task["task_id"]) for task in workflow["tasks"])
+⋮----
+def add_instruction(self, workflow_id: str, instruction: str) -> dict
+⋮----
+instruction = str(instruction or "").strip()
+⋮----
+def request_verification(self, workflow_id: str) -> dict
+⋮----
+instruction = (
+⋮----
+def mark_done(self, workflow_id: str, *, approved_by: str) -> dict
+⋮----
+metadata = dict(workflow.get("metadata") or {})
+managed = dict(metadata.get("managed_project") or {})
+⋮----
+def _project(self, workflow: dict) -> dict | None
+⋮----
+managed = metadata.get("managed_project")
+⋮----
+usage = {
+⋮----
+item = _usage_from_result(task.get("result"))
+⋮----
+value = item.get(key)
+⋮----
+human_state = str(managed.get("human_state") or "active")
+task_states = {str(task.get("status") or "") for task in workflow.get("tasks", [])}
+⋮----
+state = "DONE"
+⋮----
+state = "REVIEW_REQUIRED"
+⋮----
+state = "FAILED"
+⋮----
+state = "BLOCKED"
+⋮----
+state = "PAUSED"
+⋮----
+state = "RUNNING"
 ```
 
 ## File: production_os/metrics.py
@@ -6814,6 +6931,14 @@ artifacts = _execute(
 @staticmethod
     def _artifact_dict(row) -> dict
 ⋮----
+row = _execute(
+⋮----
+existing = _execute(
+⋮----
+known_rows = _execute(
+known = {str(row["task_id"]) for row in known_rows}
+missing = [
+⋮----
 def refresh(self, workflow_id: str) -> dict
 ⋮----
 exists = _execute(
@@ -6872,8 +6997,6 @@ queue_payload = {
 job = self.queue.enqueue(queue_payload)
 ⋮----
 remaining = max(0, limit - len(dispatched))
-⋮----
-row = _execute(
 ⋮----
 status = "succeeded"
 ⋮----

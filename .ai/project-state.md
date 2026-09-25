@@ -22,34 +22,36 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-24T22:04:53Z
+Generated: 2026-09-25T08:27:53Z
 
 ### Git
 - Branch: `main`
-- Head: `2231341f24ee`
-- Commit date: 2026-09-25T00:04:41+02:00
-- Commit: test: release 16 operations e2e qualification
-- Tracked files: 393
+- Head: `d1508f61c5d5`
+- Commit date: 2026-09-25T10:27:42+02:00
+- Commit: feat: managed projects v4
+- Tracked files: 396
 
 ### Recently changed files
+- `src/production_os/control_plane.py`
+- `src/production_os/dashboard_ui.py`
+- `src/production_os/managed_projects.py`
+- `src/production_os/workflow_engine.py`
+- `tests/test_dashboard_ui_v3.py`
+- `tests/test_managed_projects_http_v4.py`
+- `tests/test_managed_projects_v4.py`
+- `tests/test_workflow_engine.py`
+- `tests/test_workflow_postgres.py`
 - `docs/superpowers/plans/2026-09-24-release-16-operations-e2e.md`
 - `tests/test_release16_operations_e2e.py`
 - `README.md`
 - `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-15.md`
-- `src/production_os/control_plane.py`
 - `src/production_os/dashboard_backups.py`
 - `src/production_os/dashboard_service.py`
-- `src/production_os/dashboard_ui.py`
 - `tests/test_dashboard_backup_api.py`
 - `tests/test_dashboard_backups.py`
-- `tests/test_dashboard_ui_v3.py`
 - `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-14.md`
 - `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-13.md`
 - `src/production_os/dashboard_maintenance.py`
-- `tests/test_dashboard_retention_prune.py`
-- `tests/test_dashboard_store_postgres.py`
-- `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-12.md`
-- `tests/test_dashboard_maintenance.py`
 
 ### Project signals
 - `pyproject.toml`

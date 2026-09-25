@@ -1,18 +1,26 @@
 # Change impact
 
-Base: de6ec4ce981bd34afb35367888b799d6b91f5d6b
-Head: 2231341f24ee3db2fece523ca0bbe874655caea4
+Base: 9ba773d07fc2dbc95d0d4edd1ac8305504b81114
+Head: d1508f61c5d56f1b1a6fcde896b5b043587fc944
 
 ## Changed files
-- A docs/superpowers/plans/2026-09-24-release-16-operations-e2e.md
-- A tests/test_release16_operations_e2e.py
+- M src/production_os/control_plane.py
+- M src/production_os/dashboard_ui.py
+- A src/production_os/managed_projects.py
+- M src/production_os/workflow_engine.py
+- M tests/test_dashboard_ui_v3.py
+- A tests/test_managed_projects_http_v4.py
+- A tests/test_managed_projects_v4.py
+- M tests/test_workflow_engine.py
+- M tests/test_workflow_postgres.py
 
 ## Affected areas
-- docs
+- src
 - tests
 
 ## Related test candidates
-- No direct filename-based test match detected.
+- tests/test_control_plane.py
+- tests/test_workflow_engine.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

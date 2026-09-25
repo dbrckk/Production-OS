@@ -106,6 +106,8 @@ test_key_domains.py
 test_key_registry_validation.py
 test_key_rotation.py
 test_learning_control_surface.py
+test_managed_projects_http_v4.py
+test_managed_projects_v4.py
 test_observability.py
 test_p6_hardening.py
 test_policy_budgets.py
@@ -2211,6 +2213,12 @@ def test_backup_ui_does_not_render_server_paths()
 def test_backup_catalog_exposes_restore_readiness_verification_only()
 ⋮----
 def test_restore_readiness_ui_never_exposes_restore_action_or_paths()
+⋮----
+def test_dashboard_has_managed_projects_view()
+⋮----
+def test_managed_projects_view_exposes_review_actions_only_in_review_state()
+⋮----
+def test_managed_projects_navigation_preserves_existing_polling_contract()
 ```
 
 ## File: test_dashboard_usage.py
@@ -2626,6 +2634,87 @@ signals = build_learning_signals(events)
 def test_control_surface_contains_schedule()
 ⋮----
 html = render_control_surface({
+```
+
+## File: test_managed_projects_http_v4.py
+```python
+def _auth()
+⋮----
+def _request(base, path, token, *, method="GET", body=None)
+⋮----
+data = None if body is None else json.dumps(body).encode("utf-8")
+req = urllib.request.Request(
+⋮----
+raw = response.read()
+⋮----
+raw = exc.read()
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+def test_operator_can_create_and_viewer_can_list_managed_projects(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "db.sqlite"), authorizer=_auth())
+⋮----
+project = created["project"]
+⋮----
+def test_viewer_cannot_create_managed_project(tmp_path)
+⋮----
+def test_managed_project_http_review_instruction_verify_and_complete(tmp_path)
+⋮----
+workflow_id = created["project"]["workflow_id"]
+⋮----
+def test_managed_project_persists_across_control_plane_restart(tmp_path)
+⋮----
+database = str(tmp_path / "managed-restart.sqlite")
+first = ControlPlane(database, authorizer=_auth())
+created = first.managed_projects.create(
+workflow_id = created["workflow_id"]
+⋮----
+second = ControlPlane(database, authorizer=_auth())
+restored = second.managed_projects.get(workflow_id)
+⋮----
+done = second.managed_projects.mark_done(
+```
+
+## File: test_managed_projects_v4.py
+```python
+def service(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "db.sqlite")
+queue = SQLiteJobQueue(backend)
+workflows = WorkflowEngine(backend, queue)
+⋮----
+def test_managed_project_requires_human_completion_after_execution(tmp_path)
+⋮----
+created = projects.create(
+⋮----
+review = projects.get(created["workflow_id"])
+⋮----
+done = projects.mark_done(created["workflow_id"], approved_by="operator")
+⋮----
+def test_managed_project_rejects_done_before_review(tmp_path)
+⋮----
+def test_managed_project_accepts_followup_instruction_after_review(tmp_path)
+⋮----
+resumed = projects.add_instruction(
+⋮----
+workflow = workflows.get(created["workflow_id"])
+task = next(x for x in workflow["tasks"] if x["task_id"] == "instruction-1")
+⋮----
+def test_managed_project_retest_queues_verification_task(tmp_path)
+⋮----
+running = projects.request_verification(created["workflow_id"])
+⋮----
+task = next(x for x in workflow["tasks"] if x["task_id"] == "verification-1")
+⋮----
+def test_managed_project_list_excludes_normal_workflows(tmp_path)
+⋮----
+listed = projects.list()
+⋮----
+def test_managed_project_rejects_invalid_budget(tmp_path)
 ```
 
 ## File: test_observability.py
@@ -4159,6 +4248,17 @@ def test_pr_artifact_requires_current_revision_and_generation(tmp_path)
 artifact=wf.add_artifact(
 ⋮----
 def test_superseded_pr_rejects_artifact_promotion(tmp_path)
+⋮----
+def test_workflow_metadata_can_be_updated_without_recreating_workflow(tmp_path)
+⋮----
+updated=wf.update_metadata(
+⋮----
+def test_workflow_add_task_validates_dependencies_and_becomes_dispatchable(tmp_path)
+⋮----
+updated=wf.add_task(
+task=next(item for item in updated["tasks"] if item["task_id"]=="follow-up")
+⋮----
+jobs=wf.dispatch_ready(created["id"],task_id="follow-up")
 ```
 
 ## File: test_workflow_postgres.py
@@ -4177,6 +4277,17 @@ workflow=engine.create(
 first=engine.dispatch_ready(workflow["id"])
 ⋮----
 current=engine.get(workflow["id"])
+⋮----
+def test_postgres_managed_project_review_lifecycle()
+⋮----
+projects=ManagedProjectService(engine)
+project=projects.create(
+⋮----
+review=projects.get(project["workflow_id"])
+⋮----
+resumed=projects.add_instruction(
+⋮----
+done=projects.mark_done(
 ```
 
 ## File: test_workflow_splitting.py
