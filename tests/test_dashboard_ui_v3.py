@@ -679,3 +679,24 @@ def test_dashboard_refresh_and_repository_change_refresh_launch_readiness():
     assert "addEventListener('change',loadLaunchReadiness)" in DASHBOARD_HTML
     assert "loadLastProduction();" in DASHBOARD_HTML
 
+def test_last_production_tracker_renders_live_runtime_status():
+    assert "/v1/dashboard/production-status?project_id=" in DASHBOARD_HTML
+    assert "runtime.phase" in DASHBOARD_HTML
+    assert "runtime.worker_id" in DASHBOARD_HTML
+    assert "runtime.attempt" in DASHBOARD_HTML
+    assert "runtime.stage" in DASHBOARD_HTML
+    assert "runtime.progress_percent" in DASHBOARD_HTML
+    assert "runtime.queue_position" in DASHBOARD_HTML
+    assert "runtime.last_telemetry_at" in DASHBOARD_HTML
+    assert 'class="live-progress"' in DASHBOARD_HTML
+    assert 'class="live-progress-fill"' in DASHBOARD_HTML
+    assert "Résultat prêt à revoir." not in DASHBOARD_HTML
+    assert "setInterval(loadLastProduction,5000)" in DASHBOARD_HTML
+
+
+def test_last_production_tracker_keeps_server_outcome_and_project_deep_link():
+    assert "renderProductionOutcome(outcome,true)" in DASHBOARD_HTML
+    assert "openLastProduction" in DASHBOARD_HTML
+    assert "Ouvrir le projet" in DASHBOARD_HTML
+    assert "LAST_PROJECT_KEY" in DASHBOARD_HTML
+
