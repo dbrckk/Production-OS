@@ -9,9 +9,11 @@ Turn the attention-first mobile dashboard into an operational command surface wh
 Attention items may expose contextual action metadata:
 
 - REVIEW_REQUIRED managed project:
+  - add instruction
   - verify
   - complete
 - NEEDS_ATTENTION / failed managed validation:
+  - add instruction
   - verify
 - open incident:
   - acknowledge
@@ -23,6 +25,8 @@ Viewer access can read action metadata, but all mutations continue to require op
 ## Deep links
 
 Attention navigation carries a target id in the dashboard query.
+
+Managed Project attention cards also accept an inline follow-up instruction.
 
 Managed Projects and Autopilot:
 
