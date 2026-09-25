@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "generated_by": "dbrckk/repo-brain",
-  "base": "d922496a9378e56be2052f55be67ea36fb0d9da6",
-  "head": "51d616c8a81271b6ed0398e53b2a6d58fd34d9c7",
+  "base": "51d616c8a81271b6ed0398e53b2a6d58fd34d9c7",
+  "head": "45052ab97b09f974d20ca7b5ebe10b99376768f6",
   "index_mode": "incremental",
   "changed_files": [
     {
@@ -10,7 +10,7 @@
       "status": "M"
     },
     {
-      "path": "docs/superpowers/plans/2026-09-25-release-33-auto-worker-recovery.md",
+      "path": "docs/superpowers/plans/2026-09-25-release-34-safe-running-recovery.md",
       "status": "A"
     },
     {
@@ -18,13 +18,13 @@
       "status": "M"
     },
     {
-      "path": "tests/test_release33_auto_worker_recovery_e2e.py",
+      "path": "tests/test_release34_safe_running_recovery_e2e.py",
       "status": "A"
     }
   ],
   "changed_source_files": [
     "src/production_os/control_plane.py",
-    "tests/test_release33_auto_worker_recovery_e2e.py"
+    "tests/test_release34_safe_running_recovery_e2e.py"
   ],
   "impacted_files": [
     "src/production_os/cli.py",
@@ -58,6 +58,7 @@
     "tests/test_release21_offline_restore_e2e.py",
     "tests/test_release32_one_tap_e2e.py",
     "tests/test_release33_auto_worker_recovery_e2e.py",
+    "tests/test_release34_safe_running_recovery_e2e.py",
     "tests/test_remote_worker.py",
     "tests/test_speculation_api.py",
     "tests/test_workflow_api.py"
@@ -553,133 +554,145 @@
       "name": "ControlPlane",
       "kind": "class",
       "file": "src/production_os/control_plane.py",
-      "line": 34
+      "line": 39
     },
     {
       "name": "__init__",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 35
+      "line": 40
+    },
+    {
+      "name": "_parse_timestamp",
+      "kind": "function",
+      "file": "src/production_os/control_plane.py",
+      "line": 113
+    },
+    {
+      "name": "recover_abandoned_acked_jobs",
+      "kind": "function",
+      "file": "src/production_os/control_plane.py",
+      "line": 122
     },
     {
       "name": "_json_bytes",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 108
+      "line": 228
     },
     {
       "name": "RequestBodyTooLarge",
       "kind": "class",
       "file": "src/production_os/control_plane.py",
-      "line": 119
+      "line": 239
     },
     {
       "name": "make_handler",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 123
+      "line": 243
     },
     {
       "name": "Handler",
       "kind": "class",
       "file": "src/production_os/control_plane.py",
-      "line": 124
+      "line": 244
     },
     {
       "name": "version_string",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 127
+      "line": 247
     },
     {
       "name": "log_message",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 130
+      "line": 250
     },
     {
       "name": "_send_html",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 133
+      "line": 253
     },
     {
       "name": "_send",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 148
+      "line": 268
     },
     {
       "name": "_method_not_allowed",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 172
+      "line": 292
     },
     {
       "name": "do_PUT",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 179
+      "line": 299
     },
     {
       "name": "do_PATCH",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 182
+      "line": 302
     },
     {
       "name": "do_DELETE",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 185
+      "line": 305
     },
     {
       "name": "_read_body",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 188
+      "line": 308
     },
     {
       "name": "_read_json",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 207
+      "line": 327
     },
     {
       "name": "_principal",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 219
+      "line": 339
     },
     {
       "name": "_require",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 225
+      "line": 345
     },
     {
       "name": "do_GET",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 245
+      "line": 365
     },
     {
       "name": "do_POST",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 677
+      "line": 797
     },
     {
       "name": "audit_control",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 1537
+      "line": 1657
     },
     {
       "name": "serve_control_plane",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 2742
+      "line": 2863
     },
     {
       "name": "request",
@@ -1850,18 +1863,6 @@
       "kind": "function",
       "file": "tests/test_database_maintenance_lock.py",
       "line": 49
-    },
-    {
-      "name": "test_postgres_database_server_lock_is_noop",
-      "kind": "function",
-      "file": "tests/test_database_maintenance_lock.py",
-      "line": 70
-    },
-    {
-      "name": "test_serve_control_plane_holds_lock_for_server_lifetime",
-      "kind": "function",
-      "file": "tests/test_database_maintenance_lock.py",
-      "line": 77
     }
   ],
   "selected_tests": [
@@ -1894,6 +1895,7 @@
     "tests/test_release21_offline_restore_e2e.py",
     "tests/test_release32_one_tap_e2e.py",
     "tests/test_release33_auto_worker_recovery_e2e.py",
+    "tests/test_release34_safe_running_recovery_e2e.py",
     "tests/test_remote_worker.py",
     "tests/test_speculation_api.py",
     "tests/test_workflow_api.py"

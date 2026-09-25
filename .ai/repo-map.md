@@ -269,6 +269,7 @@ tests/
   test_release21_offline_restore_e2e.py
   test_release32_one_tap_e2e.py
   test_release33_auto_worker_recovery_e2e.py
+  test_release34_safe_running_recovery_e2e.py
   test_remote_worker.py
   test_render_start.py
   test_result_cache.py
@@ -2335,6 +2336,39 @@ actions_repository = str(
 actions_workflow = str(
 actions_ref = str(
 ⋮----
+@staticmethod
+    def _parse_timestamp(value)
+⋮----
+parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+⋮----
+def recover_abandoned_acked_jobs(self) -> list[dict]
+⋮----
+now = datetime.now(timezone.utc)
+⋮----
+cursor = db.cursor()
+⋮----
+rows = cursor.fetchall()
+⋮----
+rows = db.execute(
+⋮----
+recovered = []
+⋮----
+job = dict(raw)
+worker_id = str(job.get("claimed_by") or "")
+worker = self.workers.workers.get(worker_id)
+⋮----
+execution = self.dashboard_store.latest_execution(job["key"])
+⋮----
+last_activity = self._parse_timestamp(
+⋮----
+timestamp = now.isoformat()
+⋮----
+updated = cursor.rowcount
+⋮----
+cursor = db.execute(
+⋮----
+action = {
+⋮----
 def _json_bytes(payload: dict | list) -> bytes
 ⋮----
 class RequestBodyTooLarge(ValueError)
@@ -2449,7 +2483,6 @@ payload = service.incidents(
 ⋮----
 payload = service.activity(
 ⋮----
-rows = db.execute(
 workers = db.execute(
 workflow_rows = db.execute(
 ⋮----
@@ -11714,6 +11747,58 @@ queue_job = control.queue.get(job_key)
 recovered_events = [
 ````
 
+## File: tests/test_release34_safe_running_recovery_e2e.py
+````python
+def _auth()
+⋮----
+def _request(base, path, token, *, method="GET", body=None)
+⋮----
+data = None if body is None else json.dumps(body).encode("utf-8")
+request = urllib.request.Request(
+⋮----
+raw = response.read()
+⋮----
+raw = exc.read()
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+@pytest.mark.e2e
+def test_release34_running_one_tap_job_recovers_only_after_dual_staleness(tmp_path)
+⋮----
+database = str(tmp_path / "running-recovery.sqlite")
+control = ControlPlane(database, authorizer=_auth())
+⋮----
+project = launched["project"]
+project_id = project["project_id"]
+workflow_id = project["current_workflow_id"]
+⋮----
+worker_one = RemoteWorkerClient(
+first_claim = worker_one.claim()
+⋮----
+job_key = first_claim.key
+⋮----
+# Stale worker heartbeat alone is insufficient: fresh execution
+# telemetry must fence automatic recovery.
+⋮----
+worker_two = RemoteWorkerClient(
+⋮----
+# Once both heartbeat and execution telemetry are stale, the next
+# healthy worker may safely fence the old owner and resume the job.
+⋮----
+recovered = worker_two.claim()
+⋮----
+old_execution = dict(
+⋮----
+final = refreshed["project"]
+⋮----
+latest = control.dashboard_store.latest_execution(job_key)
+⋮----
+recovered_events = [
+````
+
 ## File: tests/test_remote_worker.py
 ````python
 def test_remote_worker_claim_ack_complete(tmp_path)
@@ -14013,6 +14098,25 @@ Safety remains bounded:
 - the original Managed Project and workflow identity are preserved.
 
 A dedicated E2E test starts from the One-tap launch endpoint, lets one worker claim and disappear before ACK, then proves a second worker automatically reclaims the same job, completes it, and advances the same generation-1 Managed Project to `REVIEW_REQUIRED`.
+
+
+## Release 34 — Safe recovery after ACK
+
+Production-OS now has a guarded recovery path for jobs whose worker disappears after ACK and during execution.
+
+Automatic recovery requires two independent stale signals:
+
+- the owning worker heartbeat is older than the busy-worker timeout;
+- the running execution telemetry is older than the running-execution timeout.
+
+Only when both are stale is the old worker fenced and the same job returned to the queue. The previous execution attempt is closed as `worker_abandoned`, while the Managed Project, workflow and generation remain unchanged.
+
+This avoids recovering a job merely because a worker is slow or temporarily delayed while still reporting fresh execution telemetry.
+
+A dedicated One-tap E2E test proves both sides of the contract:
+
+1. stale worker heartbeat + fresh telemetry does **not** recover the job;
+2. stale heartbeat + stale execution telemetry allows a second worker to reclaim the same job and complete the same generation safely.
 
 ## Design principles
 

@@ -22,19 +22,21 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-25T17:38:05Z
+Generated: 2026-09-25T17:50:59Z
 
 ### Git
 - Branch: `main`
-- Head: `51d616c8a812`
-- Commit date: 2026-09-25T19:37:52+02:00
-- Commit: feat: release 33 automatic worker recovery
-- Tracked files: 418
+- Head: `45052ab97b09`
+- Commit date: 2026-09-25T19:50:49+02:00
+- Commit: feat: release 34 safe running recovery
+- Tracked files: 420
 
 ### Recently changed files
 - `README.md`
-- `docs/superpowers/plans/2026-09-25-release-33-auto-worker-recovery.md`
+- `docs/superpowers/plans/2026-09-25-release-34-safe-running-recovery.md`
 - `src/production_os/control_plane.py`
+- `tests/test_release34_safe_running_recovery_e2e.py`
+- `docs/superpowers/plans/2026-09-25-release-33-auto-worker-recovery.md`
 - `tests/test_release33_auto_worker_recovery_e2e.py`
 - `docs/superpowers/plans/2026-09-25-release-32-one-tap-e2e.md`
 - `tests/test_release32_one_tap_e2e.py`
@@ -49,9 +51,6 @@ Generated: 2026-09-25T17:38:05Z
 - `src/production_os/dashboard_service.py`
 - `tests/test_dashboard_health.py`
 - `tests/test_dashboard_incident_signals.py`
-- `docs/superpowers/plans/2026-09-25-release-29-guarded-backup-retention-prune.md`
-- `src/production_os/dashboard_backups.py`
-- `tests/test_dashboard_backup_api.py`
 
 ### Project signals
 - `pyproject.toml`

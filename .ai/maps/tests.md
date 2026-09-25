@@ -139,6 +139,7 @@ test_release19_restore_staging_e2e.py
 test_release21_offline_restore_e2e.py
 test_release32_one_tap_e2e.py
 test_release33_auto_worker_recovery_e2e.py
+test_release34_safe_running_recovery_e2e.py
 test_remote_worker.py
 test_render_start.py
 test_result_cache.py
@@ -3963,6 +3964,58 @@ completed = second_worker.complete(
 final = refreshed["project"]
 ⋮----
 queue_job = control.queue.get(job_key)
+⋮----
+recovered_events = [
+```
+
+## File: test_release34_safe_running_recovery_e2e.py
+```python
+def _auth()
+⋮----
+def _request(base, path, token, *, method="GET", body=None)
+⋮----
+data = None if body is None else json.dumps(body).encode("utf-8")
+request = urllib.request.Request(
+⋮----
+raw = response.read()
+⋮----
+raw = exc.read()
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+@pytest.mark.e2e
+def test_release34_running_one_tap_job_recovers_only_after_dual_staleness(tmp_path)
+⋮----
+database = str(tmp_path / "running-recovery.sqlite")
+control = ControlPlane(database, authorizer=_auth())
+⋮----
+project = launched["project"]
+project_id = project["project_id"]
+workflow_id = project["current_workflow_id"]
+⋮----
+worker_one = RemoteWorkerClient(
+first_claim = worker_one.claim()
+⋮----
+job_key = first_claim.key
+⋮----
+# Stale worker heartbeat alone is insufficient: fresh execution
+# telemetry must fence automatic recovery.
+⋮----
+worker_two = RemoteWorkerClient(
+⋮----
+# Once both heartbeat and execution telemetry are stale, the next
+# healthy worker may safely fence the old owner and resume the job.
+⋮----
+recovered = worker_two.claim()
+⋮----
+old_execution = dict(
+⋮----
+final = refreshed["project"]
+⋮----
+latest = control.dashboard_store.latest_execution(job_key)
 ⋮----
 recovered_events = [
 ```

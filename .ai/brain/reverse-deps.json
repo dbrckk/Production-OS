@@ -111,6 +111,7 @@
         "tests/test_release21_offline_restore_e2e.py",
         "tests/test_release32_one_tap_e2e.py",
         "tests/test_release33_auto_worker_recovery_e2e.py",
+        "tests/test_release34_safe_running_recovery_e2e.py",
         "tests/test_release_ledger.py",
         "tests/test_remote_worker.py",
         "tests/test_result_cache.py",
@@ -144,7 +145,7 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 132,
+      "in_degree": 133,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -207,11 +208,12 @@
         "tests/test_release19_restore_staging_e2e.py",
         "tests/test_release32_one_tap_e2e.py",
         "tests/test_release33_auto_worker_recovery_e2e.py",
+        "tests/test_release34_safe_running_recovery_e2e.py",
         "tests/test_remote_worker.py",
         "tests/test_speculation_api.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 32,
+      "in_degree": 33,
       "out_degree": 1
     },
     "src/production_os/approvals.py": {
@@ -567,6 +569,7 @@
         "src/production_os/approvals.py",
         "src/production_os/dashboard_backups.py",
         "src/production_os/dashboard_control.py",
+        "src/production_os/dashboard_health.py",
         "src/production_os/dashboard_maintenance.py",
         "src/production_os/dashboard_service.py",
         "src/production_os/dashboard_store.py",
@@ -618,12 +621,13 @@
         "tests/test_release21_offline_restore_e2e.py",
         "tests/test_release32_one_tap_e2e.py",
         "tests/test_release33_auto_worker_recovery_e2e.py",
+        "tests/test_release34_safe_running_recovery_e2e.py",
         "tests/test_remote_worker.py",
         "tests/test_speculation_api.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 34,
-      "out_degree": 22
+      "in_degree": 35,
+      "out_degree": 23
     },
     "src/production_os/control_surface.py": {
       "dependencies": [],
@@ -727,10 +731,11 @@
         "src/production_os/workers.py"
       ],
       "dependents": [
+        "src/production_os/control_plane.py",
         "src/production_os/dashboard_service.py",
         "tests/test_dashboard_health.py"
       ],
-      "in_degree": 2,
+      "in_degree": 3,
       "out_degree": 1
     },
     "src/production_os/dashboard_incidents.py": {
@@ -1469,9 +1474,10 @@
         "tests/test_production_stack_e2e.py",
         "tests/test_release32_one_tap_e2e.py",
         "tests/test_release33_auto_worker_recovery_e2e.py",
+        "tests/test_release34_safe_running_recovery_e2e.py",
         "tests/test_remote_worker.py"
       ],
-      "in_degree": 5,
+      "in_degree": 6,
       "out_degree": 1
     },
     "src/production_os/resources.py": {
@@ -1994,10 +2000,10 @@
         "tests/test_release18_managed_projects_e2e.py",
         "tests/test_release32_one_tap_e2e.py",
         "tests/test_release33_auto_worker_recovery_e2e.py",
+        "tests/test_release34_safe_running_recovery_e2e.py",
         "tests/test_remote_worker.py",
         "tests/test_render_start.py",
         "tests/test_runtime_state.py",
-        "tests/test_self_healing_heartbeat.py",
         "tests/test_stragglers.py",
         "tests/test_workers.py"
       ],
@@ -2128,11 +2134,12 @@
         "tests/test_governance.py",
         "tests/test_incident_history.py",
         "tests/test_project_progress.py",
+        "tests/test_release34_safe_running_recovery_e2e.py",
         "tests/test_release_ledger.py",
         "tests/test_sqlite_migration.py",
         "tests/test_workflow_engine.py"
       ],
-      "in_degree": 43,
+      "in_degree": 44,
       "out_degree": 2
     },
     "tests/test_asymmetric_attestations.py": {
@@ -3256,6 +3263,19 @@
       "in_degree": 0,
       "out_degree": 6
     },
+    "tests/test_release34_safe_running_recovery_e2e.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/api_auth.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/remote_worker.py",
+        "src/production_os/workers.py",
+        "tests/test_asset_forge.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 6
+    },
     "tests/test_release_ledger.py": {
       "dependencies": [
         "src/production_os/__init__.py",
@@ -3357,12 +3377,11 @@
         "src/production_os/__init__.py",
         "src/production_os/heartbeat_manager.py",
         "src/production_os/runtime_state.py",
-        "src/production_os/self_healing.py",
-        "src/production_os/workers.py"
+        "src/production_os/self_healing.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 5
+      "out_degree": 4
     },
     "tests/test_signer_factory.py": {
       "dependencies": [

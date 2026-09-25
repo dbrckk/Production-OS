@@ -8,8 +8,8 @@
     "ControlPlane": {
       "source": {
         "file": "src/production_os/control_plane.py",
-        "start": 34,
-        "end": 105
+        "start": 39,
+        "end": 225
       },
       "symbol_dependencies": [
         {
@@ -161,12 +161,60 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 35,
+              "line": 40,
               "kind": "function",
               "language": "python"
             }
           ],
           "relation": "same_file"
+        },
+        {
+          "symbol": "_parse_timestamp",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 113,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "finish_execution",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 132,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 514,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 733,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
         },
         {
           "symbol": "job_queue_for",
@@ -181,11 +229,71 @@
           "relation": "imported_module"
         },
         {
+          "symbol": "latest_execution",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 114,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "list",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 565,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "load",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 36,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
           "symbol": "open_backend",
           "definitions": [
             {
               "file": "src/production_os/storage.py",
               "line": 23,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "recover_abandoned_acked_jobs",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 122,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "repository",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 83,
               "kind": "function",
               "language": "python"
             }
@@ -217,27 +325,15 @@
           "relation": "imported_module"
         }
       ],
-      "dependency_count": 17
+      "dependency_count": 25
     },
     "__init__": {
       "source": {
         "file": "src/production_os/control_plane.py",
-        "start": 35,
-        "end": 155
+        "start": 40,
+        "end": 160
       },
       "symbol_dependencies": [
-        {
-          "symbol": "ControlPlane",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 34,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
         {
           "symbol": "DashboardControl",
           "definitions": [
@@ -299,18 +395,6 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "Handler",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 124,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
           "symbol": "ManagedProjectService",
           "definitions": [
             {
@@ -345,18 +429,6 @@
             }
           ],
           "relation": "imported_module"
-        },
-        {
-          "symbol": "RequestBodyTooLarge",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 119,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
         },
         {
           "symbol": "SpeculationManager",
@@ -407,11 +479,11 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "_json_bytes",
+          "symbol": "_parse_timestamp",
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 108,
+              "line": 113,
               "kind": "function",
               "language": "python"
             }
@@ -419,28 +491,28 @@
           "relation": "same_file"
         },
         {
-          "symbol": "_send",
+          "symbol": "get",
           "definitions": [
             {
-              "file": "src/production_os/control_plane.py",
-              "line": 148,
+              "file": "src/production_os/managed_projects.py",
+              "line": 514,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 733,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_send_html",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 133,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
+          "relation": "imported_module"
         },
         {
           "symbol": "job_queue_for",
@@ -448,6 +520,18 @@
             {
               "file": "src/production_os/storage.py",
               "line": 47,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "latest_execution",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 114,
               "kind": "function",
               "language": "python"
             }
@@ -467,28 +551,16 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "log_message",
+          "symbol": "load",
           "definitions": [
             {
-              "file": "src/production_os/control_plane.py",
-              "line": 130,
+              "file": "src/production_os/api_auth.py",
+              "line": 36,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "make_handler",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 123,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
+          "relation": "imported_module"
         },
         {
           "symbol": "open_backend",
@@ -503,11 +575,11 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "version_string",
+          "symbol": "recover_abandoned_acked_jobs",
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 127,
+              "line": 122,
               "kind": "function",
               "language": "python"
             }
@@ -539,13 +611,140 @@
           "relation": "imported_module"
         }
       ],
-      "dependency_count": 26
+      "dependency_count": 22
+    },
+    "_parse_timestamp": {
+      "source": {
+        "file": "src/production_os/control_plane.py",
+        "start": 113,
+        "end": 120
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "recover_abandoned_acked_jobs": {
+      "source": {
+        "file": "src/production_os/control_plane.py",
+        "start": 122,
+        "end": 225
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_parse_timestamp",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 113,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "finish_execution",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 132,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 514,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 733,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "latest_execution",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 114,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "list",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 565,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "load",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 36,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "repository",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 83,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "workers",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 532,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 8
     },
     "_json_bytes": {
       "source": {
         "file": "src/production_os/control_plane.py",
-        "start": 108,
-        "end": 113
+        "start": 228,
+        "end": 233
       },
       "symbol_dependencies": [
         {
@@ -566,8 +765,8 @@
     "RequestBodyTooLarge": {
       "source": {
         "file": "src/production_os/control_plane.py",
-        "start": 119,
-        "end": 120
+        "start": 239,
+        "end": 240
       },
       "symbol_dependencies": [],
       "dependency_count": 0
@@ -575,8 +774,8 @@
     "make_handler": {
       "source": {
         "file": "src/production_os/control_plane.py",
-        "start": 123,
-        "end": 2739
+        "start": 243,
+        "end": 2860
       },
       "symbol_dependencies": [
         {
@@ -620,7 +819,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 34,
+              "line": 39,
               "kind": "class",
               "language": "python"
             }
@@ -656,7 +855,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 124,
+              "line": 244,
               "kind": "class",
               "language": "python"
             }
@@ -680,7 +879,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 119,
+              "line": 239,
               "kind": "class",
               "language": "python"
             }
@@ -728,7 +927,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 108,
+              "line": 228,
               "kind": "function",
               "language": "python"
             }
@@ -740,7 +939,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 172,
+              "line": 292,
               "kind": "function",
               "language": "python"
             }
@@ -752,7 +951,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 219,
+              "line": 339,
               "kind": "function",
               "language": "python"
             }
@@ -764,7 +963,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 188,
+              "line": 308,
               "kind": "function",
               "language": "python"
             }
@@ -776,7 +975,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 207,
+              "line": 327,
               "kind": "function",
               "language": "python"
             }
@@ -788,7 +987,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 225,
+              "line": 345,
               "kind": "function",
               "language": "python"
             }
@@ -800,7 +999,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 148,
+              "line": 268,
               "kind": "function",
               "language": "python"
             }
@@ -812,7 +1011,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 133,
+              "line": 253,
               "kind": "function",
               "language": "python"
             }
@@ -956,7 +1155,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 1537,
+              "line": 1657,
               "kind": "function",
               "language": "python"
             }
@@ -1065,8 +1264,8 @@
     "Handler": {
       "source": {
         "file": "src/production_os/control_plane.py",
-        "start": 124,
-        "end": 244
+        "start": 244,
+        "end": 364
       },
       "symbol_dependencies": [
         {
@@ -1086,7 +1285,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 119,
+              "line": 239,
               "kind": "class",
               "language": "python"
             }
@@ -1098,7 +1297,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 108,
+              "line": 228,
               "kind": "function",
               "language": "python"
             }
@@ -1110,7 +1309,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 172,
+              "line": 292,
               "kind": "function",
               "language": "python"
             }
@@ -1122,7 +1321,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 219,
+              "line": 339,
               "kind": "function",
               "language": "python"
             }
@@ -1134,7 +1333,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 188,
+              "line": 308,
               "kind": "function",
               "language": "python"
             }
@@ -1146,7 +1345,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 207,
+              "line": 327,
               "kind": "function",
               "language": "python"
             }
@@ -1158,7 +1357,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 225,
+              "line": 345,
               "kind": "function",
               "language": "python"
             }
@@ -1170,7 +1369,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 148,
+              "line": 268,
               "kind": "function",
               "language": "python"
             }
@@ -1182,7 +1381,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 133,
+              "line": 253,
               "kind": "function",
               "language": "python"
             }
@@ -1218,7 +1417,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 185,
+              "line": 305,
               "kind": "function",
               "language": "python"
             }
@@ -1230,7 +1429,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 182,
+              "line": 302,
               "kind": "function",
               "language": "python"
             }
@@ -1242,7 +1441,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 179,
+              "line": 299,
               "kind": "function",
               "language": "python"
             }
@@ -1290,7 +1489,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 130,
+              "line": 250,
               "kind": "function",
               "language": "python"
             }
@@ -1302,7 +1501,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 127,
+              "line": 247,
               "kind": "function",
               "language": "python"
             }
@@ -1315,8 +1514,8 @@
     "version_string": {
       "source": {
         "file": "src/production_os/control_plane.py",
-        "start": 127,
-        "end": 247
+        "start": 247,
+        "end": 367
       },
       "symbol_dependencies": [
         {
@@ -1336,7 +1535,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 119,
+              "line": 239,
               "kind": "class",
               "language": "python"
             }
@@ -1348,7 +1547,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 108,
+              "line": 228,
               "kind": "function",
               "language": "python"
             }
@@ -1360,7 +1559,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 172,
+              "line": 292,
               "kind": "function",
               "language": "python"
             }
@@ -1372,7 +1571,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 219,
+              "line": 339,
               "kind": "function",
               "language": "python"
             }
@@ -1384,7 +1583,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 188,
+              "line": 308,
               "kind": "function",
               "language": "python"
             }
@@ -1396,7 +1595,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 207,
+              "line": 327,
               "kind": "function",
               "language": "python"
             }
@@ -1408,7 +1607,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 225,
+              "line": 345,
               "kind": "function",
               "language": "python"
             }
@@ -1420,7 +1619,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 148,
+              "line": 268,
               "kind": "function",
               "language": "python"
             }
@@ -1432,7 +1631,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 133,
+              "line": 253,
               "kind": "function",
               "language": "python"
             }
@@ -1468,7 +1667,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 185,
+              "line": 305,
               "kind": "function",
               "language": "python"
             }
@@ -1480,7 +1679,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 245,
+              "line": 365,
               "kind": "function",
               "language": "python"
             }
@@ -1492,7 +1691,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 182,
+              "line": 302,
               "kind": "function",
               "language": "python"
             }
@@ -1504,7 +1703,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 179,
+              "line": 299,
               "kind": "function",
               "language": "python"
             }
@@ -1552,7 +1751,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 130,
+              "line": 250,
               "kind": "function",
               "language": "python"
             }
@@ -1565,8 +1764,8 @@
     "log_message": {
       "source": {
         "file": "src/production_os/control_plane.py",
-        "start": 130,
-        "end": 250
+        "start": 250,
+        "end": 370
       },
       "symbol_dependencies": [
         {
@@ -1586,7 +1785,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 119,
+              "line": 239,
               "kind": "class",
               "language": "python"
             }
@@ -1598,7 +1797,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 108,
+              "line": 228,
               "kind": "function",
               "language": "python"
             }
@@ -1610,7 +1809,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 172,
+              "line": 292,
               "kind": "function",
               "language": "python"
             }
@@ -1622,7 +1821,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 219,
+              "line": 339,
               "kind": "function",
               "language": "python"
             }
@@ -1634,7 +1833,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 188,
+              "line": 308,
               "kind": "function",
               "language": "python"
             }
@@ -1646,7 +1845,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 207,
+              "line": 327,
               "kind": "function",
               "language": "python"
             }
@@ -1658,7 +1857,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 225,
+              "line": 345,
               "kind": "function",
               "language": "python"
             }
@@ -1670,7 +1869,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 148,
+              "line": 268,
               "kind": "function",
               "language": "python"
             }
@@ -1682,7 +1881,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 133,
+              "line": 253,
               "kind": "function",
               "language": "python"
             }
@@ -1718,7 +1917,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 185,
+              "line": 305,
               "kind": "function",
               "language": "python"
             }
@@ -1730,7 +1929,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 245,
+              "line": 365,
               "kind": "function",
               "language": "python"
             }
@@ -1742,7 +1941,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 182,
+              "line": 302,
               "kind": "function",
               "language": "python"
             }
@@ -1754,7 +1953,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 179,
+              "line": 299,
               "kind": "function",
               "language": "python"
             }
@@ -1803,8 +2002,8 @@
     "_send_html": {
       "source": {
         "file": "src/production_os/control_plane.py",
-        "start": 133,
-        "end": 253
+        "start": 253,
+        "end": 373
       },
       "symbol_dependencies": [
         {
@@ -1824,7 +2023,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 119,
+              "line": 239,
               "kind": "class",
               "language": "python"
             }
@@ -1836,7 +2035,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 108,
+              "line": 228,
               "kind": "function",
               "language": "python"
             }
@@ -1848,7 +2047,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 172,
+              "line": 292,
               "kind": "function",
               "language": "python"
             }
@@ -1860,7 +2059,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 219,
+              "line": 339,
               "kind": "function",
               "language": "python"
             }
@@ -1872,7 +2071,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 188,
+              "line": 308,
               "kind": "function",
               "language": "python"
             }
@@ -1884,7 +2083,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 207,
+              "line": 327,
               "kind": "function",
               "language": "python"
             }
@@ -1896,7 +2095,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 225,
+              "line": 345,
               "kind": "function",
               "language": "python"
             }
@@ -1908,7 +2107,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 148,
+              "line": 268,
               "kind": "function",
               "language": "python"
             }
@@ -1944,7 +2143,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 185,
+              "line": 305,
               "kind": "function",
               "language": "python"
             }
@@ -1956,7 +2155,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 245,
+              "line": 365,
               "kind": "function",
               "language": "python"
             }
@@ -1968,7 +2167,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 182,
+              "line": 302,
               "kind": "function",
               "language": "python"
             }
@@ -1980,7 +2179,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 179,
+              "line": 299,
               "kind": "function",
               "language": "python"
             }
@@ -2029,8 +2228,8 @@
     "_send": {
       "source": {
         "file": "src/production_os/control_plane.py",
-        "start": 148,
-        "end": 268
+        "start": 268,
+        "end": 388
       },
       "symbol_dependencies": [
         {
@@ -2050,7 +2249,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 119,
+              "line": 239,
               "kind": "class",
               "language": "python"
             }
@@ -2062,7 +2261,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 108,
+              "line": 228,
               "kind": "function",
               "language": "python"
             }
@@ -2074,7 +2273,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 172,
+              "line": 292,
               "kind": "function",
               "language": "python"
             }
@@ -2086,7 +2285,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 219,
+              "line": 339,
               "kind": "function",
               "language": "python"
             }
@@ -2098,7 +2297,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 188,
+              "line": 308,
               "kind": "function",
               "language": "python"
             }
@@ -2110,7 +2309,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 207,
+              "line": 327,
               "kind": "function",
               "language": "python"
             }
@@ -2122,7 +2321,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 225,
+              "line": 345,
               "kind": "function",
               "language": "python"
             }
@@ -2134,7 +2333,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 133,
+              "line": 253,
               "kind": "function",
               "language": "python"
             }
@@ -2170,7 +2369,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 185,
+              "line": 305,
               "kind": "function",
               "language": "python"
             }
@@ -2182,7 +2381,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 245,
+              "line": 365,
               "kind": "function",
               "language": "python"
             }
@@ -2194,7 +2393,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 182,
+              "line": 302,
               "kind": "function",
               "language": "python"
             }
@@ -2206,7 +2405,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 179,
+              "line": 299,
               "kind": "function",
               "language": "python"
             }
@@ -2267,8 +2466,8 @@
     "_method_not_allowed": {
       "source": {
         "file": "src/production_os/control_plane.py",
-        "start": 172,
-        "end": 292
+        "start": 292,
+        "end": 412
       },
       "symbol_dependencies": [
         {
@@ -2288,7 +2487,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 119,
+              "line": 239,
               "kind": "class",
               "language": "python"
             }
@@ -2300,7 +2499,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 219,
+              "line": 339,
               "kind": "function",
               "language": "python"
             }
@@ -2312,7 +2511,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 188,
+              "line": 308,
               "kind": "function",
               "language": "python"
             }
@@ -2324,7 +2523,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 207,
+              "line": 327,
               "kind": "function",
               "language": "python"
             }
@@ -2336,7 +2535,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 225,
+              "line": 345,
               "kind": "function",
               "language": "python"
             }
@@ -2348,7 +2547,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 148,
+              "line": 268,
               "kind": "function",
               "language": "python"
             }
@@ -2360,7 +2559,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 133,
+              "line": 253,
               "kind": "function",
               "language": "python"
             }
@@ -2408,7 +2607,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 185,
+              "line": 305,
               "kind": "function",
               "language": "python"
             }
@@ -2420,7 +2619,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 245,
+              "line": 365,
               "kind": "function",
               "language": "python"
             }
@@ -2432,7 +2631,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 182,
+              "line": 302,
               "kind": "function",
               "language": "python"
             }
@@ -2444,7 +2643,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 179,
+              "line": 299,
               "kind": "function",
               "language": "python"
             }
@@ -2505,8 +2704,8 @@
     "do_PUT": {
       "source": {
         "file": "src/production_os/control_plane.py",
-        "start": 179,
-        "end": 299
+        "start": 299,
+        "end": 419
       },
       "symbol_dependencies": [
         {
@@ -2526,7 +2725,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 119,
+              "line": 239,
               "kind": "class",
               "language": "python"
             }
@@ -2538,7 +2737,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 172,
+              "line": 292,
               "kind": "function",
               "language": "python"
             }
@@ -2550,7 +2749,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 219,
+              "line": 339,
               "kind": "function",
               "language": "python"
             }
@@ -2562,7 +2761,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 188,
+              "line": 308,
               "kind": "function",
               "language": "python"
             }
@@ -2574,7 +2773,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 207,
+              "line": 327,
               "kind": "function",
               "language": "python"
             }
@@ -2586,7 +2785,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 225,
+              "line": 345,
               "kind": "function",
               "language": "python"
             }
@@ -2598,7 +2797,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 148,
+              "line": 268,
               "kind": "function",
               "language": "python"
             }
@@ -2610,7 +2809,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 133,
+              "line": 253,
               "kind": "function",
               "language": "python"
             }
@@ -2658,7 +2857,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 185,
+              "line": 305,
               "kind": "function",
               "language": "python"
             }
@@ -2670,7 +2869,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 245,
+              "line": 365,
               "kind": "function",
               "language": "python"
             }
@@ -2682,7 +2881,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 182,
+              "line": 302,
               "kind": "function",
               "language": "python"
             }
@@ -2767,8 +2966,8 @@
     "do_PATCH": {
       "source": {
         "file": "src/production_os/control_plane.py",
-        "start": 182,
-        "end": 302
+        "start": 302,
+        "end": 422
       },
       "symbol_dependencies": [
         {
@@ -2788,7 +2987,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 119,
+              "line": 239,
               "kind": "class",
               "language": "python"
             }
@@ -2800,7 +2999,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 172,
+              "line": 292,
               "kind": "function",
               "language": "python"
             }
@@ -2812,7 +3011,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 219,
+              "line": 339,
               "kind": "function",
               "language": "python"
             }
@@ -2824,7 +3023,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 188,
+              "line": 308,
               "kind": "function",
               "language": "python"
             }
@@ -2836,7 +3035,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 207,
+              "line": 327,
               "kind": "function",
               "language": "python"
             }
@@ -2848,7 +3047,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 225,
+              "line": 345,
               "kind": "function",
               "language": "python"
             }
@@ -2860,7 +3059,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 148,
+              "line": 268,
               "kind": "function",
               "language": "python"
             }
@@ -2872,7 +3071,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 133,
+              "line": 253,
               "kind": "function",
               "language": "python"
             }
@@ -2920,7 +3119,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 185,
+              "line": 305,
               "kind": "function",
               "language": "python"
             }
@@ -2932,7 +3131,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 245,
+              "line": 365,
               "kind": "function",
               "language": "python"
             }
@@ -3041,8 +3240,8 @@
     "do_DELETE": {
       "source": {
         "file": "src/production_os/control_plane.py",
-        "start": 185,
-        "end": 305
+        "start": 305,
+        "end": 425
       },
       "symbol_dependencies": [
         {
@@ -3074,7 +3273,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 119,
+              "line": 239,
               "kind": "class",
               "language": "python"
             }
@@ -3086,7 +3285,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 172,
+              "line": 292,
               "kind": "function",
               "language": "python"
             }
@@ -3098,7 +3297,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 219,
+              "line": 339,
               "kind": "function",
               "language": "python"
             }
@@ -3110,7 +3309,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 188,
+              "line": 308,
               "kind": "function",
               "language": "python"
             }
@@ -3122,7 +3321,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 207,
+              "line": 327,
               "kind": "function",
               "language": "python"
             }
@@ -3134,7 +3333,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 225,
+              "line": 345,
               "kind": "function",
               "language": "python"
             }
@@ -3146,7 +3345,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 148,
+              "line": 268,
               "kind": "function",
               "language": "python"
             }
@@ -3158,7 +3357,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 133,
+              "line": 253,
               "kind": "function",
               "language": "python"
             }
@@ -3206,7 +3405,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 245,
+              "line": 365,
               "kind": "function",
               "language": "python"
             }
@@ -3327,8 +3526,8 @@
     "_read_body": {
       "source": {
         "file": "src/production_os/control_plane.py",
-        "start": 188,
-        "end": 308
+        "start": 308,
+        "end": 428
       },
       "symbol_dependencies": [
         {
@@ -3360,7 +3559,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 119,
+              "line": 239,
               "kind": "class",
               "language": "python"
             }
@@ -3372,7 +3571,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 219,
+              "line": 339,
               "kind": "function",
               "language": "python"
             }
@@ -3384,7 +3583,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 207,
+              "line": 327,
               "kind": "function",
               "language": "python"
             }
@@ -3396,7 +3595,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 225,
+              "line": 345,
               "kind": "function",
               "language": "python"
             }
@@ -3408,7 +3607,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 148,
+              "line": 268,
               "kind": "function",
               "language": "python"
             }
@@ -3420,7 +3619,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 133,
+              "line": 253,
               "kind": "function",
               "language": "python"
             }
@@ -3480,7 +3679,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 245,
+              "line": 365,
               "kind": "function",
               "language": "python"
             }
@@ -3601,8 +3800,8 @@
     "_read_json": {
       "source": {
         "file": "src/production_os/control_plane.py",
-        "start": 207,
-        "end": 327
+        "start": 327,
+        "end": 447
       },
       "symbol_dependencies": [
         {
@@ -3634,7 +3833,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 219,
+              "line": 339,
               "kind": "function",
               "language": "python"
             }
@@ -3646,7 +3845,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 188,
+              "line": 308,
               "kind": "function",
               "language": "python"
             }
@@ -3658,7 +3857,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 225,
+              "line": 345,
               "kind": "function",
               "language": "python"
             }
@@ -3670,7 +3869,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 148,
+              "line": 268,
               "kind": "function",
               "language": "python"
             }
@@ -3682,7 +3881,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 133,
+              "line": 253,
               "kind": "function",
               "language": "python"
             }
@@ -3742,7 +3941,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 245,
+              "line": 365,
               "kind": "function",
               "language": "python"
             }
@@ -3947,8 +4146,8 @@
     "_principal": {
       "source": {
         "file": "src/production_os/control_plane.py",
-        "start": 219,
-        "end": 339
+        "start": 339,
+        "end": 459
       },
       "symbol_dependencies": [
         {
@@ -3980,7 +4179,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 225,
+              "line": 345,
               "kind": "function",
               "language": "python"
             }
@@ -3992,7 +4191,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 148,
+              "line": 268,
               "kind": "function",
               "language": "python"
             }
@@ -4004,7 +4203,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 133,
+              "line": 253,
               "kind": "function",
               "language": "python"
             }
@@ -4076,7 +4275,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 245,
+              "line": 365,
               "kind": "function",
               "language": "python"
             }
@@ -4317,8 +4516,8 @@
     "_require": {
       "source": {
         "file": "src/production_os/control_plane.py",
-        "start": 225,
-        "end": 345
+        "start": 345,
+        "end": 465
       },
       "symbol_dependencies": [
         {
@@ -4350,7 +4549,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 219,
+              "line": 339,
               "kind": "function",
               "language": "python"
             }
@@ -4362,7 +4561,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 148,
+              "line": 268,
               "kind": "function",
               "language": "python"
             }
@@ -4374,7 +4573,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 133,
+              "line": 253,
               "kind": "function",
               "language": "python"
             }
@@ -4434,7 +4633,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 245,
+              "line": 365,
               "kind": "function",
               "language": "python"
             }
@@ -4687,8 +4886,8 @@
     "do_GET": {
       "source": {
         "file": "src/production_os/control_plane.py",
-        "start": 245,
-        "end": 365
+        "start": 365,
+        "end": 485
       },
       "symbol_dependencies": [
         {
@@ -4708,7 +4907,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 225,
+              "line": 345,
               "kind": "function",
               "language": "python"
             }
@@ -4720,7 +4919,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 148,
+              "line": 268,
               "kind": "function",
               "language": "python"
             }
@@ -4732,7 +4931,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 133,
+              "line": 253,
               "kind": "function",
               "language": "python"
             }
@@ -5045,8 +5244,8 @@
     "do_POST": {
       "source": {
         "file": "src/production_os/control_plane.py",
-        "start": 677,
-        "end": 797
+        "start": 797,
+        "end": 917
       },
       "symbol_dependencies": [
         {
@@ -5054,7 +5253,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 207,
+              "line": 327,
               "kind": "function",
               "language": "python"
             }
@@ -5066,7 +5265,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 225,
+              "line": 345,
               "kind": "function",
               "language": "python"
             }
@@ -5078,7 +5277,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 148,
+              "line": 268,
               "kind": "function",
               "language": "python"
             }
@@ -5205,8 +5404,8 @@
     "audit_control": {
       "source": {
         "file": "src/production_os/control_plane.py",
-        "start": 1537,
-        "end": 1657
+        "start": 1657,
+        "end": 1777
       },
       "symbol_dependencies": [
         {
@@ -5214,7 +5413,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 148,
+              "line": 268,
               "kind": "function",
               "language": "python"
             }
@@ -5287,8 +5486,8 @@
     "serve_control_plane": {
       "source": {
         "file": "src/production_os/control_plane.py",
-        "start": 2742,
-        "end": 2781
+        "start": 2863,
+        "end": 2902
       },
       "symbol_dependencies": [
         {
@@ -5296,7 +5495,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 34,
+              "line": 39,
               "kind": "class",
               "language": "python"
             }
@@ -5344,7 +5543,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 123,
+              "line": 243,
               "kind": "function",
               "language": "python"
             }
@@ -5356,7 +5555,7 @@
     },
     "_auth": {
       "source": {
-        "file": "tests/test_release33_auto_worker_recovery_e2e.py",
+        "file": "tests/test_release34_safe_running_recovery_e2e.py",
         "start": 16,
         "end": 22
       },
@@ -5390,7 +5589,7 @@
     },
     "_request": {
       "source": {
-        "file": "tests/test_release33_auto_worker_recovery_e2e.py",
+        "file": "tests/test_release34_safe_running_recovery_e2e.py",
         "start": 25,
         "end": 42
       },
@@ -5399,7 +5598,7 @@
     },
     "_server": {
       "source": {
-        "file": "tests/test_release33_auto_worker_recovery_e2e.py",
+        "file": "tests/test_release34_safe_running_recovery_e2e.py",
         "start": 45,
         "end": 49
       },
@@ -5409,7 +5608,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 123,
+              "line": 243,
               "kind": "function",
               "language": "python"
             }
@@ -5419,11 +5618,11 @@
       ],
       "dependency_count": 1
     },
-    "test_release33_expired_one_tap_claim_is_recovered_by_next_worker": {
+    "test_release34_running_one_tap_job_recovers_only_after_dual_staleness": {
       "source": {
-        "file": "tests/test_release33_auto_worker_recovery_e2e.py",
+        "file": "tests/test_release34_safe_running_recovery_e2e.py",
         "start": 53,
-        "end": 176
+        "end": 208
       },
       "symbol_dependencies": [
         {
@@ -5431,7 +5630,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 34,
+              "line": 39,
               "kind": "class",
               "language": "python"
             }
@@ -5454,7 +5653,7 @@
           "symbol": "_auth",
           "definitions": [
             {
-              "file": "tests/test_release33_auto_worker_recovery_e2e.py",
+              "file": "tests/test_release34_safe_running_recovery_e2e.py",
               "line": 16,
               "kind": "function",
               "language": "python"
@@ -5466,7 +5665,7 @@
           "symbol": "_request",
           "definitions": [
             {
-              "file": "tests/test_release33_auto_worker_recovery_e2e.py",
+              "file": "tests/test_release34_safe_running_recovery_e2e.py",
               "line": 25,
               "kind": "function",
               "language": "python"
@@ -5478,7 +5677,7 @@
           "symbol": "_server",
           "definitions": [
             {
-              "file": "tests/test_release33_auto_worker_recovery_e2e.py",
+              "file": "tests/test_release34_safe_running_recovery_e2e.py",
               "line": 45,
               "kind": "function",
               "language": "python"
@@ -5521,9 +5720,21 @@
             }
           ],
           "relation": "imported_module"
+        },
+        {
+          "symbol": "heartbeat",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 60,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
         }
       ],
-      "dependency_count": 8
+      "dependency_count": 9
     }
   }
 }

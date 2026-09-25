@@ -1,13 +1,13 @@
 # Change impact
 
-Base: 340ec00f94d19a9c2113b42332f4fec68ad039e9
-Head: 51d616c8a81271b6ed0398e53b2a6d58fd34d9c7
+Base: 81a62d73ba2a766afdfc2757136334aeae631671
+Head: 45052ab97b09f974d20ca7b5ebe10b99376768f6
 
 ## Changed files
 - M README.md
-- A docs/superpowers/plans/2026-09-25-release-33-auto-worker-recovery.md
+- A docs/superpowers/plans/2026-09-25-release-34-safe-running-recovery.md
 - M src/production_os/control_plane.py
-- A tests/test_release33_auto_worker_recovery_e2e.py
+- A tests/test_release34_safe_running_recovery_e2e.py
 
 ## Affected areas
 - (root)

@@ -8,26 +8,26 @@
     "ControlPlane": {
       "definition": {
         "file": "src/production_os/control_plane.py",
-        "line": 34,
+        "line": 39,
         "kind": "class",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/control_plane.py",
-          "line": 34,
+          "line": 39,
           "preview": "class ControlPlane:",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 123,
+          "line": 243,
           "preview": "def make_handler(control: ControlPlane):",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 2764,
+          "line": 2885,
           "preview": "control = ControlPlane(",
           "definition_candidate": false
         },
@@ -739,7 +739,7 @@
     "__init__": {
       "definition": {
         "file": "src/production_os/control_plane.py",
-        "line": 35,
+        "line": 40,
         "kind": "function",
         "language": "python"
       },
@@ -776,7 +776,7 @@
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 35,
+          "line": 40,
           "preview": "def __init__(",
           "definition_candidate": true
         },
@@ -1161,23 +1161,69 @@
       ],
       "occurrence_count": 69
     },
-    "_json_bytes": {
+    "_parse_timestamp": {
       "definition": {
         "file": "src/production_os/control_plane.py",
-        "line": 108,
+        "line": 113,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/control_plane.py",
-          "line": 108,
+          "line": 113,
+          "preview": "def _parse_timestamp(value):",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 158,
+          "preview": "last_activity = self._parse_timestamp(",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "recover_abandoned_acked_jobs": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 122,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 122,
+          "preview": "def recover_abandoned_acked_jobs(self) -> list[dict]:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2418,
+          "preview": "control.recover_abandoned_acked_jobs()",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "_json_bytes": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 228,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 228,
           "preview": "def _json_bytes(payload: dict | list) -> bytes:",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 155,
+          "line": 275,
           "preview": "body = _json_bytes(payload)",
           "definition_candidate": false
         }
@@ -1187,32 +1233,32 @@
     "RequestBodyTooLarge": {
       "definition": {
         "file": "src/production_os/control_plane.py",
-        "line": 119,
+        "line": 239,
         "kind": "class",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/control_plane.py",
-          "line": 119,
+          "line": 239,
           "preview": "class RequestBodyTooLarge(ValueError):",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 199,
+          "line": 319,
           "preview": "raise RequestBodyTooLarge(\"request body too large\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 823,
+          "line": 943,
           "preview": "except RequestBodyTooLarge as exc:",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1000,
+          "line": 1120,
           "preview": "except RequestBodyTooLarge as exc:",
           "definition_candidate": false
         }
@@ -1222,20 +1268,20 @@
     "make_handler": {
       "definition": {
         "file": "src/production_os/control_plane.py",
-        "line": 123,
+        "line": 243,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/control_plane.py",
-          "line": 123,
+          "line": 243,
           "preview": "def make_handler(control: ControlPlane):",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 2776,
+          "line": 2897,
           "preview": "make_handler(control),",
           "definition_candidate": false
         },
@@ -1606,6 +1652,18 @@
           "definition_candidate": false
         },
         {
+          "file": "tests/test_release34_safe_running_recovery_e2e.py",
+          "line": 12,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release34_safe_running_recovery_e2e.py",
+          "line": 46,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
           "file": "tests/test_remote_worker.py",
           "line": 7,
           "preview": "from production_os.control_plane import ControlPlane, make_handler",
@@ -1648,25 +1706,25 @@
           "definition_candidate": false
         }
       ],
-      "occurrence_count": 70
+      "occurrence_count": 72
     },
     "Handler": {
       "definition": {
         "file": "src/production_os/control_plane.py",
-        "line": 124,
+        "line": 244,
         "kind": "class",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/control_plane.py",
-          "line": 124,
+          "line": 244,
           "preview": "class Handler(BaseHTTPRequestHandler):",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 2739,
+          "line": 2860,
           "preview": "return Handler",
           "definition_candidate": false
         }
@@ -1676,14 +1734,14 @@
     "version_string": {
       "definition": {
         "file": "src/production_os/control_plane.py",
-        "line": 127,
+        "line": 247,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/control_plane.py",
-          "line": 127,
+          "line": 247,
           "preview": "def version_string(self) -> str:",
           "definition_candidate": true
         }
@@ -1693,14 +1751,14 @@
     "log_message": {
       "definition": {
         "file": "src/production_os/control_plane.py",
-        "line": 130,
+        "line": 250,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/control_plane.py",
-          "line": 130,
+          "line": 250,
           "preview": "def log_message(self, format: str, *args) -> None:",
           "definition_candidate": true
         },
@@ -1716,20 +1774,20 @@
     "_send_html": {
       "definition": {
         "file": "src/production_os/control_plane.py",
-        "line": 133,
+        "line": 253,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/control_plane.py",
-          "line": 133,
+          "line": 253,
           "preview": "def _send_html(self, status: int, html: str) -> None:",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 248,
+          "line": 368,
           "preview": "self._send_html(HTTPStatus.OK, DASHBOARD_HTML)",
           "definition_candidate": false
         }
@@ -1739,63 +1797,33 @@
     "_send": {
       "definition": {
         "file": "src/production_os/control_plane.py",
-        "line": 148,
+        "line": 268,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/control_plane.py",
-          "line": 148,
+          "line": 268,
           "preview": "def _send(",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 173,
+          "line": 293,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 228,
+          "line": 348,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 234,
+          "line": 354,
           "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 259,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 273,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 361,
-          "preview": "self._send(HTTPStatus.OK, payload)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 363,
-          "preview": "self._send(HTTPStatus.NOT_FOUND, {\"error\":\"dashboard resource not found\"})",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 365,
-          "preview": "self._send(HTTPStatus.BAD_REQUEST, {\"error\":\"invalid dashboard query\"})",
           "definition_candidate": false
         },
         {
@@ -1806,62 +1834,26 @@
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 394,
+          "line": 393,
           "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 416,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 440,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 445,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 458,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 463,
-          "preview": "self._send(HTTPStatus.OK, {\"job\":job})",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 473,
-          "preview": "self._send(HTTPStatus.OK, payload)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 478,
-          "preview": "self._send(HTTPStatus.OK, payload)",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
           "line": 481,
-          "preview": "self._send(",
+          "preview": "self._send(HTTPStatus.OK, payload)",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 493,
-          "preview": "self._send(",
+          "line": 483,
+          "preview": "self._send(HTTPStatus.NOT_FOUND, {\"error\":\"dashboard resource not found\"})",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 485,
+          "preview": "self._send(HTTPStatus.BAD_REQUEST, {\"error\":\"invalid dashboard query\"})",
           "definition_candidate": false
         },
         {
@@ -1872,55 +1864,61 @@
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 506,
+          "line": 514,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 521,
+          "line": 536,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 541,
-          "preview": "self._send(HTTPStatus.OK, report)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 551,
+          "line": 560,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 562,
+          "line": 565,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 589,
+          "line": 578,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 594,
+          "line": 583,
+          "preview": "self._send(HTTPStatus.OK, {\"job\":job})",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 593,
+          "preview": "self._send(HTTPStatus.OK, payload)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 598,
+          "preview": "self._send(HTTPStatus.OK, payload)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 601,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 603,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 608,
+          "line": 613,
           "preview": "self._send(",
           "definition_candidate": false
         },
@@ -1932,55 +1930,55 @@
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 628,
+          "line": 626,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 639,
+          "line": 641,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 653,
+          "line": 661,
+          "preview": "self._send(HTTPStatus.OK, report)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 671,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 658,
-          "preview": "self._send(HTTPStatus.OK, {\"project\":project})",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 664,
+          "line": 682,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 675,
-          "preview": "self._send(HTTPStatus.NOT_FOUND, {\"error\":\"not found\"})",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 696,
+          "line": 709,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 702,
+          "line": 714,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 707,
+          "line": 723,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 728,
           "preview": "self._send(",
           "definition_candidate": false
         },
@@ -1992,44 +1990,38 @@
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 744,
-          "preview": "self._send(HTTPStatus.CREATED, {\"project\":project})",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 776,
+          "line": 748,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 788,
+          "line": 759,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 794,
+          "line": 773,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 800,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 806,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 811,
+          "line": 778,
           "preview": "self._send(HTTPStatus.OK, {\"project\":project})",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 784,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 795,
+          "preview": "self._send(HTTPStatus.NOT_FOUND, {\"error\":\"not found\"})",
           "definition_candidate": false
         },
         {
@@ -2040,199 +2032,217 @@
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 824,
+          "line": 822,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 830,
+          "line": 827,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 841,
+          "line": 859,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 862,
+          "line": 864,
+          "preview": "self._send(HTTPStatus.CREATED, {\"project\":project})",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 896,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 876,
+          "line": 908,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 883,
+          "line": 914,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 894,
+          "line": 920,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 973,
+          "line": 926,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1001,
+          "line": 931,
+          "preview": "self._send(HTTPStatus.OK, {\"project\":project})",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 936,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1007,
+          "line": 944,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1026,
+          "line": 950,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1049,
+          "line": 961,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1065,
+          "line": 982,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 996,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1003,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1014,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1093,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1121,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1127,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1146,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1169,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1185,
           "preview": "self._send(HTTPStatus.CREATED, result)",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1079,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1104,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1120,
-          "preview": "self._send(HTTPStatus.OK, result)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1131,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1145,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1162,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1190,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1208,
+          "line": 1199,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
           "line": 1224,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1240,
           "preview": "self._send(HTTPStatus.OK, result)",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1235,
+          "line": 1251,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1246,
+          "line": 1265,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1273,
+          "line": 1282,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1290,
+          "line": 1310,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1306,
+          "line": 1328,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1344,
           "preview": "self._send(HTTPStatus.OK, result)",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1314,
+          "line": 1355,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1334,
+          "line": 1366,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1350,
-          "preview": "self._send(HTTPStatus.CREATED, result)",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1358,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1369,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1389,
+          "line": 1393,
           "preview": "self._send(",
           "definition_candidate": false
         },
@@ -2244,13 +2254,31 @@
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1441,
+          "line": 1426,
+          "preview": "self._send(HTTPStatus.OK, result)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1434,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1446,
+          "line": 1454,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1470,
+          "preview": "self._send(HTTPStatus.CREATED, result)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1478,
           "preview": "self._send(",
           "definition_candidate": false
         },
@@ -2262,79 +2290,61 @@
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1514,
+          "line": 1509,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1573,
+          "line": 1530,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1586,
+          "line": 1561,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1597,
+          "line": 1566,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1618,
+          "line": 1609,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1643,
+          "line": 1634,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1657,
+          "line": 1693,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1675,
+          "line": 1706,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1691,
+          "line": 1717,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1704,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1715,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1728,
-          "preview": "self._send(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 1743,
+          "line": 1738,
           "preview": "self._send(",
           "definition_candidate": false
         },
@@ -2346,121 +2356,169 @@
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1779,
+          "line": 1777,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1836,
+          "line": 1795,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1856,
+          "line": 1811,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1885,
+          "line": 1824,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1916,
+          "line": 1835,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1935,
+          "line": 1848,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1863,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1883,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1899,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1956,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1976,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2005,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2036,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2055,
           "preview": "self._send(HTTPStatus.OK, {\"jobs\":jobs})",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1948,
+          "line": 2068,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1969,
+          "line": 2089,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1984,
+          "line": 2104,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 2017,
+          "line": 2137,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 2023,
+          "line": 2143,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 2050,
+          "line": 2170,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 2065,
+          "line": 2185,
           "preview": "self._send(HTTPStatus.OK, {\"worker\":worker.to_dict()})",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 2188,
+          "line": 2308,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 2211,
+          "line": 2331,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 2226,
+          "line": 2346,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 2235,
+          "line": 2355,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 2246,
+          "line": 2366,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 2278,
+          "line": 2398,
           "preview": "self._send(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 2289,
+          "line": 2409,
           "preview": "self._send(HTTPStatus.CREATED, {\"job\":job})",
           "definition_candidate": false
         }
@@ -2470,32 +2528,32 @@
     "_method_not_allowed": {
       "definition": {
         "file": "src/production_os/control_plane.py",
-        "line": 172,
+        "line": 292,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/control_plane.py",
-          "line": 172,
+          "line": 292,
           "preview": "def _method_not_allowed(self) -> None:",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 180,
+          "line": 300,
           "preview": "self._method_not_allowed()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 183,
+          "line": 303,
           "preview": "self._method_not_allowed()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 186,
+          "line": 306,
           "preview": "self._method_not_allowed()",
           "definition_candidate": false
         }
@@ -2505,14 +2563,14 @@
     "do_PUT": {
       "definition": {
         "file": "src/production_os/control_plane.py",
-        "line": 179,
+        "line": 299,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/control_plane.py",
-          "line": 179,
+          "line": 299,
           "preview": "def do_PUT(self) -> None:",
           "definition_candidate": true
         }
@@ -2522,14 +2580,14 @@
     "do_PATCH": {
       "definition": {
         "file": "src/production_os/control_plane.py",
-        "line": 182,
+        "line": 302,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/control_plane.py",
-          "line": 182,
+          "line": 302,
           "preview": "def do_PATCH(self) -> None:",
           "definition_candidate": true
         }
@@ -2539,14 +2597,14 @@
     "do_DELETE": {
       "definition": {
         "file": "src/production_os/control_plane.py",
-        "line": 185,
+        "line": 305,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/control_plane.py",
-          "line": 185,
+          "line": 305,
           "preview": "def do_DELETE(self) -> None:",
           "definition_candidate": true
         }
@@ -2556,26 +2614,26 @@
     "_read_body": {
       "definition": {
         "file": "src/production_os/control_plane.py",
-        "line": 188,
+        "line": 308,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/control_plane.py",
-          "line": 188,
+          "line": 308,
           "preview": "def _read_body(self) -> bytes:",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 208,
+          "line": 328,
           "preview": "raw = self._read_body()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 822,
+          "line": 942,
           "preview": "raw = self._read_body()",
           "definition_candidate": false
         }
@@ -2585,38 +2643,38 @@
     "_read_json": {
       "definition": {
         "file": "src/production_os/control_plane.py",
-        "line": 207,
+        "line": 327,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/control_plane.py",
-          "line": 207,
+          "line": 327,
           "preview": "def _read_json(self) -> dict:",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 685,
+          "line": 805,
           "preview": "body = self._read_json()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 726,
+          "line": 846,
           "preview": "body = self._read_json()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 756,
+          "line": 876,
           "preview": "body = self._read_json()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 999,
+          "line": 1119,
           "preview": "body = self._read_json()",
           "definition_candidate": false
         }
@@ -2626,20 +2684,20 @@
     "_principal": {
       "definition": {
         "file": "src/production_os/control_plane.py",
-        "line": 219,
+        "line": 339,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/control_plane.py",
-          "line": 219,
+          "line": 339,
           "preview": "def _principal(self) -> Principal | None:",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 226,
+          "line": 346,
           "preview": "principal = self._principal()",
           "definition_candidate": false
         }
@@ -2649,194 +2707,194 @@
     "_require": {
       "definition": {
         "file": "src/production_os/control_plane.py",
-        "line": 225,
+        "line": 345,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/control_plane.py",
-          "line": 225,
+          "line": 345,
           "preview": "def _require(self, role: str) -> Principal | None:",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 268,
+          "line": 388,
           "preview": "principal = self._require(\"viewer\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 615,
+          "line": 735,
           "preview": "principal = self._require(\"viewer\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 635,
+          "line": 755,
           "preview": "principal = self._require(\"viewer\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 681,
+          "line": 801,
           "preview": "principal = self._require(\"operator\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 722,
+          "line": 842,
           "preview": "principal = self._require(\"operator\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 748,
+          "line": 868,
           "preview": "principal = self._require(\"operator\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1022,
+          "line": 1142,
           "preview": "principal = self._require(\"operator\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1075,
+          "line": 1195,
           "preview": "principal = self._require(\"operator\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1124,
+          "line": 1244,
           "preview": "principal = self._require(\"operator\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1228,
+          "line": 1348,
           "preview": "principal = self._require(\"operator\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1310,
+          "line": 1430,
           "preview": "principal = self._require(\"operator\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1354,
+          "line": 1474,
           "preview": "principal = self._require(\"operator\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1431,
+          "line": 1551,
           "preview": "principal = self._require(\"operator\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1459,
+          "line": 1579,
           "preview": "principal = self._require(\"operator\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1793,
+          "line": 1913,
           "preview": "principal = self._require(\"operator\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1846,
+          "line": 1966,
           "preview": "principal = self._require(\"operator\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1898,
+          "line": 2018,
           "preview": "principal = self._require(\"operator\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1925,
+          "line": 2045,
           "preview": "principal = self._require(\"operator\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 2057,
+          "line": 2177,
           "preview": "principal = self._require(\"operator\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 2069,
+          "line": 2189,
           "preview": "principal = self._require(\"worker\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 2205,
+          "line": 2325,
           "preview": "principal = self._require(\"operator\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 2268,
+          "line": 2388,
           "preview": "principal = self._require(\"operator\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 2285,
+          "line": 2405,
           "preview": "principal = self._require(\"operator\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 2293,
+          "line": 2413,
           "preview": "principal = self._require(\"worker\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 2397,
+          "line": 2518,
           "preview": "principal = self._require(\"worker\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 2423,
+          "line": 2544,
           "preview": "principal = self._require(\"worker\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 2460,
+          "line": 2581,
           "preview": "principal = self._require(\"worker\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 2513,
+          "line": 2634,
           "preview": "principal = self._require(\"worker\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 2614,
+          "line": 2735,
           "preview": "principal = self._require(\"worker\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 2715,
+          "line": 2836,
           "preview": "principal = self._require(\"operator\")",
           "definition_candidate": false
         }
@@ -2846,14 +2904,14 @@
     "do_GET": {
       "definition": {
         "file": "src/production_os/control_plane.py",
-        "line": 245,
+        "line": 365,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/control_plane.py",
-          "line": 245,
+          "line": 365,
           "preview": "def do_GET(self) -> None:",
           "definition_candidate": true
         },
@@ -2869,14 +2927,14 @@
     "do_POST": {
       "definition": {
         "file": "src/production_os/control_plane.py",
-        "line": 677,
+        "line": 797,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/control_plane.py",
-          "line": 677,
+          "line": 797,
           "preview": "def do_POST(self) -> None:",
           "definition_candidate": true
         }
@@ -2886,110 +2944,110 @@
     "audit_control": {
       "definition": {
         "file": "src/production_os/control_plane.py",
-        "line": 1537,
+        "line": 1657,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1537,
+          "line": 1657,
           "preview": "def audit_control(",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1569,
+          "line": 1689,
           "preview": "audit_control(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1581,
+          "line": 1701,
           "preview": "audit_control(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1592,
+          "line": 1712,
           "preview": "audit_control(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1608,
+          "line": 1728,
           "preview": "audit_control(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1614,
+          "line": 1734,
           "preview": "audit_control(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1635,
+          "line": 1755,
           "preview": "audit_control(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1656,
+          "line": 1776,
           "preview": "audit_control(\"failed\", error_code=\"job_key_required\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1668,
+          "line": 1788,
           "preview": "audit_control(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1674,
+          "line": 1794,
           "preview": "audit_control(\"accepted\", job_key=job_key)",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1690,
+          "line": 1810,
           "preview": "audit_control(\"failed\", error_code=\"job_key_required\")",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1699,
+          "line": 1819,
           "preview": "audit_control(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1710,
+          "line": 1830,
           "preview": "audit_control(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1723,
+          "line": 1843,
           "preview": "audit_control(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1742,
+          "line": 1862,
           "preview": "audit_control(\"accepted\", job_key=job_key)",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1759,
+          "line": 1879,
           "preview": "audit_control(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 1778,
+          "line": 1898,
           "preview": "audit_control(\"accepted\")",
           "definition_candidate": false
         }
@@ -2999,7 +3057,7 @@
     "serve_control_plane": {
       "definition": {
         "file": "src/production_os/control_plane.py",
-        "line": 2742,
+        "line": 2863,
         "kind": "function",
         "language": "python"
       },
@@ -3018,7 +3076,7 @@
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 2742,
+          "line": 2863,
           "preview": "def serve_control_plane(",
           "definition_candidate": true
         },
@@ -3039,7 +3097,7 @@
     },
     "_auth": {
       "definition": {
-        "file": "tests/test_release33_auto_worker_recovery_e2e.py",
+        "file": "tests/test_release34_safe_running_recovery_e2e.py",
         "line": 16,
         "kind": "function",
         "language": "python"
@@ -3577,20 +3635,32 @@
           "file": "tests/test_release33_auto_worker_recovery_e2e.py",
           "line": 16,
           "preview": "def _auth():",
-          "definition_candidate": true
+          "definition_candidate": false
         },
         {
           "file": "tests/test_release33_auto_worker_recovery_e2e.py",
           "line": 55,
           "preview": "control = ControlPlane(database, authorizer=_auth())",
           "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release34_safe_running_recovery_e2e.py",
+          "line": 16,
+          "preview": "def _auth():",
+          "definition_candidate": true
+        },
+        {
+          "file": "tests/test_release34_safe_running_recovery_e2e.py",
+          "line": 55,
+          "preview": "control = ControlPlane(database, authorizer=_auth())",
+          "definition_candidate": false
         }
       ],
-      "occurrence_count": 90
+      "occurrence_count": 92
     },
     "_request": {
       "definition": {
-        "file": "tests/test_release33_auto_worker_recovery_e2e.py",
+        "file": "tests/test_release34_safe_running_recovery_e2e.py",
         "line": 25,
         "kind": "function",
         "language": "python"
@@ -4242,7 +4312,7 @@
           "file": "tests/test_release33_auto_worker_recovery_e2e.py",
           "line": 25,
           "preview": "def _request(base, path, token, *, method=\"GET\", body=None):",
-          "definition_candidate": true
+          "definition_candidate": false
         },
         {
           "file": "tests/test_release33_auto_worker_recovery_e2e.py",
@@ -4261,13 +4331,43 @@
           "line": 145,
           "preview": "status, refreshed = _request(",
           "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release34_safe_running_recovery_e2e.py",
+          "line": 25,
+          "preview": "def _request(base, path, token, *, method=\"GET\", body=None):",
+          "definition_candidate": true
+        },
+        {
+          "file": "tests/test_release34_safe_running_recovery_e2e.py",
+          "line": 60,
+          "preview": "status, _ = _request(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release34_safe_running_recovery_e2e.py",
+          "line": 73,
+          "preview": "status, launched = _request(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release34_safe_running_recovery_e2e.py",
+          "line": 100,
+          "preview": "status, _ = _request(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release34_safe_running_recovery_e2e.py",
+          "line": 178,
+          "preview": "status, refreshed = _request(",
+          "definition_candidate": false
         }
       ],
-      "occurrence_count": 111
+      "occurrence_count": 116
     },
     "_server": {
       "definition": {
-        "file": "tests/test_release33_auto_worker_recovery_e2e.py",
+        "file": "tests/test_release34_safe_running_recovery_e2e.py",
         "line": 45,
         "kind": "function",
         "language": "python"
@@ -4595,29 +4695,41 @@
           "file": "tests/test_release33_auto_worker_recovery_e2e.py",
           "line": 45,
           "preview": "def _server(control):",
-          "definition_candidate": true
+          "definition_candidate": false
         },
         {
           "file": "tests/test_release33_auto_worker_recovery_e2e.py",
           "line": 56,
           "preview": "server, thread, base = _server(control)",
           "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release34_safe_running_recovery_e2e.py",
+          "line": 45,
+          "preview": "def _server(control):",
+          "definition_candidate": true
+        },
+        {
+          "file": "tests/test_release34_safe_running_recovery_e2e.py",
+          "line": 56,
+          "preview": "server, thread, base = _server(control)",
+          "definition_candidate": false
         }
       ],
-      "occurrence_count": 55
+      "occurrence_count": 57
     },
-    "test_release33_expired_one_tap_claim_is_recovered_by_next_worker": {
+    "test_release34_running_one_tap_job_recovers_only_after_dual_staleness": {
       "definition": {
-        "file": "tests/test_release33_auto_worker_recovery_e2e.py",
+        "file": "tests/test_release34_safe_running_recovery_e2e.py",
         "line": 53,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "tests/test_release33_auto_worker_recovery_e2e.py",
+          "file": "tests/test_release34_safe_running_recovery_e2e.py",
           "line": 53,
-          "preview": "def test_release33_expired_one_tap_claim_is_recovered_by_next_worker(tmp_path):",
+          "preview": "def test_release34_running_one_tap_job_recovers_only_after_dual_staleness(tmp_path):",
           "definition_candidate": true
         }
       ],

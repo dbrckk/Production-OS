@@ -1814,6 +1814,39 @@ actions_repository = str(
 actions_workflow = str(
 actions_ref = str(
 ⋮----
+@staticmethod
+    def _parse_timestamp(value)
+⋮----
+parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+⋮----
+def recover_abandoned_acked_jobs(self) -> list[dict]
+⋮----
+now = datetime.now(timezone.utc)
+⋮----
+cursor = db.cursor()
+⋮----
+rows = cursor.fetchall()
+⋮----
+rows = db.execute(
+⋮----
+recovered = []
+⋮----
+job = dict(raw)
+worker_id = str(job.get("claimed_by") or "")
+worker = self.workers.workers.get(worker_id)
+⋮----
+execution = self.dashboard_store.latest_execution(job["key"])
+⋮----
+last_activity = self._parse_timestamp(
+⋮----
+timestamp = now.isoformat()
+⋮----
+updated = cursor.rowcount
+⋮----
+cursor = db.execute(
+⋮----
+action = {
+⋮----
 def _json_bytes(payload: dict | list) -> bytes
 ⋮----
 class RequestBodyTooLarge(ValueError)
@@ -1928,7 +1961,6 @@ payload = service.incidents(
 ⋮----
 payload = service.activity(
 ⋮----
-rows = db.execute(
 workers = db.execute(
 workflow_rows = db.execute(
 ⋮----
