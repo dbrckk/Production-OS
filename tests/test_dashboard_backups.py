@@ -10,6 +10,7 @@ from production_os.dashboard_backups import (
     BackupError,
     backup_readiness,
     create_verified_sqlite_backup,
+    stage_verified_sqlite_restore,
     verify_backup_for_restore,
 )
 from production_os.sqlite_backend import SQLiteBackend
@@ -211,3 +212,89 @@ def test_restore_verification_never_changes_live_database(tmp_path, monkeypatch)
             "SELECT value FROM schema_meta WHERE key='live_probe'"
         ).fetchone()["value"]
     assert value == "after"
+
+
+def test_stage_verified_restore_creates_isolated_candidate(tmp_path, monkeypatch):
+    backup_dir = tmp_path / "backups"
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    db_path = tmp_path / "production.sqlite"
+    backend = SQLiteBackend(db_path)
+    with backend.transaction() as db:
+        db.execute(
+            "INSERT INTO schema_meta(key,value) VALUES('stage_probe','backup-value') "
+            "ON CONFLICT(key) DO UPDATE SET value=excluded.value"
+        )
+    manifest = create_verified_sqlite_backup(backend)
+
+    with backend.transaction() as db:
+        db.execute(
+            "UPDATE schema_meta SET value='live-value' WHERE key='stage_probe'"
+        )
+    live_before = db_path.read_bytes()
+
+    staged = stage_verified_sqlite_restore(backend, manifest["backup_id"])
+
+    assert staged["source_backup_id"] == manifest["backup_id"]
+    assert staged["verified"] is True
+    assert staged["integrity"] == "ok"
+    assert staged["activation_enabled"] is False
+    assert staged["schema_version"] == str(backend.SCHEMA_VERSION)
+    assert "path" not in staged
+    assert "dsn" not in staged
+    assert db_path.read_bytes() == live_before
+
+    candidate = backup_dir / f"restore-{staged['candidate_id']}.sqlite"
+    assert candidate.is_file()
+    with sqlite3.connect(candidate) as db:
+        value = db.execute(
+            "SELECT value FROM schema_meta WHERE key='stage_probe'"
+        ).fetchone()[0]
+        assert value == "backup-value"
+
+    with backend.connect() as db:
+        live_value = db.execute(
+            "SELECT value FROM schema_meta WHERE key='stage_probe'"
+        ).fetchone()["value"]
+    assert live_value == "live-value"
+
+
+def test_stage_restore_rejects_tampered_source_without_candidate(tmp_path, monkeypatch):
+    backup_dir = tmp_path / "backups"
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    backend = SQLiteBackend(tmp_path / "production.sqlite")
+    manifest = create_verified_sqlite_backup(backend)
+    source = backup_dir / f"{manifest['backup_id']}.sqlite"
+    source.write_bytes(source.read_bytes() + b"tamper")
+
+    with pytest.raises(BackupError):
+        stage_verified_sqlite_restore(backend, manifest["backup_id"])
+
+    assert list(backup_dir.glob("restore-*.sqlite")) == []
+    assert list(backup_dir.glob("restore-*.json")) == []
+
+
+def test_stage_restore_manifest_contains_only_safe_metadata(tmp_path, monkeypatch):
+    backup_dir = tmp_path / "backups"
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    backend = SQLiteBackend(tmp_path / "production.sqlite")
+    manifest = create_verified_sqlite_backup(backend)
+
+    staged = stage_verified_sqlite_restore(backend, manifest["backup_id"])
+    on_disk = json.loads(
+        (backup_dir / f"restore-{staged['candidate_id']}.json").read_text()
+    )
+    assert set(on_disk) == {
+        "candidate_id",
+        "source_backup_id",
+        "backend_kind",
+        "staged_at",
+        "size_bytes",
+        "sha256",
+        "schema_version",
+        "integrity",
+        "verified",
+        "activation_enabled",
+    }
+    encoded = json.dumps(on_disk).lower()
+    for forbidden in ("path", "dsn", "token", "password"):
+        assert forbidden not in encoded
