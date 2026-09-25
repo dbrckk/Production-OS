@@ -44,3 +44,23 @@ For configured SQLite backup storage:
 - Postgres returns unsupported/empty inventory
 - no deletion or mutation
 - full CI + Python 3.11/3.12 green before merge
+
+
+## Implemented in current branch
+
+- aggregate SQLite backup storage inventory
+- deterministic classification for backups, restore candidates, activation receipts, temporary and unknown files
+- no file names or server paths exposed
+- existing backups API exposes storage{}
+- mobile dashboard renders total size and counts
+- missing directory remains read-only and zero-sized
+- PostgreSQL reports unsupported storage inventory
+- no cleanup or retention mutation added
+- unit/API/UI regression coverage
+- README documentation
+
+## Remaining before Release 24 completion
+
+- final CI qualification on complete head
+- final diff/security review
+- mark PR ready and merge only after green final head
