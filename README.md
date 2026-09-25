@@ -1316,6 +1316,32 @@ When execution becomes terminal, the same card automatically surfaces the normal
 
 A dedicated E2E qualification follows one One-tap production through queued → claimed → running telemetry → REVIEW_REQUIRED, then restarts the Control Plane and verifies the same live/result state remains readable.
 
+
+## Release 42 — Idempotent One-tap launch
+
+One-tap production launch now supports durable request idempotency.
+
+The dashboard sends a stable `request_id` with:
+
+```text
+POST /v1/dashboard/launch
+```
+
+For requests carrying this identifier, the Control Plane derives a deterministic Managed Project id scoped to the authenticated operator. Replaying the same request id with the same repository and instruction returns the already-created Managed Project and workflow instead of creating a second production.
+
+Safety rules:
+
+- legacy clients without `request_id` retain the previous launch contract;
+- request ids are validated and bounded;
+- the same request id cannot be reused with different launch parameters;
+- a concurrent retry during first-project initialization returns a conflict rather than creating a duplicate;
+- delivery/job creation therefore remains exactly-once for a completed idempotent launch;
+- no new database schema is required.
+
+The mobile UI persists only `repository + instruction fingerprint + request_id` while a launch is pending. The instruction text itself is not stored. After a successful response the pending request is cleared. If a network response is lost, the same submission can be retried—even after browser or Control Plane restart—without duplicating the Managed Project.
+
+A dedicated E2E qualification proves a launch followed by Control Plane restart and the same POST/request id results in exactly one project, one workflow and one queued job.
+
 ## Design principles
 
 - Evidence over assumptions

@@ -227,6 +227,7 @@ body{overflow-x:hidden}
 <script>
 const TOKEN_KEY='production_os_operator_token';
 const LAST_PROJECT_KEY='production_os_last_project_id';
+const PENDING_LAUNCH_KEY='production_os_pending_launch';
 let workerOnline=false;
 let refreshBusy=false;
 let launchReadiness=null;
@@ -613,6 +614,56 @@ async function loadLastProduction(){
  }
 }
 
+function launchDraftFingerprint(repository,task){
+ const text=String(repository||'')+'\u0000'+String(task||'');
+ let hash=2166136261;
+ for(let index=0;index<text.length;index++){
+  hash^=text.charCodeAt(index);
+  hash=Math.imul(hash,16777619);
+ }
+ return (hash>>>0).toString(16).padStart(8,'0')+':'+String(text.length);
+}
+function newLaunchRequestId(){
+ if(window.crypto&&typeof window.crypto.randomUUID==='function'){
+  return window.crypto.randomUUID();
+ }
+ return 'launch-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,14);
+}
+function pendingLaunchRequest(repository,task){
+ const fingerprint=launchDraftFingerprint(repository,task);
+ try{
+  const raw=localStorage.getItem(PENDING_LAUNCH_KEY);
+  const previous=raw?JSON.parse(raw):null;
+  if(
+   previous
+   &&previous.repository===repository
+   &&previous.fingerprint===fingerprint
+   &&typeof previous.request_id==='string'
+   &&previous.request_id
+  ){
+   return previous.request_id;
+  }
+ }catch(_e){}
+ const requestId=newLaunchRequestId();
+ localStorage.setItem(PENDING_LAUNCH_KEY,JSON.stringify({
+  repository:repository,
+  fingerprint:fingerprint,
+  request_id:requestId
+ }));
+ return requestId;
+}
+function clearPendingLaunchRequest(requestId){
+ try{
+  const raw=localStorage.getItem(PENDING_LAUNCH_KEY);
+  const previous=raw?JSON.parse(raw):null;
+  if(previous&&previous.request_id===requestId){
+   localStorage.removeItem(PENDING_LAUNCH_KEY);
+  }
+ }catch(_e){
+  localStorage.removeItem(PENDING_LAUNCH_KEY);
+ }
+}
+
 async function launchWorkflow(){
  const status=document.getElementById('launch-status');
  const button=document.getElementById('launch-button');
@@ -623,19 +674,22 @@ async function launchWorkflow(){
  const repository=document.getElementById('repository').value.trim();
  const task=document.getElementById('instruction').value.trim();
  if(!repository||!task){status.textContent='Sélectionne un repo et écris une instruction.';return}
+ const requestId=pendingLaunchRequest(repository,task);
  button.disabled=true;button.textContent='Lancement…';status.textContent='Création du workflow…';
  try{
   const created=await api('/v1/dashboard/launch',{
    method:'POST',
    body:JSON.stringify({
     repository:repository,
-    instruction:task
+    instruction:task,
+    request_id:requestId
    })
   });
   const project=created.project||{};
   const workflowId=String(project.current_workflow_id||'');
   const projectId=String(project.project_id||'');
   rememberLastProject(projectId);
+  clearPendingLaunchRequest(requestId);
   const immediate=launchReadiness&&launchReadiness.execution==='immediate';
   status.textContent=immediate
    ?'Production lancée et persistante · exécution disponible · '+projectId.slice(0,12)

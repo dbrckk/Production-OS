@@ -700,3 +700,23 @@ def test_last_production_tracker_keeps_server_outcome_and_project_deep_link():
     assert "Ouvrir le projet" in DASHBOARD_HTML
     assert "LAST_PROJECT_KEY" in DASHBOARD_HTML
 
+def test_one_tap_launch_persists_request_id_until_successful_response():
+    assert "const PENDING_LAUNCH_KEY='production_os_pending_launch'" in DASHBOARD_HTML
+    assert "function launchDraftFingerprint" in DASHBOARD_HTML
+    assert "function pendingLaunchRequest" in DASHBOARD_HTML
+    assert "function clearPendingLaunchRequest" in DASHBOARD_HTML
+    assert "crypto.randomUUID" in DASHBOARD_HTML
+    assert "request_id:requestId" in DASHBOARD_HTML
+    assert "clearPendingLaunchRequest(requestId)" in DASHBOARD_HTML
+    assert "fingerprint:fingerprint" in DASHBOARD_HTML
+    assert "localStorage.setItem(PENDING_LAUNCH_KEY" in DASHBOARD_HTML
+
+
+def test_one_tap_retry_state_does_not_persist_instruction_text():
+    pending_start = DASHBOARD_HTML.index("function pendingLaunchRequest")
+    pending_end = DASHBOARD_HTML.index("function clearPendingLaunchRequest", pending_start)
+    pending_body = DASHBOARD_HTML[pending_start:pending_end]
+    assert "task:task" not in pending_body
+    assert "instruction:task" not in pending_body
+    assert "fingerprint:fingerprint" in pending_body
+

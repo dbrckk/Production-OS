@@ -219,3 +219,75 @@ def test_legacy_v4_workflow_is_migrated_on_first_read(tmp_path):
     assert migrated["generation"] == 1
     assert migrated["token_budget"] == 12345
     assert migrated["runs"][0]["kind"] == "legacy"
+
+def test_deterministic_project_id_is_idempotent_and_rejects_parameter_reuse(tmp_path):
+    projects, workflows = service(tmp_path)
+    project_id = "launchrequest0123456789abcdef0123"
+
+    first = projects.create(
+        repository="dbrckk/example",
+        final_goal="Ship once",
+        token_budget=30000,
+        agent_preference="auto",
+        requested_by="operator:test",
+        project_id=project_id,
+    )
+    replay = projects.create(
+        repository="dbrckk/example",
+        final_goal="Ship once",
+        token_budget=30000,
+        agent_preference="auto",
+        requested_by="operator:test",
+        project_id=project_id,
+    )
+
+    assert replay["project_id"] == first["project_id"] == project_id
+    assert replay["workflow_id"] == first["workflow_id"]
+    assert replay["generation"] == 1
+    assert len(replay["runs"]) == 1
+    with workflows.backend.connect() as db:
+        project_count = db.execute(
+            "SELECT COUNT(*) AS count FROM managed_projects WHERE id=?",
+            (project_id,),
+        ).fetchone()["count"]
+        run_count = db.execute(
+            "SELECT COUNT(*) AS count FROM managed_project_runs WHERE project_id=?",
+            (project_id,),
+        ).fetchone()["count"]
+        job_count = db.execute(
+            "SELECT COUNT(*) AS count FROM jobs WHERE repository=?",
+            ("dbrckk/example",),
+        ).fetchone()["count"]
+    assert project_count == 1
+    assert run_count == 1
+    assert job_count == 1
+
+    with pytest.raises(RuntimeError, match="different launch parameters"):
+        projects.create(
+            repository="dbrckk/example",
+            final_goal="Different instruction",
+            token_budget=30000,
+            agent_preference="auto",
+            requested_by="operator:test",
+            project_id=project_id,
+        )
+
+
+def test_deterministic_project_id_validation_preserves_default_creation(tmp_path):
+    projects, _ = service(tmp_path)
+
+    normal = projects.create(
+        repository="dbrckk/example",
+        final_goal="Normal launch",
+        token_budget=1000,
+    )
+    assert len(normal["project_id"]) == 32
+
+    with pytest.raises(ValueError, match="project_id is invalid"):
+        projects.create(
+            repository="dbrckk/example",
+            final_goal="Invalid deterministic id",
+            token_budget=1000,
+            project_id="../bad",
+        )
+
