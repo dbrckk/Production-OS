@@ -429,7 +429,8 @@ class PostgresBackend:
                         created_at TEXT NOT NULL,
                         updated_at TEXT NOT NULL,
                         reviewed_at TEXT,
-                        completed_at TEXT
+                        completed_at TEXT,
+                        completed_by TEXT
                     )
                 """)
                 cur.execute("""
@@ -458,6 +459,20 @@ class PostgresBackend:
                 cur.execute("""
                     CREATE INDEX IF NOT EXISTS idx_managed_project_runs_project
                     ON managed_project_runs(project_id, generation DESC)
+                """)
+                cur.execute("""
+                    ALTER TABLE managed_projects
+                    ADD COLUMN IF NOT EXISTS token_budget INTEGER
+                    NOT NULL DEFAULT 30000
+                """)
+                cur.execute("""
+                    ALTER TABLE managed_projects
+                    ADD COLUMN IF NOT EXISTS agent_preference TEXT
+                    NOT NULL DEFAULT 'auto'
+                """)
+                cur.execute("""
+                    ALTER TABLE managed_projects
+                    ADD COLUMN IF NOT EXISTS completed_by TEXT
                 """)
                 cur.execute("""
                     ALTER TABLE dashboard_remediation_events
