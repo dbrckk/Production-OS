@@ -105,10 +105,14 @@ def test_attention_prioritizes_failures_reviews_blocked_jobs_and_incidents():
     assert incident["actions"][1]["control_action"] == "kick"
 
     failed = next(item for item in payload["items"] if item["kind"] == "validation_failed")
-    assert failed["actions"] == [{"name":"verify","label":"Retester"}]
+    assert failed["actions"] == [
+        {"name":"instructions","label":"Ajouter instruction"},
+        {"name":"verify","label":"Retester"},
+    ]
 
     review = next(item for item in payload["items"] if item["kind"] == "project_review")
     assert review["actions"] == [
+        {"name":"instructions","label":"Ajouter instruction"},
         {"name":"verify","label":"Retester"},
         {"name":"complete","label":"Valider DONE"},
     ]
