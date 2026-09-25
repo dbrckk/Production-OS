@@ -111,6 +111,8 @@ textarea{resize:vertical;min-height:150px;line-height:1.45}
 .attention-done{opacity:.78}
 .attention-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .attention-focus{outline:2px solid rgba(110,168,254,.7);box-shadow:0 0 0 4px rgba(110,168,254,.12)}
+.attention-inline-instruction{display:grid;gap:8px;width:100%;margin-top:8px}
+.attention-inline-instruction textarea{min-height:62px}
 @media(max-width:560px){
  .shell{padding:14px 12px 38px}
  .status-grid{grid-template-columns:1fr}
@@ -1243,6 +1245,25 @@ async function openAttentionItem(view,targetType,targetId){
   focus:targetId||null
  });
 }
+async function attentionManagedInstruction(projectId){
+ const field=document.getElementById("attention-instruction-"+projectId);
+ const instruction=field?field.value.trim():"";
+ if(!instruction){
+  const el=document.getElementById("attention-action-status-"+projectId);
+  if(el)el.textContent="Saisis une instruction.";
+  return;
+ }
+ try{
+  await api(
+   "/v1/managed-projects/"+encodeURIComponent(projectId)+"/instructions",
+   {method:"POST",body:JSON.stringify({instruction:instruction})}
+  );
+  await loadAttention();
+ }catch(e){
+  const el=document.getElementById("attention-action-status-"+projectId);
+  if(el)el.textContent=String(e).replace(/^Error:\\s*/,"");
+ }
+}
 async function attentionManagedAction(projectId,action){
  if(action==="complete"){
   if(!window.confirm("Valider définitivement ce projet comme DONE ?"))return;
@@ -1291,6 +1312,9 @@ function renderAttentionActions(item){
  const incidentId=String(item.incident_id||"");
  const buttons=actions.map(function(action){
   const name=String(action.name||"");
+  if(name==="instructions"){
+   return '<div class="attention-inline-instruction"><textarea id="attention-instruction-'+esc(targetId)+'" rows="2" placeholder="Instruction supplémentaire"></textarea><button class="secondary-btn" type="button" data-project-id="'+esc(targetId)+'" onclick="attentionManagedInstruction(this.dataset.projectId)">'+esc(String(action.label||"Ajouter instruction"))+'</button></div>';
+  }
   if(name==="verify"||name==="complete"){
    return '<button class="secondary-btn" type="button" data-project-id="'+esc(targetId)+'" data-action="'+esc(name)+'" onclick="attentionManagedAction(this.dataset.projectId,this.dataset.action)">'+esc(String(action.label||name))+'</button>';
   }
@@ -1329,7 +1353,7 @@ async function loadAttention(){
    const required=item.action_required===true;
    const repository=item.repository?'<div class="small"><strong>'+esc(String(item.repository))+'</strong></div>':'';
    const summaryText=item.summary?'<div class="small">'+esc(String(item.summary))+'</div>':'';
-   const openButton=required
+   const openButton=item.view
     ?'<button class="secondary-btn" type="button" data-view="'+esc(String(item.view||"overview"))+'" data-target-type="'+esc(String(item.target_type||""))+'" data-target-id="'+esc(String(item.target_id||""))+'" onclick="openAttentionItem(this.dataset.view,this.dataset.targetType,this.dataset.targetId)">Ouvrir</button>'
     :'';
    const contextual=required?renderAttentionActions(item):"";
