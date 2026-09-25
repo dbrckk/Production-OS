@@ -653,3 +653,15 @@ def test_managed_and_attention_cards_render_normalized_production_outcome():
     assert "renderProductionOutcome(item.outcome||{},false)" in DASHBOARD_HTML
     assert "renderProductionOutcome(outcome,true)" in DASHBOARD_HTML
 
+def test_managed_and_attention_cards_render_review_guidance():
+    assert "renderReviewGuidance" in DASHBOARD_HTML
+    assert "guidanceEvidenceLabel" in DASHBOARD_HTML
+    assert "<strong>Prochaine étape :</strong>" in DASHBOARD_HTML
+    assert "<strong>Preuves :</strong>" in DASHBOARD_HTML
+    assert "Aucune preuve structurée" in DASHBOARD_HTML
+    assert "Preuves minimales" in DASHBOARD_HTML
+    assert "Preuves partielles" in DASHBOARD_HTML
+    assert "Preuves riches" in DASHBOARD_HTML
+    assert "renderReviewGuidance(item.review_guidance||{})" in DASHBOARD_HTML
+    assert "renderReviewGuidance(guidance)" in DASHBOARD_HTML
+
