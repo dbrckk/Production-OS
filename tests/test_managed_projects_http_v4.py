@@ -184,3 +184,34 @@ def test_managed_project_http_review_instruction_verify_and_complete(tmp_path):
         server.shutdown()
         server.server_close()
         thread.join(timeout=2)
+
+
+def test_managed_project_persists_across_control_plane_restart(tmp_path):
+    database = str(tmp_path / "managed-restart.sqlite")
+    first = ControlPlane(database, authorizer=_auth())
+    created = first.managed_projects.create(
+        repository="dbrckk/example",
+        final_goal="Persist across restart",
+        token_budget=5000,
+    )
+    workflow_id = created["workflow_id"]
+    first.workflows.record_result(
+        workflow_id,
+        "goal",
+        succeeded=True,
+        result={"usage":{"total_tokens":77}},
+    )
+    assert first.managed_projects.get(workflow_id)["state"] == "REVIEW_REQUIRED"
+
+    second = ControlPlane(database, authorizer=_auth())
+    restored = second.managed_projects.get(workflow_id)
+    assert restored["state"] == "REVIEW_REQUIRED"
+    assert restored["final_goal"] == "Persist across restart"
+    assert restored["usage"]["total_tokens"] == 77
+
+    done = second.managed_projects.mark_done(
+        workflow_id,
+        approved_by="operator:restart",
+    )
+    assert done["state"] == "DONE"
+    assert done["approved_by"] == "operator:restart"
