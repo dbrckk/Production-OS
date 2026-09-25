@@ -710,23 +710,24 @@ def test_backup_storage_inventory_classifies_files_without_exposing_paths(
 
     inventory = backup_storage_inventory(backend)
 
-    assert inventory == {
-        "status":"ready",
-        "backend_kind":"sqlite",
-        "total_size_bytes":35,
-        "backup_count":1,
-        "backup_bytes":7,
-        "restore_candidate_count":1,
-        "restore_candidate_bytes":10,
-        "activation_receipt_count":1,
-        "activation_receipt_bytes":4,
-        "temp_file_count":1,
-        "temp_file_bytes":6,
-        "stale_temp_count":0,
-        "stale_temp_bytes":0,
-        "unknown_file_count":1,
-        "unknown_file_bytes":8,
-    }
+    assert inventory["status"] == "ready"
+    assert inventory["backend_kind"] == "sqlite"
+    assert inventory["total_size_bytes"] == 35
+    assert inventory["backup_count"] == 1
+    assert inventory["backup_bytes"] == 7
+    assert inventory["restore_candidate_count"] == 1
+    assert inventory["restore_candidate_bytes"] == 10
+    assert inventory["activation_receipt_count"] == 1
+    assert inventory["activation_receipt_bytes"] == 4
+    assert inventory["temp_file_count"] == 1
+    assert inventory["temp_file_bytes"] == 6
+    assert inventory["stale_temp_count"] == 0
+    assert inventory["stale_temp_bytes"] == 0
+    assert inventory["unknown_file_count"] == 1
+    assert inventory["unknown_file_bytes"] == 8
+    assert inventory["filesystem"]["status"] in {"ok","warning","critical"}
+    assert inventory["filesystem"]["total_bytes"] > 0
+    assert inventory["filesystem"]["available_bytes"] >= 0
     encoded = json.dumps(inventory).lower()
     assert str(backup_dir).lower() not in encoded
     assert backup_id not in encoded
@@ -845,3 +846,98 @@ def test_prune_stale_backup_temps_count_mismatch_changes_nothing(
     assert exc.value.expected == 2
     assert exc.value.actual == 1
     assert stale.exists()
+
+
+def test_backup_filesystem_capacity_uses_existing_parent_for_missing_directory(
+    tmp_path,
+    monkeypatch,
+):
+    backup_dir = tmp_path / "nested" / "backups"
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    backend = SQLiteBackend(tmp_path / "production.sqlite")
+
+    inventory = backup_storage_inventory(backend)
+    filesystem = inventory["filesystem"]
+
+    assert inventory["status"] == "ready"
+    assert filesystem["status"] in {"ok","warning","critical"}
+    assert filesystem["total_bytes"] > 0
+    assert filesystem["available_bytes"] >= 0
+    assert 0 <= filesystem["used_percent"] <= 100
+    assert 0 <= filesystem["available_percent"] <= 100
+    assert not backup_dir.exists()
+
+
+def test_backup_filesystem_capacity_is_unavailable_when_unconfigured(
+    tmp_path,
+    monkeypatch,
+):
+    monkeypatch.delenv("PRODUCTION_OS_BACKUP_DIR", raising=False)
+    backend = SQLiteBackend(tmp_path / "production.sqlite")
+
+    filesystem = backup_storage_inventory(backend)["filesystem"]
+
+    assert filesystem["status"] == "unconfigured"
+    assert filesystem["total_bytes"] is None
+    assert filesystem["available_bytes"] is None
+
+
+def test_backup_filesystem_capacity_postgres_is_unsupported(
+    tmp_path,
+    monkeypatch,
+):
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(tmp_path / "backups"))
+
+    filesystem = backup_storage_inventory(_FakePostgres())["filesystem"]
+
+    assert filesystem["status"] == "unsupported"
+    assert filesystem["total_bytes"] is None
+    assert filesystem["available_bytes"] is None
+
+
+def test_backup_filesystem_capacity_converts_statvfs_and_thresholds(
+    tmp_path,
+    monkeypatch,
+):
+    backup_dir = tmp_path / "backups"
+    backup_dir.mkdir()
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    backend = SQLiteBackend(tmp_path / "production.sqlite")
+
+    class Stats:
+        f_frsize = 4096
+        f_bsize = 4096
+        f_blocks = 1000
+        f_bfree = 100
+        f_bavail = 40
+
+    monkeypatch.setattr("production_os.dashboard_backups.os.statvfs", lambda _: Stats())
+    filesystem = backup_storage_inventory(backend)["filesystem"]
+
+    assert filesystem["status"] == "critical"
+    assert filesystem["total_bytes"] == 4096000
+    assert filesystem["free_bytes"] == 409600
+    assert filesystem["available_bytes"] == 163840
+    assert filesystem["used_bytes"] == 3686400
+    assert filesystem["used_percent"] == 90.0
+    assert filesystem["available_percent"] == 4.0
+
+
+def test_backup_filesystem_capacity_statvfs_error_is_unknown_not_zero(
+    tmp_path,
+    monkeypatch,
+):
+    backup_dir = tmp_path / "backups"
+    backup_dir.mkdir()
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    backend = SQLiteBackend(tmp_path / "production.sqlite")
+
+    def fail(_):
+        raise OSError("unavailable")
+
+    monkeypatch.setattr("production_os.dashboard_backups.os.statvfs", fail)
+    filesystem = backup_storage_inventory(backend)["filesystem"]
+
+    assert filesystem["status"] == "unknown"
+    assert filesystem["total_bytes"] is None
+    assert filesystem["available_bytes"] is None
