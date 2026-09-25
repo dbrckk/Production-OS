@@ -396,6 +396,7 @@ class DashboardService:
         for project in managed:
             status = str(project.get("status") or "")
             workflow = project.get("current_workflow") or {}
+            outcome = project.get("outcome") or {}
             workflow_status = str(workflow.get("status") or "")
             if status == "NEEDS_ATTENTION":
                 failed = workflow_status == "failed"
@@ -410,7 +411,12 @@ class DashboardService:
                         if failed
                         else "Projet nécessite une action"
                     ),
-                    "summary":str(project.get("final_goal") or ""),
+                    "summary":str(
+                        outcome.get("summary")
+                        or project.get("final_goal")
+                        or ""
+                    ),
+                    "outcome":outcome,
                     "repository":project.get("repository"),
                     "target_type":"managed-project",
                     "target_id":project.get("project_id"),
@@ -429,7 +435,12 @@ class DashboardService:
                     "action_required":True,
                     "severity":"medium",
                     "title":"Projet prêt à revoir",
-                    "summary":str(project.get("final_goal") or ""),
+                    "summary":str(
+                        outcome.get("summary")
+                        or project.get("final_goal")
+                        or ""
+                    ),
+                    "outcome":outcome,
                     "repository":project.get("repository"),
                     "target_type":"managed-project",
                     "target_id":project.get("project_id"),
@@ -477,6 +488,7 @@ class DashboardService:
             if str(project.get("status") or "") == "DONE"
         ][:5]
         for project in completed:
+            outcome = project.get("outcome") or {}
             items.append({
                 "id":f"completed:{project['project_id']}",
                 "kind":"completed_project",
@@ -484,7 +496,12 @@ class DashboardService:
                 "action_required":False,
                 "severity":"info",
                 "title":"Projet terminé",
-                "summary":str(project.get("final_goal") or ""),
+                "summary":str(
+                    outcome.get("summary")
+                    or project.get("final_goal")
+                    or ""
+                ),
+                "outcome":outcome,
                 "repository":project.get("repository"),
                 "target_type":"managed-project",
                 "target_id":project.get("project_id"),
