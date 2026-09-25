@@ -138,6 +138,7 @@ test_release18_managed_projects_e2e.py
 test_release19_restore_staging_e2e.py
 test_release21_offline_restore_e2e.py
 test_release32_one_tap_e2e.py
+test_release33_auto_worker_recovery_e2e.py
 test_remote_worker.py
 test_render_start.py
 test_result_cache.py
@@ -3914,6 +3915,56 @@ project_after_worker = refreshed["project"]
 ⋮----
 restarted = ControlPlane(database, authorizer=_auth())
 restored = restarted.managed_projects.get(project_id)
+```
+
+## File: test_release33_auto_worker_recovery_e2e.py
+```python
+def _auth()
+⋮----
+def _request(base, path, token, *, method="GET", body=None)
+⋮----
+data = None if body is None else json.dumps(body).encode("utf-8")
+request = urllib.request.Request(
+⋮----
+raw = response.read()
+⋮----
+raw = exc.read()
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+@pytest.mark.e2e
+def test_release33_expired_one_tap_claim_is_recovered_by_next_worker(tmp_path)
+⋮----
+database = str(tmp_path / "one-tap-recovery.sqlite")
+control = ControlPlane(database, authorizer=_auth())
+⋮----
+repository = "dbrckk/recovery-e2e"
+instruction = "Implement and validate the requested production change."
+⋮----
+project = launched["project"]
+project_id = project["project_id"]
+workflow_id = project["current_workflow_id"]
+⋮----
+first_worker = RemoteWorkerClient(
+first_claim = first_worker.claim(ack_timeout_seconds=1)
+⋮----
+job_key = first_claim.key
+⋮----
+# Simulate a worker disappearing after claim but before ACK.
+⋮----
+second_worker = RemoteWorkerClient(
+recovered_claim = second_worker.claim()
+⋮----
+completed = second_worker.complete(
+⋮----
+final = refreshed["project"]
+⋮----
+queue_job = control.queue.get(job_key)
+⋮----
+recovered_events = [
 ```
 
 ## File: test_remote_worker.py

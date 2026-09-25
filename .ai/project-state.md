@@ -22,21 +22,23 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-25T17:03:16Z
+Generated: 2026-09-25T17:38:05Z
 
 ### Git
 - Branch: `main`
-- Head: `d922496a9378`
-- Commit date: 2026-09-25T19:03:04+02:00
-- Commit: test: release 32 one-tap production E2E
-- Tracked files: 416
+- Head: `51d616c8a812`
+- Commit date: 2026-09-25T19:37:52+02:00
+- Commit: feat: release 33 automatic worker recovery
+- Tracked files: 418
 
 ### Recently changed files
 - `README.md`
+- `docs/superpowers/plans/2026-09-25-release-33-auto-worker-recovery.md`
+- `src/production_os/control_plane.py`
+- `tests/test_release33_auto_worker_recovery_e2e.py`
 - `docs/superpowers/plans/2026-09-25-release-32-one-tap-e2e.md`
 - `tests/test_release32_one_tap_e2e.py`
 - `docs/superpowers/plans/2026-09-25-release-31-one-tap-production.md`
-- `src/production_os/control_plane.py`
 - `src/production_os/dashboard_ui.py`
 - `tests/test_dashboard_api.py`
 - `tests/test_dashboard_launch.py`
@@ -50,8 +52,6 @@ Generated: 2026-09-25T17:03:16Z
 - `docs/superpowers/plans/2026-09-25-release-29-guarded-backup-retention-prune.md`
 - `src/production_os/dashboard_backups.py`
 - `tests/test_dashboard_backup_api.py`
-- `tests/test_dashboard_backups.py`
-- `docs/superpowers/plans/2026-09-25-release-28-backup-retention-preview.md`
 
 ### Project signals
 - `pyproject.toml`

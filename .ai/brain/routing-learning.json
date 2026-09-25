@@ -2,23 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "test: cover authenticated GitHub asset delivery",
-      "terms": [
-        "asset",
-        "authenticated",
-        "cover",
-        "delivery",
-        "github",
-        "test"
-      ],
-      "tests": [],
-      "useful": [
-        "tests/test_asset_forge.py",
-        "tests/test_github_client_put_file.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat: expose transactional asset batch CLI",
       "terms": [
         "asset",
@@ -1266,6 +1249,23 @@
       "useful": [
         "tests/test_release32_one_tap_e2e.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "feat: release 33 automatic worker recovery",
+      "terms": [
+        "33",
+        "automatic",
+        "feat",
+        "recovery",
+        "release",
+        "worker"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/control_plane.py",
+        "tests/test_release33_auto_worker_recovery_e2e.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1429,6 +1429,10 @@
     "32": {
       "tests/test_release32_one_tap_e2e.py": 4
     },
+    "33": {
+      "src/production_os/control_plane.py": 4,
+      "tests/test_release33_auto_worker_recovery_e2e.py": 4
+    },
     "accept": {
       "src/production_os/asset_forge.py": 4,
       "tests/test_asset_forge.py": 4
@@ -1532,8 +1536,10 @@
     "automatic": {
       "src/production_os/asset_forge.py": 4,
       "src/production_os/cli.py": 4,
+      "src/production_os/control_plane.py": 4,
       "src/production_os/github_client.py": 4,
-      "tests/test_asset_forge.py": 4
+      "tests/test_asset_forge.py": 4,
+      "tests/test_release33_auto_worker_recovery_e2e.py": 4
     },
     "autopilot": {
       "src/production_os/control_plane.py": 4,
@@ -1945,7 +1951,7 @@
       "tests/test_project_progress.py": 4,
       "tests/test_release19_restore_staging_e2e.py": 4,
       "tests/test_release21_offline_restore_e2e.py": 4,
-      "tests/test_render_start.py": 4,
+      "tests/test_release33_auto_worker_recovery_e2e.py": 4,
       "tests/test_workflow_postgres.py": 8
     },
     "filesystem": {
@@ -2362,6 +2368,10 @@
       "src/production_os/asset_forge.py": 4,
       "tests/test_asset_forge.py": 4
     },
+    "recovery": {
+      "src/production_os/control_plane.py": 4,
+      "tests/test_release33_auto_worker_recovery_e2e.py": 4
+    },
     "recurrence": {
       "src/production_os/dashboard_remediation_metrics.py": 4,
       "src/production_os/dashboard_service.py": 4,
@@ -2443,7 +2453,8 @@
       "tests/test_release18_managed_projects_e2e.py": 4,
       "tests/test_release19_restore_staging_e2e.py": 4,
       "tests/test_release21_offline_restore_e2e.py": 4,
-      "tests/test_release32_one_tap_e2e.py": 4
+      "tests/test_release32_one_tap_e2e.py": 4,
+      "tests/test_release33_auto_worker_recovery_e2e.py": 4
     },
     "reliability": {
       "src/production_os/control_plane.py": 4,
@@ -2780,12 +2791,13 @@
       "tests/test_dashboard_launch.py": 4
     },
     "worker": {
-      "src/production_os/control_plane.py": 4,
+      "src/production_os/control_plane.py": 8,
       "src/production_os/controller.py": 4,
       "src/production_os/task_capabilities.py": 4,
       "src/production_os/workflow_engine.py": 4,
       "tests/test_controller_asset_capabilities.py": 4,
       "tests/test_dashboard_launch.py": 4,
+      "tests/test_release33_auto_worker_recovery_e2e.py": 4,
       "tests/test_task_capabilities.py": 4,
       "tests/test_workflow_engine.py": 4
     },

@@ -268,6 +268,7 @@ tests/
   test_release19_restore_staging_e2e.py
   test_release21_offline_restore_e2e.py
   test_release32_one_tap_e2e.py
+  test_release33_auto_worker_recovery_e2e.py
   test_remote_worker.py
   test_render_start.py
   test_result_cache.py
@@ -11663,6 +11664,56 @@ restarted = ControlPlane(database, authorizer=_auth())
 restored = restarted.managed_projects.get(project_id)
 ````
 
+## File: tests/test_release33_auto_worker_recovery_e2e.py
+````python
+def _auth()
+⋮----
+def _request(base, path, token, *, method="GET", body=None)
+⋮----
+data = None if body is None else json.dumps(body).encode("utf-8")
+request = urllib.request.Request(
+⋮----
+raw = response.read()
+⋮----
+raw = exc.read()
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+@pytest.mark.e2e
+def test_release33_expired_one_tap_claim_is_recovered_by_next_worker(tmp_path)
+⋮----
+database = str(tmp_path / "one-tap-recovery.sqlite")
+control = ControlPlane(database, authorizer=_auth())
+⋮----
+repository = "dbrckk/recovery-e2e"
+instruction = "Implement and validate the requested production change."
+⋮----
+project = launched["project"]
+project_id = project["project_id"]
+workflow_id = project["current_workflow_id"]
+⋮----
+first_worker = RemoteWorkerClient(
+first_claim = first_worker.claim(ack_timeout_seconds=1)
+⋮----
+job_key = first_claim.key
+⋮----
+# Simulate a worker disappearing after claim but before ACK.
+⋮----
+second_worker = RemoteWorkerClient(
+recovered_claim = second_worker.claim()
+⋮----
+completed = second_worker.complete(
+⋮----
+final = refreshed["project"]
+⋮----
+queue_job = control.queue.get(job_key)
+⋮----
+recovered_events = [
+````
+
 ## File: tests/test_remote_worker.py
 ````python
 def test_remote_worker_claim_ack_complete(tmp_path)
@@ -13944,6 +13995,24 @@ same project/workflow/result restored
 The qualification verifies that repository, instruction, final goal, server-owned execution defaults, worker result usage, workflow identity, generation history and review state survive a control-plane restart.
 
 This specifically protects the mobile promise introduced in Release 31: closing or reloading the dashboard does not own the execution lifetime and cannot discard the production.
+
+
+## Release 33 — Automatic expired-claim recovery
+
+Worker claim recovery is now part of the normal worker pull path.
+
+Before selecting the next queued job, `POST /v1/jobs/claim` first requeues expired, unacknowledged claims that are still below the delivery-attempt limit. This allows another healthy worker to continue the same persistent workflow without requiring an operator to press `recover-stuck`.
+
+Safety remains bounded:
+
+- only jobs still in `claimed` state are automatically recovered;
+- the claim deadline must have expired;
+- acknowledged/running jobs are not silently duplicated;
+- delivery attempts continue to increment;
+- jobs reaching the configured attempt ceiling move to dead-letter instead of looping forever;
+- the original Managed Project and workflow identity are preserved.
+
+A dedicated E2E test starts from the One-tap launch endpoint, lets one worker claim and disappear before ACK, then proves a second worker automatically reclaims the same job, completes it, and advances the same generation-1 Managed Project to `REVIEW_REQUIRED`.
 
 ## Design principles
 

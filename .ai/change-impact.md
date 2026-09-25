@@ -1,20 +1,22 @@
 # Change impact
 
-Base: 04b97a212924f291b73ceeb7d21437c342c66c90
-Head: d922496a9378e56be2052f55be67ea36fb0d9da6
+Base: 340ec00f94d19a9c2113b42332f4fec68ad039e9
+Head: 51d616c8a81271b6ed0398e53b2a6d58fd34d9c7
 
 ## Changed files
 - M README.md
-- A docs/superpowers/plans/2026-09-25-release-32-one-tap-e2e.md
-- A tests/test_release32_one_tap_e2e.py
+- A docs/superpowers/plans/2026-09-25-release-33-auto-worker-recovery.md
+- M src/production_os/control_plane.py
+- A tests/test_release33_auto_worker_recovery_e2e.py
 
 ## Affected areas
 - (root)
 - docs
+- src
 - tests
 
 ## Related test candidates
-- No direct filename-based test match detected.
+- tests/test_control_plane.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.
