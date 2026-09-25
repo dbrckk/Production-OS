@@ -12,6 +12,7 @@ def _auth():
     return TokenAuthorizer([
         {"name":"viewer","role":"viewer","sha256":token_digest("viewer")},
         {"name":"operator","role":"operator","sha256":token_digest("operator")},
+        {"name":"worker","role":"worker","sha256":token_digest("worker")},
     ])
 
 
@@ -243,3 +244,25 @@ def test_managed_project_persists_across_control_plane_restart(tmp_path):
     )
     assert resumed["generation"] == 2
     assert resumed["workflow_id"] != first_workflow
+
+
+def test_worker_cannot_read_managed_projects(tmp_path):
+    control = ControlPlane(str(tmp_path / "worker-read.sqlite"), authorizer=_auth())
+    control.managed_projects.create(
+        repository="dbrckk/example",
+        final_goal="Ship",
+        token_budget=1000,
+    )
+    server, thread, base = _server(control)
+    try:
+        status, payload = _request(
+            base,
+            "/v1/managed-projects",
+            "worker",
+        )
+        assert status == 403
+        assert payload["role"] == "worker"
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
