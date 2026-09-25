@@ -33,6 +33,7 @@
         "tests/test_controller_asset_capabilities.py",
         "tests/test_dashboard_alerts.py",
         "tests/test_dashboard_api.py",
+        "tests/test_dashboard_attention.py",
         "tests/test_dashboard_backup_api.py",
         "tests/test_dashboard_backups.py",
         "tests/test_dashboard_control.py",
@@ -144,7 +145,7 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 135,
+      "in_degree": 136,
       "out_degree": 0,
       "path": "src/production_os/__init__.py"
     },
@@ -184,6 +185,7 @@
         "tests/test_controller_asset_capabilities.py",
         "tests/test_dashboard_alerts.py",
         "tests/test_dashboard_api.py",
+        "tests/test_dashboard_attention.py",
         "tests/test_dashboard_backup_api.py",
         "tests/test_dashboard_control.py",
         "tests/test_dashboard_control_api.py",
@@ -220,7 +222,6 @@
         "tests/test_release34_safe_running_recovery_e2e.py",
         "tests/test_release35_control_plane_restart_e2e.py",
         "tests/test_release36_worker_session_reconciliation_e2e.py",
-        "tests/test_remote_worker.py",
         "tests/test_stragglers.py",
         "tests/test_workers.py"
       ],
@@ -408,6 +409,7 @@
         "src/production_os/witness.py",
         "src/production_os/workflow_engine.py",
         "tests/test_callgraph_versioning_feedback.py",
+        "tests/test_dashboard_attention.py",
         "tests/test_dashboard_backup_api.py",
         "tests/test_dashboard_backups.py",
         "tests/test_dashboard_control.py",
@@ -426,7 +428,7 @@
         "tests/test_sqlite_migration.py",
         "tests/test_workflow_engine.py"
       ],
-      "in_degree": 46,
+      "in_degree": 47,
       "out_degree": 2,
       "path": "tests/test_asset_forge.py"
     },
@@ -441,6 +443,7 @@
         "src/production_os/controller.py",
         "src/production_os/dashboard_playbooks.py",
         "src/production_os/dashboard_remediation_metrics.py",
+        "src/production_os/dashboard_service.py",
         "src/production_os/dashboard_store.py",
         "src/production_os/delivery.py",
         "src/production_os/fairness.py",
@@ -476,7 +479,7 @@
         "tests/test_scheduler.py",
         "tests/test_scoring.py"
       ],
-      "in_degree": 39,
+      "in_degree": 40,
       "out_degree": 2,
       "path": "tests/test_fairness.py"
     },
@@ -821,6 +824,32 @@
     },
     {
       "dependencies": [
+        "src/production_os/dashboard_alerts.py",
+        "src/production_os/dashboard_backups.py",
+        "src/production_os/dashboard_health.py",
+        "src/production_os/dashboard_incidents.py",
+        "src/production_os/dashboard_maintenance.py",
+        "src/production_os/dashboard_playbooks.py",
+        "src/production_os/dashboard_remediation_metrics.py",
+        "src/production_os/dashboard_usage.py",
+        "src/production_os/github_client.py",
+        "src/production_os/project_progress.py",
+        "src/production_os/workers.py",
+        "tests/test_asset_forge.py",
+        "tests/test_fairness.py"
+      ],
+      "dependents": [
+        "src/production_os/control_plane.py",
+        "tests/test_dashboard_alerts.py",
+        "tests/test_dashboard_attention.py",
+        "tests/test_dashboard_launch_ux.py"
+      ],
+      "in_degree": 4,
+      "out_degree": 13,
+      "path": "src/production_os/dashboard_service.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/capabilities.py",
         "src/production_os/models.py",
         "src/production_os/workers.py"
@@ -868,30 +897,6 @@
       "in_degree": 6,
       "out_degree": 10,
       "path": "src/production_os/release_ledger.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/dashboard_alerts.py",
-        "src/production_os/dashboard_backups.py",
-        "src/production_os/dashboard_health.py",
-        "src/production_os/dashboard_incidents.py",
-        "src/production_os/dashboard_maintenance.py",
-        "src/production_os/dashboard_playbooks.py",
-        "src/production_os/dashboard_remediation_metrics.py",
-        "src/production_os/dashboard_usage.py",
-        "src/production_os/github_client.py",
-        "src/production_os/project_progress.py",
-        "src/production_os/workers.py",
-        "tests/test_asset_forge.py"
-      ],
-      "dependents": [
-        "src/production_os/control_plane.py",
-        "tests/test_dashboard_alerts.py",
-        "tests/test_dashboard_launch_ux.py"
-      ],
-      "in_degree": 3,
-      "out_degree": 12,
-      "path": "src/production_os/dashboard_service.py"
     },
     {
       "dependencies": [],
@@ -1695,8 +1700,8 @@
       "path": "tests/test_callgraph_versioning_feedback.py"
     }
   ],
-  "edge_count": 1265,
+  "edge_count": 1270,
   "generated_by": "dbrckk/repo-brain-v7-graph",
-  "node_count": 249,
+  "node_count": 250,
   "schema_version": 1
 }

@@ -63,6 +63,7 @@ test_control_plane.py
 test_controller_asset_capabilities.py
 test_dashboard_alerts.py
 test_dashboard_api.py
+test_dashboard_attention.py
 test_dashboard_backup_api.py
 test_dashboard_backups.py
 test_dashboard_control_api.py
@@ -1002,6 +1003,31 @@ project = payload["project"]
 launch = payload["launch"]
 ⋮----
 persisted = control.managed_projects.get(project["project_id"])
+⋮----
+def test_attention_feed_is_viewer_visible_and_worker_forbidden(running_control_plane)
+```
+
+## File: test_dashboard_attention.py
+```python
+class ManagedProjects
+⋮----
+def __init__(self, rows)
+⋮----
+def list(self, *, limit=100)
+⋮----
+def test_attention_prioritizes_failures_reviews_blocked_jobs_and_incidents()
+⋮----
+managed = [
+control = SimpleNamespace(
+service = DashboardService(control)
+⋮----
+payload = service.attention(limit=50)
+⋮----
+kinds = [item["kind"] for item in payload["items"]]
+⋮----
+def test_attention_limit_is_bounded_and_completed_items_are_informational()
+⋮----
+payload = service.attention(limit=2)
 ```
 
 ## File: test_dashboard_backup_api.py
@@ -2466,6 +2492,12 @@ launch_body = DASHBOARD_HTML[launch_start:launch_end]
 def test_managed_technical_creation_options_are_collapsed_by_default()
 ⋮----
 def test_managed_view_can_be_restored_from_navigation_query()
+⋮----
+def test_attention_center_is_default_mobile_view()
+⋮----
+def test_attention_center_uses_server_aggregated_feed_and_action_counts()
+⋮----
+def test_attention_items_navigate_to_existing_operational_views()
 ```
 
 ## File: test_dashboard_usage.py

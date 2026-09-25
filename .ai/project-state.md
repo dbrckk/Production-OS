@@ -22,19 +22,25 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-25T18:07:46Z
+Generated: 2026-09-25T18:17:10Z
 
 ### Git
 - Branch: `main`
-- Head: `49b3921fc6b5`
-- Commit date: 2026-09-25T20:07:27+02:00
-- Commit: feat: release 36 worker session reconciliation
-- Tracked files: 424
+- Head: `30abc35e9893`
+- Commit date: 2026-09-25T20:16:57+02:00
+- Commit: feat: release 37 attention center
+- Tracked files: 426
 
 ### Recently changed files
 - `README.md`
-- `docs/superpowers/plans/2026-09-25-release-36-worker-session-reconciliation.md`
+- `docs/superpowers/plans/2026-09-25-release-37-attention-center.md`
 - `src/production_os/control_plane.py`
+- `src/production_os/dashboard_service.py`
+- `src/production_os/dashboard_ui.py`
+- `tests/test_dashboard_api.py`
+- `tests/test_dashboard_attention.py`
+- `tests/test_dashboard_ui_v3.py`
+- `docs/superpowers/plans/2026-09-25-release-36-worker-session-reconciliation.md`
 - `tests/test_release36_worker_session_reconciliation_e2e.py`
 - `docs/superpowers/plans/2026-09-25-release-35-control-plane-restart-reconciliation.md`
 - `tests/test_release35_control_plane_restart_e2e.py`
@@ -42,8 +48,6 @@ Generated: 2026-09-25T18:07:46Z
 - `tests/test_release34_safe_running_recovery_e2e.py`
 - `docs/superpowers/plans/2026-09-25-release-33-auto-worker-recovery.md`
 - `tests/test_release33_auto_worker_recovery_e2e.py`
-- `docs/superpowers/plans/2026-09-25-release-32-one-tap-e2e.md`
-- `tests/test_release32_one_tap_e2e.py`
 
 ### Project signals
 - `pyproject.toml`

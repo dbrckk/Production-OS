@@ -1,13 +1,17 @@
 # Change impact
 
-Base: 0aa4ac6f5c0de200bed6114f5010c6f99641c8cb
-Head: 49b3921fc6b56d103b65f7d2c2ab2189e219e86e
+Base: 74c280f2e76cc57e2b98ed437de4a84476043195
+Head: 30abc35e98930216b26859f155fb70f4f79e103c
 
 ## Changed files
 - M README.md
-- A docs/superpowers/plans/2026-09-25-release-36-worker-session-reconciliation.md
+- A docs/superpowers/plans/2026-09-25-release-37-attention-center.md
 - M src/production_os/control_plane.py
-- A tests/test_release36_worker_session_reconciliation_e2e.py
+- M src/production_os/dashboard_service.py
+- M src/production_os/dashboard_ui.py
+- M tests/test_dashboard_api.py
+- A tests/test_dashboard_attention.py
+- M tests/test_dashboard_ui_v3.py
 
 ## Affected areas
 - (root)

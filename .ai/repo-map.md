@@ -193,6 +193,7 @@ tests/
   test_controller_asset_capabilities.py
   test_dashboard_alerts.py
   test_dashboard_api.py
+  test_dashboard_attention.py
   test_dashboard_backup_api.py
   test_dashboard_backups.py
   test_dashboard_control_api.py
@@ -2450,6 +2451,8 @@ service = control.dashboard
 ⋮----
 payload = service.overview(window)
 ⋮----
+payload = service.attention(
+⋮----
 payload = service.health()
 ⋮----
 payload = service.autopilot_queue(
@@ -3757,6 +3760,32 @@ wait_reason = "no_online_worker"
 predicted = [
 free_slots = sum(
 summary = {
+⋮----
+def attention(self, *, limit: int = 50) -> dict
+⋮----
+bounded = max(1, min(200, int(limit)))
+managed = self.control.managed_projects.list(limit=200)
+autopilot = self.autopilot_queue(limit=200)
+incidents = self.incidents(limit=200).get("incidents", [])
+⋮----
+items: list[dict] = []
+severity_priority = {
+⋮----
+severity = str(incident.get("severity") or "medium")
+⋮----
+status = str(project.get("status") or "")
+workflow = project.get("current_workflow") or {}
+workflow_status = str(workflow.get("status") or "")
+⋮----
+failed = workflow_status == "failed"
+⋮----
+wait_priorities = {
+⋮----
+reason = job.get("wait_reason")
+⋮----
+completed = [
+⋮----
+selected = items[:bounded]
 ⋮----
 def health(self) -> dict
 ⋮----
@@ -8799,6 +8828,31 @@ project = payload["project"]
 launch = payload["launch"]
 ⋮----
 persisted = control.managed_projects.get(project["project_id"])
+⋮----
+def test_attention_feed_is_viewer_visible_and_worker_forbidden(running_control_plane)
+````
+
+## File: tests/test_dashboard_attention.py
+````python
+class ManagedProjects
+⋮----
+def __init__(self, rows)
+⋮----
+def list(self, *, limit=100)
+⋮----
+def test_attention_prioritizes_failures_reviews_blocked_jobs_and_incidents()
+⋮----
+managed = [
+control = SimpleNamespace(
+service = DashboardService(control)
+⋮----
+payload = service.attention(limit=50)
+⋮----
+kinds = [item["kind"] for item in payload["items"]]
+⋮----
+def test_attention_limit_is_bounded_and_completed_items_are_informational()
+⋮----
+payload = service.attention(limit=2)
 ````
 
 ## File: tests/test_dashboard_backup_api.py
@@ -10263,6 +10317,12 @@ launch_body = DASHBOARD_HTML[launch_start:launch_end]
 def test_managed_technical_creation_options_are_collapsed_by_default()
 ⋮----
 def test_managed_view_can_be_restored_from_navigation_query()
+⋮----
+def test_attention_center_is_default_mobile_view()
+⋮----
+def test_attention_center_uses_server_aggregated_feed_and_action_counts()
+⋮----
+def test_attention_items_navigate_to_existing_operational_views()
 ````
 
 ## File: tests/test_dashboard_usage.py
@@ -14304,6 +14364,38 @@ For that explicit reconciliation path:
 The field is optional for backwards compatibility. Existing registration calls that do not report `active_job_keys` retain their previous behavior.
 
 A dedicated E2E test covers simultaneous Control Plane + worker restart with two One-tap projects. The restarted worker reports an empty active set, its lost ACKed job is immediately recovered, and two workers then finish both projects without creating new workflows.
+
+
+## Release 37 — “À faire maintenant”
+
+The mobile dashboard now opens on an attention-first operational view instead of a broad status overview.
+
+The server exposes a single aggregated feed:
+
+```text
+GET /v1/dashboard/attention
+```
+
+It prioritizes:
+
+- active operational incidents;
+- Managed Projects in `NEEDS_ATTENTION`;
+- failed managed workflow validation / CI state;
+- Managed Projects in `REVIEW_REQUIRED`;
+- queued jobs blocked by missing workers, capabilities, controls or capacity;
+- recently completed Managed Projects as informational context.
+
+The response includes a compact summary with counts for actions required, incidents, projects to review, projects needing attention, blocked jobs and recently completed projects.
+
+The mobile UI renders this as the default `À faire` view. Each actionable card links back into the existing Managed Projects, Autopilot or Overview surfaces rather than duplicating control logic.
+
+The One-tap launch card remains above navigation, so the two primary mobile actions are now:
+
+```text
+Launch a production
+or
+Handle what needs attention
+```
 
 ## Design principles
 

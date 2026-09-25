@@ -1926,6 +1926,8 @@ service = control.dashboard
 ⋮----
 payload = service.overview(window)
 ⋮----
+payload = service.attention(
+⋮----
 payload = service.health()
 ⋮----
 payload = service.autopilot_queue(
@@ -3233,6 +3235,32 @@ wait_reason = "no_online_worker"
 predicted = [
 free_slots = sum(
 summary = {
+⋮----
+def attention(self, *, limit: int = 50) -> dict
+⋮----
+bounded = max(1, min(200, int(limit)))
+managed = self.control.managed_projects.list(limit=200)
+autopilot = self.autopilot_queue(limit=200)
+incidents = self.incidents(limit=200).get("incidents", [])
+⋮----
+items: list[dict] = []
+severity_priority = {
+⋮----
+severity = str(incident.get("severity") or "medium")
+⋮----
+status = str(project.get("status") or "")
+workflow = project.get("current_workflow") or {}
+workflow_status = str(workflow.get("status") or "")
+⋮----
+failed = workflow_status == "failed"
+⋮----
+wait_priorities = {
+⋮----
+reason = job.get("wait_reason")
+⋮----
+completed = [
+⋮----
+selected = items[:bounded]
 ⋮----
 def health(self) -> dict
 ⋮----
