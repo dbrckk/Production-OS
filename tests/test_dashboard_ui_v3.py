@@ -409,8 +409,9 @@ def test_dashboard_has_managed_projects_view():
     assert "/v1/managed-projects" in DASHBOARD_HTML
 
 
-def test_managed_projects_view_exposes_review_actions_only_in_review_state():
-    assert 'row.state==="REVIEW_REQUIRED"' in DASHBOARD_HTML
+def test_managed_projects_view_exposes_safe_review_and_attention_actions():
+    assert 'status==="REVIEW_REQUIRED"||status==="NEEDS_ATTENTION"' in DASHBOARD_HTML
+    assert 'const canComplete=status==="REVIEW_REQUIRED"' in DASHBOARD_HTML
     assert "Ajouter instruction" in DASHBOARD_HTML
     assert "Retester" in DASHBOARD_HTML
     assert "Valider DONE" in DASHBOARD_HTML
