@@ -1216,6 +1216,26 @@ or
 Handle what needs attention
 ```
 
+
+## Release 38 — Contextual attention actions
+
+The `À faire maintenant` surface is now actionable without forcing the operator through intermediate screens.
+
+Attention items can expose state-safe contextual actions:
+
+- `REVIEW_REQUIRED` Managed Projects: **Retest** or **Mark DONE**;
+- `NEEDS_ATTENTION` / failed validation Managed Projects: **Retest**;
+- open incidents: **Acknowledge**;
+- incidents with an available remediation playbook: the same guarded worker control action already exposed by the incident view.
+
+The feed remains read-only for viewer credentials. Mutation endpoints still require the operator role, so action metadata does not widen authorization.
+
+Opening an attention item now deep-links to the exact Managed Project or Autopilot job through a persisted `target` navigation parameter. The matching card is highlighted and scrolled into view.
+
+To keep the mobile surface usable during queue pressure, the feed shows at most eight individual blocked-job cards while preserving the real blocked-job and action-required totals in the summary.
+
+All contextual mutations reuse existing server contracts and confirmations. In particular, marking a project complete still requires the exact `MARK_PROJECT_DONE` confirmation, and incident remediation still uses the server-backed playbook validation/audit path.
+
 ## Design principles
 
 - Evidence over assumptions
