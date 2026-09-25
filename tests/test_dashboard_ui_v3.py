@@ -587,8 +587,8 @@ def test_attention_center_uses_server_aggregated_feed_and_action_counts():
 
 def test_attention_items_navigate_to_existing_operational_views():
     assert "openAttentionItem" in DASHBOARD_HTML
-    assert 'view==="managed"' in DASHBOARD_HTML
-    assert 'view==="autopilot"' in DASHBOARD_HTML
+    assert "view:view||\"overview\"" in DASHBOARD_HTML
+    assert "focus:targetId||null" in DASHBOARD_HTML
     assert "Ouvrir" in DASHBOARD_HTML
     assert "attention:loadAttention" in DASHBOARD_HTML
 
