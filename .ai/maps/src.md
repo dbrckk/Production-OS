@@ -2005,6 +2005,11 @@ result = control.dashboard.stage_backup_restore(
 ⋮----
 result = (
 ⋮----
+expected_count = body.get("expected_candidate_count")
+expected_fingerprint = str(
+⋮----
+result = control.dashboard.prune_expired_backups(
+⋮----
 expected = body.get("expected_candidate_count")
 ⋮----
 result = control.dashboard.prune_backup_temps(
@@ -2391,6 +2396,8 @@ class BackupTempCandidateConflict(BackupError)
 ⋮----
 def __init__(self, expected: int, actual: int)
 ⋮----
+class BackupRetentionCandidateConflict(BackupError)
+⋮----
 def _now() -> str
 ⋮----
 def _backend_kind(backend) -> str
@@ -2479,6 +2486,7 @@ size_bytes = (
 ⋮----
 newest_ids = {
 cutoff_seconds = BACKUP_RETENTION_DAYS * 86400
+candidate_ids: list[str] = []
 candidate_count = 0
 candidate_bytes = 0
 protected_recent = 0
@@ -2487,6 +2495,20 @@ protected_restore_history = 0
 ⋮----
 backup_id = item["backup_id"]
 age_seconds = max(0.0, (now - item["created_at"]).total_seconds())
+⋮----
+candidate_fingerprint = sha256(
+preview = {
+⋮----
+def _retention_source_state(directory: Path) -> tuple[list[dict], set[str]]
+⋮----
+verified_backups: list[dict] = []
+protected_backup_ids: set[str] = set()
+backup_manifest = re.compile(
+activation_receipt = re.compile(
+⋮----
+manifest = _safe_manifest(path)
+⋮----
+receipt = _safe_activation_receipt(path)
 ⋮----
 def backup_storage_inventory(backend) -> dict
 ⋮----
@@ -2498,13 +2520,11 @@ backup_ids: set[str] = set()
 candidate_ids: set[str] = set()
 metrics = dict(zero)
 verified_backup_created_at: list[str] = []
-verified_backups: list[dict] = []
-protected_backup_ids: set[str] = set()
+⋮----
 backup_sqlite = re.compile(
-backup_manifest = re.compile(
+⋮----
 candidate_sqlite = re.compile(
 candidate_manifest = re.compile(
-activation_receipt = re.compile(
 ⋮----
 paths = list(directory.iterdir())
 ⋮----
@@ -2520,22 +2540,31 @@ age_seconds = 0.0
 ⋮----
 match = activation_receipt.fullmatch(name)
 ⋮----
-receipt = _safe_activation_receipt(path)
-⋮----
 match = candidate_sqlite.fullmatch(name) or candidate_manifest.fullmatch(name)
 ⋮----
 sqlite_match = backup_sqlite.fullmatch(name)
 manifest_match = backup_manifest.fullmatch(name)
 match = sqlite_match or manifest_match
 ⋮----
-manifest = _safe_manifest(path)
+expected_candidate_fingerprint = str(
+⋮----
+actual_count = int(preview["candidate_count"])
+actual_fingerprint = str(preview["candidate_fingerprint"])
+⋮----
+deleted_count = 0
+deleted_bytes = 0
+⋮----
+manifest_path = directory / f"{backup_id}.json"
+backup_path = directory / f"{backup_id}.sqlite"
+manifest = _safe_manifest(manifest_path)
+⋮----
+paths = [path for path in (backup_path, manifest_path) if path.is_file()]
+sizes = []
 ⋮----
 inventory = backup_storage_inventory(backend)
 ⋮----
 actual = int(inventory.get("stale_temp_count") or 0)
 ⋮----
-deleted_count = 0
-deleted_bytes = 0
 now_ts = datetime.now(timezone.utc).timestamp()
 ⋮----
 stat = path.stat()
@@ -2559,10 +2588,6 @@ def verify_backup_for_restore(backend, backup_id: str) -> dict
 backup_id = str(backup_id or "").strip()
 ⋮----
 readiness = backup_readiness(backend)
-⋮----
-manifest_path = directory / f"{backup_id}.json"
-backup_path = directory / f"{backup_id}.sqlite"
-manifest = _safe_manifest(manifest_path)
 ⋮----
 digest = sha256()
 size = 0

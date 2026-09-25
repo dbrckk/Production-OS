@@ -1057,6 +1057,15 @@ protected = [
 filesystem = payload["storage"]["filesystem"]
 ⋮----
 encoded = json.dumps(filesystem).lower()
+⋮----
+now = datetime.now(timezone.utc)
+rows = [
+⋮----
+preview = catalog["storage"]["retention_preview"]
+⋮----
+fingerprint = preview["candidate_fingerprint"]
+⋮----
+old_id = rows[-1][0]
 ```
 
 ## File: test_dashboard_backups.py
@@ -1241,6 +1250,14 @@ candidate_id = "20260925T120000Z-200000000001"
 rollback_id = "20260925T120000Z-200000000002"
 ⋮----
 preview = backup_storage_inventory(backend)["retention_preview"]
+⋮----
+protected_old = rows[-1][0]
+receipt_candidate = "20260925T120000Z-400000000001"
+rollback_id = "20260925T120000Z-400000000002"
+⋮----
+candidate_id = rows[-2][0]
+⋮----
+result = prune_expired_verified_backups(
 ```
 
 ## File: test_dashboard_control_api.py
@@ -2421,6 +2438,8 @@ def test_backup_overview_renders_filesystem_capacity_read_only()
 def test_backup_overview_renders_verified_backup_age_distribution()
 ⋮----
 def test_backup_overview_renders_retention_preview_read_only()
+⋮----
+def test_backup_retention_cleanup_ui_requires_preview_fingerprint()
 ```
 
 ## File: test_dashboard_usage.py
