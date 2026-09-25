@@ -869,6 +869,25 @@ sha256
 
 No credentials, paths, DSNs, authorization headers or arbitrary request payloads are stored.
 
+## Release 23 — Restore activation history
+
+The existing backups dashboard now exposes successful offline restore activations as read-only history.
+
+History is derived only from Release 22 activation receipts and contains:
+
+```text
+candidate_id
+source_backup_id
+rollback_backup_id
+activated_at
+schema_version
+sha256
+```
+
+Malformed receipts are ignored. No paths, DSNs, credentials, tokens or arbitrary payloads are exposed.
+
+This is visibility only. Restore activation remains unavailable over HTTP and continues to require the offline CLI path, exact confirmation and exclusive maintenance lock.
+
 ## Design principles
 
 - Evidence over assumptions
