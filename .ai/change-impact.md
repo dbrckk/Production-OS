@@ -1,25 +1,20 @@
 # Change impact
 
-Base: 386c092265e270ccabcdf25bd940e561f6fa5a78
-Head: 60e090662c81507d18f530d0ccebbbdd8459a9a9
+Base: 04b97a212924f291b73ceeb7d21437c342c66c90
+Head: d922496a9378e56be2052f55be67ea36fb0d9da6
 
 ## Changed files
 - M README.md
-- A docs/superpowers/plans/2026-09-25-release-31-one-tap-production.md
-- M src/production_os/control_plane.py
-- M src/production_os/dashboard_ui.py
-- M tests/test_dashboard_api.py
-- M tests/test_dashboard_launch.py
-- M tests/test_dashboard_ui_v3.py
+- A docs/superpowers/plans/2026-09-25-release-32-one-tap-e2e.md
+- A tests/test_release32_one_tap_e2e.py
 
 ## Affected areas
 - (root)
 - docs
-- src
 - tests
 
 ## Related test candidates
-- tests/test_control_plane.py
+- No direct filename-based test match detected.
 
 ## Agent guidance
 - Read this file before broad repository exploration.

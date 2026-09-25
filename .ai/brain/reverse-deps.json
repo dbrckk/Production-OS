@@ -109,6 +109,7 @@
         "tests/test_release18_managed_projects_e2e.py",
         "tests/test_release19_restore_staging_e2e.py",
         "tests/test_release21_offline_restore_e2e.py",
+        "tests/test_release32_one_tap_e2e.py",
         "tests/test_release_ledger.py",
         "tests/test_remote_worker.py",
         "tests/test_result_cache.py",
@@ -142,7 +143,7 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 130,
+      "in_degree": 131,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -203,11 +204,12 @@
         "tests/test_release16_operations_e2e.py",
         "tests/test_release18_managed_projects_e2e.py",
         "tests/test_release19_restore_staging_e2e.py",
+        "tests/test_release32_one_tap_e2e.py",
         "tests/test_remote_worker.py",
         "tests/test_speculation_api.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 30,
+      "in_degree": 31,
       "out_degree": 1
     },
     "src/production_os/approvals.py": {
@@ -612,11 +614,12 @@
         "tests/test_release18_managed_projects_e2e.py",
         "tests/test_release19_restore_staging_e2e.py",
         "tests/test_release21_offline_restore_e2e.py",
+        "tests/test_release32_one_tap_e2e.py",
         "tests/test_remote_worker.py",
         "tests/test_speculation_api.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 32,
+      "in_degree": 33,
       "out_degree": 22
     },
     "src/production_os/control_surface.py": {
@@ -1461,9 +1464,10 @@
       "dependents": [
         "src/production_os/cli.py",
         "tests/test_production_stack_e2e.py",
+        "tests/test_release32_one_tap_e2e.py",
         "tests/test_remote_worker.py"
       ],
-      "in_degree": 3,
+      "in_degree": 4,
       "out_degree": 1
     },
     "src/production_os/resources.py": {
@@ -1984,12 +1988,12 @@
         "tests/test_reconciliation_dispatch.py",
         "tests/test_release16_operations_e2e.py",
         "tests/test_release18_managed_projects_e2e.py",
+        "tests/test_release32_one_tap_e2e.py",
         "tests/test_remote_worker.py",
         "tests/test_render_start.py",
         "tests/test_runtime_state.py",
         "tests/test_self_healing_heartbeat.py",
         "tests/test_speculation_api.py",
-        "tests/test_sqlite_backend.py",
         "tests/test_stragglers.py",
         "tests/test_workers.py"
       ],
@@ -3222,6 +3226,18 @@
       "in_degree": 0,
       "out_degree": 5
     },
+    "tests/test_release32_one_tap_e2e.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/api_auth.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/remote_worker.py",
+        "src/production_os/workers.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 5
+    },
     "tests/test_release_ledger.py": {
       "dependencies": [
         "src/production_os/__init__.py",
@@ -3386,12 +3402,11 @@
     "tests/test_sqlite_backend.py": {
       "dependencies": [
         "src/production_os/__init__.py",
-        "src/production_os/sqlite_backend.py",
-        "src/production_os/workers.py"
+        "src/production_os/sqlite_backend.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 3
+      "out_degree": 2
     },
     "tests/test_sqlite_migration.py": {
       "dependencies": [

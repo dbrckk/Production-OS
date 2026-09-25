@@ -137,6 +137,7 @@ test_release16_operations_e2e.py
 test_release18_managed_projects_e2e.py
 test_release19_restore_staging_e2e.py
 test_release21_offline_restore_e2e.py
+test_release32_one_tap_e2e.py
 test_remote_worker.py
 test_render_start.py
 test_result_cache.py
@@ -3869,6 +3870,50 @@ value = db.execute(
 rollback = backup_dir / f"{payload['rollback_backup_id']}.sqlite"
 ⋮----
 rollback_value = db.execute(
+```
+
+## File: test_release32_one_tap_e2e.py
+```python
+def _auth()
+⋮----
+def _request(base, path, token, *, method="GET", body=None)
+⋮----
+data = None if body is None else json.dumps(body).encode("utf-8")
+request = urllib.request.Request(
+⋮----
+raw = response.read()
+⋮----
+raw = exc.read()
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+@pytest.mark.e2e
+def test_release32_one_tap_launch_worker_completion_survives_restart(tmp_path)
+⋮----
+database = str(tmp_path / "one-tap-e2e.sqlite")
+first = ControlPlane(database, authorizer=_auth())
+⋮----
+repository = "dbrckk/one-tap-e2e"
+instruction = "Implement the requested change, run validation, and report evidence."
+⋮----
+project = launched["project"]
+project_id = project["project_id"]
+workflow_id = project["current_workflow_id"]
+⋮----
+worker = RemoteWorkerClient(
+job = worker.claim()
+⋮----
+handoff = job.payload["payload"]["handoff"]
+⋮----
+completed = worker.complete(
+⋮----
+project_after_worker = refreshed["project"]
+⋮----
+restarted = ControlPlane(database, authorizer=_auth())
+restored = restarted.managed_projects.get(project_id)
 ```
 
 ## File: test_remote_worker.py

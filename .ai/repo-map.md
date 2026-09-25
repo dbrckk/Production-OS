@@ -267,6 +267,7 @@ tests/
   test_release18_managed_projects_e2e.py
   test_release19_restore_staging_e2e.py
   test_release21_offline_restore_e2e.py
+  test_release32_one_tap_e2e.py
   test_remote_worker.py
   test_render_start.py
   test_result_cache.py
@@ -11618,6 +11619,50 @@ rollback = backup_dir / f"{payload['rollback_backup_id']}.sqlite"
 rollback_value = db.execute(
 ````
 
+## File: tests/test_release32_one_tap_e2e.py
+````python
+def _auth()
+⋮----
+def _request(base, path, token, *, method="GET", body=None)
+⋮----
+data = None if body is None else json.dumps(body).encode("utf-8")
+request = urllib.request.Request(
+⋮----
+raw = response.read()
+⋮----
+raw = exc.read()
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+@pytest.mark.e2e
+def test_release32_one_tap_launch_worker_completion_survives_restart(tmp_path)
+⋮----
+database = str(tmp_path / "one-tap-e2e.sqlite")
+first = ControlPlane(database, authorizer=_auth())
+⋮----
+repository = "dbrckk/one-tap-e2e"
+instruction = "Implement the requested change, run validation, and report evidence."
+⋮----
+project = launched["project"]
+project_id = project["project_id"]
+workflow_id = project["current_workflow_id"]
+⋮----
+worker = RemoteWorkerClient(
+job = worker.claim()
+⋮----
+handoff = job.payload["payload"]["handoff"]
+⋮----
+completed = worker.complete(
+⋮----
+project_after_worker = refreshed["project"]
+⋮----
+restarted = ControlPlane(database, authorizer=_auth())
+restored = restarted.managed_projects.get(project_id)
+````
+
 ## File: tests/test_remote_worker.py
 ````python
 def test_remote_worker_claim_ack_complete(tmp_path)
@@ -13870,6 +13915,35 @@ The managed project is persisted before dispatch and remains available if the br
 Advanced token-budget and agent controls remain available in the Managed Projects view but are collapsed by default. The primary mobile surface exposes no per-run technical tuning.
 
 The one-tap endpoint requires the operator role. Viewer and worker credentials cannot launch production.
+
+
+## Release 32 — One-tap production E2E qualification
+
+The primary mobile launch path is now covered by a dedicated end-to-end qualification test.
+
+The test proves the complete server-side lifecycle:
+
+```text
+POST /v1/dashboard/launch
+        ↓
+persistent Managed Project
+        ↓
+workflow + queued job
+        ↓
+remote worker claim / ack / complete
+        ↓
+workflow succeeded
+        ↓
+Managed Project REVIEW_REQUIRED
+        ↓
+control-plane restart
+        ↓
+same project/workflow/result restored
+```
+
+The qualification verifies that repository, instruction, final goal, server-owned execution defaults, worker result usage, workflow identity, generation history and review state survive a control-plane restart.
+
+This specifically protects the mobile promise introduced in Release 31: closing or reloading the dashboard does not own the execution lifetime and cannot discard the production.
 
 ## Design principles
 

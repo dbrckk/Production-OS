@@ -2,14 +2,14 @@
 
 Summary: 5 success / 2 failure / 1 active
 
-- CI: in_progress / pending (60e09066)
+- CI: in_progress / pending (d922496a)
+- CI: completed / success (1dac7577)
+- CI: completed / success (60e09066)
 - CI: completed / success (d83baeae)
 - CI: completed / failure (2883bca7)
 - CI: completed / failure (5d0b6112)
 - CI: completed / success (9e674d0d)
 - CI: completed / success (c315344b)
-- CI: completed / success (d9dedf25)
-- CI: completed / success (86ab2e37)
 
 ## Latest failed run structure
 - Job: test

@@ -22,17 +22,19 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-25T16:55:45Z
+Generated: 2026-09-25T17:03:16Z
 
 ### Git
 - Branch: `main`
-- Head: `60e090662c81`
-- Commit date: 2026-09-25T18:55:33+02:00
-- Commit: feat: release 31 one-tap production
-- Tracked files: 414
+- Head: `d922496a9378`
+- Commit date: 2026-09-25T19:03:04+02:00
+- Commit: test: release 32 one-tap production E2E
+- Tracked files: 416
 
 ### Recently changed files
 - `README.md`
+- `docs/superpowers/plans/2026-09-25-release-32-one-tap-e2e.md`
+- `tests/test_release32_one_tap_e2e.py`
 - `docs/superpowers/plans/2026-09-25-release-31-one-tap-production.md`
 - `src/production_os/control_plane.py`
 - `src/production_os/dashboard_ui.py`
@@ -50,7 +52,6 @@ Generated: 2026-09-25T16:55:45Z
 - `tests/test_dashboard_backup_api.py`
 - `tests/test_dashboard_backups.py`
 - `docs/superpowers/plans/2026-09-25-release-28-backup-retention-preview.md`
-- `docs/superpowers/plans/2026-09-25-release-27-backup-age-observability.md`
 
 ### Project signals
 - `pyproject.toml`
