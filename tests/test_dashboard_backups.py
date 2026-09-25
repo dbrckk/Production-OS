@@ -1033,3 +1033,80 @@ def test_storage_inventory_reports_verified_backup_age_distribution(
     assert age["newest_created_at"] is not None
     assert age["oldest_created_at"] is not None
 
+def test_storage_inventory_retention_preview_protects_restore_history_and_latest(
+    tmp_path,
+    monkeypatch,
+):
+    backup_dir = tmp_path / "backups"
+    backup_dir.mkdir()
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    backend = SQLiteBackend(tmp_path / "production.sqlite")
+    now = datetime.now(timezone.utc)
+    rows = [
+        ("20260925T120000Z-100000000001", now - timedelta(days=1)),
+        ("20260924T120000Z-100000000002", now - timedelta(days=2)),
+        ("20260816T120000Z-100000000003", now - timedelta(days=40)),
+        ("20260806T120000Z-100000000004", now - timedelta(days=50)),
+        ("20260727T120000Z-100000000005", now - timedelta(days=60)),
+    ]
+    for backup_id, created_at in rows:
+        (backup_dir / f"{backup_id}.json").write_text(
+            json.dumps(
+                {
+                    "backup_id":backup_id,
+                    "backend_kind":"sqlite",
+                    "created_at":created_at.isoformat(),
+                    "size_bytes":100,
+                    "sha256":"0" * 64,
+                    "verified":True,
+                }
+            )
+        )
+
+    invalid_id = "20260717T120000Z-100000000006"
+    (backup_dir / f"{invalid_id}.json").write_text(
+        json.dumps(
+            {
+                "backup_id":invalid_id,
+                "backend_kind":"sqlite",
+                "created_at":"invalid",
+                "size_bytes":100,
+                "sha256":"0" * 64,
+                "verified":True,
+            }
+        )
+    )
+
+    protected_id = rows[-1][0]
+    candidate_id = "20260925T120000Z-200000000001"
+    rollback_id = "20260925T120000Z-200000000002"
+    (backup_dir / f"restore-{candidate_id}.activation.json").write_text(
+        json.dumps(
+            {
+                "candidate_id":candidate_id,
+                "source_backup_id":protected_id,
+                "rollback_backup_id":rollback_id,
+                "activated_at":now.isoformat(),
+                "schema_version":"15",
+                "sha256":"1" * 64,
+            }
+        )
+    )
+
+    preview = backup_storage_inventory(backend)["retention_preview"]
+
+    assert preview["status"] == "preview"
+    assert preview["retention_days"] == 30
+    assert preview["min_keep_latest"] == 3
+    assert preview["verified_count"] == 6
+    assert preview["candidate_count"] == 1
+    assert preview["candidate_bytes"] == 100
+    assert preview["protected_count"] == 5
+    assert preview["protected_reasons"] == {
+        "recent":0,
+        "latest_floor":3,
+        "restore_history":1,
+        "invalid_timestamp":1,
+    }
+    assert preview["deletion_enabled"] is False
+
