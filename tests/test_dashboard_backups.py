@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime, timedelta, timezone
 from hashlib import sha256
 import os
 import time
@@ -975,4 +976,60 @@ def test_storage_inventory_keeps_filesystem_shape_when_directory_listing_fails(
         "used_percent",
         "available_percent",
     }
+
+def test_storage_inventory_reports_verified_backup_age_distribution(
+    tmp_path,
+    monkeypatch,
+):
+    backup_dir = tmp_path / "backups"
+    backup_dir.mkdir()
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    backend = SQLiteBackend(tmp_path / "production.sqlite")
+    now = datetime.now(timezone.utc)
+    samples = [
+        ("20260925T120000Z-000000000001", now - timedelta(hours=2)),
+        ("20260924T120000Z-000000000002", now - timedelta(days=2)),
+        ("20260915T120000Z-000000000003", now - timedelta(days=10)),
+        ("20260816T120000Z-000000000004", now - timedelta(days=40)),
+    ]
+    for backup_id, created_at in samples:
+        (backup_dir / f"{backup_id}.json").write_text(
+            json.dumps(
+                {
+                    "backup_id":backup_id,
+                    "backend_kind":"sqlite",
+                    "created_at":created_at.isoformat(),
+                    "size_bytes":1,
+                    "sha256":"0" * 64,
+                    "verified":True,
+                }
+            )
+        )
+    invalid_id = "20260901T120000Z-000000000005"
+    (backup_dir / f"{invalid_id}.json").write_text(
+        json.dumps(
+            {
+                "backup_id":invalid_id,
+                "backend_kind":"sqlite",
+                "created_at":"not-a-timestamp",
+                "size_bytes":1,
+                "sha256":"0" * 64,
+                "verified":True,
+            }
+        )
+    )
+
+    age = backup_storage_inventory(backend)["backup_age"]
+
+    assert age["verified_count"] == 5
+    assert age["valid_timestamp_count"] == 4
+    assert age["invalid_timestamp_count"] == 1
+    assert age["buckets"] == {
+        "under_24h":1,
+        "one_to_seven_days":1,
+        "seven_to_thirty_days":1,
+        "over_thirty_days":1,
+    }
+    assert age["newest_created_at"] is not None
+    assert age["oldest_created_at"] is not None
 
