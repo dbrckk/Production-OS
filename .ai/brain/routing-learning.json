@@ -2,23 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "test: cover asset dependency graph ordering",
-      "terms": [
-        "asset",
-        "cover",
-        "dependency",
-        "graph",
-        "ordering",
-        "test"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/asset_forge.py",
-        "tests/test_asset_forge.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "test: verify dependency artifact attestations",
       "terms": [
         "artifact",
@@ -1263,6 +1246,23 @@
       "useful": [
         "tests/test_release35_control_plane_restart_e2e.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "feat: release 36 worker session reconciliation",
+      "terms": [
+        "36",
+        "feat",
+        "reconciliation",
+        "release",
+        "session",
+        "worker"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/control_plane.py",
+        "tests/test_release36_worker_session_reconciliation_e2e.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1436,6 +1436,10 @@
     },
     "35": {
       "tests/test_release35_control_plane_restart_e2e.py": 4
+    },
+    "36": {
+      "src/production_os/control_plane.py": 4,
+      "tests/test_release36_worker_session_reconciliation_e2e.py": 4
     },
     "accept": {
       "src/production_os/asset_forge.py": 4,
@@ -2376,7 +2380,9 @@
       "tests/test_asset_forge.py": 4
     },
     "reconciliation": {
-      "tests/test_release35_control_plane_restart_e2e.py": 4
+      "src/production_os/control_plane.py": 4,
+      "tests/test_release35_control_plane_restart_e2e.py": 4,
+      "tests/test_release36_worker_session_reconciliation_e2e.py": 4
     },
     "recovery": {
       "src/production_os/control_plane.py": 8,
@@ -2467,7 +2473,8 @@
       "tests/test_release32_one_tap_e2e.py": 4,
       "tests/test_release33_auto_worker_recovery_e2e.py": 4,
       "tests/test_release34_safe_running_recovery_e2e.py": 4,
-      "tests/test_release35_control_plane_restart_e2e.py": 4
+      "tests/test_release35_control_plane_restart_e2e.py": 4,
+      "tests/test_release36_worker_session_reconciliation_e2e.py": 4
     },
     "reliability": {
       "src/production_os/control_plane.py": 4,
@@ -2618,6 +2625,10 @@
     "selected": {
       "src/production_os/control_plane.py": 4,
       "tests/test_dashboard_launch.py": 4
+    },
+    "session": {
+      "src/production_os/control_plane.py": 4,
+      "tests/test_release36_worker_session_reconciliation_e2e.py": 4
     },
     "show": {
       "src/production_os/control_plane.py": 8,
@@ -2813,13 +2824,14 @@
       "tests/test_dashboard_launch.py": 4
     },
     "worker": {
-      "src/production_os/control_plane.py": 8,
+      "src/production_os/control_plane.py": 12,
       "src/production_os/controller.py": 4,
       "src/production_os/task_capabilities.py": 4,
       "src/production_os/workflow_engine.py": 4,
       "tests/test_controller_asset_capabilities.py": 4,
       "tests/test_dashboard_launch.py": 4,
       "tests/test_release33_auto_worker_recovery_e2e.py": 4,
+      "tests/test_release36_worker_session_reconciliation_e2e.py": 4,
       "tests/test_task_capabilities.py": 4,
       "tests/test_workflow_engine.py": 4
     },

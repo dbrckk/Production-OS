@@ -110,6 +110,7 @@
         "tests/test_release33_auto_worker_recovery_e2e.py",
         "tests/test_release34_safe_running_recovery_e2e.py",
         "tests/test_release35_control_plane_restart_e2e.py",
+        "tests/test_release36_worker_session_reconciliation_e2e.py",
         "tests/test_release_ledger.py",
         "tests/test_remote_worker.py",
         "tests/test_result_cache.py",
@@ -143,7 +144,7 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 134,
+      "in_degree": 135,
       "out_degree": 0,
       "path": "src/production_os/__init__.py"
     },
@@ -218,8 +219,8 @@
         "tests/test_release33_auto_worker_recovery_e2e.py",
         "tests/test_release34_safe_running_recovery_e2e.py",
         "tests/test_release35_control_plane_restart_e2e.py",
+        "tests/test_release36_worker_session_reconciliation_e2e.py",
         "tests/test_remote_worker.py",
-        "tests/test_render_start.py",
         "tests/test_stragglers.py",
         "tests/test_workers.py"
       ],
@@ -363,11 +364,12 @@
         "tests/test_release33_auto_worker_recovery_e2e.py",
         "tests/test_release34_safe_running_recovery_e2e.py",
         "tests/test_release35_control_plane_restart_e2e.py",
+        "tests/test_release36_worker_session_reconciliation_e2e.py",
         "tests/test_remote_worker.py",
         "tests/test_speculation_api.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 36,
+      "in_degree": 37,
       "out_degree": 23,
       "path": "src/production_os/control_plane.py"
     },
@@ -419,11 +421,12 @@
         "tests/test_project_progress.py",
         "tests/test_release34_safe_running_recovery_e2e.py",
         "tests/test_release35_control_plane_restart_e2e.py",
+        "tests/test_release36_worker_session_reconciliation_e2e.py",
         "tests/test_release_ledger.py",
         "tests/test_sqlite_migration.py",
         "tests/test_workflow_engine.py"
       ],
-      "in_degree": 45,
+      "in_degree": 46,
       "out_degree": 2,
       "path": "tests/test_asset_forge.py"
     },
@@ -562,11 +565,12 @@
         "tests/test_release33_auto_worker_recovery_e2e.py",
         "tests/test_release34_safe_running_recovery_e2e.py",
         "tests/test_release35_control_plane_restart_e2e.py",
+        "tests/test_release36_worker_session_reconciliation_e2e.py",
         "tests/test_remote_worker.py",
         "tests/test_speculation_api.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 34,
+      "in_degree": 35,
       "out_degree": 1,
       "path": "src/production_os/api_auth.py"
     },
@@ -1202,6 +1206,24 @@
     },
     {
       "dependencies": [
+        "src/production_os/workers.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "tests/test_production_stack_e2e.py",
+        "tests/test_release32_one_tap_e2e.py",
+        "tests/test_release33_auto_worker_recovery_e2e.py",
+        "tests/test_release34_safe_running_recovery_e2e.py",
+        "tests/test_release35_control_plane_restart_e2e.py",
+        "tests/test_release36_worker_session_reconciliation_e2e.py",
+        "tests/test_remote_worker.py"
+      ],
+      "in_degree": 8,
+      "out_degree": 1,
+      "path": "src/production_os/remote_worker.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/database_maintenance_lock.py",
         "tests/test_asset_forge.py",
         "tests/test_dashboard_backups.py"
@@ -1268,23 +1290,6 @@
       "in_degree": 7,
       "out_degree": 1,
       "path": "src/production_os/history.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/workers.py"
-      ],
-      "dependents": [
-        "src/production_os/cli.py",
-        "tests/test_production_stack_e2e.py",
-        "tests/test_release32_one_tap_e2e.py",
-        "tests/test_release33_auto_worker_recovery_e2e.py",
-        "tests/test_release34_safe_running_recovery_e2e.py",
-        "tests/test_release35_control_plane_restart_e2e.py",
-        "tests/test_remote_worker.py"
-      ],
-      "in_degree": 7,
-      "out_degree": 1,
-      "path": "src/production_os/remote_worker.py"
     },
     {
       "dependencies": [
@@ -1690,7 +1695,7 @@
       "path": "tests/test_callgraph_versioning_feedback.py"
     }
   ],
-  "edge_count": 1257,
+  "edge_count": 1265,
   "generated_by": "dbrckk/repo-brain-v7-graph",
   "node_count": 249,
   "schema_version": 1

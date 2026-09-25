@@ -271,6 +271,7 @@ tests/
   test_release33_auto_worker_recovery_e2e.py
   test_release34_safe_running_recovery_e2e.py
   test_release35_control_plane_restart_e2e.py
+  test_release36_worker_session_reconciliation_e2e.py
   test_remote_worker.py
   test_render_start.py
   test_result_cache.py
@@ -2370,6 +2371,17 @@ cursor = db.execute(
 ⋮----
 action = {
 ⋮----
+active = {str(key) for key in active_job_keys if str(key)}
+⋮----
+now = datetime.now(timezone.utc).isoformat()
+⋮----
+key = str(job["key"])
+⋮----
+previous_status = str(job["status"])
+target = (
+⋮----
+execution = self.dashboard_store.latest_execution(key)
+⋮----
 def _json_bytes(payload: dict | list) -> bytes
 ⋮----
 class RequestBodyTooLarge(ValueError)
@@ -2641,11 +2653,19 @@ release = control.releases.promote(
 ⋮----
 artifact = control.workflows.add_artifact(
 ⋮----
+worker_id = str(body["worker_id"])
 worker = control.workers.register(
+reconciliation = None
+⋮----
+raw_active = body.get("active_job_keys")
+⋮----
+active_job_keys = sorted({
+recovered = control.reconcile_worker_registration(
+worker = control.workers.heartbeat(
+reconciliation = {
 ⋮----
 principal = self._require("worker")
 ⋮----
-worker = control.workers.heartbeat(
 capacity = body.get("capacity")
 ⋮----
 source = str(capacity.get("source") or "").strip()
@@ -2695,7 +2715,6 @@ release = control.releases.rollback(
 ⋮----
 job = control.queue.enqueue(body)
 ⋮----
-worker_id = str(body["worker_id"])
 capabilities = [
 ⋮----
 desired = control.dashboard_control.worker_state(worker_id)
@@ -11861,6 +11880,72 @@ latest = second.dashboard_store.latest_execution(job_key)
 first_attempt = dict(
 ````
 
+## File: tests/test_release36_worker_session_reconciliation_e2e.py
+````python
+def _auth()
+⋮----
+def _request(base, path, token, *, method="GET", body=None)
+⋮----
+data = None if body is None else json.dumps(body).encode("utf-8")
+request = urllib.request.Request(
+⋮----
+raw = response.read()
+⋮----
+raw = exc.read()
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+def _stop(server, thread)
+⋮----
+@pytest.mark.e2e
+def test_release36_simultaneous_control_and_worker_restart_reconciles_two_projects(tmp_path)
+⋮----
+database = str(tmp_path / "simultaneous-restart.sqlite")
+first = ControlPlane(database, authorizer=_auth())
+⋮----
+projects = []
+⋮----
+worker_one = RemoteWorkerClient(
+first_claim = worker_one.claim()
+⋮----
+abandoned_key = first_claim.key
+⋮----
+first_project_id = projects[0]["project_id"]
+second_project_id = projects[1]["project_id"]
+first_workflow_id = projects[0]["current_workflow_id"]
+second_workflow_id = projects[1]["current_workflow_id"]
+⋮----
+# Simulate both the Control Plane and worker process restarting. The new
+# worker process reports that it has no in-memory active jobs.
+second = ControlPlane(database, authorizer=_auth())
+⋮----
+recovered = reregistered["reconciliation"]["recovered_jobs"]
+⋮----
+old_execution = second.dashboard_store.latest_execution(abandoned_key)
+⋮----
+restarted_one = RemoteWorkerClient(
+worker_two = RemoteWorkerClient(
+⋮----
+claim_one = restarted_one.claim()
+⋮----
+claim_two = worker_two.claim()
+⋮----
+claimed_keys = {claim_one.key, claim_two.key}
+⋮----
+queued_rows = db.execute(
+expected_keys = {row["key"] for row in queued_rows}
+⋮----
+final_one = second.managed_projects.get(first_project_id)
+final_two = second.managed_projects.get(second_project_id)
+⋮----
+latest_abandoned = second.dashboard_store.latest_execution(abandoned_key)
+⋮----
+recovery_events = [
+````
+
 ## File: tests/test_remote_worker.py
 ````python
 def test_remote_worker_claim_ack_complete(tmp_path)
@@ -14199,6 +14284,26 @@ Two end-to-end scenarios are covered:
    - project id, workflow id and generation remain unchanged.
 
 This verifies that restarting the Control Plane itself does not own or reset the production lifecycle.
+
+
+## Release 36 — Worker session reconciliation
+
+Production-OS now supports explicit worker-session reconciliation after a worker process restart.
+
+`POST /v1/workers/register` accepts an optional `active_job_keys` list. When supplied, the list is treated as the authoritative set of jobs still held by the restarted worker process.
+
+For that explicit reconciliation path:
+
+- persisted `claimed` or `acked` jobs owned by the worker but absent from `active_job_keys` are fenced and recovered;
+- ACKed executions that disappeared with the old worker process are closed as `worker_restarted`;
+- the worker's persisted `active_tasks` count is reset to the number of reported active jobs;
+- retained active jobs are not duplicated;
+- recovered jobs preserve their job key, Managed Project, workflow and generation;
+- delivery attempts remain monotonic and still respect the dead-letter ceiling.
+
+The field is optional for backwards compatibility. Existing registration calls that do not report `active_job_keys` retain their previous behavior.
+
+A dedicated E2E test covers simultaneous Control Plane + worker restart with two One-tap projects. The restarted worker reports an empty active set, its lost ACKed job is immediately recovered, and two workers then finish both projects without creating new workflows.
 
 ## Design principles
 

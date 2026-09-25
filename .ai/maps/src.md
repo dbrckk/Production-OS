@@ -1847,6 +1847,17 @@ cursor = db.execute(
 ⋮----
 action = {
 ⋮----
+active = {str(key) for key in active_job_keys if str(key)}
+⋮----
+now = datetime.now(timezone.utc).isoformat()
+⋮----
+key = str(job["key"])
+⋮----
+previous_status = str(job["status"])
+target = (
+⋮----
+execution = self.dashboard_store.latest_execution(key)
+⋮----
 def _json_bytes(payload: dict | list) -> bytes
 ⋮----
 class RequestBodyTooLarge(ValueError)
@@ -2118,11 +2129,19 @@ release = control.releases.promote(
 ⋮----
 artifact = control.workflows.add_artifact(
 ⋮----
+worker_id = str(body["worker_id"])
 worker = control.workers.register(
+reconciliation = None
+⋮----
+raw_active = body.get("active_job_keys")
+⋮----
+active_job_keys = sorted({
+recovered = control.reconcile_worker_registration(
+worker = control.workers.heartbeat(
+reconciliation = {
 ⋮----
 principal = self._require("worker")
 ⋮----
-worker = control.workers.heartbeat(
 capacity = body.get("capacity")
 ⋮----
 source = str(capacity.get("source") or "").strip()
@@ -2172,7 +2191,6 @@ release = control.releases.rollback(
 ⋮----
 job = control.queue.enqueue(body)
 ⋮----
-worker_id = str(body["worker_id"])
 capabilities = [
 ⋮----
 desired = control.dashboard_control.worker_state(worker_id)

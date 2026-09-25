@@ -1,20 +1,22 @@
 # Change impact
 
-Base: a0d6efd0d52e198d5a8e5ec9fe21cc0eca724efe
-Head: 1b43b5314bc2df10703aee5109111c0328212c08
+Base: 0aa4ac6f5c0de200bed6114f5010c6f99641c8cb
+Head: 49b3921fc6b56d103b65f7d2c2ab2189e219e86e
 
 ## Changed files
 - M README.md
-- A docs/superpowers/plans/2026-09-25-release-35-control-plane-restart-reconciliation.md
-- A tests/test_release35_control_plane_restart_e2e.py
+- A docs/superpowers/plans/2026-09-25-release-36-worker-session-reconciliation.md
+- M src/production_os/control_plane.py
+- A tests/test_release36_worker_session_reconciliation_e2e.py
 
 ## Affected areas
 - (root)
 - docs
+- src
 - tests
 
 ## Related test candidates
-- No direct filename-based test match detected.
+- tests/test_control_plane.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

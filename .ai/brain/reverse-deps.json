@@ -113,6 +113,7 @@
         "tests/test_release33_auto_worker_recovery_e2e.py",
         "tests/test_release34_safe_running_recovery_e2e.py",
         "tests/test_release35_control_plane_restart_e2e.py",
+        "tests/test_release36_worker_session_reconciliation_e2e.py",
         "tests/test_release_ledger.py",
         "tests/test_remote_worker.py",
         "tests/test_result_cache.py",
@@ -146,7 +147,7 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 134,
+      "in_degree": 135,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -211,11 +212,12 @@
         "tests/test_release33_auto_worker_recovery_e2e.py",
         "tests/test_release34_safe_running_recovery_e2e.py",
         "tests/test_release35_control_plane_restart_e2e.py",
+        "tests/test_release36_worker_session_reconciliation_e2e.py",
         "tests/test_remote_worker.py",
         "tests/test_speculation_api.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 34,
+      "in_degree": 35,
       "out_degree": 1
     },
     "src/production_os/approvals.py": {
@@ -625,11 +627,12 @@
         "tests/test_release33_auto_worker_recovery_e2e.py",
         "tests/test_release34_safe_running_recovery_e2e.py",
         "tests/test_release35_control_plane_restart_e2e.py",
+        "tests/test_release36_worker_session_reconciliation_e2e.py",
         "tests/test_remote_worker.py",
         "tests/test_speculation_api.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 36,
+      "in_degree": 37,
       "out_degree": 23
     },
     "src/production_os/control_surface.py": {
@@ -1479,9 +1482,10 @@
         "tests/test_release33_auto_worker_recovery_e2e.py",
         "tests/test_release34_safe_running_recovery_e2e.py",
         "tests/test_release35_control_plane_restart_e2e.py",
+        "tests/test_release36_worker_session_reconciliation_e2e.py",
         "tests/test_remote_worker.py"
       ],
-      "in_degree": 7,
+      "in_degree": 8,
       "out_degree": 1
     },
     "src/production_os/resources.py": {
@@ -2006,8 +2010,8 @@
         "tests/test_release33_auto_worker_recovery_e2e.py",
         "tests/test_release34_safe_running_recovery_e2e.py",
         "tests/test_release35_control_plane_restart_e2e.py",
+        "tests/test_release36_worker_session_reconciliation_e2e.py",
         "tests/test_remote_worker.py",
-        "tests/test_render_start.py",
         "tests/test_stragglers.py",
         "tests/test_workers.py"
       ],
@@ -2140,11 +2144,12 @@
         "tests/test_project_progress.py",
         "tests/test_release34_safe_running_recovery_e2e.py",
         "tests/test_release35_control_plane_restart_e2e.py",
+        "tests/test_release36_worker_session_reconciliation_e2e.py",
         "tests/test_release_ledger.py",
         "tests/test_sqlite_migration.py",
         "tests/test_workflow_engine.py"
       ],
-      "in_degree": 45,
+      "in_degree": 46,
       "out_degree": 2
     },
     "tests/test_asymmetric_attestations.py": {
@@ -3294,6 +3299,19 @@
       "in_degree": 0,
       "out_degree": 6
     },
+    "tests/test_release36_worker_session_reconciliation_e2e.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/api_auth.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/remote_worker.py",
+        "src/production_os/workers.py",
+        "tests/test_asset_forge.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 6
+    },
     "tests/test_release_ledger.py": {
       "dependencies": [
         "src/production_os/__init__.py",
@@ -3324,14 +3342,6 @@
       "dependents": [],
       "in_degree": 0,
       "out_degree": 6
-    },
-    "tests/test_render_start.py": {
-      "dependencies": [
-        "src/production_os/workers.py"
-      ],
-      "dependents": [],
-      "in_degree": 0,
-      "out_degree": 1
     },
     "tests/test_result_cache.py": {
       "dependencies": [

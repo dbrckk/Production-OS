@@ -141,6 +141,7 @@ test_release32_one_tap_e2e.py
 test_release33_auto_worker_recovery_e2e.py
 test_release34_safe_running_recovery_e2e.py
 test_release35_control_plane_restart_e2e.py
+test_release36_worker_session_reconciliation_e2e.py
 test_remote_worker.py
 test_render_start.py
 test_result_cache.py
@@ -4080,6 +4081,72 @@ recovered = worker_two.claim()
 latest = second.dashboard_store.latest_execution(job_key)
 ⋮----
 first_attempt = dict(
+```
+
+## File: test_release36_worker_session_reconciliation_e2e.py
+```python
+def _auth()
+⋮----
+def _request(base, path, token, *, method="GET", body=None)
+⋮----
+data = None if body is None else json.dumps(body).encode("utf-8")
+request = urllib.request.Request(
+⋮----
+raw = response.read()
+⋮----
+raw = exc.read()
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+def _stop(server, thread)
+⋮----
+@pytest.mark.e2e
+def test_release36_simultaneous_control_and_worker_restart_reconciles_two_projects(tmp_path)
+⋮----
+database = str(tmp_path / "simultaneous-restart.sqlite")
+first = ControlPlane(database, authorizer=_auth())
+⋮----
+projects = []
+⋮----
+worker_one = RemoteWorkerClient(
+first_claim = worker_one.claim()
+⋮----
+abandoned_key = first_claim.key
+⋮----
+first_project_id = projects[0]["project_id"]
+second_project_id = projects[1]["project_id"]
+first_workflow_id = projects[0]["current_workflow_id"]
+second_workflow_id = projects[1]["current_workflow_id"]
+⋮----
+# Simulate both the Control Plane and worker process restarting. The new
+# worker process reports that it has no in-memory active jobs.
+second = ControlPlane(database, authorizer=_auth())
+⋮----
+recovered = reregistered["reconciliation"]["recovered_jobs"]
+⋮----
+old_execution = second.dashboard_store.latest_execution(abandoned_key)
+⋮----
+restarted_one = RemoteWorkerClient(
+worker_two = RemoteWorkerClient(
+⋮----
+claim_one = restarted_one.claim()
+⋮----
+claim_two = worker_two.claim()
+⋮----
+claimed_keys = {claim_one.key, claim_two.key}
+⋮----
+queued_rows = db.execute(
+expected_keys = {row["key"] for row in queued_rows}
+⋮----
+final_one = second.managed_projects.get(first_project_id)
+final_two = second.managed_projects.get(second_project_id)
+⋮----
+latest_abandoned = second.dashboard_store.latest_execution(abandoned_key)
+⋮----
+recovery_events = [
 ```
 
 ## File: test_remote_worker.py
