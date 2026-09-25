@@ -446,7 +446,7 @@ class ManagedProjectService:
             target = NEEDS_ATTENTION
         else:
             try:
-                workflow = self.workflows.refresh(str(workflow_id))
+                workflow = self.workflows.get(str(workflow_id))
             except KeyError:
                 target = NEEDS_ATTENTION
             else:
