@@ -2294,6 +2294,10 @@ def make_handler(control: ControlPlane):
                     if principal is None:
                         return
 
+                    recovered_expired = control.queue.recover_expired(
+                        max_attempts=3,
+                    )
+
                     worker_id = str(body["worker_id"])
                     capabilities = [
                         str(x) for x in body.get("capabilities", [])
