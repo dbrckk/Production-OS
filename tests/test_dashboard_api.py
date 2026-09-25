@@ -373,3 +373,64 @@ def test_worker_detail_includes_recoverable_jobs(running_control_plane):
     )
     assert status == 200
     assert [row["key"] for row in payload["recoverable_jobs"]] == [job["key"]]
+
+def test_one_tap_launch_creates_persistent_managed_project_with_server_defaults(
+    running_control_plane,
+):
+    base, control = running_control_plane
+
+    status, payload = api(
+        base,
+        "/v1/dashboard/launch",
+        "viewer-token",
+        {
+            "repository":"dbrckk/example",
+            "instruction":"Implement the requested feature and validate it.",
+        },
+    )
+    assert status == 403
+
+    status, payload = api(
+        base,
+        "/v1/dashboard/launch",
+        "operator-token",
+        {
+            "repository":"dbrckk/example",
+            "instruction":"",
+        },
+    )
+    assert status == 400
+
+    status, payload = api(
+        base,
+        "/v1/dashboard/launch",
+        "operator-token",
+        {
+            "repository":"dbrckk/example",
+            "instruction":"Implement the requested feature and validate it.",
+            "token_budget":999999,
+            "agent_preference":"codex",
+        },
+    )
+    assert status == 201
+    project = payload["project"]
+    launch = payload["launch"]
+    assert project["repository"] == "dbrckk/example"
+    assert project["final_goal"] == "Implement the requested feature and validate it."
+    assert project["status"] == "ACTIVE"
+    assert project["generation"] == 1
+    assert project["current_workflow_id"]
+    assert project["token_budget"] == 30000
+    assert project["agent_preference"] == "auto"
+    assert launch == {
+        "mode":"managed-project",
+        "persistent":True,
+        "token_budget":30000,
+        "agent_preference":"auto",
+    }
+
+    persisted = control.managed_projects.get(project["project_id"])
+    assert persisted["project_id"] == project["project_id"]
+    assert persisted["current_workflow_id"] == project["current_workflow_id"]
+    assert persisted["runs"][0]["kind"] == "initial"
+
