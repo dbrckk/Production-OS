@@ -51,6 +51,8 @@ def test_postgres_managed_project_review_lifecycle():
     backend=PostgresBackend(DSN)
     with backend.connect() as db:
         with db.cursor() as cur:
+            cur.execute("TRUNCATE managed_project_runs CASCADE")
+            cur.execute("TRUNCATE managed_projects CASCADE")
             cur.execute("TRUNCATE artifacts CASCADE")
             cur.execute("TRUNCATE workflow_tasks CASCADE")
             cur.execute("TRUNCATE workflows CASCADE")
@@ -63,33 +65,42 @@ def test_postgres_managed_project_review_lifecycle():
         final_goal="Ship a verified release",
         token_budget=50000,
         agent_preference="codex",
+        requested_by="operator:test",
     )
     assert project["state"]=="RUNNING"
+    assert project["generation"]==1
+    first_workflow=project["workflow_id"]
 
     engine.record_result(
-        project["workflow_id"],
-        "goal",
+        first_workflow,
+        "implementation",
         succeeded=True,
         result={"usage":{"total_tokens":321}},
     )
-    review=projects.get(project["workflow_id"])
+    review=projects.get(project["project_id"])
     assert review["state"]=="REVIEW_REQUIRED"
     assert review["usage"]["total_tokens"]==321
 
     resumed=projects.add_instruction(
-        project["workflow_id"],
+        project["project_id"],
         "Polish mobile controls",
+        requested_by="operator:test",
     )
     assert resumed["state"]=="RUNNING"
+    assert resumed["generation"]==2
+    assert resumed["workflow_id"]!=first_workflow
+    second_workflow=resumed["workflow_id"]
+
     engine.record_result(
-        project["workflow_id"],
-        "instruction-1",
+        second_workflow,
+        "implementation",
         succeeded=True,
     )
 
     done=projects.mark_done(
-        project["workflow_id"],
+        project["project_id"],
         approved_by="operator:test",
     )
     assert done["state"]=="DONE"
     assert done["approved_by"]=="operator:test"
+    assert [run["generation"] for run in done["runs"]]==[1,2]

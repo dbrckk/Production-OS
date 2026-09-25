@@ -178,7 +178,7 @@ def test_resolved_verification_never_regresses_after_incident_reopens(tmp_path):
     assert after["verification_checks"] == before["verification_checks"]
 
 
-def test_sqlite_v13_database_is_migrated_additively_to_v14(tmp_path):
+def test_sqlite_v14_database_is_migrated_additively_to_v15(tmp_path):
     path = tmp_path / "migration.sqlite"
     db = sqlite3.connect(path)
     db.executescript(
@@ -187,7 +187,7 @@ def test_sqlite_v13_database_is_migrated_additively_to_v14(tmp_path):
             key TEXT PRIMARY KEY,
             value TEXT NOT NULL
         );
-        INSERT INTO schema_meta(key, value) VALUES('schema_version', '13');
+        INSERT INTO schema_meta(key, value) VALUES('schema_version', '14');
         CREATE TABLE dashboard_incidents (
             id TEXT PRIMARY KEY,
             dedupe_key TEXT NOT NULL UNIQUE,
@@ -218,7 +218,10 @@ def test_sqlite_v13_database_is_migrated_additively_to_v14(tmp_path):
             completed_at TEXT,
             verification_state TEXT NOT NULL DEFAULT 'pending',
             verification_checks INTEGER NOT NULL DEFAULT 0,
-            verified_at TEXT
+            verified_at TEXT,
+            resolved_occurrence_count INTEGER,
+            recurrence_state TEXT NOT NULL DEFAULT 'not_evaluated',
+            recurred_at TEXT
         );
         INSERT INTO dashboard_incidents(
             id,dedupe_key,code,severity,title,message,
@@ -256,7 +259,13 @@ def test_sqlite_v13_database_is_migrated_additively_to_v14(tmp_path):
         row = conn.execute(
             "SELECT * FROM dashboard_remediation_events WHERE id='remediation-1'"
         ).fetchone()
-    assert version == "14"
+        managed = conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='managed_projects'"
+        ).fetchone()
+        runs = conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='managed_project_runs'"
+        ).fetchone()
+    assert version == "15"
     assert {
         "verification_state",
         "verification_checks",
@@ -268,6 +277,8 @@ def test_sqlite_v13_database_is_migrated_additively_to_v14(tmp_path):
     assert row["verification_state"] == "pending"
     assert row["verification_checks"] == 0
     assert row["recurrence_state"] == "not_evaluated"
+    assert managed["name"] == "managed_projects"
+    assert runs["name"] == "managed_project_runs"
 
 
 def test_repeated_active_verification_is_idempotent(tmp_path):

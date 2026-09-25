@@ -22,7 +22,7 @@ def _utcnow() -> str:
 
 
 class PostgresBackend:
-    SCHEMA_VERSION = 14
+    SCHEMA_VERSION = 15
 
     def __init__(self, dsn: str):
         if psycopg is None:
@@ -107,7 +107,8 @@ class PostgresBackend:
                         status TEXT NOT NULL,
                         claimed_at TEXT NOT NULL,
                         ack_deadline TEXT NOT NULL,
-                        completed_at TEXT
+                        completed_at TEXT,
+                        completed_by TEXT
                     )
                 """)
                 cur.execute("""
@@ -412,6 +413,66 @@ class PostgresBackend:
                 """)
                 cur.execute("""
                     CREATE INDEX IF NOT EXISTS idx_project_progress_repo_time ON project_progress_snapshots(repository, captured_at DESC)
+                """)
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS managed_projects (
+                        id TEXT PRIMARY KEY,
+                        repository TEXT NOT NULL,
+                        final_goal TEXT NOT NULL,
+                        token_budget INTEGER NOT NULL,
+                        agent_preference TEXT NOT NULL,
+                        status TEXT NOT NULL,
+                        current_workflow_id TEXT REFERENCES workflows(id)
+                            ON DELETE RESTRICT,
+                        generation INTEGER NOT NULL DEFAULT 1,
+                        created_by TEXT NOT NULL,
+                        created_at TEXT NOT NULL,
+                        updated_at TEXT NOT NULL,
+                        reviewed_at TEXT,
+                        completed_at TEXT,
+                        completed_by TEXT
+                    )
+                """)
+                cur.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_managed_projects_status_time
+                    ON managed_projects(status, updated_at DESC)
+                """)
+                cur.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_managed_projects_repository
+                    ON managed_projects(repository, updated_at DESC)
+                """)
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS managed_project_runs (
+                        id TEXT PRIMARY KEY,
+                        project_id TEXT NOT NULL REFERENCES managed_projects(id)
+                            ON DELETE CASCADE,
+                        generation INTEGER NOT NULL,
+                        kind TEXT NOT NULL,
+                        instruction TEXT NOT NULL,
+                        workflow_id TEXT NOT NULL REFERENCES workflows(id)
+                            ON DELETE RESTRICT,
+                        requested_by TEXT NOT NULL,
+                        created_at TEXT NOT NULL,
+                        UNIQUE(project_id, generation)
+                    )
+                """)
+                cur.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_managed_project_runs_project
+                    ON managed_project_runs(project_id, generation DESC)
+                """)
+                cur.execute("""
+                    ALTER TABLE managed_projects
+                    ADD COLUMN IF NOT EXISTS token_budget INTEGER
+                    NOT NULL DEFAULT 30000
+                """)
+                cur.execute("""
+                    ALTER TABLE managed_projects
+                    ADD COLUMN IF NOT EXISTS agent_preference TEXT
+                    NOT NULL DEFAULT 'auto'
+                """)
+                cur.execute("""
+                    ALTER TABLE managed_projects
+                    ADD COLUMN IF NOT EXISTS completed_by TEXT
                 """)
                 cur.execute("""
                     ALTER TABLE dashboard_remediation_events

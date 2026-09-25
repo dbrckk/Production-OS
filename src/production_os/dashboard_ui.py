@@ -1051,7 +1051,10 @@ async function managedAction(workflowId,action){
   if(!instruction)return;
   body={instruction:instruction};
  }
- if(action==="complete"&&!window.confirm("Valider définitivement ce projet ?"))return;
+ if(action==="complete"){
+  if(!window.confirm("Valider définitivement ce projet ?"))return;
+  body={confirm:"MARK_PROJECT_DONE"};
+ }
  await api(path,{method:"POST",body:JSON.stringify(body)});
  await loadManagedProjects();
 }

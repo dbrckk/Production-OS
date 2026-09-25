@@ -18,7 +18,7 @@ def _utcnow() -> str:
 
 
 class SQLiteBackend:
-    SCHEMA_VERSION = 14
+    SCHEMA_VERSION = 15
 
     def __init__(self, path: str | Path):
         self.path = Path(path)
@@ -418,8 +418,71 @@ class SQLiteBackend:
                     calculation_version TEXT NOT NULL, captured_at TEXT NOT NULL
                 );
                 CREATE INDEX IF NOT EXISTS idx_project_progress_repo_time ON project_progress_snapshots(repository, captured_at DESC);
+                CREATE TABLE IF NOT EXISTS managed_projects (
+                    id TEXT PRIMARY KEY,
+                    repository TEXT NOT NULL,
+                    final_goal TEXT NOT NULL,
+                    token_budget INTEGER NOT NULL,
+                    agent_preference TEXT NOT NULL,
+                    status TEXT NOT NULL,
+                    current_workflow_id TEXT,
+                    generation INTEGER NOT NULL DEFAULT 1,
+                    created_by TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    reviewed_at TEXT,
+                    completed_at TEXT,
+                    completed_by TEXT,
+                    FOREIGN KEY(current_workflow_id) REFERENCES workflows(id)
+                        ON DELETE RESTRICT
+                );
+                CREATE INDEX IF NOT EXISTS idx_managed_projects_status_time
+                ON managed_projects(status, updated_at DESC);
+                CREATE INDEX IF NOT EXISTS idx_managed_projects_repository
+                ON managed_projects(repository, updated_at DESC);
+                CREATE TABLE IF NOT EXISTS managed_project_runs (
+                    id TEXT PRIMARY KEY,
+                    project_id TEXT NOT NULL,
+                    generation INTEGER NOT NULL,
+                    kind TEXT NOT NULL,
+                    instruction TEXT NOT NULL,
+                    workflow_id TEXT NOT NULL,
+                    requested_by TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    FOREIGN KEY(project_id) REFERENCES managed_projects(id)
+                        ON DELETE CASCADE,
+                    FOREIGN KEY(workflow_id) REFERENCES workflows(id)
+                        ON DELETE RESTRICT,
+                    UNIQUE(project_id, generation)
+                );
+                CREATE INDEX IF NOT EXISTS idx_managed_project_runs_project
+                ON managed_project_runs(project_id, generation DESC);
                 """
             )
+            managed_columns = {
+                row["name"]
+                for row in db.execute(
+                    "PRAGMA table_info(managed_projects)"
+                ).fetchall()
+            }
+            if "token_budget" not in managed_columns:
+                db.execute(
+                    """ALTER TABLE managed_projects
+                       ADD COLUMN token_budget INTEGER NOT NULL
+                       DEFAULT 30000"""
+                )
+            if "agent_preference" not in managed_columns:
+                db.execute(
+                    """ALTER TABLE managed_projects
+                       ADD COLUMN agent_preference TEXT NOT NULL
+                       DEFAULT 'auto'"""
+                )
+            if "completed_by" not in managed_columns:
+                db.execute(
+                    """ALTER TABLE managed_projects
+                       ADD COLUMN completed_by TEXT"""
+                )
+
             remediation_columns = {
                 row["name"]
                 for row in db.execute(

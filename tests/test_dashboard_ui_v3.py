@@ -415,6 +415,7 @@ def test_managed_projects_view_exposes_review_actions_only_in_review_state():
     assert "Retester" in DASHBOARD_HTML
     assert "Valider DONE" in DASHBOARD_HTML
     assert "managedAction" in DASHBOARD_HTML
+    assert 'confirm:"MARK_PROJECT_DONE"' in DASHBOARD_HTML
 
 
 def test_managed_projects_navigation_preserves_existing_polling_contract():

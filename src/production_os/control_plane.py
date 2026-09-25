@@ -614,6 +614,16 @@ def make_handler(control: ControlPlane):
                 principal = self._require("viewer")
                 if principal is None:
                     return
+                if principal.role == "worker":
+                    self._send(
+                        HTTPStatus.FORBIDDEN,
+                        {
+                            "error":"forbidden",
+                            "required_role":"viewer",
+                            "role":principal.role,
+                        },
+                    )
+                    return
                 self._send(
                     HTTPStatus.OK,
                     {"projects":control.managed_projects.list()},
@@ -623,6 +633,16 @@ def make_handler(control: ControlPlane):
             if parsed.path.startswith("/v1/managed-projects/"):
                 principal = self._require("viewer")
                 if principal is None:
+                    return
+                if principal.role == "worker":
+                    self._send(
+                        HTTPStatus.FORBIDDEN,
+                        {
+                            "error":"forbidden",
+                            "required_role":"viewer",
+                            "role":principal.role,
+                        },
+                    )
                     return
                 parts = [part for part in parsed.path.split("/") if part]
                 if len(parts) == 3:
@@ -669,6 +689,9 @@ def make_handler(control: ControlPlane):
                         agent_preference=str(
                             body.get("agent_preference") or "auto"
                         ),
+                        requested_by=(
+                            f"{principal.role}:{principal.name}"
+                        ),
                     )
                 except ValueError as exc:
                     self._send(
@@ -693,14 +716,26 @@ def make_handler(control: ControlPlane):
                             project = control.managed_projects.add_instruction(
                                 workflow_id,
                                 str(body.get("instruction") or ""),
+                                requested_by=(
+                                    f"{principal.role}:{principal.name}"
+                                ),
                             )
                         elif action == "verify":
                             project = (
                                 control.managed_projects.request_verification(
-                                    workflow_id
+                                    workflow_id,
+                                    requested_by=(
+                                        f"{principal.role}:{principal.name}"
+                                    ),
                                 )
                             )
                         elif action == "complete":
+                            if str(body.get("confirm") or "") != "MARK_PROJECT_DONE":
+                                self._send(
+                                    HTTPStatus.BAD_REQUEST,
+                                    {"error":"confirm MARK_PROJECT_DONE required"},
+                                )
+                                return
                             project = control.managed_projects.mark_done(
                                 workflow_id,
                                 approved_by=(
