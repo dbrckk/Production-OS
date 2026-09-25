@@ -118,6 +118,9 @@ textarea{resize:vertical;min-height:150px;line-height:1.45}
 .attention-card .secondary-btn{margin-top:10px}
 .attention-required{border-left:3px solid rgba(251,191,36,.8)}
 .attention-done{opacity:.78}
+.active-productions{margin:12px 0}
+.active-production-card{border-left:3px solid rgba(79,141,253,.7)}
+.active-production-card .live-runtime{margin-top:7px}
 .attention-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .attention-focus{outline:2px solid rgba(110,168,254,.7);box-shadow:0 0 0 4px rgba(110,168,254,.12)}
 .attention-inline-instruction{display:grid;gap:8px;width:100%;margin-top:8px}
@@ -1552,13 +1555,62 @@ function renderAttentionActions(item){
  }).join("");
  return buttons?'<div class="attention-actions">'+buttons+'</div>':"";
 }
+function renderActiveProductions(data){
+ const summary=(data&&data.summary)||{};
+ const rows=(data&&data.productions)||[];
+ if(!rows.length)return "";
+ const cards=rows.map(function(item){
+  const project=item.project||{};
+  const runtime=item.runtime||{};
+  const projectId=String(project.project_id||"");
+  const phase=String(runtime.phase||"preparing");
+  const labels={
+   preparing:"Préparation",
+   queued:"En file",
+   claimed:"Réclamé",
+   running:"En cours"
+  };
+  const details=[];
+  if(runtime.worker_id)details.push("worker "+String(runtime.worker_id));
+  if(runtime.stage)details.push("stage "+String(runtime.stage));
+  if(runtime.attempt!=null)details.push("tentative "+String(runtime.attempt));
+  if(runtime.queue_position!=null)details.push("position "+String(runtime.queue_position));
+  const progressValue=Number(runtime.progress_percent);
+  const hasProgress=Number.isFinite(progressValue);
+  const progress=hasProgress?Math.max(0,Math.min(100,progressValue)):null;
+  const progressHtml=hasProgress
+   ?'<div class="live-progress" aria-label="Progression '+esc(String(progress))+' %"><div class="live-progress-fill" style="width:'+esc(String(progress))+'%"></div></div>'
+   :"";
+  return '<div class="card active-production-card" data-active-project-id="'+esc(projectId)+'">'+
+   '<div class="section-head"><strong>'+esc(String(project.repository||""))+'</strong><span class="badge">'+esc(labels[phase]||phase)+'</span></div>'+
+   '<div class="small">'+esc(String(project.final_goal||""))+'</div>'+
+   '<div class="live-runtime"><div class="small">'+esc(String(runtime.message||labels[phase]||phase))+'</div>'+
+   (details.length?'<div class="small">'+esc(details.join(" · "))+'</div>':"")+
+   progressHtml+'</div>'+
+   '<div class="attention-actions"><button class="secondary-btn" type="button" data-project-id="'+esc(projectId)+'" onclick="openAttentionItem(\'managed\',\'managed-project\',this.dataset.projectId)">Ouvrir</button></div></div>';
+ }).join("");
+ return '<div class="active-productions"><div class="section-head"><h2>Productions actives</h2><span class="badge">'+
+  formatNumber(summary.active||rows.length)+'</span></div>'+
+  '<div class="small"><strong>En cours :</strong> '+formatNumber(summary.running||0)+
+  ' · <strong>En file :</strong> '+formatNumber(summary.queued||0)+
+  ' · <strong>Réclamées :</strong> '+formatNumber(summary.claimed||0)+
+  ' · <strong>Préparation :</strong> '+formatNumber(summary.preparing||0)+'</div>'+
+  cards+'</div>';
+}
+
 async function loadAttention(){
  const el=document.getElementById("attention-list");
  const count=document.getElementById("attention-count");
  try{
-  const data=await api("/v1/dashboard/attention?limit=50");
+  const results=await Promise.all([
+   api("/v1/dashboard/attention?limit=50"),
+   api("/v1/dashboard/active-productions?limit=12")
+  ]);
+  const data=results[0]||{};
+  const activeData=results[1]||{};
   const summary=data.summary||{};
   const rows=data.items||[];
+  const activeHtml=renderActiveProductions(activeData);
   count.textContent=String(summary.action_required||0);
   const headline=
    '<div class="card attention-summary"><div class="section-head"><strong>Priorités</strong><span class="badge">'+formatNumber(summary.action_required||0)+' action(s)</span></div>'+
@@ -1569,7 +1621,7 @@ async function loadAttention(){
    ' · <strong>Incidents :</strong> '+formatNumber(summary.incidents||0)+
    ' · <strong>Terminés récemment :</strong> '+formatNumber(summary.recently_completed||0)+'</div></div>';
   if(!rows.length){
-   el.innerHTML=headline+'<div class="card"><strong>Rien d’urgent.</strong><div class="small">Les productions autonomes n’attendent aucune action opérateur.</div></div>';
+   el.innerHTML=headline+activeHtml+'<div class="card"><strong>Rien d’urgent.</strong><div class="small">Les productions autonomes n’attendent aucune action opérateur.</div></div>';
    return;
   }
   const cards=rows.map(function(item){
@@ -1590,7 +1642,7 @@ async function loadAttention(){
     '<div class="attention-actions">'+openButton+'</div>'+contextual+
     '<div id="attention-action-status-'+esc(statusId)+'" class="status-message"></div></div>';
   }).join("");
-  el.innerHTML=headline+cards;
+  el.innerHTML=headline+activeHtml+cards;
  }catch(e){
   count.textContent="!";
   el.innerHTML=errorCard(e);
