@@ -516,6 +516,10 @@ def make_handler(control: ControlPlane):
                         payload = service.launch_readiness(
                             query.get("repository", [""])[0],
                         )
+                    elif parsed.path == "/v1/dashboard/production-status":
+                        payload = service.production_status(
+                            query.get("project_id", [""])[0],
+                        )
                     elif parsed.path == "/v1/dashboard/attention":
                         payload = service.attention(
                             limit=int(query.get("limit", ["50"])[0]),
