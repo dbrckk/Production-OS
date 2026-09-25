@@ -329,8 +329,12 @@ def test_offline_restore_activation_replaces_live_state_and_creates_rollback(
         confirmation="ACTIVATE_STAGED_RESTORE",
     )
     assert result["activated"] is True
-    assert result["activation_enabled"] is True
+    assert result["activation_enabled"] is False
+    assert result["activation_state"] == "activated"
     assert result["rollback_backup_id"]
+    assert result["receipt_file"] == (
+        f"restore-{staged['candidate_id']}.activation.json"
+    )
 
     with SQLiteBackend(db_path).connect() as db:
         value = db.execute(
@@ -461,3 +465,134 @@ def test_restore_activation_rolls_back_if_post_replace_verification_fails(
         integrity = db.execute("PRAGMA integrity_check").fetchone()[0]
     assert value == "live-state"
     assert integrity == "ok"
+
+
+def test_successful_restore_candidate_cannot_be_replayed(tmp_path, monkeypatch):
+    backup_dir = tmp_path / "backups"
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    backend = SQLiteBackend(tmp_path / "production.sqlite")
+    backup = create_verified_sqlite_backup(backend)
+    staged = stage_verified_sqlite_restore(backend, backup["backup_id"])
+
+    activate_staged_sqlite_restore(
+        backend,
+        staged["candidate_id"],
+        confirmation="ACTIVATE_STAGED_RESTORE",
+    )
+
+    with pytest.raises(BackupError, match="already been activated"):
+        activate_staged_sqlite_restore(
+            backend,
+            staged["candidate_id"],
+            confirmation="ACTIVATE_STAGED_RESTORE",
+        )
+
+
+def test_restore_activation_receipt_contains_only_safe_structured_fields(
+    tmp_path,
+    monkeypatch,
+):
+    backup_dir = tmp_path / "backups"
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    backend = SQLiteBackend(tmp_path / "production.sqlite")
+    backup = create_verified_sqlite_backup(backend)
+    staged = stage_verified_sqlite_restore(backend, backup["backup_id"])
+
+    result = activate_staged_sqlite_restore(
+        backend,
+        staged["candidate_id"],
+        confirmation="ACTIVATE_STAGED_RESTORE",
+    )
+    receipt = json.loads(
+        (backup_dir / result["receipt_file"]).read_text(encoding="utf-8")
+    )
+
+    assert set(receipt) == {
+        "candidate_id",
+        "source_backup_id",
+        "rollback_backup_id",
+        "activated_at",
+        "schema_version",
+        "sha256",
+    }
+    assert receipt["candidate_id"] == staged["candidate_id"]
+    assert receipt["rollback_backup_id"] == result["rollback_backup_id"]
+    encoded = json.dumps(receipt).lower()
+    for forbidden in (
+        "token",
+        "password",
+        "secret",
+        "authorization",
+        "path",
+        "dsn",
+    ):
+        assert forbidden not in encoded
+
+
+def test_successful_activation_marks_candidate_manifest_consumed(
+    tmp_path,
+    monkeypatch,
+):
+    backup_dir = tmp_path / "backups"
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    backend = SQLiteBackend(tmp_path / "production.sqlite")
+    backup = create_verified_sqlite_backup(backend)
+    staged = stage_verified_sqlite_restore(backend, backup["backup_id"])
+
+    result = activate_staged_sqlite_restore(
+        backend,
+        staged["candidate_id"],
+        confirmation="ACTIVATE_STAGED_RESTORE",
+    )
+    manifest = json.loads(
+        (
+            backup_dir
+            / f"restore-{staged['candidate_id']}.json"
+        ).read_text(encoding="utf-8")
+    )
+
+    assert manifest["activation_state"] == "activated"
+    assert manifest["activated_at"] == result["activated_at"]
+    assert manifest["rollback_backup_id"] == result["rollback_backup_id"]
+
+
+def test_failed_activation_with_rollback_does_not_consume_candidate(
+    tmp_path,
+    monkeypatch,
+):
+    backup_dir = tmp_path / "backups"
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    db_path = tmp_path / "production.sqlite"
+    backend = SQLiteBackend(db_path)
+    backup = create_verified_sqlite_backup(backend)
+    staged = stage_verified_sqlite_restore(backend, backup["backup_id"])
+
+    import production_os.dashboard_backups as backups_module
+
+    real_connect = backups_module.sqlite3.connect
+    failed = {"done":False}
+
+    def failing_connect(target, *args, **kwargs):
+        if not failed["done"] and str(target) == str(db_path):
+            failed["done"] = True
+            raise sqlite3.DatabaseError("simulated restore verification failure")
+        return real_connect(target, *args, **kwargs)
+
+    monkeypatch.setattr(backups_module.sqlite3, "connect", failing_connect)
+    with pytest.raises(sqlite3.DatabaseError, match="simulated"):
+        activate_staged_sqlite_restore(
+            backend,
+            staged["candidate_id"],
+            confirmation="ACTIVATE_STAGED_RESTORE",
+        )
+
+    monkeypatch.setattr(backups_module.sqlite3, "connect", real_connect)
+    verified = verify_staged_restore_candidate(
+        backend,
+        staged["candidate_id"],
+    )
+    assert verified["candidate_id"] == staged["candidate_id"]
+    assert not (
+        backup_dir
+        / f"restore-{staged['candidate_id']}.activation.json"
+    ).exists()

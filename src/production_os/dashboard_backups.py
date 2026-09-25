@@ -322,6 +322,11 @@ def verify_staged_restore_candidate(backend, candidate_id: str) -> dict:
         or manifest.get("activation_enabled") is not False
     ):
         raise BackupError("restore candidate manifest does not match candidate")
+    if (
+        manifest.get("activation_state") == "activated"
+        or manifest.get("activated_at")
+    ):
+        raise BackupError("restore candidate has already been activated")
     if not candidate_path.is_file():
         raise BackupError("restore candidate file is missing")
 
@@ -396,6 +401,8 @@ def activate_staged_sqlite_restore(
     if directory is None:
         raise BackupError("backup directory is not configured")
     candidate_path = directory / f"restore-{candidate_id}.sqlite"
+    manifest_path = directory / f"restore-{candidate_id}.json"
+    receipt_path = directory / f"restore-{candidate_id}.activation.json"
 
     with database_server_lock(str(database_path)):
         # Revalidate after acquiring the exclusive lock so the activation
@@ -409,6 +416,12 @@ def activate_staged_sqlite_restore(
         )
         rollback_temp = database_path.with_name(
             f".{database_path.name}.rollback-{uuid4().hex}.tmp"
+        )
+        receipt_temp = directory / (
+            f".restore-{candidate_id}.activation-{uuid4().hex}.json.tmp"
+        )
+        manifest_temp = directory / (
+            f".restore-{candidate_id}.manifest-{uuid4().hex}.json.tmp"
         )
         sidecars = [
             Path(str(database_path) + "-wal"),
@@ -444,9 +457,56 @@ def activate_staged_sqlite_restore(
                     raise BackupError("restored database schema verification failed")
             finally:
                 restored.close()
+
+            activated_at = _now()
+            receipt = {
+                "candidate_id":candidate_id,
+                "source_backup_id":candidate.get("source_backup_id"),
+                "rollback_backup_id":rollback["backup_id"],
+                "activated_at":activated_at,
+                "schema_version":candidate["schema_version"],
+                "sha256":candidate["sha256"],
+            }
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            if not isinstance(manifest, dict):
+                raise BackupError(
+                    "restore candidate manifest is missing or invalid"
+                )
+            manifest.update({
+                "activation_state":"activated",
+                "activated_at":activated_at,
+                "rollback_backup_id":rollback["backup_id"],
+            })
+            receipt_temp.write_text(
+                json.dumps(
+                    receipt,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ),
+                encoding="utf-8",
+            )
+            manifest_temp.write_text(
+                json.dumps(
+                    manifest,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ),
+                encoding="utf-8",
+            )
+            os.replace(receipt_temp, receipt_path)
+            os.replace(manifest_temp, manifest_path)
         except Exception:
+            for path in (
+                temp_target,
+                receipt_temp,
+                manifest_temp,
+            ):
+                try:
+                    path.unlink()
+                except FileNotFoundError:
+                    pass
             try:
-                temp_target.unlink()
+                receipt_path.unlink()
             except FileNotFoundError:
                 pass
             if replaced:
@@ -478,9 +538,11 @@ def activate_staged_sqlite_restore(
     return {
         **candidate,
         "activated":True,
-        "activation_enabled":True,
+        "activation_enabled":False,
+        "activation_state":"activated",
         "rollback_backup_id":rollback["backup_id"],
-        "activated_at":_now(),
+        "activated_at":activated_at,
+        "receipt_file":receipt_path.name,
     }
 
 

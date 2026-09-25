@@ -843,6 +843,32 @@ There is intentionally no HTTP endpoint for restore activation. If the control p
 
 PostgreSQL restore activation remains unsupported.
 
+## Release 22 — One-shot restore activation
+
+Successful staged SQLite restore candidates are now one-shot.
+
+After the restored live database passes integrity and schema verification:
+
+- the candidate manifest is atomically marked `activation_state=activated`;
+- `activated_at` and the verified rollback backup id are persisted;
+- a separate activation receipt is written with only structured safe metadata;
+- any later attempt to activate the same candidate is rejected before database mutation.
+
+If activation fails and the previous live database is restored successfully, the candidate remains staged and may be retried.
+
+Activation receipts contain only:
+
+```text
+candidate_id
+source_backup_id
+rollback_backup_id
+activated_at
+schema_version
+sha256
+```
+
+No credentials, paths, DSNs, authorization headers or arbitrary request payloads are stored.
+
 ## Design principles
 
 - Evidence over assumptions
