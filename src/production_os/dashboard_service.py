@@ -14,7 +14,7 @@ from .dashboard_incidents import dedupe_key, signals_from_health
 from .dashboard_playbooks import derive_incident_playbook
 from .dashboard_remediation_metrics import aggregate_remediation_analytics
 from .dashboard_maintenance import prune_expired_history, storage_maintenance_snapshot
-from .dashboard_backups import backup_readiness, create_verified_sqlite_backup, verify_backup_for_restore
+from .dashboard_backups import backup_readiness, create_verified_sqlite_backup, stage_verified_sqlite_restore, verify_backup_for_restore
 from .project_progress import ProjectProgressEngine, build_project_evidence, workflow_progress
 from .github_client import GitHubAPIError, GitHubClient
 
@@ -485,6 +485,12 @@ class DashboardService:
 
     def verify_backup_restore_readiness(self, backup_id: str) -> dict:
         return verify_backup_for_restore(
+            self.control.backend,
+            backup_id,
+        )
+
+    def stage_backup_restore(self, backup_id: str) -> dict:
+        return stage_verified_sqlite_restore(
             self.control.backend,
             backup_id,
         )
