@@ -941,3 +941,38 @@ def test_backup_filesystem_capacity_statvfs_error_is_unknown_not_zero(
     assert filesystem["status"] == "unknown"
     assert filesystem["total_bytes"] is None
     assert filesystem["available_bytes"] is None
+
+def test_storage_inventory_keeps_filesystem_shape_when_directory_listing_fails(
+    tmp_path,
+    monkeypatch,
+):
+    backup_dir = tmp_path / "backups"
+    backup_dir.mkdir()
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    backend = SQLiteBackend(tmp_path / "production.sqlite")
+
+    path_type = type(backup_dir)
+    original_iterdir = path_type.iterdir
+
+    def failing_iterdir(path):
+        if path == backup_dir:
+            raise OSError("simulated directory listing failure")
+        return original_iterdir(path)
+
+    monkeypatch.setattr(path_type, "iterdir", failing_iterdir)
+
+    inventory = backup_storage_inventory(backend)
+
+    assert inventory["status"] == "degraded"
+    assert inventory["backend_kind"] == "sqlite"
+    assert "filesystem" in inventory
+    assert set(inventory["filesystem"]) == {
+        "status",
+        "total_bytes",
+        "free_bytes",
+        "available_bytes",
+        "used_bytes",
+        "used_percent",
+        "available_percent",
+    }
+
