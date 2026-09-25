@@ -17,6 +17,20 @@ def signals_from_health(health: dict) -> list[dict]:
                 "target_type":"control-plane",
                 "target_id":"global",
             })
+        elif code == "backup_filesystem_capacity":
+            status = str(evidence.get("status") or "warning")
+            available = evidence.get("available_percent")
+            signals.append({
+                "code":code,
+                "severity":severity,
+                "title":"Capacité de stockage backup faible",
+                "message":(
+                    f"filesystem backup {status}, "
+                    f"{available}% disponible"
+                ),
+                "target_type":"backup-storage",
+                "target_id":"primary",
+            })
         elif code == "stale_busy_workers":
             for worker in evidence.get("workers") or []:
                 worker_id = str(worker.get("worker_id") or "")
