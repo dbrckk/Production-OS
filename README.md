@@ -796,6 +796,23 @@ activation_enabled = false
 
 Restore staging is deliberately non-destructive. It never swaps or overwrites the active Production-OS database. Live activation remains disabled and must be designed as a separate maintenance-mode operation.
 
+## Release 20 — Exclusive SQLite maintenance lock
+
+The long-running control-plane server now owns an exclusive operating-system lock for the lifetime of a SQLite database process.
+
+The lock is based on POSIX `flock(LOCK_EX | LOCK_NB)`, not file age. This means:
+
+- a second control-plane process fails fast while the first process holds the lock;
+- the kernel automatically releases ownership if the process exits or crashes;
+- the metadata file may remain on disk without blocking future acquisition;
+- no time-based stale-lock deletion can accidentally evict a healthy server.
+
+The lock file is derived server-side from the SQLite database path and contains only diagnostic metadata such as PID, timestamp and purpose. It is never returned through the HTTP API.
+
+PostgreSQL is unchanged because database-level maintenance coordination must use PostgreSQL-native mechanisms rather than a local filesystem lock.
+
+This lock is a prerequisite for any future destructive SQLite restore activation. Release 20 itself performs no restore and no live database replacement.
+
 ## Design principles
 
 - Evidence over assumptions
