@@ -1231,6 +1231,16 @@ samples = [
 invalid_id = "20260901T120000Z-000000000005"
 ⋮----
 age = backup_storage_inventory(backend)["backup_age"]
+⋮----
+rows = [
+⋮----
+invalid_id = "20260717T120000Z-100000000006"
+⋮----
+protected_id = rows[-1][0]
+candidate_id = "20260925T120000Z-200000000001"
+rollback_id = "20260925T120000Z-200000000002"
+⋮----
+preview = backup_storage_inventory(backend)["retention_preview"]
 ```
 
 ## File: test_dashboard_control_api.py
@@ -2409,6 +2419,8 @@ def test_backup_temp_cleanup_ui_is_guarded_and_stale_only()
 def test_backup_overview_renders_filesystem_capacity_read_only()
 ⋮----
 def test_backup_overview_renders_verified_backup_age_distribution()
+⋮----
+def test_backup_overview_renders_retention_preview_read_only()
 ```
 
 ## File: test_dashboard_usage.py

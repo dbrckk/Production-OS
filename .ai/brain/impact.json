@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "generated_by": "dbrckk/repo-brain",
-  "base": "3032fd8e017a831986d3f733b7c4e1b397c404b5",
-  "head": "171909a9549fb2066945de57646c4089fd52199f",
+  "base": "171909a9549fb2066945de57646c4089fd52199f",
+  "head": "bbd3aa41ac6248f03f76b8866de8771b93b4e14e",
   "index_mode": "incremental",
   "changed_files": [
     {
@@ -10,7 +10,7 @@
       "status": "M"
     },
     {
-      "path": "docs/superpowers/plans/2026-09-25-release-27-backup-age-observability.md",
+      "path": "docs/superpowers/plans/2026-09-25-release-28-backup-retention-preview.md",
       "status": "A"
     },
     {
@@ -733,52 +733,58 @@
       "line": 187
     },
     {
+      "name": "_backup_retention_preview",
+      "kind": "function",
+      "file": "src/production_os/dashboard_backups.py",
+      "line": 231
+    },
+    {
       "name": "backup_storage_inventory",
       "kind": "function",
       "file": "src/production_os/dashboard_backups.py",
-      "line": 226
+      "line": 313
     },
     {
       "name": "prune_stale_backup_temps",
       "kind": "function",
       "file": "src/production_os/dashboard_backups.py",
-      "line": 378
+      "line": 482
     },
     {
       "name": "backup_readiness",
       "kind": "function",
       "file": "src/production_os/dashboard_backups.py",
-      "line": 435
+      "line": 539
     },
     {
       "name": "verify_backup_for_restore",
       "kind": "function",
       "file": "src/production_os/dashboard_backups.py",
-      "line": 492
+      "line": 596
     },
     {
       "name": "stage_verified_sqlite_restore",
       "kind": "function",
       "file": "src/production_os/dashboard_backups.py",
-      "line": 578
+      "line": 682
     },
     {
       "name": "verify_staged_restore_candidate",
       "kind": "function",
       "file": "src/production_os/dashboard_backups.py",
-      "line": 680
+      "line": 784
     },
     {
       "name": "activate_staged_sqlite_restore",
       "kind": "function",
       "file": "src/production_os/dashboard_backups.py",
-      "line": 765
+      "line": 869
     },
     {
       "name": "create_verified_sqlite_backup",
       "kind": "function",
       "file": "src/production_os/dashboard_backups.py",
-      "line": 929
+      "line": 1033
     },
     {
       "name": "DashboardNotFound",
@@ -1381,6 +1387,12 @@
       "line": 980
     },
     {
+      "name": "test_storage_inventory_retention_preview_protects_restore_history_and_latest",
+      "kind": "function",
+      "file": "tests/test_dashboard_backups.py",
+      "line": 1036
+    },
+    {
       "name": "test_dashboard_has_primary_views_and_clickable_entities",
       "kind": "function",
       "file": "tests/test_dashboard_ui_v3.py",
@@ -1763,6 +1775,12 @@
       "kind": "function",
       "file": "tests/test_dashboard_ui_v3.py",
       "line": 511
+    },
+    {
+      "name": "test_backup_overview_renders_retention_preview_read_only",
+      "kind": "function",
+      "file": "tests/test_dashboard_ui_v3.py",
+      "line": 521
     },
     {
       "name": "test_release21_offline_restore_activation_survives_restart",

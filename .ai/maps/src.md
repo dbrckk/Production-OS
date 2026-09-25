@@ -2464,15 +2464,42 @@ parsed = parsed.replace(tzinfo=timezone.utc)
 parsed = parsed.astimezone(timezone.utc)
 age_seconds = max(0.0, (now - parsed).total_seconds())
 ⋮----
+BACKUP_RETENTION_DAYS = 30
+BACKUP_RETENTION_MIN_KEEP = 3
+⋮----
+invalid_timestamp_count = 0
+⋮----
+backup_id = str(item.get("backup_id") or "")
+created_at = str(item.get("created_at") or "")
+⋮----
+parsed = datetime.fromisoformat(created_at.replace("Z", "+00:00"))
+⋮----
+size = item.get("size_bytes")
+size_bytes = (
+⋮----
+newest_ids = {
+cutoff_seconds = BACKUP_RETENTION_DAYS * 86400
+candidate_count = 0
+candidate_bytes = 0
+protected_recent = 0
+protected_latest_floor = 0
+protected_restore_history = 0
+⋮----
+backup_id = item["backup_id"]
+age_seconds = max(0.0, (now - item["created_at"]).total_seconds())
+⋮----
 def backup_storage_inventory(backend) -> dict
 ⋮----
 backup_age = _backup_age_summary([])
+retention_preview = _backup_retention_preview([], set())
 zero = {
 ⋮----
 backup_ids: set[str] = set()
 candidate_ids: set[str] = set()
 metrics = dict(zero)
 verified_backup_created_at: list[str] = []
+verified_backups: list[dict] = []
+protected_backup_ids: set[str] = set()
 backup_sqlite = re.compile(
 backup_manifest = re.compile(
 candidate_sqlite = re.compile(
@@ -2492,6 +2519,8 @@ age_seconds = max(
 age_seconds = 0.0
 ⋮----
 match = activation_receipt.fullmatch(name)
+⋮----
+receipt = _safe_activation_receipt(path)
 ⋮----
 match = candidate_sqlite.fullmatch(name) or candidate_manifest.fullmatch(name)
 ⋮----

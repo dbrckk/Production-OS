@@ -1,11 +1,11 @@
 # Change impact
 
-Base: d72de22270307b4a1e3f3247f0c06b5bba2f2058
-Head: 171909a9549fb2066945de57646c4089fd52199f
+Base: ad94d8124838ac9be83a97ff69b2b7e4f4ca845e
+Head: bbd3aa41ac6248f03f76b8866de8771b93b4e14e
 
 ## Changed files
 - M README.md
-- A docs/superpowers/plans/2026-09-25-release-27-backup-age-observability.md
+- A docs/superpowers/plans/2026-09-25-release-28-backup-retention-preview.md
 - M src/production_os/dashboard_backups.py
 - M src/production_os/dashboard_ui.py
 - M tests/test_dashboard_backups.py

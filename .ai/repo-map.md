@@ -2983,15 +2983,42 @@ parsed = parsed.replace(tzinfo=timezone.utc)
 parsed = parsed.astimezone(timezone.utc)
 age_seconds = max(0.0, (now - parsed).total_seconds())
 ⋮----
+BACKUP_RETENTION_DAYS = 30
+BACKUP_RETENTION_MIN_KEEP = 3
+⋮----
+invalid_timestamp_count = 0
+⋮----
+backup_id = str(item.get("backup_id") or "")
+created_at = str(item.get("created_at") or "")
+⋮----
+parsed = datetime.fromisoformat(created_at.replace("Z", "+00:00"))
+⋮----
+size = item.get("size_bytes")
+size_bytes = (
+⋮----
+newest_ids = {
+cutoff_seconds = BACKUP_RETENTION_DAYS * 86400
+candidate_count = 0
+candidate_bytes = 0
+protected_recent = 0
+protected_latest_floor = 0
+protected_restore_history = 0
+⋮----
+backup_id = item["backup_id"]
+age_seconds = max(0.0, (now - item["created_at"]).total_seconds())
+⋮----
 def backup_storage_inventory(backend) -> dict
 ⋮----
 backup_age = _backup_age_summary([])
+retention_preview = _backup_retention_preview([], set())
 zero = {
 ⋮----
 backup_ids: set[str] = set()
 candidate_ids: set[str] = set()
 metrics = dict(zero)
 verified_backup_created_at: list[str] = []
+verified_backups: list[dict] = []
+protected_backup_ids: set[str] = set()
 backup_sqlite = re.compile(
 backup_manifest = re.compile(
 candidate_sqlite = re.compile(
@@ -3011,6 +3038,8 @@ age_seconds = max(
 age_seconds = 0.0
 ⋮----
 match = activation_receipt.fullmatch(name)
+⋮----
+receipt = _safe_activation_receipt(path)
 ⋮----
 match = candidate_sqlite.fullmatch(name) or candidate_manifest.fullmatch(name)
 ⋮----
@@ -8916,6 +8945,16 @@ samples = [
 invalid_id = "20260901T120000Z-000000000005"
 ⋮----
 age = backup_storage_inventory(backend)["backup_age"]
+⋮----
+rows = [
+⋮----
+invalid_id = "20260717T120000Z-100000000006"
+⋮----
+protected_id = rows[-1][0]
+candidate_id = "20260925T120000Z-200000000001"
+rollback_id = "20260925T120000Z-200000000002"
+⋮----
+preview = backup_storage_inventory(backend)["retention_preview"]
 ````
 
 ## File: tests/test_dashboard_control_api.py
@@ -10094,6 +10133,8 @@ def test_backup_temp_cleanup_ui_is_guarded_and_stale_only()
 def test_backup_overview_renders_filesystem_capacity_read_only()
 ⋮----
 def test_backup_overview_renders_verified_backup_age_distribution()
+⋮----
+def test_backup_overview_renders_retention_preview_read_only()
 ````
 
 ## File: tests/test_dashboard_usage.py
@@ -13638,6 +13679,38 @@ over_thirty_days
 Only manifests already marked `verified=true` participate in the age summary. Invalid timestamps are counted explicitly instead of being coerced into an age bucket.
 
 This release is observational only. It introduces no retention policy, no automatic deletion, no cleanup of verified backups, and no path exposure. The age distribution is intended to provide evidence for a later guarded retention design.
+
+
+## Release 28 — Backup retention preview
+
+Production-OS now computes a read-only preview of which verified SQLite backups could become eligible for a future retention cleanup.
+
+The preview currently uses conservative defaults:
+
+```text
+retention_days = 30
+min_keep_latest = 3
+```
+
+A verified backup is never considered a retention candidate when it is:
+
+- among the newest three verified backups;
+- referenced as a source or rollback backup by restore activation history;
+- newer than the retention threshold;
+- associated with an invalid creation timestamp.
+
+The dashboard exposes only aggregate counts and bytes:
+
+```text
+candidate_count
+candidate_bytes
+protected_count
+protected_reasons
+```
+
+No backup identifiers, file names or server paths are exposed through this preview.
+
+This release is strictly observational. It does not delete or archive backups, change restore behavior, or enable automatic retention. Any future destructive retention action must be implemented separately with explicit operator confirmation and fresh-state race protection.
 
 ## Design principles
 
