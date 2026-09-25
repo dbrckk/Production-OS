@@ -183,7 +183,7 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
         or result.get("commit_sha")
         or evidence.get("commit_sha")
     )
-    if isinstance(raw_commits, str):
+    if isinstance(raw_commits, (str, dict)):
         raw_commits = [raw_commits]
     commit_shas = _clean_commit_shas(raw_commits)
 
@@ -238,7 +238,7 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
 
     workflow_status = str(workflow.get("status") or "").strip() or None
     terminal = workflow_status in {"succeeded", "failed", "cancelled"}
-    available = any((
+    available = terminal or any((
         summary,
         validation_status,
         validation_tests,
