@@ -386,3 +386,38 @@ def test_backup_http_surface_has_no_restore_activation_route(tmp_path, monkeypat
         server.shutdown()
         server.server_close()
         thread.join(timeout=2)
+
+
+def test_backup_catalog_exposes_aggregated_storage_inventory(
+    tmp_path,
+    monkeypatch,
+):
+    backup_dir = tmp_path / "backups"
+    backup_dir.mkdir()
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    control = ControlPlane(str(tmp_path / "control.sqlite"), authorizer=_auth())
+    backup_id = "20260925T120000Z-aaaaaaaaaaaa"
+    (backup_dir / f"{backup_id}.sqlite").write_bytes(b"1234")
+    (backup_dir / f"{backup_id}.json").write_bytes(b"12")
+    (backup_dir / "unknown.bin").write_bytes(b"123")
+
+    server, thread, base = _server(control)
+    try:
+        status, payload = _request(
+            base,
+            "/v1/dashboard/backups",
+            "viewer",
+        )
+        assert status == 200
+        storage = payload["storage"]
+        assert storage["backend_kind"] == "sqlite"
+        assert storage["backup_count"] == 1
+        assert storage["backup_bytes"] == 6
+        assert storage["unknown_file_count"] == 1
+        assert storage["unknown_file_bytes"] == 3
+        assert "path" not in storage
+        assert "files" not in storage
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
