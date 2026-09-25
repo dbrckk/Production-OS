@@ -632,3 +632,20 @@ def test_completed_attention_items_remain_openable_for_inspection():
     attention_body = DASHBOARD_HTML[load_start:load_end]
     assert "const openButton=item.view" in attention_body
 
+def test_managed_and_attention_cards_render_normalized_production_outcome():
+    assert "renderProductionOutcome" in DASHBOARD_HTML
+    assert "outcome.validation_status" not in DASHBOARD_HTML
+    assert "value.validation_status" in DASHBOARD_HTML
+    assert "value.validation_tests" in DASHBOARD_HTML
+    assert "value.commit_shas" in DASHBOARD_HTML
+    assert "value.artifact_count" in DASHBOARD_HTML
+    assert "value.pull_request" in DASHBOARD_HTML
+    assert "<strong>Résultat :</strong>" in DASHBOARD_HTML
+    assert "<strong>Validation :</strong>" in DASHBOARD_HTML
+    assert "<strong>Tests :</strong>" in DASHBOARD_HTML
+    assert "<strong>Commits :</strong>" in DASHBOARD_HTML
+    assert "<strong>Artefacts :</strong>" in DASHBOARD_HTML
+    assert "<strong>PR :</strong>" in DASHBOARD_HTML
+    assert "renderProductionOutcome(item.outcome||{},false)" in DASHBOARD_HTML
+    assert "renderProductionOutcome(outcome,true)" in DASHBOARD_HTML
+
