@@ -1024,6 +1024,28 @@ Only the server-derived `<backup_id>.sqlite` and `<backup_id>.json` artifacts fo
 
 Every accepted or conflicted cleanup request is recorded in the control audit. Cleanup is never triggered automatically by capacity warnings, dashboard polling, health checks or retention previews.
 
+
+## Release 30 — Backup filesystem capacity incidents
+
+Backup filesystem pressure now participates in operational health and durable incident reconciliation.
+
+When configured SQLite backup storage reports:
+
+```text
+available < 10%  -> warning / medium incident
+available < 5%   -> critical / high incident
+```
+
+Production-OS emits the durable incident code:
+
+```text
+backup_filesystem_capacity
+```
+
+The incident targets the backup-storage surface and is automatically resolved when filesystem capacity returns to `ok`.
+
+This remains observational only. Capacity incidents never trigger retention cleanup, temp cleanup, backup creation, restore staging, restore activation, pause, retry, cancellation or any other control action automatically.
+
 ## Design principles
 
 - Evidence over assumptions
