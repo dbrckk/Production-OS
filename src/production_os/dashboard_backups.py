@@ -121,6 +121,115 @@ def restore_activation_history(
     return rows[:bounded]
 
 
+def backup_storage_inventory(backend) -> dict:
+    zero = {
+        "total_size_bytes":0,
+        "backup_count":0,
+        "backup_bytes":0,
+        "restore_candidate_count":0,
+        "restore_candidate_bytes":0,
+        "activation_receipt_count":0,
+        "activation_receipt_bytes":0,
+        "temp_file_count":0,
+        "temp_file_bytes":0,
+        "unknown_file_count":0,
+        "unknown_file_bytes":0,
+    }
+    if _backend_kind(backend) != "sqlite":
+        return {
+            "status":"unsupported",
+            "backend_kind":"postgres",
+            **zero,
+        }
+    directory = _configured_dir()
+    if directory is None:
+        return {
+            "status":"unconfigured",
+            "backend_kind":"sqlite",
+            **zero,
+        }
+    if not directory.exists():
+        return {
+            "status":"ready",
+            "backend_kind":"sqlite",
+            **zero,
+        }
+    if not directory.is_dir():
+        return {
+            "status":"degraded",
+            "backend_kind":"sqlite",
+            **zero,
+        }
+
+    backup_ids: set[str] = set()
+    candidate_ids: set[str] = set()
+    metrics = dict(zero)
+    backup_sqlite = re.compile(
+        r"^(\d{8}T\d{6}Z-[0-9a-f]{12})\.sqlite$"
+    )
+    backup_manifest = re.compile(
+        r"^(\d{8}T\d{6}Z-[0-9a-f]{12})\.json$"
+    )
+    candidate_sqlite = re.compile(
+        r"^restore-(\d{8}T\d{6}Z-[0-9a-f]{12})\.sqlite$"
+    )
+    candidate_manifest = re.compile(
+        r"^restore-(\d{8}T\d{6}Z-[0-9a-f]{12})\.json$"
+    )
+    activation_receipt = re.compile(
+        r"^restore-(\d{8}T\d{6}Z-[0-9a-f]{12})\.activation\.json$"
+    )
+
+    try:
+        paths = list(directory.iterdir())
+    except OSError:
+        return {
+            "status":"degraded",
+            "backend_kind":"sqlite",
+            **zero,
+        }
+
+    for path in paths:
+        if not path.is_file():
+            continue
+        try:
+            size = int(path.stat().st_size)
+        except OSError:
+            continue
+        size = max(0, size)
+        metrics["total_size_bytes"] += size
+        name = path.name
+        if name.startswith(".") or name.endswith(".tmp"):
+            metrics["temp_file_count"] += 1
+            metrics["temp_file_bytes"] += size
+            continue
+        match = activation_receipt.fullmatch(name)
+        if match:
+            metrics["activation_receipt_count"] += 1
+            metrics["activation_receipt_bytes"] += size
+            continue
+        match = candidate_sqlite.fullmatch(name) or candidate_manifest.fullmatch(name)
+        if match:
+            candidate_ids.add(match.group(1))
+            metrics["restore_candidate_bytes"] += size
+            continue
+        match = backup_sqlite.fullmatch(name) or backup_manifest.fullmatch(name)
+        if match:
+            backup_ids.add(match.group(1))
+            metrics["backup_bytes"] += size
+            continue
+        metrics["unknown_file_count"] += 1
+        metrics["unknown_file_bytes"] += size
+
+    metrics["backup_count"] = len(backup_ids)
+    metrics["restore_candidate_count"] = len(candidate_ids)
+    return {
+        "status":"ready",
+        "backend_kind":"sqlite",
+        **metrics,
+    }
+
+
 def backup_readiness(backend) -> dict:
     kind = _backend_kind(backend)
     directory = _configured_dir()
