@@ -71,6 +71,21 @@ def derive_control_health(snapshot: dict) -> dict:
             "evidence":{"executions":stale_executions},
         })
 
+    filesystem = (
+        (snapshot.get("backup_storage") or {}).get("filesystem") or {}
+    )
+    filesystem_status = str(filesystem.get("status") or "")
+    if filesystem_status in {"warning","critical"}:
+        available_percent = filesystem.get("available_percent")
+        reasons.append({
+            "code":"backup_filesystem_capacity",
+            "severity":"high" if filesystem_status == "critical" else "medium",
+            "evidence":{
+                "status":filesystem_status,
+                "available_percent":available_percent,
+            },
+        })
+
     return {
         "status":"degraded" if reasons else "healthy",
         "reasons":reasons,
