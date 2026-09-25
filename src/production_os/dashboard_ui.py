@@ -1228,6 +1228,9 @@ function renderProductionOutcome(outcome,includeSummary){
  const value=outcome||{};
  if(value.available!==true)return "";
  const parts=[];
+ if(value.workflow_status)parts.push(
+  "<strong>Workflow :</strong> "+esc(String(value.workflow_status))
+ );
  if(value.validation_status)parts.push(
   "<strong>Validation :</strong> "+esc(String(value.validation_status))
  );
