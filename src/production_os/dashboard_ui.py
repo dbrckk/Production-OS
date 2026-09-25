@@ -692,7 +692,7 @@ async function pruneExpiredBackups(expected,fingerprint){
  }catch(e){
   await loadOverview();
   const receipt=document.getElementById("backup-status-message");
-  if(receipt)receipt.textContent=String(e).replace(/^Error:\s*/,"");
+  if(receipt)receipt.textContent=String(e).replace(/^Error:\\s*/,"");
  }
 }
 async function pruneStaleBackupTemps(expected){
@@ -746,7 +746,7 @@ async function createVerifiedBackup(){
  }catch(e){
   await loadOverview();
   const receipt=document.getElementById("backup-status-message");
-  if(receipt)receipt.textContent=String(e).replace(/^Error:\s*/,"");
+  if(receipt)receipt.textContent=String(e).replace(/^Error:\\s*/,"");
  }
 }
 async function verifyBackupReadiness(backupId){
@@ -797,7 +797,7 @@ async function stageBackupRestore(backupId){
   }
  }catch(e){
   const receipt=document.getElementById("backup-status-message");
-  if(receipt)receipt.textContent=String(e).replace(/^Error:\s*/,"");
+  if(receipt)receipt.textContent=String(e).replace(/^Error:\\s*/,"");
  }
 }
 async function loadOverview(){
@@ -1277,7 +1277,7 @@ async function attentionManagedAction(projectId,action){
   await loadAttention();
  }catch(e){
   const el=document.getElementById("attention-action-status-"+projectId);
-  if(el)el.textContent=String(e).replace(/^Error:\s*/,"");
+  if(el)el.textContent=String(e).replace(/^Error:\\s*/,"");
  }
 }
 async function acknowledgeAttentionIncident(incidentId){
@@ -1289,7 +1289,7 @@ async function acknowledgeAttentionIncident(incidentId){
   await loadAttention();
  }catch(e){
   const el=document.getElementById("attention-action-status-"+incidentId);
-  if(el)el.textContent=String(e).replace(/^Error:\s*/,"");
+  if(el)el.textContent=String(e).replace(/^Error:\\s*/,"");
  }
 }
 async function attentionPlaybookAction(action,workerId,jobKey,incidentId){
@@ -1303,7 +1303,7 @@ async function attentionPlaybookAction(action,workerId,jobKey,incidentId){
   await loadAttention();
  }catch(e){
   const el=document.getElementById("attention-action-status-"+incidentId);
-  if(el)el.textContent=String(e).replace(/^Error:\s*/,"");
+  if(el)el.textContent=String(e).replace(/^Error:\\s*/,"");
  }
 }
 function renderAttentionActions(item){
