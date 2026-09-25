@@ -43,3 +43,23 @@ storage.filesystem:
 - filesystem errors => unknown/degraded, not zero
 - no paths returned
 - full CI + Python 3.11/3.12 green before merge
+
+
+## Implemented in current branch
+
+- read-only filesystem capacity metrics for configured SQLite backup storage
+- nearest-existing-parent measurement when backup directory does not yet exist
+- total/free/available/used bytes and percentages
+- informational ok/warning/critical/unknown state
+- unconfigured/PostgreSQL capacity remains unavailable
+- statvfs errors remain unknown rather than fake zero
+- no path exposure and no automatic cleanup/control action
+- mobile dashboard rendering
+- backend/API/UI regression coverage
+- README documentation
+
+## Remaining before Release 26 completion
+
+- final CI qualification on complete head
+- final diff/security review
+- mark PR ready and merge only after green final head
