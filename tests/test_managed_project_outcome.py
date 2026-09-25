@@ -107,3 +107,17 @@ def test_outcome_accepts_compact_worker_result_fields_without_exposing_paths():
     assert outcome["pull_request"] == {"number":17,"state":"open"}
     assert "changed_files" not in outcome
 
+def test_terminal_workflow_outcome_is_visible_without_structured_evidence():
+    outcome = _outcome_from_workflow({
+        "status":"failed",
+        "updated_at":"2026-09-25T18:43:00+00:00",
+        "tasks":[{"result":None}],
+        "artifacts":[],
+    })
+
+    assert outcome["available"] is True
+    assert outcome["workflow_status"] == "failed"
+    assert outcome["summary"] is None
+    assert outcome["validation_status"] is None
+    assert outcome["completed_at"] == "2026-09-25T18:43:00+00:00"
+
