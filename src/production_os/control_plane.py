@@ -225,6 +225,114 @@ class ControlPlane:
         return recovered
 
 
+    def reconcile_worker_registration(
+        self,
+        worker_id: str,
+        active_job_keys: list[str],
+        *,
+        max_attempts: int = 3,
+    ) -> list[dict]:
+        active = {str(key) for key in active_job_keys if str(key)}
+        with self.backend.connect() as db:
+            if self.backend.__class__.__name__.startswith("Postgres"):
+                cursor = db.cursor()
+                cursor.execute(
+                    """SELECT * FROM jobs
+                       WHERE claimed_by=%s
+                         AND status IN ('claimed','acked')
+                       ORDER BY updated_at ASC""",
+                    (worker_id,),
+                )
+                rows = cursor.fetchall()
+            else:
+                rows = db.execute(
+                    """SELECT * FROM jobs
+                       WHERE claimed_by=?
+                         AND status IN ('claimed','acked')
+                       ORDER BY updated_at ASC""",
+                    (worker_id,),
+                ).fetchall()
+
+        recovered = []
+        now = datetime.now(timezone.utc).isoformat()
+        for raw in rows:
+            job = dict(raw)
+            key = str(job["key"])
+            if key in active:
+                continue
+            previous_status = str(job["status"])
+            target = (
+                "dead-letter"
+                if int(job.get("delivery_attempt") or 0) >= int(max_attempts)
+                else "queued"
+            )
+
+            with self.backend.transaction() as db:
+                if self.backend.__class__.__name__.startswith("Postgres"):
+                    cursor = db.cursor()
+                    cursor.execute(
+                        """UPDATE jobs
+                           SET status=%s, claimed_by=NULL, claimed_at=NULL,
+                               ack_deadline=NULL, updated_at=%s
+                           WHERE key=%s AND status=%s AND claimed_by=%s""",
+                        (target, now, key, previous_status, worker_id),
+                    )
+                    updated = cursor.rowcount
+                else:
+                    cursor = db.execute(
+                        """UPDATE jobs
+                           SET status=?, claimed_by=NULL, claimed_at=NULL,
+                               ack_deadline=NULL, updated_at=?
+                           WHERE key=? AND status=? AND claimed_by=?""",
+                        (target, now, key, previous_status, worker_id),
+                    )
+                    updated = cursor.rowcount
+                if updated != 1:
+                    continue
+                action = {
+                    "key":key,
+                    "action":target,
+                    "reason":"worker_session_reconciled",
+                    "worker_id":worker_id,
+                    "previous_status":previous_status,
+                    "delivery_attempt":job.get("delivery_attempt"),
+                }
+                self.backend.append_event(
+                    db,
+                    "job-recovered",
+                    action,
+                    repository=job["repository"],
+                    task_key_value=key,
+                )
+
+            if previous_status == "acked":
+                execution = self.dashboard_store.latest_execution(key)
+                if (
+                    execution is not None
+                    and execution.get("status") == "running"
+                    and execution.get("worker_id") == worker_id
+                ):
+                    self.dashboard_store.finish_execution(
+                        key,
+                        worker_id,
+                        status="failed",
+                        duration_seconds=None,
+                        result={"reason":"worker session restarted without job"},
+                        error_type="worker_restarted",
+                        error_message=(
+                            "worker re-registered without reporting the active job"
+                        ),
+                    )
+
+            recovered.append({
+                "key":key,
+                "worker_id":worker_id,
+                "previous_status":previous_status,
+                "status":target,
+            })
+        return recovered
+
+
 def _json_bytes(payload: dict | list) -> bytes:
     return json.dumps(
         payload,
@@ -2177,12 +2285,41 @@ def make_handler(control: ControlPlane):
                     principal = self._require("operator")
                     if principal is None:
                         return
+                    worker_id = str(body["worker_id"])
                     worker = control.workers.register(
-                        str(body["worker_id"]),
+                        worker_id,
                         [str(x) for x in body.get("capabilities", [])],
                         int(body.get("max_concurrency", 1)),
                     )
-                    self._send(HTTPStatus.OK, {"worker":worker.to_dict()})
+                    reconciliation = None
+                    if "active_job_keys" in body:
+                        raw_active = body.get("active_job_keys")
+                        if not isinstance(raw_active, list):
+                            raise ValueError("active_job_keys must be a list")
+                        active_job_keys = sorted({
+                            str(key).strip()
+                            for key in raw_active
+                            if str(key).strip()
+                        })
+                        recovered = control.reconcile_worker_registration(
+                            worker_id,
+                            active_job_keys,
+                        )
+                        worker = control.workers.heartbeat(
+                            worker_id,
+                            active_tasks=len(active_job_keys),
+                        )
+                        reconciliation = {
+                            "reported_active_job_keys":active_job_keys,
+                            "recovered_jobs":recovered,
+                        }
+                    self._send(
+                        HTTPStatus.OK,
+                        {
+                            "worker":worker.to_dict(),
+                            "reconciliation":reconciliation,
+                        },
+                    )
                     return
 
                 if parsed.path == "/v1/workers/heartbeat":
