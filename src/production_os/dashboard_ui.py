@@ -609,8 +609,8 @@ async function launchWorkflow(){
   rememberLastProject(projectId);
   const immediate=launchReadiness&&launchReadiness.execution==='immediate';
   status.textContent=immediate
-   ?'Production persistante lancée · exécution disponible · '+projectId.slice(0,12)
-   :'Production persistante créée · mise en file sûre · '+projectId.slice(0,12);
+   ?'Production lancée et persistante · exécution disponible · '+projectId.slice(0,12)
+   :'Production persistante créée · en attente du worker · mise en file sûre · '+projectId.slice(0,12);
   document.getElementById('instruction').value='';
   await Promise.all([
    loadRecentRuns(),
