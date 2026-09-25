@@ -109,6 +109,8 @@ textarea{resize:vertical;min-height:150px;line-height:1.45}
 .attention-card .secondary-btn{margin-top:10px}
 .attention-required{border-left:3px solid rgba(251,191,36,.8)}
 .attention-done{opacity:.78}
+.attention-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.attention-focus{outline:2px solid rgba(110,168,254,.7);box-shadow:0 0 0 4px rgba(110,168,254,.12)}
 @media(max-width:560px){
  .shell{padding:14px 12px 38px}
  .status-grid{grid-template-columns:1fr}
@@ -547,7 +549,7 @@ document.getElementById('repository').addEventListener('change',loadRecentRuns);
 setInterval(loadVisualQuality,10000);
 setInterval(function(){loadWorkerStatus();loadRecentRuns()},10000);
 
-const appState={view:"attention",workerId:null,repository:null,tab:null,window:"7d",polling:new Map()};
+const appState={view:"attention",workerId:null,repository:null,tab:null,focus:null,window:"7d",polling:new Map()};
 (function restoreNavigation(){
  const q=new URLSearchParams(window.location.search);
  const view=q.get("view");
@@ -555,6 +557,7 @@ const appState={view:"attention",workerId:null,repository:null,tab:null,window:"
  appState.workerId=q.get("worker")||null;
  appState.repository=q.get("repo")||null;
  appState.tab=q.get("tab")||null;
+ appState.focus=q.get("target")||null;
 })();
 
 function clearViewPolls(){
@@ -948,7 +951,7 @@ async function loadAutopilot(){
    const ready=!row.wait_reason;
    const worker=row.preferred_worker||"—";
    const caps=(row.required_capabilities||[]).join(", ")||"Aucune";
-   return '<div class="card">'+
+   return '<div class="card'+(appState.focus===String(row.job_key||"")?' attention-focus':'')+'" data-job-key="'+esc(String(row.job_key||""))+'">'+
     '<div class="section-head"><h2>#'+esc(String(row.position))+' · '+esc(String(row.task||row.job_key))+'</h2>'+
     '<span class="badge">'+(ready?'Prêt':'En attente')+'</span></div>'+
     '<p class="small"><strong>Projet :</strong> '+esc(String(row.repository||""))+'</p>'+
@@ -960,6 +963,10 @@ async function loadAutopilot(){
     '<p class="small"><strong>État :</strong> '+esc(autopilotWaitLabel(row.wait_reason))+'</p>'+
     '</div>';
   }).join("");
+  if(appState.focus){
+   const focused=el.querySelector('[data-job-key="'+CSS.escape(String(appState.focus))+'"]');
+   if(focused)setTimeout(function(){focused.scrollIntoView({block:"center"})},0);
+  }
  }catch(e){
   count.textContent="—";
   el.innerHTML=errorCard(e);
@@ -1228,15 +1235,75 @@ function attentionSeverityClass(severity){
  return severity==="critical"||severity==="high"?"bad":severity==="medium"?"warn":"ok";
 }
 async function openAttentionItem(view,targetType,targetId){
- if(view==="managed"){
-  navigate({view:"managed",workerId:null,repository:null,tab:null});
-  return;
+ navigate({
+  view:view||"overview",
+  workerId:null,
+  repository:null,
+  tab:null,
+  focus:targetId||null
+ });
+}
+async function attentionManagedAction(projectId,action){
+ if(action==="complete"){
+  if(!window.confirm("Valider définitivement ce projet comme DONE ?"))return;
  }
- if(view==="autopilot"){
-  navigate({view:"autopilot",workerId:null,repository:null,tab:null});
-  return;
+ try{
+  const body=action==="complete"?{confirm:"MARK_PROJECT_DONE"}:{};
+  await api(
+   "/v1/managed-projects/"+encodeURIComponent(projectId)+"/"+action,
+   {method:"POST",body:JSON.stringify(body)}
+  );
+  await loadAttention();
+ }catch(e){
+  const el=document.getElementById("attention-action-status-"+projectId);
+  if(el)el.textContent=String(e).replace(/^Error:\s*/,"");
  }
- navigate({view:view||"overview",workerId:null,repository:null,tab:null});
+}
+async function acknowledgeAttentionIncident(incidentId){
+ try{
+  await api(
+   "/v1/dashboard/incidents/"+encodeURIComponent(incidentId)+"/acknowledge",
+   {method:"POST",body:"{}"}
+  );
+  await loadAttention();
+ }catch(e){
+  const el=document.getElementById("attention-action-status-"+incidentId);
+  if(el)el.textContent=String(e).replace(/^Error:\s*/,"");
+ }
+}
+async function attentionPlaybookAction(action,workerId,jobKey,incidentId){
+ try{
+  await runIncidentPlaybookAction(
+   action,
+   workerId||"",
+   jobKey||"",
+   incidentId||""
+  );
+  await loadAttention();
+ }catch(e){
+  const el=document.getElementById("attention-action-status-"+incidentId);
+  if(el)el.textContent=String(e).replace(/^Error:\s*/,"");
+ }
+}
+function renderAttentionActions(item){
+ const actions=item.actions||[];
+ const targetId=String(item.target_id||"");
+ const incidentId=String(item.incident_id||"");
+ const buttons=actions.map(function(action){
+  const name=String(action.name||"");
+  if(name==="verify"||name==="complete"){
+   return '<button class="secondary-btn" type="button" data-project-id="'+esc(targetId)+'" data-action="'+esc(name)+'" onclick="attentionManagedAction(this.dataset.projectId,this.dataset.action)">'+esc(String(action.label||name))+'</button>';
+  }
+  if(name==="acknowledge"){
+   return '<button class="secondary-btn" type="button" data-incident-id="'+esc(incidentId)+'" onclick="acknowledgeAttentionIncident(this.dataset.incidentId)">'+esc(String(action.label||"Acquitter"))+'</button>';
+  }
+  if(name==="playbook"){
+   const controlAction=String(action.control_action||"");
+   return '<button class="secondary-btn" type="button" data-action="'+esc(controlAction)+'" data-worker-id="'+esc(String(action.worker_id||""))+'" data-job-key="'+esc(String(action.job_key||""))+'" data-incident-id="'+esc(incidentId)+'" onclick="attentionPlaybookAction(this.dataset.action,this.dataset.workerId,this.dataset.jobKey,this.dataset.incidentId)">'+esc(incidentPlaybookActionLabel(controlAction))+'</button>';
+  }
+  return "";
+ }).join("");
+ return buttons?'<div class="attention-actions">'+buttons+'</div>':"";
 }
 async function loadAttention(){
  const el=document.getElementById("attention-list");
@@ -1251,6 +1318,7 @@ async function loadAttention(){
    '<div class="small"><strong>À revoir :</strong> '+formatNumber(summary.projects_to_review||0)+
    ' · <strong>À débloquer :</strong> '+formatNumber(summary.projects_needing_attention||0)+
    ' · <strong>Jobs bloqués :</strong> '+formatNumber(summary.blocked_jobs||0)+
+   (Number(summary.blocked_jobs||0)>Number(summary.blocked_jobs_shown||0)?' ('+formatNumber(summary.blocked_jobs_shown||0)+' affichés)':'')+
    ' · <strong>Incidents :</strong> '+formatNumber(summary.incidents||0)+
    ' · <strong>Terminés récemment :</strong> '+formatNumber(summary.recently_completed||0)+'</div></div>';
   if(!rows.length){
@@ -1261,15 +1329,18 @@ async function loadAttention(){
    const required=item.action_required===true;
    const repository=item.repository?'<div class="small"><strong>'+esc(String(item.repository))+'</strong></div>':'';
    const summaryText=item.summary?'<div class="small">'+esc(String(item.summary))+'</div>':'';
-   const action=required
+   const openButton=required
     ?'<button class="secondary-btn" type="button" data-view="'+esc(String(item.view||"overview"))+'" data-target-type="'+esc(String(item.target_type||""))+'" data-target-id="'+esc(String(item.target_id||""))+'" onclick="openAttentionItem(this.dataset.view,this.dataset.targetType,this.dataset.targetId)">Ouvrir</button>'
     :'';
+   const contextual=required?renderAttentionActions(item):"";
+   const statusId=String(item.incident_id||item.target_id||item.id||"");
    return '<div class="card attention-card '+(required?'attention-required':'attention-done')+'">'+
     '<div class="section-head"><strong>'+esc(String(item.title||"Action"))+'</strong>'+
     '<span class="badge">'+dot(attentionSeverityClass(String(item.severity||"info")))+esc(attentionKindLabel(item.kind))+'</span></div>'+
     repository+summaryText+
     '<div class="small">'+(required?'Action opérateur requise':'Information récente')+(item.updated_at?' · '+esc(String(item.updated_at)):'')+'</div>'+
-    action+'</div>';
+    '<div class="attention-actions">'+openButton+'</div>'+contextual+
+    '<div id="attention-action-status-'+esc(statusId)+'" class="status-message"></div></div>';
   }).join("");
   el.innerHTML=headline+cards;
  }catch(e){
@@ -1297,11 +1368,15 @@ async function loadManagedProjects(){
     ?'<textarea id="managed-instruction-'+esc(projectId)+'" rows="3" placeholder="Instruction supplémentaire"></textarea><div class="v3-tabs"><button class="secondary-btn" data-project-id="'+esc(projectId)+'" onclick="managedAction(this.dataset.projectId,\'instructions\')">Ajouter instruction</button><button class="secondary-btn" data-project-id="'+esc(projectId)+'" onclick="managedAction(this.dataset.projectId,\'verify\')">Retester</button>'+(canComplete?'<button class="secondary-btn" data-project-id="'+esc(projectId)+'" onclick="managedAction(this.dataset.projectId,\'complete\')">Valider DONE</button>':'')+'</div><div id="managed-action-status-'+esc(projectId)+'" class="status-message"></div>'
     :'';
    const history=runs.length?'<div class="small"><strong>Générations :</strong> '+runs.map(function(run){return 'g'+esc(String(run.generation||""))+' '+esc(String(run.kind||""))}).join(" · ")+'</div>':'';
-   return '<div class="card"><div class="section-head"><strong>'+esc(String(row.repository||""))+'</strong><span class="badge">'+esc(status)+'</span></div>'+
+   return '<div class="card'+(appState.focus===projectId?' attention-focus':'')+'" data-managed-project-id="'+esc(projectId)+'"><div class="section-head"><strong>'+esc(String(row.repository||""))+'</strong><span class="badge">'+esc(status)+'</span></div>'+
     '<div class="small"><strong>Objectif :</strong> '+esc(String(row.final_goal||""))+'</div>'+
     '<div class="small"><strong>Génération actuelle :</strong> '+formatNumber(row.generation||1)+' · <strong>Budget :</strong> '+formatNumber(row.token_budget)+' tokens · <strong>Utilisés :</strong> '+formatNumber(usage.total_tokens||0)+' · <strong>Agent :</strong> '+esc(String(row.agent_preference||"auto"))+'</div>'+
     history+actions+'</div>';
   }).join(""):'<div class="empty">Aucun projet managé.</div>';
+  if(appState.focus){
+   const focused=el.querySelector('[data-managed-project-id="'+CSS.escape(String(appState.focus))+'"]');
+   if(focused)setTimeout(function(){focused.scrollIntoView({block:"center"})},0);
+  }
  }catch(e){el.innerHTML=errorCard(e)}
 }
 async function loadActivityView(){
@@ -1366,6 +1441,7 @@ function navigate(next){
  if(appState.workerId)params.set("worker",appState.workerId);
  if(appState.repository)params.set("repo",appState.repository);
  if(appState.tab)params.set("tab",appState.tab);
+ if(appState.focus)params.set("target",appState.focus);
  history.replaceState(null,"","/dashboard?"+params.toString());
  renderActiveView();
 }
