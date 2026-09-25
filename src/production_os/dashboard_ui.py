@@ -133,7 +133,7 @@ body{overflow-x:hidden}
 <div id="view-projects" class="v3-view"><h2>Projets</h2><div id="projects-list"></div><div class="v3-tabs" aria-label="Détail projet"><button>Aperçu</button><button>Avancement</button><button>Commits</button><button>API</button><button>Workflows</button><button>Qualité</button><button>Historique</button></div><div id="project-detail"></div></div>
 <div id="view-workers" class="v3-view"><h2>Workers</h2><div id="workers-list"></div><div class="v3-tabs" aria-label="Détail worker"><button>Aperçu</button><button>Tâches</button><button>Logs</button><button>API</button><button>Historique</button><button data-worker-tab="control">Control</button></div><div id="worker-detail"></div></div>
 <div id="view-autopilot" class="v3-view"><div class="section-head"><h2>Autopilot</h2><span id="autopilot-count" class="badge">0</span></div><div id="autopilot-list"></div></div>
-<div id="view-managed" class="v3-view"><div class="section-head"><h2>Managed Projects</h2><span id="managed-count" class="badge">0</span></div><div id="managed-list"></div></div>
+<div id="view-managed" class="v3-view"><div class="section-head"><h2>Managed Projects</h2><span id="managed-count" class="badge">0</span></div><div class="card"><h3>Nouveau projet managé</h3><label for="managed-create-repository">Repository</label><select id="managed-create-repository"><option value="">Chargement...</option></select><label for="managed-create-goal">Objectif final</label><textarea id="managed-create-goal" rows="4" placeholder="Décris le résultat final à atteindre et valider."></textarea><label for="managed-create-budget">Budget tokens</label><input id="managed-create-budget" type="number" min="1" step="1000" value="30000"><label for="managed-create-agent">Agent préféré</label><select id="managed-create-agent"><option value="auto">Auto</option><option value="codex">Codex</option></select><button class="primary-btn" type="button" onclick="createManagedProject()">Créer et lancer</button><div id="managed-create-status" class="status-message"></div></div><div id="managed-list"></div></div>
 <div id="view-activity" class="v3-view"><h2>Activité</h2><div id="activity-list"></div></div>
 </section>
  <div class="topbar">
@@ -291,22 +291,27 @@ async function loadRepositories(){
  try{
   const data=await api('/v1/dashboard/repositories');
   const repos=data.repositories||[];
-  const select=document.getElementById('repository');
-  const selected=select.value;
-  select.innerHTML='';
-  repos.forEach(function(x){
-   const option=document.createElement('option');
-   option.value=x.full_name;
-   option.textContent=x.full_name+(x.private?' · privé':'');
-   if(x.full_name===selected||(!selected&&x.full_name==='dbrckk/Jumpy')) option.selected=true;
-   select.appendChild(option);
+  const selects=[
+   document.getElementById('repository'),
+   document.getElementById('managed-create-repository')
+  ].filter(Boolean);
+  selects.forEach(function(select){
+   const selected=select.value;
+   select.innerHTML='';
+   repos.forEach(function(x){
+    const option=document.createElement('option');
+    option.value=x.full_name;
+    option.textContent=x.full_name+(x.private?' · privé':'');
+    if(x.full_name===selected||(!selected&&x.full_name==='dbrckk/Jumpy')) option.selected=true;
+    select.appendChild(option);
+   });
+   if(!repos.length){
+    const option=document.createElement('option');
+    option.value='dbrckk/Jumpy';
+    option.textContent='dbrckk/Jumpy';
+    select.appendChild(option);
+   }
   });
-  if(!repos.length){
-   const option=document.createElement('option');
-   option.value='dbrckk/Jumpy';
-   option.textContent='dbrckk/Jumpy';
-   select.appendChild(option);
-  }
  }catch(_e){}
 }
 
@@ -1043,38 +1048,80 @@ async function loadWorkerDetail(workerId){
    '</div>';
  }catch(e){el.innerHTML=errorCard(e)}
 }
-async function managedAction(workflowId,action){
- const path="/v1/managed-projects/"+encodeURIComponent(workflowId)+"/"+action;
+async function createManagedProject(){
+ const repository=document.getElementById("managed-create-repository").value.trim();
+ const finalGoal=document.getElementById("managed-create-goal").value.trim();
+ const budget=Number(document.getElementById("managed-create-budget").value||0);
+ const agent=document.getElementById("managed-create-agent").value||"auto";
+ const status=document.getElementById("managed-create-status");
+ if(!repository||!finalGoal||!Number.isFinite(budget)||budget<=0){
+  status.textContent="Repository, objectif final et budget positif requis.";
+  return;
+ }
+ try{
+  const result=await api(
+   "/v1/managed-projects",
+   {method:"POST",body:JSON.stringify({
+    repository:repository,
+    final_goal:finalGoal,
+    token_budget:Math.floor(budget),
+    agent_preference:agent
+   })}
+  );
+  status.textContent="Projet créé · génération "+String((result.project||{}).generation||1);
+  document.getElementById("managed-create-goal").value="";
+  await loadManagedProjects();
+ }catch(e){
+  status.textContent=String(e).replace(/^Error:\\s*/,"");
+ }
+}
+async function managedAction(projectId,action){
+ const path="/v1/managed-projects/"+encodeURIComponent(projectId)+"/"+action;
  let body={};
+ const status=document.getElementById("managed-action-status-"+projectId);
  if(action==="instructions"){
-  const instruction=window.prompt("Instruction supplémentaire");
-  if(!instruction)return;
+  const field=document.getElementById("managed-instruction-"+projectId);
+  const instruction=field?field.value.trim():"";
+  if(!instruction){
+   if(status)status.textContent="Saisis une instruction.";
+   return;
+  }
   body={instruction:instruction};
  }
  if(action==="complete"){
   if(!window.confirm("Valider définitivement ce projet ?"))return;
   body={confirm:"MARK_PROJECT_DONE"};
  }
- await api(path,{method:"POST",body:JSON.stringify(body)});
- await loadManagedProjects();
+ try{
+  await api(path,{method:"POST",body:JSON.stringify(body)});
+  await loadManagedProjects();
+ }catch(e){
+  if(status)status.textContent=String(e).replace(/^Error:\\s*/,"");
+ }
 }
 async function loadManagedProjects(){
  const el=document.getElementById("managed-list");
  const count=document.getElementById("managed-count");
  try{
+  await loadRepositories();
   const data=await api("/v1/managed-projects");
   const rows=data.projects||[];
   count.textContent=String(rows.length);
   el.innerHTML=rows.length?rows.map(function(row){
    const usage=row.usage||{};
-   const review=row.state==="REVIEW_REQUIRED";
-   const actions=review
-    ?'<div class="v3-tabs"><button class="secondary-btn" onclick="managedAction('+JSON.stringify(row.workflow_id)+',\'instructions\')">Ajouter instruction</button><button class="secondary-btn" onclick="managedAction('+JSON.stringify(row.workflow_id)+',\'verify\')">Retester</button><button class="secondary-btn" onclick="managedAction('+JSON.stringify(row.workflow_id)+',\'complete\')">Valider DONE</button></div>'
+   const projectId=String(row.project_id||row.id||row.workflow_id||"");
+   const status=String(row.status||row.state||"");
+   const canFollow=status==="REVIEW_REQUIRED"||status==="NEEDS_ATTENTION";
+   const canComplete=status==="REVIEW_REQUIRED";
+   const runs=row.runs||[];
+   const actions=canFollow
+    ?'<textarea id="managed-instruction-'+esc(projectId)+'" rows="3" placeholder="Instruction supplémentaire"></textarea><div class="v3-tabs"><button class="secondary-btn" data-project-id="'+esc(projectId)+'" onclick="managedAction(this.dataset.projectId,\'instructions\')">Ajouter instruction</button><button class="secondary-btn" data-project-id="'+esc(projectId)+'" onclick="managedAction(this.dataset.projectId,\'verify\')">Retester</button>'+(canComplete?'<button class="secondary-btn" data-project-id="'+esc(projectId)+'" onclick="managedAction(this.dataset.projectId,\'complete\')">Valider DONE</button>':'')+'</div><div id="managed-action-status-'+esc(projectId)+'" class="status-message"></div>'
     :'';
-   return '<div class="card"><div class="section-head"><strong>'+esc(String(row.repository||""))+'</strong><span class="badge">'+esc(String(row.state||""))+'</span></div>'+
+   const history=runs.length?'<div class="small"><strong>Générations :</strong> '+runs.map(function(run){return 'g'+esc(String(run.generation||""))+' '+esc(String(run.kind||""))}).join(" · ")+'</div>':'';
+   return '<div class="card"><div class="section-head"><strong>'+esc(String(row.repository||""))+'</strong><span class="badge">'+esc(status)+'</span></div>'+
     '<div class="small"><strong>Objectif :</strong> '+esc(String(row.final_goal||""))+'</div>'+
-    '<div class="small"><strong>Budget :</strong> '+formatNumber(row.token_budget)+' tokens · <strong>Utilisés :</strong> '+formatNumber(usage.total_tokens||0)+' · <strong>Agent :</strong> '+esc(String(row.agent_preference||"auto"))+'</div>'+
-    actions+'</div>';
+    '<div class="small"><strong>Génération actuelle :</strong> '+formatNumber(row.generation||1)+' · <strong>Budget :</strong> '+formatNumber(row.token_budget)+' tokens · <strong>Utilisés :</strong> '+formatNumber(usage.total_tokens||0)+' · <strong>Agent :</strong> '+esc(String(row.agent_preference||"auto"))+'</div>'+
+    history+actions+'</div>';
   }).join(""):'<div class="empty">Aucun projet managé.</div>';
  }catch(e){el.innerHTML=errorCard(e)}
 }

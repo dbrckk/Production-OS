@@ -409,8 +409,9 @@ def test_dashboard_has_managed_projects_view():
     assert "/v1/managed-projects" in DASHBOARD_HTML
 
 
-def test_managed_projects_view_exposes_review_actions_only_in_review_state():
-    assert 'row.state==="REVIEW_REQUIRED"' in DASHBOARD_HTML
+def test_managed_projects_view_exposes_safe_review_and_attention_actions():
+    assert 'status==="REVIEW_REQUIRED"||status==="NEEDS_ATTENTION"' in DASHBOARD_HTML
+    assert 'const canComplete=status==="REVIEW_REQUIRED"' in DASHBOARD_HTML
     assert "Ajouter instruction" in DASHBOARD_HTML
     assert "Retester" in DASHBOARD_HTML
     assert "Valider DONE" in DASHBOARD_HTML
@@ -423,3 +424,35 @@ def test_managed_projects_navigation_preserves_existing_polling_contract():
     assert "window.scrollY" in DASHBOARD_HTML
     assert "window.scrollTo" in DASHBOARD_HTML
     assert "location.reload(" not in DASHBOARD_HTML
+
+
+def test_managed_projects_mobile_creation_form_is_inline_and_server_backed():
+    assert 'id="managed-create-repository"' in DASHBOARD_HTML
+    assert 'id="managed-create-goal"' in DASHBOARD_HTML
+    assert 'id="managed-create-budget"' in DASHBOARD_HTML
+    assert 'id="managed-create-agent"' in DASHBOARD_HTML
+    assert "async function createManagedProject" in DASHBOARD_HTML
+    assert '"/v1/managed-projects"' in DASHBOARD_HTML
+    assert "agent_preference:agent" in DASHBOARD_HTML
+    assert "token_budget:Math.floor(budget)" in DASHBOARD_HTML
+
+
+def test_managed_project_instruction_uses_inline_textarea_not_prompt():
+    assert "window.prompt(" not in DASHBOARD_HTML
+    assert 'id="managed-instruction-' in DASHBOARD_HTML
+    assert 'placeholder="Instruction supplémentaire"' in DASHBOARD_HTML
+    assert "managedAction(this.dataset.projectId,'instructions')" in DASHBOARD_HTML
+
+
+def test_managed_projects_mobile_view_renders_generation_history():
+    assert "Génération actuelle" in DASHBOARD_HTML
+    assert "Générations :" in DASHBOARD_HTML
+    assert "row.runs" in DASHBOARD_HTML
+    assert "run.generation" in DASHBOARD_HTML
+    assert "run.kind" in DASHBOARD_HTML
+
+
+def test_managed_repository_picker_reuses_server_repository_discovery():
+    assert "managed-create-repository" in DASHBOARD_HTML
+    assert "api('/v1/dashboard/repositories')" in DASHBOARD_HTML
+    assert "https://api.github.com" not in DASHBOARD_HTML
