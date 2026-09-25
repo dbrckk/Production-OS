@@ -557,7 +557,7 @@ def test_managed_technical_creation_options_are_collapsed_by_default():
     assert "<summary>Options avancées</summary>" in DASHBOARD_HTML
     assert 'id="managed-create-budget"' in DASHBOARD_HTML
     assert 'id="managed-create-agent"' in DASHBOARD_HTML
-    assert "<details class="advanced-options" open" not in DASHBOARD_HTML
+    assert '<details class="advanced-options" open' not in DASHBOARD_HTML
 
 
 def test_managed_view_can_be_restored_from_navigation_query():
