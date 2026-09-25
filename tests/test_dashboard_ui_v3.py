@@ -462,3 +462,12 @@ def test_managed_repository_picker_reuses_server_repository_discovery():
     assert "managed-create-repository" in DASHBOARD_HTML
     assert "api('/v1/dashboard/repositories')" in DASHBOARD_HTML
     assert "https://api.github.com" not in DASHBOARD_HTML
+
+
+def test_backup_overview_renders_restore_activation_history():
+    assert "Historique des activations" in DASHBOARD_HTML
+    assert "backups.activations" in DASHBOARD_HTML
+    assert "row.candidate_id" in DASHBOARD_HTML
+    assert "row.rollback_backup_id" in DASHBOARD_HTML
+    assert "row.activated_at" in DASHBOARD_HTML
+    assert "Restaurer maintenant" not in DASHBOARD_HTML

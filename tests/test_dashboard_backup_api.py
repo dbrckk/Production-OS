@@ -324,3 +324,65 @@ def test_restore_staging_rejects_tampered_backup_and_audits_failure(
         server.shutdown()
         server.server_close()
         thread.join(timeout=2)
+
+
+def test_backup_catalog_exposes_restore_activation_history_to_viewer(
+    tmp_path,
+    monkeypatch,
+):
+    backup_dir = tmp_path / "backups"
+    backup_dir.mkdir()
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    control = ControlPlane(str(tmp_path / "control.sqlite"), authorizer=_auth())
+    receipt = {
+        "candidate_id":"20260925T130000Z-aaaaaaaaaaaa",
+        "source_backup_id":"20260925T120000Z-bbbbbbbbbbbb",
+        "rollback_backup_id":"20260925T130100Z-cccccccccccc",
+        "activated_at":"2026-09-25T13:00:00+00:00",
+        "schema_version":str(control.backend.SCHEMA_VERSION),
+        "sha256":"1" * 64,
+    }
+    (
+        backup_dir
+        / "restore-20260925T130000Z-aaaaaaaaaaaa.activation.json"
+    ).write_text(json.dumps(receipt), encoding="utf-8")
+
+    server, thread, base = _server(control)
+    try:
+        status, payload = _request(
+            base,
+            "/v1/dashboard/backups",
+            "viewer",
+        )
+        assert status == 200
+        assert payload["activations"] == [receipt]
+
+        status, _ = _request(
+            base,
+            "/v1/dashboard/backups",
+            "worker",
+        )
+        assert status == 403
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+
+
+def test_backup_http_surface_has_no_restore_activation_route(tmp_path, monkeypatch):
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(tmp_path / "backups"))
+    control = ControlPlane(str(tmp_path / "control.sqlite"), authorizer=_auth())
+    server, thread, base = _server(control)
+    try:
+        status, _ = _request(
+            base,
+            "/v1/dashboard/backups/restore-activate",
+            "operator",
+            method="POST",
+            body={"confirm":"ACTIVATE_STAGED_RESTORE"},
+        )
+        assert status == 404
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)

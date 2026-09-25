@@ -52,6 +52,75 @@ def _safe_manifest(path: Path) -> dict | None:
     return {key:data.get(key) for key in allowed if key in data}
 
 
+def _safe_activation_receipt(path: Path) -> dict | None:
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError, TypeError):
+        return None
+    if not isinstance(data, dict):
+        return None
+    required = {
+        "candidate_id",
+        "source_backup_id",
+        "rollback_backup_id",
+        "activated_at",
+        "schema_version",
+        "sha256",
+    }
+    if set(data) != required:
+        return None
+    candidate_id = str(data.get("candidate_id") or "")
+    source_backup_id = str(data.get("source_backup_id") or "")
+    rollback_backup_id = str(data.get("rollback_backup_id") or "")
+    activated_at = str(data.get("activated_at") or "")
+    schema_version = str(data.get("schema_version") or "")
+    digest = str(data.get("sha256") or "").lower()
+    if (
+        not BACKUP_ID_RE.fullmatch(candidate_id)
+        or not BACKUP_ID_RE.fullmatch(source_backup_id)
+        or not BACKUP_ID_RE.fullmatch(rollback_backup_id)
+        or not activated_at
+        or not schema_version
+        or len(digest) != 64
+        or any(ch not in "0123456789abcdef" for ch in digest)
+    ):
+        return None
+    return {
+        "candidate_id":candidate_id,
+        "source_backup_id":source_backup_id,
+        "rollback_backup_id":rollback_backup_id,
+        "activated_at":activated_at,
+        "schema_version":schema_version,
+        "sha256":digest,
+    }
+
+
+def restore_activation_history(
+    backend,
+    *,
+    limit: int = 50,
+) -> list[dict]:
+    if _backend_kind(backend) != "sqlite":
+        return []
+    directory = _configured_dir()
+    if directory is None or not directory.is_dir():
+        return []
+    bounded = max(1, min(200, int(limit)))
+    rows = []
+    for path in directory.glob("restore-*.activation.json"):
+        item = _safe_activation_receipt(path)
+        if item is not None:
+            rows.append(item)
+    rows.sort(
+        key=lambda item: (
+            str(item.get("activated_at") or ""),
+            str(item.get("candidate_id") or ""),
+        ),
+        reverse=True,
+    )
+    return rows[:bounded]
+
+
 def backup_readiness(backend) -> dict:
     kind = _backend_kind(backend)
     directory = _configured_dir()

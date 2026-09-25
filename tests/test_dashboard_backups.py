@@ -11,6 +11,7 @@ from production_os.dashboard_backups import (
     backup_readiness,
     activate_staged_sqlite_restore,
     create_verified_sqlite_backup,
+    restore_activation_history,
     stage_verified_sqlite_restore,
     verify_backup_for_restore,
     verify_staged_restore_candidate,
@@ -596,3 +597,84 @@ def test_failed_activation_with_rollback_does_not_consume_candidate(
         backup_dir
         / f"restore-{staged['candidate_id']}.activation.json"
     ).exists()
+
+
+def test_restore_activation_history_lists_valid_receipts_newest_first(
+    tmp_path,
+    monkeypatch,
+):
+    backup_dir = tmp_path / "backups"
+    backup_dir.mkdir()
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    backend = SQLiteBackend(tmp_path / "production.sqlite")
+
+    older = {
+        "candidate_id":"20260925T120000Z-aaaaaaaaaaaa",
+        "source_backup_id":"20260925T110000Z-bbbbbbbbbbbb",
+        "rollback_backup_id":"20260925T120100Z-cccccccccccc",
+        "activated_at":"2026-09-25T12:00:00+00:00",
+        "schema_version":str(backend.SCHEMA_VERSION),
+        "sha256":"1" * 64,
+    }
+    newer = {
+        "candidate_id":"20260925T130000Z-dddddddddddd",
+        "source_backup_id":"20260925T125000Z-eeeeeeeeeeee",
+        "rollback_backup_id":"20260925T130100Z-ffffffffffff",
+        "activated_at":"2026-09-25T13:00:00+00:00",
+        "schema_version":str(backend.SCHEMA_VERSION),
+        "sha256":"2" * 64,
+    }
+    for row in (older, newer):
+        (
+            backup_dir
+            / f"restore-{row['candidate_id']}.activation.json"
+        ).write_text(json.dumps(row), encoding="utf-8")
+
+    rows = restore_activation_history(backend)
+
+    assert [row["candidate_id"] for row in rows] == [
+        newer["candidate_id"],
+        older["candidate_id"],
+    ]
+
+
+def test_restore_activation_history_ignores_malformed_receipts(
+    tmp_path,
+    monkeypatch,
+):
+    backup_dir = tmp_path / "backups"
+    backup_dir.mkdir()
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    backend = SQLiteBackend(tmp_path / "production.sqlite")
+    (
+        backup_dir
+        / "restore-20260925T120000Z-aaaaaaaaaaaa.activation.json"
+    ).write_text(
+        json.dumps({
+            "candidate_id":"20260925T120000Z-aaaaaaaaaaaa",
+            "source_backup_id":"../bad",
+            "rollback_backup_id":"20260925T120100Z-cccccccccccc",
+            "activated_at":"2026-09-25T12:00:00+00:00",
+            "schema_version":"16",
+            "sha256":"1" * 64,
+        }),
+        encoding="utf-8",
+    )
+    (
+        backup_dir
+        / "restore-20260925T130000Z-dddddddddddd.activation.json"
+    ).write_text("{invalid", encoding="utf-8")
+
+    assert restore_activation_history(backend) == []
+
+
+def test_restore_activation_history_is_empty_when_unconfigured_or_postgres(
+    tmp_path,
+    monkeypatch,
+):
+    monkeypatch.delenv("PRODUCTION_OS_BACKUP_DIR", raising=False)
+    backend = SQLiteBackend(tmp_path / "production.sqlite")
+    assert restore_activation_history(backend) == []
+
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(tmp_path / "backups"))
+    assert restore_activation_history(_FakePostgres()) == []
