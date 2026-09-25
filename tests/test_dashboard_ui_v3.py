@@ -496,3 +496,14 @@ def test_backup_temp_cleanup_ui_is_guarded_and_stale_only():
     assert "Nettoyer temporaires anciens" in DASHBOARD_HTML
     assert "Nettoyer les backups" not in DASHBOARD_HTML
     assert "Supprimer les backups" not in DASHBOARD_HTML
+
+
+def test_backup_overview_renders_filesystem_capacity_read_only():
+    assert "backupStorage.filesystem" in DASHBOARD_HTML
+    assert "backupFilesystem.status" in DASHBOARD_HTML
+    assert "backupFilesystem.available_bytes" in DASHBOARD_HTML
+    assert "backupFilesystem.used_percent" in DASHBOARD_HTML
+    assert "Filesystem :" in DASHBOARD_HTML
+    assert "Disponible :" in DASHBOARD_HTML
+    assert "Nettoyer automatiquement" not in DASHBOARD_HTML
+    assert "AUTO_PRUNE" not in DASHBOARD_HTML
