@@ -459,6 +459,30 @@ class SQLiteBackend:
                 ON managed_project_runs(project_id, generation DESC);
                 """
             )
+            managed_columns = {
+                row["name"]
+                for row in db.execute(
+                    "PRAGMA table_info(managed_projects)"
+                ).fetchall()
+            }
+            if "token_budget" not in managed_columns:
+                db.execute(
+                    """ALTER TABLE managed_projects
+                       ADD COLUMN token_budget INTEGER NOT NULL
+                       DEFAULT 30000"""
+                )
+            if "agent_preference" not in managed_columns:
+                db.execute(
+                    """ALTER TABLE managed_projects
+                       ADD COLUMN agent_preference TEXT NOT NULL
+                       DEFAULT 'auto'"""
+                )
+            if "completed_by" not in managed_columns:
+                db.execute(
+                    """ALTER TABLE managed_projects
+                       ADD COLUMN completed_by TEXT"""
+                )
+
             remediation_columns = {
                 row["name"]
                 for row in db.execute(
