@@ -708,6 +708,32 @@ async function verifyBackupReadiness(backupId){
   if(receipt)receipt.textContent=String(e).replace(/^Error:\\s*/,"");
  }
 }
+async function stageBackupRestore(backupId){
+ if(!backupId)return;
+ if(!window.confirm(
+  "Préparer une restauration isolée à partir de cette sauvegarde ? La base active ne sera pas modifiée et l’activation restera désactivée."
+ ))return;
+ try{
+  const result=await api(
+   "/v1/dashboard/backups/"+encodeURIComponent(backupId)+"/stage-restore",
+   {
+    method:"POST",
+    body:JSON.stringify({confirm:"STAGE_VERIFIED_RESTORE"})
+   }
+  );
+  const receipt=document.getElementById("backup-status-message");
+  if(receipt){
+   receipt.textContent=
+    "Restauration préparée · candidat "+String(result.candidate_id||"—")+
+    " · schéma "+String(result.schema_version||"—")+
+    " · intégrité "+String(result.integrity||"—")+
+    " · activation désactivée";
+  }
+ }catch(e){
+  const receipt=document.getElementById("backup-status-message");
+  if(receipt)receipt.textContent=String(e).replace(/^Error:\s*/,"");
+ }
+}
 async function loadOverview(){
  const el=document.getElementById("overview-metrics");
  try{
@@ -772,7 +798,8 @@ async function loadOverview(){
   const backupCatalogHtml=backupRows.length?backupRows.slice(0,5).map(function(row){
    const id=String(row.backup_id||"");
    return '<div class="small"><strong>'+esc(String(row.created_at||id))+'</strong> · '+formatBytes(row.size_bytes)+
-    ' <button class="secondary-btn" type="button" data-backup-id="'+esc(id)+'" onclick="verifyBackupReadiness(this.dataset.backupId)">Vérifier restaurabilité</button></div>';
+    ' <button class="secondary-btn" type="button" data-backup-id="'+esc(id)+'" onclick="verifyBackupReadiness(this.dataset.backupId)">Vérifier restaurabilité</button>'+
+    ' <button class="secondary-btn" type="button" data-backup-id="'+esc(id)+'" onclick="stageBackupRestore(this.dataset.backupId)">Préparer restauration</button></div>';
   }).join(""):'<div class="small">Aucune sauvegarde vérifiée.</div>';
   const backupHtml=
    '<div class="card"><div class="section-head"><h2>Sauvegarde</h2><span class="badge">'+esc(String(backups.status||"unknown"))+'</span></div>'+
