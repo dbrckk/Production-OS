@@ -37,6 +37,7 @@ def test_outcome_normalizes_worker_result_evidence():
         "commit_shas":["abcdef1234567890abcdef1234567890abcdef12"],
         "artifact_count":2,
         "artifact_names":["test-report","release-evidence"],
+        "changed_file_count":0,
         "pull_request":{"number":42,"state":"open"},
         "completed_at":"2026-09-25T18:40:00+00:00",
     }
@@ -75,6 +76,34 @@ def test_outcome_uses_evidence_fallback_and_keeps_optional_shape_stable():
         "commit_shas":[],
         "artifact_count":0,
         "artifact_names":[],
+        "changed_file_count":0,
         "pull_request":None,
         "completed_at":None,
     }
+
+def test_outcome_accepts_compact_worker_result_fields_without_exposing_paths():
+    outcome = _outcome_from_workflow({
+        "status":"succeeded",
+        "updated_at":"2026-09-25T18:42:00+00:00",
+        "tasks":[{
+            "result":{
+                "message":"Compact worker result.",
+                "validation_status":"passed",
+                "tests":["smoke"],
+                "commit_sha":"abcdef1",
+                "changed_files":["src/a.py","src/b.py"],
+                "pr_number":"17",
+                "pull_request_state":"open",
+            }
+        }],
+        "artifacts":[],
+    })
+
+    assert outcome["summary"] == "Compact worker result."
+    assert outcome["validation_status"] == "passed"
+    assert outcome["validation_tests"] == ["smoke"]
+    assert outcome["commit_shas"] == ["abcdef1"]
+    assert outcome["changed_file_count"] == 2
+    assert outcome["pull_request"] == {"number":17,"state":"open"}
+    assert "changed_files" not in outcome
+
