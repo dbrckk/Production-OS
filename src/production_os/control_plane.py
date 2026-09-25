@@ -614,6 +614,16 @@ def make_handler(control: ControlPlane):
                 principal = self._require("viewer")
                 if principal is None:
                     return
+                if principal.role == "worker":
+                    self._send(
+                        HTTPStatus.FORBIDDEN,
+                        {
+                            "error":"forbidden",
+                            "required_role":"viewer",
+                            "role":principal.role,
+                        },
+                    )
+                    return
                 self._send(
                     HTTPStatus.OK,
                     {"projects":control.managed_projects.list()},
@@ -623,6 +633,16 @@ def make_handler(control: ControlPlane):
             if parsed.path.startswith("/v1/managed-projects/"):
                 principal = self._require("viewer")
                 if principal is None:
+                    return
+                if principal.role == "worker":
+                    self._send(
+                        HTTPStatus.FORBIDDEN,
+                        {
+                            "error":"forbidden",
+                            "required_role":"viewer",
+                            "role":principal.role,
+                        },
+                    )
                     return
                 parts = [part for part in parsed.path.split("/") if part]
                 if len(parts) == 3:
