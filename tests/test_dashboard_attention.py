@@ -27,6 +27,11 @@ def test_attention_prioritizes_failures_reviews_blocked_jobs_and_incidents():
                 "validation_status":"failed",
                 "validation_tests":["integration"],
             },
+            "review_guidance":{
+                "state":"needs_attention",
+                "headline":"Corriger puis relancer la validation",
+                "evidence_level":"partial",
+            },
         },
         {
             "project_id":"project-review",
@@ -41,6 +46,11 @@ def test_attention_prioritizes_failures_reviews_blocked_jobs_and_incidents():
                 "summary":"Feature delivered and tests passed.",
                 "validation_status":"passed",
                 "validation_tests":["unit","integration"],
+            },
+            "review_guidance":{
+                "state":"review",
+                "headline":"Examiner les preuves puis décider",
+                "evidence_level":"partial",
             },
         },
         {
@@ -119,6 +129,7 @@ def test_attention_prioritizes_failures_reviews_blocked_jobs_and_incidents():
     failed = next(item for item in payload["items"] if item["kind"] == "validation_failed")
     assert failed["summary"] == "Integration validation failed."
     assert failed["outcome"]["validation_status"] == "failed"
+    assert failed["review_guidance"]["state"] == "needs_attention"
     assert failed["actions"] == [
         {"name":"instructions","label":"Ajouter instruction"},
         {"name":"verify","label":"Retester"},
@@ -127,6 +138,7 @@ def test_attention_prioritizes_failures_reviews_blocked_jobs_and_incidents():
     review = next(item for item in payload["items"] if item["kind"] == "project_review")
     assert review["summary"] == "Feature delivered and tests passed."
     assert review["outcome"]["validation_status"] == "passed"
+    assert review["review_guidance"]["state"] == "review"
     assert review["actions"] == [
         {"name":"instructions","label":"Ajouter instruction"},
         {"name":"verify","label":"Retester"},
