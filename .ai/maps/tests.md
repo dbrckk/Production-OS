@@ -1204,7 +1204,7 @@ base = f"http://127.0.0.1:{server.server_port}"
 ⋮----
 events = payload["events"]
 ⋮----
-def test_release9_schema_is_v14_and_contains_control_audit_and_recurrence(tmp_path)
+def test_release17_schema_is_v15_and_contains_managed_project_tables(tmp_path)
 ⋮----
 backend = SQLiteBackend(tmp_path / "schema.sqlite")
 ⋮----
@@ -1212,6 +1212,9 @@ version = db.execute(
 table = db.execute(
 remediation = db.execute(
 remediation_columns = {
+⋮----
+managed = db.execute(
+runs = db.execute(
 ⋮----
 def test_control_action_remains_traced_if_audit_finalization_fails(tmp_path)
 ⋮----
@@ -1847,7 +1850,7 @@ reopened = store.upsert_dashboard_incident(
 ⋮----
 after = store.remediation_events(limit=1)[0]
 ⋮----
-def test_sqlite_v13_database_is_migrated_additively_to_v14(tmp_path)
+def test_sqlite_v14_database_is_migrated_additively_to_v15(tmp_path)
 ⋮----
 path = tmp_path / "migration.sqlite"
 db = sqlite3.connect(path)
@@ -1857,6 +1860,8 @@ backend = SQLiteBackend(path)
 version = conn.execute(
 columns = {
 row = conn.execute(
+managed = conn.execute(
+runs = conn.execute(
 ⋮----
 def test_repeated_active_verification_is_idempotent(tmp_path)
 ⋮----
@@ -2009,7 +2014,7 @@ pytestmark = pytest.mark.skipif(
 ⋮----
 REQUIRED_EXECUTION_COLUMNS = {
 ⋮----
-def test_postgres_schema_v14_has_execution_columns_control_audit_incidents_and_remediation()
+def test_postgres_schema_v15_has_managed_project_generation_tables()
 ⋮----
 backend = PostgresBackend(DSN)
 ⋮----
@@ -2022,6 +2027,10 @@ incident_table = cur.fetchone()
 remediation_table = cur.fetchone()
 ⋮----
 remediation_columns = {
+⋮----
+managed_tables = {row["table_name"] for row in cur.fetchall()}
+⋮----
+managed_columns = {row["column_name"] for row in cur.fetchall()}
 ⋮----
 def test_dashboard_service_project_queries_work_on_postgres()
 ⋮----
@@ -2662,21 +2671,30 @@ project = created["project"]
 ⋮----
 def test_viewer_cannot_create_managed_project(tmp_path)
 ⋮----
-def test_managed_project_http_review_instruction_verify_and_complete(tmp_path)
+def test_managed_project_http_generations_and_explicit_completion(tmp_path)
 ⋮----
-workflow_id = created["project"]["workflow_id"]
+project_id = project["project_id"]
+first_workflow = project["workflow_id"]
+⋮----
+second_workflow = resumed["project"]["workflow_id"]
+⋮----
+third_workflow = verifying["project"]["workflow_id"]
 ⋮----
 def test_managed_project_persists_across_control_plane_restart(tmp_path)
 ⋮----
 database = str(tmp_path / "managed-restart.sqlite")
 first = ControlPlane(database, authorizer=_auth())
 created = first.managed_projects.create(
-workflow_id = created["workflow_id"]
+first_workflow = created["workflow_id"]
 ⋮----
 second = ControlPlane(database, authorizer=_auth())
-restored = second.managed_projects.get(workflow_id)
+restored = second.managed_projects.get(created["project_id"])
 ⋮----
-done = second.managed_projects.mark_done(
+resumed = second.managed_projects.add_instruction(
+⋮----
+def test_worker_cannot_read_managed_projects(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "worker-read.sqlite"), authorizer=_auth())
 ```
 
 ## File: test_managed_projects_v4.py
@@ -2691,30 +2709,46 @@ def test_managed_project_requires_human_completion_after_execution(tmp_path)
 ⋮----
 created = projects.create(
 ⋮----
-review = projects.get(created["workflow_id"])
+review = projects.get(created["project_id"])
 ⋮----
-done = projects.mark_done(created["workflow_id"], approved_by="operator")
+done = projects.mark_done(created["project_id"], approved_by="operator:test")
 ⋮----
-def test_managed_project_rejects_done_before_review(tmp_path)
+def test_followup_instruction_creates_new_immutable_workflow_generation(tmp_path)
 ⋮----
-def test_managed_project_accepts_followup_instruction_after_review(tmp_path)
+first_workflow_id = created["workflow_id"]
+⋮----
+first_before = workflows.get(first_workflow_id)
 ⋮----
 resumed = projects.add_instruction(
 ⋮----
-workflow = workflows.get(created["workflow_id"])
-task = next(x for x in workflow["tasks"] if x["task_id"] == "instruction-1")
+first_after = workflows.get(first_workflow_id)
 ⋮----
-def test_managed_project_retest_queues_verification_task(tmp_path)
+second = workflows.get(resumed["workflow_id"])
+task = second["tasks"][0]
 ⋮----
-running = projects.request_verification(created["workflow_id"])
+def test_retest_creates_new_generation_with_original_final_goal(tmp_path)
 ⋮----
-task = next(x for x in workflow["tasks"] if x["task_id"] == "verification-1")
+running = projects.request_verification(
+⋮----
+task = workflows.get(running["workflow_id"])["tasks"][0]
+⋮----
+def test_failed_generation_maps_to_needs_attention_and_allows_followup(tmp_path)
+⋮----
+attention = projects.get(created["project_id"])
+⋮----
+def test_active_generation_rejects_followup(tmp_path)
 ⋮----
 def test_managed_project_list_excludes_normal_workflows(tmp_path)
 ⋮----
 listed = projects.list()
 ⋮----
-def test_managed_project_rejects_invalid_budget(tmp_path)
+def test_managed_project_rejects_invalid_budget_and_repository(tmp_path)
+⋮----
+def test_legacy_v4_workflow_is_migrated_on_first_read(tmp_path)
+⋮----
+legacy = workflows.create(
+⋮----
+migrated = projects.get(legacy["id"])
 ```
 
 ## File: test_observability.py
@@ -4283,9 +4317,13 @@ def test_postgres_managed_project_review_lifecycle()
 projects=ManagedProjectService(engine)
 project=projects.create(
 ⋮----
-review=projects.get(project["workflow_id"])
+first_workflow=project["workflow_id"]
+⋮----
+review=projects.get(project["project_id"])
 ⋮----
 resumed=projects.add_instruction(
+⋮----
+second_workflow=resumed["workflow_id"]
 ⋮----
 done=projects.mark_done(
 ```

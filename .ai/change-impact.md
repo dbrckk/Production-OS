@@ -1,17 +1,20 @@
 # Change impact
 
-Base: 9ba773d07fc2dbc95d0d4edd1ac8305504b81114
-Head: d1508f61c5d56f1b1a6fcde896b5b043587fc944
+Base: 699fe30b9e28fa8354e2b5138cc3c5a70feeee58
+Head: e57c478e9fecba10ba5ee44d3d00fb9105dc35ed
 
 ## Changed files
 - M src/production_os/control_plane.py
 - M src/production_os/dashboard_ui.py
-- A src/production_os/managed_projects.py
-- M src/production_os/workflow_engine.py
+- M src/production_os/managed_projects.py
+- M src/production_os/postgres_backend.py
+- M src/production_os/sqlite_backend.py
+- M tests/test_dashboard_control_audit.py
+- M tests/test_dashboard_remediation_history.py
+- M tests/test_dashboard_store_postgres.py
 - M tests/test_dashboard_ui_v3.py
-- A tests/test_managed_projects_http_v4.py
-- A tests/test_managed_projects_v4.py
-- M tests/test_workflow_engine.py
+- M tests/test_managed_projects_http_v4.py
+- M tests/test_managed_projects_v4.py
 - M tests/test_workflow_postgres.py
 
 ## Affected areas
@@ -20,7 +23,8 @@ Head: d1508f61c5d56f1b1a6fcde896b5b043587fc944
 
 ## Related test candidates
 - tests/test_control_plane.py
-- tests/test_workflow_engine.py
+- tests/test_postgres_backend.py
+- tests/test_sqlite_backend.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

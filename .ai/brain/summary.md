@@ -2,11 +2,11 @@
 
 - Index mode: incremental
 - Files indexed: 240
-- Files reparsed this run: 9
-- Symbols: 1864
+- Files reparsed this run: 12
+- Symbols: 1873
 - Internal import edges: 669
-- Impacted files: 42
-- Selected tests: 37
+- Impacted files: 66
+- Selected tests: 58
 
 ## Languages
 - python: 240 files
@@ -28,10 +28,10 @@
 - tests/test_release_ledger.py: 22 symbols
 - src/production_os/asset_forge.py: 21 symbols
 - src/production_os/transparency_receipts.py: 21 symbols
+- src/production_os/managed_projects.py: 20 symbols
 - tests/test_workflow_engine.py: 20 symbols
 - tests/test_dashboard_api.py: 19 symbols
 - tests/test_dashboard_control_api.py: 19 symbols
-- src/production_os/runtime_state.py: 17 symbols
 
 ## Agent routing
 - Read impact.json first after project/change context.
@@ -42,10 +42,10 @@
 ## ast-grep enrichment
 - ast-grep outline: available
 - AST index mode: incremental
-- AST files reparsed this run: 9
+- AST files reparsed this run: 12
 - outline files retained: 240
-- top-level items retained: 2375
-- direct members retained: 849
+- top-level items retained: 2385
+- direct members retained: 855
 - symbol shards: 25
 - route named symbols via ast-routing.json, then fetch one ast-symbols/<initial>.json shard
 

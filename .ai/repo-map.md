@@ -4771,7 +4771,13 @@ target = Path(path)
 
 ## File: src/production_os/managed_projects.py
 ````python
-MANAGED_PROJECT_SCHEMA = "production-os/managed-project/v2"
+MANAGED_PROJECT_SCHEMA = "production-os/managed-project/v3"
+LEGACY_MANAGED_PROJECT_SCHEMA = "production-os/managed-project/v2"
+ACTIVE = "ACTIVE"
+REVIEW_REQUIRED = "REVIEW_REQUIRED"
+NEEDS_ATTENTION = "NEEDS_ATTENTION"
+DONE = "DONE"
+PROJECT_STATES = {ACTIVE, REVIEW_REQUIRED, NEEDS_ATTENTION, DONE}
 USAGE_KEYS = (
 ⋮----
 def _now() -> str
@@ -4807,73 +4813,125 @@ class ManagedProjectService
 ⋮----
 def __init__(self, workflows: WorkflowEngine)
 ⋮----
-repository = str(repository or "").strip()
-final_goal = str(final_goal or "").strip()
-agent_preference = str(agent_preference or "auto").strip() or "auto"
+@staticmethod
+    def _validate_repository(repository: str) -> str
 ⋮----
-budget = _positive_int(token_budget, field="token_budget")
+repository = str(repository or "").strip()
+parts = repository.split("/")
+⋮----
 workflow = self.workflows.create(
 ⋮----
-def list(self) -> list[dict]
+def _delete_unstarted_workflow(self, workflow_id: str) -> None
 ⋮----
-rows = _execute(
-projects = []
+repository = self._validate_repository(repository)
+final_goal = str(final_goal or "").strip()
 ⋮----
-project = self._project(self.workflows.get(str(row["id"])))
+budget = _positive_int(token_budget, field="token_budget")
+agent = str(agent_preference or "auto").strip() or "auto"
+actor = str(requested_by or "operator").strip() or "operator"
+project_id = uuid4().hex
+now = _now()
 ⋮----
-def get(self, workflow_id: str) -> dict
+workflow = self._create_workflow(
 ⋮----
-project = self._project(self.workflows.get(str(workflow_id)))
+def _resolve_project_id(self, identifier: str) -> str
 ⋮----
-@staticmethod
-    def _next_task_id(workflow: dict, prefix: str) -> str
+identifier = str(identifier)
 ⋮----
-known = {str(task.get("task_id") or "") for task in workflow.get("tasks", [])}
-index = 1
+row = _execute(
 ⋮----
-current = self.get(workflow_id)
+migrated = self._migrate_legacy_workflow(identifier)
+⋮----
+def _migrate_legacy_workflow(self, workflow_id: str) -> str | None
 ⋮----
 workflow = self.workflows.get(workflow_id)
-task_id = self._next_task_id(workflow, prefix)
-dependencies = tuple(str(task["task_id"]) for task in workflow["tasks"])
-⋮----
-def add_instruction(self, workflow_id: str, instruction: str) -> dict
-⋮----
-instruction = str(instruction or "").strip()
-⋮----
-def request_verification(self, workflow_id: str) -> dict
-⋮----
-instruction = (
-⋮----
-def mark_done(self, workflow_id: str, *, approved_by: str) -> dict
 ⋮----
 metadata = dict(workflow.get("metadata") or {})
-managed = dict(metadata.get("managed_project") or {})
+legacy = metadata.get("managed_project")
 ⋮----
-def _project(self, workflow: dict) -> dict | None
+final_goal = str(legacy.get("final_goal") or "")
+budget = _positive_int(
+agent = str(legacy.get("agent_preference") or "auto")
+human_state = str(legacy.get("human_state") or "active")
 ⋮----
-managed = metadata.get("managed_project")
+status = DONE
+completed_at = legacy.get("approved_at") or now
+completed_by = legacy.get("approved_by")
+⋮----
+status = REVIEW_REQUIRED
+completed_at = None
+completed_by = None
+⋮----
+status = NEEDS_ATTENTION
+⋮----
+status = ACTIVE
+⋮----
+existing = _execute(
+⋮----
+def reconcile(self, identifier: str) -> dict
+⋮----
+project_id = self._resolve_project_id(identifier)
+⋮----
+project = _execute(
+⋮----
+current = dict(project)
+⋮----
+workflow_id = current.get("current_workflow_id")
+⋮----
+target = NEEDS_ATTENTION
+⋮----
+workflow = self.workflows.get(str(workflow_id))
+⋮----
+workflow_status = workflow.get("status")
+⋮----
+target = REVIEW_REQUIRED
+⋮----
+target = ACTIVE
+⋮----
+def _usage(self, runs: list[dict]) -> dict
 ⋮----
 usage = {
+⋮----
+workflow = self.workflows.get(str(run["workflow_id"]))
 ⋮----
 item = _usage_from_result(task.get("result"))
 ⋮----
 value = item.get(key)
 ⋮----
-human_state = str(managed.get("human_state") or "active")
-task_states = {str(task.get("status") or "") for task in workflow.get("tasks", [])}
+def get(self, identifier: str) -> dict
 ⋮----
-state = "DONE"
+project = self.reconcile(identifier)
+project_id = str(project["id"])
 ⋮----
-state = "REVIEW_REQUIRED"
+run_rows = _execute(
+runs = [dict(row) for row in run_rows]
+current_workflow = None
 ⋮----
-state = "FAILED"
+current_workflow = self.workflows.get(
 ⋮----
-state = "BLOCKED"
+usage = self._usage(runs)
+display_state = (
 ⋮----
-state = "PAUSED"
+def list(self, *, limit: int = 100) -> list[dict]
 ⋮----
-state = "RUNNING"
+bounded = max(1, min(500, int(limit)))
+⋮----
+rows = _execute(
+⋮----
+legacy_rows = _execute(
+⋮----
+current = self.get(identifier)
+⋮----
+instruction = str(instruction or "").strip()
+⋮----
+project_id = current["project_id"]
+generation = int(current["generation"]) + 1
+⋮----
+updated = _execute(
+⋮----
+instruction = (
+⋮----
+actor = str(approved_by or "operator").strip() or "operator"
 ````
 
 ## File: src/production_os/metrics.py
@@ -5200,7 +5258,7 @@ def _utcnow() -> str
 ⋮----
 class PostgresBackend
 ⋮----
-SCHEMA_VERSION = 14
+SCHEMA_VERSION = 15
 ⋮----
 def __init__(self, dsn: str)
 ⋮----
@@ -6540,7 +6598,7 @@ def _utcnow() -> str
 ⋮----
 class SQLiteBackend
 ⋮----
-SCHEMA_VERSION = 14
+SCHEMA_VERSION = 15
 ⋮----
 def __init__(self, path: str | Path)
 ⋮----
@@ -6554,6 +6612,8 @@ connection = sqlite3.connect(
 connection = self.connect()
 ⋮----
 def initialize(self) -> None
+⋮----
+managed_columns = {
 ⋮----
 remediation_columns = {
 ⋮----
@@ -8600,7 +8660,7 @@ base = f"http://127.0.0.1:{server.server_port}"
 ⋮----
 events = payload["events"]
 ⋮----
-def test_release9_schema_is_v14_and_contains_control_audit_and_recurrence(tmp_path)
+def test_release17_schema_is_v15_and_contains_managed_project_tables(tmp_path)
 ⋮----
 backend = SQLiteBackend(tmp_path / "schema.sqlite")
 ⋮----
@@ -8608,6 +8668,9 @@ version = db.execute(
 table = db.execute(
 remediation = db.execute(
 remediation_columns = {
+⋮----
+managed = db.execute(
+runs = db.execute(
 ⋮----
 def test_control_action_remains_traced_if_audit_finalization_fails(tmp_path)
 ⋮----
@@ -9243,7 +9306,7 @@ reopened = store.upsert_dashboard_incident(
 ⋮----
 after = store.remediation_events(limit=1)[0]
 ⋮----
-def test_sqlite_v13_database_is_migrated_additively_to_v14(tmp_path)
+def test_sqlite_v14_database_is_migrated_additively_to_v15(tmp_path)
 ⋮----
 path = tmp_path / "migration.sqlite"
 db = sqlite3.connect(path)
@@ -9253,6 +9316,8 @@ backend = SQLiteBackend(path)
 version = conn.execute(
 columns = {
 row = conn.execute(
+managed = conn.execute(
+runs = conn.execute(
 ⋮----
 def test_repeated_active_verification_is_idempotent(tmp_path)
 ⋮----
@@ -9405,7 +9470,7 @@ pytestmark = pytest.mark.skipif(
 ⋮----
 REQUIRED_EXECUTION_COLUMNS = {
 ⋮----
-def test_postgres_schema_v14_has_execution_columns_control_audit_incidents_and_remediation()
+def test_postgres_schema_v15_has_managed_project_generation_tables()
 ⋮----
 backend = PostgresBackend(DSN)
 ⋮----
@@ -9418,6 +9483,10 @@ incident_table = cur.fetchone()
 remediation_table = cur.fetchone()
 ⋮----
 remediation_columns = {
+⋮----
+managed_tables = {row["table_name"] for row in cur.fetchall()}
+⋮----
+managed_columns = {row["column_name"] for row in cur.fetchall()}
 ⋮----
 def test_dashboard_service_project_queries_work_on_postgres()
 ⋮----
@@ -10058,21 +10127,30 @@ project = created["project"]
 ⋮----
 def test_viewer_cannot_create_managed_project(tmp_path)
 ⋮----
-def test_managed_project_http_review_instruction_verify_and_complete(tmp_path)
+def test_managed_project_http_generations_and_explicit_completion(tmp_path)
 ⋮----
-workflow_id = created["project"]["workflow_id"]
+project_id = project["project_id"]
+first_workflow = project["workflow_id"]
+⋮----
+second_workflow = resumed["project"]["workflow_id"]
+⋮----
+third_workflow = verifying["project"]["workflow_id"]
 ⋮----
 def test_managed_project_persists_across_control_plane_restart(tmp_path)
 ⋮----
 database = str(tmp_path / "managed-restart.sqlite")
 first = ControlPlane(database, authorizer=_auth())
 created = first.managed_projects.create(
-workflow_id = created["workflow_id"]
+first_workflow = created["workflow_id"]
 ⋮----
 second = ControlPlane(database, authorizer=_auth())
-restored = second.managed_projects.get(workflow_id)
+restored = second.managed_projects.get(created["project_id"])
 ⋮----
-done = second.managed_projects.mark_done(
+resumed = second.managed_projects.add_instruction(
+⋮----
+def test_worker_cannot_read_managed_projects(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "worker-read.sqlite"), authorizer=_auth())
 ````
 
 ## File: tests/test_managed_projects_v4.py
@@ -10087,30 +10165,46 @@ def test_managed_project_requires_human_completion_after_execution(tmp_path)
 ⋮----
 created = projects.create(
 ⋮----
-review = projects.get(created["workflow_id"])
+review = projects.get(created["project_id"])
 ⋮----
-done = projects.mark_done(created["workflow_id"], approved_by="operator")
+done = projects.mark_done(created["project_id"], approved_by="operator:test")
 ⋮----
-def test_managed_project_rejects_done_before_review(tmp_path)
+def test_followup_instruction_creates_new_immutable_workflow_generation(tmp_path)
 ⋮----
-def test_managed_project_accepts_followup_instruction_after_review(tmp_path)
+first_workflow_id = created["workflow_id"]
+⋮----
+first_before = workflows.get(first_workflow_id)
 ⋮----
 resumed = projects.add_instruction(
 ⋮----
-workflow = workflows.get(created["workflow_id"])
-task = next(x for x in workflow["tasks"] if x["task_id"] == "instruction-1")
+first_after = workflows.get(first_workflow_id)
 ⋮----
-def test_managed_project_retest_queues_verification_task(tmp_path)
+second = workflows.get(resumed["workflow_id"])
+task = second["tasks"][0]
 ⋮----
-running = projects.request_verification(created["workflow_id"])
+def test_retest_creates_new_generation_with_original_final_goal(tmp_path)
 ⋮----
-task = next(x for x in workflow["tasks"] if x["task_id"] == "verification-1")
+running = projects.request_verification(
+⋮----
+task = workflows.get(running["workflow_id"])["tasks"][0]
+⋮----
+def test_failed_generation_maps_to_needs_attention_and_allows_followup(tmp_path)
+⋮----
+attention = projects.get(created["project_id"])
+⋮----
+def test_active_generation_rejects_followup(tmp_path)
 ⋮----
 def test_managed_project_list_excludes_normal_workflows(tmp_path)
 ⋮----
 listed = projects.list()
 ⋮----
-def test_managed_project_rejects_invalid_budget(tmp_path)
+def test_managed_project_rejects_invalid_budget_and_repository(tmp_path)
+⋮----
+def test_legacy_v4_workflow_is_migrated_on_first_read(tmp_path)
+⋮----
+legacy = workflows.create(
+⋮----
+migrated = projects.get(legacy["id"])
 ````
 
 ## File: tests/test_observability.py
@@ -11679,9 +11773,13 @@ def test_postgres_managed_project_review_lifecycle()
 projects=ManagedProjectService(engine)
 project=projects.create(
 ⋮----
-review=projects.get(project["workflow_id"])
+first_workflow=project["workflow_id"]
+⋮----
+review=projects.get(project["project_id"])
 ⋮----
 resumed=projects.add_instruction(
+⋮----
+second_workflow=resumed["workflow_id"]
 ⋮----
 done=projects.mark_done(
 ````

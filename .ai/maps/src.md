@@ -4256,7 +4256,13 @@ target = Path(path)
 
 ## File: production_os/managed_projects.py
 ```python
-MANAGED_PROJECT_SCHEMA = "production-os/managed-project/v2"
+MANAGED_PROJECT_SCHEMA = "production-os/managed-project/v3"
+LEGACY_MANAGED_PROJECT_SCHEMA = "production-os/managed-project/v2"
+ACTIVE = "ACTIVE"
+REVIEW_REQUIRED = "REVIEW_REQUIRED"
+NEEDS_ATTENTION = "NEEDS_ATTENTION"
+DONE = "DONE"
+PROJECT_STATES = {ACTIVE, REVIEW_REQUIRED, NEEDS_ATTENTION, DONE}
 USAGE_KEYS = (
 ⋮----
 def _now() -> str
@@ -4292,73 +4298,125 @@ class ManagedProjectService
 ⋮----
 def __init__(self, workflows: WorkflowEngine)
 ⋮----
-repository = str(repository or "").strip()
-final_goal = str(final_goal or "").strip()
-agent_preference = str(agent_preference or "auto").strip() or "auto"
+@staticmethod
+    def _validate_repository(repository: str) -> str
 ⋮----
-budget = _positive_int(token_budget, field="token_budget")
+repository = str(repository or "").strip()
+parts = repository.split("/")
+⋮----
 workflow = self.workflows.create(
 ⋮----
-def list(self) -> list[dict]
+def _delete_unstarted_workflow(self, workflow_id: str) -> None
 ⋮----
-rows = _execute(
-projects = []
+repository = self._validate_repository(repository)
+final_goal = str(final_goal or "").strip()
 ⋮----
-project = self._project(self.workflows.get(str(row["id"])))
+budget = _positive_int(token_budget, field="token_budget")
+agent = str(agent_preference or "auto").strip() or "auto"
+actor = str(requested_by or "operator").strip() or "operator"
+project_id = uuid4().hex
+now = _now()
 ⋮----
-def get(self, workflow_id: str) -> dict
+workflow = self._create_workflow(
 ⋮----
-project = self._project(self.workflows.get(str(workflow_id)))
+def _resolve_project_id(self, identifier: str) -> str
 ⋮----
-@staticmethod
-    def _next_task_id(workflow: dict, prefix: str) -> str
+identifier = str(identifier)
 ⋮----
-known = {str(task.get("task_id") or "") for task in workflow.get("tasks", [])}
-index = 1
+row = _execute(
 ⋮----
-current = self.get(workflow_id)
+migrated = self._migrate_legacy_workflow(identifier)
+⋮----
+def _migrate_legacy_workflow(self, workflow_id: str) -> str | None
 ⋮----
 workflow = self.workflows.get(workflow_id)
-task_id = self._next_task_id(workflow, prefix)
-dependencies = tuple(str(task["task_id"]) for task in workflow["tasks"])
-⋮----
-def add_instruction(self, workflow_id: str, instruction: str) -> dict
-⋮----
-instruction = str(instruction or "").strip()
-⋮----
-def request_verification(self, workflow_id: str) -> dict
-⋮----
-instruction = (
-⋮----
-def mark_done(self, workflow_id: str, *, approved_by: str) -> dict
 ⋮----
 metadata = dict(workflow.get("metadata") or {})
-managed = dict(metadata.get("managed_project") or {})
+legacy = metadata.get("managed_project")
 ⋮----
-def _project(self, workflow: dict) -> dict | None
+final_goal = str(legacy.get("final_goal") or "")
+budget = _positive_int(
+agent = str(legacy.get("agent_preference") or "auto")
+human_state = str(legacy.get("human_state") or "active")
 ⋮----
-managed = metadata.get("managed_project")
+status = DONE
+completed_at = legacy.get("approved_at") or now
+completed_by = legacy.get("approved_by")
+⋮----
+status = REVIEW_REQUIRED
+completed_at = None
+completed_by = None
+⋮----
+status = NEEDS_ATTENTION
+⋮----
+status = ACTIVE
+⋮----
+existing = _execute(
+⋮----
+def reconcile(self, identifier: str) -> dict
+⋮----
+project_id = self._resolve_project_id(identifier)
+⋮----
+project = _execute(
+⋮----
+current = dict(project)
+⋮----
+workflow_id = current.get("current_workflow_id")
+⋮----
+target = NEEDS_ATTENTION
+⋮----
+workflow = self.workflows.get(str(workflow_id))
+⋮----
+workflow_status = workflow.get("status")
+⋮----
+target = REVIEW_REQUIRED
+⋮----
+target = ACTIVE
+⋮----
+def _usage(self, runs: list[dict]) -> dict
 ⋮----
 usage = {
+⋮----
+workflow = self.workflows.get(str(run["workflow_id"]))
 ⋮----
 item = _usage_from_result(task.get("result"))
 ⋮----
 value = item.get(key)
 ⋮----
-human_state = str(managed.get("human_state") or "active")
-task_states = {str(task.get("status") or "") for task in workflow.get("tasks", [])}
+def get(self, identifier: str) -> dict
 ⋮----
-state = "DONE"
+project = self.reconcile(identifier)
+project_id = str(project["id"])
 ⋮----
-state = "REVIEW_REQUIRED"
+run_rows = _execute(
+runs = [dict(row) for row in run_rows]
+current_workflow = None
 ⋮----
-state = "FAILED"
+current_workflow = self.workflows.get(
 ⋮----
-state = "BLOCKED"
+usage = self._usage(runs)
+display_state = (
 ⋮----
-state = "PAUSED"
+def list(self, *, limit: int = 100) -> list[dict]
 ⋮----
-state = "RUNNING"
+bounded = max(1, min(500, int(limit)))
+⋮----
+rows = _execute(
+⋮----
+legacy_rows = _execute(
+⋮----
+current = self.get(identifier)
+⋮----
+instruction = str(instruction or "").strip()
+⋮----
+project_id = current["project_id"]
+generation = int(current["generation"]) + 1
+⋮----
+updated = _execute(
+⋮----
+instruction = (
+⋮----
+actor = str(approved_by or "operator").strip() or "operator"
 ```
 
 ## File: production_os/metrics.py
@@ -4685,7 +4743,7 @@ def _utcnow() -> str
 ⋮----
 class PostgresBackend
 ⋮----
-SCHEMA_VERSION = 14
+SCHEMA_VERSION = 15
 ⋮----
 def __init__(self, dsn: str)
 ⋮----
@@ -6025,7 +6083,7 @@ def _utcnow() -> str
 ⋮----
 class SQLiteBackend
 ⋮----
-SCHEMA_VERSION = 14
+SCHEMA_VERSION = 15
 ⋮----
 def __init__(self, path: str | Path)
 ⋮----
@@ -6039,6 +6097,8 @@ connection = sqlite3.connect(
 connection = self.connect()
 ⋮----
 def initialize(self) -> None
+⋮----
+managed_columns = {
 ⋮----
 remediation_columns = {
 ⋮----
