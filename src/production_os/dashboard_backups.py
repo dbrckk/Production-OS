@@ -7,7 +7,10 @@ import os
 import re
 from pathlib import Path
 import sqlite3
+import shutil
 from uuid import uuid4
+
+from .database_maintenance_lock import database_server_lock
 
 
 BACKUP_ID_RE = re.compile(r"^\d{8}T\d{6}Z-[0-9a-f]{12}$")
@@ -292,6 +295,182 @@ def stage_verified_sqlite_restore(backend, backup_id: str) -> dict:
             except FileNotFoundError:
                 pass
         raise
+
+
+def verify_staged_restore_candidate(backend, candidate_id: str) -> dict:
+    candidate_id = str(candidate_id or "").strip()
+    if not BACKUP_ID_RE.fullmatch(candidate_id):
+        raise BackupError("invalid restore candidate id")
+    if _backend_kind(backend) != "sqlite":
+        raise BackupError("restore activation is unsupported for this backend")
+
+    directory = _configured_dir()
+    if directory is None:
+        raise BackupError("backup directory is not configured")
+    manifest_path = directory / f"restore-{candidate_id}.json"
+    candidate_path = directory / f"restore-{candidate_id}.sqlite"
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError, TypeError) as exc:
+        raise BackupError("restore candidate manifest is missing or invalid") from exc
+    if not isinstance(manifest, dict):
+        raise BackupError("restore candidate manifest is missing or invalid")
+    if (
+        manifest.get("candidate_id") != candidate_id
+        or manifest.get("backend_kind") != "sqlite"
+        or manifest.get("verified") is not True
+        or manifest.get("activation_enabled") is not False
+    ):
+        raise BackupError("restore candidate manifest does not match candidate")
+    if not candidate_path.is_file():
+        raise BackupError("restore candidate file is missing")
+
+    digest = sha256()
+    size = 0
+    with candidate_path.open("rb") as handle:
+        while True:
+            chunk = handle.read(1024 * 1024)
+            if not chunk:
+                break
+            size += len(chunk)
+            digest.update(chunk)
+    actual_sha = digest.hexdigest()
+    if size != manifest.get("size_bytes"):
+        raise BackupError("restore candidate size does not match manifest")
+    if actual_sha != str(manifest.get("sha256") or ""):
+        raise BackupError("restore candidate hash does not match manifest")
+
+    connection = sqlite3.connect(
+        f"file:{candidate_path.as_posix()}?mode=ro",
+        uri=True,
+    )
+    try:
+        integrity_row = connection.execute("PRAGMA integrity_check").fetchone()
+        if not integrity_row or integrity_row[0] != "ok":
+            raise BackupError("restore candidate integrity check failed")
+        schema_row = connection.execute(
+            "SELECT value FROM schema_meta WHERE key='schema_version'"
+        ).fetchone()
+        if schema_row is None:
+            raise BackupError("restore candidate schema version is unavailable")
+        schema_version = str(schema_row[0])
+    except sqlite3.DatabaseError as exc:
+        raise BackupError("restore candidate database is unreadable") from exc
+    finally:
+        connection.close()
+
+    expected_schema = str(getattr(backend, "SCHEMA_VERSION", ""))
+    if schema_version != expected_schema:
+        raise BackupError(
+            "restore candidate schema version does not match current schema"
+        )
+    return {
+        "candidate_id":candidate_id,
+        "source_backup_id":manifest.get("source_backup_id"),
+        "backend_kind":"sqlite",
+        "verified":True,
+        "integrity":"ok",
+        "schema_version":schema_version,
+        "size_bytes":size,
+        "sha256":actual_sha,
+        "activation_enabled":False,
+    }
+
+
+def activate_staged_sqlite_restore(
+    backend,
+    candidate_id: str,
+    *,
+    confirmation: str,
+) -> dict:
+    if confirmation != "ACTIVATE_STAGED_RESTORE":
+        raise BackupError("exact restore activation confirmation required")
+    if _backend_kind(backend) != "sqlite":
+        raise BackupError("restore activation is unsupported for this backend")
+
+    candidate = verify_staged_restore_candidate(backend, candidate_id)
+    database_path = Path(getattr(backend, "path", ""))
+    if not str(database_path):
+        raise BackupError("SQLite database path is unavailable")
+    directory = _configured_dir()
+    if directory is None:
+        raise BackupError("backup directory is not configured")
+    candidate_path = directory / f"restore-{candidate_id}.sqlite"
+
+    with database_server_lock(str(database_path)):
+        # Revalidate after acquiring the exclusive lock so the activation
+        # decision is based on the exact bytes we will install.
+        candidate = verify_staged_restore_candidate(backend, candidate_id)
+        rollback = create_verified_sqlite_backup(backend)
+        rollback_path = directory / f"{rollback['backup_id']}.sqlite"
+
+        temp_target = database_path.with_name(
+            f".{database_path.name}.restore-{uuid4().hex}.tmp"
+        )
+        rollback_temp = database_path.with_name(
+            f".{database_path.name}.rollback-{uuid4().hex}.tmp"
+        )
+        sidecars = [
+            Path(str(database_path) + "-wal"),
+            Path(str(database_path) + "-shm"),
+        ]
+        replaced = False
+        try:
+            shutil.copyfile(candidate_path, temp_target)
+            with sqlite3.connect(temp_target) as staged:
+                row = staged.execute("PRAGMA integrity_check").fetchone()
+                if not row or row[0] != "ok":
+                    raise BackupError("temporary restore integrity check failed")
+            for sidecar in sidecars:
+                try:
+                    sidecar.unlink()
+                except FileNotFoundError:
+                    pass
+            os.replace(temp_target, database_path)
+            replaced = True
+
+            restored = sqlite3.connect(database_path)
+            try:
+                row = restored.execute("PRAGMA integrity_check").fetchone()
+                if not row or row[0] != "ok":
+                    raise BackupError("restored database integrity check failed")
+                schema_row = restored.execute(
+                    "SELECT value FROM schema_meta WHERE key='schema_version'"
+                ).fetchone()
+                if (
+                    schema_row is None
+                    or str(schema_row[0]) != candidate["schema_version"]
+                ):
+                    raise BackupError("restored database schema verification failed")
+            finally:
+                restored.close()
+        except Exception:
+            try:
+                temp_target.unlink()
+            except FileNotFoundError:
+                pass
+            if replaced:
+                shutil.copyfile(rollback_path, rollback_temp)
+                for sidecar in sidecars:
+                    try:
+                        sidecar.unlink()
+                    except FileNotFoundError:
+                        pass
+                os.replace(rollback_temp, database_path)
+            else:
+                try:
+                    rollback_temp.unlink()
+                except FileNotFoundError:
+                    pass
+            raise
+
+    return {
+        **candidate,
+        "activated":True,
+        "activation_enabled":True,
+        "rollback_backup_id":rollback["backup_id"],
+        "activated_at":_now(),
+    }
 
 
 def create_verified_sqlite_backup(backend) -> dict:
