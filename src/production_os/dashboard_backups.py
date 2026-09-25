@@ -192,6 +192,108 @@ def verify_backup_for_restore(backend, backup_id: str) -> dict:
     }
 
 
+def stage_verified_sqlite_restore(backend, backup_id: str) -> dict:
+    verified = verify_backup_for_restore(backend, backup_id)
+    if verified["backend_kind"] != "sqlite":
+        raise BackupError("restore staging is unsupported for this backend")
+
+    directory = _configured_dir()
+    if directory is None:
+        raise BackupError("backup directory is not configured")
+    if not directory.is_dir():
+        raise BackupError("backup directory is not ready")
+
+    source_path = directory / f"{backup_id}.sqlite"
+    candidate_id = (
+        datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        + "-"
+        + uuid4().hex[:12]
+    )
+    temp_path = directory / f".restore-{candidate_id}.sqlite.tmp"
+    final_path = directory / f"restore-{candidate_id}.sqlite"
+    manifest_path = directory / f"restore-{candidate_id}.json"
+    temp_manifest = directory / f".restore-{candidate_id}.json.tmp"
+
+    try:
+        source = sqlite3.connect(
+            f"file:{source_path.as_posix()}?mode=ro",
+            uri=True,
+        )
+        try:
+            destination = sqlite3.connect(temp_path)
+            try:
+                source.backup(destination)
+                integrity_row = destination.execute(
+                    "PRAGMA integrity_check"
+                ).fetchone()
+                integrity = integrity_row[0] if integrity_row else None
+                if integrity != "ok":
+                    raise BackupError(
+                        "staged restore integrity check failed"
+                    )
+                schema_row = destination.execute(
+                    "SELECT value FROM schema_meta "
+                    "WHERE key='schema_version'"
+                ).fetchone()
+                if schema_row is None:
+                    raise BackupError(
+                        "staged restore schema version is unavailable"
+                    )
+                schema_version = str(schema_row[0])
+                destination.commit()
+            finally:
+                destination.close()
+        finally:
+            source.close()
+
+        digest = sha256()
+        size = 0
+        with temp_path.open("rb") as handle:
+            while True:
+                chunk = handle.read(1024 * 1024)
+                if not chunk:
+                    break
+                size += len(chunk)
+                digest.update(chunk)
+
+        staged_at = _now()
+        manifest = {
+            "candidate_id":candidate_id,
+            "source_backup_id":backup_id,
+            "backend_kind":"sqlite",
+            "staged_at":staged_at,
+            "size_bytes":size,
+            "sha256":digest.hexdigest(),
+            "schema_version":schema_version,
+            "integrity":"ok",
+            "verified":True,
+            "activation_enabled":False,
+        }
+        temp_manifest.write_text(
+            json.dumps(
+                manifest,
+                sort_keys=True,
+                separators=(",", ":"),
+            ),
+            encoding="utf-8",
+        )
+        os.replace(temp_path, final_path)
+        os.replace(temp_manifest, manifest_path)
+        return manifest
+    except Exception:
+        for path in (
+            temp_path,
+            temp_manifest,
+            final_path,
+            manifest_path,
+        ):
+            try:
+                path.unlink()
+            except FileNotFoundError:
+                pass
+        raise
+
+
 def create_verified_sqlite_backup(backend) -> dict:
     readiness = backup_readiness(backend)
     if readiness["backend_kind"] != "sqlite":
