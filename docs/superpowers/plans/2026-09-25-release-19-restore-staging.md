@@ -50,3 +50,26 @@ Response:
 - wrong confirmation produces zero candidate files
 - PostgreSQL unsupported honestly
 - full CI + Python 3.11/3.12 green before merge
+
+
+## Implemented in current branch
+
+- server-only SQLite restore candidate staging
+- existing backup verification reused before staging
+- SQLite backup API used for isolated candidate materialization
+- candidate integrity_check and schema version verification
+- candidate SHA-256 and size metadata
+- atomic candidate finalization inside configured backup directory
+- operator-only stage-restore endpoint with exact confirmation phrase
+- distinct control audit action for staging success/failure
+- mobile backup card action with explicit non-destructive wording
+- viewer/wrong-confirmation/tampered-source protections
+- live database invariance tests
+- Release 19 restart E2E qualification
+- README documentation
+
+## Remaining before Release 19 completion
+
+- final CI qualification on complete head
+- final diff/security review
+- mark PR ready and merge only after green final head
