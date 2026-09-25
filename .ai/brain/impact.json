@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "generated_by": "dbrckk/repo-brain",
-  "base": "171909a9549fb2066945de57646c4089fd52199f",
-  "head": "bbd3aa41ac6248f03f76b8866de8771b93b4e14e",
+  "base": "bbd3aa41ac6248f03f76b8866de8771b93b4e14e",
+  "head": "86ab2e37db23de2f8833bac189c929df2fc21e95",
   "index_mode": "incremental",
   "changed_files": [
     {
@@ -10,15 +10,27 @@
       "status": "M"
     },
     {
-      "path": "docs/superpowers/plans/2026-09-25-release-28-backup-retention-preview.md",
+      "path": "docs/superpowers/plans/2026-09-25-release-29-guarded-backup-retention-prune.md",
       "status": "A"
+    },
+    {
+      "path": "src/production_os/control_plane.py",
+      "status": "M"
     },
     {
       "path": "src/production_os/dashboard_backups.py",
       "status": "M"
     },
     {
+      "path": "src/production_os/dashboard_service.py",
+      "status": "M"
+    },
+    {
       "path": "src/production_os/dashboard_ui.py",
+      "status": "M"
+    },
+    {
+      "path": "tests/test_dashboard_backup_api.py",
       "status": "M"
     },
     {
@@ -31,8 +43,11 @@
     }
   ],
   "changed_source_files": [
+    "src/production_os/control_plane.py",
     "src/production_os/dashboard_backups.py",
+    "src/production_os/dashboard_service.py",
     "src/production_os/dashboard_ui.py",
+    "tests/test_dashboard_backup_api.py",
     "tests/test_dashboard_backups.py",
     "tests/test_dashboard_ui_v3.py"
   ],
@@ -43,9 +58,39 @@
     "src/production_os/dashboard_service.py",
     "src/production_os/dashboard_ui.py",
     "tests/test_cli.py",
+    "tests/test_control_plane.py",
+    "tests/test_control_plane_pr_impact.py",
+    "tests/test_control_plane_release.py",
+    "tests/test_control_plane_webhook.py",
+    "tests/test_dashboard_alerts.py",
+    "tests/test_dashboard_api.py",
+    "tests/test_dashboard_backup_api.py",
     "tests/test_dashboard_backups.py",
+    "tests/test_dashboard_control_api.py",
+    "tests/test_dashboard_control_audit.py",
+    "tests/test_dashboard_control_e2e.py",
+    "tests/test_dashboard_incidents.py",
+    "tests/test_dashboard_launch.py",
+    "tests/test_dashboard_launch_ux.py",
+    "tests/test_dashboard_maintenance.py",
+    "tests/test_dashboard_observability_e2e.py",
+    "tests/test_dashboard_playbook_api.py",
+    "tests/test_dashboard_remediation_api.py",
+    "tests/test_dashboard_retention_prune.py",
+    "tests/test_dashboard_store_postgres.py",
     "tests/test_dashboard_ui_v3.py",
-    "tests/test_release21_offline_restore_e2e.py"
+    "tests/test_database_maintenance_lock.py",
+    "tests/test_http_security_headers.py",
+    "tests/test_managed_projects_http_v4.py",
+    "tests/test_portfolio_claim_api.py",
+    "tests/test_production_stack_e2e.py",
+    "tests/test_release16_operations_e2e.py",
+    "tests/test_release18_managed_projects_e2e.py",
+    "tests/test_release19_restore_staging_e2e.py",
+    "tests/test_release21_offline_restore_e2e.py",
+    "tests/test_remote_worker.py",
+    "tests/test_speculation_api.py",
+    "tests/test_workflow_api.py"
   ],
   "impacted_symbols": [
     {
@@ -658,13 +703,13 @@
       "name": "audit_control",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 1392
+      "line": 1496
     },
     {
       "name": "serve_control_plane",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 2595
+      "line": 2699
     },
     {
       "name": "BackupError",
@@ -685,106 +730,136 @@
       "line": 24
     },
     {
-      "name": "_now",
-      "kind": "function",
+      "name": "BackupRetentionCandidateConflict",
+      "kind": "class",
       "file": "src/production_os/dashboard_backups.py",
       "line": 32
     },
     {
-      "name": "_backend_kind",
+      "name": "__init__",
       "kind": "function",
       "file": "src/production_os/dashboard_backups.py",
-      "line": 36
+      "line": 33
     },
     {
-      "name": "_configured_dir",
-      "kind": "function",
-      "file": "src/production_os/dashboard_backups.py",
-      "line": 41
-    },
-    {
-      "name": "_safe_manifest",
+      "name": "_now",
       "kind": "function",
       "file": "src/production_os/dashboard_backups.py",
       "line": 46
     },
     {
+      "name": "_backend_kind",
+      "kind": "function",
+      "file": "src/production_os/dashboard_backups.py",
+      "line": 50
+    },
+    {
+      "name": "_configured_dir",
+      "kind": "function",
+      "file": "src/production_os/dashboard_backups.py",
+      "line": 55
+    },
+    {
+      "name": "_safe_manifest",
+      "kind": "function",
+      "file": "src/production_os/dashboard_backups.py",
+      "line": 60
+    },
+    {
       "name": "_safe_activation_receipt",
       "kind": "function",
       "file": "src/production_os/dashboard_backups.py",
-      "line": 64
+      "line": 78
     },
     {
       "name": "restore_activation_history",
       "kind": "function",
       "file": "src/production_os/dashboard_backups.py",
-      "line": 107
+      "line": 121
     },
     {
       "name": "_backup_filesystem_capacity",
       "kind": "function",
       "file": "src/production_os/dashboard_backups.py",
-      "line": 133
+      "line": 147
     },
     {
       "name": "_backup_age_summary",
       "kind": "function",
       "file": "src/production_os/dashboard_backups.py",
-      "line": 187
+      "line": 201
+    },
+    {
+      "name": "_backup_retention_classification",
+      "kind": "function",
+      "file": "src/production_os/dashboard_backups.py",
+      "line": 245
     },
     {
       "name": "_backup_retention_preview",
       "kind": "function",
       "file": "src/production_os/dashboard_backups.py",
-      "line": 231
+      "line": 335
+    },
+    {
+      "name": "_retention_source_state",
+      "kind": "function",
+      "file": "src/production_os/dashboard_backups.py",
+      "line": 348
     },
     {
       "name": "backup_storage_inventory",
       "kind": "function",
       "file": "src/production_os/dashboard_backups.py",
-      "line": 313
+      "line": 378
+    },
+    {
+      "name": "prune_expired_verified_backups",
+      "kind": "function",
+      "file": "src/production_os/dashboard_backups.py",
+      "line": 547
     },
     {
       "name": "prune_stale_backup_temps",
       "kind": "function",
       "file": "src/production_os/dashboard_backups.py",
-      "line": 482
+      "line": 637
     },
     {
       "name": "backup_readiness",
       "kind": "function",
       "file": "src/production_os/dashboard_backups.py",
-      "line": 539
+      "line": 694
     },
     {
       "name": "verify_backup_for_restore",
       "kind": "function",
       "file": "src/production_os/dashboard_backups.py",
-      "line": 596
+      "line": 751
     },
     {
       "name": "stage_verified_sqlite_restore",
       "kind": "function",
       "file": "src/production_os/dashboard_backups.py",
-      "line": 682
+      "line": 837
     },
     {
       "name": "verify_staged_restore_candidate",
       "kind": "function",
       "file": "src/production_os/dashboard_backups.py",
-      "line": 784
+      "line": 939
     },
     {
       "name": "activate_staged_sqlite_restore",
       "kind": "function",
       "file": "src/production_os/dashboard_backups.py",
-      "line": 869
+      "line": 1024
     },
     {
       "name": "create_verified_sqlite_backup",
       "kind": "function",
       "file": "src/production_os/dashboard_backups.py",
-      "line": 1033
+      "line": 1188
     },
     {
       "name": "DashboardNotFound",
@@ -907,142 +982,148 @@
       "line": 487
     },
     {
-      "name": "create_verified_backup",
+      "name": "prune_expired_backups",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
       "line": 496
     },
     {
+      "name": "create_verified_backup",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 507
+    },
+    {
       "name": "verify_backup_restore_readiness",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 502
+      "line": 513
     },
     {
       "name": "stage_backup_restore",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 508
+      "line": 519
     },
     {
       "name": "control_audit",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 514
+      "line": 525
     },
     {
       "name": "workers",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 520
+      "line": 531
     },
     {
       "name": "worker_detail",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 533
+      "line": 544
     },
     {
       "name": "worker_logs",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 562
+      "line": 573
     },
     {
       "name": "worker_usage",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 567
+      "line": 578
     },
     {
       "name": "_repositories",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 572
+      "line": 583
     },
     {
       "name": "maintenance",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 583
+      "line": 594
     },
     {
       "name": "prune_maintenance",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 595
+      "line": 606
     },
     {
       "name": "repositories",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 607
+      "line": 618
     },
     {
       "name": "projects",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 648
+      "line": 659
     },
     {
       "name": "_require_project",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 653
+      "line": 664
     },
     {
       "name": "project_detail",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 656
+      "line": 667
     },
     {
       "name": "_progress_snapshot_state",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 662
+      "line": 673
     },
     {
       "name": "project_progress",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 682
+      "line": 693
     },
     {
       "name": "project_commits",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 745
+      "line": 756
     },
     {
       "name": "_legacy_workflow_usage_rows",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 753
+      "line": 764
     },
     {
       "name": "project_usage",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 802
+      "line": 813
     },
     {
       "name": "project_workflows",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 811
+      "line": 822
     },
     {
       "name": "project_history",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 817
+      "line": 828
     },
     {
       "name": "activity",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 839
+      "line": 850
     },
     {
       "name": "test_control_plane_builder_trust_options_are_registered",
@@ -1111,688 +1192,742 @@
       "line": 187
     },
     {
+      "name": "request",
+      "kind": "function",
+      "file": "tests/test_control_plane.py",
+      "line": 11
+    },
+    {
+      "name": "test_control_plane_worker_and_queue",
+      "kind": "function",
+      "file": "tests/test_control_plane.py",
+      "line": 27
+    },
+    {
+      "name": "test_trust_status_endpoint_requires_auth_and_forwards_filters",
+      "kind": "function",
+      "file": "tests/test_control_plane.py",
+      "line": 76
+    },
+    {
+      "name": "trust_status",
+      "kind": "function",
+      "file": "tests/test_control_plane.py",
+      "line": 83
+    },
+    {
+      "name": "test_incident_history_endpoints_require_auth_and_forward_filter",
+      "kind": "function",
+      "file": "tests/test_control_plane.py",
+      "line": 130
+    },
+    {
+      "name": "test_incident_snapshot_requires_operator_and_reports_dedup",
+      "kind": "function",
+      "file": "tests/test_control_plane.py",
+      "line": 178
+    },
+    {
+      "name": "snapshot",
+      "kind": "function",
+      "file": "tests/test_control_plane.py",
+      "line": 185
+    },
+    {
+      "name": "test_incident_snapshot_rejects_invalid_payload_shapes",
+      "kind": "function",
+      "file": "tests/test_control_plane.py",
+      "line": 268
+    },
+    {
+      "name": "post",
+      "kind": "function",
+      "file": "tests/test_control_plane.py",
+      "line": 280
+    },
+    {
+      "name": "test_http_body_parser_rejects_invalid_json_and_oversized_payload",
+      "kind": "function",
+      "file": "tests/test_control_plane.py",
+      "line": 311
+    },
+    {
+      "name": "test_github_webhook_returns_413_for_oversized_body",
+      "kind": "function",
+      "file": "tests/test_control_plane.py",
+      "line": 357
+    },
+    {
+      "name": "test_generic_post_returns_413_before_endpoint_processing",
+      "kind": "function",
+      "file": "tests/test_control_plane.py",
+      "line": 386
+    },
+    {
+      "name": "request",
+      "kind": "function",
+      "file": "tests/test_control_plane_pr_impact.py",
+      "line": 11
+    },
+    {
+      "name": "test_control_plane_applies_pr_changed_paths",
+      "kind": "function",
+      "file": "tests/test_control_plane_pr_impact.py",
+      "line": 25
+    },
+    {
+      "name": "FakeGitHubClient",
+      "kind": "class",
+      "file": "tests/test_control_plane_pr_impact.py",
+      "line": 26
+    },
+    {
+      "name": "list_pull_request_files",
+      "kind": "function",
+      "file": "tests/test_control_plane_pr_impact.py",
+      "line": 27
+    },
+    {
+      "name": "get_request",
+      "kind": "function",
+      "file": "tests/test_control_plane_release.py",
+      "line": 12
+    },
+    {
+      "name": "request",
+      "kind": "function",
+      "file": "tests/test_control_plane_release.py",
+      "line": 25
+    },
+    {
+      "name": "test_control_plane_promote_and_rollback_release",
+      "kind": "function",
+      "file": "tests/test_control_plane_release.py",
+      "line": 39
+    },
+    {
+      "name": "signed_request",
+      "kind": "function",
+      "file": "tests/test_control_plane_webhook.py",
+      "line": 14
+    },
+    {
+      "name": "test_signed_pr_webhook_refreshes_and_dispatches",
+      "kind": "function",
+      "file": "tests/test_control_plane_webhook.py",
+      "line": 36
+    },
+    {
+      "name": "FakeGitHubClient",
+      "kind": "class",
+      "file": "tests/test_control_plane_webhook.py",
+      "line": 37
+    },
+    {
+      "name": "list_pull_request_files",
+      "kind": "function",
+      "file": "tests/test_control_plane_webhook.py",
+      "line": 40
+    },
+    {
+      "name": "test_webhook_rejects_bad_signature",
+      "kind": "function",
+      "file": "tests/test_control_plane_webhook.py",
+      "line": 144
+    },
+    {
+      "name": "test_webhook_creates_unseen_pr_from_template",
+      "kind": "function",
+      "file": "tests/test_control_plane_webhook.py",
+      "line": 181
+    },
+    {
+      "name": "FakeGitHubClient",
+      "kind": "class",
+      "file": "tests/test_control_plane_webhook.py",
+      "line": 182
+    },
+    {
+      "name": "list_pull_request_files",
+      "kind": "function",
+      "file": "tests/test_control_plane_webhook.py",
+      "line": 183
+    },
+    {
+      "name": "test_offline_worker_with_queued_work_is_high_alert",
+      "kind": "function",
+      "file": "tests/test_dashboard_alerts.py",
+      "line": 6
+    },
+    {
+      "name": "test_three_consecutive_failures_are_high_alert",
+      "kind": "function",
+      "file": "tests/test_dashboard_alerts.py",
+      "line": 17
+    },
+    {
+      "name": "test_cost_spike_requires_real_baseline",
+      "kind": "function",
+      "file": "tests/test_dashboard_alerts.py",
+      "line": 28
+    },
+    {
+      "name": "test_stale_busy_worker_is_medium_alert",
+      "kind": "function",
+      "file": "tests/test_dashboard_alerts.py",
+      "line": 48
+    },
+    {
+      "name": "test_previous_window_cost_uses_observed_historical_cost_only",
+      "kind": "function",
+      "file": "tests/test_dashboard_alerts.py",
+      "line": 65
+    },
+    {
+      "name": "_auth",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 15
+    },
+    {
+      "name": "running_control_plane",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 25
+    },
+    {
+      "name": "get_api",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 38
+    },
+    {
+      "name": "api",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 49
+    },
+    {
+      "name": "_owned_execution",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 62
+    },
+    {
+      "name": "test_worker_can_publish_owned_job_telemetry",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 71
+    },
+    {
+      "name": "test_other_worker_and_viewer_cannot_publish_telemetry",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 84
+    },
+    {
+      "name": "test_heartbeat_persists_only_authenticated_quota_values",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 101
+    },
+    {
+      "name": "test_dashboard_overview_requires_viewer_and_has_stable_envelope",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 116
+    },
+    {
+      "name": "test_dashboard_rejects_invalid_window",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 126
+    },
+    {
+      "name": "test_dashboard_worker_routes_and_unknown_worker",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 131
+    },
+    {
+      "name": "test_dashboard_project_and_activity_routes",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 144
+    },
+    {
+      "name": "test_dashboard_autopilot_queue_ranks_jobs_and_explains_worker_eligibility",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 154
+    },
+    {
+      "name": "test_dashboard_autopilot_respects_pause_capacity_and_capabilities",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 188
+    },
+    {
+      "name": "test_dashboard_autopilot_honors_assigned_worker_and_access_rules",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 236
+    },
+    {
+      "name": "test_dashboard_autopilot_survives_stale_workflow_reference",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 272
+    },
+    {
+      "name": "test_dashboard_autopilot_summary_reports_capacity_and_eta",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 305
+    },
+    {
+      "name": "test_dashboard_health_requires_viewer_and_has_stable_shape",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 347
+    },
+    {
+      "name": "test_worker_detail_includes_recoverable_jobs",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 356
+    },
+    {
+      "name": "_auth",
+      "kind": "function",
+      "file": "tests/test_dashboard_backup_api.py",
+      "line": 16
+    },
+    {
+      "name": "_request",
+      "kind": "function",
+      "file": "tests/test_dashboard_backup_api.py",
+      "line": 24
+    },
+    {
+      "name": "_server",
+      "kind": "function",
+      "file": "tests/test_dashboard_backup_api.py",
+      "line": 42
+    },
+    {
+      "name": "test_backup_catalog_is_viewer_readable_and_worker_forbidden",
+      "kind": "function",
+      "file": "tests/test_dashboard_backup_api.py",
+      "line": 49
+    },
+    {
+      "name": "test_backup_creation_requires_operator_and_exact_confirmation",
+      "kind": "function",
+      "file": "tests/test_dashboard_backup_api.py",
+      "line": 79
+    },
+    {
+      "name": "test_unconfigured_backup_returns_conflict_and_failed_audit",
+      "kind": "function",
+      "file": "tests/test_dashboard_backup_api.py",
+      "line": 127
+    },
+    {
+      "name": "test_restore_readiness_api_requires_operator_and_exact_confirmation",
+      "kind": "function",
+      "file": "tests/test_dashboard_backup_api.py",
+      "line": 152
+    },
+    {
+      "name": "test_restore_readiness_api_rejects_tampered_backup_and_audits_failure",
+      "kind": "function",
+      "file": "tests/test_dashboard_backup_api.py",
+      "line": 204
+    },
+    {
+      "name": "test_restore_staging_requires_operator_and_exact_confirmation",
+      "kind": "function",
+      "file": "tests/test_dashboard_backup_api.py",
+      "line": 237
+    },
+    {
+      "name": "test_restore_staging_rejects_tampered_backup_and_audits_failure",
+      "kind": "function",
+      "file": "tests/test_dashboard_backup_api.py",
+      "line": 295
+    },
+    {
+      "name": "test_backup_catalog_exposes_restore_activation_history_to_viewer",
+      "kind": "function",
+      "file": "tests/test_dashboard_backup_api.py",
+      "line": 332
+    },
+    {
+      "name": "test_backup_http_surface_has_no_restore_activation_route",
+      "kind": "function",
+      "file": "tests/test_dashboard_backup_api.py",
+      "line": 375
+    },
+    {
+      "name": "test_backup_catalog_exposes_aggregated_storage_inventory",
+      "kind": "function",
+      "file": "tests/test_dashboard_backup_api.py",
+      "line": 394
+    },
+    {
+      "name": "test_backup_temp_prune_requires_operator_exact_confirmation_and_expected_count",
+      "kind": "function",
+      "file": "tests/test_dashboard_backup_api.py",
+      "line": 429
+    },
+    {
+      "name": "test_backup_temp_prune_never_deletes_protected_backup_artifacts",
+      "kind": "function",
+      "file": "tests/test_dashboard_backup_api.py",
+      "line": 514
+    },
+    {
+      "name": "test_backup_catalog_exposes_filesystem_capacity_without_paths",
+      "kind": "function",
+      "file": "tests/test_dashboard_backup_api.py",
+      "line": 554
+    },
+    {
+      "name": "test_backup_retention_prune_requires_operator_confirmation_and_fingerprint",
+      "kind": "function",
+      "file": "tests/test_dashboard_backup_api.py",
+      "line": 583
+    },
+    {
       "name": "test_sqlite_backup_contains_committed_durable_data",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 28
+      "line": 30
     },
     {
       "name": "test_backup_hash_and_size_match_file_bytes",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 52
+      "line": 54
     },
     {
       "name": "test_manifest_contains_only_safe_metadata",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 64
+      "line": 66
     },
     {
       "name": "test_missing_backup_directory_configuration_writes_nothing",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 86
+      "line": 88
     },
     {
       "name": "_FakePostgres",
       "kind": "class",
       "file": "tests/test_dashboard_backups.py",
-      "line": 98
+      "line": 100
     },
     {
       "name": "test_postgres_readiness_is_truthfully_unsupported",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 105
+      "line": 107
     },
     {
       "name": "test_backup_readiness_does_not_create_configured_directory",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 116
+      "line": 118
     },
     {
       "name": "test_valid_backup_reports_restore_readiness_and_schema",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 128
+      "line": 130
     },
     {
       "name": "test_tampered_backup_file_is_rejected",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 144
+      "line": 146
     },
     {
       "name": "test_tampered_manifest_is_rejected",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 156
+      "line": 158
     },
     {
       "name": "test_restore_verification_rejects_malformed_or_traversal_ids",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 180
+      "line": 182
     },
     {
       "name": "test_restore_verification_rejects_missing_backup_file",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 191
+      "line": 193
     },
     {
       "name": "test_restore_verification_never_changes_live_database",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 202
+      "line": 204
     },
     {
       "name": "test_stage_verified_restore_creates_isolated_candidate",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 226
+      "line": 228
     },
     {
       "name": "test_stage_restore_rejects_tampered_source_without_candidate",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 270
+      "line": 272
     },
     {
       "name": "test_stage_restore_manifest_contains_only_safe_metadata",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 285
+      "line": 287
     },
     {
       "name": "test_offline_restore_activation_replaces_live_state_and_creates_rollback",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 312
+      "line": 314
     },
     {
       "name": "test_restore_activation_wrong_confirmation_changes_nothing",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 361
+      "line": 363
     },
     {
       "name": "test_restore_activation_rejects_tampered_candidate",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 380
+      "line": 382
     },
     {
       "name": "test_restore_activation_rejects_schema_mismatch",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 397
+      "line": 399
     },
     {
       "name": "test_restore_activation_rolls_back_if_post_replace_verification_fails",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 420
+      "line": 422
     },
     {
       "name": "failing_connect",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 446
+      "line": 448
     },
     {
       "name": "test_successful_restore_candidate_cannot_be_replayed",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 477
+      "line": 479
     },
     {
       "name": "test_restore_activation_receipt_contains_only_safe_structured_fields",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 498
+      "line": 500
     },
     {
       "name": "test_successful_activation_marks_candidate_manifest_consumed",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 539
+      "line": 541
     },
     {
       "name": "test_failed_activation_with_rollback_does_not_consume_candidate",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 566
+      "line": 568
     },
     {
       "name": "failing_connect",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 582
+      "line": 584
     },
     {
       "name": "test_restore_activation_history_lists_valid_receipts_newest_first",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 608
+      "line": 610
     },
     {
       "name": "test_restore_activation_history_ignores_malformed_receipts",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 647
+      "line": 649
     },
     {
       "name": "test_restore_activation_history_is_empty_when_unconfigured_or_postgres",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 677
+      "line": 679
     },
     {
       "name": "test_backup_storage_inventory_classifies_files_without_exposing_paths",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 689
+      "line": 691
     },
     {
       "name": "test_backup_storage_inventory_missing_directory_is_zero_and_read_only",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 738
+      "line": 740
     },
     {
       "name": "test_backup_storage_inventory_postgres_is_truthfully_unsupported",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 754
+      "line": 756
     },
     {
       "name": "test_backup_storage_inventory_marks_only_old_temps_stale",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 767
+      "line": 769
     },
     {
       "name": "test_prune_stale_backup_temps_deletes_only_stale_temp_files",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 790
+      "line": 792
     },
     {
       "name": "test_prune_stale_backup_temps_count_mismatch_changes_nothing",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 828
+      "line": 830
     },
     {
       "name": "test_backup_filesystem_capacity_uses_existing_parent_for_missing_directory",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 852
+      "line": 854
     },
     {
       "name": "test_backup_filesystem_capacity_is_unavailable_when_unconfigured",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 872
+      "line": 874
     },
     {
       "name": "test_backup_filesystem_capacity_postgres_is_unsupported",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 886
+      "line": 888
     },
     {
       "name": "test_backup_filesystem_capacity_converts_statvfs_and_thresholds",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 899
+      "line": 901
     },
     {
       "name": "Stats",
       "kind": "class",
       "file": "tests/test_dashboard_backups.py",
-      "line": 908
+      "line": 910
     },
     {
       "name": "test_backup_filesystem_capacity_statvfs_error_is_unknown_not_zero",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 927
+      "line": 929
     },
     {
       "name": "fail",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 936
+      "line": 938
     },
     {
       "name": "test_storage_inventory_keeps_filesystem_shape_when_directory_listing_fails",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 946
+      "line": 948
     },
     {
       "name": "failing_iterdir",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 958
+      "line": 960
     },
     {
       "name": "test_storage_inventory_reports_verified_backup_age_distribution",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 980
+      "line": 982
     },
     {
       "name": "test_storage_inventory_retention_preview_protects_restore_history_and_latest",
       "kind": "function",
       "file": "tests/test_dashboard_backups.py",
-      "line": 1036
+      "line": 1038
     },
     {
-      "name": "test_dashboard_has_primary_views_and_clickable_entities",
+      "name": "test_prune_expired_verified_backups_deletes_only_current_candidates",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 4
+      "file": "tests/test_dashboard_backups.py",
+      "line": 1115
     },
     {
-      "name": "test_polling_does_not_reload_or_replace_location",
+      "name": "test_prune_expired_verified_backups_rejects_changed_fingerprint",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 11
-    },
-    {
-      "name": "test_dashboard_has_worker_and_project_detail_tabs",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 17
-    },
-    {
-      "name": "test_dashboard_preserves_launch_and_mobile_accessibility",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 22
-    },
-    {
-      "name": "test_dashboard_overview_is_bound_to_observability_api",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 34
-    },
-    {
-      "name": "test_dashboard_v3_has_usage_window_controls",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 40
-    },
-    {
-      "name": "test_dashboard_workers_view_is_bound_to_observability_api",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 46
-    },
-    {
-      "name": "test_dashboard_projects_view_is_bound_to_observability_api",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 54
-    },
-    {
-      "name": "test_dashboard_activity_view_is_bound_to_observability_api",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 62
-    },
-    {
-      "name": "test_worker_detail_exposes_live_task_and_health_information",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 68
-    },
-    {
-      "name": "test_worker_detail_exposes_api_usage_breakdown",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 75
-    },
-    {
-      "name": "test_worker_detail_exposes_execution_history",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 81
-    },
-    {
-      "name": "test_worker_detail_exposes_structured_recent_logs",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 88
-    },
-    {
-      "name": "test_worker_detail_exposes_capabilities_and_health",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 95
-    },
-    {
-      "name": "test_project_detail_exposes_progress_evidence",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 103
-    },
-    {
-      "name": "test_project_detail_exposes_progress_components",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 111
-    },
-    {
-      "name": "test_project_detail_exposes_commit_window_and_sources",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 117
-    },
-    {
-      "name": "test_project_detail_exposes_api_usage_breakdown",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 125
-    },
-    {
-      "name": "test_worker_control_tab_has_safe_actions",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 132
-    },
-    {
-      "name": "test_ui_distinguishes_requested_from_acknowledged",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 142
-    },
-    {
-      "name": "test_control_refresh_preserves_navigation_and_scroll_contract",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 149
-    },
-    {
-      "name": "test_overview_renders_operational_alerts",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 156
-    },
-    {
-      "name": "test_dashboard_has_autopilot_primary_view",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 163
-    },
-    {
-      "name": "test_autopilot_view_exposes_queue_explanations",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 171
-    },
-    {
-      "name": "test_autopilot_navigation_preserves_polling_scroll_contract",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 186
-    },
-    {
-      "name": "test_autopilot_surfaces_degraded_ranking_state",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 193
-    },
-    {
-      "name": "test_autopilot_view_shows_capacity_summary",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 199
-    },
-    {
-      "name": "test_activity_view_renders_operator_control_audit",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 213
-    },
-    {
-      "name": "test_overview_renders_operational_health",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 221
-    },
-    {
-      "name": "test_worker_control_exposes_recover_stuck_only_from_recoverable_jobs",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 228
-    },
-    {
-      "name": "test_overview_renders_and_acknowledges_durable_incidents",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 234
-    },
-    {
-      "name": "test_overview_renders_server_backed_incident_playbooks",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 242
-    },
-    {
-      "name": "test_incident_playbook_actions_are_explicit_and_reuse_control_api",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 250
-    },
-    {
-      "name": "test_incident_inspection_playbooks_only_navigate",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 257
-    },
-    {
-      "name": "test_incident_playbook_actions_send_incident_id",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 263
-    },
-    {
-      "name": "test_activity_view_renders_remediation_history",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 269
-    },
-    {
-      "name": "test_direct_worker_controls_do_not_require_incident_id",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 277
-    },
-    {
-      "name": "test_activity_view_renders_remediation_verification_status",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 282
-    },
-    {
-      "name": "test_activity_view_renders_remediation_analytics_with_sample_sizes",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 290
-    },
-    {
-      "name": "test_activity_view_renders_remediation_recurrence_status",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 301
-    },
-    {
-      "name": "test_activity_view_renders_remediation_durability_timing",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 311
-    },
-    {
-      "name": "test_launch_repository_picker_is_server_backed",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 320
-    },
-    {
-      "name": "test_mobile_launch_flow_remains_repo_plus_instruction",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 326
-    },
-    {
-      "name": "test_overview_renders_storage_maintenance_card",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 334
-    },
-    {
-      "name": "test_storage_maintenance_failure_does_not_break_overview",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 344
-    },
-    {
-      "name": "test_storage_retention_ui_separates_prunable_and_protected_rows",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 350
-    },
-    {
-      "name": "test_retention_prune_requires_explicit_confirmation_and_exact_phrase",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 359
-    },
-    {
-      "name": "test_retention_prune_button_only_renders_for_positive_prunable_count",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 367
-    },
-    {
-      "name": "test_overview_renders_backup_readiness_and_safe_create_button",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 373
-    },
-    {
-      "name": "test_backup_ui_does_not_render_server_paths",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 383
-    },
-    {
-      "name": "test_backup_catalog_exposes_restore_readiness_and_safe_staging",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 389
-    },
-    {
-      "name": "test_restore_staging_ui_never_exposes_live_activation_or_paths",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 403
-    },
-    {
-      "name": "test_dashboard_has_managed_projects_view",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 411
-    },
-    {
-      "name": "test_managed_projects_view_exposes_safe_review_and_attention_actions",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 418
-    },
-    {
-      "name": "test_managed_projects_navigation_preserves_existing_polling_contract",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 428
-    },
-    {
-      "name": "test_managed_projects_mobile_creation_form_is_inline_and_server_backed",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 435
-    },
-    {
-      "name": "test_managed_project_instruction_uses_inline_textarea_not_prompt",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 446
-    },
-    {
-      "name": "test_managed_projects_mobile_view_renders_generation_history",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 453
-    },
-    {
-      "name": "test_managed_repository_picker_reuses_server_repository_discovery",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 461
-    },
-    {
-      "name": "test_backup_overview_renders_restore_activation_history",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 467
-    },
-    {
-      "name": "test_backup_overview_renders_storage_inventory_read_only",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 476
-    },
-    {
-      "name": "test_backup_temp_cleanup_ui_is_guarded_and_stale_only",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 489
-    },
-    {
-      "name": "test_backup_overview_renders_filesystem_capacity_read_only",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 501
-    },
-    {
-      "name": "test_backup_overview_renders_verified_backup_age_distribution",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 511
-    },
-    {
-      "name": "test_backup_overview_renders_retention_preview_read_only",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 521
-    },
-    {
-      "name": "test_release21_offline_restore_activation_survives_restart",
-      "kind": "function",
-      "file": "tests/test_release21_offline_restore_e2e.py",
-      "line": 15
+      "file": "tests/test_dashboard_backups.py",
+      "line": 1183
     }
   ],
   "selected_tests": [
     "tests/test_cli.py",
+    "tests/test_control_plane.py",
+    "tests/test_control_plane_pr_impact.py",
+    "tests/test_control_plane_release.py",
+    "tests/test_control_plane_webhook.py",
+    "tests/test_dashboard_alerts.py",
+    "tests/test_dashboard_api.py",
+    "tests/test_dashboard_backup_api.py",
     "tests/test_dashboard_backups.py",
+    "tests/test_dashboard_control_api.py",
+    "tests/test_dashboard_control_audit.py",
+    "tests/test_dashboard_control_e2e.py",
+    "tests/test_dashboard_incidents.py",
+    "tests/test_dashboard_launch.py",
+    "tests/test_dashboard_launch_ux.py",
+    "tests/test_dashboard_maintenance.py",
+    "tests/test_dashboard_observability_e2e.py",
+    "tests/test_dashboard_playbook_api.py",
+    "tests/test_dashboard_remediation_api.py",
+    "tests/test_dashboard_retention_prune.py",
+    "tests/test_dashboard_store_postgres.py",
     "tests/test_dashboard_ui_v3.py",
-    "tests/test_release21_offline_restore_e2e.py"
+    "tests/test_database_maintenance_lock.py",
+    "tests/test_http_security_headers.py",
+    "tests/test_managed_projects_http_v4.py",
+    "tests/test_portfolio_claim_api.py",
+    "tests/test_production_stack_e2e.py",
+    "tests/test_release16_operations_e2e.py",
+    "tests/test_release18_managed_projects_e2e.py",
+    "tests/test_release19_restore_staging_e2e.py",
+    "tests/test_release21_offline_restore_e2e.py",
+    "tests/test_remote_worker.py",
+    "tests/test_speculation_api.py",
+    "tests/test_workflow_api.py"
   ]
 }

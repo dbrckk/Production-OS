@@ -2,34 +2,34 @@
 
 - Index mode: incremental
 - Files indexed: 245
-- Files reparsed this run: 4
-- Symbols: 1970
+- Files reparsed this run: 7
+- Symbols: 1980
 - Internal import edges: 692
-- Impacted files: 9
-- Selected tests: 4
+- Impacted files: 39
+- Selected tests: 34
 
 ## Languages
 - python: 245 files
 
 ## Highest-density symbol files
 - src/production_os/cli.py: 81 symbols
-- tests/test_dashboard_ui_v3.py: 65 symbols
+- tests/test_dashboard_ui_v3.py: 66 symbols
 - tests/test_asset_forge.py: 56 symbols
 - src/production_os/postgres_backend.py: 55 symbols
 - src/production_os/sqlite_backend.py: 55 symbols
 - src/production_os/dashboard_store.py: 49 symbols
-- tests/test_dashboard_backups.py: 47 symbols
-- src/production_os/dashboard_service.py: 43 symbols
+- tests/test_dashboard_backups.py: 49 symbols
+- src/production_os/dashboard_service.py: 44 symbols
 - src/production_os/github_client.py: 37 symbols
 - src/production_os/workflow_engine.py: 37 symbols
 - tests/test_transparency_receipts.py: 29 symbols
+- src/production_os/dashboard_backups.py: 25 symbols
 - src/production_os/control_plane.py: 22 symbols
 - src/production_os/rekor_checkpoint_state.py: 22 symbols
 - src/production_os/release_ledger.py: 22 symbols
 - tests/test_release_ledger.py: 22 symbols
 - src/production_os/asset_forge.py: 21 symbols
 - src/production_os/transparency_receipts.py: 21 symbols
-- src/production_os/dashboard_backups.py: 20 symbols
 - src/production_os/managed_projects.py: 20 symbols
 - tests/test_workflow_engine.py: 20 symbols
 
@@ -42,10 +42,10 @@
 ## ast-grep enrichment
 - ast-grep outline: available
 - AST index mode: incremental
-- AST files reparsed this run: 4
+- AST files reparsed this run: 7
 - outline files retained: 245
-- top-level items retained: 2512
-- direct members retained: 864
+- top-level items retained: 2521
+- direct members retained: 866
 - symbol shards: 25
 - route named symbols via ast-routing.json, then fetch one ast-symbols/<initial>.json shard
 

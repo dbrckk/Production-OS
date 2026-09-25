@@ -2524,6 +2524,11 @@ result = control.dashboard.stage_backup_restore(
 ⋮----
 result = (
 ⋮----
+expected_count = body.get("expected_candidate_count")
+expected_fingerprint = str(
+⋮----
+result = control.dashboard.prune_expired_backups(
+⋮----
 expected = body.get("expected_candidate_count")
 ⋮----
 result = control.dashboard.prune_backup_temps(
@@ -2910,6 +2915,8 @@ class BackupTempCandidateConflict(BackupError)
 ⋮----
 def __init__(self, expected: int, actual: int)
 ⋮----
+class BackupRetentionCandidateConflict(BackupError)
+⋮----
 def _now() -> str
 ⋮----
 def _backend_kind(backend) -> str
@@ -2998,6 +3005,7 @@ size_bytes = (
 ⋮----
 newest_ids = {
 cutoff_seconds = BACKUP_RETENTION_DAYS * 86400
+candidate_ids: list[str] = []
 candidate_count = 0
 candidate_bytes = 0
 protected_recent = 0
@@ -3006,6 +3014,20 @@ protected_restore_history = 0
 ⋮----
 backup_id = item["backup_id"]
 age_seconds = max(0.0, (now - item["created_at"]).total_seconds())
+⋮----
+candidate_fingerprint = sha256(
+preview = {
+⋮----
+def _retention_source_state(directory: Path) -> tuple[list[dict], set[str]]
+⋮----
+verified_backups: list[dict] = []
+protected_backup_ids: set[str] = set()
+backup_manifest = re.compile(
+activation_receipt = re.compile(
+⋮----
+manifest = _safe_manifest(path)
+⋮----
+receipt = _safe_activation_receipt(path)
 ⋮----
 def backup_storage_inventory(backend) -> dict
 ⋮----
@@ -3017,13 +3039,11 @@ backup_ids: set[str] = set()
 candidate_ids: set[str] = set()
 metrics = dict(zero)
 verified_backup_created_at: list[str] = []
-verified_backups: list[dict] = []
-protected_backup_ids: set[str] = set()
+⋮----
 backup_sqlite = re.compile(
-backup_manifest = re.compile(
+⋮----
 candidate_sqlite = re.compile(
 candidate_manifest = re.compile(
-activation_receipt = re.compile(
 ⋮----
 paths = list(directory.iterdir())
 ⋮----
@@ -3039,22 +3059,31 @@ age_seconds = 0.0
 ⋮----
 match = activation_receipt.fullmatch(name)
 ⋮----
-receipt = _safe_activation_receipt(path)
-⋮----
 match = candidate_sqlite.fullmatch(name) or candidate_manifest.fullmatch(name)
 ⋮----
 sqlite_match = backup_sqlite.fullmatch(name)
 manifest_match = backup_manifest.fullmatch(name)
 match = sqlite_match or manifest_match
 ⋮----
-manifest = _safe_manifest(path)
+expected_candidate_fingerprint = str(
+⋮----
+actual_count = int(preview["candidate_count"])
+actual_fingerprint = str(preview["candidate_fingerprint"])
+⋮----
+deleted_count = 0
+deleted_bytes = 0
+⋮----
+manifest_path = directory / f"{backup_id}.json"
+backup_path = directory / f"{backup_id}.sqlite"
+manifest = _safe_manifest(manifest_path)
+⋮----
+paths = [path for path in (backup_path, manifest_path) if path.is_file()]
+sizes = []
 ⋮----
 inventory = backup_storage_inventory(backend)
 ⋮----
 actual = int(inventory.get("stale_temp_count") or 0)
 ⋮----
-deleted_count = 0
-deleted_bytes = 0
 now_ts = datetime.now(timezone.utc).timestamp()
 ⋮----
 stat = path.stat()
@@ -3078,10 +3107,6 @@ def verify_backup_for_restore(backend, backup_id: str) -> dict
 backup_id = str(backup_id or "").strip()
 ⋮----
 readiness = backup_readiness(backend)
-⋮----
-manifest_path = directory / f"{backup_id}.json"
-backup_path = directory / f"{backup_id}.sqlite"
-manifest = _safe_manifest(manifest_path)
 ⋮----
 digest = sha256()
 size = 0
@@ -8771,6 +8796,15 @@ protected = [
 filesystem = payload["storage"]["filesystem"]
 ⋮----
 encoded = json.dumps(filesystem).lower()
+⋮----
+now = datetime.now(timezone.utc)
+rows = [
+⋮----
+preview = catalog["storage"]["retention_preview"]
+⋮----
+fingerprint = preview["candidate_fingerprint"]
+⋮----
+old_id = rows[-1][0]
 ````
 
 ## File: tests/test_dashboard_backups.py
@@ -8955,6 +8989,14 @@ candidate_id = "20260925T120000Z-200000000001"
 rollback_id = "20260925T120000Z-200000000002"
 ⋮----
 preview = backup_storage_inventory(backend)["retention_preview"]
+⋮----
+protected_old = rows[-1][0]
+receipt_candidate = "20260925T120000Z-400000000001"
+rollback_id = "20260925T120000Z-400000000002"
+⋮----
+candidate_id = rows[-2][0]
+⋮----
+result = prune_expired_verified_backups(
 ````
 
 ## File: tests/test_dashboard_control_api.py
@@ -10135,6 +10177,8 @@ def test_backup_overview_renders_filesystem_capacity_read_only()
 def test_backup_overview_renders_verified_backup_age_distribution()
 ⋮----
 def test_backup_overview_renders_retention_preview_read_only()
+⋮----
+def test_backup_retention_cleanup_ui_requires_preview_fingerprint()
 ````
 
 ## File: tests/test_dashboard_usage.py
@@ -13711,6 +13755,38 @@ protected_reasons
 No backup identifiers, file names or server paths are exposed through this preview.
 
 This release is strictly observational. It does not delete or archive backups, change restore behavior, or enable automatic retention. Any future destructive retention action must be implemented separately with explicit operator confirmation and fresh-state race protection.
+
+
+## Release 29 — Guarded verified-backup retention cleanup
+
+Operators can now explicitly remove only verified SQLite backups that are currently classified as retention candidates.
+
+The cleanup endpoint is:
+
+```text
+POST /v1/dashboard/backups/prune-expired
+```
+
+It requires all of:
+
+```text
+confirm = PRUNE_EXPIRED_VERIFIED_BACKUPS
+expected_candidate_count
+expected_candidate_fingerprint
+```
+
+The fingerprint is an opaque SHA-256 digest of the current candidate set. Production-OS recomputes the retention state immediately before deletion and rejects the request if either the candidate count or fingerprint changed.
+
+Backups remain protected when they are:
+
+- among the newest three verified backups;
+- newer than 30 days;
+- referenced by restore activation history as a source or rollback backup;
+- associated with an invalid creation timestamp.
+
+Only the server-derived `<backup_id>.sqlite` and `<backup_id>.json` artifacts for the current candidate set can be removed. Clients never provide file names or paths.
+
+Every accepted or conflicted cleanup request is recorded in the control audit. Cleanup is never triggered automatically by capacity warnings, dashboard polling, health checks or retention previews.
 
 ## Design principles
 
