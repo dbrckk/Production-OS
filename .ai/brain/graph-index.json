@@ -78,6 +78,7 @@
         "tests/test_key_registry_validation.py",
         "tests/test_key_rotation.py",
         "tests/test_learning_control_surface.py",
+        "tests/test_managed_project_outcome.py",
         "tests/test_managed_projects_http_v4.py",
         "tests/test_managed_projects_v4.py",
         "tests/test_observability.py",
@@ -145,7 +146,7 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 136,
+      "in_degree": 137,
       "out_degree": 0,
       "path": "src/production_os/__init__.py"
     },
@@ -209,6 +210,7 @@
         "tests/test_execution_optimizer.py",
         "tests/test_execution_optimizer_postgres.py",
         "tests/test_incident_history.py",
+        "tests/test_managed_project_outcome.py",
         "tests/test_managed_projects_http_v4.py",
         "tests/test_portfolio_claim_api.py",
         "tests/test_postgres_backend.py",
@@ -221,7 +223,6 @@
         "tests/test_release33_auto_worker_recovery_e2e.py",
         "tests/test_release34_safe_running_recovery_e2e.py",
         "tests/test_release35_control_plane_restart_e2e.py",
-        "tests/test_release36_worker_session_reconciliation_e2e.py",
         "tests/test_stragglers.py",
         "tests/test_workers.py"
       ],
@@ -420,6 +421,7 @@
         "tests/test_github_work_state.py",
         "tests/test_governance.py",
         "tests/test_incident_history.py",
+        "tests/test_managed_project_outcome.py",
         "tests/test_project_progress.py",
         "tests/test_release34_safe_running_recovery_e2e.py",
         "tests/test_release35_control_plane_restart_e2e.py",
@@ -428,7 +430,7 @@
         "tests/test_sqlite_migration.py",
         "tests/test_workflow_engine.py"
       ],
-      "in_degree": 47,
+      "in_degree": 48,
       "out_degree": 2,
       "path": "tests/test_asset_forge.py"
     },
@@ -1614,6 +1616,21 @@
     },
     {
       "dependencies": [
+        "src/production_os/workflow_engine.py",
+        "tests/test_asset_forge.py"
+      ],
+      "dependents": [
+        "src/production_os/control_plane.py",
+        "tests/test_managed_project_outcome.py",
+        "tests/test_managed_projects_v4.py",
+        "tests/test_workflow_postgres.py"
+      ],
+      "in_degree": 4,
+      "out_degree": 2,
+      "path": "src/production_os/managed_projects.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/atomic_io.py",
         "src/production_os/locks.py"
       ],
@@ -1686,24 +1703,10 @@
       "in_degree": 2,
       "out_degree": 4,
       "path": "src/production_os/validation.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/__init__.py",
-        "src/production_os/callgraph.py",
-        "src/production_os/feedback.py",
-        "src/production_os/models.py",
-        "src/production_os/versioning.py",
-        "tests/test_asset_forge.py"
-      ],
-      "dependents": [],
-      "in_degree": 0,
-      "out_degree": 6,
-      "path": "tests/test_callgraph_versioning_feedback.py"
     }
   ],
-  "edge_count": 1272,
+  "edge_count": 1275,
   "generated_by": "dbrckk/repo-brain-v7-graph",
-  "node_count": 250,
+  "node_count": 251,
   "schema_version": 1
 }

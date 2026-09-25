@@ -108,6 +108,7 @@ test_key_domains.py
 test_key_registry_validation.py
 test_key_rotation.py
 test_learning_control_surface.py
+test_managed_project_outcome.py
 test_managed_projects_http_v4.py
 test_managed_projects_v4.py
 test_observability.py
@@ -2524,6 +2525,8 @@ def test_completed_attention_items_remain_openable_for_inspection()
 load_start = DASHBOARD_HTML.index("async function loadAttention")
 load_end = DASHBOARD_HTML.index("async function loadManagedProjects", load_start)
 attention_body = DASHBOARD_HTML[load_start:load_end]
+⋮----
+def test_managed_and_attention_cards_render_normalized_production_outcome()
 ```
 
 ## File: test_dashboard_usage.py
@@ -2977,6 +2980,21 @@ signals = build_learning_signals(events)
 def test_control_surface_contains_schedule()
 ⋮----
 html = render_control_surface({
+```
+
+## File: test_managed_project_outcome.py
+```python
+def test_outcome_normalizes_worker_result_evidence()
+⋮----
+outcome = _outcome_from_workflow({
+⋮----
+def test_outcome_uses_evidence_fallback_and_keeps_optional_shape_stable()
+⋮----
+empty = _outcome_from_workflow(None)
+⋮----
+def test_outcome_accepts_compact_worker_result_fields_without_exposing_paths()
+⋮----
+def test_terminal_workflow_outcome_is_visible_without_structured_evidence()
 ```
 
 ## File: test_managed_projects_http_v4.py
