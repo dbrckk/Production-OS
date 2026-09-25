@@ -518,3 +518,13 @@ def test_backup_overview_renders_verified_backup_age_distribution():
     assert "backupAgeBuckets.over_thirty_days" in DASHBOARD_HTML
     assert "timestamps invalides" in DASHBOARD_HTML
 
+def test_backup_overview_renders_retention_preview_read_only():
+    assert "backupStorage.retention_preview" in DASHBOARD_HTML
+    assert "backupRetention.protected_reasons" in DASHBOARD_HTML
+    assert "Prévisualisation rétention" in DASHBOARD_HTML
+    assert "backupRetention.candidate_count" in DASHBOARD_HTML
+    assert "backupRetention.candidate_bytes" in DASHBOARD_HTML
+    assert "backupRetention.protected_count" in DASHBOARD_HTML
+    assert "historique restauration" in DASHBOARD_HTML
+    assert "Supprimer les vieux backups" not in DASHBOARD_HTML
+
