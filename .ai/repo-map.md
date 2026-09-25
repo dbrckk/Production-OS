@@ -2524,6 +2524,10 @@ result = control.dashboard.stage_backup_restore(
 ⋮----
 result = (
 ⋮----
+expected = body.get("expected_candidate_count")
+⋮----
+result = control.dashboard.prune_backup_temps(
+⋮----
 result = control.dashboard.create_verified_backup()
 ⋮----
 expected = body.get("expected_candidate_rows")
@@ -2902,6 +2906,10 @@ BACKUP_ID_RE = re.compile(r"^\d{8}T\d{6}Z-[0-9a-f]{12}$")
 ⋮----
 class BackupError(RuntimeError)
 ⋮----
+class BackupTempCandidateConflict(BackupError)
+⋮----
+def __init__(self, expected: int, actual: int)
+⋮----
 def _now() -> str
 ⋮----
 def _backend_kind(backend) -> str
@@ -2957,11 +2965,29 @@ size = max(0, size)
 ⋮----
 name = path.name
 ⋮----
+age_seconds = max(
+⋮----
+age_seconds = 0.0
+⋮----
 match = activation_receipt.fullmatch(name)
 ⋮----
 match = candidate_sqlite.fullmatch(name) or candidate_manifest.fullmatch(name)
 ⋮----
 match = backup_sqlite.fullmatch(name) or backup_manifest.fullmatch(name)
+⋮----
+inventory = backup_storage_inventory(backend)
+⋮----
+actual = int(inventory.get("stale_temp_count") or 0)
+⋮----
+deleted_count = 0
+deleted_bytes = 0
+now_ts = datetime.now(timezone.utc).timestamp()
+⋮----
+stat = path.stat()
+⋮----
+age_seconds = max(0.0, now_ts - stat.st_mtime)
+⋮----
+size = max(0, int(stat.st_size))
 ⋮----
 def backup_readiness(backend) -> dict
 ⋮----
@@ -8659,6 +8685,14 @@ def test_backup_http_surface_has_no_restore_activation_route(tmp_path, monkeypat
 backup_id = "20260925T120000Z-aaaaaaaaaaaa"
 ⋮----
 storage = payload["storage"]
+⋮----
+stale = backup_dir / ".stale.sqlite.tmp"
+⋮----
+old = time.time() - 90000
+⋮----
+prune_rows = [
+⋮----
+protected = [
 ````
 
 ## File: tests/test_dashboard_backups.py
@@ -8789,6 +8823,20 @@ encoded = json.dumps(inventory).lower()
 backup_dir = tmp_path / "missing-backups"
 ⋮----
 inventory = backup_storage_inventory(_FakePostgres())
+⋮----
+old_temp = backup_dir / ".old.sqlite.tmp"
+fresh_temp = backup_dir / ".fresh.sqlite.tmp"
+⋮----
+old = time.time() - 90000
+⋮----
+stale = backup_dir / ".stale.sqlite.tmp"
+fresh = backup_dir / ".fresh.sqlite.tmp"
+backup = backup_dir / "20260925T120000Z-aaaaaaaaaaaa.sqlite"
+candidate = backup_dir / "restore-20260925T130000Z-bbbbbbbbbbbb.sqlite"
+receipt = backup_dir / "restore-20260925T130000Z-bbbbbbbbbbbb.activation.json"
+unknown = backup_dir / "notes.txt"
+⋮----
+result = prune_stale_backup_temps(
 ````
 
 ## File: tests/test_dashboard_control_api.py
@@ -9961,6 +10009,8 @@ def test_managed_repository_picker_reuses_server_repository_discovery()
 def test_backup_overview_renders_restore_activation_history()
 ⋮----
 def test_backup_overview_renders_storage_inventory_read_only()
+⋮----
+def test_backup_temp_cleanup_ui_is_guarded_and_stale_only()
 ````
 
 ## File: tests/test_dashboard_usage.py
@@ -13451,6 +13501,20 @@ unknown files
 Only aggregate metrics are returned. Individual file names and server paths are not exposed.
 
 This release is read-only: there is no cleanup action, retention mutation or restore behavior change.
+
+## Release 25 — Safe backup temp cleanup
+
+Operators can now remove only stale temporary files from configured SQLite backup storage.
+
+A file is eligible only when it is already classified as temporary and is at least 24 hours old. Cleanup requires:
+
+- operator authorization;
+- the exact confirmation phrase `PRUNE_STALE_BACKUP_TEMPS`;
+- the expected stale-candidate count, rechecked immediately before deletion.
+
+Verified backups, rollback backups, restore candidates, activation receipts, unknown files and fresh temporary files are never deleted by this operation.
+
+The response contains only aggregate deleted counts/bytes and the refreshed storage inventory. File names and server paths remain hidden.
 
 ## Design principles
 

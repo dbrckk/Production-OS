@@ -2,14 +2,37 @@
   "area": "src-production-os",
   "files": [
     {
-      "path": "src/production_os/cli.py",
+      "path": "src/production_os/control_plane.py",
       "reasons": [
+        "changed",
+        "changed-source",
         "dependency-neighbor",
         "impact",
         "reverse-dependency-neighbor",
         "symbol-indexed"
       ],
-      "score": 655
+      "score": 2085
+    },
+    {
+      "path": "src/production_os/api_auth.py",
+      "reasons": [
+        "dependency-neighbor"
+      ],
+      "score": 1425
+    },
+    {
+      "path": "src/production_os/__init__.py",
+      "reasons": [
+        "dependency-neighbor"
+      ],
+      "score": 850
+    },
+    {
+      "path": "src/production_os/workers.py",
+      "reasons": [
+        "dependency-neighbor"
+      ],
+      "score": 700
     },
     {
       "path": "src/production_os/dashboard_service.py",
@@ -21,7 +44,17 @@
         "reverse-dependency-neighbor",
         "symbol-indexed"
       ],
-      "score": 640
+      "score": 670
+    },
+    {
+      "path": "src/production_os/cli.py",
+      "reasons": [
+        "dependency-neighbor",
+        "impact",
+        "reverse-dependency-neighbor",
+        "symbol-indexed"
+      ],
+      "score": 655
     },
     {
       "path": "src/production_os/dashboard_backups.py",
@@ -32,17 +65,14 @@
         "impact",
         "symbol-indexed"
       ],
-      "score": 595
+      "score": 610
     },
     {
-      "path": "src/production_os/control_plane.py",
+      "path": "src/production_os/workflow_engine.py",
       "reasons": [
-        "dependency-neighbor",
-        "impact",
-        "reverse-dependency-neighbor",
-        "symbol-indexed"
+        "dependency-neighbor"
       ],
-      "score": 490
+      "score": 475
     },
     {
       "path": "src/production_os/dashboard_ui.py",
@@ -55,81 +85,18 @@
       "score": 350
     },
     {
-      "path": "src/production_os/workers.py",
+      "path": "src/production_os/sqlite_backend.py",
       "reasons": [
         "dependency-neighbor"
       ],
-      "score": 175
-    },
-    {
-      "path": "src/production_os/__init__.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 150
-    },
-    {
-      "path": "src/production_os/database_maintenance_lock.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 150
+      "score": 350
     },
     {
       "path": "src/production_os/github_client.py",
       "reasons": [
         "dependency-neighbor"
       ],
-      "score": 150
-    },
-    {
-      "path": "src/production_os/sqlite_backend.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 150
-    },
-    {
-      "path": "src/production_os/api_auth.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 125
-    },
-    {
-      "path": "src/production_os/execution_optimizer.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 100
-    },
-    {
-      "path": "src/production_os/release_ledger.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 100
-    },
-    {
-      "path": "src/production_os/speculation.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 100
-    },
-    {
-      "path": "src/production_os/workflow_engine.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 100
-    },
-    {
-      "path": "src/production_os/approvals.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 75
+      "score": 250
     }
   ],
   "generated_by": "dbrckk/repo-brain-v6",

@@ -1,11 +1,12 @@
 # Change impact
 
-Base: 098cd4ffbfc862a5f44d68d881be10117f39239c
-Head: 5ee7971875215e282f05ad1cbf29fa886d73eb60
+Base: 1ea01969549968c7f35b3a4d9e6e210f918212d0
+Head: e0c6a1045c95459b313e9ed8c0097006d01e9595
 
 ## Changed files
 - M README.md
-- A docs/superpowers/plans/2026-09-25-release-24-backup-storage-inventory.md
+- A docs/superpowers/plans/2026-09-25-release-25-backup-temp-cleanup.md
+- M src/production_os/control_plane.py
 - M src/production_os/dashboard_backups.py
 - M src/production_os/dashboard_service.py
 - M src/production_os/dashboard_ui.py
@@ -20,6 +21,7 @@ Head: 5ee7971875215e282f05ad1cbf29fa886d73eb60
 - tests
 
 ## Related test candidates
+- tests/test_control_plane.py
 - tests/test_dashboard_backups.py
 
 ## Agent guidance

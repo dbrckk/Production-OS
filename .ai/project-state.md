@@ -22,34 +22,32 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-25T15:26:26Z
+Generated: 2026-09-25T15:34:23Z
 
 ### Git
 - Branch: `main`
-- Head: `5ee797187521`
-- Commit date: 2026-09-25T17:26:15+02:00
-- Commit: feat: release 24 backup storage inventory
-- Tracked files: 407
+- Head: `e0c6a1045c95`
+- Commit date: 2026-09-25T17:34:12+02:00
+- Commit: feat: release 25 backup temp cleanup
+- Tracked files: 408
 
 ### Recently changed files
 - `README.md`
-- `docs/superpowers/plans/2026-09-25-release-24-backup-storage-inventory.md`
+- `docs/superpowers/plans/2026-09-25-release-25-backup-temp-cleanup.md`
+- `src/production_os/control_plane.py`
 - `src/production_os/dashboard_backups.py`
 - `src/production_os/dashboard_service.py`
 - `src/production_os/dashboard_ui.py`
 - `tests/test_dashboard_backup_api.py`
 - `tests/test_dashboard_backups.py`
 - `tests/test_dashboard_ui_v3.py`
+- `docs/superpowers/plans/2026-09-25-release-24-backup-storage-inventory.md`
 - `docs/superpowers/plans/2026-09-25-release-23-restore-activation-history.md`
 - `docs/superpowers/plans/2026-09-25-release-22-restore-replay-protection.md`
 - `docs/superpowers/plans/2026-09-25-release-21-offline-restore-activation.md`
 - `src/production_os/cli.py`
 - `tests/test_cli.py`
 - `tests/test_release21_offline_restore_e2e.py`
-- `docs/superpowers/plans/2026-09-25-release-20-maintenance-lock.md`
-- `src/production_os/control_plane.py`
-- `src/production_os/database_maintenance_lock.py`
-- `tests/test_database_maintenance_lock.py`
 
 ### Project signals
 - `pyproject.toml`

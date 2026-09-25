@@ -1045,6 +1045,14 @@ def test_backup_http_surface_has_no_restore_activation_route(tmp_path, monkeypat
 backup_id = "20260925T120000Z-aaaaaaaaaaaa"
 ⋮----
 storage = payload["storage"]
+⋮----
+stale = backup_dir / ".stale.sqlite.tmp"
+⋮----
+old = time.time() - 90000
+⋮----
+prune_rows = [
+⋮----
+protected = [
 ```
 
 ## File: test_dashboard_backups.py
@@ -1175,6 +1183,20 @@ encoded = json.dumps(inventory).lower()
 backup_dir = tmp_path / "missing-backups"
 ⋮----
 inventory = backup_storage_inventory(_FakePostgres())
+⋮----
+old_temp = backup_dir / ".old.sqlite.tmp"
+fresh_temp = backup_dir / ".fresh.sqlite.tmp"
+⋮----
+old = time.time() - 90000
+⋮----
+stale = backup_dir / ".stale.sqlite.tmp"
+fresh = backup_dir / ".fresh.sqlite.tmp"
+backup = backup_dir / "20260925T120000Z-aaaaaaaaaaaa.sqlite"
+candidate = backup_dir / "restore-20260925T130000Z-bbbbbbbbbbbb.sqlite"
+receipt = backup_dir / "restore-20260925T130000Z-bbbbbbbbbbbb.activation.json"
+unknown = backup_dir / "notes.txt"
+⋮----
+result = prune_stale_backup_temps(
 ```
 
 ## File: test_dashboard_control_api.py
@@ -2347,6 +2369,8 @@ def test_managed_repository_picker_reuses_server_repository_discovery()
 def test_backup_overview_renders_restore_activation_history()
 ⋮----
 def test_backup_overview_renders_storage_inventory_read_only()
+⋮----
+def test_backup_temp_cleanup_ui_is_guarded_and_stale_only()
 ```
 
 ## File: test_dashboard_usage.py

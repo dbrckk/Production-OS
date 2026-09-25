@@ -2005,6 +2005,10 @@ result = control.dashboard.stage_backup_restore(
 ⋮----
 result = (
 ⋮----
+expected = body.get("expected_candidate_count")
+⋮----
+result = control.dashboard.prune_backup_temps(
+⋮----
 result = control.dashboard.create_verified_backup()
 ⋮----
 expected = body.get("expected_candidate_rows")
@@ -2383,6 +2387,10 @@ BACKUP_ID_RE = re.compile(r"^\d{8}T\d{6}Z-[0-9a-f]{12}$")
 ⋮----
 class BackupError(RuntimeError)
 ⋮----
+class BackupTempCandidateConflict(BackupError)
+⋮----
+def __init__(self, expected: int, actual: int)
+⋮----
 def _now() -> str
 ⋮----
 def _backend_kind(backend) -> str
@@ -2438,11 +2446,29 @@ size = max(0, size)
 ⋮----
 name = path.name
 ⋮----
+age_seconds = max(
+⋮----
+age_seconds = 0.0
+⋮----
 match = activation_receipt.fullmatch(name)
 ⋮----
 match = candidate_sqlite.fullmatch(name) or candidate_manifest.fullmatch(name)
 ⋮----
 match = backup_sqlite.fullmatch(name) or backup_manifest.fullmatch(name)
+⋮----
+inventory = backup_storage_inventory(backend)
+⋮----
+actual = int(inventory.get("stale_temp_count") or 0)
+⋮----
+deleted_count = 0
+deleted_bytes = 0
+now_ts = datetime.now(timezone.utc).timestamp()
+⋮----
+stat = path.stat()
+⋮----
+age_seconds = max(0.0, now_ts - stat.st_mtime)
+⋮----
+size = max(0, int(stat.st_size))
 ⋮----
 def backup_readiness(backend) -> dict
 ⋮----
