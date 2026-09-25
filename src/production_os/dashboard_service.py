@@ -505,8 +505,13 @@ class DashboardService:
             "schema_version":"production-os/dashboard-attention/v1",
             "generated_at":_now(),
             "summary":{
-                "action_required":sum(
-                    1 for item in items if item["action_required"]
+                "action_required":(
+                    sum(
+                        1 for item in items
+                        if item["action_required"]
+                        and item["kind"] != "blocked_job"
+                    )
+                    + len(blocked_jobs)
                 ),
                 "incidents":sum(
                     1 for item in items
