@@ -211,6 +211,7 @@ tests/
   test_dashboard_observability_e2e.py
   test_dashboard_playbook_api.py
   test_dashboard_playbooks.py
+  test_dashboard_production_status.py
   test_dashboard_remediation_api.py
   test_dashboard_remediation_history.py
   test_dashboard_remediation_metrics.py
@@ -275,6 +276,7 @@ tests/
   test_release34_safe_running_recovery_e2e.py
   test_release35_control_plane_restart_e2e.py
   test_release36_worker_session_reconciliation_e2e.py
+  test_release41_live_production_tracking_e2e.py
   test_remote_worker.py
   test_render_start.py
   test_result_cache.py
@@ -2455,6 +2457,8 @@ payload = service.overview(window)
 ⋮----
 payload = service.launch_readiness(
 ⋮----
+payload = service.production_status(
+⋮----
 payload = service.attention(
 ⋮----
 payload = service.health()
@@ -3891,6 +3895,69 @@ queued = int(queued_row["count"] if queued_row else 0)
 ⋮----
 execution = "immediate" if available else "queued"
 message = (
+⋮----
+def production_status(self, project_id: str) -> dict
+⋮----
+project_id = str(project_id or "").strip()
+⋮----
+project = self.control.managed_projects.get(project_id)
+⋮----
+tasks = [
+current_task = next(
+job_key = (
+⋮----
+execution = None
+⋮----
+job = self.control.queue.get(job_key)
+⋮----
+execution = self.store.latest_execution(job_key)
+⋮----
+project_status = str(project.get("status") or "")
+⋮----
+job_status = str((job or {}).get("status") or "")
+task_status = str((current_task or {}).get("status") or "")
+execution_status = str((execution or {}).get("status") or "")
+⋮----
+phase = "done"
+⋮----
+phase = "review_required"
+⋮----
+phase = "needs_attention"
+⋮----
+phase = "running"
+⋮----
+phase = "claimed"
+⋮----
+phase = "queued"
+⋮----
+phase = "preparing"
+⋮----
+queue_position = None
+⋮----
+queue_position = index
+⋮----
+progress = (execution or {}).get("progress_percent")
+⋮----
+progress = None
+⋮----
+progress = max(0.0, min(100.0, float(progress)))
+⋮----
+worker_id = (
+stage = (execution or {}).get("current_stage")
+attempt = (
+telemetry_at = (execution or {}).get("last_telemetry_at")
+⋮----
+details = []
+⋮----
+message = "En cours" + (
+⋮----
+message = "Résultat prêt à revoir."
+⋮----
+message = "Une action opérateur est requise."
+⋮----
+message = "Projet terminé."
+⋮----
+message = "Préparation de l’exécution."
 ⋮----
 def repositories(self) -> dict
 ⋮----
@@ -9890,6 +9957,29 @@ inspect = next(x for x in result["suggestions"] if x["action"] == "inspect-job")
 cancel = next(x for x in result["suggestions"] if x["action"] == "cancel-current")
 ````
 
+## File: tests/test_dashboard_production_status.py
+````python
+def test_production_status_tracks_queue_claim_ack_and_live_telemetry(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "live-status.sqlite"))
+project = control.managed_projects.create(
+project_id = project["project_id"]
+⋮----
+queued = control.dashboard.production_status(project_id)
+⋮----
+job = control.queue.claim_next("worker-a", capabilities=[])
+⋮----
+claimed = control.dashboard.production_status(project_id)
+⋮----
+acked = control.queue.ack(job["key"], "worker-a")
+⋮----
+running = control.dashboard.production_status(project_id)
+⋮----
+def test_production_status_validates_and_reports_missing_project(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "live-status-errors.sqlite"))
+````
+
 ## File: tests/test_dashboard_remediation_api.py
 ````python
 def _auth()
@@ -10459,6 +10549,10 @@ def test_launch_preflight_is_server_backed_and_mobile_visible()
 def test_last_launched_project_survives_dashboard_reload_on_same_device()
 ⋮----
 def test_dashboard_refresh_and_repository_change_refresh_launch_readiness()
+⋮----
+def test_last_production_tracker_renders_live_runtime_status()
+⋮----
+def test_last_production_tracker_keeps_server_outcome_and_project_deep_link()
 ````
 
 ## File: tests/test_dashboard_usage.py
@@ -12155,6 +12249,42 @@ final_two = second.managed_projects.get(second_project_id)
 latest_abandoned = second.dashboard_store.latest_execution(abandoned_key)
 ⋮----
 recovery_events = [
+````
+
+## File: tests/test_release41_live_production_tracking_e2e.py
+````python
+def _auth()
+⋮----
+def _request(base, path, token, *, method="GET", body=None)
+⋮----
+data = None if body is None else json.dumps(body).encode("utf-8")
+request = urllib.request.Request(
+⋮----
+raw = response.read()
+⋮----
+raw = exc.read()
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+@pytest.mark.e2e
+def test_release41_live_status_tracks_one_tap_to_review_and_restart(tmp_path)
+⋮----
+database = str(tmp_path / "release41-live.sqlite")
+control = ControlPlane(database, authorizer=_auth())
+⋮----
+project_id = launched["project"]["project_id"]
+workflow_id = launched["project"]["current_workflow_id"]
+⋮----
+job_key = queued["runtime"]["job_key"]
+⋮----
+worker = RemoteWorkerClient(base, "worker", "worker-live", [], timeout=5)
+claimed = worker.claim()
+⋮----
+restarted = ControlPlane(database, authorizer=_auth())
+restored = restarted.dashboard.production_status(project_id)
 ````
 
 ## File: tests/test_remote_worker.py
@@ -14616,6 +14746,37 @@ The endpoint is advisory only. Lack of an immediately available worker does not 
 The mobile dashboard also remembers only the `project_id` of the last One-tap production on that device. On every refresh it reloads the project from the Control Plane and renders the real server state and normalized production outcome. Closing or reopening the dashboard therefore does not create a browser-owned execution state.
 
 The tracker links directly to the exact Managed Project and remains compatible with the existing attention-first workflow.
+
+
+## Release 41 — Live production tracking
+
+The last-production mobile card now follows the real server execution lifecycle instead of reducing every active Managed Project to a generic `ACTIVE` label.
+
+A viewer-safe endpoint exposes the current execution state:
+
+```text
+GET /v1/dashboard/production-status?project_id=<id>
+```
+
+The runtime view can report:
+
+```text
+preparing
+queued
+claimed
+running
+review_required
+needs_attention
+done
+```
+
+When available it also exposes the current worker, delivery attempt, execution stage, telemetry progress percentage, last telemetry timestamp, job state and observed queue position.
+
+The dashboard polls this status every five seconds for the locally remembered last project id. The project id remains the only production reference persisted by the browser; all lifecycle state and outcome evidence are reloaded from the Control Plane.
+
+When execution becomes terminal, the same card automatically surfaces the normalized Release 39 result summary and validation evidence.
+
+A dedicated E2E qualification follows one One-tap production through queued → claimed → running telemetry → REVIEW_REQUIRED, then restarts the Control Plane and verifies the same live/result state remains readable.
 
 ## Design principles
 

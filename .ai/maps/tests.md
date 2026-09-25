@@ -81,6 +81,7 @@ test_dashboard_maintenance.py
 test_dashboard_observability_e2e.py
 test_dashboard_playbook_api.py
 test_dashboard_playbooks.py
+test_dashboard_production_status.py
 test_dashboard_remediation_api.py
 test_dashboard_remediation_history.py
 test_dashboard_remediation_metrics.py
@@ -145,6 +146,7 @@ test_release33_auto_worker_recovery_e2e.py
 test_release34_safe_running_recovery_e2e.py
 test_release35_control_plane_restart_e2e.py
 test_release36_worker_session_reconciliation_e2e.py
+test_release41_live_production_tracking_e2e.py
 test_remote_worker.py
 test_render_start.py
 test_result_cache.py
@@ -1987,6 +1989,29 @@ inspect = next(x for x in result["suggestions"] if x["action"] == "inspect-job")
 cancel = next(x for x in result["suggestions"] if x["action"] == "cancel-current")
 ```
 
+## File: test_dashboard_production_status.py
+```python
+def test_production_status_tracks_queue_claim_ack_and_live_telemetry(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "live-status.sqlite"))
+project = control.managed_projects.create(
+project_id = project["project_id"]
+⋮----
+queued = control.dashboard.production_status(project_id)
+⋮----
+job = control.queue.claim_next("worker-a", capabilities=[])
+⋮----
+claimed = control.dashboard.production_status(project_id)
+⋮----
+acked = control.queue.ack(job["key"], "worker-a")
+⋮----
+running = control.dashboard.production_status(project_id)
+⋮----
+def test_production_status_validates_and_reports_missing_project(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "live-status-errors.sqlite"))
+```
+
 ## File: test_dashboard_remediation_api.py
 ```python
 def _auth()
@@ -2556,6 +2581,10 @@ def test_launch_preflight_is_server_backed_and_mobile_visible()
 def test_last_launched_project_survives_dashboard_reload_on_same_device()
 ⋮----
 def test_dashboard_refresh_and_repository_change_refresh_launch_readiness()
+⋮----
+def test_last_production_tracker_renders_live_runtime_status()
+⋮----
+def test_last_production_tracker_keeps_server_outcome_and_project_deep_link()
 ```
 
 ## File: test_dashboard_usage.py
@@ -4252,6 +4281,42 @@ final_two = second.managed_projects.get(second_project_id)
 latest_abandoned = second.dashboard_store.latest_execution(abandoned_key)
 ⋮----
 recovery_events = [
+```
+
+## File: test_release41_live_production_tracking_e2e.py
+```python
+def _auth()
+⋮----
+def _request(base, path, token, *, method="GET", body=None)
+⋮----
+data = None if body is None else json.dumps(body).encode("utf-8")
+request = urllib.request.Request(
+⋮----
+raw = response.read()
+⋮----
+raw = exc.read()
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+@pytest.mark.e2e
+def test_release41_live_status_tracks_one_tap_to_review_and_restart(tmp_path)
+⋮----
+database = str(tmp_path / "release41-live.sqlite")
+control = ControlPlane(database, authorizer=_auth())
+⋮----
+project_id = launched["project"]["project_id"]
+workflow_id = launched["project"]["current_workflow_id"]
+⋮----
+job_key = queued["runtime"]["job_key"]
+⋮----
+worker = RemoteWorkerClient(base, "worker", "worker-live", [], timeout=5)
+claimed = worker.claim()
+⋮----
+restarted = ControlPlane(database, authorizer=_auth())
+restored = restarted.dashboard.production_status(project_id)
 ```
 
 ## File: test_remote_worker.py

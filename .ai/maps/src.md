@@ -1928,6 +1928,8 @@ payload = service.overview(window)
 ⋮----
 payload = service.launch_readiness(
 ⋮----
+payload = service.production_status(
+⋮----
 payload = service.attention(
 ⋮----
 payload = service.health()
@@ -3364,6 +3366,69 @@ queued = int(queued_row["count"] if queued_row else 0)
 ⋮----
 execution = "immediate" if available else "queued"
 message = (
+⋮----
+def production_status(self, project_id: str) -> dict
+⋮----
+project_id = str(project_id or "").strip()
+⋮----
+project = self.control.managed_projects.get(project_id)
+⋮----
+tasks = [
+current_task = next(
+job_key = (
+⋮----
+execution = None
+⋮----
+job = self.control.queue.get(job_key)
+⋮----
+execution = self.store.latest_execution(job_key)
+⋮----
+project_status = str(project.get("status") or "")
+⋮----
+job_status = str((job or {}).get("status") or "")
+task_status = str((current_task or {}).get("status") or "")
+execution_status = str((execution or {}).get("status") or "")
+⋮----
+phase = "done"
+⋮----
+phase = "review_required"
+⋮----
+phase = "needs_attention"
+⋮----
+phase = "running"
+⋮----
+phase = "claimed"
+⋮----
+phase = "queued"
+⋮----
+phase = "preparing"
+⋮----
+queue_position = None
+⋮----
+queue_position = index
+⋮----
+progress = (execution or {}).get("progress_percent")
+⋮----
+progress = None
+⋮----
+progress = max(0.0, min(100.0, float(progress)))
+⋮----
+worker_id = (
+stage = (execution or {}).get("current_stage")
+attempt = (
+telemetry_at = (execution or {}).get("last_telemetry_at")
+⋮----
+details = []
+⋮----
+message = "En cours" + (
+⋮----
+message = "Résultat prêt à revoir."
+⋮----
+message = "Une action opérateur est requise."
+⋮----
+message = "Projet terminé."
+⋮----
+message = "Préparation de l’exécution."
 ⋮----
 def repositories(self) -> dict
 ⋮----

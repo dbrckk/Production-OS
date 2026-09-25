@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "generated_by": "dbrckk/repo-brain",
-  "base": "4421d464c9cbbbf09d5115e99f879f517b5d66a9",
-  "head": "1816918919c44196ff426be9570b645c894c1a87",
+  "base": "1816918919c44196ff426be9570b645c894c1a87",
+  "head": "a145b91fa848ec683b42f9d4c3d89680252fd06e",
   "index_mode": "incremental",
   "changed_files": [
     {
@@ -10,7 +10,7 @@
       "status": "M"
     },
     {
-      "path": "docs/superpowers/plans/2026-09-25-release-40-launch-readiness-tracker.md",
+      "path": "docs/superpowers/plans/2026-09-25-release-41-live-production-tracking.md",
       "status": "A"
     },
     {
@@ -30,12 +30,16 @@
       "status": "M"
     },
     {
-      "path": "tests/test_dashboard_launch_readiness.py",
+      "path": "tests/test_dashboard_production_status.py",
       "status": "A"
     },
     {
       "path": "tests/test_dashboard_ui_v3.py",
       "status": "M"
+    },
+    {
+      "path": "tests/test_release41_live_production_tracking_e2e.py",
+      "status": "A"
     }
   ],
   "changed_source_files": [
@@ -43,8 +47,9 @@
     "src/production_os/dashboard_service.py",
     "src/production_os/dashboard_ui.py",
     "tests/test_dashboard_api.py",
-    "tests/test_dashboard_launch_readiness.py",
-    "tests/test_dashboard_ui_v3.py"
+    "tests/test_dashboard_production_status.py",
+    "tests/test_dashboard_ui_v3.py",
+    "tests/test_release41_live_production_tracking_e2e.py"
   ],
   "impacted_files": [
     "src/production_os/cli.py",
@@ -69,6 +74,7 @@
     "tests/test_dashboard_maintenance.py",
     "tests/test_dashboard_observability_e2e.py",
     "tests/test_dashboard_playbook_api.py",
+    "tests/test_dashboard_production_status.py",
     "tests/test_dashboard_remediation_api.py",
     "tests/test_dashboard_retention_prune.py",
     "tests/test_dashboard_store_postgres.py",
@@ -87,6 +93,7 @@
     "tests/test_release34_safe_running_recovery_e2e.py",
     "tests/test_release35_control_plane_restart_e2e.py",
     "tests/test_release36_worker_session_reconciliation_e2e.py",
+    "tests/test_release41_live_production_tracking_e2e.py",
     "tests/test_remote_worker.py",
     "tests/test_speculation_api.py",
     "tests/test_workflow_api.py"
@@ -714,19 +721,19 @@
       "name": "do_POST",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 913
+      "line": 917
     },
     {
       "name": "audit_control",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 1773
+      "line": 1777
     },
     {
       "name": "serve_control_plane",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 3008
+      "line": 3012
     },
     {
       "name": "DashboardNotFound",
@@ -933,76 +940,82 @@
       "line": 835
     },
     {
-      "name": "repositories",
+      "name": "production_status",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
       "line": 889
     },
     {
+      "name": "repositories",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 1036
+    },
+    {
       "name": "projects",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 930
+      "line": 1077
     },
     {
       "name": "_require_project",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 935
+      "line": 1082
     },
     {
       "name": "project_detail",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 938
+      "line": 1085
     },
     {
       "name": "_progress_snapshot_state",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 944
+      "line": 1091
     },
     {
       "name": "project_progress",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 964
+      "line": 1111
     },
     {
       "name": "project_commits",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1027
+      "line": 1174
     },
     {
       "name": "_legacy_workflow_usage_rows",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1035
+      "line": 1182
     },
     {
       "name": "project_usage",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1084
+      "line": 1231
     },
     {
       "name": "project_workflows",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1093
+      "line": 1240
     },
     {
       "name": "project_history",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1099
+      "line": 1246
     },
     {
       "name": "activity",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1121
+      "line": 1268
     },
     {
       "name": "request",
@@ -1333,6 +1346,12 @@
       "kind": "function",
       "file": "tests/test_dashboard_api.py",
       "line": 494
+    },
+    {
+      "name": "test_production_status_endpoint_is_viewer_visible_and_worker_forbidden",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 527
     },
     {
       "name": "ManagedProjects",
@@ -1879,18 +1898,6 @@
       "kind": "function",
       "file": "tests/test_dashboard_launch_readiness.py",
       "line": 4
-    },
-    {
-      "name": "test_launch_readiness_does_not_count_paused_or_saturated_workers",
-      "kind": "function",
-      "file": "tests/test_dashboard_launch_readiness.py",
-      "line": 47
-    },
-    {
-      "name": "test_launch_readiness_validates_repository_shape",
-      "kind": "function",
-      "file": "tests/test_dashboard_launch_readiness.py",
-      "line": 83
     }
   ],
   "selected_tests": [
@@ -1912,6 +1919,7 @@
     "tests/test_dashboard_maintenance.py",
     "tests/test_dashboard_observability_e2e.py",
     "tests/test_dashboard_playbook_api.py",
+    "tests/test_dashboard_production_status.py",
     "tests/test_dashboard_remediation_api.py",
     "tests/test_dashboard_retention_prune.py",
     "tests/test_dashboard_store_postgres.py",
@@ -1930,6 +1938,7 @@
     "tests/test_release34_safe_running_recovery_e2e.py",
     "tests/test_release35_control_plane_restart_e2e.py",
     "tests/test_release36_worker_session_reconciliation_e2e.py",
+    "tests/test_release41_live_production_tracking_e2e.py",
     "tests/test_remote_worker.py",
     "tests/test_speculation_api.py",
     "tests/test_workflow_api.py"
