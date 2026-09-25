@@ -115,6 +115,7 @@ textarea{resize:vertical;min-height:150px;line-height:1.45}
 .attention-inline-instruction textarea{min-height:62px}
 .outcome-summary{margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
 .outcome-evidence{margin-top:6px}
+.review-guidance{margin-top:8px;padding:9px 10px;border:1px solid var(--line);border-radius:12px;background:rgba(148,163,184,.06)}
 @media(max-width:560px){
  .shell{padding:14px 12px 38px}
  .status-grid{grid-template-columns:1fr}
@@ -1261,6 +1262,25 @@ function renderProductionOutcome(outcome,includeSummary){
   :"";
  return summary+(parts.length?'<div class="small outcome-evidence">'+parts.join(" · ")+'</div>':"");
 }
+function guidanceEvidenceLabel(level){
+ const labels={
+  none:"Aucune preuve structurée",
+  minimal:"Preuves minimales",
+  partial:"Preuves partielles",
+  rich:"Preuves riches"
+ };
+ return labels[level]||String(level||"Preuves inconnues");
+}
+function renderReviewGuidance(guidance){
+ const value=guidance||{};
+ if(!value.headline)return "";
+ const evidence=guidanceEvidenceLabel(value.evidence_level);
+ return '<div class="review-guidance">'+
+  '<div class="small"><strong>Prochaine étape :</strong> '+esc(String(value.headline))+'</div>'+
+  (value.detail?'<div class="small">'+esc(String(value.detail))+'</div>':'')+
+  '<div class="small"><strong>Preuves :</strong> '+esc(evidence)+' · '+formatNumber(value.evidence_count||0)+' signal(aux)</div>'+
+  '</div>';
+}
 function attentionKindLabel(kind){
  const labels={
   incident:"Incident",
@@ -1393,6 +1413,7 @@ async function loadAttention(){
    const repository=item.repository?'<div class="small"><strong>'+esc(String(item.repository))+'</strong></div>':'';
    const summaryText=item.summary?'<div class="small">'+esc(String(item.summary))+'</div>':'';
    const outcomeHtml=renderProductionOutcome(item.outcome||{},false);
+   const guidanceHtml=renderReviewGuidance(item.review_guidance||{});
    const openButton=item.view
     ?'<button class="secondary-btn" type="button" data-view="'+esc(String(item.view||"overview"))+'" data-target-type="'+esc(String(item.target_type||""))+'" data-target-id="'+esc(String(item.target_id||""))+'" onclick="openAttentionItem(this.dataset.view,this.dataset.targetType,this.dataset.targetId)">Ouvrir</button>'
     :'';
@@ -1401,7 +1422,7 @@ async function loadAttention(){
    return '<div class="card attention-card '+(required?'attention-required':'attention-done')+'">'+
     '<div class="section-head"><strong>'+esc(String(item.title||"Action"))+'</strong>'+
     '<span class="badge">'+dot(attentionSeverityClass(String(item.severity||"info")))+esc(attentionKindLabel(item.kind))+'</span></div>'+
-    repository+summaryText+outcomeHtml+
+    repository+summaryText+outcomeHtml+guidanceHtml+
     '<div class="small">'+(required?'Action opérateur requise':'Information récente')+(item.updated_at?' · '+esc(String(item.updated_at)):'')+'</div>'+
     '<div class="attention-actions">'+openButton+'</div>'+contextual+
     '<div id="attention-action-status-'+esc(statusId)+'" class="status-message"></div></div>';
@@ -1424,6 +1445,7 @@ async function loadManagedProjects(){
   el.innerHTML=rows.length?rows.map(function(row){
    const usage=row.usage||{};
    const outcome=row.outcome||{};
+   const guidance=row.review_guidance||{};
    const projectId=String(row.project_id||row.id||row.workflow_id||"");
    const status=String(row.status||row.state||"");
    const canFollow=status==="REVIEW_REQUIRED"||status==="NEEDS_ATTENTION";
@@ -1436,6 +1458,7 @@ async function loadManagedProjects(){
    return '<div class="card'+(appState.focus===projectId?' attention-focus':'')+'" data-managed-project-id="'+esc(projectId)+'"><div class="section-head"><strong>'+esc(String(row.repository||""))+'</strong><span class="badge">'+esc(status)+'</span></div>'+
     '<div class="small"><strong>Objectif :</strong> '+esc(String(row.final_goal||""))+'</div>'+
     renderProductionOutcome(outcome,true)+
+    renderReviewGuidance(guidance)+
     '<div class="small"><strong>Génération actuelle :</strong> '+formatNumber(row.generation||1)+' · <strong>Budget :</strong> '+formatNumber(row.token_budget)+' tokens · <strong>Utilisés :</strong> '+formatNumber(usage.total_tokens||0)+' · <strong>Agent :</strong> '+esc(String(row.agent_preference||"auto"))+'</div>'+
     history+actions+'</div>';
   }).join(""):'<div class="empty">Aucun projet managé.</div>';
