@@ -130,6 +130,60 @@ def restore_activation_history(
     return rows[:bounded]
 
 
+def _backup_filesystem_capacity(directory: Path | None) -> dict:
+    unavailable = {
+        "status":"unknown",
+        "total_bytes":None,
+        "free_bytes":None,
+        "available_bytes":None,
+        "used_bytes":None,
+        "used_percent":None,
+        "available_percent":None,
+    }
+    if directory is None:
+        return {
+            **unavailable,
+            "status":"unconfigured",
+        }
+
+    target = directory
+    while not target.exists() and target != target.parent:
+        target = target.parent
+    if not target.exists():
+        return unavailable
+    try:
+        stats = os.statvfs(target)
+    except OSError:
+        return unavailable
+
+    block_size = int(stats.f_frsize or stats.f_bsize or 0)
+    if block_size <= 0:
+        return unavailable
+    total = max(0, int(stats.f_blocks) * block_size)
+    free = max(0, int(stats.f_bfree) * block_size)
+    available = max(0, int(stats.f_bavail) * block_size)
+    if total <= 0:
+        return unavailable
+    used = max(0, total - free)
+    available_percent = round(available / total * 100, 2)
+    used_percent = round(used / total * 100, 2)
+    if available_percent < 5:
+        status = "critical"
+    elif available_percent < 10:
+        status = "warning"
+    else:
+        status = "ok"
+    return {
+        "status":status,
+        "total_bytes":total,
+        "free_bytes":free,
+        "available_bytes":available,
+        "used_bytes":used,
+        "used_percent":used_percent,
+        "available_percent":available_percent,
+    }
+
+
 def backup_storage_inventory(backend) -> dict:
     zero = {
         "total_size_bytes":0,
@@ -151,6 +205,15 @@ def backup_storage_inventory(backend) -> dict:
             "status":"unsupported",
             "backend_kind":"postgres",
             **zero,
+            "filesystem":{
+                "status":"unsupported",
+                "total_bytes":None,
+                "free_bytes":None,
+                "available_bytes":None,
+                "used_bytes":None,
+                "used_percent":None,
+                "available_percent":None,
+            },
         }
     directory = _configured_dir()
     if directory is None:
@@ -158,18 +221,21 @@ def backup_storage_inventory(backend) -> dict:
             "status":"unconfigured",
             "backend_kind":"sqlite",
             **zero,
+            "filesystem":_backup_filesystem_capacity(None),
         }
     if not directory.exists():
         return {
             "status":"ready",
             "backend_kind":"sqlite",
             **zero,
+            "filesystem":_backup_filesystem_capacity(directory),
         }
     if not directory.is_dir():
         return {
             "status":"degraded",
             "backend_kind":"sqlite",
             **zero,
+            "filesystem":_backup_filesystem_capacity(directory),
         }
 
     backup_ids: set[str] = set()
@@ -249,6 +315,7 @@ def backup_storage_inventory(backend) -> dict:
         "status":"ready",
         "backend_kind":"sqlite",
         **metrics,
+        "filesystem":_backup_filesystem_capacity(directory),
     }
 
 
