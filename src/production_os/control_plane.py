@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import json
+from datetime import datetime, timezone
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
@@ -18,6 +19,10 @@ from .dashboard_store import DashboardStore
 from .dashboard_control import DashboardControl
 from .dashboard_service import DashboardService, DashboardNotFound
 from .dashboard_ui import DASHBOARD_HTML
+from .dashboard_health import (
+    STALE_BUSY_WORKER_SECONDS,
+    STALE_RUNNING_EXECUTION_SECONDS,
+)
 from .dashboard_maintenance import RetentionCandidateConflict
 from .dashboard_backups import BackupError, BackupRetentionCandidateConflict, BackupTempCandidateConflict
 from .managed_projects import ManagedProjectService
@@ -103,6 +108,121 @@ class ControlPlane:
         self.authorizer = authorizer or TokenAuthorizer([])
         self.github_webhook_secret = github_webhook_secret
         self.webhook_deliveries = WebhookDeliveryStore(self.backend)
+
+    @staticmethod
+    def _parse_timestamp(value):
+        if not value:
+            return None
+        try:
+            parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        except ValueError:
+            return None
+        return parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
+
+    def recover_abandoned_acked_jobs(self) -> list[dict]:
+        now = datetime.now(timezone.utc)
+        self.workers.detect_dead(timeout_seconds=STALE_BUSY_WORKER_SECONDS)
+        self.workers.load()
+
+        with self.backend.connect() as db:
+            if self.backend.__class__.__name__.startswith("Postgres"):
+                cursor = db.cursor()
+                cursor.execute(
+                    """SELECT * FROM jobs
+                       WHERE status='acked'
+                       ORDER BY updated_at ASC"""
+                )
+                rows = cursor.fetchall()
+            else:
+                rows = db.execute(
+                    """SELECT * FROM jobs
+                       WHERE status='acked'
+                       ORDER BY updated_at ASC"""
+                ).fetchall()
+
+        recovered = []
+        for raw in rows:
+            job = dict(raw)
+            worker_id = str(job.get("claimed_by") or "")
+            worker = self.workers.workers.get(worker_id)
+            if worker is None or worker.status != "dead":
+                continue
+
+            execution = self.dashboard_store.latest_execution(job["key"])
+            if (
+                execution is None
+                or execution.get("status") != "running"
+                or execution.get("worker_id") != worker_id
+            ):
+                continue
+            last_activity = self._parse_timestamp(
+                execution.get("last_telemetry_at")
+                or execution.get("started_at")
+            )
+            if (
+                last_activity is None
+                or (now - last_activity).total_seconds()
+                    <= STALE_RUNNING_EXECUTION_SECONDS
+            ):
+                continue
+
+            timestamp = now.isoformat()
+            with self.backend.transaction() as db:
+                if self.backend.__class__.__name__.startswith("Postgres"):
+                    cursor = db.cursor()
+                    cursor.execute(
+                        """UPDATE jobs
+                           SET status='queued', claimed_by=NULL,
+                               claimed_at=NULL, ack_deadline=NULL,
+                               updated_at=%s
+                           WHERE key=%s AND status='acked'
+                             AND claimed_by=%s""",
+                        (timestamp, job["key"], worker_id),
+                    )
+                    updated = cursor.rowcount
+                else:
+                    cursor = db.execute(
+                        """UPDATE jobs
+                           SET status='queued', claimed_by=NULL,
+                               claimed_at=NULL, ack_deadline=NULL,
+                               updated_at=?
+                           WHERE key=? AND status='acked'
+                             AND claimed_by=?""",
+                        (timestamp, job["key"], worker_id),
+                    )
+                    updated = cursor.rowcount
+                if updated != 1:
+                    continue
+                action = {
+                    "key":job["key"],
+                    "action":"queued",
+                    "reason":"worker_abandoned_after_ack",
+                    "worker_id":worker_id,
+                    "delivery_attempt":job.get("delivery_attempt"),
+                }
+                self.backend.append_event(
+                    db,
+                    "job-recovered",
+                    action,
+                    repository=job["repository"],
+                    task_key_value=job["key"],
+                )
+
+            self.dashboard_store.finish_execution(
+                job["key"],
+                worker_id,
+                status="failed",
+                duration_seconds=None,
+                result={"reason":"worker abandoned after ack"},
+                error_type="worker_abandoned",
+                error_message="worker heartbeat and execution telemetry expired",
+            )
+            recovered.append({
+                "key":job["key"],
+                "worker_id":worker_id,
+                "status":"queued",
+            })
+        return recovered
 
 
 def _json_bytes(payload: dict | list) -> bytes:
@@ -2295,6 +2415,7 @@ def make_handler(control: ControlPlane):
                         return
 
                     control.queue.recover_expired(max_attempts=3)
+                    control.recover_abandoned_acked_jobs()
 
                     worker_id = str(body["worker_id"])
                     capabilities = [
