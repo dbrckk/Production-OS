@@ -321,6 +321,7 @@
         "src/production_os/workers.py",
         "src/production_os/workflow_engine.py",
         "tests/test_asset_forge.py",
+        "tests/test_dashboard_backups.py",
         "tests/test_fairness.py"
       ],
       "dependents": [
@@ -358,7 +359,7 @@
         "tests/test_workflow_api.py"
       ],
       "in_degree": 32,
-      "out_degree": 21,
+      "out_degree": 22,
       "path": "src/production_os/control_plane.py"
     },
     {
@@ -1185,6 +1186,24 @@
     },
     {
       "dependencies": [
+        "src/production_os/database_maintenance_lock.py",
+        "tests/test_asset_forge.py",
+        "tests/test_dashboard_backups.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/dashboard_service.py",
+        "tests/test_cli.py",
+        "tests/test_dashboard_backups.py",
+        "tests/test_release21_offline_restore_e2e.py"
+      ],
+      "in_degree": 6,
+      "out_degree": 3,
+      "path": "src/production_os/dashboard_backups.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/builder_identity.py",
         "src/production_os/signers.py",
         "src/production_os/signing.py"
@@ -1236,23 +1255,6 @@
     },
     {
       "dependencies": [
-        "src/production_os/database_maintenance_lock.py",
-        "tests/test_asset_forge.py"
-      ],
-      "dependents": [
-        "src/production_os/cli.py",
-        "src/production_os/control_plane.py",
-        "src/production_os/dashboard_service.py",
-        "tests/test_cli.py",
-        "tests/test_dashboard_backups.py",
-        "tests/test_release21_offline_restore_e2e.py"
-      ],
-      "in_degree": 6,
-      "out_degree": 2,
-      "path": "src/production_os/dashboard_backups.py"
-    },
-    {
-      "dependencies": [
         "src/production_os/atomic_io.py",
         "src/production_os/locks.py"
       ],
@@ -1288,6 +1290,23 @@
     {
       "dependencies": [
         "src/production_os/__init__.py",
+        "src/production_os/dashboard_backups.py",
+        "src/production_os/postgres_backend.py",
+        "src/production_os/sqlite_backend.py",
+        "tests/test_asset_forge.py"
+      ],
+      "dependents": [
+        "src/production_os/control_plane.py",
+        "src/production_os/dashboard_backups.py",
+        "tests/test_production_stack_e2e.py"
+      ],
+      "in_degree": 3,
+      "out_degree": 5,
+      "path": "tests/test_dashboard_backups.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/__init__.py",
         "src/production_os/capabilities.py",
         "src/production_os/classification.py",
         "src/production_os/history.py",
@@ -1316,6 +1335,22 @@
       "in_degree": 0,
       "out_degree": 8,
       "path": "tests/test_dashboard_control_audit.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/api_auth.py",
+        "src/production_os/approvals.py",
+        "src/production_os/attestations.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/remote_worker.py",
+        "src/production_os/workers.py",
+        "tests/test_dashboard_backups.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 8,
+      "path": "tests/test_production_stack_e2e.py"
     },
     {
       "dependencies": [
@@ -1441,21 +1476,6 @@
       "in_degree": 0,
       "out_degree": 7,
       "path": "tests/test_dashboard_retention_prune.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/__init__.py",
-        "src/production_os/api_auth.py",
-        "src/production_os/approvals.py",
-        "src/production_os/attestations.py",
-        "src/production_os/control_plane.py",
-        "src/production_os/remote_worker.py",
-        "src/production_os/workers.py"
-      ],
-      "dependents": [],
-      "in_degree": 0,
-      "out_degree": 7,
-      "path": "tests/test_production_stack_e2e.py"
     },
     {
       "dependencies": [
@@ -1649,23 +1669,9 @@
       "in_degree": 0,
       "out_degree": 6,
       "path": "tests/test_cli.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/__init__.py",
-        "src/production_os/api_auth.py",
-        "src/production_os/control_plane.py",
-        "src/production_os/github_client.py",
-        "src/production_os/workflow_engine.py",
-        "tests/test_fairness.py"
-      ],
-      "dependents": [],
-      "in_degree": 0,
-      "out_degree": 6,
-      "path": "tests/test_control_plane_webhook.py"
     }
   ],
-  "edge_count": 1222,
+  "edge_count": 1225,
   "generated_by": "dbrckk/repo-brain-v7-graph",
   "node_count": 245,
   "schema_version": 1

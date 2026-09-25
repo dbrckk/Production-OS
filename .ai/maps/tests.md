@@ -1053,6 +1053,10 @@ old = time.time() - 90000
 prune_rows = [
 ⋮----
 protected = [
+⋮----
+filesystem = payload["storage"]["filesystem"]
+⋮----
+encoded = json.dumps(filesystem).lower()
 ```
 
 ## File: test_dashboard_backups.py
@@ -1197,6 +1201,29 @@ receipt = backup_dir / "restore-20260925T130000Z-bbbbbbbbbbbb.activation.json"
 unknown = backup_dir / "notes.txt"
 ⋮----
 result = prune_stale_backup_temps(
+⋮----
+backup_dir = tmp_path / "nested" / "backups"
+⋮----
+filesystem = inventory["filesystem"]
+⋮----
+filesystem = backup_storage_inventory(backend)["filesystem"]
+⋮----
+filesystem = backup_storage_inventory(_FakePostgres())["filesystem"]
+⋮----
+class Stats
+⋮----
+f_frsize = 4096
+f_bsize = 4096
+f_blocks = 1000
+f_bfree = 100
+f_bavail = 40
+⋮----
+def fail(_)
+⋮----
+path_type = type(backup_dir)
+original_iterdir = path_type.iterdir
+⋮----
+def failing_iterdir(path)
 ```
 
 ## File: test_dashboard_control_api.py
@@ -2371,6 +2398,8 @@ def test_backup_overview_renders_restore_activation_history()
 def test_backup_overview_renders_storage_inventory_read_only()
 ⋮----
 def test_backup_temp_cleanup_ui_is_guarded_and_stale_only()
+⋮----
+def test_backup_overview_renders_filesystem_capacity_read_only()
 ```
 
 ## File: test_dashboard_usage.py

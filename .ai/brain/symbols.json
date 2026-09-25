@@ -1768,57 +1768,64 @@
       "file": "src/production_os/dashboard_backups.py",
       "language": "python",
       "kind": "function",
-      "name": "backup_storage_inventory",
+      "name": "_backup_filesystem_capacity",
       "line": 133
     },
     {
       "file": "src/production_os/dashboard_backups.py",
       "language": "python",
       "kind": "function",
+      "name": "backup_storage_inventory",
+      "line": 187
+    },
+    {
+      "file": "src/production_os/dashboard_backups.py",
+      "language": "python",
+      "kind": "function",
       "name": "prune_stale_backup_temps",
-      "line": 255
+      "line": 323
     },
     {
       "file": "src/production_os/dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "backup_readiness",
-      "line": 312
+      "line": 380
     },
     {
       "file": "src/production_os/dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "verify_backup_for_restore",
-      "line": 369
+      "line": 437
     },
     {
       "file": "src/production_os/dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "stage_verified_sqlite_restore",
-      "line": 455
+      "line": 523
     },
     {
       "file": "src/production_os/dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "verify_staged_restore_candidate",
-      "line": 557
+      "line": 625
     },
     {
       "file": "src/production_os/dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "activate_staged_sqlite_restore",
-      "line": 642
+      "line": 710
     },
     {
       "file": "src/production_os/dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "create_verified_sqlite_backup",
-      "line": 806
+      "line": 874
     },
     {
       "file": "src/production_os/dashboard_control.py",
@@ -8730,6 +8737,13 @@
       "line": 513
     },
     {
+      "file": "tests/test_dashboard_backup_api.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_backup_catalog_exposes_filesystem_capacity_without_paths",
+      "line": 553
+    },
+    {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
@@ -8951,35 +8965,98 @@
       "language": "python",
       "kind": "function",
       "name": "test_backup_storage_inventory_missing_directory_is_zero_and_read_only",
-      "line": 736
+      "line": 737
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_backup_storage_inventory_postgres_is_truthfully_unsupported",
-      "line": 752
+      "line": 753
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_backup_storage_inventory_marks_only_old_temps_stale",
-      "line": 765
+      "line": 766
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_prune_stale_backup_temps_deletes_only_stale_temp_files",
-      "line": 788
+      "line": 789
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_prune_stale_backup_temps_count_mismatch_changes_nothing",
-      "line": 826
+      "line": 827
+    },
+    {
+      "file": "tests/test_dashboard_backups.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_backup_filesystem_capacity_uses_existing_parent_for_missing_directory",
+      "line": 851
+    },
+    {
+      "file": "tests/test_dashboard_backups.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_backup_filesystem_capacity_is_unavailable_when_unconfigured",
+      "line": 871
+    },
+    {
+      "file": "tests/test_dashboard_backups.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_backup_filesystem_capacity_postgres_is_unsupported",
+      "line": 885
+    },
+    {
+      "file": "tests/test_dashboard_backups.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_backup_filesystem_capacity_converts_statvfs_and_thresholds",
+      "line": 898
+    },
+    {
+      "file": "tests/test_dashboard_backups.py",
+      "language": "python",
+      "kind": "class",
+      "name": "Stats",
+      "line": 907
+    },
+    {
+      "file": "tests/test_dashboard_backups.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_backup_filesystem_capacity_statvfs_error_is_unknown_not_zero",
+      "line": 926
+    },
+    {
+      "file": "tests/test_dashboard_backups.py",
+      "language": "python",
+      "kind": "function",
+      "name": "fail",
+      "line": 935
+    },
+    {
+      "file": "tests/test_dashboard_backups.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_storage_inventory_keeps_filesystem_shape_when_directory_listing_fails",
+      "line": 945
+    },
+    {
+      "file": "tests/test_dashboard_backups.py",
+      "language": "python",
+      "kind": "function",
+      "name": "failing_iterdir",
+      "line": 957
     },
     {
       "file": "tests/test_dashboard_control.py",
@@ -10807,6 +10884,13 @@
       "kind": "function",
       "name": "test_backup_temp_cleanup_ui_is_guarded_and_stale_only",
       "line": 489
+    },
+    {
+      "file": "tests/test_dashboard_ui_v3.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_backup_overview_renders_filesystem_capacity_read_only",
+      "line": 501
     },
     {
       "file": "tests/test_dashboard_usage.py",

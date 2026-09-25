@@ -2944,6 +2944,32 @@ rows = []
 ⋮----
 item = _safe_activation_receipt(path)
 ⋮----
+def _backup_filesystem_capacity(directory: Path | None) -> dict
+⋮----
+unavailable = {
+⋮----
+target = directory
+⋮----
+target = target.parent
+⋮----
+stats = os.statvfs(target)
+⋮----
+block_size = int(stats.f_frsize or stats.f_bsize or 0)
+⋮----
+total = max(0, int(stats.f_blocks) * block_size)
+free = max(0, int(stats.f_bfree) * block_size)
+available = max(0, int(stats.f_bavail) * block_size)
+⋮----
+used = max(0, total - free)
+available_percent = round(available / total * 100, 2)
+used_percent = round(used / total * 100, 2)
+⋮----
+status = "critical"
+⋮----
+status = "warning"
+⋮----
+status = "ok"
+⋮----
 def backup_storage_inventory(backend) -> dict
 ⋮----
 zero = {
@@ -8693,6 +8719,10 @@ old = time.time() - 90000
 prune_rows = [
 ⋮----
 protected = [
+⋮----
+filesystem = payload["storage"]["filesystem"]
+⋮----
+encoded = json.dumps(filesystem).lower()
 ````
 
 ## File: tests/test_dashboard_backups.py
@@ -8837,6 +8867,29 @@ receipt = backup_dir / "restore-20260925T130000Z-bbbbbbbbbbbb.activation.json"
 unknown = backup_dir / "notes.txt"
 ⋮----
 result = prune_stale_backup_temps(
+⋮----
+backup_dir = tmp_path / "nested" / "backups"
+⋮----
+filesystem = inventory["filesystem"]
+⋮----
+filesystem = backup_storage_inventory(backend)["filesystem"]
+⋮----
+filesystem = backup_storage_inventory(_FakePostgres())["filesystem"]
+⋮----
+class Stats
+⋮----
+f_frsize = 4096
+f_bsize = 4096
+f_blocks = 1000
+f_bfree = 100
+f_bavail = 40
+⋮----
+def fail(_)
+⋮----
+path_type = type(backup_dir)
+original_iterdir = path_type.iterdir
+⋮----
+def failing_iterdir(path)
 ````
 
 ## File: tests/test_dashboard_control_api.py
@@ -10011,6 +10064,8 @@ def test_backup_overview_renders_restore_activation_history()
 def test_backup_overview_renders_storage_inventory_read_only()
 ⋮----
 def test_backup_temp_cleanup_ui_is_guarded_and_stale_only()
+⋮----
+def test_backup_overview_renders_filesystem_capacity_read_only()
 ````
 
 ## File: tests/test_dashboard_usage.py
@@ -13515,6 +13570,23 @@ A file is eligible only when it is already classified as temporary and is at lea
 Verified backups, rollback backups, restore candidates, activation receipts, unknown files and fresh temporary files are never deleted by this operation.
 
 The response contains only aggregate deleted counts/bytes and the refreshed storage inventory. File names and server paths remain hidden.
+
+## Release 26 — Backup filesystem capacity
+
+The backups dashboard now reports the capacity of the filesystem that stores SQLite backup artifacts.
+
+It exposes total, free, available and used bytes, plus used/available percentages. When the configured backup directory does not exist yet, Production-OS measures the nearest existing parent without creating the directory.
+
+Capacity status is informational only:
+
+```text
+ok       available >= 10%
+warning  available < 10%
+critical available < 5%
+unknown  measurement unavailable
+```
+
+No automatic cleanup, backup, restore or control action is triggered from this status. Server paths remain hidden.
 
 ## Design principles
 

@@ -2425,6 +2425,32 @@ rows = []
 ⋮----
 item = _safe_activation_receipt(path)
 ⋮----
+def _backup_filesystem_capacity(directory: Path | None) -> dict
+⋮----
+unavailable = {
+⋮----
+target = directory
+⋮----
+target = target.parent
+⋮----
+stats = os.statvfs(target)
+⋮----
+block_size = int(stats.f_frsize or stats.f_bsize or 0)
+⋮----
+total = max(0, int(stats.f_blocks) * block_size)
+free = max(0, int(stats.f_bfree) * block_size)
+available = max(0, int(stats.f_bavail) * block_size)
+⋮----
+used = max(0, total - free)
+available_percent = round(available / total * 100, 2)
+used_percent = round(used / total * 100, 2)
+⋮----
+status = "critical"
+⋮----
+status = "warning"
+⋮----
+status = "ok"
+⋮----
 def backup_storage_inventory(backend) -> dict
 ⋮----
 zero = {

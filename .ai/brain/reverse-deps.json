@@ -579,6 +579,7 @@
         "src/production_os/workers.py",
         "src/production_os/workflow_engine.py",
         "tests/test_asset_forge.py",
+        "tests/test_dashboard_backups.py",
         "tests/test_fairness.py"
       ],
       "dependents": [
@@ -616,7 +617,7 @@
         "tests/test_workflow_api.py"
       ],
       "in_degree": 32,
-      "out_degree": 21
+      "out_degree": 22
     },
     "src/production_os/control_surface.py": {
       "dependencies": [],
@@ -680,7 +681,8 @@
     "src/production_os/dashboard_backups.py": {
       "dependencies": [
         "src/production_os/database_maintenance_lock.py",
-        "tests/test_asset_forge.py"
+        "tests/test_asset_forge.py",
+        "tests/test_dashboard_backups.py"
       ],
       "dependents": [
         "src/production_os/cli.py",
@@ -691,7 +693,7 @@
         "tests/test_release21_offline_restore_e2e.py"
       ],
       "in_degree": 6,
-      "out_degree": 2
+      "out_degree": 3
     },
     "src/production_os/dashboard_control.py": {
       "dependencies": [
@@ -2382,8 +2384,12 @@
         "src/production_os/sqlite_backend.py",
         "tests/test_asset_forge.py"
       ],
-      "dependents": [],
-      "in_degree": 0,
+      "dependents": [
+        "src/production_os/control_plane.py",
+        "src/production_os/dashboard_backups.py",
+        "tests/test_production_stack_e2e.py"
+      ],
+      "in_degree": 3,
       "out_degree": 5
     },
     "tests/test_dashboard_control.py": {
@@ -3013,11 +3019,12 @@
         "src/production_os/attestations.py",
         "src/production_os/control_plane.py",
         "src/production_os/remote_worker.py",
-        "src/production_os/workers.py"
+        "src/production_os/workers.py",
+        "tests/test_dashboard_backups.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 7
+      "out_degree": 8
     },
     "tests/test_project_progress.py": {
       "dependencies": [
