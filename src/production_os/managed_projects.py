@@ -262,6 +262,122 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
     }
 
 
+def _review_guidance(project_status: str, outcome: dict) -> dict:
+    status = str(project_status or "")
+    evidence_flags = {
+        "summary":bool(outcome.get("summary")),
+        "validation":bool(outcome.get("validation_status")),
+        "tests":bool(outcome.get("validation_tests")),
+        "commits":bool(outcome.get("commit_shas")),
+        "artifacts":(
+            int(outcome.get("artifact_count") or 0) > 0
+            or int(outcome.get("changed_file_count") or 0) > 0
+        ),
+        "pull_request":bool(outcome.get("pull_request")),
+    }
+    evidence_count = sum(bool(value) for value in evidence_flags.values())
+    if evidence_count == 0:
+        evidence_level = "none"
+    elif evidence_count <= 2:
+        evidence_level = "minimal"
+    elif evidence_count <= 4:
+        evidence_level = "partial"
+    else:
+        evidence_level = "rich"
+
+    validation = str(outcome.get("validation_status") or "").strip().lower()
+    validation_passed = (
+        True
+        if validation in {"passed", "pass", "success", "succeeded", "ok", "green"}
+        else False
+        if validation in {"failed", "fail", "error", "red"}
+        else None
+    )
+
+    if status == ACTIVE:
+        return {
+            "action_required":False,
+            "state":"running",
+            "headline":"Production en cours",
+            "detail":"Aucune action opérateur requise pendant l’exécution.",
+            "primary_action":None,
+            "available_actions":[],
+            "evidence_level":evidence_level,
+            "evidence_count":evidence_count,
+            "evidence":evidence_flags,
+            "validation_passed":validation_passed,
+        }
+    if status == NEEDS_ATTENTION:
+        failed = validation_passed is False or outcome.get("workflow_status") == "failed"
+        return {
+            "action_required":True,
+            "state":"needs_attention",
+            "headline":(
+                "Corriger puis relancer la validation"
+                if failed
+                else "Préciser la suite ou retester"
+            ),
+            "detail":(
+                "La validation ou le workflow signale un échec."
+                if failed
+                else "Le projet nécessite une intervention avant de continuer."
+            ),
+            "primary_action":"instructions" if failed else "verify",
+            "available_actions":["instructions", "verify"],
+            "evidence_level":evidence_level,
+            "evidence_count":evidence_count,
+            "evidence":evidence_flags,
+            "validation_passed":validation_passed,
+        }
+    if status == REVIEW_REQUIRED:
+        if validation_passed is True:
+            headline = "Examiner les preuves puis décider"
+            detail = (
+                "La validation reportée est passée. Vérifie le résultat avant "
+                "de valider DONE ou de demander une modification."
+            )
+        elif validation_passed is False:
+            headline = "Validation signalée en échec"
+            detail = (
+                "Le projet est en revue mais les preuves indiquent un échec; "
+                "reteste ou demande une correction avant décision."
+            )
+        else:
+            headline = "Examiner le résultat"
+            detail = (
+                "Aucune validation concluante n’est disponible; examine le "
+                "résultat ou demande un retest avant décision."
+            )
+        return {
+            "action_required":True,
+            "state":"review",
+            "headline":headline,
+            "detail":detail,
+            "primary_action":"review",
+            "available_actions":["instructions", "verify", "complete"],
+            "evidence_level":evidence_level,
+            "evidence_count":evidence_count,
+            "evidence":evidence_flags,
+            "validation_passed":validation_passed,
+        }
+    return {
+        "action_required":False,
+        "state":"done" if status == DONE else "unknown",
+        "headline":"Projet terminé" if status == DONE else "État à examiner",
+        "detail":(
+            "Aucune action opérateur requise."
+            if status == DONE
+            else "L’état du projet n’a pas de recommandation associée."
+        ),
+        "primary_action":None,
+        "available_actions":[],
+        "evidence_level":evidence_level,
+        "evidence_count":evidence_count,
+        "evidence":evidence_flags,
+        "validation_passed":validation_passed,
+    }
+
+
 class ManagedProjectService:
     def __init__(self, workflows: WorkflowEngine):
         self.workflows = workflows
@@ -707,6 +823,7 @@ class ManagedProjectService:
             if project["status"] == ACTIVE
             else project["status"]
         )
+        outcome = _outcome_from_workflow(current_workflow)
         return {
             "id":project_id,
             "project_id":project_id,
@@ -729,7 +846,8 @@ class ManagedProjectService:
             "completed_at":project.get("completed_at"),
             "runs":runs,
             "current_workflow":current_workflow,
-            "outcome":_outcome_from_workflow(current_workflow),
+            "outcome":outcome,
+            "review_guidance":_review_guidance(project["status"], outcome),
         }
 
     def list(self, *, limit: int = 100) -> list[dict]:
