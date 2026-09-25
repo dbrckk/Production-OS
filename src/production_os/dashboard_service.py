@@ -356,6 +356,26 @@ class DashboardService:
             if incident.get("status") == "resolved":
                 continue
             severity = str(incident.get("severity") or "medium")
+            actions = []
+            if incident.get("status") == "open":
+                actions.append({
+                    "name":"acknowledge",
+                    "label":"Acquitter",
+                })
+            for suggestion in (
+                (incident.get("playbook") or {}).get("suggestions") or []
+            ):
+                if str(suggestion.get("availability") or "") not in {
+                    "available","fallback"
+                }:
+                    continue
+                actions.append({
+                    "name":"playbook",
+                    "control_action":suggestion.get("action"),
+                    "worker_id":suggestion.get("worker_id"),
+                    "job_key":suggestion.get("job_key"),
+                    "availability":suggestion.get("availability"),
+                })
             items.append({
                 "id":f"incident:{incident.get('id')}",
                 "kind":"incident",
@@ -367,7 +387,9 @@ class DashboardService:
                 "repository":None,
                 "target_type":incident.get("target_type"),
                 "target_id":incident.get("target_id"),
+                "incident_id":incident.get("id"),
                 "view":"overview",
+                "actions":actions,
                 "updated_at":incident.get("last_seen_at"),
             })
 
@@ -393,6 +415,10 @@ class DashboardService:
                     "target_type":"managed-project",
                     "target_id":project.get("project_id"),
                     "view":"managed",
+                    "actions":[
+                        {"name":"instructions","label":"Ajouter instruction"},
+                        {"name":"verify","label":"Retester"},
+                    ],
                     "updated_at":project.get("updated_at"),
                 })
             elif status == "REVIEW_REQUIRED":
@@ -408,6 +434,11 @@ class DashboardService:
                     "target_type":"managed-project",
                     "target_id":project.get("project_id"),
                     "view":"managed",
+                    "actions":[
+                        {"name":"instructions","label":"Ajouter instruction"},
+                        {"name":"verify","label":"Retester"},
+                        {"name":"complete","label":"Valider DONE"},
+                    ],
                     "updated_at":project.get("updated_at"),
                 })
 
@@ -419,10 +450,12 @@ class DashboardService:
             "worker_controlled":78,
             "capacity_full":70,
         }
-        for job in autopilot.get("jobs", []):
+        blocked_jobs = [
+            job for job in autopilot.get("jobs", [])
+            if job.get("wait_reason")
+        ]
+        for job in blocked_jobs[:8]:
             reason = job.get("wait_reason")
-            if not reason:
-                continue
             items.append({
                 "id":f"job:{job.get('job_key')}",
                 "kind":"blocked_job",
@@ -435,6 +468,7 @@ class DashboardService:
                 "target_type":"job",
                 "target_id":job.get("job_key"),
                 "view":"autopilot",
+                "actions":[],
                 "updated_at":job.get("created_at"),
             })
 
@@ -455,6 +489,7 @@ class DashboardService:
                 "target_type":"managed-project",
                 "target_id":project.get("project_id"),
                 "view":"managed",
+                "actions":[],
                 "updated_at":project.get("completed_at") or project.get("updated_at"),
             })
 
@@ -471,8 +506,13 @@ class DashboardService:
             "schema_version":"production-os/dashboard-attention/v1",
             "generated_at":_now(),
             "summary":{
-                "action_required":sum(
-                    1 for item in items if item["action_required"]
+                "action_required":(
+                    sum(
+                        1 for item in items
+                        if item["action_required"]
+                        and item["kind"] != "blocked_job"
+                    )
+                    + len(blocked_jobs)
                 ),
                 "incidents":sum(
                     1 for item in items
@@ -490,10 +530,8 @@ class DashboardService:
                         "validation_failed",
                     }
                 ),
-                "blocked_jobs":sum(
-                    1 for item in items
-                    if item["kind"] == "blocked_job"
-                ),
+                "blocked_jobs":len(blocked_jobs),
+                "blocked_jobs_shown":min(8, len(blocked_jobs)),
                 "recently_completed":len(completed),
             },
             "items":selected,

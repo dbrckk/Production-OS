@@ -587,8 +587,48 @@ def test_attention_center_uses_server_aggregated_feed_and_action_counts():
 
 def test_attention_items_navigate_to_existing_operational_views():
     assert "openAttentionItem" in DASHBOARD_HTML
-    assert 'view==="managed"' in DASHBOARD_HTML
-    assert 'view==="autopilot"' in DASHBOARD_HTML
+    assert "view:view||\"overview\"" in DASHBOARD_HTML
+    assert "focus:targetId||null" in DASHBOARD_HTML
     assert "Ouvrir" in DASHBOARD_HTML
     assert "attention:loadAttention" in DASHBOARD_HTML
+
+def test_attention_center_exposes_contextual_server_actions():
+    assert "renderAttentionActions" in DASHBOARD_HTML
+    assert "attentionManagedAction" in DASHBOARD_HTML
+    assert "acknowledgeAttentionIncident" in DASHBOARD_HTML
+    assert "attentionPlaybookAction" in DASHBOARD_HTML
+    assert 'name==="verify"||name==="complete"' in DASHBOARD_HTML
+    assert 'name==="acknowledge"' in DASHBOARD_HTML
+    assert 'name==="playbook"' in DASHBOARD_HTML
+    assert 'confirm:"MARK_PROJECT_DONE"' in DASHBOARD_HTML
+    assert "Valider définitivement ce projet comme DONE ?" in DASHBOARD_HTML
+
+
+def test_attention_open_deep_links_to_exact_managed_project_or_job():
+    assert "focus:targetId||null" in DASHBOARD_HTML
+    assert 'appState.focus=q.get("target")||null' in DASHBOARD_HTML
+    assert 'params.set("target",appState.focus)' in DASHBOARD_HTML
+    assert 'data-managed-project-id="' in DASHBOARD_HTML
+    assert 'data-job-key="' in DASHBOARD_HTML
+    assert "attention-focus" in DASHBOARD_HTML
+    assert "scrollIntoView" in DASHBOARD_HTML
+
+
+def test_attention_feed_caps_blocked_job_cards_without_hiding_total():
+    assert "summary.blocked_jobs_shown" in DASHBOARD_HTML
+    assert "affichés" in DASHBOARD_HTML
+
+def test_attention_project_cards_accept_inline_follow_up_instruction():
+    assert "attentionManagedInstruction" in DASHBOARD_HTML
+    assert 'id="attention-instruction-' in DASHBOARD_HTML
+    assert 'placeholder="Instruction supplémentaire"' in DASHBOARD_HTML
+    assert '"/instructions"' in DASHBOARD_HTML
+    assert "Saisis une instruction." in DASHBOARD_HTML
+
+
+def test_completed_attention_items_remain_openable_for_inspection():
+    load_start = DASHBOARD_HTML.index("async function loadAttention")
+    load_end = DASHBOARD_HTML.index("async function loadManagedProjects", load_start)
+    attention_body = DASHBOARD_HTML[load_start:load_end]
+    assert "const openButton=item.view" in attention_body
 

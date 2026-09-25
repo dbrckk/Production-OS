@@ -65,6 +65,14 @@ def test_attention_prioritizes_failures_reviews_blocked_jobs_and_incidents():
             "target_type":"worker",
             "target_id":"worker-a",
             "last_seen_at":"2026-09-25T18:03:00+00:00",
+            "playbook":{
+                "suggestions":[{
+                    "action":"kick",
+                    "worker_id":"worker-a",
+                    "job_key":None,
+                    "availability":"fallback",
+                }]
+            },
         }]
     }
 
@@ -77,6 +85,7 @@ def test_attention_prioritizes_failures_reviews_blocked_jobs_and_incidents():
         "projects_to_review":1,
         "projects_needing_attention":1,
         "blocked_jobs":1,
+        "blocked_jobs_shown":1,
         "recently_completed":1,
     }
     assert payload["items"][0]["kind"] == "incident"
@@ -86,6 +95,27 @@ def test_attention_prioritizes_failures_reviews_blocked_jobs_and_incidents():
     assert "blocked_job" in kinds
     assert kinds[-1] == "completed_project"
     assert payload["items"][-1]["action_required"] is False
+
+    incident = next(item for item in payload["items"] if item["kind"] == "incident")
+    assert incident["incident_id"] == "incident-1"
+    assert [action["name"] for action in incident["actions"]] == [
+        "acknowledge",
+        "playbook",
+    ]
+    assert incident["actions"][1]["control_action"] == "kick"
+
+    failed = next(item for item in payload["items"] if item["kind"] == "validation_failed")
+    assert failed["actions"] == [
+        {"name":"instructions","label":"Ajouter instruction"},
+        {"name":"verify","label":"Retester"},
+    ]
+
+    review = next(item for item in payload["items"] if item["kind"] == "project_review")
+    assert review["actions"] == [
+        {"name":"instructions","label":"Ajouter instruction"},
+        {"name":"verify","label":"Retester"},
+        {"name":"complete","label":"Valider DONE"},
+    ]
 
 
 def test_attention_limit_is_bounded_and_completed_items_are_informational():
@@ -115,3 +145,32 @@ def test_attention_limit_is_bounded_and_completed_items_are_informational():
     assert payload["summary"]["action_required"] == 0
     assert payload["summary"]["recently_completed"] == 3
     assert all(item["action_required"] is False for item in payload["items"])
+
+def test_attention_caps_blocked_job_cards_but_preserves_total_count():
+    control = SimpleNamespace(
+        dashboard_store=None,
+        managed_projects=ManagedProjects([]),
+    )
+    service = DashboardService(control)
+    service.incidents = lambda limit=100, status=None: {"incidents":[]}
+    service.autopilot_queue = lambda limit=50: {
+        "jobs":[
+            {
+                "job_key":f"job-{index}",
+                "repository":"dbrckk/noisy",
+                "task":f"blocked {index}",
+                "wait_reason":"capacity_full",
+                "created_at":f"2026-09-25T18:{index:02d}:00+00:00",
+            }
+            for index in range(12)
+        ]
+    }
+
+    payload = service.attention(limit=50)
+
+    blocked = [item for item in payload["items"] if item["kind"] == "blocked_job"]
+    assert len(blocked) == 8
+    assert payload["summary"]["blocked_jobs"] == 12
+    assert payload["summary"]["blocked_jobs_shown"] == 8
+    assert payload["summary"]["action_required"] == 12
+

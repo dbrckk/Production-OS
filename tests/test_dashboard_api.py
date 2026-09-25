@@ -455,3 +455,39 @@ def test_attention_feed_is_viewer_visible_and_worker_forbidden(running_control_p
     assert status == 403
     assert payload["required_role"] == "viewer"
 
+def test_attention_action_metadata_does_not_bypass_operator_permissions(
+    running_control_plane,
+):
+    base, _control = running_control_plane
+
+    status, created = api(
+        base,
+        "/v1/managed-projects",
+        "operator-token",
+        {
+            "repository":"dbrckk/attention-permissions",
+            "final_goal":"Validate attention action permissions.",
+            "token_budget":30000,
+            "agent_preference":"auto",
+        },
+    )
+    assert status == 201
+    project_id = created["project"]["project_id"]
+
+    status, payload = get_api(
+        base,
+        "/v1/dashboard/attention?limit=50",
+        "viewer-token",
+    )
+    assert status == 200
+    assert payload["schema_version"] == "production-os/dashboard-attention/v1"
+
+    status, payload = api(
+        base,
+        f"/v1/managed-projects/{project_id}/verify",
+        "viewer-token",
+        {},
+    )
+    assert status == 403
+    assert payload["required_role"] == "operator"
+
