@@ -1078,6 +1078,35 @@ Advanced token-budget and agent controls remain available in the Managed Project
 
 The one-tap endpoint requires the operator role. Viewer and worker credentials cannot launch production.
 
+
+## Release 32 — One-tap production E2E qualification
+
+The primary mobile launch path is now covered by a dedicated end-to-end qualification test.
+
+The test proves the complete server-side lifecycle:
+
+```text
+POST /v1/dashboard/launch
+        ↓
+persistent Managed Project
+        ↓
+workflow + queued job
+        ↓
+remote worker claim / ack / complete
+        ↓
+workflow succeeded
+        ↓
+Managed Project REVIEW_REQUIRED
+        ↓
+control-plane restart
+        ↓
+same project/workflow/result restored
+```
+
+The qualification verifies that repository, instruction, final goal, server-owned execution defaults, worker result usage, workflow identity, generation history and review state survive a control-plane restart.
+
+This specifically protects the mobile promise introduced in Release 31: closing or reloading the dashboard does not own the execution lifetime and cannot discard the production.
+
 ## Design principles
 
 - Evidence over assumptions
