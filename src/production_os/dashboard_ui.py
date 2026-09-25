@@ -112,7 +112,7 @@ textarea{resize:vertical;min-height:150px;line-height:1.45}
 }
 
 body{overflow-x:hidden}
-.v3-nav{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;position:sticky;top:0;z-index:20;padding:8px;background:rgba(8,13,24,.94);backdrop-filter:blur(12px)}
+.v3-nav{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;position:sticky;top:0;z-index:20;padding:8px;background:rgba(8,13,24,.94);backdrop-filter:blur(12px)}
 .v3-nav button{border:1px solid var(--line);background:var(--panel);color:var(--text);padding:10px 6px;border-radius:12px;font-weight:700}
 .v3-workspace{margin:12px 0}.v3-view{display:none}.v3-view.active{display:block}.v3-tabs{display:flex;gap:6px;overflow-x:auto;padding:6px 0}.v3-tabs button{white-space:nowrap}
 @media(max-width:640px){.shell{padding-left:10px;padding-right:10px}.v3-nav{font-size:12px}}
@@ -125,6 +125,7 @@ body{overflow-x:hidden}
 <button data-view="projects" onclick="navigate({view:'projects',workerId:null,repository:null,tab:null})">Projets</button>
 <button data-view="workers" onclick="navigate({view:'workers',workerId:null,repository:null,tab:null})">Workers</button>
 <button data-view="autopilot" onclick="navigate({view:'autopilot',workerId:null,repository:null,tab:null})">Autopilot</button>
+<button data-view="managed" onclick="navigate({view:'managed',workerId:null,repository:null,tab:null})">Managed</button>
 <button data-view="activity" onclick="navigate({view:'activity',workerId:null,repository:null,tab:null})">Activité</button>
 </nav>
 <section class="v3-workspace" aria-live="polite">
@@ -132,6 +133,7 @@ body{overflow-x:hidden}
 <div id="view-projects" class="v3-view"><h2>Projets</h2><div id="projects-list"></div><div class="v3-tabs" aria-label="Détail projet"><button>Aperçu</button><button>Avancement</button><button>Commits</button><button>API</button><button>Workflows</button><button>Qualité</button><button>Historique</button></div><div id="project-detail"></div></div>
 <div id="view-workers" class="v3-view"><h2>Workers</h2><div id="workers-list"></div><div class="v3-tabs" aria-label="Détail worker"><button>Aperçu</button><button>Tâches</button><button>Logs</button><button>API</button><button>Historique</button><button data-worker-tab="control">Control</button></div><div id="worker-detail"></div></div>
 <div id="view-autopilot" class="v3-view"><div class="section-head"><h2>Autopilot</h2><span id="autopilot-count" class="badge">0</span></div><div id="autopilot-list"></div></div>
+<div id="view-managed" class="v3-view"><div class="section-head"><h2>Managed Projects</h2><span id="managed-count" class="badge">0</span></div><div id="managed-list"></div></div>
 <div id="view-activity" class="v3-view"><h2>Activité</h2><div id="activity-list"></div></div>
 </section>
  <div class="topbar">
@@ -1041,6 +1043,38 @@ async function loadWorkerDetail(workerId){
    '</div>';
  }catch(e){el.innerHTML=errorCard(e)}
 }
+async function managedAction(workflowId,action){
+ const path="/v1/managed-projects/"+encodeURIComponent(workflowId)+"/"+action;
+ let body={};
+ if(action==="instructions"){
+  const instruction=window.prompt("Instruction supplémentaire");
+  if(!instruction)return;
+  body={instruction:instruction};
+ }
+ if(action==="complete"&&!window.confirm("Valider définitivement ce projet ?"))return;
+ await api(path,{method:"POST",body:JSON.stringify(body)});
+ await loadManagedProjects();
+}
+async function loadManagedProjects(){
+ const el=document.getElementById("managed-list");
+ const count=document.getElementById("managed-count");
+ try{
+  const data=await api("/v1/managed-projects");
+  const rows=data.projects||[];
+  count.textContent=String(rows.length);
+  el.innerHTML=rows.length?rows.map(function(row){
+   const usage=row.usage||{};
+   const review=row.state==="REVIEW_REQUIRED";
+   const actions=review
+    ?'<div class="v3-tabs"><button class="secondary-btn" onclick="managedAction('+JSON.stringify(row.workflow_id)+',\'instructions\')">Ajouter instruction</button><button class="secondary-btn" onclick="managedAction('+JSON.stringify(row.workflow_id)+',\'verify\')">Retester</button><button class="secondary-btn" onclick="managedAction('+JSON.stringify(row.workflow_id)+',\'complete\')">Valider DONE</button></div>'
+    :'';
+   return '<div class="card"><div class="section-head"><strong>'+esc(String(row.repository||""))+'</strong><span class="badge">'+esc(String(row.state||""))+'</span></div>'+
+    '<div class="small"><strong>Objectif :</strong> '+esc(String(row.final_goal||""))+'</div>'+
+    '<div class="small"><strong>Budget :</strong> '+formatNumber(row.token_budget)+' tokens · <strong>Utilisés :</strong> '+formatNumber(usage.total_tokens||0)+' · <strong>Agent :</strong> '+esc(String(row.agent_preference||"auto"))+'</div>'+
+    actions+'</div>';
+  }).join(""):'<div class="empty">Aucun projet managé.</div>';
+ }catch(e){el.innerHTML=errorCard(e)}
+}
 async function loadActivityView(){
  const el=document.getElementById("activity-list");
  try{
@@ -1111,7 +1145,7 @@ async function renderActiveView(){
  const target=document.getElementById("view-"+appState.view);
  if(target)target.classList.add("active");
  clearViewPolls();
- const loaders={overview:loadOverview,projects:loadProjectsView,workers:loadWorkersView,autopilot:loadAutopilot,activity:loadActivityView};
+ const loaders={overview:loadOverview,projects:loadProjectsView,workers:loadWorkersView,autopilot:loadAutopilot,managed:loadManagedProjects,activity:loadActivityView};
  const loader=loaders[appState.view]||loadOverview;
  await loader();
  schedulePoll("active-view",appState.view==="overview"?15000:5000,loader);
