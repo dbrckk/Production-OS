@@ -1,12 +1,14 @@
 # Change impact
 
-Base: 2db9da1a13f679bec0b42b1defe92e6649269bc9
-Head: 5d89d2cc6bb8b4f29f1185251115182a82e48445
+Base: 19645b25c1f0f7e2be426490ba8ea8a1feb7b5a1
+Head: ae270d0d5d77394248ee09e5d06929a2cd280029
 
 ## Changed files
-- A tests/test_release18_managed_projects_e2e.py
+- M src/production_os/dashboard_ui.py
+- M tests/test_dashboard_ui_v3.py
 
 ## Affected areas
+- src
 - tests
 
 ## Related test candidates

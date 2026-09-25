@@ -22,26 +22,26 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-25T08:46:01Z
+Generated: 2026-09-25T08:50:57Z
 
 ### Git
 - Branch: `main`
-- Head: `5d89d2cc6bb8`
-- Commit date: 2026-09-25T10:45:47+02:00
-- Commit: test: release 18 managed projects e2e qualification
+- Head: `ae270d0d5d77`
+- Commit date: 2026-09-25T10:50:46+02:00
+- Commit: feat: managed projects mobile UX
 - Tracked files: 397
 
 ### Recently changed files
+- `src/production_os/dashboard_ui.py`
+- `tests/test_dashboard_ui_v3.py`
 - `tests/test_release18_managed_projects_e2e.py`
 - `src/production_os/control_plane.py`
-- `src/production_os/dashboard_ui.py`
 - `src/production_os/managed_projects.py`
 - `src/production_os/postgres_backend.py`
 - `src/production_os/sqlite_backend.py`
 - `tests/test_dashboard_control_audit.py`
 - `tests/test_dashboard_remediation_history.py`
 - `tests/test_dashboard_store_postgres.py`
-- `tests/test_dashboard_ui_v3.py`
 - `tests/test_managed_projects_http_v4.py`
 - `tests/test_managed_projects_v4.py`
 - `tests/test_workflow_postgres.py`
@@ -49,9 +49,6 @@ Generated: 2026-09-25T08:46:01Z
 - `tests/test_workflow_engine.py`
 - `docs/superpowers/plans/2026-09-24-release-16-operations-e2e.md`
 - `tests/test_release16_operations_e2e.py`
-- `README.md`
-- `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-15.md`
-- `src/production_os/dashboard_backups.py`
 
 ### Project signals
 - `pyproject.toml`

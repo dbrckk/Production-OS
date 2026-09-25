@@ -2226,9 +2226,17 @@ def test_restore_readiness_ui_never_exposes_restore_action_or_paths()
 ⋮----
 def test_dashboard_has_managed_projects_view()
 ⋮----
-def test_managed_projects_view_exposes_review_actions_only_in_review_state()
+def test_managed_projects_view_exposes_safe_review_and_attention_actions()
 ⋮----
 def test_managed_projects_navigation_preserves_existing_polling_contract()
+⋮----
+def test_managed_projects_mobile_creation_form_is_inline_and_server_backed()
+⋮----
+def test_managed_project_instruction_uses_inline_textarea_not_prompt()
+⋮----
+def test_managed_projects_mobile_view_renders_generation_history()
+⋮----
+def test_managed_repository_picker_reuses_server_repository_discovery()
 ```
 
 ## File: test_dashboard_usage.py
