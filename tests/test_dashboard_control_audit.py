@@ -143,7 +143,7 @@ def test_operator_control_api_writes_success_and_failure_audit(tmp_path):
         server.server_close()
 
 
-def test_release9_schema_is_v14_and_contains_control_audit_and_recurrence(tmp_path):
+def test_release17_schema_is_v15_and_contains_managed_project_tables(tmp_path):
     backend = SQLiteBackend(tmp_path / "schema.sqlite")
     with backend.connect() as db:
         version = db.execute(
@@ -161,7 +161,7 @@ def test_release9_schema_is_v14_and_contains_control_audit_and_recurrence(tmp_pa
                 "PRAGMA table_info(dashboard_remediation_events)"
             ).fetchall()
         }
-    assert version == "14"
+    assert version == "15"
     assert table["name"] == "control_audit_events"
     assert remediation["name"] == "dashboard_remediation_events"
     assert {
@@ -169,6 +169,15 @@ def test_release9_schema_is_v14_and_contains_control_audit_and_recurrence(tmp_pa
         "recurrence_state",
         "recurred_at",
     } <= remediation_columns
+    with backend.connect() as db:
+        managed = db.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='managed_projects'"
+        ).fetchone()
+        runs = db.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='managed_project_runs'"
+        ).fetchone()
+    assert managed["name"] == "managed_projects"
+    assert runs["name"] == "managed_project_runs"
 
 
 def test_control_action_remains_traced_if_audit_finalization_fails(tmp_path):
