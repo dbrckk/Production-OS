@@ -1005,6 +1005,8 @@ launch = payload["launch"]
 persisted = control.managed_projects.get(project["project_id"])
 ⋮----
 def test_attention_feed_is_viewer_visible_and_worker_forbidden(running_control_plane)
+⋮----
+project_id = created["project"]["project_id"]
 ```
 
 ## File: test_dashboard_attention.py
@@ -1025,9 +1027,19 @@ payload = service.attention(limit=50)
 ⋮----
 kinds = [item["kind"] for item in payload["items"]]
 ⋮----
+incident = next(item for item in payload["items"] if item["kind"] == "incident")
+⋮----
+failed = next(item for item in payload["items"] if item["kind"] == "validation_failed")
+⋮----
+review = next(item for item in payload["items"] if item["kind"] == "project_review")
+⋮----
 def test_attention_limit_is_bounded_and_completed_items_are_informational()
 ⋮----
 payload = service.attention(limit=2)
+⋮----
+def test_attention_caps_blocked_job_cards_but_preserves_total_count()
+⋮----
+blocked = [item for item in payload["items"] if item["kind"] == "blocked_job"]
 ```
 
 ## File: test_dashboard_backup_api.py
@@ -2498,6 +2510,20 @@ def test_attention_center_is_default_mobile_view()
 def test_attention_center_uses_server_aggregated_feed_and_action_counts()
 ⋮----
 def test_attention_items_navigate_to_existing_operational_views()
+⋮----
+def test_attention_center_exposes_contextual_server_actions()
+⋮----
+def test_attention_open_deep_links_to_exact_managed_project_or_job()
+⋮----
+def test_attention_feed_caps_blocked_job_cards_without_hiding_total()
+⋮----
+def test_attention_project_cards_accept_inline_follow_up_instruction()
+⋮----
+def test_completed_attention_items_remain_openable_for_inspection()
+⋮----
+load_start = DASHBOARD_HTML.index("async function loadAttention")
+load_end = DASHBOARD_HTML.index("async function loadManagedProjects", load_start)
+attention_body = DASHBOARD_HTML[load_start:load_end]
 ```
 
 ## File: test_dashboard_usage.py
