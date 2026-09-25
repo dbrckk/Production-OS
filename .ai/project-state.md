@@ -22,34 +22,36 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-25T19:29:56Z
+Generated: 2026-09-25T19:40:11Z
 
 ### Git
 - Branch: `main`
-- Head: `a145b91fa848`
-- Commit date: 2026-09-25T21:29:46+02:00
-- Commit: feat: release 41 live production tracking
-- Tracked files: 434
+- Head: `e044951cfdc6`
+- Commit date: 2026-09-25T21:39:59+02:00
+- Commit: feat: release 42 idempotent one-tap launch
+- Tracked files: 436
 
 ### Recently changed files
 - `README.md`
-- `docs/superpowers/plans/2026-09-25-release-41-live-production-tracking.md`
+- `docs/superpowers/plans/2026-09-25-release-42-idempotent-one-tap-launch.md`
 - `src/production_os/control_plane.py`
-- `src/production_os/dashboard_service.py`
 - `src/production_os/dashboard_ui.py`
+- `src/production_os/managed_projects.py`
 - `tests/test_dashboard_api.py`
-- `tests/test_dashboard_production_status.py`
 - `tests/test_dashboard_ui_v3.py`
+- `tests/test_managed_projects_v4.py`
+- `tests/test_release42_idempotent_launch_e2e.py`
+- `docs/superpowers/plans/2026-09-25-release-41-live-production-tracking.md`
+- `src/production_os/dashboard_service.py`
+- `tests/test_dashboard_production_status.py`
 - `tests/test_release41_live_production_tracking_e2e.py`
 - `docs/superpowers/plans/2026-09-25-release-40-launch-readiness-tracker.md`
 - `tests/test_dashboard_launch_readiness.py`
 - `docs/superpowers/plans/2026-09-25-release-39-production-outcomes.md`
-- `src/production_os/managed_projects.py`
 - `tests/test_dashboard_attention.py`
 - `tests/test_managed_project_outcome.py`
 - `tests/test_release32_one_tap_e2e.py`
 - `docs/superpowers/plans/2026-09-25-release-38-contextual-attention-actions.md`
-- `docs/superpowers/plans/2026-09-25-release-37-attention-center.md`
 
 ### Project signals
 - `pyproject.toml`

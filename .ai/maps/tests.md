@@ -147,6 +147,7 @@ test_release34_safe_running_recovery_e2e.py
 test_release35_control_plane_restart_e2e.py
 test_release36_worker_session_reconciliation_e2e.py
 test_release41_live_production_tracking_e2e.py
+test_release42_idempotent_launch_e2e.py
 test_remote_worker.py
 test_render_start.py
 test_result_cache.py
@@ -1011,6 +1012,11 @@ persisted = control.managed_projects.get(project["project_id"])
 def test_attention_feed_is_viewer_visible_and_worker_forbidden(running_control_plane)
 ⋮----
 project_id = created["project"]["project_id"]
+⋮----
+request_id = "android-retry-20260925-001"
+body = {
+⋮----
+def test_one_tap_launch_rejects_invalid_request_id(running_control_plane)
 ```
 
 ## File: test_dashboard_attention.py
@@ -2585,6 +2591,14 @@ def test_dashboard_refresh_and_repository_change_refresh_launch_readiness()
 def test_last_production_tracker_renders_live_runtime_status()
 ⋮----
 def test_last_production_tracker_keeps_server_outcome_and_project_deep_link()
+⋮----
+def test_one_tap_launch_persists_request_id_until_successful_response()
+⋮----
+def test_one_tap_retry_state_does_not_persist_instruction_text()
+⋮----
+pending_start = DASHBOARD_HTML.index("function pendingLaunchRequest")
+pending_end = DASHBOARD_HTML.index("function clearPendingLaunchRequest", pending_start)
+pending_body = DASHBOARD_HTML[pending_start:pending_end]
 ```
 
 ## File: test_dashboard_usage.py
@@ -3159,6 +3173,21 @@ def test_legacy_v4_workflow_is_migrated_on_first_read(tmp_path)
 legacy = workflows.create(
 ⋮----
 migrated = projects.get(legacy["id"])
+⋮----
+def test_deterministic_project_id_is_idempotent_and_rejects_parameter_reuse(tmp_path)
+⋮----
+project_id = "launchrequest0123456789abcdef0123"
+⋮----
+first = projects.create(
+replay = projects.create(
+⋮----
+project_count = db.execute(
+run_count = db.execute(
+job_count = db.execute(
+⋮----
+def test_deterministic_project_id_validation_preserves_default_creation(tmp_path)
+⋮----
+normal = projects.create(
 ```
 
 ## File: test_observability.py
@@ -4317,6 +4346,45 @@ claimed = worker.claim()
 ⋮----
 restarted = ControlPlane(database, authorizer=_auth())
 restored = restarted.dashboard.production_status(project_id)
+```
+
+## File: test_release42_idempotent_launch_e2e.py
+```python
+def _auth()
+⋮----
+def _request(base, path, token, *, method="GET", body=None)
+⋮----
+data = None if body is None else json.dumps(body).encode("utf-8")
+request = urllib.request.Request(
+⋮----
+raw = response.read()
+⋮----
+raw = exc.read()
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+@pytest.mark.e2e
+def test_release42_retry_after_control_plane_restart_returns_same_launch(tmp_path)
+⋮----
+database = str(tmp_path / "release42-idempotent.sqlite")
+request_id = "mobile-retry-20260925-abcdef"
+body = {
+⋮----
+first_control = ControlPlane(database, authorizer=_auth())
+⋮----
+project_id = first["project"]["project_id"]
+workflow_id = first["project"]["current_workflow_id"]
+⋮----
+# Model an ambiguous network outcome: the first request committed but the
+# client retries after both browser/server recovery.
+second_control = ControlPlane(database, authorizer=_auth())
+⋮----
+project_count = db.execute(
+workflow_count = db.execute(
+job_count = db.execute(
 ```
 
 ## File: test_remote_worker.py

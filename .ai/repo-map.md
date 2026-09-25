@@ -277,6 +277,7 @@ tests/
   test_release35_control_plane_restart_e2e.py
   test_release36_worker_session_reconciliation_e2e.py
   test_release41_live_production_tracking_e2e.py
+  test_release42_idempotent_launch_e2e.py
   test_remote_worker.py
   test_render_start.py
   test_result_cache.py
@@ -2545,6 +2546,11 @@ def do_POST(self) -> None
 principal = self._require("operator")
 ⋮----
 body = self._read_json()
+request_id = str(body.get("request_id") or "").strip()
+project_id = None
+⋮----
+actor = f"{principal.role}:{principal.name}"
+project_id = hashlib.sha256(
 project = control.managed_projects.create(
 ⋮----
 action = parts[3]
@@ -5355,8 +5361,19 @@ final_goal = str(final_goal or "").strip()
 budget = _positive_int(token_budget, field="token_budget")
 agent = str(agent_preference or "auto").strip() or "auto"
 actor = str(requested_by or "operator").strip() or "operator"
+⋮----
 project_id = uuid4().hex
+⋮----
+project_id = str(project_id or "").strip()
+⋮----
 now = _now()
+⋮----
+inserted = _execute(
+created_row = inserted.rowcount == 1
+⋮----
+existing = _execute(
+⋮----
+matches = (
 ⋮----
 workflow = self._create_workflow(
 ⋮----
@@ -5391,8 +5408,6 @@ completed_by = None
 status = NEEDS_ATTENTION
 ⋮----
 status = ACTIVE
-⋮----
-existing = _execute(
 ⋮----
 def reconcile(self, identifier: str) -> dict
 ⋮----
@@ -8979,6 +8994,11 @@ persisted = control.managed_projects.get(project["project_id"])
 def test_attention_feed_is_viewer_visible_and_worker_forbidden(running_control_plane)
 ⋮----
 project_id = created["project"]["project_id"]
+⋮----
+request_id = "android-retry-20260925-001"
+body = {
+⋮----
+def test_one_tap_launch_rejects_invalid_request_id(running_control_plane)
 ````
 
 ## File: tests/test_dashboard_attention.py
@@ -10553,6 +10573,14 @@ def test_dashboard_refresh_and_repository_change_refresh_launch_readiness()
 def test_last_production_tracker_renders_live_runtime_status()
 ⋮----
 def test_last_production_tracker_keeps_server_outcome_and_project_deep_link()
+⋮----
+def test_one_tap_launch_persists_request_id_until_successful_response()
+⋮----
+def test_one_tap_retry_state_does_not_persist_instruction_text()
+⋮----
+pending_start = DASHBOARD_HTML.index("function pendingLaunchRequest")
+pending_end = DASHBOARD_HTML.index("function clearPendingLaunchRequest", pending_start)
+pending_body = DASHBOARD_HTML[pending_start:pending_end]
 ````
 
 ## File: tests/test_dashboard_usage.py
@@ -11127,6 +11155,21 @@ def test_legacy_v4_workflow_is_migrated_on_first_read(tmp_path)
 legacy = workflows.create(
 ⋮----
 migrated = projects.get(legacy["id"])
+⋮----
+def test_deterministic_project_id_is_idempotent_and_rejects_parameter_reuse(tmp_path)
+⋮----
+project_id = "launchrequest0123456789abcdef0123"
+⋮----
+first = projects.create(
+replay = projects.create(
+⋮----
+project_count = db.execute(
+run_count = db.execute(
+job_count = db.execute(
+⋮----
+def test_deterministic_project_id_validation_preserves_default_creation(tmp_path)
+⋮----
+normal = projects.create(
 ````
 
 ## File: tests/test_observability.py
@@ -12285,6 +12328,45 @@ claimed = worker.claim()
 ⋮----
 restarted = ControlPlane(database, authorizer=_auth())
 restored = restarted.dashboard.production_status(project_id)
+````
+
+## File: tests/test_release42_idempotent_launch_e2e.py
+````python
+def _auth()
+⋮----
+def _request(base, path, token, *, method="GET", body=None)
+⋮----
+data = None if body is None else json.dumps(body).encode("utf-8")
+request = urllib.request.Request(
+⋮----
+raw = response.read()
+⋮----
+raw = exc.read()
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+@pytest.mark.e2e
+def test_release42_retry_after_control_plane_restart_returns_same_launch(tmp_path)
+⋮----
+database = str(tmp_path / "release42-idempotent.sqlite")
+request_id = "mobile-retry-20260925-abcdef"
+body = {
+⋮----
+first_control = ControlPlane(database, authorizer=_auth())
+⋮----
+project_id = first["project"]["project_id"]
+workflow_id = first["project"]["current_workflow_id"]
+⋮----
+# Model an ambiguous network outcome: the first request committed but the
+# client retries after both browser/server recovery.
+second_control = ControlPlane(database, authorizer=_auth())
+⋮----
+project_count = db.execute(
+workflow_count = db.execute(
+job_count = db.execute(
 ````
 
 ## File: tests/test_remote_worker.py
@@ -14777,6 +14859,32 @@ The dashboard polls this status every five seconds for the locally remembered la
 When execution becomes terminal, the same card automatically surfaces the normalized Release 39 result summary and validation evidence.
 
 A dedicated E2E qualification follows one One-tap production through queued → claimed → running telemetry → REVIEW_REQUIRED, then restarts the Control Plane and verifies the same live/result state remains readable.
+
+
+## Release 42 — Idempotent One-tap launch
+
+One-tap production launch now supports durable request idempotency.
+
+The dashboard sends a stable `request_id` with:
+
+```text
+POST /v1/dashboard/launch
+```
+
+For requests carrying this identifier, the Control Plane derives a deterministic Managed Project id scoped to the authenticated operator. Replaying the same request id with the same repository and instruction returns the already-created Managed Project and workflow instead of creating a second production.
+
+Safety rules:
+
+- legacy clients without `request_id` retain the previous launch contract;
+- request ids are validated and bounded;
+- the same request id cannot be reused with different launch parameters;
+- a concurrent retry during first-project initialization returns a conflict rather than creating a duplicate;
+- delivery/job creation therefore remains exactly-once for a completed idempotent launch;
+- no new database schema is required.
+
+The mobile UI persists only `repository + instruction fingerprint + request_id` while a launch is pending. The instruction text itself is not stored. After a successful response the pending request is cleared. If a network response is lost, the same submission can be retried—even after browser or Control Plane restart—without duplicating the Managed Project.
+
+A dedicated E2E qualification proves a launch followed by Control Plane restart and the same POST/request id results in exactly one project, one workflow and one queued job.
 
 ## Design principles
 

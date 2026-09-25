@@ -2016,6 +2016,11 @@ def do_POST(self) -> None
 principal = self._require("operator")
 ⋮----
 body = self._read_json()
+request_id = str(body.get("request_id") or "").strip()
+project_id = None
+⋮----
+actor = f"{principal.role}:{principal.name}"
+project_id = hashlib.sha256(
 project = control.managed_projects.create(
 ⋮----
 action = parts[3]
@@ -4826,8 +4831,19 @@ final_goal = str(final_goal or "").strip()
 budget = _positive_int(token_budget, field="token_budget")
 agent = str(agent_preference or "auto").strip() or "auto"
 actor = str(requested_by or "operator").strip() or "operator"
+⋮----
 project_id = uuid4().hex
+⋮----
+project_id = str(project_id or "").strip()
+⋮----
 now = _now()
+⋮----
+inserted = _execute(
+created_row = inserted.rowcount == 1
+⋮----
+existing = _execute(
+⋮----
+matches = (
 ⋮----
 workflow = self._create_workflow(
 ⋮----
@@ -4862,8 +4878,6 @@ completed_by = None
 status = NEEDS_ATTENTION
 ⋮----
 status = ACTIVE
-⋮----
-existing = _execute(
 ⋮----
 def reconcile(self, identifier: str) -> dict
 ⋮----

@@ -2,22 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat: persist structured asset-forge failure receipts",
-      "terms": [
-        "asset-forge",
-        "failure",
-        "feat",
-        "persist",
-        "receipts",
-        "structured"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/cli.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "test: cover persisted asset-forge CLI receipts",
       "terms": [
         "asset-forge",
@@ -1284,6 +1268,28 @@
         "tests/test_dashboard_ui_v3.py",
         "tests/test_release41_live_production_tracking_e2e.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "feat: release 42 idempotent one-tap launch",
+      "terms": [
+        "42",
+        "feat",
+        "idempotent",
+        "launch",
+        "one-tap",
+        "release"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/control_plane.py",
+        "src/production_os/dashboard_ui.py",
+        "src/production_os/managed_projects.py",
+        "tests/test_dashboard_api.py",
+        "tests/test_dashboard_ui_v3.py",
+        "tests/test_managed_projects_v4.py",
+        "tests/test_release42_idempotent_launch_e2e.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1502,6 +1508,15 @@
       "tests/test_dashboard_production_status.py": 4,
       "tests/test_dashboard_ui_v3.py": 4,
       "tests/test_release41_live_production_tracking_e2e.py": 4
+    },
+    "42": {
+      "src/production_os/control_plane.py": 4,
+      "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/managed_projects.py": 4,
+      "tests/test_dashboard_api.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_managed_projects_v4.py": 4,
+      "tests/test_release42_idempotent_launch_e2e.py": 4
     },
     "accept": {
       "src/production_os/asset_forge.py": 4,
@@ -2005,7 +2020,7 @@
       "src/production_os/dashboard_usage.py": 4,
       "src/production_os/database_maintenance_lock.py": 4,
       "src/production_os/github_client.py": 20,
-      "src/production_os/managed_projects.py": 12,
+      "src/production_os/managed_projects.py": 16,
       "src/production_os/postgres_backend.py": 32,
       "src/production_os/project_progress.py": 4,
       "src/production_os/sqlite_backend.py": 32,
@@ -2013,7 +2028,7 @@
       "tests/test_asset_forge.py": 16,
       "tests/test_cli.py": 4,
       "tests/test_dashboard_alerts.py": 4,
-      "tests/test_dashboard_api.py": 36,
+      "tests/test_dashboard_api.py": 40,
       "tests/test_dashboard_attention.py": 12,
       "tests/test_dashboard_backup_api.py": 32,
       "tests/test_dashboard_backups.py": 40,
@@ -2046,7 +2061,7 @@
       "tests/test_github_client_pr_files.py": 4,
       "tests/test_managed_project_outcome.py": 4,
       "tests/test_managed_projects_http_v4.py": 8,
-      "tests/test_managed_projects_v4.py": 8,
+      "tests/test_managed_projects_v4.py": 12,
       "tests/test_portfolio_claim_api.py": 4,
       "tests/test_workflow_postgres.py": 8
     },
@@ -2129,6 +2144,15 @@
       "src/production_os/control_plane.py": 4,
       "tests/test_dashboard_launch.py": 4
     },
+    "idempotent": {
+      "src/production_os/control_plane.py": 4,
+      "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/managed_projects.py": 4,
+      "tests/test_dashboard_api.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_managed_projects_v4.py": 4,
+      "tests/test_release42_idempotent_launch_e2e.py": 4
+    },
     "immutable": {
       "src/production_os/control_plane.py": 4,
       "src/production_os/dashboard_ui.py": 4,
@@ -2186,14 +2210,17 @@
       "tests/test_workflow_engine.py": 4
     },
     "launch": {
-      "src/production_os/control_plane.py": 8,
+      "src/production_os/control_plane.py": 12,
       "src/production_os/dashboard_service.py": 8,
-      "src/production_os/dashboard_ui.py": 8,
+      "src/production_os/dashboard_ui.py": 12,
       "src/production_os/github_client.py": 4,
-      "tests/test_dashboard_api.py": 4,
+      "src/production_os/managed_projects.py": 4,
+      "tests/test_dashboard_api.py": 8,
       "tests/test_dashboard_launch_readiness.py": 4,
       "tests/test_dashboard_launch_ux.py": 4,
-      "tests/test_dashboard_ui_v3.py": 8
+      "tests/test_dashboard_ui_v3.py": 12,
+      "tests/test_managed_projects_v4.py": 4,
+      "tests/test_release42_idempotent_launch_e2e.py": 4
     },
     "library": {
       "src/production_os/asset_forge.py": 4,
@@ -2292,12 +2319,15 @@
       "tests/test_release21_offline_restore_e2e.py": 4
     },
     "one-tap": {
-      "src/production_os/control_plane.py": 4,
-      "src/production_os/dashboard_ui.py": 4,
-      "tests/test_dashboard_api.py": 4,
+      "src/production_os/control_plane.py": 8,
+      "src/production_os/dashboard_ui.py": 8,
+      "src/production_os/managed_projects.py": 4,
+      "tests/test_dashboard_api.py": 8,
       "tests/test_dashboard_launch.py": 4,
-      "tests/test_dashboard_ui_v3.py": 4,
-      "tests/test_release32_one_tap_e2e.py": 4
+      "tests/test_dashboard_ui_v3.py": 8,
+      "tests/test_managed_projects_v4.py": 4,
+      "tests/test_release32_one_tap_e2e.py": 4,
+      "tests/test_release42_idempotent_launch_e2e.py": 4
     },
     "operations": {
       "tests/test_release16_operations_e2e.py": 4
@@ -2543,14 +2573,14 @@
       "src/production_os/dashboard_usage.py": 4,
       "src/production_os/database_maintenance_lock.py": 4,
       "src/production_os/github_client.py": 8,
-      "src/production_os/managed_projects.py": 4,
+      "src/production_os/managed_projects.py": 8,
       "src/production_os/postgres_backend.py": 28,
       "src/production_os/project_progress.py": 4,
       "src/production_os/sqlite_backend.py": 28,
       "src/production_os/workflow_engine.py": 4,
       "tests/test_cli.py": 4,
       "tests/test_dashboard_alerts.py": 4,
-      "tests/test_dashboard_api.py": 32,
+      "tests/test_dashboard_api.py": 36,
       "tests/test_dashboard_attention.py": 12,
       "tests/test_dashboard_backup_api.py": 32,
       "tests/test_dashboard_backups.py": 40,
@@ -2582,12 +2612,12 @@
       "tests/test_database_maintenance_lock.py": 4,
       "tests/test_github_client_pr_files.py": 4,
       "tests/test_managed_project_outcome.py": 4,
+      "tests/test_managed_projects_v4.py": 4,
       "tests/test_portfolio_claim_api.py": 4,
       "tests/test_project_progress.py": 4,
       "tests/test_release16_operations_e2e.py": 4,
       "tests/test_release18_managed_projects_e2e.py": 4,
       "tests/test_release19_restore_staging_e2e.py": 4,
-      "tests/test_release21_offline_restore_e2e.py": 4,
       "tests/test_release32_one_tap_e2e.py": 8
     },
     "reliability": {
