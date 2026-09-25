@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import json
+import hashlib
 from datetime import datetime, timezone
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -923,6 +924,29 @@ def make_handler(control: ControlPlane):
                     return
                 try:
                     body = self._read_json()
+                    request_id = str(body.get("request_id") or "").strip()
+                    project_id = None
+                    if request_id:
+                        if (
+                            not (8 <= len(request_id) <= 128)
+                            or any(
+                                not (
+                                    char.isalnum()
+                                    or char in {"-", "_", ".", ":"}
+                                )
+                                for char in request_id
+                            )
+                        ):
+                            raise ValueError("request_id is invalid")
+                        actor = f"{principal.role}:{principal.name}"
+                        project_id = hashlib.sha256(
+                            (
+                                "dashboard-launch/v1\0"
+                                + actor
+                                + "\0"
+                                + request_id
+                            ).encode("utf-8")
+                        ).hexdigest()[:32]
                     project = control.managed_projects.create(
                         repository=str(body.get("repository") or ""),
                         final_goal=str(body.get("instruction") or ""),
@@ -931,6 +955,7 @@ def make_handler(control: ControlPlane):
                         requested_by=(
                             f"{principal.role}:{principal.name}"
                         ),
+                        project_id=project_id,
                     )
                 except ValueError as exc:
                     self._send(
@@ -953,6 +978,8 @@ def make_handler(control: ControlPlane):
                             "persistent":True,
                             "token_budget":30000,
                             "agent_preference":"auto",
+                            "request_id":request_id or None,
+                            "idempotent":bool(request_id),
                         },
                     },
                 )
