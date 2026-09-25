@@ -618,3 +618,17 @@ def test_attention_feed_caps_blocked_job_cards_without_hiding_total():
     assert "summary.blocked_jobs_shown" in DASHBOARD_HTML
     assert "affichés" in DASHBOARD_HTML
 
+def test_attention_project_cards_accept_inline_follow_up_instruction():
+    assert "attentionManagedInstruction" in DASHBOARD_HTML
+    assert 'id="attention-instruction-' in DASHBOARD_HTML
+    assert 'placeholder="Instruction supplémentaire"' in DASHBOARD_HTML
+    assert '"/instructions"' in DASHBOARD_HTML
+    assert "Saisis une instruction." in DASHBOARD_HTML
+
+
+def test_completed_attention_items_remain_openable_for_inspection():
+    load_start = DASHBOARD_HTML.index("async function loadAttention")
+    load_end = DASHBOARD_HTML.index("async function loadManagedProjects", load_start)
+    attention_body = DASHBOARD_HTML[load_start:load_end]
+    assert "const openButton=item.view" in attention_body
+
