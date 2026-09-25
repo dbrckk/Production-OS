@@ -204,6 +204,7 @@ tests/
   test_dashboard_health.py
   test_dashboard_incident_signals.py
   test_dashboard_incidents.py
+  test_dashboard_launch_readiness.py
   test_dashboard_launch_ux.py
   test_dashboard_launch.py
   test_dashboard_maintenance.py
@@ -2452,6 +2453,8 @@ service = control.dashboard
 ⋮----
 payload = service.overview(window)
 ⋮----
+payload = service.launch_readiness(
+⋮----
 payload = service.attention(
 ⋮----
 payload = service.health()
@@ -3871,6 +3874,23 @@ payload = storage_maintenance_snapshot(self.control.backend)
 def prune_maintenance(self, expected_candidate_rows: int) -> dict
 ⋮----
 result = prune_expired_history(
+⋮----
+def launch_readiness(self, repository: str) -> dict
+⋮----
+repository = str(repository or "").strip()
+parts = repository.split("/")
+⋮----
+catalog = self.repositories()
+known = any(
+workers = self.workers().get("workers", [])
+online = [
+available = [
+⋮----
+queued_row = db.execute(
+queued = int(queued_row["count"] if queued_row else 0)
+⋮----
+execution = "immediate" if available else "queued"
+message = (
 ⋮----
 def repositories(self) -> dict
 ⋮----
@@ -9609,6 +9629,28 @@ current = control.dashboard_store.dashboard_incidents(limit=1)[0]
 def test_stale_incident_age_updates_do_not_create_new_occurrences(tmp_path)
 ````
 
+## File: tests/test_dashboard_launch_readiness.py
+````python
+def test_launch_readiness_distinguishes_immediate_execution_from_safe_queue(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "readiness.sqlite"))
+service = control.dashboard
+⋮----
+queued = service.launch_readiness("dbrckk/example")
+⋮----
+immediate = service.launch_readiness("dbrckk/example")
+⋮----
+def test_launch_readiness_does_not_count_paused_or_saturated_workers(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "readiness-workers.sqlite"))
+⋮----
+result = service.launch_readiness("dbrckk/example")
+⋮----
+def test_launch_readiness_validates_repository_shape(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "readiness-invalid.sqlite"))
+````
+
 ## File: tests/test_dashboard_launch_ux.py
 ````python
 def _auth()
@@ -10411,6 +10453,12 @@ load_end = DASHBOARD_HTML.index("async function loadManagedProjects", load_start
 attention_body = DASHBOARD_HTML[load_start:load_end]
 ⋮----
 def test_managed_and_attention_cards_render_normalized_production_outcome()
+⋮----
+def test_launch_preflight_is_server_backed_and_mobile_visible()
+⋮----
+def test_last_launched_project_survives_dashboard_reload_on_same_device()
+⋮----
+def test_dashboard_refresh_and_repository_change_refresh_launch_readiness()
 ````
 
 ## File: tests/test_dashboard_usage.py
@@ -14543,6 +14591,31 @@ No new worker result schema is required. The normalizer accepts both structured 
 Terminal workflows remain readable even when older workers supplied no structured evidence: the real workflow status is still exposed.
 
 Both the Managed Projects view and the `À faire maintenant` cards render the normalized outcome. The One-tap E2E qualification also verifies that result summary and validation evidence survive a Control Plane restart.
+
+
+## Release 40 — Launch readiness + persistent last-production tracking
+
+The One-tap launch surface now distinguishes **execution availability** from **launch durability**.
+
+A server-backed preflight endpoint exposes current readiness:
+
+```text
+GET /v1/dashboard/launch-readiness?repository=owner/name
+```
+
+The response reports:
+
+- whether the repository is known to the current discovery source;
+- online worker count;
+- immediately available worker count;
+- current queued-job count;
+- whether execution can begin immediately or the new production will be safely queued.
+
+The endpoint is advisory only. Lack of an immediately available worker does not block launch because Managed Projects are persisted before dispatch.
+
+The mobile dashboard also remembers only the `project_id` of the last One-tap production on that device. On every refresh it reloads the project from the Control Plane and renders the real server state and normalized production outcome. Closing or reopening the dashboard therefore does not create a browser-owned execution state.
+
+The tracker links directly to the exact Managed Project and remains compatible with the existing attention-first workflow.
 
 ## Design principles
 

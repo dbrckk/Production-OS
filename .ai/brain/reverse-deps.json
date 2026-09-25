@@ -48,6 +48,7 @@
         "tests/test_dashboard_incident_signals.py",
         "tests/test_dashboard_incidents.py",
         "tests/test_dashboard_launch.py",
+        "tests/test_dashboard_launch_readiness.py",
         "tests/test_dashboard_launch_ux.py",
         "tests/test_dashboard_maintenance.py",
         "tests/test_dashboard_observability_e2e.py",
@@ -149,7 +150,7 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 137,
+      "in_degree": 138,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -609,6 +610,7 @@
         "tests/test_dashboard_control_e2e.py",
         "tests/test_dashboard_incidents.py",
         "tests/test_dashboard_launch.py",
+        "tests/test_dashboard_launch_readiness.py",
         "tests/test_dashboard_launch_ux.py",
         "tests/test_dashboard_maintenance.py",
         "tests/test_dashboard_observability_e2e.py",
@@ -634,7 +636,7 @@
         "tests/test_speculation_api.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 37,
+      "in_degree": 38,
       "out_degree": 23
     },
     "src/production_os/control_surface.py": {
@@ -1990,6 +1992,7 @@
         "tests/test_dashboard_incident_signals.py",
         "tests/test_dashboard_incidents.py",
         "tests/test_dashboard_launch.py",
+        "tests/test_dashboard_launch_readiness.py",
         "tests/test_dashboard_launch_ux.py",
         "tests/test_dashboard_maintenance.py",
         "tests/test_dashboard_observability_e2e.py",
@@ -2016,7 +2019,6 @@
         "tests/test_release32_one_tap_e2e.py",
         "tests/test_release33_auto_worker_recovery_e2e.py",
         "tests/test_release34_safe_running_recovery_e2e.py",
-        "tests/test_release35_control_plane_restart_e2e.py",
         "tests/test_stragglers.py",
         "tests/test_workers.py"
       ],
@@ -2537,6 +2539,16 @@
       "out_degree": 6
     },
     "tests/test_dashboard_launch.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/workers.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 3
+    },
+    "tests/test_dashboard_launch_readiness.py": {
       "dependencies": [
         "src/production_os/__init__.py",
         "src/production_os/control_plane.py",
@@ -3326,12 +3338,11 @@
         "src/production_os/api_auth.py",
         "src/production_os/control_plane.py",
         "src/production_os/remote_worker.py",
-        "src/production_os/workers.py",
         "tests/test_asset_forge.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 6
+      "out_degree": 5
     },
     "tests/test_release36_worker_session_reconciliation_e2e.py": {
       "dependencies": [

@@ -1926,6 +1926,8 @@ service = control.dashboard
 ⋮----
 payload = service.overview(window)
 ⋮----
+payload = service.launch_readiness(
+⋮----
 payload = service.attention(
 ⋮----
 payload = service.health()
@@ -3345,6 +3347,23 @@ payload = storage_maintenance_snapshot(self.control.backend)
 def prune_maintenance(self, expected_candidate_rows: int) -> dict
 ⋮----
 result = prune_expired_history(
+⋮----
+def launch_readiness(self, repository: str) -> dict
+⋮----
+repository = str(repository or "").strip()
+parts = repository.split("/")
+⋮----
+catalog = self.repositories()
+known = any(
+workers = self.workers().get("workers", [])
+online = [
+available = [
+⋮----
+queued_row = db.execute(
+queued = int(queued_row["count"] if queued_row else 0)
+⋮----
+execution = "immediate" if available else "queued"
+message = (
 ⋮----
 def repositories(self) -> dict
 ⋮----
