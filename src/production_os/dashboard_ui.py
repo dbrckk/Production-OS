@@ -105,6 +105,10 @@ textarea{resize:vertical;min-height:150px;line-height:1.45}
 .advanced-options{margin:12px 0;padding:10px 12px;border:1px solid var(--line);border-radius:13px;background:#0c1422}
 .advanced-options summary{cursor:pointer;font-size:.82rem;font-weight:800;color:#cbd5e1}
 .advanced-options[open] summary{margin-bottom:10px}
+.attention-summary{position:sticky;top:8px;z-index:2}
+.attention-card .secondary-btn{margin-top:10px}
+.attention-required{border-left:3px solid rgba(251,191,36,.8)}
+.attention-done{opacity:.78}
 @media(max-width:560px){
  .shell{padding:14px 12px 38px}
  .status-grid{grid-template-columns:1fr}
@@ -156,6 +160,7 @@ body{overflow-x:hidden}
 
 
 <nav class="v3-nav" aria-label="Navigation principale">
+<button data-view="attention" onclick="navigate({view:'attention',workerId:null,repository:null,tab:null})">À faire</button>
 <button data-view="overview" onclick="navigate({view:'overview',workerId:null,repository:null,tab:null})">Vue générale</button>
 <button data-view="projects" onclick="navigate({view:'projects',workerId:null,repository:null,tab:null})">Projets</button>
 <button data-view="workers" onclick="navigate({view:'workers',workerId:null,repository:null,tab:null})">Workers</button>
@@ -164,7 +169,8 @@ body{overflow-x:hidden}
 <button data-view="activity" onclick="navigate({view:'activity',workerId:null,repository:null,tab:null})">Activité</button>
 </nav>
 <section class="v3-workspace" aria-live="polite">
-<div id="view-overview" class="v3-view active"><div class="section-head"><h2>Vue générale</h2><div class="v3-tabs" aria-label="Période"><button type="button" onclick="setDashboardWindow('24h')">24h</button><button type="button" onclick="setDashboardWindow('7d')">7d</button><button type="button" onclick="setDashboardWindow('30d')">30d</button></div></div><div id="overview-metrics"></div></div>
+<div id="view-attention" class="v3-view active"><div class="section-head"><h2>À faire maintenant</h2><span id="attention-count" class="badge">0</span></div><div id="attention-list"></div></div>
+<div id="view-overview" class="v3-view"><div class="section-head"><h2>Vue générale</h2><div class="v3-tabs" aria-label="Période"><button type="button" onclick="setDashboardWindow('24h')">24h</button><button type="button" onclick="setDashboardWindow('7d')">7d</button><button type="button" onclick="setDashboardWindow('30d')">30d</button></div></div><div id="overview-metrics"></div></div>
 <div id="view-projects" class="v3-view"><h2>Projets</h2><div id="projects-list"></div><div class="v3-tabs" aria-label="Détail projet"><button>Aperçu</button><button>Avancement</button><button>Commits</button><button>API</button><button>Workflows</button><button>Qualité</button><button>Historique</button></div><div id="project-detail"></div></div>
 <div id="view-workers" class="v3-view"><h2>Workers</h2><div id="workers-list"></div><div class="v3-tabs" aria-label="Détail worker"><button>Aperçu</button><button>Tâches</button><button>Logs</button><button>API</button><button>Historique</button><button data-worker-tab="control">Control</button></div><div id="worker-detail"></div></div>
 <div id="view-autopilot" class="v3-view"><div class="section-head"><h2>Autopilot</h2><span id="autopilot-count" class="badge">0</span></div><div id="autopilot-list"></div></div>
@@ -541,11 +547,11 @@ document.getElementById('repository').addEventListener('change',loadRecentRuns);
 setInterval(loadVisualQuality,10000);
 setInterval(function(){loadWorkerStatus();loadRecentRuns()},10000);
 
-const appState={view:"overview",workerId:null,repository:null,tab:null,window:"7d",polling:new Map()};
+const appState={view:"attention",workerId:null,repository:null,tab:null,window:"7d",polling:new Map()};
 (function restoreNavigation(){
  const q=new URLSearchParams(window.location.search);
  const view=q.get("view");
- if(["overview","projects","workers","autopilot","managed","activity"].includes(view))appState.view=view;
+ if(["attention","overview","projects","workers","autopilot","managed","activity"].includes(view))appState.view=view;
  appState.workerId=q.get("worker")||null;
  appState.repository=q.get("repo")||null;
  appState.tab=q.get("tab")||null;
@@ -1207,6 +1213,71 @@ async function managedAction(projectId,action){
   if(status)status.textContent=String(e).replace(/^Error:\\s*/,"");
  }
 }
+function attentionKindLabel(kind){
+ const labels={
+  incident:"Incident",
+  validation_failed:"CI / validation",
+  project_attention:"Projet bloqué",
+  project_review:"À revoir",
+  blocked_job:"En attente",
+  completed_project:"Terminé"
+ };
+ return labels[kind]||String(kind||"Action");
+}
+function attentionSeverityClass(severity){
+ return severity==="critical"||severity==="high"?"bad":severity==="medium"?"warn":"ok";
+}
+async function openAttentionItem(view,targetType,targetId){
+ if(view==="managed"){
+  navigate({view:"managed",workerId:null,repository:null,tab:null});
+  return;
+ }
+ if(view==="autopilot"){
+  navigate({view:"autopilot",workerId:null,repository:null,tab:null});
+  return;
+ }
+ navigate({view:view||"overview",workerId:null,repository:null,tab:null});
+}
+async function loadAttention(){
+ const el=document.getElementById("attention-list");
+ const count=document.getElementById("attention-count");
+ try{
+  const data=await api("/v1/dashboard/attention?limit=50");
+  const summary=data.summary||{};
+  const rows=data.items||[];
+  count.textContent=String(summary.action_required||0);
+  const headline=
+   '<div class="card attention-summary"><div class="section-head"><strong>Priorités</strong><span class="badge">'+formatNumber(summary.action_required||0)+' action(s)</span></div>'+
+   '<div class="small"><strong>À revoir :</strong> '+formatNumber(summary.projects_to_review||0)+
+   ' · <strong>À débloquer :</strong> '+formatNumber(summary.projects_needing_attention||0)+
+   ' · <strong>Jobs bloqués :</strong> '+formatNumber(summary.blocked_jobs||0)+
+   ' · <strong>Incidents :</strong> '+formatNumber(summary.incidents||0)+
+   ' · <strong>Terminés récemment :</strong> '+formatNumber(summary.recently_completed||0)+'</div></div>';
+  if(!rows.length){
+   el.innerHTML=headline+'<div class="card"><strong>Rien d’urgent.</strong><div class="small">Les productions autonomes n’attendent aucune action opérateur.</div></div>';
+   return;
+  }
+  const cards=rows.map(function(item){
+   const required=item.action_required===true;
+   const repository=item.repository?'<div class="small"><strong>'+esc(String(item.repository))+'</strong></div>':'';
+   const summaryText=item.summary?'<div class="small">'+esc(String(item.summary))+'</div>':'';
+   const action=required
+    ?'<button class="secondary-btn" type="button" data-view="'+esc(String(item.view||"overview"))+'" data-target-type="'+esc(String(item.target_type||""))+'" data-target-id="'+esc(String(item.target_id||""))+'" onclick="openAttentionItem(this.dataset.view,this.dataset.targetType,this.dataset.targetId)">Ouvrir</button>'
+    :'';
+   return '<div class="card attention-card '+(required?'attention-required':'attention-done')+'">'+
+    '<div class="section-head"><strong>'+esc(String(item.title||"Action"))+'</strong>'+
+    '<span class="badge">'+dot(attentionSeverityClass(String(item.severity||"info")))+esc(attentionKindLabel(item.kind))+'</span></div>'+
+    repository+summaryText+
+    '<div class="small">'+(required?'Action opérateur requise':'Information récente')+(item.updated_at?' · '+esc(String(item.updated_at)):'')+'</div>'+
+    action+'</div>';
+  }).join("");
+  el.innerHTML=headline+cards;
+ }catch(e){
+  count.textContent="!";
+  el.innerHTML=errorCard(e);
+ }
+}
+
 async function loadManagedProjects(){
  const el=document.getElementById("managed-list");
  const count=document.getElementById("managed-count");
@@ -1303,8 +1374,8 @@ async function renderActiveView(){
  const target=document.getElementById("view-"+appState.view);
  if(target)target.classList.add("active");
  clearViewPolls();
- const loaders={overview:loadOverview,projects:loadProjectsView,workers:loadWorkersView,autopilot:loadAutopilot,managed:loadManagedProjects,activity:loadActivityView};
- const loader=loaders[appState.view]||loadOverview;
+ const loaders={attention:loadAttention,overview:loadOverview,projects:loadProjectsView,workers:loadWorkersView,autopilot:loadAutopilot,managed:loadManagedProjects,activity:loadActivityView};
+ const loader=loaders[appState.view]||loadAttention;
  await loader();
  schedulePoll("active-view",appState.view==="overview"?15000:5000,loader);
 }

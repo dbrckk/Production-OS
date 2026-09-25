@@ -512,6 +512,10 @@ def make_handler(control: ControlPlane):
                     service = control.dashboard
                     if parsed.path == "/v1/dashboard/overview":
                         payload = service.overview(window)
+                    elif parsed.path == "/v1/dashboard/attention":
+                        payload = service.attention(
+                            limit=int(query.get("limit", ["50"])[0]),
+                        )
                     elif parsed.path == "/v1/dashboard/health":
                         payload = service.health()
                     elif parsed.path == "/v1/dashboard/autopilot":

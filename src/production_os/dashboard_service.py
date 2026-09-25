@@ -338,6 +338,167 @@ class DashboardService:
             "jobs":jobs,
         }
 
+    def attention(self, *, limit: int = 50) -> dict:
+        bounded = max(1, min(200, int(limit)))
+        managed = self.control.managed_projects.list(limit=200)
+        autopilot = self.autopilot_queue(limit=200)
+        incidents = self.incidents(limit=200).get("incidents", [])
+
+        items: list[dict] = []
+        severity_priority = {
+            "critical":100,
+            "high":95,
+            "medium":85,
+            "low":75,
+            "info":60,
+        }
+        for incident in incidents:
+            if incident.get("status") == "resolved":
+                continue
+            severity = str(incident.get("severity") or "medium")
+            items.append({
+                "id":f"incident:{incident.get('id')}",
+                "kind":"incident",
+                "priority":severity_priority.get(severity, 80),
+                "action_required":True,
+                "severity":severity,
+                "title":str(incident.get("title") or "Incident actif"),
+                "summary":str(incident.get("message") or ""),
+                "repository":None,
+                "target_type":incident.get("target_type"),
+                "target_id":incident.get("target_id"),
+                "view":"overview",
+                "updated_at":incident.get("last_seen_at"),
+            })
+
+        for project in managed:
+            status = str(project.get("status") or "")
+            workflow = project.get("current_workflow") or {}
+            workflow_status = str(workflow.get("status") or "")
+            if status == "NEEDS_ATTENTION":
+                failed = workflow_status == "failed"
+                items.append({
+                    "id":f"project:{project['project_id']}",
+                    "kind":"validation_failed" if failed else "project_attention",
+                    "priority":94 if failed else 90,
+                    "action_required":True,
+                    "severity":"high" if failed else "medium",
+                    "title":(
+                        "CI / validation en échec"
+                        if failed
+                        else "Projet nécessite une action"
+                    ),
+                    "summary":str(project.get("final_goal") or ""),
+                    "repository":project.get("repository"),
+                    "target_type":"managed-project",
+                    "target_id":project.get("project_id"),
+                    "view":"managed",
+                    "updated_at":project.get("updated_at"),
+                })
+            elif status == "REVIEW_REQUIRED":
+                items.append({
+                    "id":f"project:{project['project_id']}",
+                    "kind":"project_review",
+                    "priority":88,
+                    "action_required":True,
+                    "severity":"medium",
+                    "title":"Projet prêt à revoir",
+                    "summary":str(project.get("final_goal") or ""),
+                    "repository":project.get("repository"),
+                    "target_type":"managed-project",
+                    "target_id":project.get("project_id"),
+                    "view":"managed",
+                    "updated_at":project.get("updated_at"),
+                })
+
+        wait_priorities = {
+            "assigned_worker_unavailable":86,
+            "no_worker":86,
+            "missing_capability":84,
+            "no_online_worker":82,
+            "worker_controlled":78,
+            "capacity_full":70,
+        }
+        for job in autopilot.get("jobs", []):
+            reason = job.get("wait_reason")
+            if not reason:
+                continue
+            items.append({
+                "id":f"job:{job.get('job_key')}",
+                "kind":"blocked_job",
+                "priority":wait_priorities.get(str(reason), 72),
+                "action_required":True,
+                "severity":"medium",
+                "title":"Production en attente",
+                "summary":str(reason),
+                "repository":job.get("repository"),
+                "target_type":"job",
+                "target_id":job.get("job_key"),
+                "view":"autopilot",
+                "updated_at":job.get("created_at"),
+            })
+
+        completed = [
+            project for project in managed
+            if str(project.get("status") or "") == "DONE"
+        ][:5]
+        for project in completed:
+            items.append({
+                "id":f"completed:{project['project_id']}",
+                "kind":"completed_project",
+                "priority":20,
+                "action_required":False,
+                "severity":"info",
+                "title":"Projet terminé",
+                "summary":str(project.get("final_goal") or ""),
+                "repository":project.get("repository"),
+                "target_type":"managed-project",
+                "target_id":project.get("project_id"),
+                "view":"managed",
+                "updated_at":project.get("completed_at") or project.get("updated_at"),
+            })
+
+        items.sort(
+            key=lambda item: (
+                0 if item["action_required"] else 1,
+                -int(item["priority"]),
+                str(item.get("updated_at") or ""),
+                str(item["id"]),
+            )
+        )
+        selected = items[:bounded]
+        return {
+            "schema_version":"production-os/dashboard-attention/v1",
+            "generated_at":_now(),
+            "summary":{
+                "action_required":sum(
+                    1 for item in items if item["action_required"]
+                ),
+                "incidents":sum(
+                    1 for item in items
+                    if item["kind"] == "incident"
+                    and item["action_required"]
+                ),
+                "projects_to_review":sum(
+                    1 for item in items
+                    if item["kind"] == "project_review"
+                ),
+                "projects_needing_attention":sum(
+                    1 for item in items
+                    if item["kind"] in {
+                        "project_attention",
+                        "validation_failed",
+                    }
+                ),
+                "blocked_jobs":sum(
+                    1 for item in items
+                    if item["kind"] == "blocked_job"
+                ),
+                "recently_completed":len(completed),
+            },
+            "items":selected,
+        }
+
     def health(self) -> dict:
         workers = self._worker_rows()
         with self.control.backend.connect() as db:

@@ -562,5 +562,33 @@ def test_managed_technical_creation_options_are_collapsed_by_default():
 
 
 def test_managed_view_can_be_restored_from_navigation_query():
-    assert '["overview","projects","workers","autopilot","managed","activity"]' in DASHBOARD_HTML
+    assert '["attention","overview","projects","workers","autopilot","managed","activity"]' in DASHBOARD_HTML
+
+def test_attention_center_is_default_mobile_view():
+    assert 'data-view="attention"' in DASHBOARD_HTML
+    assert 'id="view-attention" class="v3-view active"' in DASHBOARD_HTML
+    assert "À faire maintenant" in DASHBOARD_HTML
+    assert 'const appState={view:"attention"' in DASHBOARD_HTML
+    assert '["attention","overview","projects","workers","autopilot","managed","activity"]' in DASHBOARD_HTML
+
+
+def test_attention_center_uses_server_aggregated_feed_and_action_counts():
+    assert "/v1/dashboard/attention?limit=50" in DASHBOARD_HTML
+    assert "async function loadAttention" in DASHBOARD_HTML
+    assert "summary.action_required" in DASHBOARD_HTML
+    assert "summary.projects_to_review" in DASHBOARD_HTML
+    assert "summary.projects_needing_attention" in DASHBOARD_HTML
+    assert "summary.blocked_jobs" in DASHBOARD_HTML
+    assert "summary.incidents" in DASHBOARD_HTML
+    assert "summary.recently_completed" in DASHBOARD_HTML
+    assert "CI / validation" in DASHBOARD_HTML
+    assert "Rien d’urgent." in DASHBOARD_HTML
+
+
+def test_attention_items_navigate_to_existing_operational_views():
+    assert "openAttentionItem" in DASHBOARD_HTML
+    assert 'view==="managed"' in DASHBOARD_HTML
+    assert 'view==="autopilot"' in DASHBOARD_HTML
+    assert "Ouvrir" in DASHBOARD_HTML
+    assert "attention:loadAttention" in DASHBOARD_HTML
 
