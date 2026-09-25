@@ -149,11 +149,14 @@ def test_release34_running_one_tap_job_recovers_only_after_dual_staleness(tmp_pa
         assert recovered.payload["claimed_by"] == "worker-two"
         assert recovered.payload["delivery_attempt"] == 2
 
-        old_execution = [
-            row
-            for row in control.dashboard_store.executions_for_job(job_key)
-            if row["attempt"] == 1
-        ][0]
+        with control.backend.connect() as db:
+            old_execution = dict(
+                db.execute(
+                    """SELECT * FROM job_executions
+                       WHERE job_key=? AND attempt=1""",
+                    (job_key,),
+                ).fetchone()
+            )
         assert old_execution["status"] == "failed"
         assert old_execution["error_type"] == "worker_abandoned"
 
