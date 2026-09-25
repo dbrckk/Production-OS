@@ -14,7 +14,7 @@ from .dashboard_incidents import dedupe_key, signals_from_health
 from .dashboard_playbooks import derive_incident_playbook
 from .dashboard_remediation_metrics import aggregate_remediation_analytics
 from .dashboard_maintenance import prune_expired_history, storage_maintenance_snapshot
-from .dashboard_backups import backup_readiness, backup_storage_inventory, create_verified_sqlite_backup, prune_stale_backup_temps, restore_activation_history, stage_verified_sqlite_restore, verify_backup_for_restore
+from .dashboard_backups import backup_readiness, backup_storage_inventory, create_verified_sqlite_backup, prune_expired_verified_backups, prune_stale_backup_temps, restore_activation_history, stage_verified_sqlite_restore, verify_backup_for_restore
 from .project_progress import ProjectProgressEngine, build_project_evidence, workflow_progress
 from .github_client import GitHubAPIError, GitHubClient
 
@@ -491,6 +491,17 @@ class DashboardService:
         return prune_stale_backup_temps(
             self.control.backend,
             expected_candidate_count=expected_candidate_count,
+        )
+
+    def prune_expired_backups(
+        self,
+        expected_candidate_count: int,
+        expected_candidate_fingerprint: str,
+    ) -> dict:
+        return prune_expired_verified_backups(
+            self.control.backend,
+            expected_candidate_count=expected_candidate_count,
+            expected_candidate_fingerprint=expected_candidate_fingerprint,
         )
 
     def create_verified_backup(self) -> dict:

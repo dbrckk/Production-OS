@@ -19,7 +19,7 @@ from .dashboard_control import DashboardControl
 from .dashboard_service import DashboardService, DashboardNotFound
 from .dashboard_ui import DASHBOARD_HTML
 from .dashboard_maintenance import RetentionCandidateConflict
-from .dashboard_backups import BackupError, BackupTempCandidateConflict
+from .dashboard_backups import BackupError, BackupRetentionCandidateConflict, BackupTempCandidateConflict
 from .managed_projects import ManagedProjectService
 from .database_maintenance_lock import database_server_lock
 from .github_webhook import (
@@ -1070,6 +1070,110 @@ def make_handler(control: ControlPlane):
                             audit["id"],
                             outcome="failed",
                             error_code="backup_verify_failed",
+                        )
+                        raise
+                    control.dashboard_store.update_control_audit(
+                        audit["id"],
+                        outcome="succeeded",
+                    )
+                    self._send(HTTPStatus.OK, result)
+                    return
+
+                if parsed.path == "/v1/dashboard/backups/prune-expired":
+                    principal = self._require("operator")
+                    if principal is None:
+                        return
+                    if (
+                        str(body.get("confirm") or "")
+                        != "PRUNE_EXPIRED_VERIFIED_BACKUPS"
+                    ):
+                        self._send(
+                            HTTPStatus.BAD_REQUEST,
+                            {"error":"exact backup retention prune confirmation required"},
+                        )
+                        return
+                    expected_count = body.get("expected_candidate_count")
+                    expected_fingerprint = str(
+                        body.get("expected_candidate_fingerprint") or ""
+                    ).strip().lower()
+                    if (
+                        isinstance(expected_count, bool)
+                        or not isinstance(expected_count, int)
+                        or expected_count < 0
+                    ):
+                        self._send(
+                            HTTPStatus.BAD_REQUEST,
+                            {
+                                "error":(
+                                    "expected_candidate_count must be "
+                                    "a non-negative integer"
+                                )
+                            },
+                        )
+                        return
+                    if (
+                        len(expected_fingerprint) != 64
+                        or any(
+                            ch not in "0123456789abcdef"
+                            for ch in expected_fingerprint
+                        )
+                    ):
+                        self._send(
+                            HTTPStatus.BAD_REQUEST,
+                            {
+                                "error":(
+                                    "expected_candidate_fingerprint must be "
+                                    "a SHA-256 hex digest"
+                                )
+                            },
+                        )
+                        return
+                    requested_by = f"{principal.role}:{principal.name}"
+                    audit = control.dashboard_store.append_control_audit(
+                        action="backup-retention-prune",
+                        worker_id="control-plane",
+                        requested_by=requested_by,
+                        outcome="requested",
+                    )
+                    try:
+                        result = control.dashboard.prune_expired_backups(
+                            expected_count,
+                            expected_fingerprint,
+                        )
+                    except BackupRetentionCandidateConflict as exc:
+                        control.dashboard_store.update_control_audit(
+                            audit["id"],
+                            outcome="conflict",
+                            error_code="candidate_set_changed",
+                        )
+                        self._send(
+                            HTTPStatus.CONFLICT,
+                            {
+                                "error":"backup retention candidate set changed",
+                                "expected_candidate_count":exc.expected_count,
+                                "actual_candidate_count":exc.actual_count,
+                                "fingerprint_changed":exc.fingerprint_changed,
+                                "deleted_count":0,
+                                "deleted_bytes":0,
+                            },
+                        )
+                        return
+                    except BackupError as exc:
+                        control.dashboard_store.update_control_audit(
+                            audit["id"],
+                            outcome="failed",
+                            error_code="backup_retention_prune_unavailable",
+                        )
+                        self._send(
+                            HTTPStatus.CONFLICT,
+                            {"error":str(exc)},
+                        )
+                        return
+                    except Exception:
+                        control.dashboard_store.update_control_audit(
+                            audit["id"],
+                            outcome="failed",
+                            error_code="backup_retention_prune_failed",
                         )
                         raise
                     control.dashboard_store.update_control_audit(

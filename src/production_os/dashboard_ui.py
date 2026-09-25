@@ -660,6 +660,39 @@ async function pruneExpiredHistory(expected){
   if(receipt)receipt.textContent=String(e).replace(/^Error:\\s*/,"");
  }
 }
+async function pruneExpiredBackups(expected,fingerprint){
+ const count=Number(expected);
+ const hash=String(fingerprint||"").trim().toLowerCase();
+ if(!Number.isInteger(count)||count<=0||!/^[0-9a-f]{64}$/.test(hash))return;
+ if(!window.confirm(
+  "Supprimer définitivement "+count+
+  " ancienne(s) sauvegarde(s) vérifiée(s) ? Les 3 plus récentes et celles liées à une restauration resteront protégées."
+ ))return;
+ try{
+  const result=await api(
+   "/v1/dashboard/backups/prune-expired",
+   {
+    method:"POST",
+    body:JSON.stringify({
+     confirm:"PRUNE_EXPIRED_VERIFIED_BACKUPS",
+     expected_candidate_count:count,
+     expected_candidate_fingerprint:hash
+    })
+   }
+  );
+  await loadOverview();
+  const receipt=document.getElementById("backup-status-message");
+  if(receipt){
+   receipt.textContent=
+    "Anciens backups nettoyés · "+formatNumber(result.deleted_count)+
+    " sauvegarde(s) · "+formatBytes(result.deleted_bytes);
+  }
+ }catch(e){
+  await loadOverview();
+  const receipt=document.getElementById("backup-status-message");
+  if(receipt)receipt.textContent=String(e).replace(/^Error:\s*/,"");
+ }
+}
 async function pruneStaleBackupTemps(expected){
  const count=Number(expected);
  if(!Number.isInteger(count)||count<=0)return;
@@ -837,6 +870,11 @@ async function loadOverview(){
   const backupTempPruneButton=staleTempCount>0
    ?'<button class="secondary-btn" type="button" data-stale-temp-count="'+esc(String(staleTempCount))+'" onclick="pruneStaleBackupTemps(Number(this.dataset.staleTempCount))">Nettoyer temporaires anciens</button>'
    :'';
+  const retentionCandidateCount=Number(backupRetention.candidate_count||0);
+  const retentionFingerprint=String(backupRetention.candidate_fingerprint||"");
+  const backupRetentionPruneButton=retentionCandidateCount>0&&/^[0-9a-f]{64}$/.test(retentionFingerprint)
+   ?'<button class="secondary-btn" type="button" data-retention-count="'+esc(String(retentionCandidateCount))+'" data-retention-fingerprint="'+esc(retentionFingerprint)+'" onclick="pruneExpiredBackups(Number(this.dataset.retentionCount),this.dataset.retentionFingerprint)">Nettoyer anciens backups</button>'
+   :'';
   const backupCatalogHtml=backupRows.length?backupRows.slice(0,5).map(function(row){
    const id=String(row.backup_id||"");
    return '<div class="small"><strong>'+esc(String(row.created_at||id))+'</strong> · '+formatBytes(row.size_bytes)+
@@ -859,7 +897,7 @@ async function loadOverview(){
    (activationRows.length?activationRows.slice(0,5).map(function(row){
     return '<div class="small"><strong>'+esc(String(row.activated_at||""))+'</strong> · candidat '+esc(String(row.candidate_id||""))+' · rollback '+esc(String(row.rollback_backup_id||""))+'</div>';
    }).join(""):'<div class="small">Aucune activation de restauration enregistrée.</div>')+
-   '<div style="margin-top:10px">'+backupButton+' '+backupTempPruneButton+'</div>'+
+   '<div style="margin-top:10px">'+backupButton+' '+backupTempPruneButton+' '+backupRetentionPruneButton+'</div>'+
    '<div id="backup-status-message" class="status-message"></div>'+
    '</div>';
   el.innerHTML=

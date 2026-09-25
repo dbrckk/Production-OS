@@ -992,6 +992,38 @@ No backup identifiers, file names or server paths are exposed through this previ
 
 This release is strictly observational. It does not delete or archive backups, change restore behavior, or enable automatic retention. Any future destructive retention action must be implemented separately with explicit operator confirmation and fresh-state race protection.
 
+
+## Release 29 — Guarded verified-backup retention cleanup
+
+Operators can now explicitly remove only verified SQLite backups that are currently classified as retention candidates.
+
+The cleanup endpoint is:
+
+```text
+POST /v1/dashboard/backups/prune-expired
+```
+
+It requires all of:
+
+```text
+confirm = PRUNE_EXPIRED_VERIFIED_BACKUPS
+expected_candidate_count
+expected_candidate_fingerprint
+```
+
+The fingerprint is an opaque SHA-256 digest of the current candidate set. Production-OS recomputes the retention state immediately before deletion and rejects the request if either the candidate count or fingerprint changed.
+
+Backups remain protected when they are:
+
+- among the newest three verified backups;
+- newer than 30 days;
+- referenced by restore activation history as a source or rollback backup;
+- associated with an invalid creation timestamp.
+
+Only the server-derived `<backup_id>.sqlite` and `<backup_id>.json` artifacts for the current candidate set can be removed. Clients never provide file names or paths.
+
+Every accepted or conflicted cleanup request is recorded in the control audit. Cleanup is never triggered automatically by capacity warnings, dashboard polling, health checks or retention previews.
+
 ## Design principles
 
 - Evidence over assumptions

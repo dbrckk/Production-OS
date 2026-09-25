@@ -29,6 +29,20 @@ class BackupTempCandidateConflict(BackupError):
         self.actual = actual
 
 
+class BackupRetentionCandidateConflict(BackupError):
+    def __init__(
+        self,
+        expected_count: int,
+        actual_count: int,
+        *,
+        fingerprint_changed: bool,
+    ):
+        super().__init__("backup retention candidate set changed")
+        self.expected_count = expected_count
+        self.actual_count = actual_count
+        self.fingerprint_changed = fingerprint_changed
+
+
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -228,12 +242,12 @@ BACKUP_RETENTION_DAYS = 30
 BACKUP_RETENTION_MIN_KEEP = 3
 
 
-def _backup_retention_preview(
+def _backup_retention_classification(
     verified_backups: list[dict],
     protected_backup_ids: set[str],
     *,
     now: datetime | None = None,
-) -> dict:
+) -> tuple[dict, list[str]]:
     now = now or datetime.now(timezone.utc)
     rows = []
     invalid_timestamp_count = 0
@@ -267,6 +281,7 @@ def _backup_retention_preview(
         if item["backup_id"]
     }
     cutoff_seconds = BACKUP_RETENTION_DAYS * 86400
+    candidate_ids: list[str] = []
     candidate_count = 0
     candidate_bytes = 0
     protected_recent = 0
@@ -283,10 +298,14 @@ def _backup_retention_preview(
         elif age_seconds < cutoff_seconds:
             protected_recent += 1
         else:
+            candidate_ids.append(backup_id)
             candidate_count += 1
             candidate_bytes += item["size_bytes"]
 
-    return {
+    candidate_fingerprint = sha256(
+        "\n".join(sorted(candidate_ids)).encode("utf-8")
+    ).hexdigest()
+    preview = {
         "status":"preview",
         "retention_days":BACKUP_RETENTION_DAYS,
         "min_keep_latest":BACKUP_RETENTION_MIN_KEEP,
@@ -295,6 +314,7 @@ def _backup_retention_preview(
         "invalid_timestamp_count":invalid_timestamp_count,
         "candidate_count":candidate_count,
         "candidate_bytes":candidate_bytes,
+        "candidate_fingerprint":candidate_fingerprint,
         "protected_count":(
             protected_recent
             + protected_latest_floor
@@ -309,6 +329,51 @@ def _backup_retention_preview(
         },
         "deletion_enabled":False,
     }
+    return preview, candidate_ids
+
+
+def _backup_retention_preview(
+    verified_backups: list[dict],
+    protected_backup_ids: set[str],
+    *,
+    now: datetime | None = None,
+) -> dict:
+    return _backup_retention_classification(
+        verified_backups,
+        protected_backup_ids,
+        now=now,
+    )[0]
+
+
+def _retention_source_state(directory: Path) -> tuple[list[dict], set[str]]:
+    verified_backups: list[dict] = []
+    protected_backup_ids: set[str] = set()
+    backup_manifest = re.compile(
+        r"^(\d{8}T\d{6}Z-[0-9a-f]{12})\.json$"
+    )
+    activation_receipt = re.compile(
+        r"^restore-(\d{8}T\d{6}Z-[0-9a-f]{12})\.activation\.json$"
+    )
+    for path in directory.iterdir():
+        if not path.is_file():
+            continue
+        if backup_manifest.fullmatch(path.name):
+            manifest = _safe_manifest(path)
+            if (
+                manifest
+                and manifest.get("verified") is True
+                and manifest.get("backup_id")
+                and BACKUP_ID_RE.fullmatch(str(manifest.get("backup_id")))
+            ):
+                verified_backups.append(manifest)
+            continue
+        if activation_receipt.fullmatch(path.name):
+            receipt = _safe_activation_receipt(path)
+            if receipt is not None:
+                protected_backup_ids.add(receipt["source_backup_id"])
+                protected_backup_ids.add(receipt["rollback_backup_id"])
+    return verified_backups, protected_backup_ids
+
 
 def backup_storage_inventory(backend) -> dict:
     backup_age = _backup_age_summary([])
@@ -476,6 +541,96 @@ def backup_storage_inventory(backend) -> dict:
             verified_backups,
             protected_backup_ids,
         ),
+    }
+
+
+def prune_expired_verified_backups(
+    backend,
+    *,
+    expected_candidate_count: int,
+    expected_candidate_fingerprint: str,
+) -> dict:
+    if isinstance(expected_candidate_count, bool) or not isinstance(
+        expected_candidate_count,
+        int,
+    ) or expected_candidate_count < 0:
+        raise ValueError(
+            "expected_candidate_count must be a non-negative integer"
+        )
+    expected_candidate_fingerprint = str(
+        expected_candidate_fingerprint or ""
+    ).strip().lower()
+    if (
+        len(expected_candidate_fingerprint) != 64
+        or any(
+            ch not in "0123456789abcdef"
+            for ch in expected_candidate_fingerprint
+        )
+    ):
+        raise ValueError("expected_candidate_fingerprint must be a SHA-256 hex digest")
+    if _backend_kind(backend) != "sqlite":
+        raise BackupError("backup retention cleanup is unsupported for this backend")
+    directory = _configured_dir()
+    if directory is None:
+        raise BackupError("backup directory is not configured")
+    if not directory.is_dir():
+        raise BackupError("backup directory is unavailable")
+
+    try:
+        verified_backups, protected_backup_ids = _retention_source_state(directory)
+    except OSError as exc:
+        raise BackupError("backup directory is unavailable") from exc
+    preview, candidate_ids = _backup_retention_classification(
+        verified_backups,
+        protected_backup_ids,
+    )
+    actual_count = int(preview["candidate_count"])
+    actual_fingerprint = str(preview["candidate_fingerprint"])
+    if (
+        actual_count != expected_candidate_count
+        or actual_fingerprint != expected_candidate_fingerprint
+    ):
+        raise BackupRetentionCandidateConflict(
+            expected_candidate_count,
+            actual_count,
+            fingerprint_changed=(
+                actual_fingerprint != expected_candidate_fingerprint
+            ),
+        )
+
+    deleted_count = 0
+    deleted_bytes = 0
+    for backup_id in candidate_ids:
+        if not BACKUP_ID_RE.fullmatch(backup_id):
+            continue
+        manifest_path = directory / f"{backup_id}.json"
+        backup_path = directory / f"{backup_id}.sqlite"
+        manifest = _safe_manifest(manifest_path)
+        if (
+            manifest is None
+            or manifest.get("verified") is not True
+            or str(manifest.get("backup_id") or "") != backup_id
+        ):
+            raise BackupError("backup retention candidate changed during cleanup")
+        paths = [path for path in (backup_path, manifest_path) if path.is_file()]
+        sizes = []
+        for path in paths:
+            try:
+                sizes.append((path, max(0, int(path.stat().st_size))))
+            except OSError as exc:
+                raise BackupError("backup retention candidate became unavailable") from exc
+        for path, size in sizes:
+            try:
+                path.unlink()
+            except OSError as exc:
+                raise BackupError("backup retention deletion failed") from exc
+            deleted_bytes += size
+        deleted_count += 1
+
+    return {
+        "deleted_count":deleted_count,
+        "deleted_bytes":deleted_bytes,
+        "remaining":backup_storage_inventory(backend),
     }
 
 

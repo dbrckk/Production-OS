@@ -528,3 +528,11 @@ def test_backup_overview_renders_retention_preview_read_only():
     assert "historique restauration" in DASHBOARD_HTML
     assert "Supprimer les vieux backups" not in DASHBOARD_HTML
 
+def test_backup_retention_cleanup_ui_requires_preview_fingerprint():
+    assert "pruneExpiredBackups" in DASHBOARD_HTML
+    assert "PRUNE_EXPIRED_VERIFIED_BACKUPS" in DASHBOARD_HTML
+    assert "expected_candidate_fingerprint" in DASHBOARD_HTML
+    assert "backupRetention.candidate_fingerprint" in DASHBOARD_HTML
+    assert "Nettoyer anciens backups" in DASHBOARD_HTML
+    assert "this.dataset.retentionFingerprint" in DASHBOARD_HTML
+

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime, timedelta, timezone
 import json
 import os
 import time
@@ -578,3 +579,120 @@ def test_backup_catalog_exposes_filesystem_capacity_without_paths(
         server.shutdown()
         server.server_close()
         thread.join(timeout=2)
+
+def test_backup_retention_prune_requires_operator_confirmation_and_fingerprint(
+    tmp_path,
+    monkeypatch,
+):
+    backup_dir = tmp_path / "backups"
+    backup_dir.mkdir()
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    control = ControlPlane(str(tmp_path / "control.sqlite"), authorizer=_auth())
+    now = datetime.now(timezone.utc)
+    rows = [
+        ("20260925T120000Z-600000000001", now - timedelta(days=1)),
+        ("20260924T120000Z-600000000002", now - timedelta(days=2)),
+        ("20260923T120000Z-600000000003", now - timedelta(days=3)),
+        ("20260727T120000Z-600000000004", now - timedelta(days=60)),
+    ]
+    for backup_id, created_at in rows:
+        (backup_dir / f"{backup_id}.sqlite").write_bytes(b"backup")
+        (backup_dir / f"{backup_id}.json").write_text(
+            json.dumps(
+                {
+                    "backup_id":backup_id,
+                    "backend_kind":"sqlite",
+                    "created_at":created_at.isoformat(),
+                    "size_bytes":6,
+                    "sha256":"0" * 64,
+                    "verified":True,
+                }
+            )
+        )
+
+    server, thread, base = _server(control)
+    try:
+        status, catalog = _request(
+            base,
+            "/v1/dashboard/backups",
+            "viewer",
+        )
+        assert status == 200
+        preview = catalog["storage"]["retention_preview"]
+        assert preview["candidate_count"] == 1
+        fingerprint = preview["candidate_fingerprint"]
+
+        status, _ = _request(
+            base,
+            "/v1/dashboard/backups/prune-expired",
+            "viewer",
+            method="POST",
+            body={
+                "confirm":"PRUNE_EXPIRED_VERIFIED_BACKUPS",
+                "expected_candidate_count":1,
+                "expected_candidate_fingerprint":fingerprint,
+            },
+        )
+        assert status == 403
+
+        status, _ = _request(
+            base,
+            "/v1/dashboard/backups/prune-expired",
+            "operator",
+            method="POST",
+            body={
+                "confirm":"wrong",
+                "expected_candidate_count":1,
+                "expected_candidate_fingerprint":fingerprint,
+            },
+        )
+        assert status == 400
+
+        status, payload = _request(
+            base,
+            "/v1/dashboard/backups/prune-expired",
+            "operator",
+            method="POST",
+            body={
+                "confirm":"PRUNE_EXPIRED_VERIFIED_BACKUPS",
+                "expected_candidate_count":1,
+                "expected_candidate_fingerprint":"f" * 64,
+            },
+        )
+        assert status == 409
+        assert payload["deleted_count"] == 0
+
+        status, payload = _request(
+            base,
+            "/v1/dashboard/backups/prune-expired",
+            "operator",
+            method="POST",
+            body={
+                "confirm":"PRUNE_EXPIRED_VERIFIED_BACKUPS",
+                "expected_candidate_count":1,
+                "expected_candidate_fingerprint":fingerprint,
+            },
+        )
+        assert status == 200
+        assert payload["deleted_count"] == 1
+        old_id = rows[-1][0]
+        assert not (backup_dir / f"{old_id}.sqlite").exists()
+        assert not (backup_dir / f"{old_id}.json").exists()
+        for backup_id, _ in rows[:3]:
+            assert (backup_dir / f"{backup_id}.sqlite").exists()
+            assert (backup_dir / f"{backup_id}.json").exists()
+
+        audit = control.dashboard_store.control_audit_events(limit=20)
+        rows = [
+            row for row in audit
+            if row["action"] == "backup-retention-prune"
+        ]
+        assert [row["outcome"] for row in rows] == [
+            "succeeded",
+            "conflict",
+        ]
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+
