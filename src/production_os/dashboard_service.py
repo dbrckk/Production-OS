@@ -338,6 +338,49 @@ class DashboardService:
             "jobs":jobs,
         }
 
+    def active_productions(self, *, limit: int = 12) -> dict:
+        bounded = max(1, min(50, int(limit)))
+        managed = self.control.managed_projects.list(limit=200)
+        active = [
+            project
+            for project in managed
+            if str(project.get("status") or "") == "ACTIVE"
+        ]
+        items = []
+        for project in active[:bounded]:
+            live = self.production_status(str(project["project_id"]))
+            if str((live.get("project") or {}).get("status") or "") != "ACTIVE":
+                continue
+            items.append({
+                "project":live["project"],
+                "runtime":live["runtime"],
+            })
+
+        phase_counts = {
+            "preparing":0,
+            "queued":0,
+            "claimed":0,
+            "running":0,
+        }
+        for item in items:
+            phase = str((item.get("runtime") or {}).get("phase") or "")
+            if phase in phase_counts:
+                phase_counts[phase] += 1
+
+        return {
+            "schema_version":"production-os/active-productions/v1",
+            "generated_at":_now(),
+            "summary":{
+                "active":len(active),
+                "shown":len(items),
+                "preparing":phase_counts["preparing"],
+                "queued":phase_counts["queued"],
+                "claimed":phase_counts["claimed"],
+                "running":phase_counts["running"],
+            },
+            "productions":items,
+        }
+
     def attention(self, *, limit: int = 50) -> dict:
         bounded = max(1, min(200, int(limit)))
         managed = self.control.managed_projects.list(limit=200)
