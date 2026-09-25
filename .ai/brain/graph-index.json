@@ -58,6 +58,7 @@
         "tests/test_dashboard_store_postgres.py",
         "tests/test_dashboard_ui_v3.py",
         "tests/test_dashboard_usage.py",
+        "tests/test_database_maintenance_lock.py",
         "tests/test_deep_fingerprint_starlist.py",
         "tests/test_emergency_key_revocation.py",
         "tests/test_execution_feedback_trends.py",
@@ -137,7 +138,7 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 128,
+      "in_degree": 129,
       "out_degree": 0,
       "path": "src/production_os/__init__.py"
     },
@@ -304,6 +305,7 @@
         "src/production_os/dashboard_service.py",
         "src/production_os/dashboard_store.py",
         "src/production_os/dashboard_ui.py",
+        "src/production_os/database_maintenance_lock.py",
         "src/production_os/execution_optimizer.py",
         "src/production_os/github_client.py",
         "src/production_os/github_webhook.py",
@@ -338,6 +340,7 @@
         "tests/test_dashboard_remediation_api.py",
         "tests/test_dashboard_retention_prune.py",
         "tests/test_dashboard_store_postgres.py",
+        "tests/test_database_maintenance_lock.py",
         "tests/test_http_security_headers.py",
         "tests/test_managed_projects_http_v4.py",
         "tests/test_portfolio_claim_api.py",
@@ -349,8 +352,8 @@
         "tests/test_speculation_api.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 30,
-      "out_degree": 20,
+      "in_degree": 31,
+      "out_degree": 21,
       "path": "src/production_os/control_plane.py"
     },
     {
@@ -543,6 +546,46 @@
     },
     {
       "dependencies": [
+        "src/production_os/workers.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/control_plane.py",
+        "tests/test_api_auth.py",
+        "tests/test_control_plane.py",
+        "tests/test_control_plane_pr_impact.py",
+        "tests/test_control_plane_release.py",
+        "tests/test_control_plane_webhook.py",
+        "tests/test_dashboard_api.py",
+        "tests/test_dashboard_backup_api.py",
+        "tests/test_dashboard_control_api.py",
+        "tests/test_dashboard_control_audit.py",
+        "tests/test_dashboard_control_e2e.py",
+        "tests/test_dashboard_incidents.py",
+        "tests/test_dashboard_launch_ux.py",
+        "tests/test_dashboard_maintenance.py",
+        "tests/test_dashboard_observability_e2e.py",
+        "tests/test_dashboard_playbook_api.py",
+        "tests/test_dashboard_remediation_api.py",
+        "tests/test_dashboard_retention_prune.py",
+        "tests/test_database_maintenance_lock.py",
+        "tests/test_http_security_headers.py",
+        "tests/test_managed_projects_http_v4.py",
+        "tests/test_portfolio_claim_api.py",
+        "tests/test_production_stack_e2e.py",
+        "tests/test_release16_operations_e2e.py",
+        "tests/test_release18_managed_projects_e2e.py",
+        "tests/test_release19_restore_staging_e2e.py",
+        "tests/test_remote_worker.py",
+        "tests/test_speculation_api.py",
+        "tests/test_workflow_api.py"
+      ],
+      "in_degree": 30,
+      "out_degree": 1,
+      "path": "src/production_os/api_auth.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/approvals.py",
         "src/production_os/budgets.py",
         "src/production_os/claims.py",
@@ -580,45 +623,6 @@
       "in_degree": 2,
       "out_degree": 29,
       "path": "src/production_os/controller.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/workers.py"
-      ],
-      "dependents": [
-        "src/production_os/cli.py",
-        "src/production_os/control_plane.py",
-        "tests/test_api_auth.py",
-        "tests/test_control_plane.py",
-        "tests/test_control_plane_pr_impact.py",
-        "tests/test_control_plane_release.py",
-        "tests/test_control_plane_webhook.py",
-        "tests/test_dashboard_api.py",
-        "tests/test_dashboard_backup_api.py",
-        "tests/test_dashboard_control_api.py",
-        "tests/test_dashboard_control_audit.py",
-        "tests/test_dashboard_control_e2e.py",
-        "tests/test_dashboard_incidents.py",
-        "tests/test_dashboard_launch_ux.py",
-        "tests/test_dashboard_maintenance.py",
-        "tests/test_dashboard_observability_e2e.py",
-        "tests/test_dashboard_playbook_api.py",
-        "tests/test_dashboard_remediation_api.py",
-        "tests/test_dashboard_retention_prune.py",
-        "tests/test_http_security_headers.py",
-        "tests/test_managed_projects_http_v4.py",
-        "tests/test_portfolio_claim_api.py",
-        "tests/test_production_stack_e2e.py",
-        "tests/test_release16_operations_e2e.py",
-        "tests/test_release18_managed_projects_e2e.py",
-        "tests/test_release19_restore_staging_e2e.py",
-        "tests/test_remote_worker.py",
-        "tests/test_speculation_api.py",
-        "tests/test_workflow_api.py"
-      ],
-      "in_degree": 29,
-      "out_degree": 1,
-      "path": "src/production_os/api_auth.py"
     },
     {
       "dependencies": [
@@ -1322,6 +1326,22 @@
     },
     {
       "dependencies": [
+        "src/production_os/postgres_backend.py",
+        "src/production_os/sqlite_backend.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/controller.py",
+        "src/production_os/database_maintenance_lock.py",
+        "src/production_os/sqlite_migration.py"
+      ],
+      "in_degree": 5,
+      "out_degree": 2,
+      "path": "src/production_os/storage.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/signers.py",
         "src/production_os/signing.py",
         "tests/test_asset_forge.py"
@@ -1504,21 +1524,6 @@
     },
     {
       "dependencies": [
-        "src/production_os/postgres_backend.py",
-        "src/production_os/sqlite_backend.py"
-      ],
-      "dependents": [
-        "src/production_os/cli.py",
-        "src/production_os/control_plane.py",
-        "src/production_os/controller.py",
-        "src/production_os/sqlite_migration.py"
-      ],
-      "in_degree": 4,
-      "out_degree": 2,
-      "path": "src/production_os/storage.py"
-    },
-    {
-      "dependencies": [
         "src/production_os/policy.py",
         "src/production_os/quarantine.py",
         "src/production_os/runtime_state.py",
@@ -1648,8 +1653,8 @@
       "path": "tests/test_dashboard_control_e2e.py"
     }
   ],
-  "edge_count": 1195,
+  "edge_count": 1204,
   "generated_by": "dbrckk/repo-brain-v7-graph",
-  "node_count": 242,
+  "node_count": 244,
   "schema_version": 1
 }

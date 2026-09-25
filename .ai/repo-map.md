@@ -93,6 +93,7 @@ src/
     dashboard_store.py
     dashboard_ui.py
     dashboard_usage.py
+    database_maintenance_lock.py
     deep_fingerprint.py
     delivery.py
     dispatch.py
@@ -217,6 +218,7 @@ tests/
   test_dashboard_store.py
   test_dashboard_ui_v3.py
   test_dashboard_usage.py
+  test_database_maintenance_lock.py
   test_deep_fingerprint_starlist.py
   test_emergency_key_revocation.py
   test_execution_feedback_trends.py
@@ -3846,6 +3848,44 @@ provider = str(row["provider"])
 quotas = []
 ⋮----
 row = latest[provider][1]
+````
+
+## File: src/production_os/database_maintenance_lock.py
+````python
+except ImportError:  # pragma: no cover - Production-OS servers run on POSIX.
+fcntl = None
+⋮----
+class DatabaseInUseError(RuntimeError)
+⋮----
+class SQLiteDatabaseProcessLock
+⋮----
+def __init__(self, database: str)
+⋮----
+def acquire(self) -> None
+⋮----
+fd = os.open(
+⋮----
+owner = self._read_metadata(fd)
+suffix = (
+⋮----
+payload = {
+encoded = json.dumps(
+⋮----
+@staticmethod
+    def _read_metadata(fd: int) -> dict
+⋮----
+raw = os.read(fd, 4096)
+payload = json.loads(raw.decode("utf-8")) if raw else {}
+⋮----
+def release(self) -> None
+⋮----
+fd = self._fd
+⋮----
+def __enter__(self)
+⋮----
+def __exit__(self, exc_type, exc, tb)
+⋮----
+def database_server_lock(database: str)
 ````
 
 ## File: src/production_os/deep_fingerprint.py
@@ -9767,6 +9807,44 @@ quotas = {row["provider"]: row for row in result["quotas"]}
 def test_usage_aggregation_rejects_unknown_window()
 ````
 
+## File: tests/test_database_maintenance_lock.py
+````python
+def test_sqlite_database_lock_blocks_second_live_owner(tmp_path)
+⋮----
+database = tmp_path / "production.sqlite"
+first = SQLiteDatabaseProcessLock(str(database))
+second = SQLiteDatabaseProcessLock(str(database))
+⋮----
+metadata = json.loads(
+⋮----
+def test_sqlite_database_lock_can_be_reacquired_after_release(tmp_path)
+⋮----
+def test_lock_file_persistence_does_not_mean_database_is_locked(tmp_path)
+⋮----
+path = tmp_path / "production.sqlite.maintenance.lock"
+⋮----
+lock = SQLiteDatabaseProcessLock(str(database))
+⋮----
+metadata = json.loads(path.read_text())
+⋮----
+def test_postgres_database_server_lock_is_noop()
+⋮----
+events = []
+⋮----
+@contextmanager
+    def fake_lock(database)
+⋮----
+class FakeServer
+⋮----
+def __init__(self, address, handler)
+⋮----
+def serve_forever(self)
+⋮----
+def server_close(self)
+⋮----
+database = str(tmp_path / "production.sqlite")
+````
+
 ## File: tests/test_deep_fingerprint_starlist.py
 ````python
 def test_deep_fingerprint_detects_real_dependencies()
@@ -13060,6 +13138,23 @@ activation_enabled = false
 ```
 
 Restore staging is deliberately non-destructive. It never swaps or overwrites the active Production-OS database. Live activation remains disabled and must be designed as a separate maintenance-mode operation.
+
+## Release 20 — Exclusive SQLite maintenance lock
+
+The long-running control-plane server now owns an exclusive operating-system lock for the lifetime of a SQLite database process.
+
+The lock is based on POSIX `flock(LOCK_EX | LOCK_NB)`, not file age. This means:
+
+- a second control-plane process fails fast while the first process holds the lock;
+- the kernel automatically releases ownership if the process exits or crashes;
+- the metadata file may remain on disk without blocking future acquisition;
+- no time-based stale-lock deletion can accidentally evict a healthy server.
+
+The lock file is derived server-side from the SQLite database path and contains only diagnostic metadata such as PID, timestamp and purpose. It is never returned through the HTTP API.
+
+PostgreSQL is unchanged because database-level maintenance coordination must use PostgreSQL-native mechanisms rather than a local filesystem lock.
+
+This lock is a prerequisite for any future destructive SQLite restore activation. Release 20 itself performs no restore and no live database replacement.
 
 ## Design principles
 

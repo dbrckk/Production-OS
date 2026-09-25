@@ -22,19 +22,22 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-25T14:41:06Z
+Generated: 2026-09-25T14:46:45Z
 
 ### Git
 - Branch: `main`
-- Head: `0cdef847d44d`
-- Commit date: 2026-09-25T16:40:54+02:00
-- Commit: feat: release 19 restore staging
-- Tracked files: 399
+- Head: `15ba18d58965`
+- Commit date: 2026-09-25T16:46:30+02:00
+- Commit: feat: release 20 exclusive maintenance lock
+- Tracked files: 402
 
 ### Recently changed files
 - `README.md`
-- `docs/superpowers/plans/2026-09-25-release-19-restore-staging.md`
+- `docs/superpowers/plans/2026-09-25-release-20-maintenance-lock.md`
 - `src/production_os/control_plane.py`
+- `src/production_os/database_maintenance_lock.py`
+- `tests/test_database_maintenance_lock.py`
+- `docs/superpowers/plans/2026-09-25-release-19-restore-staging.md`
 - `src/production_os/dashboard_backups.py`
 - `src/production_os/dashboard_service.py`
 - `src/production_os/dashboard_ui.py`
@@ -49,9 +52,6 @@ Generated: 2026-09-25T14:41:06Z
 - `tests/test_dashboard_control_audit.py`
 - `tests/test_dashboard_remediation_history.py`
 - `tests/test_dashboard_store_postgres.py`
-- `tests/test_managed_projects_http_v4.py`
-- `tests/test_managed_projects_v4.py`
-- `tests/test_workflow_postgres.py`
 
 ### Project signals
 - `pyproject.toml`

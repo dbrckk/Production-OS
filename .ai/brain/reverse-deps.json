@@ -61,6 +61,7 @@
         "tests/test_dashboard_store_postgres.py",
         "tests/test_dashboard_ui_v3.py",
         "tests/test_dashboard_usage.py",
+        "tests/test_database_maintenance_lock.py",
         "tests/test_deep_fingerprint_starlist.py",
         "tests/test_emergency_key_revocation.py",
         "tests/test_execution_feedback_trends.py",
@@ -140,7 +141,7 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 128,
+      "in_degree": 129,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -193,6 +194,7 @@
         "tests/test_dashboard_playbook_api.py",
         "tests/test_dashboard_remediation_api.py",
         "tests/test_dashboard_retention_prune.py",
+        "tests/test_database_maintenance_lock.py",
         "tests/test_http_security_headers.py",
         "tests/test_managed_projects_http_v4.py",
         "tests/test_portfolio_claim_api.py",
@@ -204,7 +206,7 @@
         "tests/test_speculation_api.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 29,
+      "in_degree": 30,
       "out_degree": 1
     },
     "src/production_os/approvals.py": {
@@ -561,6 +563,7 @@
         "src/production_os/dashboard_service.py",
         "src/production_os/dashboard_store.py",
         "src/production_os/dashboard_ui.py",
+        "src/production_os/database_maintenance_lock.py",
         "src/production_os/execution_optimizer.py",
         "src/production_os/github_client.py",
         "src/production_os/github_webhook.py",
@@ -595,6 +598,7 @@
         "tests/test_dashboard_remediation_api.py",
         "tests/test_dashboard_retention_prune.py",
         "tests/test_dashboard_store_postgres.py",
+        "tests/test_database_maintenance_lock.py",
         "tests/test_http_security_headers.py",
         "tests/test_managed_projects_http_v4.py",
         "tests/test_portfolio_claim_api.py",
@@ -606,8 +610,8 @@
         "tests/test_speculation_api.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 30,
-      "out_degree": 20
+      "in_degree": 31,
+      "out_degree": 21
     },
     "src/production_os/control_surface.py": {
       "dependencies": [],
@@ -830,6 +834,17 @@
       ],
       "in_degree": 2,
       "out_degree": 0
+    },
+    "src/production_os/database_maintenance_lock.py": {
+      "dependencies": [
+        "src/production_os/storage.py"
+      ],
+      "dependents": [
+        "src/production_os/control_plane.py",
+        "tests/test_database_maintenance_lock.py"
+      ],
+      "in_degree": 2,
+      "out_degree": 1
     },
     "src/production_os/deep_fingerprint.py": {
       "dependencies": [
@@ -1741,9 +1756,10 @@
         "src/production_os/cli.py",
         "src/production_os/control_plane.py",
         "src/production_os/controller.py",
+        "src/production_os/database_maintenance_lock.py",
         "src/production_os/sqlite_migration.py"
       ],
-      "in_degree": 4,
+      "in_degree": 5,
       "out_degree": 2
     },
     "src/production_os/supply_chain.py": {
@@ -2623,6 +2639,17 @@
       "dependents": [],
       "in_degree": 0,
       "out_degree": 2
+    },
+    "tests/test_database_maintenance_lock.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/api_auth.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/database_maintenance_lock.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 4
     },
     "tests/test_deep_fingerprint_starlist.py": {
       "dependencies": [

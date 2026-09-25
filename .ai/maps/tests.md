@@ -88,6 +88,7 @@ test_dashboard_store_postgres.py
 test_dashboard_store.py
 test_dashboard_ui_v3.py
 test_dashboard_usage.py
+test_database_maintenance_lock.py
 test_deep_fingerprint_starlist.py
 test_emergency_key_revocation.py
 test_execution_feedback_trends.py
@@ -2287,6 +2288,44 @@ def test_usage_aggregation_hides_unauthenticated_quota_numbers()
 quotas = {row["provider"]: row for row in result["quotas"]}
 ⋮----
 def test_usage_aggregation_rejects_unknown_window()
+```
+
+## File: test_database_maintenance_lock.py
+```python
+def test_sqlite_database_lock_blocks_second_live_owner(tmp_path)
+⋮----
+database = tmp_path / "production.sqlite"
+first = SQLiteDatabaseProcessLock(str(database))
+second = SQLiteDatabaseProcessLock(str(database))
+⋮----
+metadata = json.loads(
+⋮----
+def test_sqlite_database_lock_can_be_reacquired_after_release(tmp_path)
+⋮----
+def test_lock_file_persistence_does_not_mean_database_is_locked(tmp_path)
+⋮----
+path = tmp_path / "production.sqlite.maintenance.lock"
+⋮----
+lock = SQLiteDatabaseProcessLock(str(database))
+⋮----
+metadata = json.loads(path.read_text())
+⋮----
+def test_postgres_database_server_lock_is_noop()
+⋮----
+events = []
+⋮----
+@contextmanager
+    def fake_lock(database)
+⋮----
+class FakeServer
+⋮----
+def __init__(self, address, handler)
+⋮----
+def serve_forever(self)
+⋮----
+def server_close(self)
+⋮----
+database = str(tmp_path / "production.sqlite")
 ```
 
 ## File: test_deep_fingerprint_starlist.py

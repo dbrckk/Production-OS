@@ -78,6 +78,7 @@ production_os/
   dashboard_store.py
   dashboard_ui.py
   dashboard_usage.py
+  database_maintenance_lock.py
   deep_fingerprint.py
   delivery.py
   dispatch.py
@@ -3329,6 +3330,44 @@ provider = str(row["provider"])
 quotas = []
 ⋮----
 row = latest[provider][1]
+```
+
+## File: production_os/database_maintenance_lock.py
+```python
+except ImportError:  # pragma: no cover - Production-OS servers run on POSIX.
+fcntl = None
+⋮----
+class DatabaseInUseError(RuntimeError)
+⋮----
+class SQLiteDatabaseProcessLock
+⋮----
+def __init__(self, database: str)
+⋮----
+def acquire(self) -> None
+⋮----
+fd = os.open(
+⋮----
+owner = self._read_metadata(fd)
+suffix = (
+⋮----
+payload = {
+encoded = json.dumps(
+⋮----
+@staticmethod
+    def _read_metadata(fd: int) -> dict
+⋮----
+raw = os.read(fd, 4096)
+payload = json.loads(raw.decode("utf-8")) if raw else {}
+⋮----
+def release(self) -> None
+⋮----
+fd = self._fd
+⋮----
+def __enter__(self)
+⋮----
+def __exit__(self, exc_type, exc, tb)
+⋮----
+def database_server_lock(database: str)
 ```
 
 ## File: production_os/deep_fingerprint.py
