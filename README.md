@@ -757,6 +757,39 @@ Restore remains disabled in Release 15. PostgreSQL restore verification remains 
 
 No database path, backup path, DSN, token, password or secret is returned by the API or rendered in the dashboard.
 
+## Managed Projects v4
+
+Managed Projects provide a long-running workflow mode with an explicit human review boundary.
+
+A managed project is created with:
+
+```text
+repository
+final_goal
+token_budget
+agent_preference
+```
+
+Production-OS creates and dispatches an initial `goal` task. When all current managed-project tasks succeed, the project enters:
+
+```text
+REVIEW_REQUIRED
+```
+
+At that point an operator can:
+
+- add a follow-up instruction;
+- request a verification/retest task;
+- mark the project `DONE`.
+
+`DONE` is never automatic. It requires an explicit operator action after the workflow has returned to `REVIEW_REQUIRED`.
+
+Managed Project state is derived from durable workflow metadata and tasks, so review state and final approval survive control-plane restarts.
+
+Viewer role can list/read managed projects. Creation, follow-up work, retest and final approval require operator role.
+
+The dashboard exposes a dedicated mobile `Managed` view. Review actions are shown only while the project is in `REVIEW_REQUIRED`.
+
 ## Design principles
 
 - Evidence over assumptions
