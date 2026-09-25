@@ -22,36 +22,34 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-25T14:46:45Z
+Generated: 2026-09-25T15:05:44Z
 
 ### Git
 - Branch: `main`
-- Head: `15ba18d58965`
-- Commit date: 2026-09-25T16:46:30+02:00
-- Commit: feat: release 20 exclusive maintenance lock
-- Tracked files: 402
+- Head: `f7a346b9d944`
+- Commit date: 2026-09-25T17:05:32+02:00
+- Commit: feat: release 21 offline restore activation
+- Tracked files: 404
 
 ### Recently changed files
 - `README.md`
+- `docs/superpowers/plans/2026-09-25-release-21-offline-restore-activation.md`
+- `src/production_os/cli.py`
+- `src/production_os/dashboard_backups.py`
+- `tests/test_cli.py`
+- `tests/test_dashboard_backups.py`
+- `tests/test_release21_offline_restore_e2e.py`
 - `docs/superpowers/plans/2026-09-25-release-20-maintenance-lock.md`
 - `src/production_os/control_plane.py`
 - `src/production_os/database_maintenance_lock.py`
 - `tests/test_database_maintenance_lock.py`
 - `docs/superpowers/plans/2026-09-25-release-19-restore-staging.md`
-- `src/production_os/dashboard_backups.py`
 - `src/production_os/dashboard_service.py`
 - `src/production_os/dashboard_ui.py`
 - `tests/test_dashboard_backup_api.py`
-- `tests/test_dashboard_backups.py`
 - `tests/test_dashboard_ui_v3.py`
 - `tests/test_release19_restore_staging_e2e.py`
 - `tests/test_release18_managed_projects_e2e.py`
-- `src/production_os/managed_projects.py`
-- `src/production_os/postgres_backend.py`
-- `src/production_os/sqlite_backend.py`
-- `tests/test_dashboard_control_audit.py`
-- `tests/test_dashboard_remediation_history.py`
-- `tests/test_dashboard_store_postgres.py`
 
 ### Project signals
 - `pyproject.toml`

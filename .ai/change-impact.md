@@ -1,14 +1,16 @@
 # Change impact
 
-Base: 9095554afe3d736d9553dd771f6bd87383db06ee
-Head: 15ba18d589653f020e296e3a508b39d2348377c1
+Base: 21bc1fc6bd47d8a1ae8e4790818aea7b89adbf4a
+Head: f7a346b9d944a878faa38aca4eb31dbb22dcc2dc
 
 ## Changed files
 - M README.md
-- A docs/superpowers/plans/2026-09-25-release-20-maintenance-lock.md
-- M src/production_os/control_plane.py
-- A src/production_os/database_maintenance_lock.py
-- A tests/test_database_maintenance_lock.py
+- A docs/superpowers/plans/2026-09-25-release-21-offline-restore-activation.md
+- M src/production_os/cli.py
+- M src/production_os/dashboard_backups.py
+- M tests/test_cli.py
+- M tests/test_dashboard_backups.py
+- A tests/test_release21_offline_restore_e2e.py
 
 ## Affected areas
 - (root)
@@ -17,8 +19,8 @@ Head: 15ba18d589653f020e296e3a508b39d2348377c1
 - tests
 
 ## Related test candidates
-- tests/test_control_plane.py
-- tests/test_database_maintenance_lock.py
+- tests/test_cli.py
+- tests/test_dashboard_backups.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

@@ -163,6 +163,8 @@
       "control_plane",
       "control_surface",
       "controller",
+      "dashboard_backups",
+      "database_maintenance_lock",
       "delivery",
       "dispatch",
       "emergency",
@@ -298,12 +300,14 @@
     ],
     "src/production_os/dashboard_backups.py": [
       "__future__",
+      "database_maintenance_lock",
       "datetime",
       "hashlib",
       "json",
       "os",
       "pathlib",
       "re",
+      "shutil",
       "sqlite3",
       "uuid"
     ],
@@ -1026,6 +1030,9 @@
       "json",
       "pathlib",
       "production_os.cli",
+      "production_os.dashboard_backups",
+      "production_os.database_maintenance_lock",
+      "production_os.sqlite_backend",
       "pytest",
       "tempfile",
       "unittest.mock"
@@ -1592,6 +1599,15 @@
       "threading",
       "urllib.error",
       "urllib.request"
+    ],
+    "tests/test_release21_offline_restore_e2e.py": [
+      "__future__",
+      "json",
+      "production_os.cli",
+      "production_os.control_plane",
+      "production_os.dashboard_backups",
+      "production_os.sqlite_backend",
+      "sqlite3"
     ],
     "tests/test_release_ledger.py": [
       "production_os.asymmetric_attestations",

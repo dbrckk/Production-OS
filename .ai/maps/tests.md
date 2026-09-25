@@ -136,6 +136,7 @@ test_release_ledger.py
 test_release16_operations_e2e.py
 test_release18_managed_projects_e2e.py
 test_release19_restore_staging_e2e.py
+test_release21_offline_restore_e2e.py
 test_remote_worker.py
 test_render_start.py
 test_result_cache.py
@@ -668,6 +669,21 @@ payload = json.loads(receipt.read_text())
 def test_asset_forge_batch_writes_success_receipt()
 ⋮----
 expected = {
+⋮----
+def test_restore_activate_parser_requires_explicit_activation_fields()
+⋮----
+backup_dir = tmp_path / "backups"
+⋮----
+database = tmp_path / "production.sqlite"
+backend = SQLiteBackend(database)
+backup = create_verified_sqlite_backup(backend)
+staged = stage_verified_sqlite_restore(backend, backup["backup_id"])
+⋮----
+lock = SQLiteDatabaseProcessLock(str(database))
+⋮----
+rc = run_restore_activate(args)
+⋮----
+payload = json.loads(capsys.readouterr().err)
 ```
 
 ## File: test_compatibility_validation.py
@@ -1096,6 +1112,32 @@ def test_stage_restore_rejects_tampered_source_without_candidate(tmp_path, monke
 source = backup_dir / f"{manifest['backup_id']}.sqlite"
 ⋮----
 def test_stage_restore_manifest_contains_only_safe_metadata(tmp_path, monkeypatch)
+⋮----
+backup = create_verified_sqlite_backup(backend)
+staged = stage_verified_sqlite_restore(backend, backup["backup_id"])
+⋮----
+result = activate_staged_sqlite_restore(
+⋮----
+rollback_path = backup_dir / f"{result['rollback_backup_id']}.sqlite"
+⋮----
+rollback_value = db.execute(
+⋮----
+def test_restore_activation_wrong_confirmation_changes_nothing(tmp_path, monkeypatch)
+⋮----
+before = db_path.read_bytes()
+⋮----
+def test_restore_activation_rejects_tampered_candidate(tmp_path, monkeypatch)
+⋮----
+def test_restore_activation_rejects_schema_mismatch(tmp_path, monkeypatch)
+⋮----
+payload = candidate.read_bytes()
+manifest_path = backup_dir / f"restore-{staged['candidate_id']}.json"
+manifest = json.loads(manifest_path.read_text())
+⋮----
+real_connect = backups_module.sqlite3.connect
+live_verification_failed = {"done": False}
+⋮----
+def failing_connect(target, *args, **kwargs)
 ```
 
 ## File: test_dashboard_control_api.py
@@ -3649,6 +3691,29 @@ stage_event = next(
 second = ControlPlane(str(database), authorizer=_auth())
 ⋮----
 restarted_probe = db.execute(
+```
+
+## File: test_release21_offline_restore_e2e.py
+```python
+database = tmp_path / "production.sqlite"
+backup_dir = tmp_path / "backups"
+⋮----
+backend = SQLiteBackend(database)
+⋮----
+backup = create_verified_sqlite_backup(backend)
+staged = stage_verified_sqlite_restore(backend, backup["backup_id"])
+⋮----
+args = _parse_args([
+⋮----
+payload = json.loads(capsys.readouterr().out)
+⋮----
+restarted = ControlPlane(str(database))
+⋮----
+value = db.execute(
+⋮----
+rollback = backup_dir / f"{payload['rollback_backup_id']}.sqlite"
+⋮----
+rollback_value = db.execute(
 ```
 
 ## File: test_remote_worker.py

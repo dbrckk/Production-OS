@@ -266,6 +266,7 @@ tests/
   test_release16_operations_e2e.py
   test_release18_managed_projects_e2e.py
   test_release19_restore_staging_e2e.py
+  test_release21_offline_restore_e2e.py
   test_remote_worker.py
   test_render_start.py
   test_result_cache.py
@@ -1631,6 +1632,8 @@ backup = sub.add_parser("backup", help="Backup critical state files")
 ⋮----
 restore = sub.add_parser("restore", help="Restore or verify a backup manifest")
 ⋮----
+restoreactivate = sub.add_parser(
+⋮----
 approve = sub.add_parser("approve", help="Approve a gated task key")
 ⋮----
 revoke = sub.add_parser("revoke", help="Revoke a gated task key")
@@ -1979,6 +1982,10 @@ payload = create_backup(args.paths, args.destination_dir)
 def run_restore(args: argparse.Namespace) -> int
 ⋮----
 payload = restore_backup(args.manifest, verify_only=args.verify_only)
+⋮----
+def run_restore_activate(args: argparse.Namespace) -> int
+⋮----
+payload = activate_staged_sqlite_restore(
 ⋮----
 def run_approve(args: argparse.Namespace) -> int
 ⋮----
@@ -2972,6 +2979,46 @@ schema_row = destination.execute(
 ⋮----
 staged_at = _now()
 manifest = {
+⋮----
+def verify_staged_restore_candidate(backend, candidate_id: str) -> dict
+⋮----
+candidate_id = str(candidate_id or "").strip()
+⋮----
+candidate_path = directory / f"restore-{candidate_id}.sqlite"
+⋮----
+manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+⋮----
+integrity_row = connection.execute("PRAGMA integrity_check").fetchone()
+⋮----
+expected_schema = str(getattr(backend, "SCHEMA_VERSION", ""))
+⋮----
+candidate = verify_staged_restore_candidate(backend, candidate_id)
+database_path = Path(getattr(backend, "path", ""))
+⋮----
+# Revalidate after acquiring the exclusive lock so the activation
+# decision is based on the exact bytes we will install.
+⋮----
+rollback = create_verified_sqlite_backup(backend)
+rollback_path = directory / f"{rollback['backup_id']}.sqlite"
+⋮----
+temp_target = database_path.with_name(
+rollback_temp = database_path.with_name(
+sidecars = [
+replaced = False
+⋮----
+row = staged.execute("PRAGMA integrity_check").fetchone()
+⋮----
+replaced = True
+⋮----
+restored = sqlite3.connect(database_path)
+⋮----
+row = restored.execute("PRAGMA integrity_check").fetchone()
+⋮----
+schema_row = restored.execute(
+⋮----
+rollback_db = sqlite3.connect(database_path)
+⋮----
+rollback_row = rollback_db.execute(
 ⋮----
 def create_verified_sqlite_backup(backend) -> dict
 ⋮----
@@ -8185,6 +8232,21 @@ payload = json.loads(receipt.read_text())
 def test_asset_forge_batch_writes_success_receipt()
 ⋮----
 expected = {
+⋮----
+def test_restore_activate_parser_requires_explicit_activation_fields()
+⋮----
+backup_dir = tmp_path / "backups"
+⋮----
+database = tmp_path / "production.sqlite"
+backend = SQLiteBackend(database)
+backup = create_verified_sqlite_backup(backend)
+staged = stage_verified_sqlite_restore(backend, backup["backup_id"])
+⋮----
+lock = SQLiteDatabaseProcessLock(str(database))
+⋮----
+rc = run_restore_activate(args)
+⋮----
+payload = json.loads(capsys.readouterr().err)
 ````
 
 ## File: tests/test_compatibility_validation.py
@@ -8613,6 +8675,32 @@ def test_stage_restore_rejects_tampered_source_without_candidate(tmp_path, monke
 source = backup_dir / f"{manifest['backup_id']}.sqlite"
 ⋮----
 def test_stage_restore_manifest_contains_only_safe_metadata(tmp_path, monkeypatch)
+⋮----
+backup = create_verified_sqlite_backup(backend)
+staged = stage_verified_sqlite_restore(backend, backup["backup_id"])
+⋮----
+result = activate_staged_sqlite_restore(
+⋮----
+rollback_path = backup_dir / f"{result['rollback_backup_id']}.sqlite"
+⋮----
+rollback_value = db.execute(
+⋮----
+def test_restore_activation_wrong_confirmation_changes_nothing(tmp_path, monkeypatch)
+⋮----
+before = db_path.read_bytes()
+⋮----
+def test_restore_activation_rejects_tampered_candidate(tmp_path, monkeypatch)
+⋮----
+def test_restore_activation_rejects_schema_mismatch(tmp_path, monkeypatch)
+⋮----
+payload = candidate.read_bytes()
+manifest_path = backup_dir / f"restore-{staged['candidate_id']}.json"
+manifest = json.loads(manifest_path.read_text())
+⋮----
+real_connect = backups_module.sqlite3.connect
+live_verification_failed = {"done": False}
+⋮----
+def failing_connect(target, *args, **kwargs)
 ````
 
 ## File: tests/test_dashboard_control_api.py
@@ -11168,6 +11256,29 @@ second = ControlPlane(str(database), authorizer=_auth())
 restarted_probe = db.execute(
 ````
 
+## File: tests/test_release21_offline_restore_e2e.py
+````python
+database = tmp_path / "production.sqlite"
+backup_dir = tmp_path / "backups"
+⋮----
+backend = SQLiteBackend(database)
+⋮----
+backup = create_verified_sqlite_backup(backend)
+staged = stage_verified_sqlite_restore(backend, backup["backup_id"])
+⋮----
+args = _parse_args([
+⋮----
+payload = json.loads(capsys.readouterr().out)
+⋮----
+restarted = ControlPlane(str(database))
+⋮----
+value = db.execute(
+⋮----
+rollback = backup_dir / f"{payload['rollback_backup_id']}.sqlite"
+⋮----
+rollback_value = db.execute(
+````
+
 ## File: tests/test_remote_worker.py
 ````python
 def test_remote_worker_claim_ack_complete(tmp_path)
@@ -13155,6 +13266,36 @@ The lock file is derived server-side from the SQLite database path and contains 
 PostgreSQL is unchanged because database-level maintenance coordination must use PostgreSQL-native mechanisms rather than a local filesystem lock.
 
 This lock is a prerequisite for any future destructive SQLite restore activation. Release 20 itself performs no restore and no live database replacement.
+
+## Release 21 — Offline SQLite restore activation
+
+A staged SQLite restore candidate can be activated only through the CLI while the live control plane is offline.
+
+Example:
+
+```bash
+production-os restore-activate \
+  --database /path/to/production.sqlite \
+  --candidate-id <candidate-id> \
+  --confirm ACTIVATE_STAGED_RESTORE
+```
+
+Activation safety sequence:
+
+1. Revalidate the staged candidate manifest, SHA-256, size, integrity and schema.
+2. Acquire the exclusive Release 20 SQLite maintenance lock.
+3. Revalidate the candidate after the lock is held.
+4. Create a verified rollback backup of the current live database.
+5. Copy the candidate to a temporary file beside the live database.
+6. Verify the temporary candidate.
+7. Remove only the target database WAL/SHM sidecars.
+8. Atomically replace the live SQLite file.
+9. Verify integrity and schema on the restored live database.
+10. If post-replacement verification fails, atomically restore the verified rollback backup.
+
+There is intentionally no HTTP endpoint for restore activation. If the control plane is still running, the CLI fails because it cannot acquire the exclusive database lock.
+
+PostgreSQL restore activation remains unsupported.
 
 ## Design principles
 

@@ -1113,6 +1113,8 @@ backup = sub.add_parser("backup", help="Backup critical state files")
 ⋮----
 restore = sub.add_parser("restore", help="Restore or verify a backup manifest")
 ⋮----
+restoreactivate = sub.add_parser(
+⋮----
 approve = sub.add_parser("approve", help="Approve a gated task key")
 ⋮----
 revoke = sub.add_parser("revoke", help="Revoke a gated task key")
@@ -1461,6 +1463,10 @@ payload = create_backup(args.paths, args.destination_dir)
 def run_restore(args: argparse.Namespace) -> int
 ⋮----
 payload = restore_backup(args.manifest, verify_only=args.verify_only)
+⋮----
+def run_restore_activate(args: argparse.Namespace) -> int
+⋮----
+payload = activate_staged_sqlite_restore(
 ⋮----
 def run_approve(args: argparse.Namespace) -> int
 ⋮----
@@ -2454,6 +2460,46 @@ schema_row = destination.execute(
 ⋮----
 staged_at = _now()
 manifest = {
+⋮----
+def verify_staged_restore_candidate(backend, candidate_id: str) -> dict
+⋮----
+candidate_id = str(candidate_id or "").strip()
+⋮----
+candidate_path = directory / f"restore-{candidate_id}.sqlite"
+⋮----
+manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+⋮----
+integrity_row = connection.execute("PRAGMA integrity_check").fetchone()
+⋮----
+expected_schema = str(getattr(backend, "SCHEMA_VERSION", ""))
+⋮----
+candidate = verify_staged_restore_candidate(backend, candidate_id)
+database_path = Path(getattr(backend, "path", ""))
+⋮----
+# Revalidate after acquiring the exclusive lock so the activation
+# decision is based on the exact bytes we will install.
+⋮----
+rollback = create_verified_sqlite_backup(backend)
+rollback_path = directory / f"{rollback['backup_id']}.sqlite"
+⋮----
+temp_target = database_path.with_name(
+rollback_temp = database_path.with_name(
+sidecars = [
+replaced = False
+⋮----
+row = staged.execute("PRAGMA integrity_check").fetchone()
+⋮----
+replaced = True
+⋮----
+restored = sqlite3.connect(database_path)
+⋮----
+row = restored.execute("PRAGMA integrity_check").fetchone()
+⋮----
+schema_row = restored.execute(
+⋮----
+rollback_db = sqlite3.connect(database_path)
+⋮----
+rollback_row = rollback_db.execute(
 ⋮----
 def create_verified_sqlite_backup(backend) -> dict
 ⋮----

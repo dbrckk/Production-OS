@@ -108,6 +108,7 @@
         "tests/test_release16_operations_e2e.py",
         "tests/test_release18_managed_projects_e2e.py",
         "tests/test_release19_restore_staging_e2e.py",
+        "tests/test_release21_offline_restore_e2e.py",
         "tests/test_release_ledger.py",
         "tests/test_remote_worker.py",
         "tests/test_result_cache.py",
@@ -141,7 +142,7 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 129,
+      "in_degree": 130,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -462,6 +463,8 @@
         "src/production_os/control_plane.py",
         "src/production_os/control_surface.py",
         "src/production_os/controller.py",
+        "src/production_os/dashboard_backups.py",
+        "src/production_os/database_maintenance_lock.py",
         "src/production_os/delivery.py",
         "src/production_os/dispatch.py",
         "src/production_os/emergency.py",
@@ -512,10 +515,11 @@
         "tests/test_fairness.py"
       ],
       "dependents": [
-        "tests/test_cli.py"
+        "tests/test_cli.py",
+        "tests/test_release21_offline_restore_e2e.py"
       ],
-      "in_degree": 1,
-      "out_degree": 63
+      "in_degree": 2,
+      "out_degree": 65
     },
     "src/production_os/compatibility.py": {
       "dependencies": [
@@ -606,11 +610,12 @@
         "tests/test_release16_operations_e2e.py",
         "tests/test_release18_managed_projects_e2e.py",
         "tests/test_release19_restore_staging_e2e.py",
+        "tests/test_release21_offline_restore_e2e.py",
         "tests/test_remote_worker.py",
         "tests/test_speculation_api.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 31,
+      "in_degree": 32,
       "out_degree": 21
     },
     "src/production_os/control_surface.py": {
@@ -674,15 +679,19 @@
     },
     "src/production_os/dashboard_backups.py": {
       "dependencies": [
+        "src/production_os/database_maintenance_lock.py",
         "tests/test_asset_forge.py"
       ],
       "dependents": [
+        "src/production_os/cli.py",
         "src/production_os/control_plane.py",
         "src/production_os/dashboard_service.py",
-        "tests/test_dashboard_backups.py"
+        "tests/test_cli.py",
+        "tests/test_dashboard_backups.py",
+        "tests/test_release21_offline_restore_e2e.py"
       ],
-      "in_degree": 3,
-      "out_degree": 1
+      "in_degree": 6,
+      "out_degree": 2
     },
     "src/production_os/dashboard_control.py": {
       "dependencies": [
@@ -840,10 +849,13 @@
         "src/production_os/storage.py"
       ],
       "dependents": [
+        "src/production_os/cli.py",
         "src/production_os/control_plane.py",
+        "src/production_os/dashboard_backups.py",
+        "tests/test_cli.py",
         "tests/test_database_maintenance_lock.py"
       ],
-      "in_degree": 2,
+      "in_degree": 5,
       "out_degree": 1
     },
     "src/production_os/deep_fingerprint.py": {
@@ -1686,6 +1698,7 @@
       "dependents": [
         "src/production_os/dispatch.py",
         "src/production_os/storage.py",
+        "tests/test_cli.py",
         "tests/test_dashboard_backups.py",
         "tests/test_dashboard_control.py",
         "tests/test_dashboard_control_audit.py",
@@ -1705,6 +1718,7 @@
         "tests/test_rekor_checkpoint_state_concurrency.py",
         "tests/test_rekor_witness_quorum.py",
         "tests/test_rekor_witness_quorum_cli.py",
+        "tests/test_release21_offline_restore_e2e.py",
         "tests/test_release_ledger.py",
         "tests/test_result_cache.py",
         "tests/test_secure_release_e2e.py",
@@ -1718,7 +1732,7 @@
         "tests/test_workflow_engine.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 33,
+      "in_degree": 35,
       "out_degree": 5
     },
     "src/production_os/sqlite_migration.py": {
@@ -2231,11 +2245,14 @@
       "dependencies": [
         "src/production_os/__init__.py",
         "src/production_os/cli.py",
-        "src/production_os/signers.py"
+        "src/production_os/dashboard_backups.py",
+        "src/production_os/database_maintenance_lock.py",
+        "src/production_os/signers.py",
+        "src/production_os/sqlite_backend.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 3
+      "out_degree": 6
     },
     "tests/test_compatibility_validation.py": {
       "dependencies": [
@@ -3183,6 +3200,18 @@
       "dependents": [],
       "in_degree": 0,
       "out_degree": 4
+    },
+    "tests/test_release21_offline_restore_e2e.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/cli.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/dashboard_backups.py",
+        "src/production_os/sqlite_backend.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 5
     },
     "tests/test_release_ledger.py": {
       "dependencies": [
