@@ -20,6 +20,15 @@ class BackupError(RuntimeError):
     pass
 
 
+class BackupTempCandidateConflict(BackupError):
+    def __init__(self, expected: int, actual: int):
+        super().__init__(
+            f"backup temp candidate count changed: expected {expected}, actual {actual}"
+        )
+        self.expected = expected
+        self.actual = actual
+
+
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -132,6 +141,8 @@ def backup_storage_inventory(backend) -> dict:
         "activation_receipt_bytes":0,
         "temp_file_count":0,
         "temp_file_bytes":0,
+        "stale_temp_count":0,
+        "stale_temp_bytes":0,
         "unknown_file_count":0,
         "unknown_file_bytes":0,
     }
@@ -202,6 +213,17 @@ def backup_storage_inventory(backend) -> dict:
         if name.startswith(".") or name.endswith(".tmp"):
             metrics["temp_file_count"] += 1
             metrics["temp_file_bytes"] += size
+            try:
+                age_seconds = max(
+                    0.0,
+                    datetime.now(timezone.utc).timestamp()
+                    - path.stat().st_mtime,
+                )
+            except OSError:
+                age_seconds = 0.0
+            if age_seconds >= 86400:
+                metrics["stale_temp_count"] += 1
+                metrics["stale_temp_bytes"] += size
             continue
         match = activation_receipt.fullmatch(name)
         if match:
@@ -227,6 +249,63 @@ def backup_storage_inventory(backend) -> dict:
         "status":"ready",
         "backend_kind":"sqlite",
         **metrics,
+    }
+
+
+def prune_stale_backup_temps(
+    backend,
+    *,
+    expected_candidate_count: int,
+) -> dict:
+    if isinstance(expected_candidate_count, bool) or not isinstance(
+        expected_candidate_count,
+        int,
+    ) or expected_candidate_count < 0:
+        raise ValueError(
+            "expected_candidate_count must be a non-negative integer"
+        )
+    inventory = backup_storage_inventory(backend)
+    if inventory["backend_kind"] != "sqlite":
+        raise BackupError("backup temp cleanup is unsupported for this backend")
+    if inventory["status"] == "unconfigured":
+        raise BackupError("backup directory is not configured")
+    if inventory["status"] != "ready":
+        raise BackupError("backup directory is unavailable")
+
+    actual = int(inventory.get("stale_temp_count") or 0)
+    if actual != expected_candidate_count:
+        raise BackupTempCandidateConflict(expected_candidate_count, actual)
+
+    directory = _configured_dir()
+    assert directory is not None
+    deleted_count = 0
+    deleted_bytes = 0
+    now_ts = datetime.now(timezone.utc).timestamp()
+    for path in list(directory.iterdir()):
+        if not path.is_file():
+            continue
+        name = path.name
+        if not (name.startswith(".") or name.endswith(".tmp")):
+            continue
+        try:
+            stat = path.stat()
+        except OSError:
+            continue
+        age_seconds = max(0.0, now_ts - stat.st_mtime)
+        if age_seconds < 86400:
+            continue
+        size = max(0, int(stat.st_size))
+        try:
+            path.unlink()
+        except FileNotFoundError:
+            continue
+        deleted_count += 1
+        deleted_bytes += size
+
+    return {
+        "deleted_count":deleted_count,
+        "deleted_bytes":deleted_bytes,
+        "remaining":backup_storage_inventory(backend),
     }
 
 
