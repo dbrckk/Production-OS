@@ -457,6 +457,17 @@ def activate_staged_sqlite_restore(
                     except FileNotFoundError:
                         pass
                 os.replace(rollback_temp, database_path)
+                rollback_db = sqlite3.connect(database_path)
+                try:
+                    rollback_row = rollback_db.execute(
+                        "PRAGMA integrity_check"
+                    ).fetchone()
+                    if not rollback_row or rollback_row[0] != "ok":
+                        raise BackupError(
+                            "rollback database integrity check failed"
+                        )
+                finally:
+                    rollback_db.close()
             else:
                 try:
                     rollback_temp.unlink()
