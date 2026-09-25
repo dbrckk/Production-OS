@@ -668,7 +668,7 @@ def test_last_launched_project_survives_dashboard_reload_on_same_device():
     assert "localStorage.setItem(LAST_PROJECT_KEY,value)" in DASHBOARD_HTML
     assert "async function loadLastProduction" in DASHBOARD_HTML
     assert "localStorage.getItem(LAST_PROJECT_KEY)" in DASHBOARD_HTML
-    assert "'/v1/managed-projects/'+encodeURIComponent(projectId)" in DASHBOARD_HTML
+    assert "/v1/dashboard/production-status?project_id=" in DASHBOARD_HTML
     assert 'id="last-production-card"' in DASHBOARD_HTML
     assert "renderProductionOutcome(outcome,true)" in DASHBOARD_HTML
     assert "Ouvrir le projet" in DASHBOARD_HTML
@@ -677,7 +677,7 @@ def test_last_launched_project_survives_dashboard_reload_on_same_device():
 def test_dashboard_refresh_and_repository_change_refresh_launch_readiness():
     assert "loadLaunchReadiness()," in DASHBOARD_HTML
     assert "addEventListener('change',loadLaunchReadiness)" in DASHBOARD_HTML
-    assert "loadLastProduction();" in DASHBOARD_HTML
+    assert "setInterval(loadLastProduction,5000)" in DASHBOARD_HTML
 
 def test_last_production_tracker_renders_live_runtime_status():
     assert "/v1/dashboard/production-status?project_id=" in DASHBOARD_HTML
