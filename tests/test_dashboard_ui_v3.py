@@ -328,7 +328,8 @@ def test_mobile_launch_flow_remains_repo_plus_instruction():
     assert 'id="instruction"' in DASHBOARD_HTML
     assert "Lancer la production" in DASHBOARD_HTML
     assert "async function launchWorkflow" in DASHBOARD_HTML
-    assert "final_goal:task" in DASHBOARD_HTML
+    assert "api('/v1/dashboard/launch'" in DASHBOARD_HTML
+    assert "instruction:task" in DASHBOARD_HTML
 
 
 def test_overview_renders_storage_maintenance_card():
