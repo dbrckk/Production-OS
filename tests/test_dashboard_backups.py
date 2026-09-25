@@ -722,6 +722,8 @@ def test_backup_storage_inventory_classifies_files_without_exposing_paths(
         "activation_receipt_bytes":4,
         "temp_file_count":1,
         "temp_file_bytes":6,
+        "stale_temp_count":0,
+        "stale_temp_bytes":0,
         "unknown_file_count":1,
         "unknown_file_bytes":8,
     }
