@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import os
+import time
 import threading
 import urllib.error
 import urllib.request
@@ -417,6 +419,131 @@ def test_backup_catalog_exposes_aggregated_storage_inventory(
         assert storage["unknown_file_bytes"] == 3
         assert "path" not in storage
         assert "files" not in storage
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+
+
+def test_backup_temp_prune_requires_operator_exact_confirmation_and_expected_count(
+    tmp_path,
+    monkeypatch,
+):
+    backup_dir = tmp_path / "backups"
+    backup_dir.mkdir()
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    control = ControlPlane(str(tmp_path / "control.sqlite"), authorizer=_auth())
+    stale = backup_dir / ".stale.sqlite.tmp"
+    stale.write_bytes(b"1234")
+    old = time.time() - 90000
+    os.utime(stale, (old, old))
+
+    server, thread, base = _server(control)
+    try:
+        status, _ = _request(
+            base,
+            "/v1/dashboard/backups/prune-temp",
+            "viewer",
+            method="POST",
+            body={
+                "confirm":"PRUNE_STALE_BACKUP_TEMPS",
+                "expected_candidate_count":1,
+            },
+        )
+        assert status == 403
+        assert stale.exists()
+
+        status, _ = _request(
+            base,
+            "/v1/dashboard/backups/prune-temp",
+            "operator",
+            method="POST",
+            body={
+                "confirm":"wrong",
+                "expected_candidate_count":1,
+            },
+        )
+        assert status == 400
+        assert stale.exists()
+
+        status, payload = _request(
+            base,
+            "/v1/dashboard/backups/prune-temp",
+            "operator",
+            method="POST",
+            body={
+                "confirm":"PRUNE_STALE_BACKUP_TEMPS",
+                "expected_candidate_count":2,
+            },
+        )
+        assert status == 409
+        assert payload["deleted_count"] == 0
+        assert stale.exists()
+
+        status, payload = _request(
+            base,
+            "/v1/dashboard/backups/prune-temp",
+            "operator",
+            method="POST",
+            body={
+                "confirm":"PRUNE_STALE_BACKUP_TEMPS",
+                "expected_candidate_count":1,
+            },
+        )
+        assert status == 200
+        assert payload["deleted_count"] == 1
+        assert payload["deleted_bytes"] == 4
+        assert not stale.exists()
+
+        audit = control.dashboard_store.control_audit_events(limit=20)
+        prune_rows = [
+            row for row in audit
+            if row["action"] == "backup-temp-prune"
+        ]
+        assert [row["outcome"] for row in prune_rows] == [
+            "succeeded",
+            "conflict",
+        ]
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+
+
+def test_backup_temp_prune_never_deletes_protected_backup_artifacts(
+    tmp_path,
+    monkeypatch,
+):
+    backup_dir = tmp_path / "backups"
+    backup_dir.mkdir()
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    control = ControlPlane(str(tmp_path / "control.sqlite"), authorizer=_auth())
+    protected = [
+        backup_dir / "20260925T120000Z-aaaaaaaaaaaa.sqlite",
+        backup_dir / "restore-20260925T130000Z-bbbbbbbbbbbb.sqlite",
+        backup_dir / "restore-20260925T130000Z-bbbbbbbbbbbb.activation.json",
+        backup_dir / "notes.txt",
+    ]
+    for path in protected:
+        path.write_bytes(b"x")
+        old = time.time() - 90000
+        os.utime(path, (old, old))
+
+    server, thread, base = _server(control)
+    try:
+        status, payload = _request(
+            base,
+            "/v1/dashboard/backups/prune-temp",
+            "operator",
+            method="POST",
+            body={
+                "confirm":"PRUNE_STALE_BACKUP_TEMPS",
+                "expected_candidate_count":0,
+            },
+        )
+        assert status == 200
+        assert payload["deleted_count"] == 0
+        assert all(path.exists() for path in protected)
     finally:
         server.shutdown()
         server.server_close()

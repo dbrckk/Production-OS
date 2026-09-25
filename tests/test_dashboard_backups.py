@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from hashlib import sha256
+import os
+import time
 import json
 import sqlite3
 
@@ -10,6 +12,8 @@ from production_os.dashboard_backups import (
     BackupError,
     backup_readiness,
     backup_storage_inventory,
+    BackupTempCandidateConflict,
+    prune_stale_backup_temps,
     activate_staged_sqlite_restore,
     create_verified_sqlite_backup,
     restore_activation_history,
@@ -718,6 +722,8 @@ def test_backup_storage_inventory_classifies_files_without_exposing_paths(
         "activation_receipt_bytes":4,
         "temp_file_count":1,
         "temp_file_bytes":6,
+        "stale_temp_count":0,
+        "stale_temp_bytes":0,
         "unknown_file_count":1,
         "unknown_file_bytes":8,
     }
@@ -754,3 +760,88 @@ def test_backup_storage_inventory_postgres_is_truthfully_unsupported(
     assert inventory["backend_kind"] == "postgres"
     assert inventory["total_size_bytes"] == 0
     assert inventory["backup_count"] == 0
+
+
+def test_backup_storage_inventory_marks_only_old_temps_stale(
+    tmp_path,
+    monkeypatch,
+):
+    backup_dir = tmp_path / "backups"
+    backup_dir.mkdir()
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    backend = SQLiteBackend(tmp_path / "production.sqlite")
+    old_temp = backup_dir / ".old.sqlite.tmp"
+    fresh_temp = backup_dir / ".fresh.sqlite.tmp"
+    old_temp.write_bytes(b"1234")
+    fresh_temp.write_bytes(b"12")
+    old = time.time() - 90000
+    os.utime(old_temp, (old, old))
+
+    inventory = backup_storage_inventory(backend)
+
+    assert inventory["temp_file_count"] == 2
+    assert inventory["temp_file_bytes"] == 6
+    assert inventory["stale_temp_count"] == 1
+    assert inventory["stale_temp_bytes"] == 4
+
+
+def test_prune_stale_backup_temps_deletes_only_stale_temp_files(
+    tmp_path,
+    monkeypatch,
+):
+    backup_dir = tmp_path / "backups"
+    backup_dir.mkdir()
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    backend = SQLiteBackend(tmp_path / "production.sqlite")
+    stale = backup_dir / ".stale.sqlite.tmp"
+    fresh = backup_dir / ".fresh.sqlite.tmp"
+    backup = backup_dir / "20260925T120000Z-aaaaaaaaaaaa.sqlite"
+    candidate = backup_dir / "restore-20260925T130000Z-bbbbbbbbbbbb.sqlite"
+    receipt = backup_dir / "restore-20260925T130000Z-bbbbbbbbbbbb.activation.json"
+    unknown = backup_dir / "notes.txt"
+    for path, payload in (
+        (stale,b"1234"),
+        (fresh,b"12"),
+        (backup,b"backup"),
+        (candidate,b"candidate"),
+        (receipt,b"receipt"),
+        (unknown,b"unknown"),
+    ):
+        path.write_bytes(payload)
+    old = time.time() - 90000
+    os.utime(stale, (old, old))
+
+    result = prune_stale_backup_temps(
+        backend,
+        expected_candidate_count=1,
+    )
+
+    assert result["deleted_count"] == 1
+    assert result["deleted_bytes"] == 4
+    assert not stale.exists()
+    for protected in (fresh, backup, candidate, receipt, unknown):
+        assert protected.exists()
+
+
+def test_prune_stale_backup_temps_count_mismatch_changes_nothing(
+    tmp_path,
+    monkeypatch,
+):
+    backup_dir = tmp_path / "backups"
+    backup_dir.mkdir()
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    backend = SQLiteBackend(tmp_path / "production.sqlite")
+    stale = backup_dir / ".stale.sqlite.tmp"
+    stale.write_bytes(b"1234")
+    old = time.time() - 90000
+    os.utime(stale, (old, old))
+
+    with pytest.raises(BackupTempCandidateConflict) as exc:
+        prune_stale_backup_temps(
+            backend,
+            expected_candidate_count=2,
+        )
+
+    assert exc.value.expected == 2
+    assert exc.value.actual == 1
+    assert stale.exists()

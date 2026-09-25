@@ -660,6 +660,37 @@ async function pruneExpiredHistory(expected){
   if(receipt)receipt.textContent=String(e).replace(/^Error:\\s*/,"");
  }
 }
+async function pruneStaleBackupTemps(expected){
+ const count=Number(expected);
+ if(!Number.isInteger(count)||count<=0)return;
+ if(!window.confirm(
+  "Supprimer "+count+
+  " fichier(s) temporaire(s) de backup datant d’au moins 24 h ?"
+ ))return;
+ try{
+  const result=await api(
+   "/v1/dashboard/backups/prune-temp",
+   {
+    method:"POST",
+    body:JSON.stringify({
+     confirm:"PRUNE_STALE_BACKUP_TEMPS",
+     expected_candidate_count:count
+    })
+   }
+  );
+  await loadOverview();
+  const receipt=document.getElementById("backup-status-message");
+  if(receipt){
+   receipt.textContent=
+    "Temporaires nettoyés · "+formatNumber(result.deleted_count)+
+    " fichier(s) · "+formatBytes(result.deleted_bytes);
+  }
+ }catch(e){
+  await loadOverview();
+  const receipt=document.getElementById("backup-status-message");
+  if(receipt)receipt.textContent=String(e).replace(/^Error:\\s*/,"");
+ }
+}
 async function createVerifiedBackup(){
  if(!window.confirm(
   "Créer une sauvegarde SQLite vérifiée côté serveur ? La restauration reste désactivée."
@@ -797,6 +828,10 @@ async function loadOverview(){
   const backupButton=backups.create_supported===true
    ?'<button class="secondary-btn" type="button" onclick="createVerifiedBackup()">Créer une sauvegarde vérifiée</button>'
    :'';
+  const staleTempCount=Number(backupStorage.stale_temp_count||0);
+  const backupTempPruneButton=staleTempCount>0
+   ?'<button class="secondary-btn" type="button" data-stale-temp-count="'+esc(String(staleTempCount))+'" onclick="pruneStaleBackupTemps(Number(this.dataset.staleTempCount))">Nettoyer temporaires anciens</button>'
+   :'';
   const backupCatalogHtml=backupRows.length?backupRows.slice(0,5).map(function(row){
    const id=String(row.backup_id||"");
    return '<div class="small"><strong>'+esc(String(row.created_at||id))+'</strong> · '+formatBytes(row.size_bytes)+
@@ -808,14 +843,14 @@ async function loadOverview(){
    '<p class="small"><strong>Backend :</strong> '+esc(String(backups.backend_kind||"inconnu"))+' · <strong>Restauration :</strong> '+(backups.restore_enabled?'activée':'désactivée')+'</p>'+
    '<p class="small"><strong>Dernière sauvegarde vérifiée :</strong> '+(lastBackup?esc(String(lastBackup.created_at||""))+' · '+formatBytes(lastBackup.size_bytes):'Aucune')+'</p>'+
    '<p class="small"><strong>Stockage backup :</strong> '+formatBytes(backupStorage.total_size_bytes)+' · backups '+formatNumber(backupStorage.backup_count)+' · candidats '+formatNumber(backupStorage.restore_candidate_count)+' · reçus '+formatNumber(backupStorage.activation_receipt_count)+'</p>'+
-   '<p class="small"><strong>Temporaires :</strong> '+formatNumber(backupStorage.temp_file_count)+' · <strong>Inconnus :</strong> '+formatNumber(backupStorage.unknown_file_count)+'</p>'+
+   '<p class="small"><strong>Temporaires :</strong> '+formatNumber(backupStorage.temp_file_count)+' · <strong>Anciens ≥24 h :</strong> '+formatNumber(staleTempCount)+' · <strong>Inconnus :</strong> '+formatNumber(backupStorage.unknown_file_count)+'</p>'+
    (backups.message?'<p class="small">'+esc(String(backups.message))+'</p>':'')+
    backupCatalogHtml+
    '<h3 style="font-size:.85rem;margin:15px 0 6px">Historique des activations</h3>'+
    (activationRows.length?activationRows.slice(0,5).map(function(row){
     return '<div class="small"><strong>'+esc(String(row.activated_at||""))+'</strong> · candidat '+esc(String(row.candidate_id||""))+' · rollback '+esc(String(row.rollback_backup_id||""))+'</div>';
    }).join(""):'<div class="small">Aucune activation de restauration enregistrée.</div>')+
-   '<div style="margin-top:10px">'+backupButton+'</div>'+
+   '<div style="margin-top:10px">'+backupButton+' '+backupTempPruneButton+'</div>'+
    '<div id="backup-status-message" class="status-message"></div>'+
    '</div>';
   el.innerHTML=

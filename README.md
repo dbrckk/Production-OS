@@ -906,6 +906,20 @@ Only aggregate metrics are returned. Individual file names and server paths are 
 
 This release is read-only: there is no cleanup action, retention mutation or restore behavior change.
 
+## Release 25 — Safe backup temp cleanup
+
+Operators can now remove only stale temporary files from configured SQLite backup storage.
+
+A file is eligible only when it is already classified as temporary and is at least 24 hours old. Cleanup requires:
+
+- operator authorization;
+- the exact confirmation phrase `PRUNE_STALE_BACKUP_TEMPS`;
+- the expected stale-candidate count, rechecked immediately before deletion.
+
+Verified backups, rollback backups, restore candidates, activation receipts, unknown files and fresh temporary files are never deleted by this operation.
+
+The response contains only aggregate deleted counts/bytes and the refreshed storage inventory. File names and server paths remain hidden.
+
 ## Design principles
 
 - Evidence over assumptions

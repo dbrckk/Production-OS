@@ -19,7 +19,7 @@ from .dashboard_control import DashboardControl
 from .dashboard_service import DashboardService, DashboardNotFound
 from .dashboard_ui import DASHBOARD_HTML
 from .dashboard_maintenance import RetentionCandidateConflict
-from .dashboard_backups import BackupError
+from .dashboard_backups import BackupError, BackupTempCandidateConflict
 from .managed_projects import ManagedProjectService
 from .database_maintenance_lock import database_server_lock
 from .github_webhook import (
@@ -1070,6 +1070,88 @@ def make_handler(control: ControlPlane):
                             audit["id"],
                             outcome="failed",
                             error_code="backup_verify_failed",
+                        )
+                        raise
+                    control.dashboard_store.update_control_audit(
+                        audit["id"],
+                        outcome="succeeded",
+                    )
+                    self._send(HTTPStatus.OK, result)
+                    return
+
+                if parsed.path == "/v1/dashboard/backups/prune-temp":
+                    principal = self._require("operator")
+                    if principal is None:
+                        return
+                    if (
+                        str(body.get("confirm") or "")
+                        != "PRUNE_STALE_BACKUP_TEMPS"
+                    ):
+                        self._send(
+                            HTTPStatus.BAD_REQUEST,
+                            {"error":"exact backup temp prune confirmation required"},
+                        )
+                        return
+                    expected = body.get("expected_candidate_count")
+                    if (
+                        isinstance(expected, bool)
+                        or not isinstance(expected, int)
+                        or expected < 0
+                    ):
+                        self._send(
+                            HTTPStatus.BAD_REQUEST,
+                            {
+                                "error":(
+                                    "expected_candidate_count must be "
+                                    "a non-negative integer"
+                                )
+                            },
+                        )
+                        return
+                    requested_by = f"{principal.role}:{principal.name}"
+                    audit = control.dashboard_store.append_control_audit(
+                        action="backup-temp-prune",
+                        worker_id="control-plane",
+                        requested_by=requested_by,
+                        outcome="requested",
+                    )
+                    try:
+                        result = control.dashboard.prune_backup_temps(
+                            expected
+                        )
+                    except BackupTempCandidateConflict as exc:
+                        control.dashboard_store.update_control_audit(
+                            audit["id"],
+                            outcome="conflict",
+                            error_code="candidate_count_mismatch",
+                        )
+                        self._send(
+                            HTTPStatus.CONFLICT,
+                            {
+                                "error":"backup temp candidate count changed",
+                                "expected_candidate_count":exc.expected,
+                                "actual_candidate_count":exc.actual,
+                                "deleted_count":0,
+                                "deleted_bytes":0,
+                            },
+                        )
+                        return
+                    except BackupError as exc:
+                        control.dashboard_store.update_control_audit(
+                            audit["id"],
+                            outcome="failed",
+                            error_code="backup_temp_prune_unavailable",
+                        )
+                        self._send(
+                            HTTPStatus.CONFLICT,
+                            {"error":str(exc)},
+                        )
+                        return
+                    except Exception:
+                        control.dashboard_store.update_control_audit(
+                            audit["id"],
+                            outcome="failed",
+                            error_code="backup_temp_prune_failed",
                         )
                         raise
                     control.dashboard_store.update_control_audit(

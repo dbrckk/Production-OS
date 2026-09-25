@@ -484,3 +484,15 @@ def test_backup_overview_renders_storage_inventory_read_only():
     assert "backupStorage.unknown_file_count" in DASHBOARD_HTML
     assert "Nettoyer les backups" not in DASHBOARD_HTML
     assert "Supprimer les backups" not in DASHBOARD_HTML
+
+
+def test_backup_temp_cleanup_ui_is_guarded_and_stale_only():
+    assert "async function pruneStaleBackupTemps" in DASHBOARD_HTML
+    assert 'confirm:"PRUNE_STALE_BACKUP_TEMPS"' in DASHBOARD_HTML
+    assert "expected_candidate_count:count" in DASHBOARD_HTML
+    assert "/v1/dashboard/backups/prune-temp" in DASHBOARD_HTML
+    assert "const staleTempCount=Number(backupStorage.stale_temp_count||0)" in DASHBOARD_HTML
+    assert "const backupTempPruneButton=staleTempCount>0" in DASHBOARD_HTML
+    assert "Nettoyer temporaires anciens" in DASHBOARD_HTML
+    assert "Nettoyer les backups" not in DASHBOARD_HTML
+    assert "Supprimer les backups" not in DASHBOARD_HTML
