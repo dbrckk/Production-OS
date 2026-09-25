@@ -61,11 +61,13 @@ def test_operator_can_create_and_viewer_can_list_managed_projects(tmp_path):
         assert status == 201
         project = created["project"]
         assert project["state"] == "RUNNING"
+        assert project["status"] == "ACTIVE"
+        assert project["generation"] == 1
 
         status, listed = _request(base, "/v1/managed-projects", "viewer")
         assert status == 200
-        assert [item["workflow_id"] for item in listed["projects"]] == [
-            project["workflow_id"]
+        assert [item["project_id"] for item in listed["projects"]] == [
+            project["project_id"]
         ]
 
         status, detail = _request(
@@ -74,6 +76,7 @@ def test_operator_can_create_and_viewer_can_list_managed_projects(tmp_path):
             "viewer",
         )
         assert status == 200
+        assert detail["project"]["project_id"] == project["project_id"]
         assert detail["project"]["final_goal"] == "Ship a verified release"
     finally:
         server.shutdown()
@@ -104,7 +107,7 @@ def test_viewer_cannot_create_managed_project(tmp_path):
         thread.join(timeout=2)
 
 
-def test_managed_project_http_review_instruction_verify_and_complete(tmp_path):
+def test_managed_project_http_generations_and_explicit_completion(tmp_path):
     control = ControlPlane(str(tmp_path / "db.sqlite"), authorizer=_auth())
     server, thread, base = _server(control)
     try:
@@ -120,66 +123,87 @@ def test_managed_project_http_review_instruction_verify_and_complete(tmp_path):
             },
         )
         assert status == 201
-        workflow_id = created["project"]["workflow_id"]
+        project = created["project"]
+        project_id = project["project_id"]
+        first_workflow = project["workflow_id"]
 
-        status, _ = _request(
+        status, payload = _request(
             base,
-            f"/v1/managed-projects/{workflow_id}/complete",
+            f"/v1/managed-projects/{project_id}/complete",
             "operator",
             method="POST",
-            body={},
+            body={"confirm":"MARK_PROJECT_DONE"},
         )
         assert status == 409
+        assert "REVIEW_REQUIRED" in payload["error"]
 
         control.workflows.record_result(
-            workflow_id,
-            "goal",
+            first_workflow,
+            "implementation",
             succeeded=True,
             result={"usage":{"total_tokens":1234}},
         )
 
         status, resumed = _request(
             base,
-            f"/v1/managed-projects/{workflow_id}/instructions",
+            f"/v1/managed-projects/{project_id}/instructions",
             "operator",
             method="POST",
             body={"instruction":"Improve mobile controls"},
         )
         assert status == 200
-        assert resumed["project"]["state"] == "RUNNING"
+        assert resumed["project"]["generation"] == 2
+        second_workflow = resumed["project"]["workflow_id"]
+        assert second_workflow != first_workflow
 
         control.workflows.record_result(
-            workflow_id,
-            "instruction-1",
+            second_workflow,
+            "implementation",
             succeeded=True,
         )
 
         status, verifying = _request(
             base,
-            f"/v1/managed-projects/{workflow_id}/verify",
+            f"/v1/managed-projects/{project_id}/verify",
             "operator",
             method="POST",
             body={},
         )
         assert status == 200
-        assert verifying["project"]["state"] == "RUNNING"
+        assert verifying["project"]["generation"] == 3
+        third_workflow = verifying["project"]["workflow_id"]
+        assert third_workflow not in {first_workflow, second_workflow}
 
         control.workflows.record_result(
-            workflow_id,
-            "verification-1",
+            third_workflow,
+            "implementation",
             succeeded=True,
         )
 
-        status, completed = _request(
+        status, payload = _request(
             base,
-            f"/v1/managed-projects/{workflow_id}/complete",
+            f"/v1/managed-projects/{project_id}/complete",
             "operator",
             method="POST",
             body={},
         )
+        assert status == 400
+        assert "MARK_PROJECT_DONE" in payload["error"]
+
+        status, completed = _request(
+            base,
+            f"/v1/managed-projects/{project_id}/complete",
+            "operator",
+            method="POST",
+            body={"confirm":"MARK_PROJECT_DONE"},
+        )
         assert status == 200
         assert completed["project"]["state"] == "DONE"
+        assert completed["project"]["generation"] == 3
         assert completed["project"]["approved_by"] == "operator:operator"
+        assert [run["generation"] for run in completed["project"]["runs"]] == [
+            1, 2, 3
+        ]
     finally:
         server.shutdown()
         server.server_close()
@@ -193,25 +217,29 @@ def test_managed_project_persists_across_control_plane_restart(tmp_path):
         repository="dbrckk/example",
         final_goal="Persist across restart",
         token_budget=5000,
+        requested_by="operator:first",
     )
-    workflow_id = created["workflow_id"]
+    first_workflow = created["workflow_id"]
     first.workflows.record_result(
-        workflow_id,
-        "goal",
+        first_workflow,
+        "implementation",
         succeeded=True,
         result={"usage":{"total_tokens":77}},
     )
-    assert first.managed_projects.get(workflow_id)["state"] == "REVIEW_REQUIRED"
+    assert first.managed_projects.get(created["project_id"])["state"] == (
+        "REVIEW_REQUIRED"
+    )
 
     second = ControlPlane(database, authorizer=_auth())
-    restored = second.managed_projects.get(workflow_id)
+    restored = second.managed_projects.get(created["project_id"])
     assert restored["state"] == "REVIEW_REQUIRED"
     assert restored["final_goal"] == "Persist across restart"
     assert restored["usage"]["total_tokens"] == 77
 
-    done = second.managed_projects.mark_done(
-        workflow_id,
-        approved_by="operator:restart",
+    resumed = second.managed_projects.add_instruction(
+        created["project_id"],
+        "Continue after restart",
+        requested_by="operator:restart",
     )
-    assert done["state"] == "DONE"
-    assert done["approved_by"] == "operator:restart"
+    assert resumed["generation"] == 2
+    assert resumed["workflow_id"] != first_workflow
