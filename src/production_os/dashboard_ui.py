@@ -1242,6 +1242,9 @@ function renderProductionOutcome(outcome,includeSummary){
  if(Number(value.artifact_count||0)>0)parts.push(
   "<strong>Artefacts :</strong> "+formatNumber(value.artifact_count)
  );
+ if(Number(value.changed_file_count||0)>0)parts.push(
+  "<strong>Fichiers modifiés :</strong> "+formatNumber(value.changed_file_count)
+ );
  const pr=value.pull_request||null;
  if(pr&&(pr.number!=null||pr.state)){
   parts.push(
