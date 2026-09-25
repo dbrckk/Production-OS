@@ -1107,6 +1107,24 @@ The qualification verifies that repository, instruction, final goal, server-owne
 
 This specifically protects the mobile promise introduced in Release 31: closing or reloading the dashboard does not own the execution lifetime and cannot discard the production.
 
+
+## Release 33 — Automatic expired-claim recovery
+
+Worker claim recovery is now part of the normal worker pull path.
+
+Before selecting the next queued job, `POST /v1/jobs/claim` first requeues expired, unacknowledged claims that are still below the delivery-attempt limit. This allows another healthy worker to continue the same persistent workflow without requiring an operator to press `recover-stuck`.
+
+Safety remains bounded:
+
+- only jobs still in `claimed` state are automatically recovered;
+- the claim deadline must have expired;
+- acknowledged/running jobs are not silently duplicated;
+- delivery attempts continue to increment;
+- jobs reaching the configured attempt ceiling move to dead-letter instead of looping forever;
+- the original Managed Project and workflow identity are preserved.
+
+A dedicated E2E test starts from the One-tap launch endpoint, lets one worker claim and disappear before ACK, then proves a second worker automatically reclaims the same job, completes it, and advances the same generation-1 Managed Project to `REVIEW_REQUIRED`.
+
 ## Design principles
 
 - Evidence over assumptions
