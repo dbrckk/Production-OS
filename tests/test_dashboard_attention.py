@@ -21,6 +21,12 @@ def test_attention_prioritizes_failures_reviews_blocked_jobs_and_incidents():
             "updated_at":"2026-09-25T18:00:00+00:00",
             "completed_at":None,
             "current_workflow":{"status":"failed"},
+            "outcome":{
+                "available":True,
+                "summary":"Integration validation failed.",
+                "validation_status":"failed",
+                "validation_tests":["integration"],
+            },
         },
         {
             "project_id":"project-review",
@@ -30,6 +36,12 @@ def test_attention_prioritizes_failures_reviews_blocked_jobs_and_incidents():
             "updated_at":"2026-09-25T18:01:00+00:00",
             "completed_at":None,
             "current_workflow":{"status":"succeeded"},
+            "outcome":{
+                "available":True,
+                "summary":"Feature delivered and tests passed.",
+                "validation_status":"passed",
+                "validation_tests":["unit","integration"],
+            },
         },
         {
             "project_id":"project-done",
@@ -105,12 +117,16 @@ def test_attention_prioritizes_failures_reviews_blocked_jobs_and_incidents():
     assert incident["actions"][1]["control_action"] == "kick"
 
     failed = next(item for item in payload["items"] if item["kind"] == "validation_failed")
+    assert failed["summary"] == "Integration validation failed."
+    assert failed["outcome"]["validation_status"] == "failed"
     assert failed["actions"] == [
         {"name":"instructions","label":"Ajouter instruction"},
         {"name":"verify","label":"Retester"},
     ]
 
     review = next(item for item in payload["items"] if item["kind"] == "project_review")
+    assert review["summary"] == "Feature delivered and tests passed."
+    assert review["outcome"]["validation_status"] == "passed"
     assert review["actions"] == [
         {"name":"instructions","label":"Ajouter instruction"},
         {"name":"verify","label":"Retester"},
