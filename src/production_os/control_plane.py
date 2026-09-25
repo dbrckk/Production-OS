@@ -21,6 +21,7 @@ from .dashboard_ui import DASHBOARD_HTML
 from .dashboard_maintenance import RetentionCandidateConflict
 from .dashboard_backups import BackupError
 from .managed_projects import ManagedProjectService
+from .database_maintenance_lock import database_server_lock
 from .github_webhook import (
     WebhookDeliveryStore,
     WebhookError,
@@ -2530,18 +2531,22 @@ def serve_control_plane(
     trusted_builder_keys: dict | None = None,
     require_trusted_builder: bool = False,
 ) -> None:
-    control = ControlPlane(
-        database,
-        authorizer=TokenAuthorizer.load(auth_config),
-        github_webhook_secret=github_webhook_secret,
-        trusted_validation_secrets=trusted_validation_secrets,
-        provenance_secret=provenance_secret,
-        trusted_validation_public_keys=trusted_validation_public_keys,
-        provenance_private_key=provenance_private_key,
-        provenance_public_key=provenance_public_key,
-    )
-    server = ThreadingHTTPServer(
-        (host, port),
-        make_handler(control),
-    )
-    server.serve_forever()
+    with database_server_lock(database):
+        control = ControlPlane(
+            database,
+            authorizer=TokenAuthorizer.load(auth_config),
+            github_webhook_secret=github_webhook_secret,
+            trusted_validation_secrets=trusted_validation_secrets,
+            provenance_secret=provenance_secret,
+            trusted_validation_public_keys=trusted_validation_public_keys,
+            provenance_private_key=provenance_private_key,
+            provenance_public_key=provenance_public_key,
+        )
+        server = ThreadingHTTPServer(
+            (host, port),
+            make_handler(control),
+        )
+        try:
+            server.serve_forever()
+        finally:
+            server.server_close()
