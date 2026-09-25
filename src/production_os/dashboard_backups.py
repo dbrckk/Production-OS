@@ -223,8 +223,96 @@ def _backup_age_summary(created_values: list[str], *, now: datetime | None = Non
     }
 
 
+
+BACKUP_RETENTION_DAYS = 30
+BACKUP_RETENTION_MIN_KEEP = 3
+
+
+def _backup_retention_preview(
+    verified_backups: list[dict],
+    protected_backup_ids: set[str],
+    *,
+    now: datetime | None = None,
+) -> dict:
+    now = now or datetime.now(timezone.utc)
+    rows = []
+    invalid_timestamp_count = 0
+    for item in verified_backups:
+        backup_id = str(item.get("backup_id") or "")
+        created_at = str(item.get("created_at") or "")
+        try:
+            parsed = datetime.fromisoformat(created_at.replace("Z", "+00:00"))
+        except ValueError:
+            invalid_timestamp_count += 1
+            continue
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=timezone.utc)
+        parsed = parsed.astimezone(timezone.utc)
+        size = item.get("size_bytes")
+        size_bytes = (
+            int(size)
+            if isinstance(size, int) and not isinstance(size, bool) and size >= 0
+            else 0
+        )
+        rows.append({
+            "backup_id":backup_id,
+            "created_at":parsed,
+            "size_bytes":size_bytes,
+        })
+
+    rows.sort(key=lambda item: item["created_at"], reverse=True)
+    newest_ids = {
+        item["backup_id"]
+        for item in rows[:BACKUP_RETENTION_MIN_KEEP]
+        if item["backup_id"]
+    }
+    cutoff_seconds = BACKUP_RETENTION_DAYS * 86400
+    candidate_count = 0
+    candidate_bytes = 0
+    protected_recent = 0
+    protected_latest_floor = 0
+    protected_restore_history = 0
+
+    for item in rows:
+        backup_id = item["backup_id"]
+        age_seconds = max(0.0, (now - item["created_at"]).total_seconds())
+        if backup_id in protected_backup_ids:
+            protected_restore_history += 1
+        elif backup_id in newest_ids:
+            protected_latest_floor += 1
+        elif age_seconds < cutoff_seconds:
+            protected_recent += 1
+        else:
+            candidate_count += 1
+            candidate_bytes += item["size_bytes"]
+
+    return {
+        "status":"preview",
+        "retention_days":BACKUP_RETENTION_DAYS,
+        "min_keep_latest":BACKUP_RETENTION_MIN_KEEP,
+        "verified_count":len(verified_backups),
+        "valid_timestamp_count":len(rows),
+        "invalid_timestamp_count":invalid_timestamp_count,
+        "candidate_count":candidate_count,
+        "candidate_bytes":candidate_bytes,
+        "protected_count":(
+            protected_recent
+            + protected_latest_floor
+            + protected_restore_history
+            + invalid_timestamp_count
+        ),
+        "protected_reasons":{
+            "recent":protected_recent,
+            "latest_floor":protected_latest_floor,
+            "restore_history":protected_restore_history,
+            "invalid_timestamp":invalid_timestamp_count,
+        },
+        "deletion_enabled":False,
+    }
+
 def backup_storage_inventory(backend) -> dict:
     backup_age = _backup_age_summary([])
+    retention_preview = _backup_retention_preview([], set())
     zero = {
         "total_size_bytes":0,
         "backup_count":0,
@@ -255,6 +343,7 @@ def backup_storage_inventory(backend) -> dict:
                 "available_percent":None,
             },
             "backup_age":backup_age,
+            "retention_preview":retention_preview,
         }
     directory = _configured_dir()
     if directory is None:
@@ -264,6 +353,7 @@ def backup_storage_inventory(backend) -> dict:
             **zero,
             "filesystem":_backup_filesystem_capacity(None),
             "backup_age":backup_age,
+            "retention_preview":retention_preview,
         }
     if not directory.exists():
         return {
@@ -272,6 +362,7 @@ def backup_storage_inventory(backend) -> dict:
             **zero,
             "filesystem":_backup_filesystem_capacity(directory),
             "backup_age":backup_age,
+            "retention_preview":retention_preview,
         }
     if not directory.is_dir():
         return {
@@ -280,12 +371,15 @@ def backup_storage_inventory(backend) -> dict:
             **zero,
             "filesystem":_backup_filesystem_capacity(directory),
             "backup_age":backup_age,
+            "retention_preview":retention_preview,
         }
 
     backup_ids: set[str] = set()
     candidate_ids: set[str] = set()
     metrics = dict(zero)
     verified_backup_created_at: list[str] = []
+    verified_backups: list[dict] = []
+    protected_backup_ids: set[str] = set()
     backup_sqlite = re.compile(
         r"^(\d{8}T\d{6}Z-[0-9a-f]{12})\.sqlite$"
     )
@@ -311,6 +405,7 @@ def backup_storage_inventory(backend) -> dict:
             **zero,
             "filesystem":_backup_filesystem_capacity(directory),
             "backup_age":backup_age,
+            "retention_preview":retention_preview,
         }
 
     for path in paths:
@@ -342,6 +437,10 @@ def backup_storage_inventory(backend) -> dict:
         if match:
             metrics["activation_receipt_count"] += 1
             metrics["activation_receipt_bytes"] += size
+            receipt = _safe_activation_receipt(path)
+            if receipt is not None:
+                protected_backup_ids.add(receipt["source_backup_id"])
+                protected_backup_ids.add(receipt["rollback_backup_id"])
             continue
         match = candidate_sqlite.fullmatch(name) or candidate_manifest.fullmatch(name)
         if match:
@@ -360,6 +459,7 @@ def backup_storage_inventory(backend) -> dict:
                     verified_backup_created_at.append(
                         str(manifest.get("created_at") or "")
                     )
+                    verified_backups.append(manifest)
             continue
         metrics["unknown_file_count"] += 1
         metrics["unknown_file_bytes"] += size
@@ -372,6 +472,10 @@ def backup_storage_inventory(backend) -> dict:
         **metrics,
         "filesystem":_backup_filesystem_capacity(directory),
         "backup_age":_backup_age_summary(verified_backup_created_at),
+        "retention_preview":_backup_retention_preview(
+            verified_backups,
+            protected_backup_ids,
+        ),
     }
 
 
