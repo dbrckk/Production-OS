@@ -548,3 +548,33 @@ def test_backup_temp_prune_never_deletes_protected_backup_artifacts(
         server.shutdown()
         server.server_close()
         thread.join(timeout=2)
+
+
+def test_backup_catalog_exposes_filesystem_capacity_without_paths(
+    tmp_path,
+    monkeypatch,
+):
+    backup_dir = tmp_path / "backups"
+    backup_dir.mkdir()
+    monkeypatch.setenv("PRODUCTION_OS_BACKUP_DIR", str(backup_dir))
+    control = ControlPlane(str(tmp_path / "control.sqlite"), authorizer=_auth())
+
+    server, thread, base = _server(control)
+    try:
+        status, payload = _request(
+            base,
+            "/v1/dashboard/backups",
+            "viewer",
+        )
+        assert status == 200
+        filesystem = payload["storage"]["filesystem"]
+        assert filesystem["status"] in {"ok","warning","critical"}
+        assert filesystem["total_bytes"] > 0
+        assert filesystem["available_bytes"] >= 0
+        encoded = json.dumps(filesystem).lower()
+        assert str(backup_dir).lower() not in encoded
+        assert "path" not in filesystem
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
