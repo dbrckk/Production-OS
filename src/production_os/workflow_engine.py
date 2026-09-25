@@ -809,6 +809,119 @@ class WorkflowEngine:
             "created_at":row["created_at"],
         }
 
+    def update_metadata(
+        self,
+        workflow_id: str,
+        metadata: dict,
+    ) -> dict:
+        now = _now()
+        with self.backend.transaction() as db:
+            row = _execute(
+                db,
+                self.backend,
+                "SELECT id FROM workflows WHERE id=?",
+                (workflow_id,),
+            ).fetchone()
+            if row is None:
+                raise KeyError(workflow_id)
+            _execute(
+                db,
+                self.backend,
+                """UPDATE workflows
+                   SET metadata_json=?, updated_at=?
+                   WHERE id=?""",
+                (
+                    json.dumps(dict(metadata or {}), ensure_ascii=False),
+                    now,
+                    workflow_id,
+                ),
+            )
+            self.backend.append_event(
+                db,
+                "workflow-metadata-updated",
+                {"workflow_id":workflow_id},
+            )
+        return self.get(workflow_id)
+
+    def add_task(
+        self,
+        workflow_id: str,
+        task: WorkflowTaskSpec,
+    ) -> dict:
+        self.get(workflow_id)
+        self._validate([task])
+        now = _now()
+        with self.backend.transaction() as db:
+            existing = _execute(
+                db,
+                self.backend,
+                """SELECT task_id FROM workflow_tasks
+                   WHERE workflow_id=? AND task_id=?""",
+                (workflow_id, task.task_id),
+            ).fetchone()
+            if existing is not None:
+                raise ValueError(f"duplicate task id: {task.task_id}")
+            known_rows = _execute(
+                db,
+                self.backend,
+                """SELECT task_id FROM workflow_tasks
+                   WHERE workflow_id=?""",
+                (workflow_id,),
+            ).fetchall()
+            known = {str(row["task_id"]) for row in known_rows}
+            missing = [
+                dependency
+                for dependency in task.dependencies
+                if dependency not in known
+            ]
+            if missing:
+                raise ValueError(
+                    "unknown task dependencies: " + ", ".join(sorted(missing))
+                )
+            _execute(
+                db,
+                self.backend,
+                """INSERT INTO workflow_tasks(
+                    workflow_id, task_id, title, payload_json,
+                    status, priority, dependencies_json,
+                    claimed_job_key, result_json, attempts,
+                    max_attempts, estimated_minutes,
+                    created_at, updated_at
+                ) VALUES(
+                    ?, ?, ?, ?, 'pending', ?, ?, NULL, NULL, 0,
+                    ?, ?, ?, ?
+                )""",
+                (
+                    workflow_id,
+                    task.task_id,
+                    task.title,
+                    json.dumps(task.payload, ensure_ascii=False),
+                    task.priority,
+                    json.dumps(list(task.dependencies)),
+                    task.max_attempts,
+                    task.estimated_minutes,
+                    now,
+                    now,
+                ),
+            )
+            _execute(
+                db,
+                self.backend,
+                """UPDATE workflows
+                   SET status='pending', updated_at=?
+                   WHERE id=?""",
+                (now, workflow_id),
+            )
+            self.backend.append_event(
+                db,
+                "workflow-task-added",
+                {
+                    "workflow_id":workflow_id,
+                    "task_id":task.task_id,
+                },
+            )
+        return self.refresh(workflow_id)
+
     def refresh(self, workflow_id: str) -> dict:
         now = _now()
         with self.backend.transaction() as db:
