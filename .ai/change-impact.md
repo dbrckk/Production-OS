@@ -1,22 +1,20 @@
 # Change impact
 
-Base: 81a62d73ba2a766afdfc2757136334aeae631671
-Head: 45052ab97b09f974d20ca7b5ebe10b99376768f6
+Base: a0d6efd0d52e198d5a8e5ec9fe21cc0eca724efe
+Head: 1b43b5314bc2df10703aee5109111c0328212c08
 
 ## Changed files
 - M README.md
-- A docs/superpowers/plans/2026-09-25-release-34-safe-running-recovery.md
-- M src/production_os/control_plane.py
-- A tests/test_release34_safe_running_recovery_e2e.py
+- A docs/superpowers/plans/2026-09-25-release-35-control-plane-restart-reconciliation.md
+- A tests/test_release35_control_plane_restart_e2e.py
 
 ## Affected areas
 - (root)
 - docs
-- src
 - tests
 
 ## Related test candidates
-- tests/test_control_plane.py
+- No direct filename-based test match detected.
 
 ## Agent guidance
 - Read this file before broad repository exploration.

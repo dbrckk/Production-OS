@@ -140,6 +140,7 @@ test_release21_offline_restore_e2e.py
 test_release32_one_tap_e2e.py
 test_release33_auto_worker_recovery_e2e.py
 test_release34_safe_running_recovery_e2e.py
+test_release35_control_plane_restart_e2e.py
 test_remote_worker.py
 test_render_start.py
 test_result_cache.py
@@ -4018,6 +4019,67 @@ final = refreshed["project"]
 latest = control.dashboard_store.latest_execution(job_key)
 ⋮----
 recovered_events = [
+```
+
+## File: test_release35_control_plane_restart_e2e.py
+```python
+def _auth()
+⋮----
+def _request(base, path, token, *, method="GET", body=None)
+⋮----
+data = None if body is None else json.dumps(body).encode("utf-8")
+request = urllib.request.Request(
+⋮----
+raw = response.read()
+⋮----
+raw = exc.read()
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+def _stop(server, thread)
+⋮----
+@pytest.mark.e2e
+def test_release35_active_worker_survives_control_plane_restart_without_duplication(tmp_path)
+⋮----
+database = str(tmp_path / "restart-active.sqlite")
+first = ControlPlane(database, authorizer=_auth())
+⋮----
+project = launched["project"]
+project_id = project["project_id"]
+workflow_id = project["current_workflow_id"]
+⋮----
+worker = RemoteWorkerClient(base, "worker-one", "worker-one", [], timeout=5)
+claimed = worker.claim()
+⋮----
+job_key = claimed.key
+⋮----
+second = ControlPlane(database, authorizer=_auth())
+restored_job = second.queue.get(job_key)
+restored_execution = second.dashboard_store.latest_execution(job_key)
+restored_project = second.managed_projects.get(project_id)
+⋮----
+reconnected = RemoteWorkerClient(
+heartbeat = reconnected.heartbeat(
+⋮----
+final = second.managed_projects.get(project_id)
+⋮----
+@pytest.mark.e2e
+def test_release35_abandoned_worker_is_recovered_after_restart_with_same_identity(tmp_path)
+⋮----
+database = str(tmp_path / "restart-abandoned.sqlite")
+⋮----
+worker_one = RemoteWorkerClient(
+claimed = worker_one.claim()
+⋮----
+worker_two = RemoteWorkerClient(
+recovered = worker_two.claim()
+⋮----
+latest = second.dashboard_store.latest_execution(job_key)
+⋮----
+first_attempt = dict(
 ```
 
 ## File: test_remote_worker.py

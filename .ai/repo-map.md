@@ -270,6 +270,7 @@ tests/
   test_release32_one_tap_e2e.py
   test_release33_auto_worker_recovery_e2e.py
   test_release34_safe_running_recovery_e2e.py
+  test_release35_control_plane_restart_e2e.py
   test_remote_worker.py
   test_render_start.py
   test_result_cache.py
@@ -11799,6 +11800,67 @@ latest = control.dashboard_store.latest_execution(job_key)
 recovered_events = [
 ````
 
+## File: tests/test_release35_control_plane_restart_e2e.py
+````python
+def _auth()
+⋮----
+def _request(base, path, token, *, method="GET", body=None)
+⋮----
+data = None if body is None else json.dumps(body).encode("utf-8")
+request = urllib.request.Request(
+⋮----
+raw = response.read()
+⋮----
+raw = exc.read()
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+def _stop(server, thread)
+⋮----
+@pytest.mark.e2e
+def test_release35_active_worker_survives_control_plane_restart_without_duplication(tmp_path)
+⋮----
+database = str(tmp_path / "restart-active.sqlite")
+first = ControlPlane(database, authorizer=_auth())
+⋮----
+project = launched["project"]
+project_id = project["project_id"]
+workflow_id = project["current_workflow_id"]
+⋮----
+worker = RemoteWorkerClient(base, "worker-one", "worker-one", [], timeout=5)
+claimed = worker.claim()
+⋮----
+job_key = claimed.key
+⋮----
+second = ControlPlane(database, authorizer=_auth())
+restored_job = second.queue.get(job_key)
+restored_execution = second.dashboard_store.latest_execution(job_key)
+restored_project = second.managed_projects.get(project_id)
+⋮----
+reconnected = RemoteWorkerClient(
+heartbeat = reconnected.heartbeat(
+⋮----
+final = second.managed_projects.get(project_id)
+⋮----
+@pytest.mark.e2e
+def test_release35_abandoned_worker_is_recovered_after_restart_with_same_identity(tmp_path)
+⋮----
+database = str(tmp_path / "restart-abandoned.sqlite")
+⋮----
+worker_one = RemoteWorkerClient(
+claimed = worker_one.claim()
+⋮----
+worker_two = RemoteWorkerClient(
+recovered = worker_two.claim()
+⋮----
+latest = second.dashboard_store.latest_execution(job_key)
+⋮----
+first_attempt = dict(
+````
+
 ## File: tests/test_remote_worker.py
 ````python
 def test_remote_worker_claim_ack_complete(tmp_path)
@@ -14117,6 +14179,26 @@ A dedicated One-tap E2E test proves both sides of the contract:
 
 1. stale worker heartbeat + fresh telemetry does **not** recover the job;
 2. stale heartbeat + stale execution telemetry allows a second worker to reclaim the same job and complete the same generation safely.
+
+
+## Release 35 — Control-plane restart reconciliation
+
+The One-tap execution path is now qualified across a real control-plane restart.
+
+Two end-to-end scenarios are covered:
+
+1. **Active worker reconnects after restart**
+   - the ACKed job, running execution, Managed Project and workflow remain persisted;
+   - the worker reconnects, resumes heartbeat/telemetry, and completes the same attempt;
+   - no duplicate execution is created.
+
+2. **Worker is abandoned across restart**
+   - the persisted job remains ACKed after the server comes back;
+   - if both worker heartbeat and execution telemetry are stale, a healthy worker safely reclaims the same job;
+   - the old attempt is recorded as `worker_abandoned`;
+   - project id, workflow id and generation remain unchanged.
+
+This verifies that restarting the Control Plane itself does not own or reset the production lifecycle.
 
 ## Design principles
 

@@ -22,17 +22,19 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-25T17:50:59Z
+Generated: 2026-09-25T18:00:34Z
 
 ### Git
 - Branch: `main`
-- Head: `45052ab97b09`
-- Commit date: 2026-09-25T19:50:49+02:00
-- Commit: feat: release 34 safe running recovery
-- Tracked files: 420
+- Head: `1b43b5314bc2`
+- Commit date: 2026-09-25T20:00:23+02:00
+- Commit: test: release 35 control-plane restart reconciliation
+- Tracked files: 422
 
 ### Recently changed files
 - `README.md`
+- `docs/superpowers/plans/2026-09-25-release-35-control-plane-restart-reconciliation.md`
+- `tests/test_release35_control_plane_restart_e2e.py`
 - `docs/superpowers/plans/2026-09-25-release-34-safe-running-recovery.md`
 - `src/production_os/control_plane.py`
 - `tests/test_release34_safe_running_recovery_e2e.py`
@@ -45,12 +47,6 @@ Generated: 2026-09-25T17:50:59Z
 - `tests/test_dashboard_api.py`
 - `tests/test_dashboard_launch.py`
 - `tests/test_dashboard_ui_v3.py`
-- `docs/superpowers/plans/2026-09-25-release-30-backup-capacity-incidents.md`
-- `src/production_os/dashboard_health.py`
-- `src/production_os/dashboard_incidents.py`
-- `src/production_os/dashboard_service.py`
-- `tests/test_dashboard_health.py`
-- `tests/test_dashboard_incident_signals.py`
 
 ### Project signals
 - `pyproject.toml`

@@ -1,5 +1,17 @@
 {
   "files": {
+    "Dockerfile": {
+      "sha256": "a4b01b8182e29ad7d7a5b376305f47fa9d45b342aecd4733d1d73349bdc3fac5",
+      "size": 400
+    },
+    "README.md": {
+      "sha256": "d1aa8bbcddf5251b56826adacfb6a729ef1a1341fcd31b88433e47cbe0a16a23",
+      "size": 115489
+    },
+    "docs/superpowers/plans/2026-09-25-release-35-control-plane-restart-reconciliation.md": {
+      "sha256": "39ab90c4a386cabf01ea6de87dc6ce0587a96da56385bf0887583fed4e418da2",
+      "size": 1265
+    },
     "src/production_os/__init__.py": {
       "sha256": "63c80dc5e078945a2d3488c050f10743b901b9612a70a133175d21ac508bdd5f",
       "size": 68
@@ -7,10 +19,6 @@
     "src/production_os/api_auth.py": {
       "sha256": "e711cc224ad17d667bf86cd1b2f9392a303c8199d621d774dbf657408ed2edc1",
       "size": 1720
-    },
-    "src/production_os/cli.py": {
-      "sha256": "a85cebf3655aca9f6da758c3f5361d5d8d13d7047ab4e31a652db7b8ab6a079d",
-      "size": 102872
     },
     "src/production_os/control_plane.py": {
       "sha256": "d75eb2f1c736ccca8b10acc460a86f339e1f29be7db4e8b0ef6602e2e9de6735",
@@ -20,113 +28,21 @@
       "sha256": "7fe14651bfe4006c318d423e208097469c67372e7b81973eb849dd4462ac304a",
       "size": 5485
     },
-    "src/production_os/sqlite_backend.py": {
-      "sha256": "770ac7e7f534dc57ba48c3e9b8af731e77898b5f0360ba26639577a3890f4e33",
-      "size": 64419
-    },
     "src/production_os/workers.py": {
       "sha256": "7120b5bfcdd717f16b2e37c9e53be791d0184c06bb533ffc608b89bd1278af20",
       "size": 4967
     },
-    "src/production_os/workflow_engine.py": {
-      "sha256": "1972ba8cd679c545c7c7f8a0c8c93f49d293145329057a1ddcb5274e2ece0f58",
-      "size": 54311
+    "tests/test_asset_forge.py": {
+      "sha256": "a1c28454a89887eb89d34cca4e3901156ade26ec72107fe6ecf751874b1a90c2",
+      "size": 35251
     },
     "tests/test_control_plane.py": {
       "sha256": "9da2c8199bf05c791021bd71ca742e8d0ea9d0957437989850a829db320f1061",
       "size": 14652
     },
-    "tests/test_control_plane_pr_impact.py": {
-      "sha256": "1f64eddde4cb2e0c30bae4257e0df5a76deca4de0cd615c4c750721e6640e2f8",
-      "size": 2797
-    },
-    "tests/test_control_plane_webhook.py": {
-      "sha256": "618b06c952f6d10d4a026e5c227abd241dad63557ef571ea1d5a786f620ecc50",
-      "size": 7333
-    },
-    "tests/test_dashboard_api.py": {
-      "sha256": "979a3c891c4cd06df5e72ba7b3f2f74afa8fcf76fa080eb499ba4de282ca0d57",
-      "size": 15906
-    },
-    "tests/test_dashboard_backup_api.py": {
-      "sha256": "31e733d5e3d6810182471901dcf916847aee0d551af5d1a5bdb7c9faca96be46",
-      "size": 22889
-    },
-    "tests/test_dashboard_control_api.py": {
-      "sha256": "47fb77400ceea283104f999b0f6f17a315b85164fe8259de9e747eb9b603a0cf",
-      "size": 24762
-    },
-    "tests/test_dashboard_control_audit.py": {
-      "sha256": "b669bb8368d69e588c98c4ffd0eac0790106b4704b9ab81531418d42354a788e",
-      "size": 8739
-    },
-    "tests/test_dashboard_control_e2e.py": {
-      "sha256": "f76c8fbbf0c0fb78a738ce65eb8ae37638845cb02199a8b2a21cb8ab830ddf74",
-      "size": 11145
-    },
-    "tests/test_dashboard_incidents.py": {
-      "sha256": "986936ab3c73da65d91841e7dfdbfce41e8176d22af73e22e55bc7f32751e8cb",
-      "size": 10102
-    },
-    "tests/test_dashboard_launch.py": {
-      "sha256": "733105d0027d11503b513c0b0d782967c0c0d85a3241df053608f3b99a473d37",
-      "size": 5157
-    },
-    "tests/test_dashboard_launch_ux.py": {
-      "sha256": "bcef015ac9e45fb406d6791e0e37238bd97e184dd8cedc0516b8a7bb61ebc8ca",
-      "size": 5776
-    },
-    "tests/test_dashboard_maintenance.py": {
-      "sha256": "e64a1eafbf88fecaeb662f0ea9266b36b393bf1dac2ba0cd589cd3dcab3a7c8b",
-      "size": 5856
-    },
-    "tests/test_dashboard_observability_e2e.py": {
-      "sha256": "5d25c9c9d1ebdf4de43fa56afa0a2cf2fd8071529107c56313f96ef54a7b24f8",
-      "size": 8669
-    },
-    "tests/test_dashboard_playbook_api.py": {
-      "sha256": "e9a3cae3b05f7d5590a950906b8ff562905da56b704c11aa46d7f94c607b3c65",
-      "size": 3887
-    },
-    "tests/test_dashboard_remediation_api.py": {
-      "sha256": "f2f3b7c754393ae4babc2936a7d51f4d7c6b3eb47e66207a36d7d240672b9f79",
-      "size": 11639
-    },
-    "tests/test_dashboard_retention_prune.py": {
-      "sha256": "ca9a68290921734b97de21f5ac12454910ae3bd303ba4d55b84d5f8ca3b15000",
-      "size": 10386
-    },
-    "tests/test_dashboard_store_postgres.py": {
-      "sha256": "4fa7c291cd9f16d1758d6ac686510e354906e10e0214919d5ea85030ac9b35cd",
-      "size": 8089
-    },
-    "tests/test_database_maintenance_lock.py": {
-      "sha256": "c14bc2dd53fface66723191298f201a33a247b6dd9e3b3b01edde22ed8c82b63",
-      "size": 3533
-    },
-    "tests/test_fairness.py": {
-      "sha256": "049c558e2f3319632921e7a5a3dcb4422c4586d1787603a0470ce0185dab3950",
-      "size": 512
-    },
-    "tests/test_http_security_headers.py": {
-      "sha256": "9faec9f175fe5c1e22c50521292eb0480bf7f3e5a1f64a2da34785df95fe0113",
-      "size": 3253
-    },
-    "tests/test_managed_projects_http_v4.py": {
-      "sha256": "8467c48fb5706b6410a42f124007f82cb0a13f33e730a986d7f997f63f04f1e6",
-      "size": 8640
-    },
-    "tests/test_portfolio_claim_api.py": {
-      "sha256": "f225be5e59d77de684bd9bc2cc9c0d3c603ed1c387909ceb1060033b0619377a",
-      "size": 5263
-    },
-    "tests/test_release21_offline_restore_e2e.py": {
-      "sha256": "7ea730fb7ee95730057b4a23cd6f0d92a1cc2de4b3b2a9923b39c5ecd0e4d4d7",
-      "size": 2072
-    },
-    "tests/test_release34_safe_running_recovery_e2e.py": {
-      "sha256": "e23b3d5fc8dc4b09962afacbe5bfdbda8da5cbb048f7cb70b79a61860e9fca58",
-      "size": 7053
+    "tests/test_release35_control_plane_restart_e2e.py": {
+      "sha256": "c4a9df07b6eb790b65db79b777ed2e0c4ae0fad83dd95bad10fecad759a5d61f",
+      "size": 10395
     }
   },
   "generated_by": "dbrckk/repo-brain-v6",
