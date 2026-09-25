@@ -1608,14 +1608,14 @@
       "language": "python",
       "kind": "function",
       "name": "audit_control",
-      "line": 1256
+      "line": 1309
     },
     {
       "file": "src/production_os/control_plane.py",
       "language": "python",
       "kind": "function",
       "name": "serve_control_plane",
-      "line": 2459
+      "line": 2512
     },
     {
       "file": "src/production_os/control_surface.py",
@@ -1747,8 +1747,15 @@
       "file": "src/production_os/dashboard_backups.py",
       "language": "python",
       "kind": "function",
-      "name": "create_verified_sqlite_backup",
+      "name": "stage_verified_sqlite_restore",
       "line": 195
+    },
+    {
+      "file": "src/production_os/dashboard_backups.py",
+      "language": "python",
+      "kind": "function",
+      "name": "create_verified_sqlite_backup",
+      "line": 297
     },
     {
       "file": "src/production_os/dashboard_control.py",
@@ -2216,141 +2223,148 @@
       "file": "src/production_os/dashboard_service.py",
       "language": "python",
       "kind": "function",
-      "name": "control_audit",
+      "name": "stage_backup_restore",
       "line": 492
     },
     {
       "file": "src/production_os/dashboard_service.py",
       "language": "python",
       "kind": "function",
-      "name": "workers",
+      "name": "control_audit",
       "line": 498
     },
     {
       "file": "src/production_os/dashboard_service.py",
       "language": "python",
       "kind": "function",
+      "name": "workers",
+      "line": 504
+    },
+    {
+      "file": "src/production_os/dashboard_service.py",
+      "language": "python",
+      "kind": "function",
       "name": "worker_detail",
-      "line": 511
+      "line": 517
     },
     {
       "file": "src/production_os/dashboard_service.py",
       "language": "python",
       "kind": "function",
       "name": "worker_logs",
-      "line": 540
+      "line": 546
     },
     {
       "file": "src/production_os/dashboard_service.py",
       "language": "python",
       "kind": "function",
       "name": "worker_usage",
-      "line": 545
+      "line": 551
     },
     {
       "file": "src/production_os/dashboard_service.py",
       "language": "python",
       "kind": "function",
       "name": "_repositories",
-      "line": 550
+      "line": 556
     },
     {
       "file": "src/production_os/dashboard_service.py",
       "language": "python",
       "kind": "function",
       "name": "maintenance",
-      "line": 561
+      "line": 567
     },
     {
       "file": "src/production_os/dashboard_service.py",
       "language": "python",
       "kind": "function",
       "name": "prune_maintenance",
-      "line": 573
+      "line": 579
     },
     {
       "file": "src/production_os/dashboard_service.py",
       "language": "python",
       "kind": "function",
       "name": "repositories",
-      "line": 585
+      "line": 591
     },
     {
       "file": "src/production_os/dashboard_service.py",
       "language": "python",
       "kind": "function",
       "name": "projects",
-      "line": 626
+      "line": 632
     },
     {
       "file": "src/production_os/dashboard_service.py",
       "language": "python",
       "kind": "function",
       "name": "_require_project",
-      "line": 631
+      "line": 637
     },
     {
       "file": "src/production_os/dashboard_service.py",
       "language": "python",
       "kind": "function",
       "name": "project_detail",
-      "line": 634
-    },
-    {
-      "file": "src/production_os/dashboard_service.py",
-      "language": "python",
-      "kind": "function",
-      "name": "_progress_snapshot_state",
       "line": 640
     },
     {
       "file": "src/production_os/dashboard_service.py",
       "language": "python",
       "kind": "function",
+      "name": "_progress_snapshot_state",
+      "line": 646
+    },
+    {
+      "file": "src/production_os/dashboard_service.py",
+      "language": "python",
+      "kind": "function",
       "name": "project_progress",
-      "line": 660
+      "line": 666
     },
     {
       "file": "src/production_os/dashboard_service.py",
       "language": "python",
       "kind": "function",
       "name": "project_commits",
-      "line": 723
+      "line": 729
     },
     {
       "file": "src/production_os/dashboard_service.py",
       "language": "python",
       "kind": "function",
       "name": "_legacy_workflow_usage_rows",
-      "line": 731
+      "line": 737
     },
     {
       "file": "src/production_os/dashboard_service.py",
       "language": "python",
       "kind": "function",
       "name": "project_usage",
-      "line": 780
+      "line": 786
     },
     {
       "file": "src/production_os/dashboard_service.py",
       "language": "python",
       "kind": "function",
       "name": "project_workflows",
-      "line": 789
-    },
-    {
-      "file": "src/production_os/dashboard_service.py",
-      "language": "python",
-      "kind": "function",
-      "name": "project_history",
       "line": 795
     },
     {
       "file": "src/production_os/dashboard_service.py",
       "language": "python",
       "kind": "function",
+      "name": "project_history",
+      "line": 801
+    },
+    {
+      "file": "src/production_os/dashboard_service.py",
+      "language": "python",
+      "kind": "function",
       "name": "activity",
-      "line": 817
+      "line": 823
     },
     {
       "file": "src/production_os/dashboard_store.py",
@@ -8520,95 +8534,130 @@
       "line": 201
     },
     {
+      "file": "tests/test_dashboard_backup_api.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_restore_staging_requires_operator_and_exact_confirmation",
+      "line": 234
+    },
+    {
+      "file": "tests/test_dashboard_backup_api.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_restore_staging_rejects_tampered_backup_and_audits_failure",
+      "line": 292
+    },
+    {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_sqlite_backup_contains_committed_durable_data",
-      "line": 18
+      "line": 19
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_backup_hash_and_size_match_file_bytes",
-      "line": 42
+      "line": 43
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_manifest_contains_only_safe_metadata",
-      "line": 54
+      "line": 55
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_missing_backup_directory_configuration_writes_nothing",
-      "line": 76
+      "line": 77
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "class",
       "name": "_FakePostgres",
-      "line": 88
+      "line": 89
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_postgres_readiness_is_truthfully_unsupported",
-      "line": 95
+      "line": 96
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_backup_readiness_does_not_create_configured_directory",
-      "line": 106
+      "line": 107
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_valid_backup_reports_restore_readiness_and_schema",
-      "line": 118
+      "line": 119
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_tampered_backup_file_is_rejected",
-      "line": 134
+      "line": 135
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_tampered_manifest_is_rejected",
-      "line": 146
+      "line": 147
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_restore_verification_rejects_malformed_or_traversal_ids",
-      "line": 170
+      "line": 171
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_restore_verification_rejects_missing_backup_file",
-      "line": 181
+      "line": 182
     },
     {
       "file": "tests/test_dashboard_backups.py",
       "language": "python",
       "kind": "function",
       "name": "test_restore_verification_never_changes_live_database",
-      "line": 192
+      "line": 193
+    },
+    {
+      "file": "tests/test_dashboard_backups.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_stage_verified_restore_creates_isolated_candidate",
+      "line": 217
+    },
+    {
+      "file": "tests/test_dashboard_backups.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_stage_restore_rejects_tampered_source_without_candidate",
+      "line": 261
+    },
+    {
+      "file": "tests/test_dashboard_backups.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_stage_restore_manifest_contains_only_safe_metadata",
+      "line": 276
     },
     {
       "file": "tests/test_dashboard_control.py",
@@ -10357,64 +10406,64 @@
       "file": "tests/test_dashboard_ui_v3.py",
       "language": "python",
       "kind": "function",
-      "name": "test_backup_catalog_exposes_restore_readiness_verification_only",
+      "name": "test_backup_catalog_exposes_restore_readiness_and_safe_staging",
       "line": 389
     },
     {
       "file": "tests/test_dashboard_ui_v3.py",
       "language": "python",
       "kind": "function",
-      "name": "test_restore_readiness_ui_never_exposes_restore_action_or_paths",
-      "line": 398
+      "name": "test_restore_staging_ui_never_exposes_live_activation_or_paths",
+      "line": 403
     },
     {
       "file": "tests/test_dashboard_ui_v3.py",
       "language": "python",
       "kind": "function",
       "name": "test_dashboard_has_managed_projects_view",
-      "line": 405
+      "line": 411
     },
     {
       "file": "tests/test_dashboard_ui_v3.py",
       "language": "python",
       "kind": "function",
       "name": "test_managed_projects_view_exposes_safe_review_and_attention_actions",
-      "line": 412
+      "line": 418
     },
     {
       "file": "tests/test_dashboard_ui_v3.py",
       "language": "python",
       "kind": "function",
       "name": "test_managed_projects_navigation_preserves_existing_polling_contract",
-      "line": 422
+      "line": 428
     },
     {
       "file": "tests/test_dashboard_ui_v3.py",
       "language": "python",
       "kind": "function",
       "name": "test_managed_projects_mobile_creation_form_is_inline_and_server_backed",
-      "line": 429
+      "line": 435
     },
     {
       "file": "tests/test_dashboard_ui_v3.py",
       "language": "python",
       "kind": "function",
       "name": "test_managed_project_instruction_uses_inline_textarea_not_prompt",
-      "line": 440
+      "line": 446
     },
     {
       "file": "tests/test_dashboard_ui_v3.py",
       "language": "python",
       "kind": "function",
       "name": "test_managed_projects_mobile_view_renders_generation_history",
-      "line": 447
+      "line": 453
     },
     {
       "file": "tests/test_dashboard_ui_v3.py",
       "language": "python",
       "kind": "function",
       "name": "test_managed_repository_picker_reuses_server_repository_discovery",
-      "line": 455
+      "line": 461
     },
     {
       "file": "tests/test_dashboard_usage.py",
@@ -11920,6 +11969,34 @@
       "kind": "function",
       "name": "test_release18_managed_project_generations_survive_restart",
       "line": 48
+    },
+    {
+      "file": "tests/test_release19_restore_staging_e2e.py",
+      "language": "python",
+      "kind": "function",
+      "name": "_auth",
+      "line": 14
+    },
+    {
+      "file": "tests/test_release19_restore_staging_e2e.py",
+      "language": "python",
+      "kind": "function",
+      "name": "_request",
+      "line": 21
+    },
+    {
+      "file": "tests/test_release19_restore_staging_e2e.py",
+      "language": "python",
+      "kind": "function",
+      "name": "_server",
+      "line": 40
+    },
+    {
+      "file": "tests/test_release19_restore_staging_e2e.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_release19_restore_staging_never_mutates_live_database",
+      "line": 47
     },
     {
       "file": "tests/test_release_ledger.py",

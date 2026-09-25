@@ -1994,6 +1994,8 @@ backup_id = parts[3]
 requested_by = f"{principal.role}:{principal.name}"
 audit = control.dashboard_store.append_control_audit(
 ⋮----
+result = control.dashboard.stage_backup_restore(
+⋮----
 result = (
 ⋮----
 result = control.dashboard.create_verified_backup()
@@ -2430,6 +2432,28 @@ schema_row = connection.execute(
 ⋮----
 schema_version = str(schema_row[0])
 ⋮----
+def stage_verified_sqlite_restore(backend, backup_id: str) -> dict
+⋮----
+verified = verify_backup_for_restore(backend, backup_id)
+⋮----
+source_path = directory / f"{backup_id}.sqlite"
+candidate_id = (
+temp_path = directory / f".restore-{candidate_id}.sqlite.tmp"
+final_path = directory / f"restore-{candidate_id}.sqlite"
+manifest_path = directory / f"restore-{candidate_id}.json"
+temp_manifest = directory / f".restore-{candidate_id}.json.tmp"
+⋮----
+source = sqlite3.connect(
+⋮----
+destination = sqlite3.connect(temp_path)
+⋮----
+integrity_row = destination.execute(
+⋮----
+schema_row = destination.execute(
+⋮----
+staged_at = _now()
+manifest = {
+⋮----
 def create_verified_sqlite_backup(backend) -> dict
 ⋮----
 backup_id = (
@@ -2440,12 +2464,8 @@ temp_manifest = directory / f".{backup_id}.json.tmp"
 ⋮----
 source = backend.connect()
 ⋮----
-destination = sqlite3.connect(temp_path)
-⋮----
 row = destination.execute("PRAGMA integrity_check").fetchone()
 integrity = row[0] if row else None
-⋮----
-manifest = {
 ```
 
 ## File: production_os/dashboard_control.py
@@ -2968,6 +2988,8 @@ def backups(self) -> dict
 def create_verified_backup(self) -> dict
 ⋮----
 def verify_backup_restore_readiness(self, backup_id: str) -> dict
+⋮----
+def stage_backup_restore(self, backup_id: str) -> dict
 ⋮----
 def control_audit(self, limit: int = 100) -> dict
 ⋮----

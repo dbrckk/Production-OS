@@ -134,6 +134,7 @@ test_rekor_witness_quorum.py
 test_release_ledger.py
 test_release16_operations_e2e.py
 test_release18_managed_projects_e2e.py
+test_release19_restore_staging_e2e.py
 test_remote_worker.py
 test_render_start.py
 test_result_cache.py
@@ -1010,6 +1011,15 @@ path = f"/v1/dashboard/backups/{backup_id}/verify"
 verify = next(row for row in audit if row["action"] == "backup-verify")
 ⋮----
 backup_file = backup_dir / f"{backup_id}.sqlite"
+⋮----
+path = f"/v1/dashboard/backups/{backup_id}/stage-restore"
+⋮----
+before = sorted(p.name for p in backup_dir.iterdir())
+⋮----
+audit = control.dashboard_store.control_audit_events(limit=20)
+event = next(
+⋮----
+source = backup_dir / f"{backup_id}.sqlite"
 ```
 
 ## File: test_dashboard_backups.py
@@ -1069,6 +1079,22 @@ payload = json.loads(manifest_path.read_text())
 def test_restore_verification_rejects_missing_backup_file(tmp_path, monkeypatch)
 ⋮----
 def test_restore_verification_never_changes_live_database(tmp_path, monkeypatch)
+⋮----
+def test_stage_verified_restore_creates_isolated_candidate(tmp_path, monkeypatch)
+⋮----
+live_before = db_path.read_bytes()
+⋮----
+staged = stage_verified_sqlite_restore(backend, manifest["backup_id"])
+⋮----
+candidate = backup_dir / f"restore-{staged['candidate_id']}.sqlite"
+⋮----
+live_value = db.execute(
+⋮----
+def test_stage_restore_rejects_tampered_source_without_candidate(tmp_path, monkeypatch)
+⋮----
+source = backup_dir / f"{manifest['backup_id']}.sqlite"
+⋮----
+def test_stage_restore_manifest_contains_only_safe_metadata(tmp_path, monkeypatch)
 ```
 
 ## File: test_dashboard_control_api.py
@@ -2220,9 +2246,9 @@ def test_overview_renders_backup_readiness_and_safe_create_button()
 ⋮----
 def test_backup_ui_does_not_render_server_paths()
 ⋮----
-def test_backup_catalog_exposes_restore_readiness_verification_only()
+def test_backup_catalog_exposes_restore_readiness_and_safe_staging()
 ⋮----
-def test_restore_readiness_ui_never_exposes_restore_action_or_paths()
+def test_restore_staging_ui_never_exposes_live_activation_or_paths()
 ⋮----
 def test_dashboard_has_managed_projects_view()
 ⋮----
@@ -3547,6 +3573,43 @@ second = ControlPlane(database, authorizer=_auth())
 restored = second.managed_projects.get(project_id)
 ⋮----
 listed = second.managed_projects.list()
+```
+
+## File: test_release19_restore_staging_e2e.py
+```python
+def _auth()
+⋮----
+def _request(base, path, token, *, method="GET", body=None)
+⋮----
+data = None if body is None else json.dumps(body).encode("utf-8")
+request = urllib.request.Request(
+⋮----
+raw = response.read()
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+database = tmp_path / "production.sqlite"
+backup_dir = tmp_path / "backups"
+⋮----
+first = ControlPlane(str(database), authorizer=_auth())
+⋮----
+backup_id = backup["backup_id"]
+⋮----
+candidate = (
+⋮----
+candidate_probe = db.execute(
+⋮----
+live_probe = db.execute(
+⋮----
+audit = first.dashboard_store.control_audit_events(limit=20)
+stage_event = next(
+⋮----
+second = ControlPlane(str(database), authorizer=_auth())
+⋮----
+restarted_probe = db.execute(
 ```
 
 ## File: test_remote_worker.py

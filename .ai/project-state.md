@@ -22,20 +22,27 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-25T08:50:57Z
+Generated: 2026-09-25T14:41:06Z
 
 ### Git
 - Branch: `main`
-- Head: `ae270d0d5d77`
-- Commit date: 2026-09-25T10:50:46+02:00
-- Commit: feat: managed projects mobile UX
-- Tracked files: 397
+- Head: `0cdef847d44d`
+- Commit date: 2026-09-25T16:40:54+02:00
+- Commit: feat: release 19 restore staging
+- Tracked files: 399
 
 ### Recently changed files
-- `src/production_os/dashboard_ui.py`
-- `tests/test_dashboard_ui_v3.py`
-- `tests/test_release18_managed_projects_e2e.py`
+- `README.md`
+- `docs/superpowers/plans/2026-09-25-release-19-restore-staging.md`
 - `src/production_os/control_plane.py`
+- `src/production_os/dashboard_backups.py`
+- `src/production_os/dashboard_service.py`
+- `src/production_os/dashboard_ui.py`
+- `tests/test_dashboard_backup_api.py`
+- `tests/test_dashboard_backups.py`
+- `tests/test_dashboard_ui_v3.py`
+- `tests/test_release19_restore_staging_e2e.py`
+- `tests/test_release18_managed_projects_e2e.py`
 - `src/production_os/managed_projects.py`
 - `src/production_os/postgres_backend.py`
 - `src/production_os/sqlite_backend.py`
@@ -45,10 +52,6 @@ Generated: 2026-09-25T08:50:57Z
 - `tests/test_managed_projects_http_v4.py`
 - `tests/test_managed_projects_v4.py`
 - `tests/test_workflow_postgres.py`
-- `src/production_os/workflow_engine.py`
-- `tests/test_workflow_engine.py`
-- `docs/superpowers/plans/2026-09-24-release-16-operations-e2e.md`
-- `tests/test_release16_operations_e2e.py`
 
 ### Project signals
 - `pyproject.toml`

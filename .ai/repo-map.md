@@ -263,6 +263,7 @@ tests/
   test_release_ledger.py
   test_release16_operations_e2e.py
   test_release18_managed_projects_e2e.py
+  test_release19_restore_staging_e2e.py
   test_remote_worker.py
   test_render_start.py
   test_result_cache.py
@@ -2510,6 +2511,8 @@ backup_id = parts[3]
 requested_by = f"{principal.role}:{principal.name}"
 audit = control.dashboard_store.append_control_audit(
 ⋮----
+result = control.dashboard.stage_backup_restore(
+⋮----
 result = (
 ⋮----
 result = control.dashboard.create_verified_backup()
@@ -2946,6 +2949,28 @@ schema_row = connection.execute(
 ⋮----
 schema_version = str(schema_row[0])
 ⋮----
+def stage_verified_sqlite_restore(backend, backup_id: str) -> dict
+⋮----
+verified = verify_backup_for_restore(backend, backup_id)
+⋮----
+source_path = directory / f"{backup_id}.sqlite"
+candidate_id = (
+temp_path = directory / f".restore-{candidate_id}.sqlite.tmp"
+final_path = directory / f"restore-{candidate_id}.sqlite"
+manifest_path = directory / f"restore-{candidate_id}.json"
+temp_manifest = directory / f".restore-{candidate_id}.json.tmp"
+⋮----
+source = sqlite3.connect(
+⋮----
+destination = sqlite3.connect(temp_path)
+⋮----
+integrity_row = destination.execute(
+⋮----
+schema_row = destination.execute(
+⋮----
+staged_at = _now()
+manifest = {
+⋮----
 def create_verified_sqlite_backup(backend) -> dict
 ⋮----
 backup_id = (
@@ -2956,12 +2981,8 @@ temp_manifest = directory / f".{backup_id}.json.tmp"
 ⋮----
 source = backend.connect()
 ⋮----
-destination = sqlite3.connect(temp_path)
-⋮----
 row = destination.execute("PRAGMA integrity_check").fetchone()
 integrity = row[0] if row else None
-⋮----
-manifest = {
 ````
 
 ## File: src/production_os/dashboard_control.py
@@ -3484,6 +3505,8 @@ def backups(self) -> dict
 def create_verified_backup(self) -> dict
 ⋮----
 def verify_backup_restore_readiness(self, backup_id: str) -> dict
+⋮----
+def stage_backup_restore(self, backup_id: str) -> dict
 ⋮----
 def control_audit(self, limit: int = 100) -> dict
 ⋮----
@@ -8466,6 +8489,15 @@ path = f"/v1/dashboard/backups/{backup_id}/verify"
 verify = next(row for row in audit if row["action"] == "backup-verify")
 ⋮----
 backup_file = backup_dir / f"{backup_id}.sqlite"
+⋮----
+path = f"/v1/dashboard/backups/{backup_id}/stage-restore"
+⋮----
+before = sorted(p.name for p in backup_dir.iterdir())
+⋮----
+audit = control.dashboard_store.control_audit_events(limit=20)
+event = next(
+⋮----
+source = backup_dir / f"{backup_id}.sqlite"
 ````
 
 ## File: tests/test_dashboard_backups.py
@@ -8525,6 +8557,22 @@ payload = json.loads(manifest_path.read_text())
 def test_restore_verification_rejects_missing_backup_file(tmp_path, monkeypatch)
 ⋮----
 def test_restore_verification_never_changes_live_database(tmp_path, monkeypatch)
+⋮----
+def test_stage_verified_restore_creates_isolated_candidate(tmp_path, monkeypatch)
+⋮----
+live_before = db_path.read_bytes()
+⋮----
+staged = stage_verified_sqlite_restore(backend, manifest["backup_id"])
+⋮----
+candidate = backup_dir / f"restore-{staged['candidate_id']}.sqlite"
+⋮----
+live_value = db.execute(
+⋮----
+def test_stage_restore_rejects_tampered_source_without_candidate(tmp_path, monkeypatch)
+⋮----
+source = backup_dir / f"{manifest['backup_id']}.sqlite"
+⋮----
+def test_stage_restore_manifest_contains_only_safe_metadata(tmp_path, monkeypatch)
 ````
 
 ## File: tests/test_dashboard_control_api.py
@@ -9676,9 +9724,9 @@ def test_overview_renders_backup_readiness_and_safe_create_button()
 ⋮----
 def test_backup_ui_does_not_render_server_paths()
 ⋮----
-def test_backup_catalog_exposes_restore_readiness_verification_only()
+def test_backup_catalog_exposes_restore_readiness_and_safe_staging()
 ⋮----
-def test_restore_readiness_ui_never_exposes_restore_action_or_paths()
+def test_restore_staging_ui_never_exposes_live_activation_or_paths()
 ⋮----
 def test_dashboard_has_managed_projects_view()
 ⋮----
@@ -11003,6 +11051,43 @@ second = ControlPlane(database, authorizer=_auth())
 restored = second.managed_projects.get(project_id)
 ⋮----
 listed = second.managed_projects.list()
+````
+
+## File: tests/test_release19_restore_staging_e2e.py
+````python
+def _auth()
+⋮----
+def _request(base, path, token, *, method="GET", body=None)
+⋮----
+data = None if body is None else json.dumps(body).encode("utf-8")
+request = urllib.request.Request(
+⋮----
+raw = response.read()
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+database = tmp_path / "production.sqlite"
+backup_dir = tmp_path / "backups"
+⋮----
+first = ControlPlane(str(database), authorizer=_auth())
+⋮----
+backup_id = backup["backup_id"]
+⋮----
+candidate = (
+⋮----
+candidate_probe = db.execute(
+⋮----
+live_probe = db.execute(
+⋮----
+audit = first.dashboard_store.control_audit_events(limit=20)
+stage_event = next(
+⋮----
+second = ControlPlane(str(database), authorizer=_auth())
+⋮----
+restarted_probe = db.execute(
 ````
 
 ## File: tests/test_remote_worker.py
@@ -12936,6 +13021,45 @@ The operation is audit logged. It does not write to the live database or the bac
 Restore remains disabled in Release 15. PostgreSQL restore verification remains unsupported until qualified `pg_dump` / `pg_restore` tooling is integrated.
 
 No database path, backup path, DSN, token, password or secret is returned by the API or rendered in the dashboard.
+
+## Release 19 — Safe restore staging
+
+Verified SQLite backups can be materialized into an isolated restore candidate without mutating the live database.
+
+The operator action:
+
+```text
+POST /v1/dashboard/backups/{backup_id}/stage-restore
+confirm = STAGE_VERIFIED_RESTORE
+```
+
+performs:
+
+1. Existing backup manifest, size, SHA-256 and SQLite integrity verification.
+2. SQLite backup-copy into a server-generated temporary candidate.
+3. Candidate `PRAGMA integrity_check`.
+4. Candidate schema version read.
+5. Candidate SHA-256 and size calculation.
+6. Atomic rename inside `PRODUCTION_OS_BACKUP_DIR`.
+
+The browser never provides or receives filesystem paths.
+
+The returned candidate metadata includes:
+
+```text
+candidate_id
+source_backup_id
+backend_kind
+verified
+integrity
+schema_version
+size_bytes
+sha256
+staged_at
+activation_enabled = false
+```
+
+Restore staging is deliberately non-destructive. It never swaps or overwrites the active Production-OS database. Live activation remains disabled and must be designed as a separate maintenance-mode operation.
 
 ## Design principles
 

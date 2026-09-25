@@ -106,6 +106,7 @@
         "tests/test_rekor_witness_quorum_cli.py",
         "tests/test_release16_operations_e2e.py",
         "tests/test_release18_managed_projects_e2e.py",
+        "tests/test_release19_restore_staging_e2e.py",
         "tests/test_release_ledger.py",
         "tests/test_remote_worker.py",
         "tests/test_result_cache.py",
@@ -139,7 +140,7 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 127,
+      "in_degree": 128,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -198,11 +199,12 @@
         "tests/test_production_stack_e2e.py",
         "tests/test_release16_operations_e2e.py",
         "tests/test_release18_managed_projects_e2e.py",
+        "tests/test_release19_restore_staging_e2e.py",
         "tests/test_remote_worker.py",
         "tests/test_speculation_api.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 28,
+      "in_degree": 29,
       "out_degree": 1
     },
     "src/production_os/approvals.py": {
@@ -599,11 +601,12 @@
         "tests/test_production_stack_e2e.py",
         "tests/test_release16_operations_e2e.py",
         "tests/test_release18_managed_projects_e2e.py",
+        "tests/test_release19_restore_staging_e2e.py",
         "tests/test_remote_worker.py",
         "tests/test_speculation_api.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 29,
+      "in_degree": 30,
       "out_degree": 20
     },
     "src/production_os/control_surface.py": {
@@ -2715,10 +2718,11 @@
         "tests/test_github_webhook.py",
         "tests/test_queue_audit_checkpoint.py",
         "tests/test_release16_operations_e2e.py",
+        "tests/test_release19_restore_staging_e2e.py",
         "tests/test_scheduler.py",
         "tests/test_scoring.py"
       ],
-      "in_degree": 37,
+      "in_degree": 38,
       "out_degree": 2
     },
     "tests/test_github_client_pr_files.py": {
@@ -3137,6 +3141,17 @@
         "src/production_os/api_auth.py",
         "src/production_os/control_plane.py",
         "src/production_os/workers.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 4
+    },
+    "tests/test_release19_restore_staging_e2e.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/api_auth.py",
+        "src/production_os/control_plane.py",
+        "tests/test_fairness.py"
       ],
       "dependents": [],
       "in_degree": 0,
