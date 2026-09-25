@@ -264,6 +264,7 @@ def backup_storage_inventory(backend) -> dict:
             "status":"degraded",
             "backend_kind":"sqlite",
             **zero,
+            "filesystem":_backup_filesystem_capacity(directory),
         }
 
     for path in paths:
