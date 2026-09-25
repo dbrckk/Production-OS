@@ -592,3 +592,29 @@ def test_attention_items_navigate_to_existing_operational_views():
     assert "Ouvrir" in DASHBOARD_HTML
     assert "attention:loadAttention" in DASHBOARD_HTML
 
+def test_attention_center_exposes_contextual_server_actions():
+    assert "renderAttentionActions" in DASHBOARD_HTML
+    assert "attentionManagedAction" in DASHBOARD_HTML
+    assert "acknowledgeAttentionIncident" in DASHBOARD_HTML
+    assert "attentionPlaybookAction" in DASHBOARD_HTML
+    assert 'name==="verify"||name==="complete"' in DASHBOARD_HTML
+    assert 'name==="acknowledge"' in DASHBOARD_HTML
+    assert 'name==="playbook"' in DASHBOARD_HTML
+    assert 'confirm:"MARK_PROJECT_DONE"' in DASHBOARD_HTML
+    assert "Valider définitivement ce projet comme DONE ?" in DASHBOARD_HTML
+
+
+def test_attention_open_deep_links_to_exact_managed_project_or_job():
+    assert "focus:targetId||null" in DASHBOARD_HTML
+    assert 'appState.focus=q.get("target")||null' in DASHBOARD_HTML
+    assert 'params.set("target",appState.focus)' in DASHBOARD_HTML
+    assert 'data-managed-project-id="' in DASHBOARD_HTML
+    assert 'data-job-key="' in DASHBOARD_HTML
+    assert "attention-focus" in DASHBOARD_HTML
+    assert "scrollIntoView" in DASHBOARD_HTML
+
+
+def test_attention_feed_caps_blocked_job_cards_without_hiding_total():
+    assert "summary.blocked_jobs_shown" in DASHBOARD_HTML
+    assert "affichés" in DASHBOARD_HTML
+
