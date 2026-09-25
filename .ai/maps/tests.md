@@ -133,6 +133,7 @@ test_rekor_witness_quorum_cli.py
 test_rekor_witness_quorum.py
 test_release_ledger.py
 test_release16_operations_e2e.py
+test_release18_managed_projects_e2e.py
 test_remote_worker.py
 test_render_start.py
 test_result_cache.py
@@ -3495,6 +3496,49 @@ actions = {row["action"] for row in audit}
 second = ControlPlane(database, authorizer=_auth())
 ⋮----
 catalog = second.dashboard.backups()
+```
+
+## File: test_release18_managed_projects_e2e.py
+```python
+def _auth()
+⋮----
+def _request(base, path, token, *, method="GET", body=None)
+⋮----
+data = None if body is None else json.dumps(body).encode("utf-8")
+request = urllib.request.Request(
+⋮----
+raw = response.read()
+⋮----
+raw = exc.read()
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+def test_release18_managed_project_generations_survive_restart(tmp_path)
+⋮----
+database = str(tmp_path / "managed-e2e.sqlite")
+first = ControlPlane(database, authorizer=_auth())
+⋮----
+project = created["project"]
+project_id = project["project_id"]
+first_workflow_id = project["workflow_id"]
+⋮----
+first_snapshot = first.workflows.get(first_workflow_id)
+⋮----
+second = instructed["project"]
+second_workflow_id = second["workflow_id"]
+⋮----
+third = retested["project"]
+third_workflow_id = third["workflow_id"]
+⋮----
+final = completed["project"]
+⋮----
+second = ControlPlane(database, authorizer=_auth())
+restored = second.managed_projects.get(project_id)
+⋮----
+listed = second.managed_projects.list()
 ```
 
 ## File: test_remote_worker.py

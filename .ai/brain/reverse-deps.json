@@ -105,6 +105,7 @@
         "tests/test_rekor_witness_quorum.py",
         "tests/test_rekor_witness_quorum_cli.py",
         "tests/test_release16_operations_e2e.py",
+        "tests/test_release18_managed_projects_e2e.py",
         "tests/test_release_ledger.py",
         "tests/test_remote_worker.py",
         "tests/test_result_cache.py",
@@ -138,7 +139,7 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 126,
+      "in_degree": 127,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -196,11 +197,12 @@
         "tests/test_portfolio_claim_api.py",
         "tests/test_production_stack_e2e.py",
         "tests/test_release16_operations_e2e.py",
+        "tests/test_release18_managed_projects_e2e.py",
         "tests/test_remote_worker.py",
         "tests/test_speculation_api.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 27,
+      "in_degree": 28,
       "out_degree": 1
     },
     "src/production_os/approvals.py": {
@@ -596,11 +598,12 @@
         "tests/test_portfolio_claim_api.py",
         "tests/test_production_stack_e2e.py",
         "tests/test_release16_operations_e2e.py",
+        "tests/test_release18_managed_projects_e2e.py",
         "tests/test_remote_worker.py",
         "tests/test_speculation_api.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 28,
+      "in_degree": 29,
       "out_degree": 20
     },
     "src/production_os/control_surface.py": {
@@ -1945,6 +1948,7 @@
         "tests/test_production_stack_e2e.py",
         "tests/test_reconciliation_dispatch.py",
         "tests/test_release16_operations_e2e.py",
+        "tests/test_release18_managed_projects_e2e.py",
         "tests/test_remote_worker.py",
         "tests/test_render_start.py",
         "tests/test_runtime_state.py",
@@ -1954,7 +1958,7 @@
         "tests/test_stragglers.py",
         "tests/test_workers.py"
       ],
-      "in_degree": 68,
+      "in_degree": 69,
       "out_degree": 2
     },
     "src/production_os/workflow_engine.py": {
@@ -3126,6 +3130,17 @@
       "dependents": [],
       "in_degree": 0,
       "out_degree": 5
+    },
+    "tests/test_release18_managed_projects_e2e.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/api_auth.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/workers.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 4
     },
     "tests/test_release_ledger.py": {
       "dependencies": [

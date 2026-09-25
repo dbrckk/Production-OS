@@ -22,16 +22,17 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-25T08:41:18Z
+Generated: 2026-09-25T08:46:01Z
 
 ### Git
 - Branch: `main`
-- Head: `e57c478e9fec`
-- Commit date: 2026-09-25T10:41:09+02:00
-- Commit: feat: managed projects v5 immutable generations
-- Tracked files: 396
+- Head: `5d89d2cc6bb8`
+- Commit date: 2026-09-25T10:45:47+02:00
+- Commit: test: release 18 managed projects e2e qualification
+- Tracked files: 397
 
 ### Recently changed files
+- `tests/test_release18_managed_projects_e2e.py`
 - `src/production_os/control_plane.py`
 - `src/production_os/dashboard_ui.py`
 - `src/production_os/managed_projects.py`
@@ -51,7 +52,6 @@ Generated: 2026-09-25T08:41:18Z
 - `README.md`
 - `docs/superpowers/plans/2026-09-24-dashboard-control-center-release-15.md`
 - `src/production_os/dashboard_backups.py`
-- `src/production_os/dashboard_service.py`
 
 ### Project signals
 - `pyproject.toml`

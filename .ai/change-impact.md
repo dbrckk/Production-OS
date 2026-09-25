@@ -1,30 +1,16 @@
 # Change impact
 
-Base: 699fe30b9e28fa8354e2b5138cc3c5a70feeee58
-Head: e57c478e9fecba10ba5ee44d3d00fb9105dc35ed
+Base: 2db9da1a13f679bec0b42b1defe92e6649269bc9
+Head: 5d89d2cc6bb8b4f29f1185251115182a82e48445
 
 ## Changed files
-- M src/production_os/control_plane.py
-- M src/production_os/dashboard_ui.py
-- M src/production_os/managed_projects.py
-- M src/production_os/postgres_backend.py
-- M src/production_os/sqlite_backend.py
-- M tests/test_dashboard_control_audit.py
-- M tests/test_dashboard_remediation_history.py
-- M tests/test_dashboard_store_postgres.py
-- M tests/test_dashboard_ui_v3.py
-- M tests/test_managed_projects_http_v4.py
-- M tests/test_managed_projects_v4.py
-- M tests/test_workflow_postgres.py
+- A tests/test_release18_managed_projects_e2e.py
 
 ## Affected areas
-- src
 - tests
 
 ## Related test candidates
-- tests/test_control_plane.py
-- tests/test_postgres_backend.py
-- tests/test_sqlite_backend.py
+- No direct filename-based test match detected.
 
 ## Agent guidance
 - Read this file before broad repository exploration.

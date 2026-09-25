@@ -1,5 +1,13 @@
 {
   "files": {
+    "Dockerfile": {
+      "sha256": "a4b01b8182e29ad7d7a5b376305f47fa9d45b342aecd4733d1d73349bdc3fac5",
+      "size": 400
+    },
+    "README.md": {
+      "sha256": "9f20b53fc80c56b29f069159f7dc95f014762bcc474e0329a1174943f44a9731",
+      "size": 100112
+    },
     "src/production_os/__init__.py": {
       "sha256": "63c80dc5e078945a2d3488c050f10743b901b9612a70a133175d21ac508bdd5f",
       "size": 68
@@ -8,25 +16,21 @@
       "sha256": "e711cc224ad17d667bf86cd1b2f9392a303c8199d621d774dbf657408ed2edc1",
       "size": 1720
     },
-    "src/production_os/cli.py": {
-      "sha256": "f443ef7b1798ef2aceecdb8b6cf869bbbc85a33b72a2960447a46378e34db71c",
-      "size": 101473
-    },
     "src/production_os/control_plane.py": {
       "sha256": "08b0fe1ba7d2fcd51f69be6ec90b7e7d3d9ca780397d094c4d5ddbbed37f57b6",
       "size": 107943
     },
-    "src/production_os/dashboard_store.py": {
-      "sha256": "288dd45f64bbe0b3e2394f45d5634852316617e24d0db0edd20ea433a7ce055a",
-      "size": 35775
+    "src/production_os/dashboard_backups.py": {
+      "sha256": "eb459f3db9efe73e36a57dbc37567e1c1ef9875a8b8a14baaadcfbf3e4747b5b",
+      "size": 8477
+    },
+    "src/production_os/dashboard_service.py": {
+      "sha256": "7dc73c63756025392e3c646ac08b53cb11c382520fbe2d0d442ec60d360af805",
+      "size": 35325
     },
     "src/production_os/dashboard_ui.py": {
       "sha256": "d7312c2c3de979eb4c50abfca3febf790479b36563e240b0aaa8b2fdb0d059a0",
       "size": 69041
-    },
-    "src/production_os/execution_optimizer.py": {
-      "sha256": "2dc983442024b301798adef6ddb378fc2383755491f478a21c7d2f4e4854609f",
-      "size": 11113
     },
     "src/production_os/managed_projects.py": {
       "sha256": "37b4795ba50b7c310d0ae22d781e5266039592f5ed6dc01f1de2d7e021a8b00c",
@@ -40,10 +44,6 @@
       "sha256": "770ac7e7f534dc57ba48c3e9b8af731e77898b5f0360ba26639577a3890f4e33",
       "size": 64419
     },
-    "src/production_os/storage.py": {
-      "sha256": "26ced440eeb1bf429e982141c073264d5e0559a7fd7e38a09e57f5830b7dde4b",
-      "size": 1243
-    },
     "src/production_os/workers.py": {
       "sha256": "7120b5bfcdd717f16b2e37c9e53be791d0184c06bb533ffc608b89bd1278af20",
       "size": 4967
@@ -52,45 +52,13 @@
       "sha256": "1972ba8cd679c545c7c7f8a0c8c93f49d293145329057a1ddcb5274e2ece0f58",
       "size": 54311
     },
-    "tests/test_asset_forge.py": {
-      "sha256": "a1c28454a89887eb89d34cca4e3901156ade26ec72107fe6ecf751874b1a90c2",
-      "size": 35251
-    },
-    "tests/test_dashboard_api.py": {
-      "sha256": "fe22c9b01db547d4b17617bde4a3e64a97ece90cad4e1c10da9cc423774364f3",
-      "size": 14074
-    },
-    "tests/test_dashboard_backups.py": {
-      "sha256": "60e4c9c9e94598c818c1784ddcf292d3f87ffa4d89f35be70efb2627274fc639",
-      "size": 7733
-    },
-    "tests/test_dashboard_control_api.py": {
-      "sha256": "47fb77400ceea283104f999b0f6f17a315b85164fe8259de9e747eb9b603a0cf",
-      "size": 24762
-    },
     "tests/test_dashboard_control_audit.py": {
       "sha256": "b669bb8368d69e588c98c4ffd0eac0790106b4704b9ab81531418d42354a788e",
       "size": 8739
     },
-    "tests/test_dashboard_incidents.py": {
-      "sha256": "986936ab3c73da65d91841e7dfdbfce41e8176d22af73e22e55bc7f32751e8cb",
-      "size": 10102
-    },
-    "tests/test_dashboard_maintenance.py": {
-      "sha256": "e64a1eafbf88fecaeb662f0ea9266b36b393bf1dac2ba0cd589cd3dcab3a7c8b",
-      "size": 5856
-    },
-    "tests/test_dashboard_remediation_api.py": {
-      "sha256": "f2f3b7c754393ae4babc2936a7d51f4d7c6b3eb47e66207a36d7d240672b9f79",
-      "size": 11639
-    },
     "tests/test_dashboard_remediation_history.py": {
       "sha256": "81c4d41bdd533066e8ac7d17b62526a3ebed8c87d40b420b9da68064fb4fb5b9",
       "size": 14049
-    },
-    "tests/test_dashboard_retention_prune.py": {
-      "sha256": "ca9a68290921734b97de21f5ac12454910ae3bd303ba4d55b84d5f8ca3b15000",
-      "size": 10386
     },
     "tests/test_dashboard_store_postgres.py": {
       "sha256": "4fa7c291cd9f16d1758d6ac686510e354906e10e0214919d5ea85030ac9b35cd",
@@ -100,14 +68,6 @@
       "sha256": "63d7e3f63187a550b374288289537e4a549fc18e70e84eeed3b5b2392580d5f4",
       "size": 17216
     },
-    "tests/test_fairness.py": {
-      "sha256": "049c558e2f3319632921e7a5a3dcb4422c4586d1787603a0470ce0185dab3950",
-      "size": 512
-    },
-    "tests/test_incident_history.py": {
-      "sha256": "4e29848bd632d3afcc29aa199ff90679a910a429dc1acd5935f575d988a3e75d",
-      "size": 12175
-    },
     "tests/test_managed_projects_http_v4.py": {
       "sha256": "8467c48fb5706b6410a42f124007f82cb0a13f33e730a986d7f997f63f04f1e6",
       "size": 8640
@@ -116,9 +76,13 @@
       "sha256": "4da982b3fc83ddb839555e5d67e0ec3a470e89d5fe06b707fae6d12d5a19a3c3",
       "size": 7087
     },
-    "tests/test_release_ledger.py": {
-      "sha256": "48f0e0034287e47829584485b7d2b70a9df7f3066dbdf9be603925283b506891",
-      "size": 19629
+    "tests/test_release16_operations_e2e.py": {
+      "sha256": "55fc035fb3430049ea28d6b8aed86eff926d76390d17fa5567f81f7870d6c7fd",
+      "size": 6744
+    },
+    "tests/test_release18_managed_projects_e2e.py": {
+      "sha256": "bd1825ce0bce5c93b44611731a009541beea0a5fee7f573b21be9f474ca0a369",
+      "size": 6402
     },
     "tests/test_workflow_engine.py": {
       "sha256": "98ae9a82677a745076355ab7b6e6a08b0cf744c02e81aa62670afca8cfec60e5",
