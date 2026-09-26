@@ -45,3 +45,20 @@ def test_durable_queue_claim_and_complete(tmp_path):
     assert queue.ack(queued["key"],"w1")["status"]=="acked"
     assert queue.complete(queued["key"],"w1")["status"]=="completed"
     assert backend.events_after()
+
+def test_queued_job_can_be_cancelled_atomically_without_worker(tmp_path):
+    backend=SQLiteBackend(tmp_path/"cancel.db")
+    queue=SQLiteJobQueue(backend)
+    queued=queue.enqueue({
+        "handoff":{"repository":"o/cancel","task":"stop before claim"},
+    })
+
+    cancelled=queue.cancel_queued(queued["key"], reason="operator cancel")
+    assert cancelled["status"]=="cancelled"
+    assert cancelled["claimed_by"] is None
+    assert cancelled["completed_at"]
+    assert queue.peek_candidates()==[]
+
+    replay=queue.cancel_queued(queued["key"], reason="operator cancel")
+    assert replay["status"]=="cancelled"
+
