@@ -128,6 +128,9 @@ textarea{resize:vertical;min-height:150px;line-height:1.45}
 .production-filter-tabs button.active{border-color:rgba(110,168,254,.8);background:rgba(79,141,253,.18)}
 .production-inbox-card{scroll-margin-top:80px}
 .production-inbox-card .live-progress{margin:10px 0}
+.production-detail{margin:0 0 12px}
+.production-detail .detail-history{display:grid;gap:6px;margin-top:12px}
+.production-detail .detail-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 .attention-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .attention-focus{outline:2px solid rgba(110,168,254,.7);box-shadow:0 0 0 4px rgba(110,168,254,.12)}
 .attention-inline-instruction{display:grid;gap:8px;width:100%;margin-top:8px}
@@ -199,7 +202,7 @@ body{overflow-x:hidden}
 </nav>
 <section class="v3-workspace" aria-live="polite">
 <div id="view-attention" class="v3-view active"><div class="section-head"><h2>À faire maintenant</h2><span id="attention-count" class="badge">0</span></div><div id="attention-list"></div></div>
-<div id="view-productions" class="v3-view"><div class="section-head"><h2>Productions</h2><span id="productions-count" class="badge">0</span></div><div class="production-inbox-controls"><input id="production-search" type="search" placeholder="Rechercher repo, objectif ou ID" autocomplete="off" oninput="setProductionSearch(this.value)"><select id="production-sort" onchange="setProductionSort(this.value)"><option value="priority">Priorité opérateur</option><option value="recent">Activité récente</option></select></div><div class="production-filter-tabs" aria-label="Filtrer les productions"><button type="button" data-production-filter="all" onclick="setProductionFilter('all')">Toutes</button><button type="button" data-production-filter="active" onclick="setProductionFilter('active')">Actives</button><button type="button" data-production-filter="review" onclick="setProductionFilter('review')">À revoir</button><button type="button" data-production-filter="problems" onclick="setProductionFilter('problems')">Problèmes</button><button type="button" data-production-filter="completed" onclick="setProductionFilter('completed')">Terminées</button></div><div id="productions-list"></div></div>
+<div id="view-productions" class="v3-view"><div class="section-head"><h2>Productions</h2><span id="productions-count" class="badge">0</span></div><div class="production-inbox-controls"><input id="production-search" type="search" placeholder="Rechercher repo, objectif ou ID" autocomplete="off" oninput="setProductionSearch(this.value)"><select id="production-sort" onchange="setProductionSort(this.value)"><option value="priority">Priorité opérateur</option><option value="recent">Activité récente</option></select></div><div class="production-filter-tabs" aria-label="Filtrer les productions"><button type="button" data-production-filter="all" onclick="setProductionFilter('all')">Toutes</button><button type="button" data-production-filter="active" onclick="setProductionFilter('active')">Actives</button><button type="button" data-production-filter="review" onclick="setProductionFilter('review')">À revoir</button><button type="button" data-production-filter="problems" onclick="setProductionFilter('problems')">Problèmes</button><button type="button" data-production-filter="completed" onclick="setProductionFilter('completed')">Terminées</button></div><div id="production-detail" class="production-detail" hidden></div><div id="productions-list"></div></div>
 <div id="view-overview" class="v3-view"><div class="section-head"><h2>Vue générale</h2><div class="v3-tabs" aria-label="Période"><button type="button" onclick="setDashboardWindow('24h')">24h</button><button type="button" onclick="setDashboardWindow('7d')">7d</button><button type="button" onclick="setDashboardWindow('30d')">30d</button></div></div><div id="overview-metrics"></div></div>
 <div id="view-projects" class="v3-view"><h2>Projets</h2><div id="projects-list"></div><div class="v3-tabs" aria-label="Détail projet"><button>Aperçu</button><button>Avancement</button><button>Commits</button><button>API</button><button>Workflows</button><button>Qualité</button><button>Historique</button></div><div id="project-detail"></div></div>
 <div id="view-workers" class="v3-view"><h2>Workers</h2><div id="workers-list"></div><div class="v3-tabs" aria-label="Détail worker"><button>Aperçu</button><button>Tâches</button><button>Logs</button><button>API</button><button>Historique</button><button data-worker-tab="control">Control</button></div><div id="worker-detail"></div></div>
@@ -1667,9 +1670,73 @@ function productionPhaseLabel(phase){
  };
  return labels[phase]||String(phase||"Préparation");
 }
+function openProductionInboxItem(projectId){
+ const value=String(projectId||"").trim();
+ if(!value)return;
+ navigate({
+  view:"productions",
+  workerId:null,
+  repository:null,
+  tab:null,
+  focus:value
+ });
+}
+function closeProductionInboxDetail(){
+ appState.focus=null;
+ updateDashboardUrl();
+ const detail=document.getElementById("production-detail");
+ if(detail){
+  detail.hidden=true;
+  detail.innerHTML="";
+ }
+ return loadProductionInbox();
+}
+async function loadProductionInboxDetail(projectId){
+ const detail=document.getElementById("production-detail");
+ const value=String(projectId||"").trim();
+ if(!detail)return null;
+ if(!value){
+  detail.hidden=true;
+  detail.innerHTML="";
+  return null;
+ }
+ detail.hidden=false;
+ detail.innerHTML='<div class="card"><div class="small">Chargement du détail...</div></div>';
+ try{
+  const data=await api(
+   "/v1/dashboard/production-status?project_id="+encodeURIComponent(value)
+  );
+  const project=data.project||{};
+  const runtime=data.runtime||{};
+  const phase=String(runtime.phase||"preparing");
+  const runs=project.runs||[];
+  const history=runs.length
+   ?'<div class="detail-history">'+runs.slice().reverse().map(function(run){
+      return '<div class="small"><strong>g'+esc(String(run.generation||""))+'</strong> · '+esc(String(run.kind||""))+' · '+esc(String(run.created_at||""))+'</div>';
+    }).join("")+'</div>'
+   :'<div class="small">Aucun historique de génération.</div>';
+  detail.innerHTML=
+   '<div class="card attention-focus">'+
+   '<div class="section-head"><strong>'+esc(String(project.repository||""))+'</strong><span class="badge">'+esc(productionPhaseLabel(phase))+'</span></div>'+
+   '<div class="small"><strong>Objectif :</strong> '+esc(String(project.final_goal||""))+'</div>'+
+   '<div class="small"><strong>Génération :</strong> '+formatNumber(project.generation||1)+' · '+esc(String(runtime.message||""))+'</div>'+
+   (runtime.worker_id?'<div class="small"><strong>Worker :</strong> '+esc(String(runtime.worker_id))+'</div>':"")+
+   (runtime.stage?'<div class="small"><strong>Stage :</strong> '+esc(String(runtime.stage))+'</div>':"")+
+   renderProductionOutcome(project.outcome||{},true)+
+   '<h3 style="font-size:.85rem;margin:14px 0 6px">Historique des générations</h3>'+history+
+   '<div class="detail-actions">'+productionInboxActions(value,phase)+
+   '<button class="secondary-btn" type="button" data-project-id="'+esc(value)+'" onclick="openLastProduction(this.dataset.projectId)">Vue Managed avancée</button>'+
+   '<button class="secondary-btn" type="button" onclick="closeProductionInboxDetail()">Fermer</button></div>'+
+   '</div>';
+  return data;
+ }catch(e){
+  detail.innerHTML=errorCard(e);
+  return null;
+ }
+}
 function productionInboxActions(projectId,phase){
  const id=esc(String(projectId||""));
- const open='<button class="secondary-btn" type="button" data-project-id="'+id+'" onclick="openLastProduction(this.dataset.projectId)">Ouvrir</button>';
+ const open='<button class="secondary-btn" type="button" data-project-id="'+id+'" onclick="openProductionInboxItem(this.dataset.projectId)">Ouvrir</button>';
  if(["preparing","queued","claimed","running"].includes(phase)){
   return open+'<button class="danger-btn" type="button" data-project-id="'+id+'" onclick="cancelLastProduction(this.dataset.projectId)">Annuler</button>';
  }
@@ -1748,6 +1815,8 @@ async function loadProductionInbox(){
    '</div></div>';
   if(!rows.length){
    el.innerHTML=summaryHtml+'<div class="empty">Aucune production serveur visible.</div>';
+   if(appState.focus)await loadProductionInboxDetail(appState.focus);
+   else await loadProductionInboxDetail(null);
    return data;
   }
   el.innerHTML=summaryHtml+rows.map(function(item){
@@ -1778,6 +1847,9 @@ async function loadProductionInbox(){
   if(appState.focus){
    const focused=el.querySelector('[data-production-project-id="'+CSS.escape(String(appState.focus))+'"]');
    if(focused)setTimeout(function(){focused.scrollIntoView({block:"center"})},0);
+   await loadProductionInboxDetail(appState.focus);
+  }else{
+   await loadProductionInboxDetail(null);
   }
   return data;
  }catch(e){
