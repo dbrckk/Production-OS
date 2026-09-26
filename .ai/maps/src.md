@@ -3476,6 +3476,11 @@ message = "Préparation de l’exécution."
 selected_filter = str(category or "all").strip().lower()
 allowed = {"all", "active", "review", "problems", "completed"}
 ⋮----
+selected_sort = str(sort or "priority").strip().lower()
+⋮----
+raw_search = str(search or "").strip()
+normalized_search = raw_search.casefold()
+⋮----
 managed = self.control.managed_projects.list(limit=500)
 allowed_statuses = {
 candidates = [
@@ -3496,7 +3501,12 @@ phase = str(
 ⋮----
 priority = {
 ⋮----
-filtered = (
+def matches_search(item: dict) -> bool
+⋮----
+haystack = "\n".join([
+⋮----
+filtered = [
+⋮----
 visible = filtered[:bounded]
 ⋮----
 live_phases = {

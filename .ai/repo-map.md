@@ -4011,6 +4011,11 @@ message = "Préparation de l’exécution."
 selected_filter = str(category or "all").strip().lower()
 allowed = {"all", "active", "review", "problems", "completed"}
 ⋮----
+selected_sort = str(sort or "priority").strip().lower()
+⋮----
+raw_search = str(search or "").strip()
+normalized_search = raw_search.casefold()
+⋮----
 managed = self.control.managed_projects.list(limit=500)
 allowed_statuses = {
 candidates = [
@@ -4031,7 +4036,12 @@ phase = str(
 ⋮----
 priority = {
 ⋮----
-filtered = (
+def matches_search(item: dict) -> bool
+⋮----
+haystack = "\n".join([
+⋮----
+filtered = [
+⋮----
 visible = filtered[:bounded]
 ⋮----
 live_phases = {
@@ -9079,6 +9089,8 @@ project = control.managed_projects.create(
 project_id = project["project_id"]
 ⋮----
 audit = control.dashboard_store.control_audit_events(limit=10)
+⋮----
+def test_production_inbox_rejects_invalid_sort_over_http(running_control_plane)
 ````
 
 ## File: tests/test_dashboard_attention.py
@@ -10064,6 +10076,10 @@ def test_production_inbox_exposes_mobile_filter_tabs_and_counts()
 def test_production_inbox_requests_selected_server_filter()
 ⋮----
 def test_production_inbox_filter_does_not_duplicate_mutation_contracts()
+⋮----
+def test_production_inbox_exposes_search_sort_and_shareable_url_state()
+⋮----
+def test_production_inbox_requests_server_search_and_sort()
 ````
 
 ## File: tests/test_dashboard_production_inbox.py
@@ -10118,6 +10134,29 @@ older = control.managed_projects.create(
 newer = control.managed_projects.create(
 ⋮----
 payload = control.dashboard.production_inbox(limit=50, category="active")
+⋮----
+def test_production_inbox_search_matches_repository_goal_and_project_id(tmp_path)
+⋮----
+by_repository = control.dashboard.production_inbox(
+⋮----
+by_goal = control.dashboard.production_inbox(
+⋮----
+by_id = control.dashboard.production_inbox(
+⋮----
+def test_production_inbox_recent_sort_ignores_priority_but_keeps_filter(tmp_path)
+⋮----
+# Prime reconciliation first so timestamp edits below represent the
+# externally visible project activity order rather than status migration.
+⋮----
+timestamps = {
+⋮----
+recent = control.dashboard.production_inbox(limit=50, sort="recent")
+⋮----
+review_only = control.dashboard.production_inbox(
+⋮----
+def test_production_inbox_rejects_unknown_sort(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "production-inbox-sort.sqlite"))
 ````
 
 ## File: tests/test_dashboard_production_status.py
@@ -15342,6 +15381,40 @@ Toutes · Actives · À revoir · Problèmes · Terminées
 ```
 
 Existing cancel, retest and DONE mutations are reused unchanged. Release 46 adds no new mutation primitive or authorization path.
+
+
+## Release 47 — Navigable production inbox
+
+The persistent production inbox is now searchable, explicitly sortable and shareable through the dashboard URL.
+
+Server query parameters:
+
+```text
+GET /v1/dashboard/productions
+    ?filter=all|active|review|problems|completed
+    &q=<repository, goal, project id or outcome summary>
+    &sort=priority|recent
+```
+
+The default `priority` ordering keeps operator decisions first:
+
+```text
+problems → review → active → completed
+```
+
+Within each priority class, the most recently updated production remains first. The optional `recent` sort ignores the priority classes and orders the filtered result strictly by recent activity.
+
+Search is case-insensitive and matches repository, final goal, project id and normalized outcome summary. Global phase totals remain independent of the current filter/search, while `summary.matching` reports the number of productions matching the current query before the response limit is applied.
+
+The mobile Productions view adds:
+
+- repository / goal / project-id search;
+- explicit `Priorité opérateur` and `Activité récente` sorting;
+- visible active filter state;
+- URL persistence for filter, search and sort;
+- existing project `target` deep links continue to restore focused Managed Project cards.
+
+This makes the inbox usable across reloads and shareable links without moving any operator mutation into browser-local state.
 
 ## Design principles
 

@@ -1,16 +1,17 @@
 # Change impact
 
-Base: c854d07d83ce9e96b6ae953ac7a577e74cb6ad16
-Head: 57b8284cc986899def2694d26d3bd1177fdb4ee5
+Base: 8e0acd219d2e880cbbf93b5ed536d5b5b581eb4b
+Head: 771d580042eafc895f2b8a997162a947b875369e
 
 ## Changed files
 - M README.md
-- A docs/superpowers/plans/2026-09-26-release-46-production-inbox-filters.md
+- A docs/superpowers/plans/2026-09-26-release-47-production-inbox-navigation.md
 - M src/production_os/control_plane.py
 - M src/production_os/dashboard_service.py
 - M src/production_os/dashboard_ui.py
+- M tests/test_dashboard_api.py
 - M tests/test_dashboard_production_inbox.py
-- A tests/test_dashboard_production_inbox_filters_ui.py
+- M tests/test_dashboard_production_inbox_filters_ui.py
 
 ## Affected areas
 - (root)
