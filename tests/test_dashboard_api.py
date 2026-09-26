@@ -763,5 +763,5 @@ def test_production_inbox_rejects_invalid_sort_over_http(running_control_plane):
     )
 
     assert status == 400
-    assert payload["error"] == "invalid production inbox sort"
+    assert payload["error"] == "invalid dashboard query"
 
