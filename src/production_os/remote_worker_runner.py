@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import time
 from collections.abc import Sequence
@@ -17,6 +18,7 @@ class RemoteWorkerRunner:
         max_concurrency: int = 1,
         heartbeat_interval_seconds: float = 5.0,
         executor_timeout_seconds: float = 3600.0,
+        secret_env_names: Sequence[str] | None = None,
     ):
         command = [str(part) for part in executor_command if str(part)]
         if not command:
@@ -32,6 +34,17 @@ class RemoteWorkerRunner:
         self.max_concurrency = int(max_concurrency)
         self.heartbeat_interval_seconds = float(heartbeat_interval_seconds)
         self.executor_timeout_seconds = float(executor_timeout_seconds)
+        secret_names = {
+            "PRODUCTION_OS_WORKER_TOKEN",
+            *(
+                str(name)
+                for name in (secret_env_names or [])
+                if str(name)
+            ),
+        }
+        self.executor_env = os.environ.copy()
+        for name in secret_names:
+            self.executor_env.pop(name, None)
 
     @staticmethod
     def _terminate(process: subprocess.Popen[str]) -> None:
@@ -86,6 +99,7 @@ class RemoteWorkerRunner:
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
+            env=self.executor_env,
         )
         first_communicate = True
         stdout = ""
