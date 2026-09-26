@@ -1522,6 +1522,45 @@ class PostgresJobQueue:
             "failed", "job-failed", extra={"reason":reason}
         )
 
+    def cancel_queued(self, key: str, reason: str = "operator cancel") -> dict:
+        now = _utcnow()
+        with self.backend.transaction() as db:
+            with db.cursor() as cur:
+                cur.execute(
+                    "SELECT * FROM jobs WHERE key=%s FOR UPDATE",
+                    (key,),
+                )
+                row = cur.fetchone()
+                if row is None:
+                    raise KeyError(key)
+                if row["status"] == "cancelled":
+                    return self._job_dict(row)
+                if row["status"] != "queued":
+                    raise RuntimeError(
+                        f"queued job cannot cancel from {row['status']}"
+                    )
+                cur.execute(
+                    """UPDATE jobs
+                       SET status='cancelled', completed_at=%s, updated_at=%s
+                       WHERE key=%s AND status='queued'""",
+                    (now, now, key),
+                )
+                if cur.rowcount != 1:
+                    raise RuntimeError("queued job cancellation race")
+                self.backend.append_event(
+                    db,
+                    "job-cancelled",
+                    {"reason":reason, "mode":"server-queued"},
+                    repository=row["repository"],
+                    task_key_value=key,
+                )
+                cur.execute(
+                    "SELECT * FROM jobs WHERE key=%s",
+                    (key,),
+                )
+                row = cur.fetchone()
+        return self._job_dict(row)
+
     def cancel(self, key: str, worker_id: str, reason: str = "operator cancel") -> dict:
         return self._transition(
             key, worker_id, {"claimed", "acked"},

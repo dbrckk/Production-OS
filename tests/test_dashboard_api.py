@@ -631,3 +631,59 @@ def test_one_tap_launch_rejects_invalid_request_id(running_control_plane):
     assert status == 400
     assert payload["error"] == "request_id is invalid"
 
+def test_managed_production_cancel_requires_operator_and_exact_confirmation(
+    running_control_plane,
+):
+    base, control = running_control_plane
+    project = control.managed_projects.create(
+        repository="dbrckk/cancel-api",
+        final_goal="Cancel this queued production.",
+        token_budget=30000,
+        agent_preference="auto",
+    )
+    project_id = project["project_id"]
+
+    status, payload = api(
+        base,
+        f"/v1/managed-projects/{project_id}/cancel",
+        "viewer-token",
+        {"confirm":"CANCEL_ACTIVE_PRODUCTION"},
+    )
+    assert status == 403
+
+    status, payload = api(
+        base,
+        f"/v1/managed-projects/{project_id}/cancel",
+        "operator-token",
+        {"confirm":"wrong"},
+    )
+    assert status == 400
+    assert "CANCEL_ACTIVE_PRODUCTION" in payload["error"]
+
+    status, payload = api(
+        base,
+        f"/v1/managed-projects/{project_id}/cancel",
+        "operator-token",
+        {"confirm":"CANCEL_ACTIVE_PRODUCTION"},
+    )
+    assert status == 200
+    assert payload["status"] == "cancelled"
+    assert payload["project"]["status"] == "NEEDS_ATTENTION"
+    assert payload["project"]["current_workflow"]["status"] == "cancelled"
+
+    status, replay = api(
+        base,
+        f"/v1/managed-projects/{project_id}/cancel",
+        "operator-token",
+        {"confirm":"CANCEL_ACTIVE_PRODUCTION"},
+    )
+    assert status == 200
+    assert replay["status"] == "cancelled"
+
+    audit = control.dashboard_store.control_audit_events(limit=10)
+    assert any(
+        row["action"] == "cancel-production"
+        and row["outcome"] == "cancelled"
+        for row in audit
+    )
+

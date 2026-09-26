@@ -886,6 +886,159 @@ class DashboardService:
             "generated_at":_now(),
         }
 
+    def finalize_queued_cancel(
+        self,
+        job: dict,
+        *,
+        requested_by: str,
+    ) -> dict:
+        key = str(job.get("key") or "").strip()
+        if not key:
+            raise ValueError("job key is required")
+        control_state = self.control.dashboard_control.job_state(key)
+        if control_state.get("desired_state") != "cancel_requested":
+            raise RuntimeError("job cancellation was not requested")
+        cancelled = self.control.queue.cancel_queued(
+            key,
+            reason=str(control_state.get("reason") or "operator cancel"),
+        )
+        self.control.dashboard_control.acknowledge_job_cancel(key)
+        payload = cancelled.get("payload") or {}
+        workflow_id = str(payload.get("workflow_id") or "").strip()
+        task_id = str(payload.get("workflow_task_id") or "").strip()
+        if workflow_id and task_id:
+            self.control.workflows.record_cancelled(
+                workflow_id,
+                task_id,
+                result={
+                    "reason":"operator cancel",
+                    "requested_by":requested_by,
+                },
+            )
+        return cancelled
+
+    def cancel_production(
+        self,
+        project_id: str,
+        *,
+        requested_by: str,
+    ) -> dict:
+        project = self.control.managed_projects.get(project_id)
+        workflow = project.get("current_workflow") or {}
+        workflow_status = str(workflow.get("status") or "")
+
+        if workflow_status == "cancelled":
+            return {
+                "status":"cancelled",
+                "project":project,
+                "jobs":[],
+            }
+        if str(project.get("status") or "") != "ACTIVE":
+            raise RuntimeError("managed project is not active")
+
+        jobs = []
+        pending = False
+        for task in workflow.get("tasks", []):
+            if not isinstance(task, dict):
+                continue
+            task_status = str(task.get("status") or "")
+            if task_status in {"succeeded", "failed", "cancelled", "blocked"}:
+                continue
+            job_key = str(task.get("claimed_job_key") or "").strip()
+            if not job_key:
+                self.control.workflows.record_cancelled(
+                    str(workflow["id"]),
+                    str(task["task_id"]),
+                    result={
+                        "reason":"operator cancel",
+                        "requested_by":requested_by,
+                    },
+                )
+                continue
+
+            try:
+                job = self.control.queue.get(job_key)
+            except KeyError:
+                self.control.workflows.record_cancelled(
+                    str(workflow["id"]),
+                    str(task["task_id"]),
+                    result={
+                        "reason":"operator cancel",
+                        "requested_by":requested_by,
+                    },
+                )
+                continue
+
+            job_status = str(job.get("status") or "")
+            if job_status == "queued":
+                self.control.dashboard_control.request_job_cancel(
+                    job_key,
+                    requested_by=requested_by,
+                    reason="managed production cancel",
+                )
+                cancelled = self.finalize_queued_cancel(
+                    job,
+                    requested_by=requested_by,
+                )
+                jobs.append({
+                    "job_key":job_key,
+                    "status":cancelled["status"],
+                    "worker_id":None,
+                })
+            elif job_status in {"claimed", "acked"}:
+                state = self.control.dashboard_control.request_job_cancel(
+                    job_key,
+                    requested_by=requested_by,
+                    reason="managed production cancel",
+                )
+                pending = state.get("acknowledged_at") is None
+                jobs.append({
+                    "job_key":job_key,
+                    "status":"cancel_requested",
+                    "worker_id":job.get("claimed_by"),
+                })
+            elif job_status == "cancelled":
+                self.control.workflows.record_cancelled(
+                    str(workflow["id"]),
+                    str(task["task_id"]),
+                    result={
+                        "reason":"operator cancel",
+                        "requested_by":requested_by,
+                    },
+                )
+                jobs.append({
+                    "job_key":job_key,
+                    "status":"cancelled",
+                    "worker_id":job.get("claimed_by"),
+                })
+            elif job_status in {"completed", "failed", "dead-letter"}:
+                continue
+            else:
+                raise RuntimeError(
+                    f"production job cannot cancel from {job_status}"
+                )
+
+        project = self.control.managed_projects.get(project_id)
+        status = "cancel_requested" if pending else (
+            "cancelled"
+            if str((project.get("current_workflow") or {}).get("status") or "")
+                == "cancelled"
+            else "settled"
+        )
+        primary = jobs[0] if jobs else {}
+        self.store.append_control_audit(
+            action="cancel-production",
+            worker_id=str(primary.get("worker_id") or "unassigned"),
+            job_key=primary.get("job_key"),
+            requested_by=requested_by,
+            outcome=status,
+        )
+        return {
+            "status":status,
+            "project":project,
+            "jobs":jobs,
+        }
+
     def production_status(self, project_id: str) -> dict:
         project_id = str(project_id or "").strip()
         if not project_id:
@@ -929,8 +1082,19 @@ class DashboardService:
         job_status = str((job or {}).get("status") or "")
         task_status = str((current_task or {}).get("status") or "")
         execution_status = str((execution or {}).get("status") or "")
+        job_control = (
+            self.control.dashboard_control.job_state(job_key)
+            if job_key
+            else {}
+        )
+        cancel_requested = (
+            job_control.get("desired_state") == "cancel_requested"
+            and job_control.get("acknowledged_at") is None
+        )
 
-        if project_status == "DONE":
+        if cancel_requested:
+            phase = "cancelling"
+        elif project_status == "DONE":
             phase = "done"
         elif project_status == "REVIEW_REQUIRED":
             phase = "review_required"
@@ -981,7 +1145,9 @@ class DashboardService:
         )
         telemetry_at = (execution or {}).get("last_telemetry_at")
 
-        if phase == "queued":
+        if phase == "cancelling":
+            message = "Annulation demandée · arrêt coopératif en cours."
+        elif phase == "queued":
             message = (
                 f"En file · position {queue_position}."
                 if queue_position is not None
@@ -1029,6 +1195,7 @@ class DashboardService:
                 "progress_percent":progress,
                 "last_telemetry_at":telemetry_at,
                 "queue_position":queue_position,
+                "cancel_requested":bool(cancel_requested),
             },
             "generated_at":_now(),
         }

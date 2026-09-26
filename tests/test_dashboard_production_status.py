@@ -66,3 +66,50 @@ def test_production_status_validates_and_reports_missing_project(tmp_path):
 
     with pytest.raises(DashboardNotFound):
         control.dashboard.production_status("missing-project")
+
+def test_production_status_reports_cancelling_until_worker_acknowledges(tmp_path):
+    control = ControlPlane(str(tmp_path / "cancel-status.sqlite"))
+    project = control.managed_projects.create(
+        repository="dbrckk/cancel-status",
+        final_goal="Stop safely.",
+        token_budget=30000,
+        agent_preference="auto",
+    )
+    project_id = project["project_id"]
+    control.workers.register("worker-a", [], 1)
+    job = control.queue.claim_next("worker-a", capabilities=[])
+    assert job is not None
+    acked = control.queue.ack(job["key"], "worker-a")
+    control.dashboard_store.start_execution(acked, "worker-a")
+
+    result = control.dashboard.cancel_production(
+        project_id,
+        requested_by="operator:test",
+    )
+    assert result["status"] == "cancel_requested"
+
+    status = control.dashboard.production_status(project_id)
+    assert status["runtime"]["phase"] == "cancelling"
+    assert status["runtime"]["cancel_requested"] is True
+    assert "Annulation demandée" in status["runtime"]["message"]
+
+    cancelled = control.queue.cancel(job["key"], "worker-a")
+    control.dashboard_control.acknowledge_job_cancel(job["key"])
+    control.dashboard_store.finish_execution(
+        job["key"],
+        "worker-a",
+        status="cancelled",
+        duration_seconds=None,
+        result={"reason":"operator cancel"},
+    )
+    control.workflows.record_cancelled(
+        cancelled["payload"]["workflow_id"],
+        cancelled["payload"]["workflow_task_id"],
+        result={"reason":"operator cancel"},
+    )
+
+    final = control.dashboard.production_status(project_id)
+    assert final["runtime"]["phase"] == "needs_attention"
+    assert final["runtime"]["cancel_requested"] is False
+    assert final["project"]["current_workflow"]["status"] == "cancelled"
+

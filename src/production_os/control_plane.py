@@ -1057,6 +1057,26 @@ def make_handler(control: ControlPlane):
                                     f"{principal.role}:{principal.name}"
                                 ),
                             )
+                        elif action == "cancel":
+                            if str(body.get("confirm") or "") != "CANCEL_ACTIVE_PRODUCTION":
+                                self._send(
+                                    HTTPStatus.BAD_REQUEST,
+                                    {"error":"confirm CANCEL_ACTIVE_PRODUCTION required"},
+                                )
+                                return
+                            result = control.dashboard.cancel_production(
+                                workflow_id,
+                                requested_by=(
+                                    f"{principal.role}:{principal.name}"
+                                ),
+                            )
+                            self._send(
+                                HTTPStatus.ACCEPTED
+                                if result["status"] == "cancel_requested"
+                                else HTTPStatus.OK,
+                                result,
+                            )
+                            return
                         else:
                             self._send(
                                 HTTPStatus.NOT_FOUND,
@@ -2614,6 +2634,24 @@ def make_handler(control: ControlPlane):
                         worker_id=worker_id,
                         limit=100,
                     ):
+                        job_control = control.dashboard_control.job_state(
+                            str(queued.get("key") or "")
+                        )
+                        if (
+                            job_control.get("desired_state")
+                            == "cancel_requested"
+                        ):
+                            try:
+                                control.dashboard.finalize_queued_cancel(
+                                    queued,
+                                    requested_by=str(
+                                        job_control.get("requested_by")
+                                        or "operator"
+                                    ),
+                                )
+                            except RuntimeError:
+                                pass
+                            continue
                         if not control.workflows.job_generation_current(
                             queued
                         ):

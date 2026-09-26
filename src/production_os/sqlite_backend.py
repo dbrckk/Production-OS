@@ -1482,6 +1482,42 @@ class SQLiteJobQueue:
             extra={"reason": reason},
         )
 
+    def cancel_queued(self, key: str, reason: str = "operator cancel") -> dict:
+        now = _utcnow()
+        with self.backend.transaction() as db:
+            row = db.execute(
+                "SELECT * FROM jobs WHERE key=?",
+                (key,),
+            ).fetchone()
+            if row is None:
+                raise KeyError(key)
+            if row["status"] == "cancelled":
+                return self._job_dict(row)
+            if row["status"] != "queued":
+                raise RuntimeError(
+                    f"queued job cannot cancel from {row['status']}"
+                )
+            updated = db.execute(
+                """UPDATE jobs
+                   SET status='cancelled', completed_at=?, updated_at=?
+                   WHERE key=? AND status='queued'""",
+                (now, now, key),
+            )
+            if updated.rowcount != 1:
+                raise RuntimeError("queued job cancellation race")
+            self.backend.append_event(
+                db,
+                "job-cancelled",
+                {"reason":reason, "mode":"server-queued"},
+                repository=row["repository"],
+                task_key_value=key,
+            )
+            row = db.execute(
+                "SELECT * FROM jobs WHERE key=?",
+                (key,),
+            ).fetchone()
+        return self._job_dict(row)
+
     def cancel(self, key: str, worker_id: str, reason: str = "operator cancel") -> dict:
         return self._transition(
             key,

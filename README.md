@@ -1342,6 +1342,39 @@ The mobile UI persists only `repository + instruction fingerprint + request_id` 
 
 A dedicated E2E qualification proves a launch followed by Control Plane restart and the same POST/request id results in exactly one project, one workflow and one queued job.
 
+
+## Release 43 — Safe production cancellation
+
+The persistent One-tap tracker can now stop an active production without dropping the Managed Project.
+
+Operator endpoint:
+
+```text
+POST /v1/managed-projects/{project_id}/cancel
+confirm = CANCEL_ACTIVE_PRODUCTION
+```
+
+Cancellation semantics depend on the current execution state:
+
+- **queued**: the job is cancelled atomically by the Control Plane before any worker can claim it;
+- **claimed / running**: a durable cooperative cancel request is persisted and the mobile tracker reports `cancelling` until the owning worker acknowledges it;
+- **already cancelled**: repeating the request is idempotent.
+
+The cancelled workflow reconciles the Managed Project to `NEEDS_ATTENTION` rather than deleting it. The operator can inspect the result and create a new instruction/retest generation later.
+
+Cancellation also survives worker failure and Control Plane restart. If an ACKed job with a persisted cancel request is recovered back to `queued`, the normal worker claim path finalizes the cancellation before placement. A replacement worker therefore never re-executes a job that the operator already cancelled.
+
+SQLite and PostgreSQL both expose the same atomic queued-cancellation primitive.
+
+The last-production mobile card shows:
+
+```text
+Annuler la production
+Annulation en cours
+```
+
+only for applicable active phases, with an explicit browser confirmation before the operator mutation.
+
 ## Design principles
 
 - Evidence over assumptions
