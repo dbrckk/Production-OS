@@ -7,6 +7,9 @@ import urllib.request
 from dataclasses import dataclass
 
 
+WORKER_CONTROL_STATES = {"active", "paused", "draining"}
+
+
 @dataclass(frozen=True, slots=True)
 class RemoteJob:
     key: str
@@ -31,6 +34,7 @@ class RemoteWorkerClient:
         self.worker_id = worker_id
         self.capabilities = sorted(set(capabilities))
         self.timeout = timeout
+        self.control_state = "active"
 
     def _request(self, path: str, payload: dict | None = None) -> tuple[int, dict]:
         body = None if payload is None else json.dumps(payload).encode("utf-8")
@@ -93,24 +97,36 @@ class RemoteWorkerClient:
                 str(key)
                 for key in active_job_keys
             ]
-        if control_state is not None:
-            payload["control_state"] = str(control_state)
+        reported_control_state = (
+            str(control_state)
+            if control_state is not None
+            else self.control_state
+        )
+        if reported_control_state in WORKER_CONTROL_STATES:
+            payload["control_state"] = reported_control_state
         if job_control_states is not None:
             payload["job_control_states"] = {
                 str(key):str(value)
                 for key, value in job_control_states.items()
             }
         _, result = self._request("/v1/workers/heartbeat", payload)
+        control = dict(result.get("control") or {})
+        worker_control = dict(control.get("worker") or {})
+        desired_state = str(worker_control.get("desired_state") or "")
+        if desired_state in WORKER_CONTROL_STATES:
+            self.control_state = desired_state
         return {
             "worker":result["worker"],
             "stale_job_keys":[
                 str(key)
                 for key in result.get("stale_job_keys", [])
             ],
-            "control":dict(result.get("control") or {}),
+            "control":control,
         }
 
     def claim(self, ack_timeout_seconds: int = 120) -> RemoteJob | None:
+        if self.control_state != "active":
+            return None
         status, result = self._request(
             "/v1/jobs/claim",
             {
