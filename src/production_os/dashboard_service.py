@@ -420,7 +420,7 @@ class DashboardService:
                     "repository":project.get("repository"),
                     "target_type":"managed-project",
                     "target_id":project.get("project_id"),
-                    "view":"managed",
+                    "view":"productions",
                     "actions":[
                         {"name":"instructions","label":"Ajouter instruction"},
                         {"name":"verify","label":"Retester"},
@@ -444,7 +444,7 @@ class DashboardService:
                     "repository":project.get("repository"),
                     "target_type":"managed-project",
                     "target_id":project.get("project_id"),
-                    "view":"managed",
+                    "view":"productions",
                     "actions":[
                         {"name":"instructions","label":"Ajouter instruction"},
                         {"name":"verify","label":"Retester"},
