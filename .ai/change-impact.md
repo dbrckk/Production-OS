@@ -1,18 +1,13 @@
 # Change impact
 
-Base: 5f6f90f7dee3a4079ae65c53850056edd59b76f1
-Head: 9e3c80c9ed49b381603eb20ec8f6a8ce47d8685b
+Base: c216d1c0e62bbfe8b1489b3c1930403b43044e1f
+Head: 084fe72638f2f5095b3053a3a23a661fef1b0945
 
 ## Changed files
-- M README.md
-- A compose.worker.yaml
-- A docs/superpowers/plans/2026-09-26-release-54-worker-compose-deployment.md
-- A tests/test_worker_compose_deployment.py
+- D docs/superpowers/specs/2026-09-26-release-55-worker-operations-copy2.md
 
 ## Affected areas
-- (root)
 - docs
-- tests
 
 ## Related test candidates
 - No direct filename-based test match detected.

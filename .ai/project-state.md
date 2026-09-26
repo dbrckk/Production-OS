@@ -22,32 +22,19 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-26T15:46:01Z
+Generated: 2026-09-26T17:03:15Z
 
 ### Git
 - Branch: `main`
-- Head: `9e3c80c9ed49`
-- Commit date: 2026-09-26T17:45:49+02:00
-- Commit: feat: release 54 deployable remote worker
-- Tracked files: 459
+- Head: `084fe72638f2`
+- Commit date: 2026-09-26T19:02:49+02:00
+- Commit: chore: remove accidental release 55 scratch file
+- Tracked files: 463
 
 ### Recently changed files
-- `README.md`
-- `compose.worker.yaml`
-- `docs/superpowers/plans/2026-09-26-release-54-worker-compose-deployment.md`
-- `tests/test_worker_compose_deployment.py`
-- `docs/superpowers/plans/2026-09-26-release-53-graceful-runner-shutdown.md`
-- `src/production_os/cli.py`
-- `src/production_os/remote_worker_runner.py`
-- `tests/test_cli.py`
-- `tests/test_remote_worker_runner.py`
-- `docs/superpowers/plans/2026-09-26-release-52-concurrent-remote-runner.md`
-- `docs/superpowers/plans/2026-09-26-release-51-one-tap-runner-e2e.md`
-- `tests/test_release51_one_tap_runner_e2e.py`
-- `docs/remote-worker-executor-protocol.md`
-- `docs/superpowers/plans/2026-09-26-release-50-remote-worker-runner.md`
-- `src/production_os/control_plane.py`
-- `src/production_os/remote_worker.py`
+- `docs/superpowers/specs/2026-09-26-release-55-worker-operations-copy2.md`
+- `docs/superpowers/specs/2026-09-26-release-55-worker-operations-copy.md`
+- `docs/superpowers/designs/2026-09-26-release-55-worker-operations.md`
 
 ### Project signals
 - `pyproject.toml`
