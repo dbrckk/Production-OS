@@ -1200,6 +1200,71 @@ class DashboardService:
             "generated_at":_now(),
         }
 
+    def production_inbox(self, *, limit: int = 50) -> dict:
+        bounded = max(1, min(200, int(limit)))
+        managed = self.control.managed_projects.list(limit=500)
+
+        active = [
+            project
+            for project in managed
+            if str(project.get("status") or "") in {
+                "ACTIVE", "REVIEW_REQUIRED", "NEEDS_ATTENTION"
+            }
+        ]
+        recent_done = [
+            project
+            for project in managed
+            if str(project.get("status") or "") == "DONE"
+        ][:5]
+
+        selected = (active + recent_done)[:bounded]
+        items = []
+        phase_counts: dict[str, int] = {}
+        for project in selected:
+            project_id = str(project.get("project_id") or project.get("id") or "")
+            if not project_id:
+                continue
+            status = self.production_status(project_id)
+            current = status.get("project") or project
+            runtime = status.get("runtime") or {}
+            phase = str(runtime.get("phase") or "preparing")
+            phase_counts[phase] = phase_counts.get(phase, 0) + 1
+            items.append({
+                "project_id":project_id,
+                "repository":current.get("repository"),
+                "final_goal":current.get("final_goal"),
+                "generation":current.get("generation"),
+                "status":current.get("status"),
+                "updated_at":current.get("updated_at"),
+                "outcome":current.get("outcome") or {},
+                "runtime":runtime,
+            })
+
+        live_phases = {
+            "preparing", "queued", "claimed", "running", "cancelling"
+        }
+        return {
+            "schema_version":"production-os/production-inbox/v1",
+            "generated_at":_now(),
+            "summary":{
+                "visible":len(items),
+                "active":sum(
+                    count
+                    for phase, count in phase_counts.items()
+                    if phase in live_phases
+                ),
+                "preparing":phase_counts.get("preparing", 0),
+                "queued":phase_counts.get("queued", 0),
+                "claimed":phase_counts.get("claimed", 0),
+                "running":phase_counts.get("running", 0),
+                "cancelling":phase_counts.get("cancelling", 0),
+                "review_required":phase_counts.get("review_required", 0),
+                "needs_attention":phase_counts.get("needs_attention", 0),
+                "done":phase_counts.get("done", 0),
+            },
+            "items":items,
+        }
+
     def repositories(self) -> dict:
         owner = str(
             os.getenv("PRODUCTION_OS_GITHUB_OWNER") or "dbrckk"
