@@ -1645,6 +1645,40 @@ The runner:
 - never invokes a shell for the executor command;
 - never passes the worker bearer-token environment variable to the executor.
 
+
+## Release 51 — One-tap to real runner qualification
+
+Production-OS now qualifies the exact production path used by the mobile One-tap flow against the real remote worker runner.
+
+The success E2E covers:
+
+```text
+POST /v1/dashboard/launch
+→ persistent Managed Project + workflow + job
+→ worker session
+→ claim + ACK
+→ external JSON executor subprocess
+→ worker completion
+→ workflow reconciliation
+→ REVIEW_REQUIRED
+→ production inbox / detail outcome
+```
+
+The executor result is verified all the way through the operator surface, including summary, validation status/tests, changed-file evidence and commit SHAs.
+
+A second E2E covers executor-reported validation failure:
+
+```text
+executor status=failed
+→ job failed
+→ Managed Project NEEDS_ATTENTION
+→ Productions / Problèmes
+→ À faire maintenant
+→ follow-up / retest actions available
+```
+
+This qualification deliberately uses the real HTTP control-plane endpoints, `RemoteWorkerClient`, `RemoteWorkerRunner` and an actual subprocess executor. It closes the gap between component-level runner tests and the user-facing One-tap production lifecycle.
+
 ## Design principles
 
 - Evidence over assumptions
