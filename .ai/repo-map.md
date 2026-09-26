@@ -284,6 +284,7 @@ tests/
   test_release43_safe_production_cancel_e2e.py
   test_release44_one_tap_recovery_actions_e2e.py
   test_release45_production_inbox_e2e.py
+  test_release51_one_tap_runner_e2e.py
   test_remote_worker_runner.py
   test_remote_worker.py
   test_render_start.py
@@ -12815,6 +12816,56 @@ second = ControlPlane(database, authorizer=_auth())
 # state is required to reconstruct all current productions.
 ````
 
+## File: tests/test_release51_one_tap_runner_e2e.py
+````python
+def _auth()
+⋮----
+def _request(base, path, token, *, method="GET", body=None)
+⋮----
+data = None if body is None else json.dumps(body).encode("utf-8")
+request = urllib.request.Request(
+⋮----
+raw = response.read()
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+def _stop(server, thread)
+⋮----
+@pytest.mark.e2e
+def test_release51_one_tap_launch_runs_through_real_runner_to_review_required(tmp_path)
+⋮----
+database = str(tmp_path / "one-tap-runner-success.sqlite")
+control = ControlPlane(database, authorizer=_auth())
+executor = tmp_path / "success_executor.py"
+⋮----
+project_id = launched["project"]["project_id"]
+workflow_id = launched["project"]["current_workflow_id"]
+⋮----
+client = RemoteWorkerClient(base, "runner", "runner", [], timeout=5)
+runner = RemoteWorkerRunner(
+outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+⋮----
+outcome = detail["project"]["outcome"]
+⋮----
+@pytest.mark.e2e
+def test_release51_executor_failure_surfaces_as_actionable_production(tmp_path)
+⋮----
+database = str(tmp_path / "one-tap-runner-failure.sqlite")
+⋮----
+executor = tmp_path / "failed_executor.py"
+⋮----
+outcomes = runner.run(cycles=3, idle_sleep_seconds=0)
+⋮----
+# Managed Project implementation tasks have max_attempts=3. A worker
+# failure is automatically retried with a new job key until that
+# budget is exhausted; only then should operator attention be needed.
+⋮----
+item = next(
+````
+
 ## File: tests/test_remote_worker_runner.py
 ````python
 def _server(control)
@@ -15707,6 +15758,43 @@ The runner:
 - reports successful output through the existing completion/result pipeline;
 - never invokes a shell for the executor command;
 - never passes the worker bearer-token environment variable to the executor.
+
+
+## Release 51 — One-tap to real runner qualification
+
+Production-OS now qualifies the exact production path used by the mobile One-tap flow against the real remote worker runner.
+
+The success E2E covers:
+
+```text
+POST /v1/dashboard/launch
+→ persistent Managed Project + workflow + job
+→ worker session
+→ claim + ACK
+→ external JSON executor subprocess
+→ worker completion
+→ workflow reconciliation
+→ REVIEW_REQUIRED
+→ production inbox / detail outcome
+```
+
+The executor result is verified all the way through the operator surface, including summary, validation status/tests, changed-file evidence and commit SHAs.
+
+A second E2E covers executor-reported validation failure and the automatic retry budget:
+
+```text
+executor status=failed
+→ job failed
+→ workflow task automatically requeued
+→ new job key
+→ retry until max_attempts=3
+→ Managed Project NEEDS_ATTENTION only after retry exhaustion
+→ Productions / Problèmes
+→ À faire maintenant
+→ follow-up / retest actions available
+```
+
+This qualification deliberately uses the real HTTP control-plane endpoints, `RemoteWorkerClient`, `RemoteWorkerRunner` and an actual subprocess executor. It closes the gap between component-level runner tests and the user-facing One-tap production lifecycle.
 
 ## Design principles
 

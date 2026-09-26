@@ -1,30 +1,20 @@
 # Change impact
 
-Base: 9dc3e2ca59aaa20c6ce64742fb29c8dadcce9d60
-Head: 931a68167c2b3379d040f1a72c335044a0d50e62
+Base: ffcac6559d86e6e96677a88808126b3fdf1d9054
+Head: 6d8868519266938e01f426f361037007bbe71c73
 
 ## Changed files
 - M README.md
-- A docs/remote-worker-executor-protocol.md
-- A docs/superpowers/plans/2026-09-26-release-50-remote-worker-runner.md
-- M src/production_os/cli.py
-- M src/production_os/control_plane.py
-- M src/production_os/remote_worker.py
-- A src/production_os/remote_worker_runner.py
-- M tests/test_cli.py
-- A tests/test_remote_worker_runner.py
+- A docs/superpowers/plans/2026-09-26-release-51-one-tap-runner-e2e.md
+- A tests/test_release51_one_tap_runner_e2e.py
 
 ## Affected areas
 - (root)
 - docs
-- src
 - tests
 
 ## Related test candidates
-- tests/test_cli.py
-- tests/test_control_plane.py
-- tests/test_remote_worker.py
-- tests/test_remote_worker_runner.py
+- No direct filename-based test match detected.
 
 ## Agent guidance
 - Read this file before broad repository exploration.

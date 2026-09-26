@@ -125,6 +125,7 @@
         "tests/test_release43_safe_production_cancel_e2e.py",
         "tests/test_release44_one_tap_recovery_actions_e2e.py",
         "tests/test_release45_production_inbox_e2e.py",
+        "tests/test_release51_one_tap_runner_e2e.py",
         "tests/test_release_ledger.py",
         "tests/test_remote_worker.py",
         "tests/test_remote_worker_runner.py",
@@ -159,7 +160,7 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 147,
+      "in_degree": 148,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -230,12 +231,13 @@
         "tests/test_release43_safe_production_cancel_e2e.py",
         "tests/test_release44_one_tap_recovery_actions_e2e.py",
         "tests/test_release45_production_inbox_e2e.py",
+        "tests/test_release51_one_tap_runner_e2e.py",
         "tests/test_remote_worker.py",
         "tests/test_remote_worker_runner.py",
         "tests/test_speculation_api.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 41,
+      "in_degree": 42,
       "out_degree": 1
     },
     "src/production_os/approvals.py": {
@@ -655,12 +657,13 @@
         "tests/test_release43_safe_production_cancel_e2e.py",
         "tests/test_release44_one_tap_recovery_actions_e2e.py",
         "tests/test_release45_production_inbox_e2e.py",
+        "tests/test_release51_one_tap_runner_e2e.py",
         "tests/test_remote_worker.py",
         "tests/test_remote_worker_runner.py",
         "tests/test_speculation_api.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 46,
+      "in_degree": 47,
       "out_degree": 23
     },
     "src/production_os/control_surface.py": {
@@ -1521,10 +1524,11 @@
         "tests/test_release43_safe_production_cancel_e2e.py",
         "tests/test_release44_one_tap_recovery_actions_e2e.py",
         "tests/test_release45_production_inbox_e2e.py",
+        "tests/test_release51_one_tap_runner_e2e.py",
         "tests/test_remote_worker.py",
         "tests/test_remote_worker_runner.py"
       ],
-      "in_degree": 14,
+      "in_degree": 15,
       "out_degree": 1
     },
     "src/production_os/remote_worker_runner.py": {
@@ -1535,9 +1539,10 @@
       ],
       "dependents": [
         "src/production_os/cli.py",
+        "tests/test_release51_one_tap_runner_e2e.py",
         "tests/test_remote_worker_runner.py"
       ],
-      "in_degree": 2,
+      "in_degree": 3,
       "out_degree": 3
     },
     "src/production_os/resources.py": {
@@ -2200,12 +2205,13 @@
         "tests/test_release34_safe_running_recovery_e2e.py",
         "tests/test_release35_control_plane_restart_e2e.py",
         "tests/test_release36_worker_session_reconciliation_e2e.py",
+        "tests/test_release51_one_tap_runner_e2e.py",
         "tests/test_release_ledger.py",
         "tests/test_remote_worker_runner.py",
         "tests/test_sqlite_migration.py",
         "tests/test_workflow_engine.py"
       ],
-      "in_degree": 50,
+      "in_degree": 51,
       "out_degree": 2
     },
     "tests/test_asymmetric_attestations.py": {
@@ -2909,10 +2915,11 @@
         "tests/test_release16_operations_e2e.py",
         "tests/test_release19_restore_staging_e2e.py",
         "tests/test_release33_auto_worker_recovery_e2e.py",
+        "tests/test_release51_one_tap_runner_e2e.py",
         "tests/test_scheduler.py",
         "tests/test_scoring.py"
       ],
-      "in_degree": 42,
+      "in_degree": 43,
       "out_degree": 2
     },
     "tests/test_github_client_pr_files.py": {
@@ -3483,6 +3490,20 @@
       "dependents": [],
       "in_degree": 0,
       "out_degree": 4
+    },
+    "tests/test_release51_one_tap_runner_e2e.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/api_auth.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/remote_worker.py",
+        "src/production_os/remote_worker_runner.py",
+        "tests/test_asset_forge.py",
+        "tests/test_fairness.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 7
     },
     "tests/test_release_ledger.py": {
       "dependencies": [

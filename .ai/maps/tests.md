@@ -153,6 +153,7 @@ test_release42_idempotent_launch_e2e.py
 test_release43_safe_production_cancel_e2e.py
 test_release44_one_tap_recovery_actions_e2e.py
 test_release45_production_inbox_e2e.py
+test_release51_one_tap_runner_e2e.py
 test_remote_worker_runner.py
 test_remote_worker.py
 test_render_start.py
@@ -4673,6 +4674,56 @@ second = ControlPlane(database, authorizer=_auth())
 ⋮----
 # A fresh browser/device only needs viewer access. No local last-project
 # state is required to reconstruct all current productions.
+```
+
+## File: test_release51_one_tap_runner_e2e.py
+```python
+def _auth()
+⋮----
+def _request(base, path, token, *, method="GET", body=None)
+⋮----
+data = None if body is None else json.dumps(body).encode("utf-8")
+request = urllib.request.Request(
+⋮----
+raw = response.read()
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+def _stop(server, thread)
+⋮----
+@pytest.mark.e2e
+def test_release51_one_tap_launch_runs_through_real_runner_to_review_required(tmp_path)
+⋮----
+database = str(tmp_path / "one-tap-runner-success.sqlite")
+control = ControlPlane(database, authorizer=_auth())
+executor = tmp_path / "success_executor.py"
+⋮----
+project_id = launched["project"]["project_id"]
+workflow_id = launched["project"]["current_workflow_id"]
+⋮----
+client = RemoteWorkerClient(base, "runner", "runner", [], timeout=5)
+runner = RemoteWorkerRunner(
+outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+⋮----
+outcome = detail["project"]["outcome"]
+⋮----
+@pytest.mark.e2e
+def test_release51_executor_failure_surfaces_as_actionable_production(tmp_path)
+⋮----
+database = str(tmp_path / "one-tap-runner-failure.sqlite")
+⋮----
+executor = tmp_path / "failed_executor.py"
+⋮----
+outcomes = runner.run(cycles=3, idle_sleep_seconds=0)
+⋮----
+# Managed Project implementation tasks have max_attempts=3. A worker
+# failure is automatically retried with a new job key until that
+# budget is exhausted; only then should operator attention be needed.
+⋮----
+item = next(
 ```
 
 ## File: test_remote_worker_runner.py

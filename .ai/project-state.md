@@ -22,17 +22,19 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-26T12:46:24Z
+Generated: 2026-09-26T13:07:46Z
 
 ### Git
 - Branch: `main`
-- Head: `931a68167c2b`
-- Commit date: 2026-09-26T14:46:14+02:00
-- Commit: feat: release 50 remote worker runner
-- Tracked files: 452
+- Head: `6d8868519266`
+- Commit date: 2026-09-26T15:07:37+02:00
+- Commit: test: release 51 one-tap runner qualification
+- Tracked files: 454
 
 ### Recently changed files
 - `README.md`
+- `docs/superpowers/plans/2026-09-26-release-51-one-tap-runner-e2e.md`
+- `tests/test_release51_one_tap_runner_e2e.py`
 - `docs/remote-worker-executor-protocol.md`
 - `docs/superpowers/plans/2026-09-26-release-50-remote-worker-runner.md`
 - `src/production_os/cli.py`
@@ -50,7 +52,6 @@ Generated: 2026-09-26T12:46:24Z
 - `docs/superpowers/plans/2026-09-26-release-47-production-inbox-navigation.md`
 - `tests/test_dashboard_api.py`
 - `tests/test_dashboard_production_inbox.py`
-- `docs/superpowers/plans/2026-09-26-release-46-production-inbox-filters.md`
 
 ### Project signals
 - `pyproject.toml`
