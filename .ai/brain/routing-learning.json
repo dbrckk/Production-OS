@@ -2,25 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "test: cover per-asset visual dashboard details",
-      "terms": [
-        "cover",
-        "dashboard",
-        "details",
-        "per-asset",
-        "test",
-        "visual"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/asset_forge.py",
-        "src/production_os/control_plane.py",
-        "tests/test_asset_forge.py",
-        "tests/test_dashboard_launch.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "test: cover safe perceptual asset dedup reporting",
       "terms": [
         "asset",
@@ -1314,6 +1295,27 @@
         "tests/test_dashboard_attention.py",
         "tests/test_dashboard_production_inbox_filters_ui.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "feat: release 50 remote worker runner",
+      "terms": [
+        "50",
+        "feat",
+        "release",
+        "remote",
+        "runner",
+        "worker"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/cli.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/remote_worker.py",
+        "src/production_os/remote_worker_runner.py",
+        "tests/test_cli.py",
+        "tests/test_remote_worker_runner.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1593,6 +1595,14 @@
       "src/production_os/dashboard_ui.py": 4,
       "tests/test_dashboard_attention.py": 4,
       "tests/test_dashboard_production_inbox_filters_ui.py": 4
+    },
+    "50": {
+      "src/production_os/cli.py": 4,
+      "src/production_os/control_plane.py": 4,
+      "src/production_os/remote_worker.py": 4,
+      "src/production_os/remote_worker_runner.py": 4,
+      "tests/test_cli.py": 4,
+      "tests/test_remote_worker_runner.py": 4
     },
     "accept": {
       "src/production_os/asset_forge.py": 4,
@@ -2097,7 +2107,7 @@
     "feat": {
       "scripts/render-start.py": 4,
       "src/production_os/asset_forge.py": 24,
-      "src/production_os/cli.py": 20,
+      "src/production_os/cli.py": 24,
       "src/production_os/control_plane.py": 40,
       "src/production_os/dashboard_alerts.py": 4,
       "src/production_os/dashboard_backups.py": 40,
@@ -2118,10 +2128,12 @@
       "src/production_os/managed_projects.py": 16,
       "src/production_os/postgres_backend.py": 36,
       "src/production_os/project_progress.py": 4,
+      "src/production_os/remote_worker.py": 4,
+      "src/production_os/remote_worker_runner.py": 4,
       "src/production_os/sqlite_backend.py": 36,
       "src/production_os/workflow_engine.py": 8,
       "tests/test_asset_forge.py": 16,
-      "tests/test_cli.py": 4,
+      "tests/test_cli.py": 8,
       "tests/test_dashboard_alerts.py": 4,
       "tests/test_dashboard_api.py": 40,
       "tests/test_dashboard_attention.py": 16,
@@ -2154,8 +2166,6 @@
       "tests/test_dashboard_store_postgres.py": 36,
       "tests/test_dashboard_ui_v3.py": 40,
       "tests/test_dashboard_usage.py": 4,
-      "tests/test_database_maintenance_lock.py": 4,
-      "tests/test_github_client_pr_files.py": 4,
       "tests/test_managed_projects_http_v4.py": 8,
       "tests/test_managed_projects_v4.py": 12,
       "tests/test_workflow_postgres.py": 8
@@ -2691,7 +2701,7 @@
       "tests/test_dashboard_launch.py": 4
     },
     "release": {
-      "src/production_os/cli.py": 4,
+      "src/production_os/cli.py": 8,
       "src/production_os/control_plane.py": 40,
       "src/production_os/dashboard_alerts.py": 4,
       "src/production_os/dashboard_backups.py": 40,
@@ -2712,9 +2722,11 @@
       "src/production_os/managed_projects.py": 8,
       "src/production_os/postgres_backend.py": 32,
       "src/production_os/project_progress.py": 4,
+      "src/production_os/remote_worker.py": 4,
+      "src/production_os/remote_worker_runner.py": 4,
       "src/production_os/sqlite_backend.py": 32,
       "src/production_os/workflow_engine.py": 4,
-      "tests/test_cli.py": 4,
+      "tests/test_cli.py": 8,
       "tests/test_dashboard_alerts.py": 4,
       "tests/test_dashboard_api.py": 40,
       "tests/test_dashboard_attention.py": 16,
@@ -2752,8 +2764,6 @@
       "tests/test_managed_project_outcome.py": 4,
       "tests/test_managed_projects_v4.py": 4,
       "tests/test_portfolio_claim_api.py": 4,
-      "tests/test_postgres_backend.py": 4,
-      "tests/test_project_progress.py": 4,
       "tests/test_release32_one_tap_e2e.py": 8
     },
     "reliability": {
@@ -2789,7 +2799,13 @@
     },
     "remote": {
       "src/production_os/asset_forge.py": 4,
-      "tests/test_asset_forge.py": 4
+      "src/production_os/cli.py": 4,
+      "src/production_os/control_plane.py": 4,
+      "src/production_os/remote_worker.py": 4,
+      "src/production_os/remote_worker_runner.py": 4,
+      "tests/test_asset_forge.py": 4,
+      "tests/test_cli.py": 4,
+      "tests/test_remote_worker_runner.py": 4
     },
     "render": {
       "scripts/render-start.py": 4,
@@ -2861,6 +2877,14 @@
     "route": {
       "src/production_os/controller.py": 4,
       "tests/test_controller_asset_capabilities.py": 4
+    },
+    "runner": {
+      "src/production_os/cli.py": 4,
+      "src/production_os/control_plane.py": 4,
+      "src/production_os/remote_worker.py": 4,
+      "src/production_os/remote_worker_runner.py": 4,
+      "tests/test_cli.py": 4,
+      "tests/test_remote_worker_runner.py": 4
     },
     "running": {
       "src/production_os/control_plane.py": 4,
@@ -3147,14 +3171,19 @@
       "tests/test_dashboard_launch.py": 4
     },
     "worker": {
-      "src/production_os/control_plane.py": 12,
+      "src/production_os/cli.py": 4,
+      "src/production_os/control_plane.py": 16,
       "src/production_os/controller.py": 4,
+      "src/production_os/remote_worker.py": 4,
+      "src/production_os/remote_worker_runner.py": 4,
       "src/production_os/task_capabilities.py": 4,
       "src/production_os/workflow_engine.py": 4,
+      "tests/test_cli.py": 4,
       "tests/test_controller_asset_capabilities.py": 4,
       "tests/test_dashboard_launch.py": 4,
       "tests/test_release33_auto_worker_recovery_e2e.py": 4,
       "tests/test_release36_worker_session_reconciliation_e2e.py": 4,
+      "tests/test_remote_worker_runner.py": 4,
       "tests/test_task_capabilities.py": 4,
       "tests/test_workflow_engine.py": 4
     },

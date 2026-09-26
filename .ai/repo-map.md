@@ -137,6 +137,7 @@ src/
     rekor_checkpoint_state.py
     rekor_witness_quorum.py
     release_ledger.py
+    remote_worker_runner.py
     remote_worker.py
     resources.py
     result_cache.py
@@ -283,6 +284,7 @@ tests/
   test_release43_safe_production_cancel_e2e.py
   test_release44_one_tap_recovery_actions_e2e.py
   test_release45_production_inbox_e2e.py
+  test_remote_worker_runner.py
   test_remote_worker.py
   test_render_start.py
   test_result_cache.py
@@ -1686,6 +1688,8 @@ controlplane = sub.add_parser("control-plane", help="Run authenticated distribut
 ⋮----
 remotepoll = sub.add_parser("remote-worker-poll", help="Poll the P8 control plane for remote jobs")
 ⋮----
+remoterun = sub.add_parser(
+⋮----
 workflowcreate = sub.add_parser("workflow-create", help="Create a persistent DAG workflow")
 ⋮----
 workflowstatus = sub.add_parser("workflow-status", help="Inspect a persistent workflow")
@@ -2075,6 +2079,15 @@ def run_remote_worker_poll(args: argparse.Namespace) -> int
 ⋮----
 client = RemoteWorkerClient(
 jobs = client.poll(
+⋮----
+def run_remote_worker_run(args: argparse.Namespace) -> int
+⋮----
+token = str(os.getenv(args.token_env) or "").strip()
+⋮----
+command = shlex.split(str(args.executor_command))
+⋮----
+runner = RemoteWorkerRunner(
+outcomes = runner.run(
 ⋮----
 def _workflow_engine(database: str) -> WorkflowEngine
 ⋮----
@@ -2679,18 +2692,26 @@ release = control.releases.promote(
 ⋮----
 artifact = control.workflows.add_artifact(
 ⋮----
-worker_id = str(body["worker_id"])
+principal = self._require("worker")
+⋮----
+worker_id = str(body["worker_id"]).strip()
+⋮----
+raw_capabilities = body.get("capabilities", [])
+⋮----
+raw_active = body.get("active_job_keys", [])
+⋮----
+active_job_keys = sorted({
 worker = control.workers.register(
+recovered = control.reconcile_worker_registration(
+worker = control.workers.heartbeat(
+⋮----
+worker_id = str(body["worker_id"])
+⋮----
 reconciliation = None
 ⋮----
 raw_active = body.get("active_job_keys")
 ⋮----
-active_job_keys = sorted({
-recovered = control.reconcile_worker_registration(
-worker = control.workers.heartbeat(
 reconciliation = {
-⋮----
-principal = self._require("worker")
 ⋮----
 capacity = body.get("capacity")
 ⋮----
@@ -6715,6 +6736,64 @@ reason = str(reason or "").strip()
 rollback_id = uuid.uuid4().hex
 ````
 
+## File: src/production_os/remote_worker_runner.py
+````python
+class RemoteWorkerRunner
+⋮----
+command = [str(part) for part in executor_command if str(part)]
+⋮----
+secret_names = {
+⋮----
+@staticmethod
+    def _terminate(process: subprocess.Popen[str]) -> None
+⋮----
+def _heartbeat_active(self, key: str) -> dict
+⋮----
+def _acknowledge_cancel(self, key: str) -> None
+⋮----
+def _execute(self, job: RemoteJob) -> dict
+⋮----
+key = job.key
+⋮----
+heartbeat = self._heartbeat_active(key)
+⋮----
+request = json.dumps(
+started = time.monotonic()
+process = subprocess.Popen(
+first_communicate = True
+stdout = ""
+⋮----
+elapsed = time.monotonic() - started
+remaining = self.executor_timeout_seconds - elapsed
+⋮----
+duration = time.monotonic() - started
+⋮----
+first_communicate = False
+⋮----
+controls = (
+desired = str(
+⋮----
+reason = f"executor_exit_{process.returncode}"
+⋮----
+payload = json.loads(stdout)
+⋮----
+payload = None
+⋮----
+status = str(payload.get("status") or "")
+result = payload.get("result", {})
+⋮----
+status = ""
+⋮----
+reason = str(
+⋮----
+outcomes: list[dict] = []
+index = 0
+⋮----
+job = self.client.claim(
+⋮----
+outcome = self._execute(job)
+````
+
 ## File: src/production_os/remote_worker.py
 ````python
 @dataclass(frozen=True, slots=True)
@@ -8762,6 +8841,8 @@ lock = SQLiteDatabaseProcessLock(str(database))
 rc = run_restore_activate(args)
 ⋮----
 payload = json.loads(capsys.readouterr().err)
+⋮----
+def test_remote_worker_run_requires_token_from_environment(monkeypatch, capsys)
 ````
 
 ## File: tests/test_compatibility_validation.py
@@ -12734,6 +12815,71 @@ second = ControlPlane(database, authorizer=_auth())
 # state is required to reconstruct all current productions.
 ````
 
+## File: tests/test_remote_worker_runner.py
+````python
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+def _stop(server, thread)
+⋮----
+def _auth()
+⋮----
+def test_worker_session_self_registers_and_reconciles_previous_claim(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "session.sqlite"), authorizer=_auth())
+⋮----
+client = RemoteWorkerClient(
+session = client.open_session(
+⋮----
+queued = control.queue.enqueue({
+job = client.claim()
+⋮----
+restarted = RemoteWorkerClient(
+reconciled = restarted.open_session(
+⋮----
+def test_worker_session_rejects_token_identity_mismatch(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "identity.sqlite"), authorizer=_auth())
+⋮----
+def test_remote_worker_runner_executes_json_executor_and_completes_job(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "runner.sqlite"), authorizer=_auth())
+⋮----
+executor = tmp_path / "executor.py"
+⋮----
+runner = RemoteWorkerRunner(
+⋮----
+outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+⋮----
+execution = control.dashboard_store.latest_execution(queued["key"])
+⋮----
+def test_remote_worker_runner_fails_job_on_invalid_executor_output(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "invalid-output.sqlite"), authorizer=_auth())
+⋮----
+executor = tmp_path / "invalid.py"
+⋮----
+def test_remote_worker_runner_acknowledges_cancel_and_terminates_executor(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "cancel.sqlite"), authorizer=_auth())
+⋮----
+executor = tmp_path / "slow.py"
+⋮----
+outcomes = []
+⋮----
+worker_thread = threading.Thread(
+⋮----
+deadline = time.time() + 5
+⋮----
+state = control.dashboard_control.job_state(queued["key"])
+⋮----
+control = ControlPlane(str(tmp_path / "secret-env.sqlite"), authorizer=_auth())
+⋮----
+executor = tmp_path / "env_check.py"
+````
+
 ## File: tests/test_remote_worker.py
 ````python
 def test_remote_worker_claim_ack_complete(tmp_path)
@@ -15488,6 +15634,79 @@ After submission, Production-OS creates the next immutable generation using the 
 - the last-production tracker.
 
 No new mutation endpoint or browser-side workflow authority is introduced. Advanced Managed Projects remains available as an explicit escape hatch.
+
+
+## Release 50 — Real remote worker runner
+
+Production-OS can now run a persistent remote worker that actually executes claimed jobs through an external process instead of only polling the queue.
+
+A worker opens an identity-bound session with:
+
+```text
+POST /v1/workers/session
+```
+
+A token with role `worker` can open only the worker id matching the token entry name. Operator/admin credentials retain broader control. Opening a session self-registers that worker, advertises capabilities, resets active load from the authoritative in-memory job set, and immediately reconciles abandoned `claimed` / `acked` jobs from a previous process.
+
+The persistent runner is started with:
+
+```bash
+export PRODUCTION_OS_WORKER_TOKEN='...'
+
+production-os remote-worker-run \
+  --url http://127.0.0.1:8787 \
+  --worker-id worker-one \
+  --capability python \
+  --executor-command 'python /opt/worker/executor.py'
+```
+
+`--cycles 0` (the default) runs continuously. The worker bearer token is read from an environment variable and is removed from the environment inherited by the external executor.
+
+The executor receives one JSON object on stdin:
+
+```json
+{
+  "schema_version": "production-os/worker-executor-request/v1",
+  "job": {
+    "key": "...",
+    "payload": {}
+  }
+}
+```
+
+A successful executor writes exactly one JSON object to stdout:
+
+```json
+{
+  "status": "succeeded",
+  "result": {
+    "summary": "implemented and validated",
+    "validation": {"status": "passed"}
+  }
+}
+```
+
+A controlled failure can return:
+
+```json
+{
+  "status": "failed",
+  "reason": "tests_failed",
+  "result": {"summary": "validation failed"}
+}
+```
+
+The runner:
+
+- ACKs before starting the process;
+- keeps worker heartbeat and active job ownership current;
+- honors operator cancellation and terminates the child process;
+- detects stale workflow generations and stops executing them;
+- enforces an executor timeout;
+- maps non-zero exits or invalid JSON to failed jobs;
+- reports successful output through the existing completion/result pipeline;
+- never invokes a shell for the executor command;
+- never passes the worker bearer-token environment variable to the executor.
 
 ## Design principles
 

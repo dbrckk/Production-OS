@@ -122,6 +122,7 @@ production_os/
   rekor_checkpoint_state.py
   rekor_witness_quorum.py
   release_ledger.py
+  remote_worker_runner.py
   remote_worker.py
   resources.py
   result_cache.py
@@ -1151,6 +1152,8 @@ controlplane = sub.add_parser("control-plane", help="Run authenticated distribut
 ⋮----
 remotepoll = sub.add_parser("remote-worker-poll", help="Poll the P8 control plane for remote jobs")
 ⋮----
+remoterun = sub.add_parser(
+⋮----
 workflowcreate = sub.add_parser("workflow-create", help="Create a persistent DAG workflow")
 ⋮----
 workflowstatus = sub.add_parser("workflow-status", help="Inspect a persistent workflow")
@@ -1540,6 +1543,15 @@ def run_remote_worker_poll(args: argparse.Namespace) -> int
 ⋮----
 client = RemoteWorkerClient(
 jobs = client.poll(
+⋮----
+def run_remote_worker_run(args: argparse.Namespace) -> int
+⋮----
+token = str(os.getenv(args.token_env) or "").strip()
+⋮----
+command = shlex.split(str(args.executor_command))
+⋮----
+runner = RemoteWorkerRunner(
+outcomes = runner.run(
 ⋮----
 def _workflow_engine(database: str) -> WorkflowEngine
 ⋮----
@@ -2144,18 +2156,26 @@ release = control.releases.promote(
 ⋮----
 artifact = control.workflows.add_artifact(
 ⋮----
-worker_id = str(body["worker_id"])
+principal = self._require("worker")
+⋮----
+worker_id = str(body["worker_id"]).strip()
+⋮----
+raw_capabilities = body.get("capabilities", [])
+⋮----
+raw_active = body.get("active_job_keys", [])
+⋮----
+active_job_keys = sorted({
 worker = control.workers.register(
+recovered = control.reconcile_worker_registration(
+worker = control.workers.heartbeat(
+⋮----
+worker_id = str(body["worker_id"])
+⋮----
 reconciliation = None
 ⋮----
 raw_active = body.get("active_job_keys")
 ⋮----
-active_job_keys = sorted({
-recovered = control.reconcile_worker_registration(
-worker = control.workers.heartbeat(
 reconciliation = {
-⋮----
-principal = self._require("worker")
 ⋮----
 capacity = body.get("capacity")
 ⋮----
@@ -6178,6 +6198,64 @@ original = self.get(release_id)
 reason = str(reason or "").strip()
 ⋮----
 rollback_id = uuid.uuid4().hex
+```
+
+## File: production_os/remote_worker_runner.py
+```python
+class RemoteWorkerRunner
+⋮----
+command = [str(part) for part in executor_command if str(part)]
+⋮----
+secret_names = {
+⋮----
+@staticmethod
+    def _terminate(process: subprocess.Popen[str]) -> None
+⋮----
+def _heartbeat_active(self, key: str) -> dict
+⋮----
+def _acknowledge_cancel(self, key: str) -> None
+⋮----
+def _execute(self, job: RemoteJob) -> dict
+⋮----
+key = job.key
+⋮----
+heartbeat = self._heartbeat_active(key)
+⋮----
+request = json.dumps(
+started = time.monotonic()
+process = subprocess.Popen(
+first_communicate = True
+stdout = ""
+⋮----
+elapsed = time.monotonic() - started
+remaining = self.executor_timeout_seconds - elapsed
+⋮----
+duration = time.monotonic() - started
+⋮----
+first_communicate = False
+⋮----
+controls = (
+desired = str(
+⋮----
+reason = f"executor_exit_{process.returncode}"
+⋮----
+payload = json.loads(stdout)
+⋮----
+payload = None
+⋮----
+status = str(payload.get("status") or "")
+result = payload.get("result", {})
+⋮----
+status = ""
+⋮----
+reason = str(
+⋮----
+outcomes: list[dict] = []
+index = 0
+⋮----
+job = self.client.claim(
+⋮----
+outcome = self._execute(job)
 ```
 
 ## File: production_os/remote_worker.py

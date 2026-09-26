@@ -127,6 +127,7 @@
         "tests/test_release45_production_inbox_e2e.py",
         "tests/test_release_ledger.py",
         "tests/test_remote_worker.py",
+        "tests/test_remote_worker_runner.py",
         "tests/test_result_cache.py",
         "tests/test_runtime_state.py",
         "tests/test_scheduler.py",
@@ -158,7 +159,7 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 146,
+      "in_degree": 147,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -230,10 +231,11 @@
         "tests/test_release44_one_tap_recovery_actions_e2e.py",
         "tests/test_release45_production_inbox_e2e.py",
         "tests/test_remote_worker.py",
+        "tests/test_remote_worker_runner.py",
         "tests/test_speculation_api.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 40,
+      "in_degree": 41,
       "out_degree": 1
     },
     "src/production_os/approvals.py": {
@@ -518,6 +520,7 @@
         "src/production_os/rekor_witness_quorum.py",
         "src/production_os/release_ledger.py",
         "src/production_os/remote_worker.py",
+        "src/production_os/remote_worker_runner.py",
         "src/production_os/resources.py",
         "src/production_os/reuse.py",
         "src/production_os/runtime_state.py",
@@ -545,7 +548,7 @@
         "tests/test_release21_offline_restore_e2e.py"
       ],
       "in_degree": 2,
-      "out_degree": 65
+      "out_degree": 66
     },
     "src/production_os/compatibility.py": {
       "dependencies": [
@@ -653,10 +656,11 @@
         "tests/test_release44_one_tap_recovery_actions_e2e.py",
         "tests/test_release45_production_inbox_e2e.py",
         "tests/test_remote_worker.py",
+        "tests/test_remote_worker_runner.py",
         "tests/test_speculation_api.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 45,
+      "in_degree": 46,
       "out_degree": 23
     },
     "src/production_os/control_surface.py": {
@@ -1506,6 +1510,7 @@
       ],
       "dependents": [
         "src/production_os/cli.py",
+        "src/production_os/remote_worker_runner.py",
         "tests/test_production_stack_e2e.py",
         "tests/test_release32_one_tap_e2e.py",
         "tests/test_release33_auto_worker_recovery_e2e.py",
@@ -1516,10 +1521,24 @@
         "tests/test_release43_safe_production_cancel_e2e.py",
         "tests/test_release44_one_tap_recovery_actions_e2e.py",
         "tests/test_release45_production_inbox_e2e.py",
-        "tests/test_remote_worker.py"
+        "tests/test_remote_worker.py",
+        "tests/test_remote_worker_runner.py"
       ],
-      "in_degree": 12,
+      "in_degree": 14,
       "out_degree": 1
+    },
+    "src/production_os/remote_worker_runner.py": {
+      "dependencies": [
+        "src/production_os/remote_worker.py",
+        "src/production_os/workers.py",
+        "tests/test_asset_forge.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "tests/test_remote_worker_runner.py"
+      ],
+      "in_degree": 2,
+      "out_degree": 3
     },
     "src/production_os/resources.py": {
       "dependencies": [],
@@ -1998,12 +2017,14 @@
         "src/production_os/postgres_backend.py",
         "src/production_os/preemption.py",
         "src/production_os/remote_worker.py",
+        "src/production_os/remote_worker_runner.py",
         "src/production_os/sqlite_backend.py",
         "src/production_os/sqlite_migration.py",
         "src/production_os/starlist.py",
         "src/production_os/workflow_engine.py",
         "tests/test_api_auth.py",
         "tests/test_claims_delivery.py",
+        "tests/test_cli.py",
         "tests/test_control_plane.py",
         "tests/test_controller_asset_capabilities.py",
         "tests/test_dashboard_alerts.py",
@@ -2043,8 +2064,6 @@
         "tests/test_reconciliation_dispatch.py",
         "tests/test_release16_operations_e2e.py",
         "tests/test_release18_managed_projects_e2e.py",
-        "tests/test_release32_one_tap_e2e.py",
-        "tests/test_release33_auto_worker_recovery_e2e.py",
         "tests/test_stragglers.py",
         "tests/test_workers.py"
       ],
@@ -2153,6 +2172,7 @@
         "src/production_os/rekor_checkpoint_state.py",
         "src/production_os/rekor_witness_quorum.py",
         "src/production_os/release_ledger.py",
+        "src/production_os/remote_worker_runner.py",
         "src/production_os/runtime_state.py",
         "src/production_os/scheduler.py",
         "src/production_os/self_healing.py",
@@ -2181,10 +2201,11 @@
         "tests/test_release35_control_plane_restart_e2e.py",
         "tests/test_release36_worker_session_reconciliation_e2e.py",
         "tests/test_release_ledger.py",
+        "tests/test_remote_worker_runner.py",
         "tests/test_sqlite_migration.py",
         "tests/test_workflow_engine.py"
       ],
-      "in_degree": 48,
+      "in_degree": 50,
       "out_degree": 2
     },
     "tests/test_asymmetric_attestations.py": {
@@ -2311,11 +2332,12 @@
         "src/production_os/dashboard_backups.py",
         "src/production_os/database_maintenance_lock.py",
         "src/production_os/signers.py",
-        "src/production_os/sqlite_backend.py"
+        "src/production_os/sqlite_backend.py",
+        "src/production_os/workers.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 6
+      "out_degree": 7
     },
     "tests/test_compatibility_validation.py": {
       "dependencies": [
@@ -3354,12 +3376,11 @@
         "src/production_os/__init__.py",
         "src/production_os/api_auth.py",
         "src/production_os/control_plane.py",
-        "src/production_os/remote_worker.py",
-        "src/production_os/workers.py"
+        "src/production_os/remote_worker.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 5
+      "out_degree": 4
     },
     "tests/test_release33_auto_worker_recovery_e2e.py": {
       "dependencies": [
@@ -3367,12 +3388,11 @@
         "src/production_os/api_auth.py",
         "src/production_os/control_plane.py",
         "src/production_os/remote_worker.py",
-        "src/production_os/workers.py",
         "tests/test_fairness.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 6
+      "out_degree": 5
     },
     "tests/test_release34_safe_running_recovery_e2e.py": {
       "dependencies": [
@@ -3493,6 +3513,19 @@
       "dependents": [],
       "in_degree": 0,
       "out_degree": 5
+    },
+    "tests/test_remote_worker_runner.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/api_auth.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/remote_worker.py",
+        "src/production_os/remote_worker_runner.py",
+        "tests/test_asset_forge.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 6
     },
     "tests/test_result_cache.py": {
       "dependencies": [

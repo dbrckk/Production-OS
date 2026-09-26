@@ -153,6 +153,7 @@ test_release42_idempotent_launch_e2e.py
 test_release43_safe_production_cancel_e2e.py
 test_release44_one_tap_recovery_actions_e2e.py
 test_release45_production_inbox_e2e.py
+test_remote_worker_runner.py
 test_remote_worker.py
 test_render_start.py
 test_result_cache.py
@@ -700,6 +701,8 @@ lock = SQLiteDatabaseProcessLock(str(database))
 rc = run_restore_activate(args)
 ⋮----
 payload = json.loads(capsys.readouterr().err)
+⋮----
+def test_remote_worker_run_requires_token_from_environment(monkeypatch, capsys)
 ```
 
 ## File: test_compatibility_validation.py
@@ -4670,6 +4673,71 @@ second = ControlPlane(database, authorizer=_auth())
 ⋮----
 # A fresh browser/device only needs viewer access. No local last-project
 # state is required to reconstruct all current productions.
+```
+
+## File: test_remote_worker_runner.py
+```python
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+def _stop(server, thread)
+⋮----
+def _auth()
+⋮----
+def test_worker_session_self_registers_and_reconciles_previous_claim(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "session.sqlite"), authorizer=_auth())
+⋮----
+client = RemoteWorkerClient(
+session = client.open_session(
+⋮----
+queued = control.queue.enqueue({
+job = client.claim()
+⋮----
+restarted = RemoteWorkerClient(
+reconciled = restarted.open_session(
+⋮----
+def test_worker_session_rejects_token_identity_mismatch(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "identity.sqlite"), authorizer=_auth())
+⋮----
+def test_remote_worker_runner_executes_json_executor_and_completes_job(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "runner.sqlite"), authorizer=_auth())
+⋮----
+executor = tmp_path / "executor.py"
+⋮----
+runner = RemoteWorkerRunner(
+⋮----
+outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+⋮----
+execution = control.dashboard_store.latest_execution(queued["key"])
+⋮----
+def test_remote_worker_runner_fails_job_on_invalid_executor_output(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "invalid-output.sqlite"), authorizer=_auth())
+⋮----
+executor = tmp_path / "invalid.py"
+⋮----
+def test_remote_worker_runner_acknowledges_cancel_and_terminates_executor(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "cancel.sqlite"), authorizer=_auth())
+⋮----
+executor = tmp_path / "slow.py"
+⋮----
+outcomes = []
+⋮----
+worker_thread = threading.Thread(
+⋮----
+deadline = time.time() + 5
+⋮----
+state = control.dashboard_control.job_state(queued["key"])
+⋮----
+control = ControlPlane(str(tmp_path / "secret-env.sqlite"), authorizer=_auth())
+⋮----
+executor = tmp_path / "env_check.py"
 ```
 
 ## File: test_remote_worker.py

@@ -1,15 +1,18 @@
 # Change impact
 
-Base: f402d4d4e4254a2890516ca8570d94d42c9ed194
-Head: 7432fb694b70021d6835a2d9e7be3e3edcba3929
+Base: 9dc3e2ca59aaa20c6ce64742fb29c8dadcce9d60
+Head: 931a68167c2b3379d040f1a72c335044a0d50e62
 
 ## Changed files
 - M README.md
-- A docs/superpowers/plans/2026-09-26-release-49-unified-production-actions.md
-- M src/production_os/dashboard_service.py
-- M src/production_os/dashboard_ui.py
-- M tests/test_dashboard_attention.py
-- M tests/test_dashboard_production_inbox_filters_ui.py
+- A docs/remote-worker-executor-protocol.md
+- A docs/superpowers/plans/2026-09-26-release-50-remote-worker-runner.md
+- M src/production_os/cli.py
+- M src/production_os/control_plane.py
+- M src/production_os/remote_worker.py
+- A src/production_os/remote_worker_runner.py
+- M tests/test_cli.py
+- A tests/test_remote_worker_runner.py
 
 ## Affected areas
 - (root)
@@ -18,7 +21,10 @@ Head: 7432fb694b70021d6835a2d9e7be3e3edcba3929
 - tests
 
 ## Related test candidates
-- No direct filename-based test match detected.
+- tests/test_cli.py
+- tests/test_control_plane.py
+- tests/test_remote_worker.py
+- tests/test_remote_worker_runner.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

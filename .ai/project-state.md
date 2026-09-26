@@ -22,17 +22,25 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-26T12:26:36Z
+Generated: 2026-09-26T12:46:24Z
 
 ### Git
 - Branch: `main`
-- Head: `7432fb694b70`
-- Commit date: 2026-09-26T14:26:26+02:00
-- Commit: feat: release 49 unified production actions
-- Tracked files: 448
+- Head: `931a68167c2b`
+- Commit date: 2026-09-26T14:46:14+02:00
+- Commit: feat: release 50 remote worker runner
+- Tracked files: 452
 
 ### Recently changed files
 - `README.md`
+- `docs/remote-worker-executor-protocol.md`
+- `docs/superpowers/plans/2026-09-26-release-50-remote-worker-runner.md`
+- `src/production_os/cli.py`
+- `src/production_os/control_plane.py`
+- `src/production_os/remote_worker.py`
+- `src/production_os/remote_worker_runner.py`
+- `tests/test_cli.py`
+- `tests/test_remote_worker_runner.py`
 - `docs/superpowers/plans/2026-09-26-release-49-unified-production-actions.md`
 - `src/production_os/dashboard_service.py`
 - `src/production_os/dashboard_ui.py`
@@ -40,13 +48,9 @@ Generated: 2026-09-26T12:26:36Z
 - `tests/test_dashboard_production_inbox_filters_ui.py`
 - `docs/superpowers/plans/2026-09-26-release-48-production-inbox-detail.md`
 - `docs/superpowers/plans/2026-09-26-release-47-production-inbox-navigation.md`
-- `src/production_os/control_plane.py`
 - `tests/test_dashboard_api.py`
 - `tests/test_dashboard_production_inbox.py`
 - `docs/superpowers/plans/2026-09-26-release-46-production-inbox-filters.md`
-- `docs/superpowers/plans/2026-09-26-release-45-production-inbox.md`
-- `tests/test_dashboard_ui_v3.py`
-- `tests/test_release45_production_inbox_e2e.py`
 
 ### Project signals
 - `pyproject.toml`
