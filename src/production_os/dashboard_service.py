@@ -832,6 +832,107 @@ class DashboardService:
             "maintenance":self.maintenance(force=True),
         }
 
+    def deployment_readiness(self) -> dict:
+        workers = self.workers().get("workers", [])
+        online = [
+            worker
+            for worker in workers
+            if worker.get("status") == "online"
+        ]
+        available = [
+            worker
+            for worker in online
+            if worker.get("desired_state") == "active"
+            and int(worker.get("active_tasks") or 0)
+                < int(worker.get("max_concurrency") or 0)
+        ]
+
+        dashboard_control = self.control.dashboard_control
+        github_dispatch = bool(
+            dashboard_control.github is not None
+            and dashboard_control.actions_repository
+            and dashboard_control.actions_workflow
+        )
+
+        backup = backup_storage_inventory(self.control.backend)
+        backend_kind = str(backup.get("backend_kind") or "unknown")
+        backup_status = str(backup.get("status") or "unknown")
+        if backend_kind == "postgres":
+            recovery_status = "external"
+        elif backup_status == "ready":
+            recovery_status = "ready"
+        elif backup_status == "unconfigured":
+            recovery_status = "unconfigured"
+        else:
+            recovery_status = "degraded"
+
+        if available:
+            execution = "immediate"
+        elif github_dispatch:
+            execution = "github-actions-dispatch"
+        else:
+            execution = "unverified"
+
+        with self.control.backend.connect() as db:
+            queued_row = db.execute(
+                "SELECT COUNT(*) AS count FROM jobs WHERE status='queued'"
+            ).fetchone()
+        queued = int(queued_row["count"] if queued_row else 0)
+
+        issues = []
+        if execution == "unverified":
+            issues.append({
+                "code":"execution_path_unverified",
+                "severity":"high",
+                "message":(
+                    "Aucun worker disponible et aucun dispatch GitHub Actions "
+                    "configuré côté Control Plane."
+                ),
+            })
+        if recovery_status == "unconfigured":
+            issues.append({
+                "code":"backup_unconfigured",
+                "severity":"medium",
+                "message":"Le stockage de sauvegarde SQLite n’est pas configuré.",
+            })
+        elif recovery_status == "degraded":
+            issues.append({
+                "code":"backup_degraded",
+                "severity":"high",
+                "message":"Le stockage de sauvegarde est dégradé.",
+            })
+
+        status = "ready" if not issues else "degraded"
+        return {
+            "schema_version":"production-os/deployment-readiness/v1",
+            "status":status,
+            "execution":{
+                "mode":execution,
+                "available_workers":len(available),
+                "online_workers":len(online),
+                "known_workers":len(workers),
+                "github_actions_dispatch":github_dispatch,
+                "actions_repository":(
+                    dashboard_control.actions_repository
+                    if github_dispatch
+                    else None
+                ),
+                "actions_workflow":(
+                    dashboard_control.actions_workflow
+                    if github_dispatch
+                    else None
+                ),
+            },
+            "storage":{
+                "backend":backend_kind,
+                "recovery":recovery_status,
+                "backup_status":backup_status,
+            },
+            "queued_jobs":queued,
+            "issues":issues,
+            "generated_at":_now(),
+        }
+
     def launch_readiness(self, repository: str) -> dict:
         repository = str(repository or "").strip()
         parts = repository.split("/")
