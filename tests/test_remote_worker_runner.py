@@ -285,3 +285,57 @@ print(json.dumps({"status":"succeeded","result":{"summary":"too late"}}))
     finally:
         _stop(server, server_thread)
 
+def test_remote_worker_runner_does_not_expose_worker_token_to_executor(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "secret-env.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":{
+            "repository":"dbrckk/runner-secret",
+            "task":"Do not leak the worker token.",
+        },
+        "required_capabilities":[],
+    })
+    monkeypatch.setenv("PRODUCTION_OS_WORKER_TOKEN", "worker-secret")
+    executor = tmp_path / "env_check.py"
+    executor.write_text(
+        """
+import json, os, sys
+json.load(sys.stdin)
+print(json.dumps({
+    "status":"succeeded",
+    "result":{
+        "summary":"checked environment",
+        "worker_token_visible":bool(os.getenv("PRODUCTION_OS_WORKER_TOKEN")),
+    },
+}))
+""".strip(),
+        encoding="utf-8",
+    )
+
+    server, thread, base = _server(control)
+    try:
+        client = RemoteWorkerClient(
+            base,
+            "worker-secret",
+            "runner-1",
+            [],
+            timeout=5,
+        )
+        runner = RemoteWorkerRunner(
+            client,
+            [sys.executable, str(executor)],
+            secret_env_names=["PRODUCTION_OS_WORKER_TOKEN"],
+            heartbeat_interval_seconds=0.1,
+            executor_timeout_seconds=5,
+        )
+
+        outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+
+        assert outcomes[0]["status"] == "completed"
+        execution = control.dashboard_store.latest_execution(queued["key"])
+        assert execution["result_summary"]["worker_token_visible"] is False
+    finally:
+        _stop(server, thread)
+
