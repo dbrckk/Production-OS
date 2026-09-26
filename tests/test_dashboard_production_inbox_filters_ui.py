@@ -24,3 +24,25 @@ def test_production_inbox_filter_does_not_duplicate_mutation_contracts():
     assert "cancelLastProduction(this.dataset.projectId)" in DASHBOARD_HTML
     assert "lastProductionManagedAction(this.dataset.projectId,'verify')" in DASHBOARD_HTML
     assert "lastProductionManagedAction(this.dataset.projectId,'complete')" in DASHBOARD_HTML
+
+def test_production_inbox_exposes_search_sort_and_shareable_url_state():
+    assert 'id="production-search"' in DASHBOARD_HTML
+    assert 'id="production-sort"' in DASHBOARD_HTML
+    assert "Rechercher repo, objectif ou ID" in DASHBOARD_HTML
+    assert "Priorité opérateur" in DASHBOARD_HTML
+    assert "Activité récente" in DASHBOARD_HTML
+    assert "setProductionSearch" in DASHBOARD_HTML
+    assert "setProductionSort" in DASHBOARD_HTML
+    assert 'params.set("production_filter",productionFilter)' in DASHBOARD_HTML
+    assert 'params.set("production_q",productionSearch)' in DASHBOARD_HTML
+    assert 'params.set("production_sort",productionSort)' in DASHBOARD_HTML
+    assert 'q.get("production_filter")' in DASHBOARD_HTML
+    assert 'q.get("production_q")' in DASHBOARD_HTML
+    assert 'q.get("production_sort")' in DASHBOARD_HTML
+
+
+def test_production_inbox_requests_server_search_and_sort():
+    assert '"&q="+encodeURIComponent(productionSearch)' in DASHBOARD_HTML
+    assert '"&sort="+encodeURIComponent(productionSort)' in DASHBOARD_HTML
+    assert "summary.matching" in DASHBOARD_HTML
+
