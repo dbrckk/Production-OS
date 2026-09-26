@@ -231,3 +231,61 @@ def test_remote_worker_run_requires_token_from_environment(monkeypatch, capsys):
     else:
         raise AssertionError("runner must not accept a missing worker token")
 
+def test_auth_config_init_hashes_environment_tokens(tmp_path, monkeypatch):
+    import json
+    import stat
+    from production_os.api_auth import token_digest
+    from production_os.cli import main
+
+    output = tmp_path / "auth.json"
+    monkeypatch.setenv("PRODUCTION_OS_OPERATOR_TOKEN", "operator-secret")
+    monkeypatch.setenv("PRODUCTION_OS_WORKER_TOKEN", "worker-secret")
+
+    assert main([
+        "auth-config-init",
+        "--output", str(output),
+        "--worker-id", "worker-one",
+    ]) == 0
+
+    payload = json.loads(output.read_text(encoding="utf-8"))
+    assert payload == {
+        "tokens":[
+            {
+                "name":"operator",
+                "role":"operator",
+                "sha256":token_digest("operator-secret"),
+            },
+            {
+                "name":"worker-one",
+                "role":"worker",
+                "sha256":token_digest("worker-secret"),
+            },
+        ]
+    }
+    raw = output.read_text(encoding="utf-8")
+    assert "operator-secret" not in raw
+    assert "worker-secret" not in raw
+    assert stat.S_IMODE(output.stat().st_mode) == 0o600
+
+
+def test_auth_config_init_refuses_implicit_overwrite(tmp_path, monkeypatch):
+    from production_os.cli import main
+
+    output = tmp_path / "auth.json"
+    output.write_text('{"sentinel":true}\n', encoding="utf-8")
+    monkeypatch.setenv("PRODUCTION_OS_OPERATOR_TOKEN", "operator-secret")
+    monkeypatch.setenv("PRODUCTION_OS_WORKER_TOKEN", "worker-secret")
+
+    try:
+        main([
+            "auth-config-init",
+            "--output", str(output),
+            "--worker-id", "worker-one",
+        ])
+    except FileExistsError as exc:
+        assert "auth config already exists" in str(exc)
+    else:
+        raise AssertionError("auth bootstrap must not overwrite implicitly")
+
+    assert output.read_text(encoding="utf-8") == '{"sentinel":true}\n'
+
