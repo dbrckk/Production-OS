@@ -186,11 +186,15 @@ print(json.dumps({
             heartbeat_interval_seconds=0.05,
             executor_timeout_seconds=5,
         )
-        outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+        outcomes = runner.run(cycles=3, idle_sleep_seconds=0)
 
-        assert len(outcomes) == 1
-        assert outcomes[0]["status"] == "failed"
-        assert outcomes[0]["reason"] == "tests_failed"
+        # Managed Project implementation tasks have max_attempts=3. A worker
+        # failure is automatically retried with a new job key until that
+        # budget is exhausted; only then should operator attention be needed.
+        assert len(outcomes) == 3
+        assert len({row["job_key"] for row in outcomes}) == 3
+        assert all(row["status"] == "failed" for row in outcomes)
+        assert all(row["reason"] == "tests_failed" for row in outcomes)
 
         status, detail = _request(
             base,
