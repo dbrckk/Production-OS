@@ -1,0 +1,43 @@
+services:
+  production-os:
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8787/healthz', timeout=2).read()"
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+
+  production-worker:
+    profiles:
+      - worker
+    build: .
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 15s
+    depends_on:
+      production-os:
+        condition: service_healthy
+    environment:
+      PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
+    volumes:
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
+    command:
+      - remote-worker-run
+      - --url
+      - http://production-os:8787
+      - --worker-id
+      - ${PRODUCTION_OS_WORKER_ID:-worker-one}
+      - --executor-command
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_COMMAND:-}
+      - --max-concurrency
+      - ${PRODUCTION_OS_WORKER_MAX_CONCURRENCY:-1}
+      - --heartbeat-interval-seconds
+      - ${PRODUCTION_OS_WORKER_HEARTBEAT_SECONDS:-5}
+      - --executor-timeout-seconds
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_TIMEOUT_SECONDS:-3600}
+      - --ack-timeout-seconds
+      - ${PRODUCTION_OS_WORKER_ACK_TIMEOUT_SECONDS:-120}
