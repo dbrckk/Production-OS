@@ -524,6 +524,7 @@ def make_handler(control: ControlPlane):
                     elif parsed.path == "/v1/dashboard/productions":
                         payload = service.production_inbox(
                             limit=int(query.get("limit", ["50"])[0]),
+                            category=query.get("filter", ["all"])[0],
                         )
                     elif parsed.path == "/v1/dashboard/attention":
                         payload = service.attention(

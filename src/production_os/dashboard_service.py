@@ -1200,28 +1200,34 @@ class DashboardService:
             "generated_at":_now(),
         }
 
-    def production_inbox(self, *, limit: int = 50) -> dict:
+    def production_inbox(
+        self,
+        *,
+        limit: int = 50,
+        category: str | None = None,
+    ) -> dict:
         bounded = max(1, min(200, int(limit)))
+        selected_filter = str(category or "all").strip().lower()
+        allowed = {"all", "active", "review", "problems", "completed"}
+        if selected_filter not in allowed:
+            raise ValueError("invalid production inbox filter")
+
         managed = self.control.managed_projects.list(limit=500)
-
-        active = [
+        allowed_statuses = {
+            "ACTIVE", "REVIEW_REQUIRED", "NEEDS_ATTENTION", "DONE"
+        }
+        candidates = [
             project
             for project in managed
-            if str(project.get("status") or "") in {
-                "ACTIVE", "REVIEW_REQUIRED", "NEEDS_ATTENTION"
-            }
+            if str(project.get("status") or "") in allowed_statuses
         ]
-        recent_done = [
-            project
-            for project in managed
-            if str(project.get("status") or "") == "DONE"
-        ][:5]
 
-        selected = (active + recent_done)[:bounded]
         items = []
         phase_counts: dict[str, int] = {}
-        for project in selected:
-            project_id = str(project.get("project_id") or project.get("id") or "")
+        for project in candidates:
+            project_id = str(
+                project.get("project_id") or project.get("id") or ""
+            )
             if not project_id:
                 continue
             status = self.production_status(project_id)
@@ -1240,14 +1246,49 @@ class DashboardService:
                 "runtime":runtime,
             })
 
+        def group(item: dict) -> str:
+            phase = str(
+                (item.get("runtime") or {}).get("phase") or "preparing"
+            )
+            if phase == "needs_attention":
+                return "problems"
+            if phase == "review_required":
+                return "review"
+            if phase == "done":
+                return "completed"
+            return "active"
+
+        priority = {
+            "problems":0,
+            "review":1,
+            "active":2,
+            "completed":3,
+        }
+        items.sort(
+            key=lambda item: (
+                str(item.get("updated_at") or ""),
+                str(item.get("project_id") or ""),
+            ),
+            reverse=True,
+        )
+        items.sort(key=lambda item: priority[group(item)])
+        filtered = (
+            items
+            if selected_filter == "all"
+            else [item for item in items if group(item) == selected_filter]
+        )
+        visible = filtered[:bounded]
+
         live_phases = {
             "preparing", "queued", "claimed", "running", "cancelling"
         }
         return {
             "schema_version":"production-os/production-inbox/v1",
             "generated_at":_now(),
+            "filter":selected_filter,
             "summary":{
-                "visible":len(items),
+                "visible":len(visible),
+                "total":len(items),
                 "active":sum(
                     count
                     for phase, count in phase_counts.items()
@@ -1262,7 +1303,7 @@ class DashboardService:
                 "needs_attention":phase_counts.get("needs_attention", 0),
                 "done":phase_counts.get("done", 0),
             },
-            "items":items,
+            "items":visible,
         }
 
     def repositories(self) -> dict:

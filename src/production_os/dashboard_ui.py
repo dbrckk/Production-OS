@@ -121,7 +121,7 @@ textarea{resize:vertical;min-height:150px;line-height:1.45}
 .attention-required{border-left:3px solid rgba(251,191,36,.8)}
 .attention-done{opacity:.78}
 .production-inbox-summary{position:sticky;top:8px;z-index:2}
-.production-inbox-card{scroll-margin-top:80px}
+.production-filter-tabs{display:flex;gap:6px;overflow-x:auto;margin:0 0 10px}.production-filter-tabs button{white-space:nowrap}.production-inbox-card{scroll-margin-top:80px}
 .production-inbox-card .live-progress{margin:10px 0}
 .attention-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .attention-focus{outline:2px solid rgba(110,168,254,.7);box-shadow:0 0 0 4px rgba(110,168,254,.12)}
@@ -193,7 +193,7 @@ body{overflow-x:hidden}
 </nav>
 <section class="v3-workspace" aria-live="polite">
 <div id="view-attention" class="v3-view active"><div class="section-head"><h2>À faire maintenant</h2><span id="attention-count" class="badge">0</span></div><div id="attention-list"></div></div>
-<div id="view-productions" class="v3-view"><div class="section-head"><h2>Productions</h2><span id="productions-count" class="badge">0</span></div><div id="productions-list"></div></div>
+<div id="view-productions" class="v3-view"><div class="section-head"><h2>Productions</h2><span id="productions-count" class="badge">0</span></div><div class="production-filter-tabs" aria-label="Filtrer les productions"><button type="button" data-production-filter="all" onclick="setProductionFilter('all')">Toutes</button><button type="button" data-production-filter="active" onclick="setProductionFilter('active')">Actives</button><button type="button" data-production-filter="review" onclick="setProductionFilter('review')">À revoir</button><button type="button" data-production-filter="problems" onclick="setProductionFilter('problems')">Problèmes</button><button type="button" data-production-filter="completed" onclick="setProductionFilter('completed')">Terminées</button></div><div id="productions-list"></div></div>
 <div id="view-overview" class="v3-view"><div class="section-head"><h2>Vue générale</h2><div class="v3-tabs" aria-label="Période"><button type="button" onclick="setDashboardWindow('24h')">24h</button><button type="button" onclick="setDashboardWindow('7d')">7d</button><button type="button" onclick="setDashboardWindow('30d')">30d</button></div></div><div id="overview-metrics"></div></div>
 <div id="view-projects" class="v3-view"><h2>Projets</h2><div id="projects-list"></div><div class="v3-tabs" aria-label="Détail projet"><button>Aperçu</button><button>Avancement</button><button>Commits</button><button>API</button><button>Workflows</button><button>Qualité</button><button>Historique</button></div><div id="project-detail"></div></div>
 <div id="view-workers" class="v3-view"><h2>Workers</h2><div id="workers-list"></div><div class="v3-tabs" aria-label="Détail worker"><button>Aperçu</button><button>Tâches</button><button>Logs</button><button>API</button><button>Historique</button><button data-worker-tab="control">Control</button></div><div id="worker-detail"></div></div>
@@ -238,6 +238,7 @@ const PENDING_LAUNCH_KEY='production_os_pending_launch';
 let workerOnline=false;
 let refreshBusy=false;
 let launchReadiness=null;
+let productionFilter="all";
 
 function token(){return localStorage.getItem(TOKEN_KEY)||''}
 function esc(value){return String(value).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})}
@@ -1667,18 +1668,22 @@ function productionInboxActions(projectId,phase){
  }
  return open;
 }
+function setProductionFilter(value){
+ productionFilter=String(value||"all");
+ return loadProductionInbox();
+}
 async function loadProductionInbox(){
  const el=document.getElementById("productions-list");
  const count=document.getElementById("productions-count");
  if(!el||!count)return null;
  try{
-  const data=await api("/v1/dashboard/productions?limit=50");
+  const data=await api("/v1/dashboard/productions?limit=50"+"&filter="+encodeURIComponent(productionFilter));
   const rows=data.items||[];
   const summary=data.summary||{};
   count.textContent=String(summary.visible||rows.length||0);
   const summaryHtml=
    '<div class="card production-inbox-summary"><div class="small">'+
-   '<strong>Actives :</strong> '+formatNumber(summary.active||0)+
+   '<strong>Total :</strong> '+formatNumber(summary.total||0)+' · <strong>Actives :</strong> '+formatNumber(summary.active||0)+
    ' · <strong>En file :</strong> '+formatNumber(summary.queued||0)+
    ' · <strong>En cours :</strong> '+formatNumber(summary.running||0)+
    ' · <strong>Annulation :</strong> '+formatNumber(summary.cancelling||0)+
