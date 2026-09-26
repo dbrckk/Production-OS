@@ -1266,11 +1266,12 @@ class DashboardService:
         }
         items.sort(
             key=lambda item: (
-                priority[group(item)],
                 str(item.get("updated_at") or ""),
                 str(item.get("project_id") or ""),
-            )
+            ),
+            reverse=True,
         )
+        items.sort(key=lambda item: priority[group(item)])
         filtered = (
             items
             if selected_filter == "all"
