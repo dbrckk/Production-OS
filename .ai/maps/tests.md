@@ -2018,6 +2018,19 @@ def test_production_inbox_filter_does_not_duplicate_mutation_contracts()
 def test_production_inbox_exposes_search_sort_and_shareable_url_state()
 ⋮----
 def test_production_inbox_requests_server_search_and_sort()
+⋮----
+def test_production_inbox_has_shareable_inline_detail_panel()
+⋮----
+def test_production_inbox_open_stays_in_productions_and_reuses_safe_actions()
+⋮----
+start = DASHBOARD_HTML.index("function productionInboxActions")
+end = DASHBOARD_HTML.index("function updateDashboardUrl", start)
+body = DASHBOARD_HTML[start:end]
+⋮----
+def test_production_inbox_target_restores_detail_even_outside_visible_list()
+⋮----
+start = DASHBOARD_HTML.index("async function loadProductionInbox")
+end = DASHBOARD_HTML.index("async function loadAttention", start)
 ```
 
 ## File: test_dashboard_production_inbox.py

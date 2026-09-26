@@ -10080,6 +10080,19 @@ def test_production_inbox_filter_does_not_duplicate_mutation_contracts()
 def test_production_inbox_exposes_search_sort_and_shareable_url_state()
 ⋮----
 def test_production_inbox_requests_server_search_and_sort()
+⋮----
+def test_production_inbox_has_shareable_inline_detail_panel()
+⋮----
+def test_production_inbox_open_stays_in_productions_and_reuses_safe_actions()
+⋮----
+start = DASHBOARD_HTML.index("function productionInboxActions")
+end = DASHBOARD_HTML.index("function updateDashboardUrl", start)
+body = DASHBOARD_HTML[start:end]
+⋮----
+def test_production_inbox_target_restores_detail_even_outside_visible_list()
+⋮----
+start = DASHBOARD_HTML.index("async function loadProductionInbox")
+end = DASHBOARD_HTML.index("async function loadAttention", start)
 ````
 
 ## File: tests/test_dashboard_production_inbox.py
@@ -15415,6 +15428,32 @@ The mobile Productions view adds:
 - existing project `target` deep links continue to restore focused Managed Project cards.
 
 This makes the inbox usable across reloads and shareable links without moving any operator mutation into browser-local state.
+
+
+## Release 48 — Inline production detail
+
+Opening a production from the persistent inbox no longer forces a context switch to the technical Managed Projects view.
+
+The Productions surface now owns a shareable focused detail panel driven by the existing URL `target` parameter:
+
+```text
+/dashboard?view=productions&target=<project_id>
+```
+
+The detail is reconstructed from the existing server-authoritative production status endpoint, so it remains valid after refresh or on another paired device.
+
+The focused panel shows:
+
+- repository and final goal;
+- current runtime phase and message;
+- current generation;
+- worker and stage when available;
+- normalized outcome evidence;
+- generation history;
+- the same guarded cancel / retest / DONE actions already used by the inbox;
+- an explicit escape hatch to the advanced Managed Projects view.
+
+The detail loads even when the selected production is outside the current inbox filter/search result. Closing the panel clears only the URL target and keeps the current inbox filter/search/sort state.
 
 ## Design principles
 
