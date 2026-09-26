@@ -5,7 +5,9 @@ COPY pyproject.toml README.md LICENSE ./
 COPY src ./src
 RUN python -m pip install --no-cache-dir ".[postgres]"
 
-RUN useradd --create-home --uid 10001 productionos
+RUN useradd --create-home --uid 10001 productionos \
+    && mkdir -p /data \
+    && chown -R productionos:productionos /data
 USER productionos
 WORKDIR /data
 
