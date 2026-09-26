@@ -270,6 +270,7 @@
       "dependents": [
         "src/production_os/cli.py",
         "src/production_os/health_server.py",
+        "tests/test_cli.py",
         "tests/test_control_plane.py",
         "tests/test_control_plane_pr_impact.py",
         "tests/test_control_plane_release.py",
@@ -316,7 +317,7 @@
         "tests/test_speculation_api.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 47,
+      "in_degree": 48,
       "out_degree": 23,
       "path": "src/production_os/control_plane.py"
     },
@@ -862,6 +863,32 @@
     },
     {
       "dependencies": [
+        "src/production_os/workers.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/remote_worker_runner.py",
+        "tests/test_cli.py",
+        "tests/test_production_stack_e2e.py",
+        "tests/test_release32_one_tap_e2e.py",
+        "tests/test_release33_auto_worker_recovery_e2e.py",
+        "tests/test_release34_safe_running_recovery_e2e.py",
+        "tests/test_release35_control_plane_restart_e2e.py",
+        "tests/test_release36_worker_session_reconciliation_e2e.py",
+        "tests/test_release41_live_production_tracking_e2e.py",
+        "tests/test_release43_safe_production_cancel_e2e.py",
+        "tests/test_release44_one_tap_recovery_actions_e2e.py",
+        "tests/test_release45_production_inbox_e2e.py",
+        "tests/test_release51_one_tap_runner_e2e.py",
+        "tests/test_remote_worker.py",
+        "tests/test_remote_worker_runner.py"
+      ],
+      "in_degree": 16,
+      "out_degree": 1,
+      "path": "src/production_os/remote_worker.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/signing.py"
       ],
       "dependents": [
@@ -885,31 +912,6 @@
       "in_degree": 16,
       "out_degree": 1,
       "path": "src/production_os/signers.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/workers.py"
-      ],
-      "dependents": [
-        "src/production_os/cli.py",
-        "src/production_os/remote_worker_runner.py",
-        "tests/test_production_stack_e2e.py",
-        "tests/test_release32_one_tap_e2e.py",
-        "tests/test_release33_auto_worker_recovery_e2e.py",
-        "tests/test_release34_safe_running_recovery_e2e.py",
-        "tests/test_release35_control_plane_restart_e2e.py",
-        "tests/test_release36_worker_session_reconciliation_e2e.py",
-        "tests/test_release41_live_production_tracking_e2e.py",
-        "tests/test_release43_safe_production_cancel_e2e.py",
-        "tests/test_release44_one_tap_recovery_actions_e2e.py",
-        "tests/test_release45_production_inbox_e2e.py",
-        "tests/test_release51_one_tap_runner_e2e.py",
-        "tests/test_remote_worker.py",
-        "tests/test_remote_worker_runner.py"
-      ],
-      "in_degree": 15,
-      "out_degree": 1,
-      "path": "src/production_os/remote_worker.py"
     },
     {
       "dependencies": [
@@ -1256,6 +1258,24 @@
       "path": "src/production_os/transparency_receipts.py"
     },
     {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/cli.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/dashboard_backups.py",
+        "src/production_os/database_maintenance_lock.py",
+        "src/production_os/remote_worker.py",
+        "src/production_os/remote_worker_runner.py",
+        "src/production_os/signers.py",
+        "src/production_os/sqlite_backend.py",
+        "src/production_os/workers.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 10,
+      "path": "tests/test_cli.py"
+    },
+    {
       "dependencies": [],
       "dependents": [
         "src/production_os/approvals.py",
@@ -1490,6 +1510,22 @@
     },
     {
       "dependencies": [
+        "src/production_os/remote_worker.py",
+        "src/production_os/workers.py",
+        "tests/test_asset_forge.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "tests/test_cli.py",
+        "tests/test_release51_one_tap_runner_e2e.py",
+        "tests/test_remote_worker_runner.py"
+      ],
+      "in_degree": 4,
+      "out_degree": 3,
+      "path": "src/production_os/remote_worker_runner.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/signers.py",
         "src/production_os/signing.py",
         "tests/test_asset_forge.py"
@@ -1519,21 +1555,6 @@
       "in_degree": 3,
       "out_degree": 4,
       "path": "src/production_os/delivery.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/__init__.py",
-        "src/production_os/cli.py",
-        "src/production_os/dashboard_backups.py",
-        "src/production_os/database_maintenance_lock.py",
-        "src/production_os/signers.py",
-        "src/production_os/sqlite_backend.py",
-        "src/production_os/workers.py"
-      ],
-      "dependents": [],
-      "in_degree": 0,
-      "out_degree": 7,
-      "path": "tests/test_cli.py"
     },
     {
       "dependencies": [
@@ -1717,21 +1738,6 @@
     },
     {
       "dependencies": [
-        "src/production_os/remote_worker.py",
-        "src/production_os/workers.py",
-        "tests/test_asset_forge.py"
-      ],
-      "dependents": [
-        "src/production_os/cli.py",
-        "tests/test_release51_one_tap_runner_e2e.py",
-        "tests/test_remote_worker_runner.py"
-      ],
-      "in_degree": 3,
-      "out_degree": 3,
-      "path": "src/production_os/remote_worker_runner.py"
-    },
-    {
-      "dependencies": [
         "src/production_os/policy.py",
         "src/production_os/quarantine.py",
         "src/production_os/runtime_state.py",
@@ -1746,7 +1752,7 @@
       "path": "src/production_os/governance.py"
     }
   ],
-  "edge_count": 1347,
+  "edge_count": 1350,
   "generated_by": "dbrckk/repo-brain-v7-graph",
   "node_count": 263,
   "schema_version": 1

@@ -2088,6 +2088,10 @@ token = str(os.getenv(args.token_env) or "").strip()
 command = shlex.split(str(args.executor_command))
 ⋮----
 runner = RemoteWorkerRunner(
+previous_handlers = {}
+⋮----
+def _request_stop(_signum, _frame)
+⋮----
 outcomes = runner.run(
 ⋮----
 def _workflow_engine(database: str) -> WorkflowEngine
@@ -6745,6 +6749,13 @@ command = [str(part) for part in executor_command if str(part)]
 ⋮----
 secret_names = {
 ⋮----
+def request_stop(self) -> None
+⋮----
+"""Stop claiming work and terminate active executors cooperatively."""
+⋮----
+@property
+    def stop_requested(self) -> bool
+⋮----
 @staticmethod
     def _terminate(process: subprocess.Popen[str]) -> None
 ⋮----
@@ -8857,6 +8868,24 @@ rc = run_restore_activate(args)
 payload = json.loads(capsys.readouterr().err)
 ⋮----
 def test_remote_worker_run_requires_token_from_environment(monkeypatch, capsys)
+⋮----
+installed = {}
+restored = []
+old_handlers = {
+⋮----
+def fake_signal(signum, handler)
+⋮----
+runners = []
+⋮----
+class FakeRunner
+⋮----
+def __init__(self, *_args, **_kwargs)
+⋮----
+def request_stop(self)
+⋮----
+def run(self, **_kwargs)
+⋮----
+class FakeClient
 ````
 
 ## File: tests/test_compatibility_validation.py
@@ -12960,6 +12989,28 @@ saw_two_markers = True
 worker = control.workers.workers.get("runner-1")
 ⋮----
 saw_two_active = True
+⋮----
+control = ControlPlane(
+⋮----
+markers = tmp_path / "stop-markers"
+⋮----
+executor = tmp_path / "stop_executor.py"
+⋮----
+runner_thread = None
+runner = None
+⋮----
+runner_thread = threading.Thread(
+⋮----
+deadline = time.time() + 3
+⋮----
+pid = int(marker.read_text(encoding="utf-8"))
+⋮----
+# The stopped worker never lies by marking unfinished work failed or
+# completed. A fresh session for the same worker is authoritative and
+# immediately recovers both abandoned ACKed jobs.
+⋮----
+session = restarted.open_session(
+recovered = session["recovered_jobs"]
 ````
 
 ## File: tests/test_remote_worker.py
@@ -15846,6 +15897,27 @@ For bounded runs, Production-OS stops claiming after the requested cycle count b
 Per-job cancellation no longer clears unrelated active-job state: acknowledging one cancellation publishes the remaining active keys together with the cancelled job's control acknowledgement.
 
 A regression test requires two executor subprocesses to start simultaneously with `max_concurrency=2`, observes `active_tasks=2`, verifies both jobs complete, and confirms the worker returns to zero active tasks afterward.
+
+
+## Release 53 — Graceful concurrent runner shutdown
+
+The persistent remote worker now supports cooperative process shutdown while multiple executor subprocesses are active.
+
+`RemoteWorkerRunner.request_stop()` is thread-safe and idempotent. Once requested:
+
+- no new jobs are claimed;
+- idle sleeps wake immediately;
+- each active executor observes the stop request on its next heartbeat interval;
+- executor subprocesses are terminated, then killed if they do not exit within the existing termination grace period;
+- unfinished jobs are **not** falsely completed, failed or cancelled;
+- runner outcomes report `abandoned / worker_shutdown`;
+- the active-job heartbeat converges back to zero before the runner exits.
+
+The jobs intentionally remain ACKed after the process stops. The next authoritative worker session for the same `worker_id` starts with its real in-memory active set and immediately reconciles those old ACKed jobs back to the durable queue. This preserves job/workflow/project identity and lets restart recovery remain the single source of truth.
+
+The `remote-worker-run` CLI now maps both SIGTERM and SIGINT to `request_stop()`. Signal handlers perform no HTTP or subprocess work directly; they only set the cooperative stop event. Previous signal handlers are restored when the command returns.
+
+Regression coverage starts two long-running executors concurrently, stops the runner, verifies both child processes are gone, verifies both jobs remain recoverable, opens a replacement worker session, and proves both jobs are immediately requeued.
 
 ## Design principles
 

@@ -22,34 +22,34 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-26T13:18:50Z
+Generated: 2026-09-26T15:28:55Z
 
 ### Git
 - Branch: `main`
-- Head: `7c7b551d28cf`
-- Commit date: 2026-09-26T15:18:39+02:00
-- Commit: feat: release 52 concurrent remote runner
-- Tracked files: 455
+- Head: `4f715b1013c4`
+- Commit date: 2026-09-26T17:28:42+02:00
+- Commit: feat: release 53 graceful runner shutdown
+- Tracked files: 456
 
 ### Recently changed files
 - `README.md`
-- `docs/superpowers/plans/2026-09-26-release-52-concurrent-remote-runner.md`
+- `docs/superpowers/plans/2026-09-26-release-53-graceful-runner-shutdown.md`
+- `src/production_os/cli.py`
 - `src/production_os/remote_worker_runner.py`
+- `tests/test_cli.py`
 - `tests/test_remote_worker_runner.py`
+- `docs/superpowers/plans/2026-09-26-release-52-concurrent-remote-runner.md`
 - `docs/superpowers/plans/2026-09-26-release-51-one-tap-runner-e2e.md`
 - `tests/test_release51_one_tap_runner_e2e.py`
 - `docs/remote-worker-executor-protocol.md`
 - `docs/superpowers/plans/2026-09-26-release-50-remote-worker-runner.md`
-- `src/production_os/cli.py`
 - `src/production_os/control_plane.py`
 - `src/production_os/remote_worker.py`
-- `tests/test_cli.py`
 - `docs/superpowers/plans/2026-09-26-release-49-unified-production-actions.md`
 - `src/production_os/dashboard_service.py`
 - `src/production_os/dashboard_ui.py`
 - `tests/test_dashboard_attention.py`
 - `tests/test_dashboard_production_inbox_filters_ui.py`
-- `docs/superpowers/plans/2026-09-26-release-48-production-inbox-detail.md`
 
 ### Project signals
 - `pyproject.toml`

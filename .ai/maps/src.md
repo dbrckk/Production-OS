@@ -1551,6 +1551,10 @@ token = str(os.getenv(args.token_env) or "").strip()
 command = shlex.split(str(args.executor_command))
 ⋮----
 runner = RemoteWorkerRunner(
+previous_handlers = {}
+⋮----
+def _request_stop(_signum, _frame)
+⋮----
 outcomes = runner.run(
 ⋮----
 def _workflow_engine(database: str) -> WorkflowEngine
@@ -6207,6 +6211,13 @@ class RemoteWorkerRunner
 command = [str(part) for part in executor_command if str(part)]
 ⋮----
 secret_names = {
+⋮----
+def request_stop(self) -> None
+⋮----
+"""Stop claiming work and terminate active executors cooperatively."""
+⋮----
+@property
+    def stop_requested(self) -> bool
 ⋮----
 @staticmethod
     def _terminate(process: subprocess.Popen[str]) -> None

@@ -1,12 +1,14 @@
 # Change impact
 
-Base: 1c0efbfcbb39dd49d34b914328fa775d0db165f8
-Head: 7c7b551d28cfcbf24fdeababad94f4c64baea386
+Base: 822b7a386ffb49ce2d17957c240201825b43d7dc
+Head: 4f715b1013c47166b1b20fef347757334f283679
 
 ## Changed files
 - M README.md
-- A docs/superpowers/plans/2026-09-26-release-52-concurrent-remote-runner.md
+- A docs/superpowers/plans/2026-09-26-release-53-graceful-runner-shutdown.md
+- M src/production_os/cli.py
 - M src/production_os/remote_worker_runner.py
+- M tests/test_cli.py
 - M tests/test_remote_worker_runner.py
 
 ## Affected areas
@@ -16,6 +18,7 @@ Head: 7c7b551d28cfcbf24fdeababad94f4c64baea386
 - tests
 
 ## Related test candidates
+- tests/test_cli.py
 - tests/test_remote_worker_runner.py
 
 ## Agent guidance

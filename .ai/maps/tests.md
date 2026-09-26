@@ -704,6 +704,24 @@ rc = run_restore_activate(args)
 payload = json.loads(capsys.readouterr().err)
 ⋮----
 def test_remote_worker_run_requires_token_from_environment(monkeypatch, capsys)
+⋮----
+installed = {}
+restored = []
+old_handlers = {
+⋮----
+def fake_signal(signum, handler)
+⋮----
+runners = []
+⋮----
+class FakeRunner
+⋮----
+def __init__(self, *_args, **_kwargs)
+⋮----
+def request_stop(self)
+⋮----
+def run(self, **_kwargs)
+⋮----
+class FakeClient
 ```
 
 ## File: test_compatibility_validation.py
@@ -4807,6 +4825,28 @@ saw_two_markers = True
 worker = control.workers.workers.get("runner-1")
 ⋮----
 saw_two_active = True
+⋮----
+control = ControlPlane(
+⋮----
+markers = tmp_path / "stop-markers"
+⋮----
+executor = tmp_path / "stop_executor.py"
+⋮----
+runner_thread = None
+runner = None
+⋮----
+runner_thread = threading.Thread(
+⋮----
+deadline = time.time() + 3
+⋮----
+pid = int(marker.read_text(encoding="utf-8"))
+⋮----
+# The stopped worker never lies by marking unfinished work failed or
+# completed. A fresh session for the same worker is authoritative and
+# immediately recovers both abandoned ACKed jobs.
+⋮----
+session = restarted.open_session(
+recovered = session["recovered_jobs"]
 ```
 
 ## File: test_remote_worker.py
