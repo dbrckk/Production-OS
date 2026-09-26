@@ -1,11 +1,17 @@
 import json
+import signal
 import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
 import pytest
 
-from production_os.cli import _parse_args, run_asset_forge_batch, run_restore_activate
+from production_os.cli import (
+    _parse_args,
+    run_asset_forge_batch,
+    run_remote_worker_run,
+    run_restore_activate,
+)
 from production_os.dashboard_backups import create_verified_sqlite_backup, stage_verified_sqlite_restore
 from production_os.database_maintenance_lock import SQLiteDatabaseProcessLock
 from production_os.sqlite_backend import SQLiteBackend
@@ -230,4 +236,67 @@ def test_remote_worker_run_requires_token_from_environment(monkeypatch, capsys):
         assert str(exc) == "PRODUCTION_OS_WORKER_TOKEN is required"
     else:
         raise AssertionError("runner must not accept a missing worker token")
+
+def test_remote_worker_run_translates_process_signals_to_cooperative_stop(
+    monkeypatch,
+):
+    args = _parse_args([
+        "remote-worker-run",
+        "--url", "http://127.0.0.1:8787",
+        "--worker-id", "runner-1",
+        "--executor-command", "python executor.py",
+    ])
+    monkeypatch.setenv("PRODUCTION_OS_WORKER_TOKEN", "secret")
+
+    installed = {}
+    restored = []
+    old_handlers = {
+        signal.SIGTERM: object(),
+        signal.SIGINT: object(),
+    }
+
+    def fake_signal(signum, handler):
+        if callable(handler):
+            installed[signum] = handler
+            return old_handlers[signum]
+        restored.append((signum, handler))
+        return handler
+
+    monkeypatch.setattr(
+        "production_os.cli.signal",
+        type("SignalModule", (), {
+            "SIGTERM":signal.SIGTERM,
+            "SIGINT":signal.SIGINT,
+            "signal":staticmethod(fake_signal),
+        }),
+        raising=False,
+    )
+
+    runners = []
+
+    class FakeRunner:
+        def __init__(self, *_args, **_kwargs):
+            self.stop_calls = 0
+            runners.append(self)
+
+        def request_stop(self):
+            self.stop_calls += 1
+
+        def run(self, **_kwargs):
+            assert signal.SIGTERM in installed
+            assert signal.SIGINT in installed
+            installed[signal.SIGTERM](signal.SIGTERM, None)
+            return []
+
+    class FakeClient:
+        def __init__(self, *_args, **_kwargs):
+            pass
+
+    monkeypatch.setattr("production_os.cli.RemoteWorkerClient", FakeClient)
+    monkeypatch.setattr("production_os.cli.RemoteWorkerRunner", FakeRunner)
+
+    assert run_remote_worker_run(args) == 0
+    assert runners[0].stop_calls == 1
+    assert (signal.SIGTERM, old_handlers[signal.SIGTERM]) in restored
+    assert (signal.SIGINT, old_handlers[signal.SIGINT]) in restored
 

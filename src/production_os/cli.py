@@ -4,6 +4,7 @@ import argparse
 import json
 import os
 import shlex
+import signal
 import sys
 from pathlib import Path
 from typing import Iterable
@@ -1936,11 +1937,26 @@ def run_remote_worker_run(args: argparse.Namespace) -> int:
         executor_timeout_seconds=args.executor_timeout_seconds,
         secret_env_names=[args.token_env],
     )
-    outcomes = runner.run(
-        cycles=args.cycles,
-        idle_sleep_seconds=args.idle_sleep_seconds,
-        ack_timeout_seconds=args.ack_timeout_seconds,
-    )
+    previous_handlers = {}
+
+    def _request_stop(_signum, _frame):
+        runner.request_stop()
+
+    for signum in (signal.SIGTERM, signal.SIGINT):
+        previous_handlers[signum] = signal.signal(
+            signum,
+            _request_stop,
+        )
+    try:
+        outcomes = runner.run(
+            cycles=args.cycles,
+            idle_sleep_seconds=args.idle_sleep_seconds,
+            ack_timeout_seconds=args.ack_timeout_seconds,
+        )
+    finally:
+        for signum, handler in previous_handlers.items():
+            signal.signal(signum, handler)
+
     print(json.dumps({
         "schema_version":"production-os/remote-worker-run/v1",
         "worker_id":args.worker_id,

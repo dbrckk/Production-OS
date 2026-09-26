@@ -1702,6 +1702,27 @@ Per-job cancellation no longer clears unrelated active-job state: acknowledging 
 
 A regression test requires two executor subprocesses to start simultaneously with `max_concurrency=2`, observes `active_tasks=2`, verifies both jobs complete, and confirms the worker returns to zero active tasks afterward.
 
+
+## Release 53 — Graceful concurrent runner shutdown
+
+The persistent remote worker now supports cooperative process shutdown while multiple executor subprocesses are active.
+
+`RemoteWorkerRunner.request_stop()` is thread-safe and idempotent. Once requested:
+
+- no new jobs are claimed;
+- idle sleeps wake immediately;
+- each active executor observes the stop request on its next heartbeat interval;
+- executor subprocesses are terminated, then killed if they do not exit within the existing termination grace period;
+- unfinished jobs are **not** falsely completed, failed or cancelled;
+- runner outcomes report `abandoned / worker_shutdown`;
+- the active-job heartbeat converges back to zero before the runner exits.
+
+The jobs intentionally remain ACKed after the process stops. The next authoritative worker session for the same `worker_id` starts with its real in-memory active set and immediately reconciles those old ACKed jobs back to the durable queue. This preserves job/workflow/project identity and lets restart recovery remain the single source of truth.
+
+The `remote-worker-run` CLI now maps both SIGTERM and SIGINT to `request_stop()`. Signal handlers perform no HTTP or subprocess work directly; they only set the cooperative stop event. Previous signal handlers are restored when the command returns.
+
+Regression coverage starts two long-running executors concurrently, stops the runner, verifies both child processes are gone, verifies both jobs remain recoverable, opens a replacement worker session, and proves both jobs are immediately requeued.
+
 ## Design principles
 
 - Evidence over assumptions
