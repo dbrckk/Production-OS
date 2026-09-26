@@ -140,3 +140,77 @@ def test_production_inbox_orders_recent_activity_first_within_same_priority(tmp_
         older["project_id"],
     ]
 
+def test_production_inbox_search_matches_repository_goal_and_project_id(tmp_path):
+    control, queued, review, attention, done = _production_fixture(tmp_path)
+
+    by_repository = control.dashboard.production_inbox(
+        limit=50,
+        search="INBOX-REVIEW",
+    )
+    assert [row["project_id"] for row in by_repository["items"]] == [
+        review["project_id"]
+    ]
+    assert by_repository["search"] == "INBOX-REVIEW"
+    assert by_repository["summary"]["matching"] == 1
+    assert by_repository["summary"]["total"] == 4
+
+    by_goal = control.dashboard.production_inbox(
+        limit=50,
+        search="be cancelled",
+    )
+    assert [row["project_id"] for row in by_goal["items"]] == [
+        attention["project_id"]
+    ]
+
+    by_id = control.dashboard.production_inbox(
+        limit=50,
+        search=done["project_id"],
+    )
+    assert [row["project_id"] for row in by_id["items"]] == [
+        done["project_id"]
+    ]
+
+
+def test_production_inbox_recent_sort_ignores_priority_but_keeps_filter(tmp_path):
+    control, queued, review, attention, done = _production_fixture(tmp_path)
+    timestamps = {
+        queued["project_id"]:"2026-01-04T00:00:00+00:00",
+        review["project_id"]:"2026-01-03T00:00:00+00:00",
+        attention["project_id"]:"2026-01-02T00:00:00+00:00",
+        done["project_id"]:"2026-01-01T00:00:00+00:00",
+    }
+    with control.backend.transaction() as db:
+        for project_id, updated_at in timestamps.items():
+            db.execute(
+                "UPDATE managed_projects SET updated_at=? WHERE id=?",
+                (updated_at, project_id),
+            )
+
+    recent = control.dashboard.production_inbox(limit=50, sort="recent")
+    assert recent["sort"] == "recent"
+    assert [row["project_id"] for row in recent["items"]] == [
+        queued["project_id"],
+        review["project_id"],
+        attention["project_id"],
+        done["project_id"],
+    ]
+
+    review_only = control.dashboard.production_inbox(
+        limit=50,
+        category="review",
+        sort="recent",
+    )
+    assert [row["project_id"] for row in review_only["items"]] == [
+        review["project_id"]
+    ]
+
+
+def test_production_inbox_rejects_unknown_sort(tmp_path):
+    control = ControlPlane(str(tmp_path / "production-inbox-sort.sqlite"))
+    try:
+        control.dashboard.production_inbox(sort="oldest")
+    except ValueError as exc:
+        assert str(exc) == "invalid production inbox sort"
+    else:
+        raise AssertionError("unknown production inbox sort must be rejected")
+
