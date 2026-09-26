@@ -46,3 +46,31 @@ def test_production_inbox_requests_server_search_and_sort():
     assert '"&sort="+encodeURIComponent(productionSort)' in DASHBOARD_HTML
     assert "summary.matching" in DASHBOARD_HTML
 
+def test_production_inbox_has_shareable_inline_detail_panel():
+    assert 'id="production-detail"' in DASHBOARD_HTML
+    assert "openProductionInboxItem" in DASHBOARD_HTML
+    assert "closeProductionInboxDetail" in DASHBOARD_HTML
+    assert "loadProductionInboxDetail" in DASHBOARD_HTML
+    assert '"/v1/dashboard/production-status?project_id="' in DASHBOARD_HTML
+    assert "Historique des générations" in DASHBOARD_HTML
+    assert "Vue Managed avancée" in DASHBOARD_HTML
+
+
+def test_production_inbox_open_stays_in_productions_and_reuses_safe_actions():
+    start = DASHBOARD_HTML.index("function productionInboxActions")
+    end = DASHBOARD_HTML.index("function updateDashboardUrl", start)
+    body = DASHBOARD_HTML[start:end]
+    assert "openProductionInboxItem(this.dataset.projectId)" in body
+    assert "cancelLastProduction(this.dataset.projectId)" in body
+    assert "lastProductionManagedAction(this.dataset.projectId,'verify')" in body
+    assert "lastProductionManagedAction(this.dataset.projectId,'complete')" in body
+    assert "openLastProduction(this.dataset.projectId)" not in body
+
+
+def test_production_inbox_target_restores_detail_even_outside_visible_list():
+    start = DASHBOARD_HTML.index("async function loadProductionInbox")
+    end = DASHBOARD_HTML.index("async function loadAttention", start)
+    body = DASHBOARD_HTML[start:end]
+    assert "loadProductionInboxDetail(appState.focus)" in body
+    assert "CSS.escape(String(appState.focus))" in body
+
