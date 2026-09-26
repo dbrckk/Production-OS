@@ -59,3 +59,18 @@ def test_postgres_runtime_workers_and_queue():
         queued["key"],"worker-1"
     )["status"]=="completed"
     assert backend.events_after()
+
+def test_postgres_queued_job_can_be_cancelled_without_worker():
+    backend=PostgresBackend(DSN)
+    reset(backend)
+    queue=PostgresJobQueue(backend)
+    queued=queue.enqueue({
+        "handoff":{"repository":"o/cancel","task":"stop before claim"},
+    })
+
+    cancelled=queue.cancel_queued(queued["key"], reason="operator cancel")
+    assert cancelled["status"]=="cancelled"
+    assert cancelled["claimed_by"] is None
+    assert cancelled["completed_at"]
+    assert queue.peek_candidates()==[]
+
