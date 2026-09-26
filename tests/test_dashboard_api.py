@@ -716,3 +716,52 @@ def test_production_inbox_is_viewer_visible_and_worker_forbidden(
     assert status == 403
     assert payload["required_role"] == "viewer"
 
+def test_production_inbox_query_parameters_reach_server_search_and_sort(
+    running_control_plane,
+):
+    base, control = running_control_plane
+    control.managed_projects.create(
+        repository="dbrckk/navigation-alpha",
+        final_goal="Ship the searchable alpha target.",
+        token_budget=30000,
+        agent_preference="auto",
+    )
+    control.managed_projects.create(
+        repository="dbrckk/navigation-beta",
+        final_goal="Ship an unrelated beta target.",
+        token_budget=30000,
+        agent_preference="auto",
+    )
+
+    status, payload = get_api(
+        base,
+        (
+            "/v1/dashboard/productions"
+            "?limit=20&filter=active&q=SEARCHABLE%20ALPHA&sort=recent"
+        ),
+        "viewer-token",
+    )
+
+    assert status == 200
+    assert payload["filter"] == "active"
+    assert payload["search"] == "SEARCHABLE ALPHA"
+    assert payload["sort"] == "recent"
+    assert payload["summary"]["matching"] == 1
+    assert payload["summary"]["total"] == 2
+    assert [row["repository"] for row in payload["items"]] == [
+        "dbrckk/navigation-alpha"
+    ]
+
+
+def test_production_inbox_rejects_invalid_sort_over_http(running_control_plane):
+    base, _control = running_control_plane
+
+    status, payload = get_api(
+        base,
+        "/v1/dashboard/productions?sort=oldest",
+        "viewer-token",
+    )
+
+    assert status == 400
+    assert payload["error"] == "invalid dashboard query"
+

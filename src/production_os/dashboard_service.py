@@ -1205,12 +1205,19 @@ class DashboardService:
         *,
         limit: int = 50,
         category: str | None = None,
+        search: str | None = None,
+        sort: str | None = None,
     ) -> dict:
         bounded = max(1, min(200, int(limit)))
         selected_filter = str(category or "all").strip().lower()
         allowed = {"all", "active", "review", "problems", "completed"}
         if selected_filter not in allowed:
             raise ValueError("invalid production inbox filter")
+        selected_sort = str(sort or "priority").strip().lower()
+        if selected_sort not in {"priority", "recent"}:
+            raise ValueError("invalid production inbox sort")
+        raw_search = str(search or "").strip()
+        normalized_search = raw_search.casefold()
 
         managed = self.control.managed_projects.list(limit=500)
         allowed_statuses = {
@@ -1264,19 +1271,35 @@ class DashboardService:
             "active":2,
             "completed":3,
         }
-        items.sort(
+
+        def matches_search(item: dict) -> bool:
+            if not normalized_search:
+                return True
+            haystack = "\n".join([
+                str(item.get("project_id") or ""),
+                str(item.get("repository") or ""),
+                str(item.get("final_goal") or ""),
+                str((item.get("outcome") or {}).get("summary") or ""),
+            ]).casefold()
+            return normalized_search in haystack
+
+        filtered = [
+            item for item in items
+            if (
+                selected_filter == "all"
+                or group(item) == selected_filter
+            )
+            and matches_search(item)
+        ]
+        filtered.sort(
             key=lambda item: (
                 str(item.get("updated_at") or ""),
                 str(item.get("project_id") or ""),
             ),
             reverse=True,
         )
-        items.sort(key=lambda item: priority[group(item)])
-        filtered = (
-            items
-            if selected_filter == "all"
-            else [item for item in items if group(item) == selected_filter]
-        )
+        if selected_sort == "priority":
+            filtered.sort(key=lambda item: priority[group(item)])
         visible = filtered[:bounded]
 
         live_phases = {
@@ -1286,8 +1309,11 @@ class DashboardService:
             "schema_version":"production-os/production-inbox/v1",
             "generated_at":_now(),
             "filter":selected_filter,
+            "search":raw_search,
+            "sort":selected_sort,
             "summary":{
                 "visible":len(visible),
+                "matching":len(filtered),
                 "total":len(items),
                 "active":sum(
                     count

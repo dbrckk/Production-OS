@@ -1490,6 +1490,40 @@ Toutes · Actives · À revoir · Problèmes · Terminées
 
 Existing cancel, retest and DONE mutations are reused unchanged. Release 46 adds no new mutation primitive or authorization path.
 
+
+## Release 47 — Navigable production inbox
+
+The persistent production inbox is now searchable, explicitly sortable and shareable through the dashboard URL.
+
+Server query parameters:
+
+```text
+GET /v1/dashboard/productions
+    ?filter=all|active|review|problems|completed
+    &q=<repository, goal, project id or outcome summary>
+    &sort=priority|recent
+```
+
+The default `priority` ordering keeps operator decisions first:
+
+```text
+problems → review → active → completed
+```
+
+Within each priority class, the most recently updated production remains first. The optional `recent` sort ignores the priority classes and orders the filtered result strictly by recent activity.
+
+Search is case-insensitive and matches repository, final goal, project id and normalized outcome summary. Global phase totals remain independent of the current filter/search, while `summary.matching` reports the number of productions matching the current query before the response limit is applied.
+
+The mobile Productions view adds:
+
+- repository / goal / project-id search;
+- explicit `Priorité opérateur` and `Activité récente` sorting;
+- visible active filter state;
+- URL persistence for filter, search and sort;
+- existing project `target` deep links continue to restore focused Managed Project cards.
+
+This makes the inbox usable across reloads and shareable links without moving any operator mutation into browser-local state.
+
 ## Design principles
 
 - Evidence over assumptions
