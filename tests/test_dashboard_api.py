@@ -716,3 +716,27 @@ def test_production_inbox_is_viewer_visible_and_worker_forbidden(
     assert status == 403
     assert payload["required_role"] == "viewer"
 
+def test_deployment_readiness_is_viewer_visible_and_worker_forbidden(
+    running_control_plane,
+):
+    base, _control = running_control_plane
+
+    status, payload = get_api(
+        base,
+        "/v1/dashboard/deployment-readiness",
+        "viewer-token",
+    )
+    assert status == 200
+    assert payload["schema_version"] == "production-os/deployment-readiness/v1"
+    assert "execution" in payload
+    assert "storage" in payload
+    assert "issues" in payload
+
+    status, payload = get_api(
+        base,
+        "/v1/dashboard/deployment-readiness",
+        "worker-a-token",
+    )
+    assert status == 403
+    assert payload["required_role"] == "viewer"
+
