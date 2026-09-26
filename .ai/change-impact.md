@@ -1,12 +1,14 @@
 # Change impact
 
-Base: 6d3aef87a3472d05960acf393919f67cf47475c2
-Head: bdc7d012269de8b5324aea4bfd30670435439256
+Base: f402d4d4e4254a2890516ca8570d94d42c9ed194
+Head: 7432fb694b70021d6835a2d9e7be3e3edcba3929
 
 ## Changed files
 - M README.md
-- A docs/superpowers/plans/2026-09-26-release-48-production-inbox-detail.md
+- A docs/superpowers/plans/2026-09-26-release-49-unified-production-actions.md
+- M src/production_os/dashboard_service.py
 - M src/production_os/dashboard_ui.py
+- M tests/test_dashboard_attention.py
 - M tests/test_dashboard_production_inbox_filters_ui.py
 
 ## Affected areas

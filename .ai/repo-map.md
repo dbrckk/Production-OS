@@ -9124,6 +9124,11 @@ payload = service.attention(limit=2)
 def test_attention_caps_blocked_job_cards_but_preserves_total_count()
 ⋮----
 blocked = [item for item in payload["items"] if item["kind"] == "blocked_job"]
+⋮----
+def test_attention_managed_projects_open_unified_productions_surface()
+⋮----
+payload = service.attention(limit=20)
+project_items = [
 ````
 
 ## File: tests/test_dashboard_backup_api.py
@@ -10093,6 +10098,13 @@ def test_production_inbox_target_restores_detail_even_outside_visible_list()
 ⋮----
 start = DASHBOARD_HTML.index("async function loadProductionInbox")
 end = DASHBOARD_HTML.index("async function loadAttention", start)
+⋮----
+def test_inline_production_detail_supports_custom_follow_up_instruction()
+⋮----
+def test_custom_follow_up_refreshes_unified_operator_surfaces()
+⋮----
+start = DASHBOARD_HTML.index("async function submitProductionInstruction")
+end = DASHBOARD_HTML.index("function productionInboxActions", start)
 ````
 
 ## File: tests/test_dashboard_production_inbox.py
@@ -15454,6 +15466,28 @@ The focused panel shows:
 - an explicit escape hatch to the advanced Managed Projects view.
 
 The detail loads even when the selected production is outside the current inbox filter/search result. Closing the panel clears only the URL target and keeps the current inbox filter/search/sort state.
+
+
+## Release 49 — Unified production actions
+
+The mobile operator flow now converges on the Productions surface.
+
+Managed Project attention cards in `À faire` now deep-link to the inline production detail instead of forcing a switch to the technical Managed Projects view.
+
+For productions in `NEEDS_ATTENTION` or `REVIEW_REQUIRED`, the inline detail exposes a custom follow-up instruction field. Submitting it reuses the existing guarded Managed Project instructions endpoint:
+
+```text
+POST /v1/managed-projects/{project_id}/instructions
+```
+
+After submission, Production-OS creates the next immutable generation using the existing Managed Project lifecycle and refreshes:
+
+- the focused production detail;
+- the production inbox;
+- the attention feed;
+- the last-production tracker.
+
+No new mutation endpoint or browser-side workflow authority is introduced. Advanced Managed Projects remains available as an explicit escape hatch.
 
 ## Design principles
 

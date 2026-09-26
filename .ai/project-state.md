@@ -22,31 +22,31 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-26T11:08:54Z
+Generated: 2026-09-26T12:26:36Z
 
 ### Git
 - Branch: `main`
-- Head: `bdc7d012269d`
-- Commit date: 2026-09-26T13:08:15+02:00
-- Commit: feat: release 48 inline production detail
-- Tracked files: 447
+- Head: `7432fb694b70`
+- Commit date: 2026-09-26T14:26:26+02:00
+- Commit: feat: release 49 unified production actions
+- Tracked files: 448
 
 ### Recently changed files
 - `README.md`
-- `docs/superpowers/plans/2026-09-26-release-48-production-inbox-detail.md`
+- `docs/superpowers/plans/2026-09-26-release-49-unified-production-actions.md`
+- `src/production_os/dashboard_service.py`
 - `src/production_os/dashboard_ui.py`
+- `tests/test_dashboard_attention.py`
 - `tests/test_dashboard_production_inbox_filters_ui.py`
+- `docs/superpowers/plans/2026-09-26-release-48-production-inbox-detail.md`
 - `docs/superpowers/plans/2026-09-26-release-47-production-inbox-navigation.md`
 - `src/production_os/control_plane.py`
-- `src/production_os/dashboard_service.py`
 - `tests/test_dashboard_api.py`
 - `tests/test_dashboard_production_inbox.py`
 - `docs/superpowers/plans/2026-09-26-release-46-production-inbox-filters.md`
 - `docs/superpowers/plans/2026-09-26-release-45-production-inbox.md`
 - `tests/test_dashboard_ui_v3.py`
 - `tests/test_release45_production_inbox_e2e.py`
-- `docs/superpowers/plans/2026-09-26-release-44-one-tap-recovery-actions.md`
-- `tests/test_release44_one_tap_recovery_actions_e2e.py`
 
 ### Project signals
 - `pyproject.toml`

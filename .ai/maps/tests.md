@@ -1062,6 +1062,11 @@ payload = service.attention(limit=2)
 def test_attention_caps_blocked_job_cards_but_preserves_total_count()
 ⋮----
 blocked = [item for item in payload["items"] if item["kind"] == "blocked_job"]
+⋮----
+def test_attention_managed_projects_open_unified_productions_surface()
+⋮----
+payload = service.attention(limit=20)
+project_items = [
 ```
 
 ## File: test_dashboard_backup_api.py
@@ -2031,6 +2036,13 @@ def test_production_inbox_target_restores_detail_even_outside_visible_list()
 ⋮----
 start = DASHBOARD_HTML.index("async function loadProductionInbox")
 end = DASHBOARD_HTML.index("async function loadAttention", start)
+⋮----
+def test_inline_production_detail_supports_custom_follow_up_instruction()
+⋮----
+def test_custom_follow_up_refreshes_unified_operator_surfaces()
+⋮----
+start = DASHBOARD_HTML.index("async function submitProductionInstruction")
+end = DASHBOARD_HTML.index("function productionInboxActions", start)
 ```
 
 ## File: test_dashboard_production_inbox.py
