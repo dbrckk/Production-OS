@@ -1934,6 +1934,7 @@ def run_remote_worker_run(args: argparse.Namespace) -> int:
         max_concurrency=args.max_concurrency,
         heartbeat_interval_seconds=args.heartbeat_interval_seconds,
         executor_timeout_seconds=args.executor_timeout_seconds,
+        secret_env_names=[args.token_env],
     )
     outcomes = runner.run(
         cycles=args.cycles,
