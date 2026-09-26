@@ -20,9 +20,11 @@ Qualify the exact user-facing One-tap production lifecycle using the real remote
 1. Launch a second One-tap production.
 2. Executor returns status=failed, reason=tests_failed.
 3. Runner fails the owned job.
-4. Managed Project reconciles to NEEDS_ATTENTION.
-5. Production inbox exposes it under problems.
-6. Attention feed exposes validation_failed with instructions + verify actions.
+4. Workflow task automatically requeues while attempts remain.
+5. Runner consumes three distinct job keys through max_attempts=3.
+6. Managed Project reconciles to NEEDS_ATTENTION only after retry exhaustion.
+7. Production inbox exposes it under problems.
+8. Attention feed exposes validation_failed with instructions + verify actions.
 
 ## Evidence
 
