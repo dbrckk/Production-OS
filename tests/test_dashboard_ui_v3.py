@@ -786,3 +786,14 @@ def test_production_inbox_renders_live_runtime_and_server_actions():
     assert "Valider DONE" in DASHBOARD_HTML
     assert "cancelLastProduction(this.dataset.projectId)" in DASHBOARD_HTML
 
+def test_mobile_dashboard_surfaces_deployment_readiness():
+    assert 'id="deployment-state"' in DASHBOARD_HTML
+    assert 'id="deployment-readiness-detail"' in DASHBOARD_HTML
+    assert "async function loadDeploymentReadiness" in DASHBOARD_HTML
+    assert "/v1/dashboard/deployment-readiness" in DASHBOARD_HTML
+    assert '"github-actions-dispatch":"GitHub Actions déclenchable"' in DASHBOARD_HTML
+    assert 'unverified:"chemin d’exécution non vérifié"' in DASHBOARD_HTML
+    assert 'ready:"backups prêts"' in DASHBOARD_HTML
+    assert 'unconfigured:"backups non configurés"' in DASHBOARD_HTML
+    assert "loadDeploymentReadiness()" in DASHBOARD_HTML
+
