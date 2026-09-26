@@ -6748,15 +6748,21 @@ secret_names = {
 @staticmethod
     def _terminate(process: subprocess.Popen[str]) -> None
 ⋮----
-def _heartbeat_active(self, key: str) -> dict
+keys = sorted(self._active_job_keys)
 ⋮----
-def _acknowledge_cancel(self, key: str) -> None
+def _activate(self, key: str) -> dict
+⋮----
+states = (
+⋮----
+def _heartbeat_active(self, key: str) -> dict
 ⋮----
 def _execute(self, job: RemoteJob) -> dict
 ⋮----
 key = job.key
 ⋮----
-heartbeat = self._heartbeat_active(key)
+active_registered = True
+heartbeat = self._activate(key)
+process: subprocess.Popen[str] | None = None
 ⋮----
 request = json.dumps(
 started = time.monotonic()
@@ -6771,8 +6777,12 @@ duration = time.monotonic() - started
 ⋮----
 first_communicate = False
 ⋮----
+heartbeat = self._heartbeat_active(key)
+⋮----
 controls = (
 desired = str(
+⋮----
+active_registered = False
 ⋮----
 reason = f"executor_exit_{process.returncode}"
 ⋮----
@@ -6788,11 +6798,14 @@ status = ""
 reason = str(
 ⋮----
 outcomes: list[dict] = []
+futures: dict[Future[dict], str] = {}
 index = 0
+⋮----
+def collect(done) -> None
 ⋮----
 job = self.client.claim(
 ⋮----
-outcome = self._execute(job)
+future = pool.submit(self._execute, job)
 ````
 
 ## File: src/production_os/remote_worker.py
@@ -12929,6 +12942,24 @@ state = control.dashboard_control.job_state(queued["key"])
 control = ControlPlane(str(tmp_path / "secret-env.sqlite"), authorizer=_auth())
 ⋮----
 executor = tmp_path / "env_check.py"
+⋮----
+def test_remote_worker_runner_honors_max_concurrency_with_full_active_set(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "concurrent-runner.sqlite"), authorizer=_auth())
+queued = [
+markers = tmp_path / "markers"
+⋮----
+executor = tmp_path / "concurrent_executor.py"
+⋮----
+deadline = time.time() + 1.0
+saw_two_markers = False
+saw_two_active = False
+⋮----
+saw_two_markers = True
+⋮----
+worker = control.workers.workers.get("runner-1")
+⋮----
+saw_two_active = True
 ````
 
 ## File: tests/test_remote_worker.py
@@ -15795,6 +15826,26 @@ executor status=failed
 ```
 
 This qualification deliberately uses the real HTTP control-plane endpoints, `RemoteWorkerClient`, `RemoteWorkerRunner` and an actual subprocess executor. It closes the gap between component-level runner tests and the user-facing One-tap production lifecycle.
+
+
+## Release 52 — Concurrent remote worker runner
+
+`RemoteWorkerRunner.max_concurrency` now controls real executor concurrency instead of only advertising worker capacity.
+
+The runner maintains one authoritative in-memory active-job set and publishes the full set on every worker heartbeat:
+
+```text
+active_tasks = len(active_job_keys)
+active_job_keys = all currently executing jobs
+```
+
+Execution uses a bounded thread pool. Available slots are filled with independently claimed jobs and each job still owns its own subprocess, timeout, stale-generation checks and cancellation handling.
+
+For bounded runs, Production-OS stops claiming after the requested cycle count but drains every subprocess already launched before returning. For continuous runs, completed slots are refilled while respecting the configured concurrency ceiling.
+
+Per-job cancellation no longer clears unrelated active-job state: acknowledging one cancellation publishes the remaining active keys together with the cancelled job's control acknowledgement.
+
+A regression test requires two executor subprocesses to start simultaneously with `max_concurrency=2`, observes `active_tasks=2`, verifies both jobs complete, and confirms the worker returns to zero active tasks afterward.
 
 ## Design principles
 

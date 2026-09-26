@@ -4789,6 +4789,24 @@ state = control.dashboard_control.job_state(queued["key"])
 control = ControlPlane(str(tmp_path / "secret-env.sqlite"), authorizer=_auth())
 ⋮----
 executor = tmp_path / "env_check.py"
+⋮----
+def test_remote_worker_runner_honors_max_concurrency_with_full_active_set(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "concurrent-runner.sqlite"), authorizer=_auth())
+queued = [
+markers = tmp_path / "markers"
+⋮----
+executor = tmp_path / "concurrent_executor.py"
+⋮----
+deadline = time.time() + 1.0
+saw_two_markers = False
+saw_two_active = False
+⋮----
+saw_two_markers = True
+⋮----
+worker = control.workers.workers.get("runner-1")
+⋮----
+saw_two_active = True
 ```
 
 ## File: test_remote_worker.py

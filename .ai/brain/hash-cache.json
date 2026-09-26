@@ -1,16 +1,12 @@
 {
   "files": {
-    "Dockerfile": {
-      "sha256": "a4b01b8182e29ad7d7a5b376305f47fa9d45b342aecd4733d1d73349bdc3fac5",
-      "size": 400
-    },
     "README.md": {
-      "sha256": "b8612b76f02fba76343c279df9db8795595cab8c3974af06db374d504c9b6adc",
-      "size": 136434
+      "sha256": "3234b7bd8ad6fd28e59ceb8103a54ba10b6ce4f9d4754421b7d126cbfc801992",
+      "size": 137688
     },
-    "docs/superpowers/plans/2026-09-26-release-51-one-tap-runner-e2e.md": {
-      "sha256": "1f7bab67ba1934d61bfbdc5cebfa3cdfdfca601c6e5e1601cb0c94cbbdd7ab4d",
-      "size": 1550
+    "docs/superpowers/plans/2026-09-26-release-52-concurrent-remote-runner.md": {
+      "sha256": "4c71cd44d5a1739fc6e734ae6aab13e897ed3fe540edf2976fbf1abbf5a0487d",
+      "size": 1411
     },
     "src/production_os/__init__.py": {
       "sha256": "63c80dc5e078945a2d3488c050f10743b901b9612a70a133175d21ac508bdd5f",
@@ -20,29 +16,117 @@
       "sha256": "e711cc224ad17d667bf86cd1b2f9392a303c8199d621d774dbf657408ed2edc1",
       "size": 1720
     },
+    "src/production_os/approvals.py": {
+      "sha256": "a574002934c4d28499ddbd108a373e7d78dc68d15740bd8801f9e15c0a3a0f5a",
+      "size": 2131
+    },
+    "src/production_os/budgets.py": {
+      "sha256": "e75678f70fa728b66941b99306edeebe4fdcfb5c672e05793e4b8d55f0667f59",
+      "size": 2533
+    },
+    "src/production_os/claims.py": {
+      "sha256": "840b60a2fbf436e73553367530d7bbf6cd8eaf7b63830f76f2bba22a1c175a78",
+      "size": 3721
+    },
+    "src/production_os/cli.py": {
+      "sha256": "2e5210a1a10e46b3222c3ee23a89e0a291a9f0e240b81850cafefb21ea37c259",
+      "size": 105298
+    },
     "src/production_os/control_plane.py": {
       "sha256": "4f8669876226e2b1cdb09682bb7ccf7c9a70e6f9a740cae40a6123637edc7fcd",
       "size": 137678
+    },
+    "src/production_os/dashboard_backups.py": {
+      "sha256": "7e4b92ec54c3869745fd37729edbe8ebfcb200d61b8552cd3198581fd64763fa",
+      "size": 42856
+    },
+    "src/production_os/database_maintenance_lock.py": {
+      "sha256": "f2b10d87960ae4826191ef8fb8b461db740d65ccd00256e205ba2995eb692bde",
+      "size": 2977
+    },
+    "src/production_os/execution_optimizer.py": {
+      "sha256": "2dc983442024b301798adef6ddb378fc2383755491f478a21c7d2f4e4854609f",
+      "size": 11113
+    },
+    "src/production_os/github_client.py": {
+      "sha256": "26d64201a439899cce9ec09dcc9c9d34fb71926a4058f3ae576f88923056387f",
+      "size": 26621
+    },
+    "src/production_os/history.py": {
+      "sha256": "509cabf615c3262e31141c45e13e5d82199ca9cd8b84c9f69a48c0d5351826f4",
+      "size": 2501
+    },
+    "src/production_os/journal.py": {
+      "sha256": "586fb045b9d24bb66fdfda6dcbe470c7023f173d5f7fb32ee862fb6868367ca9",
+      "size": 2007
+    },
+    "src/production_os/models.py": {
+      "sha256": "521f25278ef351a252f4f91aea20ec5c320dbd12c711010962750b591809eb34",
+      "size": 3166
+    },
+    "src/production_os/policy.py": {
+      "sha256": "21cfd7421f625fb5a70949c727a8694d3396759965e202b4d4efbffa1017050a",
+      "size": 5762
+    },
+    "src/production_os/quarantine.py": {
+      "sha256": "c4cd7b320c850cadef55da8a753c1c6438f03fb270d4057721bd948f094c55ed",
+      "size": 1458
+    },
+    "src/production_os/rate_limit.py": {
+      "sha256": "a44ab3e33c3318f68c28deb304df2e5df2c2f667f2f81749b1e30c7769586a8a",
+      "size": 3092
+    },
+    "src/production_os/rekor_checkpoint_state.py": {
+      "sha256": "402cf7bb78532351990c415d292d5c0d50a55c8498d9464b0fdf1dd397cc8372",
+      "size": 17320
+    },
+    "src/production_os/rekor_witness_quorum.py": {
+      "sha256": "add2d6761f5dbaa6e32836af5e24095b7bf14c67253d71403d9caffba2ca38fa",
+      "size": 17430
+    },
+    "src/production_os/release_ledger.py": {
+      "sha256": "6b002614fc03563624e55e1cfe29b26bec759e9135ff01a9dcdfbd03f95df255",
+      "size": 51357
     },
     "src/production_os/remote_worker.py": {
       "sha256": "1b3a4079104f18f5f94aecc21b4d7f6a41379dfc9498c2aa70bd4cc13ddb988b",
       "size": 6505
     },
     "src/production_os/remote_worker_runner.py": {
-      "sha256": "c00b872bee669c2c9e3ef1fbe6128b9c887691d4a9a2d99366cf2f750615a9be",
-      "size": 10026
+      "sha256": "a56ec84f879f1792797fdd7fbd4c7da30caeb9056c274e05a7a59df07dadbd34",
+      "size": 12772
+    },
+    "src/production_os/runtime_state.py": {
+      "sha256": "9584e0258e9ce6dead5cf346d5af3aa3a71b95fb306274d28320afda07e3fc9c",
+      "size": 6756
+    },
+    "src/production_os/speculation.py": {
+      "sha256": "17f04380a049e3292e4f49597804aa6c72efe12128b5b56cf10f601785e41846",
+      "size": 9653
+    },
+    "src/production_os/workers.py": {
+      "sha256": "7120b5bfcdd717f16b2e37c9e53be791d0184c06bb533ffc608b89bd1278af20",
+      "size": 4967
+    },
+    "src/production_os/workflow_engine.py": {
+      "sha256": "1972ba8cd679c545c7c7f8a0c8c93f49d293145329057a1ddcb5274e2ece0f58",
+      "size": 54311
     },
     "tests/test_asset_forge.py": {
       "sha256": "a1c28454a89887eb89d34cca4e3901156ade26ec72107fe6ecf751874b1a90c2",
       "size": 35251
     },
-    "tests/test_fairness.py": {
-      "sha256": "049c558e2f3319632921e7a5a3dcb4422c4586d1787603a0470ce0185dab3950",
-      "size": 512
-    },
     "tests/test_release51_one_tap_runner_e2e.py": {
       "sha256": "64fe54f7a19916dc509697b13e2b057cf46ddd6a39be4b2b77c8523b4cc7d646",
       "size": 8303
+    },
+    "tests/test_remote_worker.py": {
+      "sha256": "d41b2241ae8735f999aee43f2d7a5762ca9f43b2707a59c5cf3d773b3f652ee2",
+      "size": 3873
+    },
+    "tests/test_remote_worker_runner.py": {
+      "sha256": "63b37cebeb4f7e480fcce9e2d379c1d65b5ae7025dd71abb3ccb04fe550fba38",
+      "size": 13465
     }
   },
   "generated_by": "dbrckk/repo-brain-v6",

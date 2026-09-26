@@ -6211,15 +6211,21 @@ secret_names = {
 @staticmethod
     def _terminate(process: subprocess.Popen[str]) -> None
 ⋮----
-def _heartbeat_active(self, key: str) -> dict
+keys = sorted(self._active_job_keys)
 ⋮----
-def _acknowledge_cancel(self, key: str) -> None
+def _activate(self, key: str) -> dict
+⋮----
+states = (
+⋮----
+def _heartbeat_active(self, key: str) -> dict
 ⋮----
 def _execute(self, job: RemoteJob) -> dict
 ⋮----
 key = job.key
 ⋮----
-heartbeat = self._heartbeat_active(key)
+active_registered = True
+heartbeat = self._activate(key)
+process: subprocess.Popen[str] | None = None
 ⋮----
 request = json.dumps(
 started = time.monotonic()
@@ -6234,8 +6240,12 @@ duration = time.monotonic() - started
 ⋮----
 first_communicate = False
 ⋮----
+heartbeat = self._heartbeat_active(key)
+⋮----
 controls = (
 desired = str(
+⋮----
+active_registered = False
 ⋮----
 reason = f"executor_exit_{process.returncode}"
 ⋮----
@@ -6251,11 +6261,14 @@ status = ""
 reason = str(
 ⋮----
 outcomes: list[dict] = []
+futures: dict[Future[dict], str] = {}
 index = 0
+⋮----
+def collect(done) -> None
 ⋮----
 job = self.client.claim(
 ⋮----
-outcome = self._execute(job)
+future = pool.submit(self._execute, job)
 ```
 
 ## File: production_os/remote_worker.py

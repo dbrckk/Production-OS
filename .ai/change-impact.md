@@ -1,20 +1,22 @@
 # Change impact
 
-Base: ffcac6559d86e6e96677a88808126b3fdf1d9054
-Head: 6d8868519266938e01f426f361037007bbe71c73
+Base: 1c0efbfcbb39dd49d34b914328fa775d0db165f8
+Head: 7c7b551d28cfcbf24fdeababad94f4c64baea386
 
 ## Changed files
 - M README.md
-- A docs/superpowers/plans/2026-09-26-release-51-one-tap-runner-e2e.md
-- A tests/test_release51_one_tap_runner_e2e.py
+- A docs/superpowers/plans/2026-09-26-release-52-concurrent-remote-runner.md
+- M src/production_os/remote_worker_runner.py
+- M tests/test_remote_worker_runner.py
 
 ## Affected areas
 - (root)
 - docs
+- src
 - tests
 
 ## Related test candidates
-- No direct filename-based test match detected.
+- tests/test_remote_worker_runner.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

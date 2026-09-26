@@ -2,17 +2,21 @@
 
 Summary: 6 success / 1 failure / 1 active
 
-- CI: queued / pending (6d886851)
+- CI: in_progress / pending (7c7b551d)
+- CI: completed / success (31374af5)
+- CI: completed / success (ff6a4e42)
+- CI: completed / success (2ad113ff)
+- CI: completed / failure (07dc7678)
+- CI: completed / success (6d886851)
 - CI: completed / success (66341758)
 - CI: completed / success (544eb292)
-- CI: completed / success (782a5e34)
-- CI: completed / failure (7dadda04)
-- CI: completed / success (931a6816)
-- CI: completed / success (68cc45b9)
-- CI: completed / success (abbed3c6)
 
 ## Latest failed run structure
+- Job: python-compat (3.12)
+  - Failed step: Compatibility tests
 - Job: test
-  - Failed step: Production E2E
+  - Failed step: Unit tests
+- Job: python-compat (3.11)
+  - Failed step: Compatibility tests
 
 > Generated summary only; inspect GitHub Actions for full logs when needed.
