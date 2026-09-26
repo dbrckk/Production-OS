@@ -22,26 +22,28 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-26T06:15:45Z
+Generated: 2026-09-26T06:21:33Z
 
 ### Git
 - Branch: `main`
-- Head: `86280d43350b`
-- Commit date: 2026-09-26T08:15:34+02:00
-- Commit: feat: release 43 safe production cancellation
-- Tracked files: 438
+- Head: `6a33f20f3648`
+- Commit date: 2026-09-26T08:21:23+02:00
+- Commit: feat: release 44 one-tap recovery actions
+- Tracked files: 440
 
 ### Recently changed files
 - `README.md`
+- `docs/superpowers/plans/2026-09-26-release-44-one-tap-recovery-actions.md`
+- `src/production_os/dashboard_ui.py`
+- `tests/test_dashboard_ui_v3.py`
+- `tests/test_release44_one_tap_recovery_actions_e2e.py`
 - `docs/superpowers/plans/2026-09-26-release-43-safe-production-cancel.md`
 - `src/production_os/control_plane.py`
 - `src/production_os/dashboard_service.py`
-- `src/production_os/dashboard_ui.py`
 - `src/production_os/postgres_backend.py`
 - `src/production_os/sqlite_backend.py`
 - `tests/test_dashboard_api.py`
 - `tests/test_dashboard_production_status.py`
-- `tests/test_dashboard_ui_v3.py`
 - `tests/test_postgres_backend.py`
 - `tests/test_release43_safe_production_cancel_e2e.py`
 - `tests/test_sqlite_backend.py`
@@ -50,8 +52,6 @@ Generated: 2026-09-26T06:15:45Z
 - `tests/test_managed_projects_v4.py`
 - `tests/test_release42_idempotent_launch_e2e.py`
 - `docs/superpowers/plans/2026-09-25-release-41-live-production-tracking.md`
-- `tests/test_release41_live_production_tracking_e2e.py`
-- `docs/superpowers/plans/2026-09-25-release-40-launch-readiness-tracker.md`
 
 ### Project signals
 - `pyproject.toml`
