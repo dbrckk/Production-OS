@@ -161,6 +161,7 @@ body{overflow-x:hidden}
   <div class="status-card"><div class="status-label">Serveur</div><div id="server-state" class="status-value"><span class="dot warn"></span>Vérification</div></div>
   <div class="status-card"><div class="status-label">Appairage</div><div id="pair-state" class="status-value"><span class="dot warn"></span>Non appairé</div></div>
   <div class="status-card"><div class="status-label">Worker</div><div id="worker-state" class="status-value"><span class="dot warn"></span>Vérification</div></div>
+  <div class="status-card"><div class="status-label">Déploiement</div><div id="deployment-state" class="status-value"><span class="dot warn"></span>Vérification</div></div>
  </div>
 
  <div id="one-tap-production" class="card launch-card">
@@ -175,6 +176,7 @@ body{overflow-x:hidden}
   </div>
   <p id="launch-status" class="status-message"></p>
   <div id="launch-readiness" class="launch-readiness">Disponibilité : vérification...</div>
+  <p id="deployment-readiness-detail" class="worker-detail">Déploiement : vérification...</p>
   <p id="worker-status" class="worker-detail">Capacités worker : vérification...</p>
   <div id="runtime-warning" class="runtime-warning">Worker hors ligne : la production peut être créée, mais elle restera en attente jusqu'à la reconnexion du moteur d'exécution.</div>
   <div id="last-production-card" class="launch-tracker" hidden></div>
@@ -524,6 +526,53 @@ async function loadVisualQuality(){
  }
 }
 
+async function loadDeploymentReadiness(){
+ const detail=document.getElementById("deployment-readiness-detail");
+ if(!token()){
+  setState("deployment-state","warn","Appairage requis");
+  if(detail)detail.textContent="Déploiement : appairage requis.";
+  return null;
+ }
+ try{
+  const data=await api("/v1/dashboard/deployment-readiness");
+  const ready=data.status==="ready";
+  setState(
+   "deployment-state",
+   ready?"ok":"warn",
+   ready?"Prêt":"À vérifier"
+  );
+  const execution=data.execution||{};
+  const storage=data.storage||{};
+  const executionLabels={
+   immediate:"worker disponible",
+   "github-actions-dispatch":"GitHub Actions déclenchable",
+   unverified:"chemin d’exécution non vérifié"
+  };
+  const recoveryLabels={
+   ready:"backups prêts",
+   external:"récupération gérée par le backend",
+   unconfigured:"backups non configurés",
+   degraded:"backups dégradés"
+  };
+  const issues=(data.issues||[]).map(function(item){
+   return String(item.message||"");
+  }).filter(Boolean);
+  if(detail){
+   detail.textContent=
+    "Déploiement · "+String(executionLabels[execution.mode]||execution.mode||"inconnu")+
+    " · "+String(recoveryLabels[storage.recovery]||storage.recovery||"récupération inconnue")+
+    (issues.length?" · "+issues[0]:"");
+  }
+  return data;
+ }catch(e){
+  setState("deployment-state","warn","Indisponible");
+  if(detail){
+   detail.textContent="Déploiement : "+String(e).replace(/^Error:\s*/,"");
+  }
+  return null;
+ }
+}
+
 async function loadLaunchReadiness(){
  const el=document.getElementById('launch-readiness');
  const repository=document.getElementById('repository').value.trim();
@@ -803,6 +852,7 @@ async function refreshDashboard(){
    loadRecentRuns(),
    loadVisualQuality(),
    loadLaunchReadiness(),
+   loadDeploymentReadiness(),
    loadLastProduction()
   ]);
  }finally{refreshBusy=false}
@@ -817,6 +867,7 @@ setInterval(function(){
  loadWorkerStatus();
  loadRecentRuns();
  loadLaunchReadiness();
+ loadDeploymentReadiness();
 },10000);
 setInterval(loadLastProduction,5000);
 
