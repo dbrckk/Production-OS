@@ -4577,3 +4577,20 @@ Workers publish live execution telemetry through
 `POST /v1/jobs/{job_key}/telemetry`; this endpoint requires the owning worker
 credential. Release 1 dashboard observability is read-only: pause, drain,
 cancellation, retry and kick controls belong to Release 2.
+
+
+## Release 54 — Deployable remote worker
+
+The persistent remote worker can now be deployed beside the control plane with the dedicated Compose overlay:
+
+```bash
+PRODUCTION_OS_WORKER_TOKEN=... \
+PRODUCTION_OS_WORKER_EXECUTOR_COMMAND="python /worker/executor.py" \
+docker compose -f compose.yaml -f compose.worker.yaml --profile worker up --build
+```
+
+The overlay adds a control-plane health check and starts the worker only after `/healthz` is ready. Worker credentials remain environment-only; the bearer token is never placed on the process command line.
+
+The executor remains external and is mounted read-only from `PRODUCTION_OS_WORKER_EXECUTOR_DIR` (default `./worker`). Concurrency, heartbeat interval, executor timeout and ACK timeout are configurable through environment variables.
+
+The worker container uses Docker init/reaping and a 15-second stop grace period so SIGTERM can flow through the Release 53 cooperative shutdown path, terminate active executor children, publish the final zero-active heartbeat and leave unfinished jobs recoverable.
