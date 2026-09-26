@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 import threading
 import time
@@ -429,5 +430,137 @@ print(json.dumps({{
         control.workers.load()
         assert control.workers.workers["runner-1"].active_tasks == 0
     finally:
+        _stop(server, server_thread)
+
+def test_remote_worker_runner_graceful_stop_terminates_children_and_restart_recovers(
+    tmp_path,
+):
+    control = ControlPlane(
+        str(tmp_path / "graceful-stop.sqlite"),
+        authorizer=_auth(),
+    )
+    queued = [
+        control.queue.enqueue({
+            "handoff":{
+                "repository":f"dbrckk/runner-stop-{index}",
+                "task":f"Long running task {index}.",
+            },
+            "required_capabilities":[],
+        })
+        for index in (1, 2)
+    ]
+    markers = tmp_path / "stop-markers"
+    markers.mkdir()
+    executor = tmp_path / "stop_executor.py"
+    executor.write_text(
+        f"""
+import json, os, pathlib, sys, time
+request = json.load(sys.stdin)
+key = request["job"]["key"]
+markers = pathlib.Path({str(markers)!r})
+(markers / (key + ".pid")).write_text(str(os.getpid()), encoding="utf-8")
+time.sleep(30)
+print(json.dumps({{"status":"succeeded","result":{{"summary":"too late"}}}}))
+""".strip(),
+        encoding="utf-8",
+    )
+
+    server, server_thread, base = _server(control)
+    outcomes = []
+    runner_thread = None
+    runner = None
+    try:
+        client = RemoteWorkerClient(
+            base,
+            "worker-secret",
+            "runner-1",
+            [],
+            timeout=5,
+        )
+        runner = RemoteWorkerRunner(
+            client,
+            [sys.executable, str(executor)],
+            max_concurrency=2,
+            heartbeat_interval_seconds=0.05,
+            executor_timeout_seconds=60,
+        )
+        runner_thread = threading.Thread(
+            target=lambda: outcomes.extend(
+                runner.run(cycles=0, idle_sleep_seconds=0.02)
+            ),
+            daemon=True,
+        )
+        runner_thread.start()
+
+        deadline = time.time() + 3
+        while time.time() < deadline:
+            if len(list(markers.glob("*.pid"))) >= 2:
+                break
+            time.sleep(0.02)
+        assert len(list(markers.glob("*.pid"))) == 2
+        assert all(
+            control.queue.get(row["key"])["status"] == "acked"
+            for row in queued
+        )
+
+        runner.request_stop()
+        runner_thread.join(timeout=5)
+
+        assert not runner_thread.is_alive()
+        assert len(outcomes) == 2
+        assert {row["job_key"] for row in outcomes} == {
+            row["key"] for row in queued
+        }
+        assert all(row["status"] == "abandoned" for row in outcomes)
+        assert all(row["reason"] == "worker_shutdown" for row in outcomes)
+
+        for marker in markers.glob("*.pid"):
+            pid = int(marker.read_text(encoding="utf-8"))
+            try:
+                os.kill(pid, 0)
+            except ProcessLookupError:
+                pass
+            else:
+                raise AssertionError(f"executor process {pid} survived runner stop")
+
+        # The stopped worker never lies by marking unfinished work failed or
+        # completed. A fresh session for the same worker is authoritative and
+        # immediately recovers both abandoned ACKed jobs.
+        assert all(
+            control.queue.get(row["key"])["status"] == "acked"
+            for row in queued
+        )
+        restarted = RemoteWorkerClient(
+            base,
+            "worker-secret",
+            "runner-1",
+            [],
+            timeout=5,
+        )
+        session = restarted.open_session(
+            max_concurrency=2,
+            active_job_keys=[],
+        )
+        recovered = session["recovered_jobs"]
+        assert {row["key"] for row in recovered} == {
+            row["key"] for row in queued
+        }
+        assert all(row["previous_status"] == "acked" for row in recovered)
+        assert all(row["status"] == "queued" for row in recovered)
+        assert all(
+            control.queue.get(row["key"])["status"] == "queued"
+            for row in queued
+        )
+    finally:
+        if runner_thread is not None and runner_thread.is_alive():
+            for row in queued:
+                try:
+                    control.dashboard_control.request_job_cancel(
+                        row["key"],
+                        requested_by="operator:test-cleanup",
+                    )
+                except (KeyError, RuntimeError):
+                    pass
+            runner_thread.join(timeout=5)
         _stop(server, server_thread)
 
