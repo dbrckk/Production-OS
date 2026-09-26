@@ -149,6 +149,7 @@ test_release36_worker_session_reconciliation_e2e.py
 test_release41_live_production_tracking_e2e.py
 test_release42_idempotent_launch_e2e.py
 test_release43_safe_production_cancel_e2e.py
+test_release44_one_tap_recovery_actions_e2e.py
 test_remote_worker.py
 test_render_start.py
 test_result_cache.py
@@ -2621,6 +2622,14 @@ pending_body = DASHBOARD_HTML[pending_start:pending_end]
 def test_last_production_tracker_exposes_guarded_cancel_for_active_phases()
 ⋮----
 def test_last_production_tracker_renders_cancelling_phase_and_cancel_endpoint()
+⋮----
+def test_last_production_tracker_exposes_recovery_and_completion_actions()
+⋮----
+def test_last_production_recovery_actions_refresh_server_backed_surfaces()
+⋮----
+start = DASHBOARD_HTML.index("async function lastProductionManagedAction")
+end = DASHBOARD_HTML.index("async function loadLastProduction", start)
+body = DASHBOARD_HTML[start:end]
 ```
 
 ## File: test_dashboard_usage.py
@@ -4463,6 +4472,41 @@ final = second.managed_projects.get(project_id)
 control_state = second.dashboard_control.job_state(job_key)
 ⋮----
 events = second.backend.events_after(0, 2000)
+```
+
+## File: test_release44_one_tap_recovery_actions_e2e.py
+```python
+def _auth()
+⋮----
+def _request(base, path, token, *, method="GET", body=None)
+⋮----
+data = None if body is None else json.dumps(body).encode("utf-8")
+request = urllib.request.Request(
+⋮----
+raw = response.read()
+⋮----
+raw = exc.read()
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+@pytest.mark.e2e
+def test_release44_cancel_retest_complete_keeps_same_managed_project(tmp_path)
+⋮----
+control = ControlPlane(
+⋮----
+first = launched["project"]
+project_id = first["project_id"]
+first_workflow = first["current_workflow_id"]
+first_job_key = first["current_workflow"]["tasks"][0]["claimed_job_key"]
+⋮----
+second = retried["project"]
+second_workflow = second["current_workflow_id"]
+⋮----
+worker = RemoteWorkerClient(base, "worker", "worker", [], timeout=5)
+job = worker.claim()
 ```
 
 ## File: test_remote_worker.py

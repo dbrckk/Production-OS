@@ -121,6 +121,7 @@
         "tests/test_release41_live_production_tracking_e2e.py",
         "tests/test_release42_idempotent_launch_e2e.py",
         "tests/test_release43_safe_production_cancel_e2e.py",
+        "tests/test_release44_one_tap_recovery_actions_e2e.py",
         "tests/test_release_ledger.py",
         "tests/test_remote_worker.py",
         "tests/test_result_cache.py",
@@ -154,7 +155,7 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 142,
+      "in_degree": 143,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -223,11 +224,12 @@
         "tests/test_release41_live_production_tracking_e2e.py",
         "tests/test_release42_idempotent_launch_e2e.py",
         "tests/test_release43_safe_production_cancel_e2e.py",
+        "tests/test_release44_one_tap_recovery_actions_e2e.py",
         "tests/test_remote_worker.py",
         "tests/test_speculation_api.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 38,
+      "in_degree": 39,
       "out_degree": 1
     },
     "src/production_os/approvals.py": {
@@ -643,11 +645,12 @@
         "tests/test_release41_live_production_tracking_e2e.py",
         "tests/test_release42_idempotent_launch_e2e.py",
         "tests/test_release43_safe_production_cancel_e2e.py",
+        "tests/test_release44_one_tap_recovery_actions_e2e.py",
         "tests/test_remote_worker.py",
         "tests/test_speculation_api.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 42,
+      "in_degree": 43,
       "out_degree": 23
     },
     "src/production_os/control_surface.py": {
@@ -1504,9 +1507,10 @@
         "tests/test_release36_worker_session_reconciliation_e2e.py",
         "tests/test_release41_live_production_tracking_e2e.py",
         "tests/test_release43_safe_production_cancel_e2e.py",
+        "tests/test_release44_one_tap_recovery_actions_e2e.py",
         "tests/test_remote_worker.py"
       ],
-      "in_degree": 10,
+      "in_degree": 11,
       "out_degree": 1
     },
     "src/production_os/resources.py": {
@@ -3402,6 +3406,17 @@
       "out_degree": 3
     },
     "tests/test_release43_safe_production_cancel_e2e.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/api_auth.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/remote_worker.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 4
+    },
+    "tests/test_release44_one_tap_recovery_actions_e2e.py": {
       "dependencies": [
         "src/production_os/__init__.py",
         "src/production_os/api_auth.py",
