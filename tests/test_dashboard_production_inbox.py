@@ -108,3 +108,35 @@ def test_production_inbox_respects_response_limit_after_priority_sort(tmp_path):
     assert len(payload["items"]) == 2
     assert payload["summary"]["visible"] == 2
     assert payload["summary"]["total"] == 4
+
+def test_production_inbox_orders_recent_activity_first_within_same_priority(tmp_path):
+    control = ControlPlane(str(tmp_path / "production-inbox-recency.sqlite"))
+    older = control.managed_projects.create(
+        repository="dbrckk/inbox-older",
+        final_goal="Older active production.",
+        token_budget=30000,
+        agent_preference="auto",
+    )
+    newer = control.managed_projects.create(
+        repository="dbrckk/inbox-newer",
+        final_goal="Newer active production.",
+        token_budget=30000,
+        agent_preference="auto",
+    )
+    with control.backend.transaction() as db:
+        db.execute(
+            "UPDATE managed_projects SET updated_at=? WHERE id=?",
+            ("2026-01-01T00:00:00+00:00", older["project_id"]),
+        )
+        db.execute(
+            "UPDATE managed_projects SET updated_at=? WHERE id=?",
+            ("2026-02-01T00:00:00+00:00", newer["project_id"]),
+        )
+
+    payload = control.dashboard.production_inbox(limit=50, category="active")
+
+    assert [row["project_id"] for row in payload["items"]] == [
+        newer["project_id"],
+        older["project_id"],
+    ]
+
