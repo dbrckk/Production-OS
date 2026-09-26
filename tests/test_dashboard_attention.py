@@ -190,3 +190,46 @@ def test_attention_caps_blocked_job_cards_but_preserves_total_count():
     assert payload["summary"]["blocked_jobs_shown"] == 8
     assert payload["summary"]["action_required"] == 12
 
+def test_attention_managed_projects_open_unified_productions_surface():
+    managed = [
+        {
+            "project_id":"project-review",
+            "repository":"dbrckk/review",
+            "final_goal":"Review completed production",
+            "status":"REVIEW_REQUIRED",
+            "updated_at":"2026-09-26T10:00:00+00:00",
+            "completed_at":None,
+            "current_workflow":{"status":"succeeded"},
+            "outcome":{"summary":"ready"},
+        },
+        {
+            "project_id":"project-attention",
+            "repository":"dbrckk/attention",
+            "final_goal":"Fix validation",
+            "status":"NEEDS_ATTENTION",
+            "updated_at":"2026-09-26T10:01:00+00:00",
+            "completed_at":None,
+            "current_workflow":{"status":"failed"},
+            "outcome":{"summary":"failed"},
+        },
+    ]
+    control = SimpleNamespace(
+        dashboard_store=None,
+        managed_projects=ManagedProjects(managed),
+    )
+    service = DashboardService(control)
+    service.autopilot_queue = lambda limit=50: {"jobs":[]}
+    service.incidents = lambda limit=100, status=None: {"incidents":[]}
+
+    payload = service.attention(limit=20)
+    project_items = [
+        item for item in payload["items"]
+        if item["target_type"] == "managed-project"
+    ]
+
+    assert {item["view"] for item in project_items} == {"productions"}
+    assert {item["target_id"] for item in project_items} == {
+        "project-review",
+        "project-attention",
+    }
+
