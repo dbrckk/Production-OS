@@ -1666,12 +1666,15 @@ POST /v1/dashboard/launch
 
 The executor result is verified all the way through the operator surface, including summary, validation status/tests, changed-file evidence and commit SHAs.
 
-A second E2E covers executor-reported validation failure:
+A second E2E covers executor-reported validation failure and the automatic retry budget:
 
 ```text
 executor status=failed
 → job failed
-→ Managed Project NEEDS_ATTENTION
+→ workflow task automatically requeued
+→ new job key
+→ retry until max_attempts=3
+→ Managed Project NEEDS_ATTENTION only after retry exhaustion
 → Productions / Problèmes
 → À faire maintenant
 → follow-up / retest actions available
