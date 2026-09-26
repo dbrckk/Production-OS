@@ -1572,6 +1572,79 @@ After submission, Production-OS creates the next immutable generation using the 
 
 No new mutation endpoint or browser-side workflow authority is introduced. Advanced Managed Projects remains available as an explicit escape hatch.
 
+
+## Release 50 — Real remote worker runner
+
+Production-OS can now run a persistent remote worker that actually executes claimed jobs through an external process instead of only polling the queue.
+
+A worker opens an identity-bound session with:
+
+```text
+POST /v1/workers/session
+```
+
+A token with role `worker` can open only the worker id matching the token entry name. Operator/admin credentials retain broader control. Opening a session self-registers that worker, advertises capabilities, resets active load from the authoritative in-memory job set, and immediately reconciles abandoned `claimed` / `acked` jobs from a previous process.
+
+The persistent runner is started with:
+
+```bash
+export PRODUCTION_OS_WORKER_TOKEN='...'
+
+production-os remote-worker-run \
+  --url http://127.0.0.1:8787 \
+  --worker-id worker-one \
+  --capability python \
+  --executor-command 'python /opt/worker/executor.py'
+```
+
+`--cycles 0` (the default) runs continuously. The worker bearer token is read from an environment variable and is removed from the environment inherited by the external executor.
+
+The executor receives one JSON object on stdin:
+
+```json
+{
+  "schema_version": "production-os/worker-executor-request/v1",
+  "job": {
+    "key": "...",
+    "payload": {}
+  }
+}
+```
+
+A successful executor writes exactly one JSON object to stdout:
+
+```json
+{
+  "status": "succeeded",
+  "result": {
+    "summary": "implemented and validated",
+    "validation": {"status": "passed"}
+  }
+}
+```
+
+A controlled failure can return:
+
+```json
+{
+  "status": "failed",
+  "reason": "tests_failed",
+  "result": {"summary": "validation failed"}
+}
+```
+
+The runner:
+
+- ACKs before starting the process;
+- keeps worker heartbeat and active job ownership current;
+- honors operator cancellation and terminates the child process;
+- detects stale workflow generations and stops executing them;
+- enforces an executor timeout;
+- maps non-zero exits or invalid JSON to failed jobs;
+- reports successful output through the existing completion/result pipeline;
+- never invokes a shell for the executor command;
+- never passes the worker bearer-token environment variable to the executor.
+
 ## Design principles
 
 - Evidence over assumptions

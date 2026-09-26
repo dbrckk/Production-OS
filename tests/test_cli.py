@@ -213,3 +213,21 @@ def test_restore_activate_cli_refuses_live_database_lock(
     payload = json.loads(capsys.readouterr().err)
     assert payload["activated"] is False
     assert "already locked" in payload["error"]
+
+def test_remote_worker_run_requires_token_from_environment(monkeypatch, capsys):
+    from production_os.cli import main
+
+    monkeypatch.delenv("PRODUCTION_OS_WORKER_TOKEN", raising=False)
+    try:
+        main([
+            "remote-worker-run",
+            "--url", "http://127.0.0.1:8787",
+            "--worker-id", "runner-1",
+            "--executor-command", "python executor.py",
+            "--cycles", "1",
+        ])
+    except ValueError as exc:
+        assert str(exc) == "PRODUCTION_OS_WORKER_TOKEN is required"
+    else:
+        raise AssertionError("runner must not accept a missing worker token")
+

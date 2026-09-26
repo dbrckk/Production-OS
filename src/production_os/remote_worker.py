@@ -57,11 +57,33 @@ class RemoteWorkerClient:
         except urllib.error.URLError as exc:
             raise RuntimeError(f"control-plane unavailable: {exc}") from exc
 
+    def open_session(
+        self,
+        *,
+        max_concurrency: int = 1,
+        active_job_keys: list[str] | None = None,
+    ) -> dict:
+        _, result = self._request(
+            "/v1/workers/session",
+            {
+                "worker_id":self.worker_id,
+                "capabilities":self.capabilities,
+                "max_concurrency":int(max_concurrency),
+                "active_job_keys":[
+                    str(key)
+                    for key in (active_job_keys or [])
+                ],
+            },
+        )
+        return result
+
     def heartbeat(
         self,
         active_tasks: int | None = None,
         *,
         active_job_keys: list[str] | None = None,
+        control_state: str | None = None,
+        job_control_states: dict[str, str] | None = None,
     ) -> dict:
         payload = {"worker_id":self.worker_id}
         if active_tasks is not None:
@@ -71,6 +93,13 @@ class RemoteWorkerClient:
                 str(key)
                 for key in active_job_keys
             ]
+        if control_state is not None:
+            payload["control_state"] = str(control_state)
+        if job_control_states is not None:
+            payload["job_control_states"] = {
+                str(key):str(value)
+                for key, value in job_control_states.items()
+            }
         _, result = self._request("/v1/workers/heartbeat", payload)
         return {
             "worker":result["worker"],
@@ -78,6 +107,7 @@ class RemoteWorkerClient:
                 str(key)
                 for key in result.get("stale_job_keys", [])
             ],
+            "control":dict(result.get("control") or {}),
         }
 
     def claim(self, ack_timeout_seconds: int = 120) -> RemoteJob | None:
