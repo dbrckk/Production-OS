@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shlex
 import sys
 from pathlib import Path
 from typing import Iterable
@@ -46,6 +47,7 @@ from .quarantine import QuarantineStore
 from .queue_maintenance import compact_queue, retry_dead_letters
 from .rate_limit import RateLimitStore
 from .remote_worker import RemoteWorkerClient
+from .remote_worker_runner import RemoteWorkerRunner
 from .release_ledger import ReleaseLedger
 from .reconciliation import reconcile_runtime_state
 from .resources import allocate_resources
@@ -496,6 +498,38 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     remotepoll.add_argument("--cycles", type=int, default=1)
     remotepoll.add_argument("--interval-seconds", type=int, default=5)
     remotepoll.add_argument("--ack-timeout-seconds", type=int, default=120)
+
+    remoterun = sub.add_parser(
+        "remote-worker-run",
+        help="Run a persistent remote worker with an external JSON executor",
+    )
+    remoterun.add_argument("--url", required=True)
+    remoterun.add_argument("--worker-id", required=True)
+    remoterun.add_argument("--capability", action="append", default=[])
+    remoterun.add_argument(
+        "--token-env",
+        default="PRODUCTION_OS_WORKER_TOKEN",
+        help="Environment variable containing the worker bearer token",
+    )
+    remoterun.add_argument(
+        "--executor-command",
+        required=True,
+        help="Executor command parsed without invoking a shell",
+    )
+    remoterun.add_argument("--cycles", type=int, default=0)
+    remoterun.add_argument("--idle-sleep-seconds", type=float, default=5.0)
+    remoterun.add_argument(
+        "--heartbeat-interval-seconds",
+        type=float,
+        default=5.0,
+    )
+    remoterun.add_argument(
+        "--executor-timeout-seconds",
+        type=float,
+        default=3600.0,
+    )
+    remoterun.add_argument("--ack-timeout-seconds", type=int, default=120)
+    remoterun.add_argument("--max-concurrency", type=int, default=1)
 
     workflowcreate = sub.add_parser("workflow-create", help="Create a persistent DAG workflow")
     workflowcreate.add_argument("--database", required=True)
@@ -1881,6 +1915,39 @@ def run_remote_worker_poll(args: argparse.Namespace) -> int:
 
 
 
+def run_remote_worker_run(args: argparse.Namespace) -> int:
+    token = str(os.getenv(args.token_env) or "").strip()
+    if not token:
+        raise ValueError(f"{args.token_env} is required")
+    command = shlex.split(str(args.executor_command))
+    if not command:
+        raise ValueError("executor command is required")
+    client = RemoteWorkerClient(
+        args.url,
+        token,
+        args.worker_id,
+        args.capability,
+    )
+    runner = RemoteWorkerRunner(
+        client,
+        command,
+        max_concurrency=args.max_concurrency,
+        heartbeat_interval_seconds=args.heartbeat_interval_seconds,
+        executor_timeout_seconds=args.executor_timeout_seconds,
+    )
+    outcomes = runner.run(
+        cycles=args.cycles,
+        idle_sleep_seconds=args.idle_sleep_seconds,
+        ack_timeout_seconds=args.ack_timeout_seconds,
+    )
+    print(json.dumps({
+        "schema_version":"production-os/remote-worker-run/v1",
+        "worker_id":args.worker_id,
+        "outcomes":outcomes,
+    }, indent=2, ensure_ascii=False))
+    return 0
+
+
 def _workflow_engine(database: str) -> WorkflowEngine:
     backend = open_backend(database)
     return WorkflowEngine(backend, job_queue_for(backend))
@@ -2715,6 +2782,8 @@ def main(argv: list[str] | None = None) -> int:
         return run_control_plane(args)
     if args.command == "remote-worker-poll":
         return run_remote_worker_poll(args)
+    if args.command == "remote-worker-run":
+        return run_remote_worker_run(args)
     if args.command == "workflow-create":
         return run_workflow_create(args)
     if args.command == "workflow-status":
