@@ -720,3 +720,21 @@ def test_one_tap_retry_state_does_not_persist_instruction_text():
     assert "instruction:task" not in pending_body
     assert "fingerprint:fingerprint" in pending_body
 
+def test_last_production_tracker_exposes_guarded_cancel_for_active_phases():
+    assert "async function cancelLastProduction" in DASHBOARD_HTML
+    assert "CANCEL_ACTIVE_PRODUCTION" in DASHBOARD_HTML
+    assert "Annuler cette production active ?" in DASHBOARD_HTML
+    assert "Annuler la production" in DASHBOARD_HTML
+    assert '["preparing","queued","claimed","running"].includes(phase)' in DASHBOARD_HTML
+    assert 'phase==="cancelling"' in DASHBOARD_HTML
+    assert "Annulation en cours" in DASHBOARD_HTML
+    assert "danger-btn" in DASHBOARD_HTML
+
+
+def test_last_production_tracker_renders_cancelling_phase_and_cancel_endpoint():
+    assert "cancelling:'Annulation'" in DASHBOARD_HTML
+    assert '"/v1/managed-projects/"+encodeURIComponent(value)+"/cancel"' in DASHBOARD_HTML
+    assert "loadLastProduction()" in DASHBOARD_HTML
+    assert "loadManagedProjects()" in DASHBOARD_HTML
+    assert "loadAttention()" in DASHBOARD_HTML
+
