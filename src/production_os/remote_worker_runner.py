@@ -3,8 +3,10 @@ from __future__ import annotations
 import json
 import os
 import subprocess
+import threading
 import time
 from collections.abc import Sequence
+from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
 
 from .remote_worker import RemoteJob, RemoteWorkerClient
 
@@ -34,6 +36,8 @@ class RemoteWorkerRunner:
         self.max_concurrency = int(max_concurrency)
         self.heartbeat_interval_seconds = float(heartbeat_interval_seconds)
         self.executor_timeout_seconds = float(executor_timeout_seconds)
+        self._active_job_keys: set[str] = set()
+        self._active_lock = threading.RLock()
         secret_names = {
             "PRODUCTION_OS_WORKER_TOKEN",
             *(
@@ -57,53 +61,84 @@ class RemoteWorkerRunner:
             process.kill()
             process.wait(timeout=2)
 
-    def _heartbeat_active(self, key: str) -> dict:
-        return self.client.heartbeat(
-            active_tasks=1,
-            active_job_keys=[key],
-        )
+    def _heartbeat_snapshot(
+        self,
+        *,
+        job_control_states: dict[str, str] | None = None,
+    ) -> dict:
+        with self._active_lock:
+            keys = sorted(self._active_job_keys)
+            return self.client.heartbeat(
+                active_tasks=len(keys),
+                active_job_keys=keys,
+                job_control_states=job_control_states,
+            )
 
-    def _acknowledge_cancel(self, key: str) -> None:
-        self.client.heartbeat(
-            active_tasks=0,
-            active_job_keys=[],
-            job_control_states={key:"cancel_requested"},
-        )
+    def _activate(self, key: str) -> dict:
+        with self._active_lock:
+            self._active_job_keys.add(key)
+            return self._heartbeat_snapshot()
+
+    def _deactivate(
+        self,
+        key: str,
+        *,
+        job_control_state: str | None = None,
+    ) -> None:
+        with self._active_lock:
+            self._active_job_keys.discard(key)
+            states = (
+                {key:job_control_state}
+                if job_control_state is not None
+                else None
+            )
+            try:
+                self._heartbeat_snapshot(job_control_states=states)
+            except RuntimeError:
+                pass
+
+    def _heartbeat_active(self, key: str) -> dict:
+        with self._active_lock:
+            if key not in self._active_job_keys:
+                self._active_job_keys.add(key)
+            return self._heartbeat_snapshot()
 
     def _execute(self, job: RemoteJob) -> dict:
         key = job.key
         self.client.ack(key)
-        heartbeat = self._heartbeat_active(key)
-        if key in heartbeat.get("stale_job_keys", []):
-            self.client.checkpoint_stale(
-                key,
-                f"worker-runner://{self.client.worker_id}/{key}/stale",
-            )
-            return {
-                "job_key":key,
-                "status":"stale",
-            }
-
-        request = json.dumps(
-            {
-                "schema_version":
-                    "production-os/worker-executor-request/v1",
-                "job":job.to_dict(),
-            },
-            ensure_ascii=False,
-        )
-        started = time.monotonic()
-        process = subprocess.Popen(
-            self.executor_command,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            env=self.executor_env,
-        )
-        first_communicate = True
-        stdout = ""
+        active_registered = True
+        heartbeat = self._activate(key)
+        process: subprocess.Popen[str] | None = None
         try:
+            if key in heartbeat.get("stale_job_keys", []):
+                self.client.checkpoint_stale(
+                    key,
+                    f"worker-runner://{self.client.worker_id}/{key}/stale",
+                )
+                return {
+                    "job_key":key,
+                    "status":"stale",
+                }
+
+            request = json.dumps(
+                {
+                    "schema_version":
+                        "production-os/worker-executor-request/v1",
+                    "job":job.to_dict(),
+                },
+                ensure_ascii=False,
+            )
+            started = time.monotonic()
+            process = subprocess.Popen(
+                self.executor_command,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                env=self.executor_env,
+            )
+            first_communicate = True
+            stdout = ""
             while True:
                 elapsed = time.monotonic() - started
                 remaining = self.executor_timeout_seconds - elapsed
@@ -169,42 +204,90 @@ class RemoteWorkerRunner:
                     )
                     if desired == "cancel_requested":
                         self._terminate(process)
-                        self._acknowledge_cancel(key)
+                        self._deactivate(
+                            key,
+                            job_control_state="cancel_requested",
+                        )
+                        active_registered = False
                         return {
                             "job_key":key,
                             "status":"cancelled",
                         }
-        finally:
-            if process.poll() is None:
-                self._terminate(process)
 
-        duration = time.monotonic() - started
-        if process.returncode != 0:
-            reason = f"executor_exit_{process.returncode}"
-            self.client.fail(
-                key,
-                reason,
-                result_payload={
-                    "summary":"executor process failed",
-                },
-                duration_seconds=duration,
-            )
-            return {
-                "job_key":key,
-                "status":"failed",
-                "reason":reason,
-            }
+            duration = time.monotonic() - started
+            if process.returncode != 0:
+                reason = f"executor_exit_{process.returncode}"
+                self.client.fail(
+                    key,
+                    reason,
+                    result_payload={
+                        "summary":"executor process failed",
+                    },
+                    duration_seconds=duration,
+                )
+                return {
+                    "job_key":key,
+                    "status":"failed",
+                    "reason":reason,
+                }
 
-        try:
-            payload = json.loads(stdout)
-        except (TypeError, json.JSONDecodeError):
-            payload = None
-        if not isinstance(payload, dict):
+            try:
+                payload = json.loads(stdout)
+            except (TypeError, json.JSONDecodeError):
+                payload = None
+            if not isinstance(payload, dict):
+                self.client.fail(
+                    key,
+                    "executor_invalid_output",
+                    result_payload={
+                        "summary":"executor returned invalid JSON output",
+                    },
+                    duration_seconds=duration,
+                )
+                return {
+                    "job_key":key,
+                    "status":"failed",
+                    "reason":"executor_invalid_output",
+                }
+
+            status = str(payload.get("status") or "")
+            result = payload.get("result", {})
+            if not isinstance(result, dict):
+                status = ""
+
+            if status == "succeeded":
+                self.client.complete(
+                    key,
+                    result_payload=result,
+                    duration_seconds=duration,
+                )
+                return {
+                    "job_key":key,
+                    "status":"completed",
+                }
+
+            if status == "failed":
+                reason = str(
+                    payload.get("reason")
+                    or "executor_reported_failure"
+                )[:512]
+                self.client.fail(
+                    key,
+                    reason,
+                    result_payload=result,
+                    duration_seconds=duration,
+                )
+                return {
+                    "job_key":key,
+                    "status":"failed",
+                    "reason":reason,
+                }
+
             self.client.fail(
                 key,
                 "executor_invalid_output",
                 result_payload={
-                    "summary":"executor returned invalid JSON output",
+                    "summary":"executor output schema is invalid",
                 },
                 duration_seconds=duration,
             )
@@ -213,53 +296,11 @@ class RemoteWorkerRunner:
                 "status":"failed",
                 "reason":"executor_invalid_output",
             }
-
-        status = str(payload.get("status") or "")
-        result = payload.get("result", {})
-        if not isinstance(result, dict):
-            status = ""
-
-        if status == "succeeded":
-            self.client.complete(
-                key,
-                result_payload=result,
-                duration_seconds=duration,
-            )
-            return {
-                "job_key":key,
-                "status":"completed",
-            }
-
-        if status == "failed":
-            reason = str(
-                payload.get("reason")
-                or "executor_reported_failure"
-            )[:512]
-            self.client.fail(
-                key,
-                reason,
-                result_payload=result,
-                duration_seconds=duration,
-            )
-            return {
-                "job_key":key,
-                "status":"failed",
-                "reason":reason,
-            }
-
-        self.client.fail(
-            key,
-            "executor_invalid_output",
-            result_payload={
-                "summary":"executor output schema is invalid",
-            },
-            duration_seconds=duration,
-        )
-        return {
-            "job_key":key,
-            "status":"failed",
-            "reason":"executor_invalid_output",
-        }
+        finally:
+            if process is not None and process.poll() is None:
+                self._terminate(process)
+            if active_registered:
+                self._deactivate(key)
 
     def run(
         self,
@@ -278,26 +319,55 @@ class RemoteWorkerRunner:
             active_job_keys=[],
         )
         outcomes: list[dict] = []
+        futures: dict[Future[dict], str] = {}
         index = 0
-        while cycles == 0 or index < int(cycles):
-            index += 1
-            self.client.heartbeat(
-                active_tasks=0,
-                active_job_keys=[],
-            )
-            job = self.client.claim(
-                ack_timeout_seconds=ack_timeout_seconds,
-            )
-            if job is not None:
-                outcome = self._execute(job)
-                outcomes.append(outcome)
+
+        def collect(done) -> None:
+            for future in done:
+                futures.pop(future, None)
+                outcomes.append(future.result())
+
+        with ThreadPoolExecutor(
+            max_workers=self.max_concurrency,
+            thread_name_prefix="production-os-runner",
+        ) as pool:
+            while cycles == 0 or index < int(cycles):
+                index += 1
                 try:
-                    self.client.heartbeat(
-                        active_tasks=0,
-                        active_job_keys=[],
-                    )
+                    self._heartbeat_snapshot()
                 except RuntimeError:
-                    pass
-            elif (cycles == 0 or index < int(cycles)) and idle_sleep_seconds:
-                time.sleep(float(idle_sleep_seconds))
+                    if not futures:
+                        raise
+
+                while len(futures) < self.max_concurrency:
+                    job = self.client.claim(
+                        ack_timeout_seconds=ack_timeout_seconds,
+                    )
+                    if job is None:
+                        break
+                    future = pool.submit(self._execute, job)
+                    futures[future] = job.key
+
+                if futures:
+                    done, _pending = wait(
+                        set(futures),
+                        timeout=self.heartbeat_interval_seconds,
+                        return_when=FIRST_COMPLETED,
+                    )
+                    collect(done)
+                elif (
+                    (cycles == 0 or index < int(cycles))
+                    and idle_sleep_seconds
+                ):
+                    time.sleep(float(idle_sleep_seconds))
+
+            if futures:
+                done, _pending = wait(set(futures))
+                collect(done)
+
+        try:
+            self._heartbeat_snapshot()
+        except RuntimeError:
+            pass
         return outcomes
+

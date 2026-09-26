@@ -1682,6 +1682,26 @@ executor status=failed
 
 This qualification deliberately uses the real HTTP control-plane endpoints, `RemoteWorkerClient`, `RemoteWorkerRunner` and an actual subprocess executor. It closes the gap between component-level runner tests and the user-facing One-tap production lifecycle.
 
+
+## Release 52 — Concurrent remote worker runner
+
+`RemoteWorkerRunner.max_concurrency` now controls real executor concurrency instead of only advertising worker capacity.
+
+The runner maintains one authoritative in-memory active-job set and publishes the full set on every worker heartbeat:
+
+```text
+active_tasks = len(active_job_keys)
+active_job_keys = all currently executing jobs
+```
+
+Execution uses a bounded thread pool. Available slots are filled with independently claimed jobs and each job still owns its own subprocess, timeout, stale-generation checks and cancellation handling.
+
+For bounded runs, Production-OS stops claiming after the requested cycle count but drains every subprocess already launched before returning. For continuous runs, completed slots are refilled while respecting the configured concurrency ceiling.
+
+Per-job cancellation no longer clears unrelated active-job state: acknowledging one cancellation publishes the remaining active keys together with the cancelled job's control acknowledgement.
+
+A regression test requires two executor subprocesses to start simultaneously with `max_concurrency=2`, observes `active_tasks=2`, verifies both jobs complete, and confirms the worker returns to zero active tasks afterward.
+
 ## Design principles
 
 - Evidence over assumptions

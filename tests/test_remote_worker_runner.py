@@ -339,3 +339,95 @@ print(json.dumps({
     finally:
         _stop(server, thread)
 
+def test_remote_worker_runner_honors_max_concurrency_with_full_active_set(tmp_path):
+    control = ControlPlane(str(tmp_path / "concurrent-runner.sqlite"), authorizer=_auth())
+    queued = [
+        control.queue.enqueue({
+            "handoff":{
+                "repository":f"dbrckk/runner-concurrent-{index}",
+                "task":f"Concurrent task {index}.",
+            },
+            "required_capabilities":[],
+        })
+        for index in (1, 2)
+    ]
+    markers = tmp_path / "markers"
+    markers.mkdir()
+    executor = tmp_path / "concurrent_executor.py"
+    executor.write_text(
+        f"""
+import json, pathlib, sys, time
+request = json.load(sys.stdin)
+key = request["job"]["key"]
+markers = pathlib.Path({str(markers)!r})
+(markers / (key + ".started")).write_text("started", encoding="utf-8")
+deadline = time.time() + 1.5
+while len(list(markers.glob("*.started"))) < 2 and time.time() < deadline:
+    time.sleep(0.02)
+if len(list(markers.glob("*.started"))) < 2:
+    raise SystemExit(7)
+time.sleep(0.25)
+print(json.dumps({{
+    "status":"succeeded",
+    "result":{{"summary":"concurrent executor completed"}},
+}}))
+""".strip(),
+        encoding="utf-8",
+    )
+
+    server, server_thread, base = _server(control)
+    outcomes = []
+    try:
+        client = RemoteWorkerClient(
+            base,
+            "worker-secret",
+            "runner-1",
+            [],
+            timeout=5,
+        )
+        runner = RemoteWorkerRunner(
+            client,
+            [sys.executable, str(executor)],
+            max_concurrency=2,
+            heartbeat_interval_seconds=0.05,
+            executor_timeout_seconds=2,
+        )
+        worker_thread = threading.Thread(
+            target=lambda: outcomes.extend(
+                runner.run(cycles=1, idle_sleep_seconds=0)
+            ),
+            daemon=True,
+        )
+        worker_thread.start()
+
+        deadline = time.time() + 1.0
+        saw_two_markers = False
+        saw_two_active = False
+        while time.time() < deadline:
+            if len(list(markers.glob("*.started"))) >= 2:
+                saw_two_markers = True
+            control.workers.load()
+            worker = control.workers.workers.get("runner-1")
+            if worker is not None and int(worker.active_tasks) == 2:
+                saw_two_active = True
+            if saw_two_markers and saw_two_active:
+                break
+            time.sleep(0.02)
+
+        worker_thread.join(timeout=5)
+
+        assert saw_two_markers is True
+        assert saw_two_active is True
+        assert not worker_thread.is_alive()
+        assert len(outcomes) == 2
+        assert {row["job_key"] for row in outcomes} == {
+            row["key"] for row in queued
+        }
+        assert all(row["status"] == "completed" for row in outcomes)
+        assert all(control.queue.get(row["key"])["status"] == "completed" for row in queued)
+
+        control.workers.load()
+        assert control.workers.workers["runner-1"].active_tasks == 0
+    finally:
+        _stop(server, server_thread)
+
