@@ -2353,6 +2353,59 @@ def make_handler(control: ControlPlane):
                             )
                             return
 
+                if parsed.path == "/v1/workers/session":
+                    principal = self._require("worker")
+                    if principal is None:
+                        return
+                    worker_id = str(body["worker_id"]).strip()
+                    if (
+                        principal.role == "worker"
+                        and principal.name != worker_id
+                    ):
+                        self._send(
+                            HTTPStatus.FORBIDDEN,
+                            {
+                                "error":"worker identity mismatch",
+                                "worker_id":worker_id,
+                            },
+                        )
+                        return
+                    raw_capabilities = body.get("capabilities", [])
+                    if not isinstance(raw_capabilities, list):
+                        raise ValueError("capabilities must be a list")
+                    raw_active = body.get("active_job_keys", [])
+                    if not isinstance(raw_active, list):
+                        raise ValueError("active_job_keys must be a list")
+                    active_job_keys = sorted({
+                        str(key).strip()
+                        for key in raw_active
+                        if str(key).strip()
+                    })
+                    worker = control.workers.register(
+                        worker_id,
+                        [str(x) for x in raw_capabilities],
+                        int(body.get("max_concurrency", 1)),
+                    )
+                    recovered = control.reconcile_worker_registration(
+                        worker_id,
+                        active_job_keys,
+                    )
+                    worker = control.workers.heartbeat(
+                        worker_id,
+                        active_tasks=len(active_job_keys),
+                    )
+                    self._send(
+                        HTTPStatus.OK,
+                        {
+                            "schema_version":
+                                "production-os/worker-session/v1",
+                            "worker":worker.to_dict(),
+                            "reported_active_job_keys":active_job_keys,
+                            "recovered_jobs":recovered,
+                        },
+                    )
+                    return
+
                 if parsed.path == "/v1/workers/register":
                     principal = self._require("operator")
                     if principal is None:
