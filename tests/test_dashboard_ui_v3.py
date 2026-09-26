@@ -738,3 +738,26 @@ def test_last_production_tracker_renders_cancelling_phase_and_cancel_endpoint():
     assert "loadManagedProjects()" in DASHBOARD_HTML
     assert "loadAttention()" in DASHBOARD_HTML
 
+def test_last_production_tracker_exposes_recovery_and_completion_actions():
+    assert "async function lastProductionManagedAction" in DASHBOARD_HTML
+    assert "Relancer / retester" in DASHBOARD_HTML
+    assert 'phase==="needs_attention"' in DASHBOARD_HTML
+    assert 'phase==="review_required"' in DASHBOARD_HTML
+    assert ">Retester</button>" in DASHBOARD_HTML
+    assert ">Valider DONE</button>" in DASHBOARD_HTML
+    assert 'confirm:"MARK_PROJECT_DONE"' in DASHBOARD_HTML
+    assert "Valider définitivement cette production comme DONE ?" in DASHBOARD_HTML
+
+
+def test_last_production_recovery_actions_refresh_server_backed_surfaces():
+    start = DASHBOARD_HTML.index("async function lastProductionManagedAction")
+    end = DASHBOARD_HTML.index("async function loadLastProduction", start)
+    body = DASHBOARD_HTML[start:end]
+    assert '"/v1/managed-projects/"+encodeURIComponent(value)+"/"+action' in body
+    assert "loadLastProduction()" in body
+    assert "loadManagedProjects()" in body
+    assert "loadAttention()" in body
+    assert "loadLaunchReadiness()" in body
+    assert "Nouvelle génération de vérification lancée." in body
+    assert "Production validée DONE." in body
+

@@ -590,6 +590,35 @@ async function cancelLastProduction(projectId){
   if(status)status.textContent=String(e).replace(/^Error:\s*/,"");
  }
 }
+async function lastProductionManagedAction(projectId,action){
+ const value=String(projectId||'').trim();
+ if(!value)return;
+ if(action==="complete"){
+  if(!window.confirm("Valider définitivement cette production comme DONE ?"))return;
+ }
+ try{
+  const body=action==="complete"?{confirm:"MARK_PROJECT_DONE"}:{};
+  await api(
+   "/v1/managed-projects/"+encodeURIComponent(value)+"/"+action,
+   {method:"POST",body:JSON.stringify(body)}
+  );
+  const status=document.getElementById("launch-status");
+  if(status){
+   status.textContent=action==="verify"
+    ?"Nouvelle génération de vérification lancée."
+    :"Production validée DONE.";
+  }
+  await Promise.all([
+   loadLastProduction(),
+   loadManagedProjects(),
+   loadAttention(),
+   loadLaunchReadiness()
+  ]);
+ }catch(e){
+  const status=document.getElementById("launch-status");
+  if(status)status.textContent=String(e).replace(/^Error:\s*/,"");
+ }
+}
 async function loadLastProduction(){
  const el=document.getElementById('last-production-card');
  const projectId=String(localStorage.getItem(LAST_PROJECT_KEY)||'').trim();
@@ -645,7 +674,12 @@ async function loadLastProduction(){
     ?'<button class="danger-btn" type="button" data-project-id="'+esc(projectId)+'" onclick="cancelLastProduction(this.dataset.projectId)">Annuler la production</button>'
     :phase==="cancelling"
       ?'<button class="danger-btn" type="button" disabled>Annulation en cours</button>'
-      :'')+
+      :phase==="needs_attention"
+        ?'<button class="primary-btn" type="button" data-project-id="'+esc(projectId)+'" onclick="lastProductionManagedAction(this.dataset.projectId,\'verify\')">Relancer / retester</button>'
+        :phase==="review_required"
+          ?'<button class="secondary-btn" type="button" data-project-id="'+esc(projectId)+'" onclick="lastProductionManagedAction(this.dataset.projectId,\'verify\')">Retester</button>'+
+           '<button class="primary-btn" type="button" data-project-id="'+esc(projectId)+'" onclick="lastProductionManagedAction(this.dataset.projectId,\'complete\')">Valider DONE</button>'
+          :'')+
    '</div>';
   return data;
  }catch(e){

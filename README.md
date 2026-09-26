@@ -1375,6 +1375,52 @@ Annulation en cours
 
 only for applicable active phases, with an explicit browser confirmation before the operator mutation.
 
+
+## Release 44 — One-tap recovery and completion actions
+
+The persistent last-production tracker now handles the full operator lifecycle without forcing a navigation detour.
+
+For a Managed Project in `NEEDS_ATTENTION`, the tracker exposes:
+
+```text
+Relancer / retester
+```
+
+This reuses the existing verification endpoint and creates a new immutable workflow generation on the **same Managed Project**.
+
+For a project in `REVIEW_REQUIRED`, the tracker exposes:
+
+```text
+Retester
+Valider DONE
+```
+
+Completion still requires the exact server confirmation:
+
+```text
+MARK_PROJECT_DONE
+```
+
+No new mutation primitive is introduced. The mobile surface reuses the existing operator-only Managed Project contracts, preserving their authorization, immutable generation history and completion safeguards.
+
+The resulting operator flow is now:
+
+```text
+launch
+  ↓
+cancel / fail if necessary
+  ↓
+NEEDS_ATTENTION
+  ↓
+retest generation N+1
+  ↓
+REVIEW_REQUIRED
+  ↓
+DONE
+```
+
+A dedicated E2E qualification proves that cancel → retest → worker completion → DONE keeps the same Managed Project identity while creating a distinct immutable workflow generation for the retry.
+
 ## Design principles
 
 - Evidence over assumptions
