@@ -2,24 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "test: scope dashboard visual quality to selected repo",
-      "terms": [
-        "dashboard",
-        "quality",
-        "repo",
-        "scope",
-        "selected",
-        "test",
-        "visual"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/control_plane.py",
-        "tests/test_dashboard_launch.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat: retrieve correlated workflow artifacts securely",
       "terms": [
         "artifacts",
@@ -1301,6 +1283,28 @@
         "tests/test_dashboard_ui_v3.py",
         "tests/test_release44_one_tap_recovery_actions_e2e.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "feat: release 45 server-backed production inbox",
+      "terms": [
+        "45",
+        "feat",
+        "inbox",
+        "production",
+        "release",
+        "server-backed"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/control_plane.py",
+        "src/production_os/dashboard_service.py",
+        "src/production_os/dashboard_ui.py",
+        "tests/test_dashboard_api.py",
+        "tests/test_dashboard_production_inbox.py",
+        "tests/test_dashboard_ui_v3.py",
+        "tests/test_release45_production_inbox_e2e.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1546,6 +1550,15 @@
       "src/production_os/dashboard_ui.py": 4,
       "tests/test_dashboard_ui_v3.py": 4,
       "tests/test_release44_one_tap_recovery_actions_e2e.py": 4
+    },
+    "45": {
+      "src/production_os/control_plane.py": 4,
+      "src/production_os/dashboard_service.py": 4,
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_api.py": 4,
+      "tests/test_dashboard_production_inbox.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_release45_production_inbox_e2e.py": 4
     },
     "accept": {
       "src/production_os/asset_forge.py": 4,
@@ -2090,6 +2103,7 @@
       "tests/test_dashboard_observability_e2e.py": 4,
       "tests/test_dashboard_playbook_api.py": 4,
       "tests/test_dashboard_playbooks.py": 4,
+      "tests/test_dashboard_production_inbox.py": 4,
       "tests/test_dashboard_production_status.py": 8,
       "tests/test_dashboard_remediation_api.py": 12,
       "tests/test_dashboard_remediation_history.py": 16,
@@ -2105,7 +2119,6 @@
       "tests/test_managed_project_outcome.py": 4,
       "tests/test_managed_projects_http_v4.py": 8,
       "tests/test_managed_projects_v4.py": 12,
-      "tests/test_portfolio_claim_api.py": 4,
       "tests/test_workflow_postgres.py": 8
     },
     "filesystem": {
@@ -2209,6 +2222,15 @@
       "tests/test_managed_projects_http_v4.py": 4,
       "tests/test_managed_projects_v4.py": 4,
       "tests/test_workflow_postgres.py": 4
+    },
+    "inbox": {
+      "src/production_os/control_plane.py": 4,
+      "src/production_os/dashboard_service.py": 4,
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_api.py": 4,
+      "tests/test_dashboard_production_inbox.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_release45_production_inbox_e2e.py": 4
     },
     "incidents": {
       "src/production_os/control_plane.py": 4,
@@ -2455,9 +2477,9 @@
       "src/production_os/capabilities.py": 4,
       "src/production_os/classification.py": 4,
       "src/production_os/cli.py": 4,
-      "src/production_os/control_plane.py": 12,
-      "src/production_os/dashboard_service.py": 12,
-      "src/production_os/dashboard_ui.py": 16,
+      "src/production_os/control_plane.py": 16,
+      "src/production_os/dashboard_service.py": 16,
+      "src/production_os/dashboard_ui.py": 20,
       "src/production_os/github_client.py": 4,
       "src/production_os/managed_projects.py": 4,
       "src/production_os/postgres_backend.py": 4,
@@ -2466,16 +2488,18 @@
       "tests/test_asset_forge.py": 4,
       "tests/test_capabilities_graph.py": 4,
       "tests/test_classification_history_reuse.py": 8,
-      "tests/test_dashboard_api.py": 12,
+      "tests/test_dashboard_api.py": 16,
       "tests/test_dashboard_attention.py": 4,
       "tests/test_dashboard_launch.py": 4,
+      "tests/test_dashboard_production_inbox.py": 4,
       "tests/test_dashboard_production_status.py": 8,
-      "tests/test_dashboard_ui_v3.py": 16,
+      "tests/test_dashboard_ui_v3.py": 20,
       "tests/test_managed_project_outcome.py": 4,
       "tests/test_postgres_backend.py": 4,
       "tests/test_release32_one_tap_e2e.py": 8,
       "tests/test_release41_live_production_tracking_e2e.py": 4,
       "tests/test_release43_safe_production_cancel_e2e.py": 4,
+      "tests/test_release45_production_inbox_e2e.py": 4,
       "tests/test_sqlite_backend.py": 4
     },
     "projects": {
@@ -2651,6 +2675,7 @@
       "tests/test_dashboard_observability_e2e.py": 4,
       "tests/test_dashboard_playbook_api.py": 4,
       "tests/test_dashboard_playbooks.py": 4,
+      "tests/test_dashboard_production_inbox.py": 4,
       "tests/test_dashboard_production_status.py": 8,
       "tests/test_dashboard_remediation_api.py": 12,
       "tests/test_dashboard_remediation_history.py": 12,
@@ -2669,7 +2694,6 @@
       "tests/test_postgres_backend.py": 4,
       "tests/test_project_progress.py": 4,
       "tests/test_release16_operations_e2e.py": 4,
-      "tests/test_release18_managed_projects_e2e.py": 4,
       "tests/test_release32_one_tap_e2e.py": 8
     },
     "reliability": {
@@ -2828,6 +2852,15 @@
     "selected": {
       "src/production_os/control_plane.py": 4,
       "tests/test_dashboard_launch.py": 4
+    },
+    "server-backed": {
+      "src/production_os/control_plane.py": 4,
+      "src/production_os/dashboard_service.py": 4,
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_api.py": 4,
+      "tests/test_dashboard_production_inbox.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_release45_production_inbox_e2e.py": 4
     },
     "session": {
       "src/production_os/control_plane.py": 4,

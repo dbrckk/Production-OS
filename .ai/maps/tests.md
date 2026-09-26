@@ -81,6 +81,7 @@ test_dashboard_maintenance.py
 test_dashboard_observability_e2e.py
 test_dashboard_playbook_api.py
 test_dashboard_playbooks.py
+test_dashboard_production_inbox.py
 test_dashboard_production_status.py
 test_dashboard_remediation_api.py
 test_dashboard_remediation_history.py
@@ -150,6 +151,7 @@ test_release41_live_production_tracking_e2e.py
 test_release42_idempotent_launch_e2e.py
 test_release43_safe_production_cancel_e2e.py
 test_release44_one_tap_recovery_actions_e2e.py
+test_release45_production_inbox_e2e.py
 test_remote_worker.py
 test_render_start.py
 test_result_cache.py
@@ -2002,6 +2004,34 @@ inspect = next(x for x in result["suggestions"] if x["action"] == "inspect-job")
 cancel = next(x for x in result["suggestions"] if x["action"] == "cancel-current")
 ```
 
+## File: test_dashboard_production_inbox.py
+```python
+def test_production_inbox_aggregates_live_review_attention_and_done(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "production-inbox.sqlite"))
+⋮----
+queued = control.managed_projects.create(
+⋮----
+review = control.managed_projects.create(
+⋮----
+attention = control.managed_projects.create(
+cancelled = control.dashboard.cancel_production(
+⋮----
+done = control.managed_projects.create(
+⋮----
+payload = control.dashboard.production_inbox(limit=50)
+⋮----
+by_id = {item["project_id"]:item for item in payload["items"]}
+⋮----
+summary = payload["summary"]
+⋮----
+def test_production_inbox_respects_response_limit(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "production-inbox-limit.sqlite"))
+⋮----
+payload = control.dashboard.production_inbox(limit=2)
+```
+
 ## File: test_dashboard_production_status.py
 ```python
 def test_production_status_tracks_queue_claim_ack_and_live_telemetry(tmp_path)
@@ -2630,6 +2660,10 @@ def test_last_production_recovery_actions_refresh_server_backed_surfaces()
 start = DASHBOARD_HTML.index("async function lastProductionManagedAction")
 end = DASHBOARD_HTML.index("async function loadLastProduction", start)
 body = DASHBOARD_HTML[start:end]
+⋮----
+def test_dashboard_has_server_backed_multi_production_view()
+⋮----
+def test_production_inbox_renders_live_runtime_and_server_actions()
 ```
 
 ## File: test_dashboard_usage.py
@@ -4507,6 +4541,45 @@ second_workflow = second["current_workflow_id"]
 ⋮----
 worker = RemoteWorkerClient(base, "worker", "worker", [], timeout=5)
 job = worker.claim()
+```
+
+## File: test_release45_production_inbox_e2e.py
+```python
+def _auth()
+⋮----
+def _request(base, path, token, *, method="GET", body=None)
+⋮----
+data = None if body is None else json.dumps(body).encode("utf-8")
+request = urllib.request.Request(
+⋮----
+raw = response.read()
+⋮----
+raw = exc.read()
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+def _stop(server, thread)
+⋮----
+@pytest.mark.e2e
+def test_release45_server_inbox_tracks_multiple_productions_across_restart(tmp_path)
+⋮----
+database = str(tmp_path / "production-inbox-e2e.sqlite")
+first = ControlPlane(database, authorizer=_auth())
+⋮----
+project_ids = []
+⋮----
+worker = RemoteWorkerClient(base, "worker", "worker", [], timeout=5)
+claimed = worker.claim()
+⋮----
+running = next(
+⋮----
+second = ControlPlane(database, authorizer=_auth())
+⋮----
+# A fresh browser/device only needs viewer access. No local last-project
+# state is required to reconstruct all current productions.
 ```
 
 ## File: test_remote_worker.py

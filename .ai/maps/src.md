@@ -1930,6 +1930,8 @@ payload = service.launch_readiness(
 ⋮----
 payload = service.production_status(
 ⋮----
+payload = service.production_inbox(
+⋮----
 payload = service.attention(
 ⋮----
 payload = service.health()
@@ -3470,6 +3472,26 @@ message = "Une action opérateur est requise."
 message = "Projet terminé."
 ⋮----
 message = "Préparation de l’exécution."
+⋮----
+def production_inbox(self, *, limit: int = 50) -> dict
+⋮----
+managed = self.control.managed_projects.list(limit=500)
+⋮----
+active = [
+recent_done = [
+⋮----
+selected = (active + recent_done)[:bounded]
+items = []
+phase_counts: dict[str, int] = {}
+⋮----
+project_id = str(project.get("project_id") or project.get("id") or "")
+⋮----
+status = self.production_status(project_id)
+current = status.get("project") or project
+runtime = status.get("runtime") or {}
+phase = str(runtime.get("phase") or "preparing")
+⋮----
+live_phases = {
 ⋮----
 def repositories(self) -> dict
 ⋮----
