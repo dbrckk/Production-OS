@@ -1524,6 +1524,32 @@ The mobile Productions view adds:
 
 This makes the inbox usable across reloads and shareable links without moving any operator mutation into browser-local state.
 
+
+## Release 48 — Inline production detail
+
+Opening a production from the persistent inbox no longer forces a context switch to the technical Managed Projects view.
+
+The Productions surface now owns a shareable focused detail panel driven by the existing URL `target` parameter:
+
+```text
+/dashboard?view=productions&target=<project_id>
+```
+
+The detail is reconstructed from the existing server-authoritative production status endpoint, so it remains valid after refresh or on another paired device.
+
+The focused panel shows:
+
+- repository and final goal;
+- current runtime phase and message;
+- current generation;
+- worker and stage when available;
+- normalized outcome evidence;
+- generation history;
+- the same guarded cancel / retest / DONE actions already used by the inbox;
+- an explicit escape hatch to the advanced Managed Projects view.
+
+The detail loads even when the selected production is outside the current inbox filter/search result. Closing the panel clears only the URL target and keeps the current inbox filter/search/sort state.
+
 ## Design principles
 
 - Evidence over assumptions
