@@ -173,6 +173,11 @@ def test_production_inbox_search_matches_repository_goal_and_project_id(tmp_path
 
 def test_production_inbox_recent_sort_ignores_priority_but_keeps_filter(tmp_path):
     control, queued, review, attention, done = _production_fixture(tmp_path)
+
+    # Prime reconciliation first so timestamp edits below represent the
+    # externally visible project activity order rather than status migration.
+    control.dashboard.production_inbox(limit=50)
+
     timestamps = {
         queued["project_id"]:"2026-01-04T00:00:00+00:00",
         review["project_id"]:"2026-01-03T00:00:00+00:00",
