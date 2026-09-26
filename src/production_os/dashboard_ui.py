@@ -63,6 +63,8 @@ textarea{resize:vertical;min-height:150px;line-height:1.45}
 }
 .primary-btn[disabled]{opacity:.55;cursor:wait}
 .secondary-btn{padding:11px 14px}
+.danger-btn{border:1px solid rgba(248,113,113,.5);background:rgba(127,29,29,.25);color:#fecaca;border-radius:12px;padding:10px 13px;font-weight:800;cursor:pointer}
+.danger-btn:disabled{opacity:.55;cursor:not-allowed}
 .status-message{margin:11px 0 0;min-height:20px;font-size:.88rem;font-weight:700;color:#cbd5e1}
 .worker-detail{margin:7px 0 0;color:var(--muted);font-size:.8rem}
 .runtime-warning{display:none;margin-top:10px;padding:10px 12px;border-radius:12px;background:rgba(251,191,36,.10);border:1px solid rgba(251,191,36,.25);color:#fde68a;font-size:.82rem}
@@ -557,6 +559,37 @@ async function openLastProduction(projectId){
   focus:String(projectId||'')||null
  });
 }
+async function cancelLastProduction(projectId){
+ const value=String(projectId||'').trim();
+ if(!value)return;
+ if(!window.confirm(
+  "Annuler cette production active ? Le projet restera disponible pour inspection ou relance."
+ ))return;
+ try{
+  const result=await api(
+   "/v1/managed-projects/"+encodeURIComponent(value)+"/cancel",
+   {
+    method:"POST",
+    body:JSON.stringify({confirm:"CANCEL_ACTIVE_PRODUCTION"})
+   }
+  );
+  const state=String(result.status||"");
+  const status=document.getElementById("launch-status");
+  if(status){
+   status.textContent=state==="cancel_requested"
+    ?"Annulation demandée · arrêt coopératif du worker en cours."
+    :"Production annulée.";
+  }
+  await Promise.all([
+   loadLastProduction(),
+   loadManagedProjects(),
+   loadAttention()
+  ]);
+ }catch(e){
+  const status=document.getElementById("launch-status");
+  if(status)status.textContent=String(e).replace(/^Error:\s*/,"");
+ }
+}
 async function loadLastProduction(){
  const el=document.getElementById('last-production-card');
  const projectId=String(localStorage.getItem(LAST_PROJECT_KEY)||'').trim();
@@ -579,6 +612,7 @@ async function loadLastProduction(){
    queued:'En file',
    claimed:'Réclamé',
    running:'En cours',
+   cancelling:'Annulation',
    review_required:'À revoir',
    needs_attention:'Action requise',
    done:'Terminé'
@@ -605,7 +639,14 @@ async function loadLastProduction(){
    (details.length?'<div class="small">'+esc(details.join(' · '))+'</div>':'')+
    progressHtml+'</div>'+
    renderProductionOutcome(outcome,true)+
-   '<div class="attention-actions"><button class="secondary-btn" type="button" data-project-id="'+esc(projectId)+'" onclick="openLastProduction(this.dataset.projectId)">Ouvrir le projet</button></div>';
+   '<div class="attention-actions">'+
+   '<button class="secondary-btn" type="button" data-project-id="'+esc(projectId)+'" onclick="openLastProduction(this.dataset.projectId)">Ouvrir le projet</button>'+
+   (["preparing","queued","claimed","running"].includes(phase)
+    ?'<button class="danger-btn" type="button" data-project-id="'+esc(projectId)+'" onclick="cancelLastProduction(this.dataset.projectId)">Annuler la production</button>'
+    :phase==="cancelling"
+      ?'<button class="danger-btn" type="button" disabled>Annulation en cours</button>'
+      :'')+
+   '</div>';
   return data;
  }catch(e){
   el.hidden=false;
