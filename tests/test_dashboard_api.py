@@ -687,3 +687,32 @@ def test_managed_production_cancel_requires_operator_and_exact_confirmation(
         for row in audit
     )
 
+def test_production_inbox_is_viewer_visible_and_worker_forbidden(
+    running_control_plane,
+):
+    base, control = running_control_plane
+    control.managed_projects.create(
+        repository="dbrckk/inbox-api",
+        final_goal="Show server production.",
+        token_budget=30000,
+        agent_preference="auto",
+    )
+
+    status, payload = get_api(
+        base,
+        "/v1/dashboard/productions?limit=20",
+        "viewer-token",
+    )
+    assert status == 200
+    assert payload["schema_version"] == "production-os/production-inbox/v1"
+    assert payload["summary"]["visible"] == 1
+    assert payload["items"][0]["repository"] == "dbrckk/inbox-api"
+
+    status, payload = get_api(
+        base,
+        "/v1/dashboard/productions?limit=20",
+        "worker-a-token",
+    )
+    assert status == 403
+    assert payload["required_role"] == "viewer"
+
