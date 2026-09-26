@@ -562,14 +562,14 @@ def test_managed_technical_creation_options_are_collapsed_by_default():
 
 
 def test_managed_view_can_be_restored_from_navigation_query():
-    assert '["attention","overview","projects","workers","autopilot","managed","activity"]' in DASHBOARD_HTML
+    assert '["attention","productions","overview","projects","workers","autopilot","managed","activity"]' in DASHBOARD_HTML
 
 def test_attention_center_is_default_mobile_view():
     assert 'data-view="attention"' in DASHBOARD_HTML
     assert 'id="view-attention" class="v3-view active"' in DASHBOARD_HTML
     assert "À faire maintenant" in DASHBOARD_HTML
     assert 'const appState={view:"attention"' in DASHBOARD_HTML
-    assert '["attention","overview","projects","workers","autopilot","managed","activity"]' in DASHBOARD_HTML
+    assert '["attention","productions","overview","projects","workers","autopilot","managed","activity"]' in DASHBOARD_HTML
 
 
 def test_attention_center_uses_server_aggregated_feed_and_action_counts():
