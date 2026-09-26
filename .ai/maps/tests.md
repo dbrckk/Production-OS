@@ -154,6 +154,7 @@ test_release43_safe_production_cancel_e2e.py
 test_release44_one_tap_recovery_actions_e2e.py
 test_release45_production_inbox_e2e.py
 test_release51_one_tap_runner_e2e.py
+test_release55_worker_operations.py
 test_remote_worker_runner.py
 test_remote_worker.py
 test_render_start.py
@@ -4743,6 +4744,50 @@ outcomes = runner.run(cycles=3, idle_sleep_seconds=0)
 # budget is exhausted; only then should operator attention be needed.
 ⋮----
 item = next(
+```
+
+## File: test_release55_worker_operations.py
+```python
+def _auth()
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+def _stop(server, thread)
+⋮----
+def _client(base)
+⋮----
+def test_paused_runner_acknowledges_control_and_does_not_claim(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "paused.sqlite"), authorizer=_auth())
+queued = control.queue.enqueue({
+⋮----
+executor = tmp_path / "executor.py"
+⋮----
+runner = RemoteWorkerRunner(
+⋮----
+state = control.dashboard_control.worker_state("runner-1")
+⋮----
+def test_draining_runner_finishes_active_job_without_claiming_replacement(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "draining.sqlite"), authorizer=_auth())
+first = control.queue.enqueue({
+second = control.queue.enqueue({
+marker = tmp_path / "started"
+⋮----
+outcomes = []
+⋮----
+runner_thread = threading.Thread(
+⋮----
+deadline = time.time() + 2
+⋮----
+def test_resumed_runner_claims_after_pause_acknowledgement(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "resume.sqlite"), authorizer=_auth())
+⋮----
+outcomes = runner.run(cycles=2, idle_sleep_seconds=0)
 ```
 
 ## File: test_remote_worker_runner.py

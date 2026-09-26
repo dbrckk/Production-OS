@@ -6284,6 +6284,8 @@ future = pool.submit(self._execute, job)
 
 ## File: production_os/remote_worker.py
 ```python
+WORKER_CONTROL_STATES = {"active", "paused", "draining"}
+⋮----
 @dataclass(frozen=True, slots=True)
 class RemoteJob
 ⋮----
@@ -6305,6 +6307,12 @@ raw = exc.read()
 payload = json.loads(raw or b"{}")
 ⋮----
 payload = {"worker_id":self.worker_id}
+⋮----
+reported_control_state = (
+⋮----
+control = dict(result.get("control") or {})
+worker_control = dict(control.get("worker") or {})
+desired_state = str(worker_control.get("desired_state") or "")
 ⋮----
 def claim(self, ack_timeout_seconds: int = 120) -> RemoteJob | None
 ⋮----

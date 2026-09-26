@@ -1,25 +1,1126 @@
 {
   "schema_version": 1,
   "generated_by": "dbrckk/repo-brain",
-  "base": "9e3c80c9ed49b381603eb20ec8f6a8ce47d8685b",
-  "head": "084fe72638f2f5095b3053a3a23a661fef1b0945",
+  "base": "084fe72638f2f5095b3053a3a23a661fef1b0945",
+  "head": "b6614ac5672d9681836c1c1c11c60f3f796938e4",
   "index_mode": "incremental",
   "changed_files": [
     {
-      "path": "docs/superpowers/designs/2026-09-26-release-55-worker-operations.md",
-      "status": "A"
+      "path": "src/production_os/remote_worker.py",
+      "status": "M"
     },
     {
-      "path": "docs/superpowers/plans/2026-09-26-release-55-worker-operations.md",
-      "status": "A"
-    },
-    {
-      "path": "docs/superpowers/specs/2026-09-26-release-55-worker-operations.md",
+      "path": "tests/test_release55_worker_operations.py",
       "status": "A"
     }
   ],
-  "changed_source_files": [],
-  "impacted_files": [],
-  "impacted_symbols": [],
-  "selected_tests": []
+  "changed_source_files": [
+    "src/production_os/remote_worker.py",
+    "tests/test_release55_worker_operations.py"
+  ],
+  "impacted_files": [
+    "src/production_os/cli.py",
+    "src/production_os/remote_worker.py",
+    "src/production_os/remote_worker_runner.py",
+    "tests/test_production_stack_e2e.py",
+    "tests/test_release32_one_tap_e2e.py",
+    "tests/test_release33_auto_worker_recovery_e2e.py",
+    "tests/test_release34_safe_running_recovery_e2e.py",
+    "tests/test_release35_control_plane_restart_e2e.py",
+    "tests/test_release36_worker_session_reconciliation_e2e.py",
+    "tests/test_release41_live_production_tracking_e2e.py",
+    "tests/test_release43_safe_production_cancel_e2e.py",
+    "tests/test_release44_one_tap_recovery_actions_e2e.py",
+    "tests/test_release45_production_inbox_e2e.py",
+    "tests/test_release51_one_tap_runner_e2e.py",
+    "tests/test_release55_worker_operations.py",
+    "tests/test_remote_worker.py",
+    "tests/test_remote_worker_runner.py"
+  ],
+  "impacted_symbols": [
+    {
+      "name": "_parse_args",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 99
+    },
+    {
+      "name": "_rank_actions",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 756
+    },
+    {
+      "name": "_external_refs_for_action",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 761
+    },
+    {
+      "name": "_handoff",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 778
+    },
+    {
+      "name": "_print_human",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 863
+    },
+    {
+      "name": "run_scan",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 913
+    },
+    {
+      "name": "run_validation_results",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1026
+    },
+    {
+      "name": "run_execution_feedback",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1058
+    },
+    {
+      "name": "run_trends",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1095
+    },
+    {
+      "name": "run_heartbeat",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1108
+    },
+    {
+      "name": "run_reconcile",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1123
+    },
+    {
+      "name": "run_dispatch",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1133
+    },
+    {
+      "name": "_write_asset_result",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1212
+    },
+    {
+      "name": "_asset_failure_result",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1223
+    },
+    {
+      "name": "run_asset_forge_dispatch",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1234
+    },
+    {
+      "name": "run_asset_forge_batch",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1299
+    },
+    {
+      "name": "run_github_reconcile",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1326
+    },
+    {
+      "name": "run_controller_command",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1380
+    },
+    {
+      "name": "run_worker_register",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1416
+    },
+    {
+      "name": "run_worker_heartbeat",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1430
+    },
+    {
+      "name": "run_worker_list",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1440
+    },
+    {
+      "name": "run_job_claim",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1453
+    },
+    {
+      "name": "run_job_ack",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1480
+    },
+    {
+      "name": "run_job_complete",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1490
+    },
+    {
+      "name": "run_delivery_recover",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1513
+    },
+    {
+      "name": "run_preempt_request",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1532
+    },
+    {
+      "name": "run_preempt_checkpoint",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1542
+    },
+    {
+      "name": "run_emergency_stop",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1561
+    },
+    {
+      "name": "run_emergency_resume",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1567
+    },
+    {
+      "name": "run_audit_verify",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1573
+    },
+    {
+      "name": "run_backup",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1579
+    },
+    {
+      "name": "run_restore",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1585
+    },
+    {
+      "name": "run_restore_activate",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1591
+    },
+    {
+      "name": "run_approve",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1621
+    },
+    {
+      "name": "run_revoke",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1636
+    },
+    {
+      "name": "run_migrate_state",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1651
+    },
+    {
+      "name": "run_migrate_many",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1658
+    },
+    {
+      "name": "run_queue_compact",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1667
+    },
+    {
+      "name": "run_dead_letter_retry",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1681
+    },
+    {
+      "name": "run_audit_checkpoint_create",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1694
+    },
+    {
+      "name": "run_audit_checkpoint_verify",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1704
+    },
+    {
+      "name": "run_quarantine",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1714
+    },
+    {
+      "name": "run_unquarantine",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1725
+    },
+    {
+      "name": "run_budget_record",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1736
+    },
+    {
+      "name": "run_policy_validate",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1755
+    },
+    {
+      "name": "run_policy_check",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1765
+    },
+    {
+      "name": "run_db_init",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1779
+    },
+    {
+      "name": "run_db_import",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1795
+    },
+    {
+      "name": "run_token_hash",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1807
+    },
+    {
+      "name": "_trusted_validation_keys_from_env",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1815
+    },
+    {
+      "name": "run_control_plane",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1831
+    },
+    {
+      "name": "run_remote_worker_poll",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1898
+    },
+    {
+      "name": "run_remote_worker_run",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1919
+    },
+    {
+      "name": "_request_stop",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1942
+    },
+    {
+      "name": "_workflow_engine",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1968
+    },
+    {
+      "name": "run_workflow_create",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1973
+    },
+    {
+      "name": "run_workflow_status",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1997
+    },
+    {
+      "name": "run_workflow_dispatch",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2006
+    },
+    {
+      "name": "run_workflow_critical_path",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2017
+    },
+    {
+      "name": "run_workflow_eta",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2025
+    },
+    {
+      "name": "run_stragglers",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2037
+    },
+    {
+      "name": "run_speculate_stragglers",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2055
+    },
+    {
+      "name": "run_workflow_impact",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2100
+    },
+    {
+      "name": "run_workflow_impact_pr",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2114
+    },
+    {
+      "name": "run_pr_refresh",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2136
+    },
+    {
+      "name": "run_workflow_cancel",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2180
+    },
+    {
+      "name": "run_artifact_add",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2189
+    },
+    {
+      "name": "_release_ledger",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2215
+    },
+    {
+      "name": "run_signing_keygen",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2263
+    },
+    {
+      "name": "run_validation_attest_v2",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2275
+    },
+    {
+      "name": "run_transparency_checkpoint",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2312
+    },
+    {
+      "name": "run_transparency_checkpoint_verify",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2470
+    },
+    {
+      "name": "run_slsa_verify",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2518
+    },
+    {
+      "name": "run_provenance_verify_v2",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2536
+    },
+    {
+      "name": "run_validation_attest",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2553
+    },
+    {
+      "name": "run_incident_snapshot",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2601
+    },
+    {
+      "name": "run_incident_report",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2616
+    },
+    {
+      "name": "run_trust_status",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2626
+    },
+    {
+      "name": "run_release_verify",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2639
+    },
+    {
+      "name": "run_release_promote",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2651
+    },
+    {
+      "name": "run_release_rollback",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2687
+    },
+    {
+      "name": "run_health_server",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2705
+    },
+    {
+      "name": "main",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2710
+    },
+    {
+      "name": "RemoteJob",
+      "kind": "class",
+      "file": "src/production_os/remote_worker.py",
+      "line": 14
+    },
+    {
+      "name": "to_dict",
+      "kind": "function",
+      "file": "src/production_os/remote_worker.py",
+      "line": 18
+    },
+    {
+      "name": "RemoteWorkerClient",
+      "kind": "class",
+      "file": "src/production_os/remote_worker.py",
+      "line": 22
+    },
+    {
+      "name": "__init__",
+      "kind": "function",
+      "file": "src/production_os/remote_worker.py",
+      "line": 23
+    },
+    {
+      "name": "_request",
+      "kind": "function",
+      "file": "src/production_os/remote_worker.py",
+      "line": 39
+    },
+    {
+      "name": "open_session",
+      "kind": "function",
+      "file": "src/production_os/remote_worker.py",
+      "line": 64
+    },
+    {
+      "name": "heartbeat",
+      "kind": "function",
+      "file": "src/production_os/remote_worker.py",
+      "line": 84
+    },
+    {
+      "name": "claim",
+      "kind": "function",
+      "file": "src/production_os/remote_worker.py",
+      "line": 127
+    },
+    {
+      "name": "ack",
+      "kind": "function",
+      "file": "src/production_os/remote_worker.py",
+      "line": 143
+    },
+    {
+      "name": "checkpoint_stale",
+      "kind": "function",
+      "file": "src/production_os/remote_worker.py",
+      "line": 150
+    },
+    {
+      "name": "complete",
+      "kind": "function",
+      "file": "src/production_os/remote_worker.py",
+      "line": 165
+    },
+    {
+      "name": "fail",
+      "kind": "function",
+      "file": "src/production_os/remote_worker.py",
+      "line": 187
+    },
+    {
+      "name": "poll",
+      "kind": "function",
+      "file": "src/production_os/remote_worker.py",
+      "line": 211
+    },
+    {
+      "name": "RemoteWorkerRunner",
+      "kind": "class",
+      "file": "src/production_os/remote_worker_runner.py",
+      "line": 14
+    },
+    {
+      "name": "__init__",
+      "kind": "function",
+      "file": "src/production_os/remote_worker_runner.py",
+      "line": 15
+    },
+    {
+      "name": "request_stop",
+      "kind": "function",
+      "file": "src/production_os/remote_worker_runner.py",
+      "line": 54
+    },
+    {
+      "name": "stop_requested",
+      "kind": "function",
+      "file": "src/production_os/remote_worker_runner.py",
+      "line": 59
+    },
+    {
+      "name": "_terminate",
+      "kind": "function",
+      "file": "src/production_os/remote_worker_runner.py",
+      "line": 63
+    },
+    {
+      "name": "_heartbeat_snapshot",
+      "kind": "function",
+      "file": "src/production_os/remote_worker_runner.py",
+      "line": 73
+    },
+    {
+      "name": "_activate",
+      "kind": "function",
+      "file": "src/production_os/remote_worker_runner.py",
+      "line": 86
+    },
+    {
+      "name": "_deactivate",
+      "kind": "function",
+      "file": "src/production_os/remote_worker_runner.py",
+      "line": 91
+    },
+    {
+      "name": "_heartbeat_active",
+      "kind": "function",
+      "file": "src/production_os/remote_worker_runner.py",
+      "line": 109
+    },
+    {
+      "name": "_execute",
+      "kind": "function",
+      "file": "src/production_os/remote_worker_runner.py",
+      "line": 115
+    },
+    {
+      "name": "run",
+      "kind": "function",
+      "file": "src/production_os/remote_worker_runner.py",
+      "line": 327
+    },
+    {
+      "name": "collect",
+      "kind": "function",
+      "file": "src/production_os/remote_worker_runner.py",
+      "line": 347
+    },
+    {
+      "name": "_api",
+      "kind": "function",
+      "file": "tests/test_production_stack_e2e.py",
+      "line": 21
+    },
+    {
+      "name": "_isolated_postgres_database",
+      "kind": "function",
+      "file": "tests/test_production_stack_e2e.py",
+      "line": 39
+    },
+    {
+      "name": "test_postgres_http_worker_workflow_release_pipeline_end_to_end",
+      "kind": "function",
+      "file": "tests/test_production_stack_e2e.py",
+      "line": 61
+    },
+    {
+      "name": "_auth",
+      "kind": "function",
+      "file": "tests/test_release32_one_tap_e2e.py",
+      "line": 16
+    },
+    {
+      "name": "_request",
+      "kind": "function",
+      "file": "tests/test_release32_one_tap_e2e.py",
+      "line": 24
+    },
+    {
+      "name": "_server",
+      "kind": "function",
+      "file": "tests/test_release32_one_tap_e2e.py",
+      "line": 44
+    },
+    {
+      "name": "test_release32_one_tap_launch_worker_completion_survives_restart",
+      "kind": "function",
+      "file": "tests/test_release32_one_tap_e2e.py",
+      "line": 52
+    },
+    {
+      "name": "_auth",
+      "kind": "function",
+      "file": "tests/test_release33_auto_worker_recovery_e2e.py",
+      "line": 16
+    },
+    {
+      "name": "_request",
+      "kind": "function",
+      "file": "tests/test_release33_auto_worker_recovery_e2e.py",
+      "line": 25
+    },
+    {
+      "name": "_server",
+      "kind": "function",
+      "file": "tests/test_release33_auto_worker_recovery_e2e.py",
+      "line": 45
+    },
+    {
+      "name": "test_release33_expired_one_tap_claim_is_recovered_by_next_worker",
+      "kind": "function",
+      "file": "tests/test_release33_auto_worker_recovery_e2e.py",
+      "line": 53
+    },
+    {
+      "name": "_auth",
+      "kind": "function",
+      "file": "tests/test_release34_safe_running_recovery_e2e.py",
+      "line": 16
+    },
+    {
+      "name": "_request",
+      "kind": "function",
+      "file": "tests/test_release34_safe_running_recovery_e2e.py",
+      "line": 25
+    },
+    {
+      "name": "_server",
+      "kind": "function",
+      "file": "tests/test_release34_safe_running_recovery_e2e.py",
+      "line": 45
+    },
+    {
+      "name": "test_release34_running_one_tap_job_recovers_only_after_dual_staleness",
+      "kind": "function",
+      "file": "tests/test_release34_safe_running_recovery_e2e.py",
+      "line": 53
+    },
+    {
+      "name": "_auth",
+      "kind": "function",
+      "file": "tests/test_release35_control_plane_restart_e2e.py",
+      "line": 16
+    },
+    {
+      "name": "_request",
+      "kind": "function",
+      "file": "tests/test_release35_control_plane_restart_e2e.py",
+      "line": 25
+    },
+    {
+      "name": "_server",
+      "kind": "function",
+      "file": "tests/test_release35_control_plane_restart_e2e.py",
+      "line": 45
+    },
+    {
+      "name": "_stop",
+      "kind": "function",
+      "file": "tests/test_release35_control_plane_restart_e2e.py",
+      "line": 52
+    },
+    {
+      "name": "test_release35_active_worker_survives_control_plane_restart_without_duplication",
+      "kind": "function",
+      "file": "tests/test_release35_control_plane_restart_e2e.py",
+      "line": 59
+    },
+    {
+      "name": "test_release35_abandoned_worker_is_recovered_after_restart_with_same_identity",
+      "kind": "function",
+      "file": "tests/test_release35_control_plane_restart_e2e.py",
+      "line": 180
+    },
+    {
+      "name": "_auth",
+      "kind": "function",
+      "file": "tests/test_release36_worker_session_reconciliation_e2e.py",
+      "line": 16
+    },
+    {
+      "name": "_request",
+      "kind": "function",
+      "file": "tests/test_release36_worker_session_reconciliation_e2e.py",
+      "line": 25
+    },
+    {
+      "name": "_server",
+      "kind": "function",
+      "file": "tests/test_release36_worker_session_reconciliation_e2e.py",
+      "line": 45
+    },
+    {
+      "name": "_stop",
+      "kind": "function",
+      "file": "tests/test_release36_worker_session_reconciliation_e2e.py",
+      "line": 52
+    },
+    {
+      "name": "test_release36_simultaneous_control_and_worker_restart_reconciles_two_projects",
+      "kind": "function",
+      "file": "tests/test_release36_worker_session_reconciliation_e2e.py",
+      "line": 59
+    },
+    {
+      "name": "_auth",
+      "kind": "function",
+      "file": "tests/test_release41_live_production_tracking_e2e.py",
+      "line": 16
+    },
+    {
+      "name": "_request",
+      "kind": "function",
+      "file": "tests/test_release41_live_production_tracking_e2e.py",
+      "line": 24
+    },
+    {
+      "name": "_server",
+      "kind": "function",
+      "file": "tests/test_release41_live_production_tracking_e2e.py",
+      "line": 44
+    },
+    {
+      "name": "test_release41_live_status_tracks_one_tap_to_review_and_restart",
+      "kind": "function",
+      "file": "tests/test_release41_live_production_tracking_e2e.py",
+      "line": 52
+    },
+    {
+      "name": "_auth",
+      "kind": "function",
+      "file": "tests/test_release43_safe_production_cancel_e2e.py",
+      "line": 16
+    },
+    {
+      "name": "_request",
+      "kind": "function",
+      "file": "tests/test_release43_safe_production_cancel_e2e.py",
+      "line": 25
+    },
+    {
+      "name": "_server",
+      "kind": "function",
+      "file": "tests/test_release43_safe_production_cancel_e2e.py",
+      "line": 45
+    },
+    {
+      "name": "_stop",
+      "kind": "function",
+      "file": "tests/test_release43_safe_production_cancel_e2e.py",
+      "line": 52
+    },
+    {
+      "name": "test_release43_cancel_request_survives_worker_and_control_restart_without_reexecution",
+      "kind": "function",
+      "file": "tests/test_release43_safe_production_cancel_e2e.py",
+      "line": 59
+    },
+    {
+      "name": "_auth",
+      "kind": "function",
+      "file": "tests/test_release44_one_tap_recovery_actions_e2e.py",
+      "line": 16
+    },
+    {
+      "name": "_request",
+      "kind": "function",
+      "file": "tests/test_release44_one_tap_recovery_actions_e2e.py",
+      "line": 24
+    },
+    {
+      "name": "_server",
+      "kind": "function",
+      "file": "tests/test_release44_one_tap_recovery_actions_e2e.py",
+      "line": 44
+    },
+    {
+      "name": "test_release44_cancel_retest_complete_keeps_same_managed_project",
+      "kind": "function",
+      "file": "tests/test_release44_one_tap_recovery_actions_e2e.py",
+      "line": 52
+    },
+    {
+      "name": "_auth",
+      "kind": "function",
+      "file": "tests/test_release45_production_inbox_e2e.py",
+      "line": 16
+    },
+    {
+      "name": "_request",
+      "kind": "function",
+      "file": "tests/test_release45_production_inbox_e2e.py",
+      "line": 24
+    },
+    {
+      "name": "_server",
+      "kind": "function",
+      "file": "tests/test_release45_production_inbox_e2e.py",
+      "line": 44
+    },
+    {
+      "name": "_stop",
+      "kind": "function",
+      "file": "tests/test_release45_production_inbox_e2e.py",
+      "line": 51
+    },
+    {
+      "name": "test_release45_server_inbox_tracks_multiple_productions_across_restart",
+      "kind": "function",
+      "file": "tests/test_release45_production_inbox_e2e.py",
+      "line": 58
+    },
+    {
+      "name": "_auth",
+      "kind": "function",
+      "file": "tests/test_release51_one_tap_runner_e2e.py",
+      "line": 18
+    },
+    {
+      "name": "_request",
+      "kind": "function",
+      "file": "tests/test_release51_one_tap_runner_e2e.py",
+      "line": 26
+    },
+    {
+      "name": "_server",
+      "kind": "function",
+      "file": "tests/test_release51_one_tap_runner_e2e.py",
+      "line": 45
+    },
+    {
+      "name": "_stop",
+      "kind": "function",
+      "file": "tests/test_release51_one_tap_runner_e2e.py",
+      "line": 52
+    },
+    {
+      "name": "test_release51_one_tap_launch_runs_through_real_runner_to_review_required",
+      "kind": "function",
+      "file": "tests/test_release51_one_tap_runner_e2e.py",
+      "line": 59
+    },
+    {
+      "name": "test_release51_executor_failure_surfaces_as_actionable_production",
+      "kind": "function",
+      "file": "tests/test_release51_one_tap_runner_e2e.py",
+      "line": 147
+    },
+    {
+      "name": "_auth",
+      "kind": "function",
+      "file": "tests/test_release55_worker_operations.py",
+      "line": 15
+    },
+    {
+      "name": "_server",
+      "kind": "function",
+      "file": "tests/test_release55_worker_operations.py",
+      "line": 25
+    },
+    {
+      "name": "_stop",
+      "kind": "function",
+      "file": "tests/test_release55_worker_operations.py",
+      "line": 32
+    },
+    {
+      "name": "_client",
+      "kind": "function",
+      "file": "tests/test_release55_worker_operations.py",
+      "line": 38
+    },
+    {
+      "name": "test_paused_runner_acknowledges_control_and_does_not_claim",
+      "kind": "function",
+      "file": "tests/test_release55_worker_operations.py",
+      "line": 48
+    },
+    {
+      "name": "test_draining_runner_finishes_active_job_without_claiming_replacement",
+      "kind": "function",
+      "file": "tests/test_release55_worker_operations.py",
+      "line": 80
+    },
+    {
+      "name": "test_resumed_runner_claims_after_pause_acknowledgement",
+      "kind": "function",
+      "file": "tests/test_release55_worker_operations.py",
+      "line": 140
+    },
+    {
+      "name": "test_remote_worker_claim_ack_complete",
+      "kind": "function",
+      "file": "tests/test_remote_worker.py",
+      "line": 11
+    },
+    {
+      "name": "test_remote_worker_detects_superseded_generation",
+      "kind": "function",
+      "file": "tests/test_remote_worker.py",
+      "line": 42
+    },
+    {
+      "name": "_server",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 16
+    },
+    {
+      "name": "_stop",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 23
+    },
+    {
+      "name": "_auth",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 29
+    },
+    {
+      "name": "test_worker_session_self_registers_and_reconciles_previous_claim",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 44
+    },
+    {
+      "name": "test_worker_session_rejects_token_identity_mismatch",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 94
+    },
+    {
+      "name": "test_remote_worker_runner_executes_json_executor_and_completes_job",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 115
+    },
+    {
+      "name": "test_remote_worker_runner_fails_job_on_invalid_executor_output",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 174
+    },
+    {
+      "name": "test_remote_worker_runner_acknowledges_cancel_and_terminates_executor",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 219
+    },
+    {
+      "name": "test_remote_worker_runner_does_not_expose_worker_token_to_executor",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 289
+    },
+    {
+      "name": "test_remote_worker_runner_honors_max_concurrency_with_full_active_set",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 343
+    },
+    {
+      "name": "test_remote_worker_runner_graceful_stop_terminates_children_and_restart_recovers",
+      "kind": "function",
+      "file": "tests/test_remote_worker_runner.py",
+      "line": 435
+    }
+  ],
+  "selected_tests": [
+    "tests/test_production_stack_e2e.py",
+    "tests/test_release32_one_tap_e2e.py",
+    "tests/test_release33_auto_worker_recovery_e2e.py",
+    "tests/test_release34_safe_running_recovery_e2e.py",
+    "tests/test_release35_control_plane_restart_e2e.py",
+    "tests/test_release36_worker_session_reconciliation_e2e.py",
+    "tests/test_release41_live_production_tracking_e2e.py",
+    "tests/test_release43_safe_production_cancel_e2e.py",
+    "tests/test_release44_one_tap_recovery_actions_e2e.py",
+    "tests/test_release45_production_inbox_e2e.py",
+    "tests/test_release51_one_tap_runner_e2e.py",
+    "tests/test_release55_worker_operations.py",
+    "tests/test_remote_worker.py",
+    "tests/test_remote_worker_runner.py"
+  ]
 }

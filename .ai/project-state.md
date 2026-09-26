@@ -22,19 +22,20 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-26T17:03:15Z
+Generated: 2026-09-26T18:35:06Z
 
 ### Git
 - Branch: `main`
-- Head: `084fe72638f2`
-- Commit date: 2026-09-26T19:02:49+02:00
-- Commit: chore: remove accidental release 55 scratch file
-- Tracked files: 463
+- Head: `b6614ac5672d`
+- Commit date: 2026-09-26T20:34:56+02:00
+- Commit: feat: release 55 worker operations
+- Tracked files: 464
 
 ### Recently changed files
+- `src/production_os/remote_worker.py`
+- `tests/test_release55_worker_operations.py`
 - `docs/superpowers/specs/2026-09-26-release-55-worker-operations-copy2.md`
 - `docs/superpowers/specs/2026-09-26-release-55-worker-operations-copy.md`
-- `docs/superpowers/designs/2026-09-26-release-55-worker-operations.md`
 
 ### Project signals
 - `pyproject.toml`

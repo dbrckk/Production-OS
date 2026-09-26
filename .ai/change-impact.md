@@ -1,16 +1,18 @@
 # Change impact
 
-Base: c216d1c0e62bbfe8b1489b3c1930403b43044e1f
-Head: 084fe72638f2f5095b3053a3a23a661fef1b0945
+Base: 0c1529f47503f6f6b1cd5b863a9367032d17fa04
+Head: b6614ac5672d9681836c1c1c11c60f3f796938e4
 
 ## Changed files
-- D docs/superpowers/specs/2026-09-26-release-55-worker-operations-copy2.md
+- M src/production_os/remote_worker.py
+- A tests/test_release55_worker_operations.py
 
 ## Affected areas
-- docs
+- src
+- tests
 
 ## Related test candidates
-- No direct filename-based test match detected.
+- tests/test_remote_worker.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.
