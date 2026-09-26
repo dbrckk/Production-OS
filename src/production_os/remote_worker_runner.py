@@ -38,6 +38,7 @@ class RemoteWorkerRunner:
         self.executor_timeout_seconds = float(executor_timeout_seconds)
         self._active_job_keys: set[str] = set()
         self._active_lock = threading.RLock()
+        self._stop_event = threading.Event()
         secret_names = {
             "PRODUCTION_OS_WORKER_TOKEN",
             *(
@@ -49,6 +50,14 @@ class RemoteWorkerRunner:
         self.executor_env = os.environ.copy()
         for name in secret_names:
             self.executor_env.pop(name, None)
+
+    def request_stop(self) -> None:
+        """Stop claiming work and terminate active executors cooperatively."""
+        self._stop_event.set()
+
+    @property
+    def stop_requested(self) -> bool:
+        return self._stop_event.is_set()
 
     @staticmethod
     def _terminate(process: subprocess.Popen[str]) -> None:
@@ -110,6 +119,12 @@ class RemoteWorkerRunner:
         heartbeat = self._activate(key)
         process: subprocess.Popen[str] | None = None
         try:
+            if self._stop_event.is_set():
+                return {
+                    "job_key":key,
+                    "status":"abandoned",
+                    "reason":"worker_shutdown",
+                }
             if key in heartbeat.get("stale_job_keys", []):
                 self.client.checkpoint_stale(
                     key,
@@ -140,6 +155,13 @@ class RemoteWorkerRunner:
             first_communicate = True
             stdout = ""
             while True:
+                if self._stop_event.is_set():
+                    self._terminate(process)
+                    return {
+                        "job_key":key,
+                        "status":"abandoned",
+                        "reason":"worker_shutdown",
+                    }
                 elapsed = time.monotonic() - started
                 remaining = self.executor_timeout_seconds - elapsed
                 if remaining <= 0:
@@ -331,7 +353,10 @@ class RemoteWorkerRunner:
             max_workers=self.max_concurrency,
             thread_name_prefix="production-os-runner",
         ) as pool:
-            while cycles == 0 or index < int(cycles):
+            while (
+                not self._stop_event.is_set()
+                and (cycles == 0 or index < int(cycles))
+            ):
                 index += 1
                 try:
                     self._heartbeat_snapshot()
@@ -339,7 +364,10 @@ class RemoteWorkerRunner:
                     if not futures:
                         raise
 
-                while len(futures) < self.max_concurrency:
+                while (
+                    not self._stop_event.is_set()
+                    and len(futures) < self.max_concurrency
+                ):
                     job = self.client.claim(
                         ack_timeout_seconds=ack_timeout_seconds,
                     )
@@ -356,10 +384,11 @@ class RemoteWorkerRunner:
                     )
                     collect(done)
                 elif (
-                    (cycles == 0 or index < int(cycles))
+                    not self._stop_event.is_set()
+                    and (cycles == 0 or index < int(cycles))
                     and idle_sleep_seconds
                 ):
-                    time.sleep(float(idle_sleep_seconds))
+                    self._stop_event.wait(float(idle_sleep_seconds))
 
             if futures:
                 done, _pending = wait(set(futures))
