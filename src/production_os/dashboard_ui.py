@@ -121,7 +121,12 @@ textarea{resize:vertical;min-height:150px;line-height:1.45}
 .attention-required{border-left:3px solid rgba(251,191,36,.8)}
 .attention-done{opacity:.78}
 .production-inbox-summary{position:sticky;top:8px;z-index:2}
-.production-filter-tabs{display:flex;gap:6px;overflow-x:auto;margin:0 0 10px}.production-filter-tabs button{white-space:nowrap}.production-inbox-card{scroll-margin-top:80px}
+.production-inbox-controls{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin:0 0 10px}
+.production-inbox-controls input,.production-inbox-controls select{margin:0}
+.production-filter-tabs{display:flex;gap:6px;overflow-x:auto;margin:0 0 10px}
+.production-filter-tabs button{white-space:nowrap}
+.production-filter-tabs button.active{border-color:rgba(110,168,254,.8);background:rgba(79,141,253,.18)}
+.production-inbox-card{scroll-margin-top:80px}
 .production-inbox-card .live-progress{margin:10px 0}
 .attention-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .attention-focus{outline:2px solid rgba(110,168,254,.7);box-shadow:0 0 0 4px rgba(110,168,254,.12)}
@@ -131,6 +136,7 @@ textarea{resize:vertical;min-height:150px;line-height:1.45}
 .outcome-evidence{margin-top:6px}
 @media(max-width:560px){
  .shell{padding:14px 12px 38px}
+ .production-inbox-controls{grid-template-columns:1fr}
  .status-grid{grid-template-columns:1fr}
  .status-card{display:flex;justify-content:space-between;align-items:center;gap:10px}
  .status-value{margin-top:0;text-align:right}
@@ -193,7 +199,7 @@ body{overflow-x:hidden}
 </nav>
 <section class="v3-workspace" aria-live="polite">
 <div id="view-attention" class="v3-view active"><div class="section-head"><h2>À faire maintenant</h2><span id="attention-count" class="badge">0</span></div><div id="attention-list"></div></div>
-<div id="view-productions" class="v3-view"><div class="section-head"><h2>Productions</h2><span id="productions-count" class="badge">0</span></div><div class="production-filter-tabs" aria-label="Filtrer les productions"><button type="button" data-production-filter="all" onclick="setProductionFilter('all')">Toutes</button><button type="button" data-production-filter="active" onclick="setProductionFilter('active')">Actives</button><button type="button" data-production-filter="review" onclick="setProductionFilter('review')">À revoir</button><button type="button" data-production-filter="problems" onclick="setProductionFilter('problems')">Problèmes</button><button type="button" data-production-filter="completed" onclick="setProductionFilter('completed')">Terminées</button></div><div id="productions-list"></div></div>
+<div id="view-productions" class="v3-view"><div class="section-head"><h2>Productions</h2><span id="productions-count" class="badge">0</span></div><div class="production-inbox-controls"><input id="production-search" type="search" placeholder="Rechercher repo, objectif ou ID" autocomplete="off" oninput="setProductionSearch(this.value)"><select id="production-sort" onchange="setProductionSort(this.value)"><option value="priority">Priorité opérateur</option><option value="recent">Activité récente</option></select></div><div class="production-filter-tabs" aria-label="Filtrer les productions"><button type="button" data-production-filter="all" onclick="setProductionFilter('all')">Toutes</button><button type="button" data-production-filter="active" onclick="setProductionFilter('active')">Actives</button><button type="button" data-production-filter="review" onclick="setProductionFilter('review')">À revoir</button><button type="button" data-production-filter="problems" onclick="setProductionFilter('problems')">Problèmes</button><button type="button" data-production-filter="completed" onclick="setProductionFilter('completed')">Terminées</button></div><div id="productions-list"></div></div>
 <div id="view-overview" class="v3-view"><div class="section-head"><h2>Vue générale</h2><div class="v3-tabs" aria-label="Période"><button type="button" onclick="setDashboardWindow('24h')">24h</button><button type="button" onclick="setDashboardWindow('7d')">7d</button><button type="button" onclick="setDashboardWindow('30d')">30d</button></div></div><div id="overview-metrics"></div></div>
 <div id="view-projects" class="v3-view"><h2>Projets</h2><div id="projects-list"></div><div class="v3-tabs" aria-label="Détail projet"><button>Aperçu</button><button>Avancement</button><button>Commits</button><button>API</button><button>Workflows</button><button>Qualité</button><button>Historique</button></div><div id="project-detail"></div></div>
 <div id="view-workers" class="v3-view"><h2>Workers</h2><div id="workers-list"></div><div class="v3-tabs" aria-label="Détail worker"><button>Aperçu</button><button>Tâches</button><button>Logs</button><button>API</button><button>Historique</button><button data-worker-tab="control">Control</button></div><div id="worker-detail"></div></div>
@@ -239,6 +245,9 @@ let workerOnline=false;
 let refreshBusy=false;
 let launchReadiness=null;
 let productionFilter="all";
+let productionSearch="";
+let productionSort="priority";
+let productionSearchTimer=null;
 
 function token(){return localStorage.getItem(TOKEN_KEY)||''}
 function esc(value){return String(value).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})}
@@ -830,6 +839,15 @@ const appState={view:"attention",workerId:null,repository:null,tab:null,focus:nu
  appState.repository=q.get("repo")||null;
  appState.tab=q.get("tab")||null;
  appState.focus=q.get("target")||null;
+ const restoredProductionFilter=q.get("production_filter");
+ if(["all","active","review","problems","completed"].includes(restoredProductionFilter)){
+  productionFilter=restoredProductionFilter;
+ }
+ productionSearch=q.get("production_q")||"";
+ const restoredProductionSort=q.get("production_sort");
+ if(["priority","recent"].includes(restoredProductionSort)){
+  productionSort=restoredProductionSort;
+ }
 })();
 
 function clearViewPolls(){
@@ -1668,22 +1686,60 @@ function productionInboxActions(projectId,phase){
  }
  return open;
 }
+function updateDashboardUrl(){
+ const params=new URLSearchParams();
+ if(appState.view)params.set("view",appState.view);
+ if(appState.workerId)params.set("worker",appState.workerId);
+ if(appState.repository)params.set("repo",appState.repository);
+ if(appState.tab)params.set("tab",appState.tab);
+ if(appState.focus)params.set("target",appState.focus);
+ if(productionFilter!=="all")params.set("production_filter",productionFilter);
+ if(productionSearch)params.set("production_q",productionSearch);
+ if(productionSort!=="priority")params.set("production_sort",productionSort);
+ history.replaceState(null,"","/dashboard?"+params.toString());
+}
+function syncProductionControls(){
+ const search=document.getElementById("production-search");
+ const sort=document.getElementById("production-sort");
+ if(search&&search.value!==productionSearch)search.value=productionSearch;
+ if(sort&&sort.value!==productionSort)sort.value=productionSort;
+ document.querySelectorAll("[data-production-filter]").forEach(function(button){
+  button.classList.toggle("active",button.dataset.productionFilter===productionFilter);
+ });
+}
 function setProductionFilter(value){
- productionFilter=String(value||"all");
+ const next=String(value||"all");
+ if(!["all","active","review","problems","completed"].includes(next))return;
+ productionFilter=next;
+ updateDashboardUrl();
+ return loadProductionInbox();
+}
+function setProductionSearch(value){
+ productionSearch=String(value||"").slice(0,200);
+ updateDashboardUrl();
+ if(productionSearchTimer)clearTimeout(productionSearchTimer);
+ productionSearchTimer=setTimeout(loadProductionInbox,250);
+}
+function setProductionSort(value){
+ const next=String(value||"priority");
+ if(!["priority","recent"].includes(next))return;
+ productionSort=next;
+ updateDashboardUrl();
  return loadProductionInbox();
 }
 async function loadProductionInbox(){
  const el=document.getElementById("productions-list");
  const count=document.getElementById("productions-count");
  if(!el||!count)return null;
+ syncProductionControls();
  try{
-  const data=await api("/v1/dashboard/productions?limit=50"+"&filter="+encodeURIComponent(productionFilter));
+  const data=await api("/v1/dashboard/productions?limit=50"+"&filter="+encodeURIComponent(productionFilter)+"&q="+encodeURIComponent(productionSearch)+"&sort="+encodeURIComponent(productionSort));
   const rows=data.items||[];
   const summary=data.summary||{};
   count.textContent=String(summary.visible||rows.length||0);
   const summaryHtml=
    '<div class="card production-inbox-summary"><div class="small">'+
-   '<strong>Total :</strong> '+formatNumber(summary.total||0)+' · <strong>Actives :</strong> '+formatNumber(summary.active||0)+
+   '<strong>Total :</strong> '+formatNumber(summary.total||0)+' · <strong>Résultats :</strong> '+formatNumber(summary.matching||0)+' · <strong>Actives :</strong> '+formatNumber(summary.active||0)+
    ' · <strong>En file :</strong> '+formatNumber(summary.queued||0)+
    ' · <strong>En cours :</strong> '+formatNumber(summary.running||0)+
    ' · <strong>Annulation :</strong> '+formatNumber(summary.cancelling||0)+
@@ -1708,7 +1764,8 @@ async function loadProductionInbox(){
    const progressHtml=hasProgress
     ?'<div class="live-progress" aria-label="Progression '+esc(String(progress))+' %"><div class="live-progress-fill" style="width:'+esc(String(progress))+'%"></div></div>'
     :"";
-   return '<div class="card production-inbox-card" data-production-project-id="'+esc(String(item.project_id||""))+'">'+
+   const projectId=String(item.project_id||"");
+   return '<div class="card production-inbox-card'+(appState.focus===projectId?' attention-focus':'')+'" data-production-project-id="'+esc(projectId)+'">'+
     '<div class="section-head"><strong>'+esc(String(item.repository||""))+'</strong><span class="badge">'+esc(productionPhaseLabel(phase))+'</span></div>'+
     '<div class="small">'+esc(String(item.final_goal||""))+'</div>'+
     '<div class="small"><strong>Génération :</strong> '+formatNumber(item.generation||1)+' · '+esc(String(runtime.message||""))+'</div>'+
@@ -1718,6 +1775,10 @@ async function loadProductionInbox(){
     '<div class="attention-actions">'+productionInboxActions(item.project_id,phase)+'</div>'+
     '</div>';
   }).join("");
+  if(appState.focus){
+   const focused=el.querySelector('[data-production-project-id="'+CSS.escape(String(appState.focus))+'"]');
+   if(focused)setTimeout(function(){focused.scrollIntoView({block:"center"})},0);
+  }
   return data;
  }catch(e){
   count.textContent="!";
@@ -1860,13 +1921,7 @@ async function loadActivityView(){
 }
 function navigate(next){
  Object.assign(appState,next||{});
- const params=new URLSearchParams();
- if(appState.view)params.set("view",appState.view);
- if(appState.workerId)params.set("worker",appState.workerId);
- if(appState.repository)params.set("repo",appState.repository);
- if(appState.tab)params.set("tab",appState.tab);
- if(appState.focus)params.set("target",appState.focus);
- history.replaceState(null,"","/dashboard?"+params.toString());
+ updateDashboardUrl();
  renderActiveView();
 }
 async function renderActiveView(){
