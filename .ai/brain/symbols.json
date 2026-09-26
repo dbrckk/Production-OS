@@ -1636,14 +1636,14 @@
       "language": "python",
       "kind": "function",
       "name": "audit_control",
-      "line": 1810
+      "line": 1830
     },
     {
       "file": "src/production_os/control_plane.py",
       "language": "python",
       "kind": "function",
       "name": "serve_control_plane",
-      "line": 3045
+      "line": 3083
     },
     {
       "file": "src/production_os/control_surface.py",
@@ -2454,92 +2454,106 @@
       "file": "src/production_os/dashboard_service.py",
       "language": "python",
       "kind": "function",
-      "name": "production_status",
+      "name": "finalize_queued_cancel",
       "line": 889
     },
     {
       "file": "src/production_os/dashboard_service.py",
       "language": "python",
       "kind": "function",
+      "name": "cancel_production",
+      "line": 920
+    },
+    {
+      "file": "src/production_os/dashboard_service.py",
+      "language": "python",
+      "kind": "function",
+      "name": "production_status",
+      "line": 1042
+    },
+    {
+      "file": "src/production_os/dashboard_service.py",
+      "language": "python",
+      "kind": "function",
       "name": "repositories",
-      "line": 1036
+      "line": 1203
     },
     {
       "file": "src/production_os/dashboard_service.py",
       "language": "python",
       "kind": "function",
       "name": "projects",
-      "line": 1077
+      "line": 1244
     },
     {
       "file": "src/production_os/dashboard_service.py",
       "language": "python",
       "kind": "function",
       "name": "_require_project",
-      "line": 1082
+      "line": 1249
     },
     {
       "file": "src/production_os/dashboard_service.py",
       "language": "python",
       "kind": "function",
       "name": "project_detail",
-      "line": 1085
+      "line": 1252
     },
     {
       "file": "src/production_os/dashboard_service.py",
       "language": "python",
       "kind": "function",
       "name": "_progress_snapshot_state",
-      "line": 1091
+      "line": 1258
     },
     {
       "file": "src/production_os/dashboard_service.py",
       "language": "python",
       "kind": "function",
       "name": "project_progress",
-      "line": 1111
+      "line": 1278
     },
     {
       "file": "src/production_os/dashboard_service.py",
       "language": "python",
       "kind": "function",
       "name": "project_commits",
-      "line": 1174
+      "line": 1341
     },
     {
       "file": "src/production_os/dashboard_service.py",
       "language": "python",
       "kind": "function",
       "name": "_legacy_workflow_usage_rows",
-      "line": 1182
+      "line": 1349
     },
     {
       "file": "src/production_os/dashboard_service.py",
       "language": "python",
       "kind": "function",
       "name": "project_usage",
-      "line": 1231
+      "line": 1398
     },
     {
       "file": "src/production_os/dashboard_service.py",
       "language": "python",
       "kind": "function",
       "name": "project_workflows",
-      "line": 1240
+      "line": 1407
     },
     {
       "file": "src/production_os/dashboard_service.py",
       "language": "python",
       "kind": "function",
       "name": "project_history",
-      "line": 1246
+      "line": 1413
     },
     {
       "file": "src/production_os/dashboard_service.py",
       "language": "python",
       "kind": "function",
       "name": "activity",
-      "line": 1268
+      "line": 1435
     },
     {
       "file": "src/production_os/dashboard_store.py",
@@ -4722,29 +4736,36 @@
       "file": "src/production_os/postgres_backend.py",
       "language": "python",
       "kind": "function",
-      "name": "cancel",
+      "name": "cancel_queued",
       "line": 1525
     },
     {
       "file": "src/production_os/postgres_backend.py",
       "language": "python",
       "kind": "function",
+      "name": "cancel",
+      "line": 1564
+    },
+    {
+      "file": "src/production_os/postgres_backend.py",
+      "language": "python",
+      "kind": "function",
       "name": "_transition",
-      "line": 1532
+      "line": 1571
     },
     {
       "file": "src/production_os/postgres_backend.py",
       "language": "python",
       "kind": "function",
       "name": "recover_job",
-      "line": 1581
+      "line": 1620
     },
     {
       "file": "src/production_os/postgres_backend.py",
       "language": "python",
       "kind": "function",
       "name": "recover_expired",
-      "line": 1628
+      "line": 1667
     },
     {
       "file": "src/production_os/preemption.py",
@@ -6451,29 +6472,36 @@
       "file": "src/production_os/sqlite_backend.py",
       "language": "python",
       "kind": "function",
-      "name": "cancel",
+      "name": "cancel_queued",
       "line": 1485
     },
     {
       "file": "src/production_os/sqlite_backend.py",
       "language": "python",
       "kind": "function",
+      "name": "cancel",
+      "line": 1521
+    },
+    {
+      "file": "src/production_os/sqlite_backend.py",
+      "language": "python",
+      "kind": "function",
       "name": "_transition",
-      "line": 1496
+      "line": 1532
     },
     {
       "file": "src/production_os/sqlite_backend.py",
       "language": "python",
       "kind": "function",
       "name": "recover_job",
-      "line": 1534
+      "line": 1570
     },
     {
       "file": "src/production_os/sqlite_backend.py",
       "language": "python",
       "kind": "function",
       "name": "recover_expired",
-      "line": 1581
+      "line": 1617
     },
     {
       "file": "src/production_os/sqlite_migration.py",
@@ -8793,6 +8821,13 @@
       "line": 618
     },
     {
+      "file": "tests/test_dashboard_api.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_managed_production_cancel_requires_operator_and_exact_confirmation",
+      "line": 634
+    },
+    {
       "file": "tests/test_dashboard_attention.py",
       "language": "python",
       "kind": "class",
@@ -10284,6 +10319,13 @@
       "line": 61
     },
     {
+      "file": "tests/test_dashboard_production_status.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_production_status_reports_cancelling_until_worker_acknowledges",
+      "line": 70
+    },
+    {
       "file": "tests/test_dashboard_remediation_api.py",
       "language": "python",
       "kind": "function",
@@ -11327,6 +11369,20 @@
       "line": 715
     },
     {
+      "file": "tests/test_dashboard_ui_v3.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_last_production_tracker_exposes_guarded_cancel_for_active_phases",
+      "line": 723
+    },
+    {
+      "file": "tests/test_dashboard_ui_v3.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_last_production_tracker_renders_cancelling_phase_and_cancel_endpoint",
+      "line": 734
+    },
+    {
       "file": "tests/test_dashboard_usage.py",
       "language": "python",
       "kind": "function",
@@ -12272,6 +12328,13 @@
       "line": 29
     },
     {
+      "file": "tests/test_postgres_backend.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_postgres_queued_job_can_be_cancelled_without_worker",
+      "line": 63
+    },
+    {
       "file": "tests/test_preemption.py",
       "language": "python",
       "kind": "function",
@@ -13196,6 +13259,41 @@
       "line": 50
     },
     {
+      "file": "tests/test_release43_safe_production_cancel_e2e.py",
+      "language": "python",
+      "kind": "function",
+      "name": "_auth",
+      "line": 16
+    },
+    {
+      "file": "tests/test_release43_safe_production_cancel_e2e.py",
+      "language": "python",
+      "kind": "function",
+      "name": "_request",
+      "line": 25
+    },
+    {
+      "file": "tests/test_release43_safe_production_cancel_e2e.py",
+      "language": "python",
+      "kind": "function",
+      "name": "_server",
+      "line": 45
+    },
+    {
+      "file": "tests/test_release43_safe_production_cancel_e2e.py",
+      "language": "python",
+      "kind": "function",
+      "name": "_stop",
+      "line": 52
+    },
+    {
+      "file": "tests/test_release43_safe_production_cancel_e2e.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_release43_cancel_request_survives_worker_and_control_restart_without_reexecution",
+      "line": 59
+    },
+    {
       "file": "tests/test_release_ledger.py",
       "language": "python",
       "kind": "function",
@@ -13677,6 +13775,13 @@
       "kind": "function",
       "name": "test_durable_queue_claim_and_complete",
       "line": 31
+    },
+    {
+      "file": "tests/test_sqlite_backend.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_queued_job_can_be_cancelled_atomically_without_worker",
+      "line": 49
     },
     {
       "file": "tests/test_sqlite_migration.py",

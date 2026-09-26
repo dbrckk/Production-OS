@@ -2031,6 +2031,8 @@ project = (
 ⋮----
 project = control.managed_projects.mark_done(
 ⋮----
+result = control.dashboard.cancel_production(
+⋮----
 delivery_id = self.headers.get(
 event_name = self.headers.get(
 ⋮----
@@ -2207,6 +2209,8 @@ capabilities = [
 desired = control.dashboard_control.worker_state(worker_id)
 ⋮----
 compatible = []
+⋮----
+job_control = control.dashboard_control.job_state(
 ⋮----
 required = set(
 ⋮----
@@ -3372,19 +3376,45 @@ queued = int(queued_row["count"] if queued_row else 0)
 execution = "immediate" if available else "queued"
 message = (
 ⋮----
+key = str(job.get("key") or "").strip()
+⋮----
+control_state = self.control.dashboard_control.job_state(key)
+⋮----
+cancelled = self.control.queue.cancel_queued(
+⋮----
+payload = cancelled.get("payload") or {}
+workflow_id = str(payload.get("workflow_id") or "").strip()
+task_id = str(payload.get("workflow_task_id") or "").strip()
+⋮----
+project = self.control.managed_projects.get(project_id)
+⋮----
+pending = False
+⋮----
+task_status = str(task.get("status") or "")
+⋮----
+job_key = str(task.get("claimed_job_key") or "").strip()
+⋮----
+job = self.control.queue.get(job_key)
+⋮----
+job_status = str(job.get("status") or "")
+⋮----
+cancelled = self.finalize_queued_cancel(
+⋮----
+state = self.control.dashboard_control.request_job_cancel(
+pending = state.get("acknowledged_at") is None
+⋮----
+status = "cancel_requested" if pending else (
+primary = jobs[0] if jobs else {}
+⋮----
 def production_status(self, project_id: str) -> dict
 ⋮----
 project_id = str(project_id or "").strip()
-⋮----
-project = self.control.managed_projects.get(project_id)
 ⋮----
 tasks = [
 current_task = next(
 job_key = (
 ⋮----
 execution = None
-⋮----
-job = self.control.queue.get(job_key)
 ⋮----
 execution = self.store.latest_execution(job_key)
 ⋮----
@@ -3393,6 +3423,10 @@ project_status = str(project.get("status") or "")
 job_status = str((job or {}).get("status") or "")
 task_status = str((current_task or {}).get("status") or "")
 execution_status = str((execution or {}).get("status") or "")
+job_control = (
+cancel_requested = (
+⋮----
+phase = "cancelling"
 ⋮----
 phase = "done"
 ⋮----
@@ -3422,6 +3456,8 @@ worker_id = (
 stage = (execution or {}).get("current_stage")
 attempt = (
 telemetry_at = (execution or {}).get("last_telemetry_at")
+⋮----
+message = "Annulation demandée · arrêt coopératif en cours."
 ⋮----
 details = []
 ⋮----
@@ -5424,6 +5460,8 @@ def complete(self, key: str, worker_id: str) -> dict
 ⋮----
 def fail(self, key: str, worker_id: str, reason: str) -> dict
 ⋮----
+def cancel_queued(self, key: str, reason: str = "operator cancel") -> dict
+⋮----
 def cancel(self, key: str, worker_id: str, reason: str = "operator cancel") -> dict
 ⋮----
 def recover_job(self, key: str, *, max_attempts: int = 3) -> dict
@@ -6786,6 +6824,8 @@ def ack(self, key: str, worker_id: str) -> dict
 def complete(self, key: str, worker_id: str) -> dict
 ⋮----
 def fail(self, key: str, worker_id: str, reason: str) -> dict
+⋮----
+def cancel_queued(self, key: str, reason: str = "operator cancel") -> dict
 ⋮----
 def cancel(self, key: str, worker_id: str, reason: str = "operator cancel") -> dict
 ⋮----

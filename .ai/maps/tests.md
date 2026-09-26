@@ -148,6 +148,7 @@ test_release35_control_plane_restart_e2e.py
 test_release36_worker_session_reconciliation_e2e.py
 test_release41_live_production_tracking_e2e.py
 test_release42_idempotent_launch_e2e.py
+test_release43_safe_production_cancel_e2e.py
 test_remote_worker.py
 test_render_start.py
 test_result_cache.py
@@ -1017,6 +1018,11 @@ request_id = "android-retry-20260925-001"
 body = {
 ⋮----
 def test_one_tap_launch_rejects_invalid_request_id(running_control_plane)
+⋮----
+project = control.managed_projects.create(
+project_id = project["project_id"]
+⋮----
+audit = control.dashboard_store.control_audit_events(limit=10)
 ```
 
 ## File: test_dashboard_attention.py
@@ -2016,6 +2022,18 @@ running = control.dashboard.production_status(project_id)
 def test_production_status_validates_and_reports_missing_project(tmp_path)
 ⋮----
 control = ControlPlane(str(tmp_path / "live-status-errors.sqlite"))
+⋮----
+def test_production_status_reports_cancelling_until_worker_acknowledges(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "cancel-status.sqlite"))
+⋮----
+result = control.dashboard.cancel_production(
+⋮----
+status = control.dashboard.production_status(project_id)
+⋮----
+cancelled = control.queue.cancel(job["key"], "worker-a")
+⋮----
+final = control.dashboard.production_status(project_id)
 ```
 
 ## File: test_dashboard_remediation_api.py
@@ -2599,6 +2617,10 @@ def test_one_tap_retry_state_does_not_persist_instruction_text()
 pending_start = DASHBOARD_HTML.index("function pendingLaunchRequest")
 pending_end = DASHBOARD_HTML.index("function clearPendingLaunchRequest", pending_start)
 pending_body = DASHBOARD_HTML[pending_start:pending_end]
+⋮----
+def test_last_production_tracker_exposes_guarded_cancel_for_active_phases()
+⋮----
+def test_last_production_tracker_renders_cancelling_phase_and_cancel_endpoint()
 ```
 
 ## File: test_dashboard_usage.py
@@ -3309,6 +3331,10 @@ workers=PostgresWorkerRegistry(backend)
 queue=PostgresJobQueue(backend)
 queued=queue.enqueue({
 claimed=queue.claim_next("worker-1",capabilities=["python"])
+⋮----
+def test_postgres_queued_job_can_be_cancelled_without_worker()
+⋮----
+cancelled=queue.cancel_queued(queued["key"], reason="operator cancel")
 ```
 
 ## File: test_preemption.py
@@ -4387,6 +4413,58 @@ workflow_count = db.execute(
 job_count = db.execute(
 ```
 
+## File: test_release43_safe_production_cancel_e2e.py
+```python
+def _auth()
+⋮----
+def _request(base, path, token, *, method="GET", body=None)
+⋮----
+data = None if body is None else json.dumps(body).encode("utf-8")
+request = urllib.request.Request(
+⋮----
+raw = response.read()
+⋮----
+raw = exc.read()
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+def _stop(server, thread)
+⋮----
+database = str(tmp_path / "safe-cancel.sqlite")
+first = ControlPlane(database, authorizer=_auth())
+⋮----
+project = launched["project"]
+project_id = project["project_id"]
+workflow_id = project["current_workflow_id"]
+⋮----
+worker_one = RemoteWorkerClient(
+claimed = worker_one.claim()
+⋮----
+job_key = claimed.key
+⋮----
+# The worker disappears before acknowledging cancellation. Persist both
+# stale signals so normal abandoned-execution recovery will requeue it.
+⋮----
+second = ControlPlane(database, authorizer=_auth())
+⋮----
+worker_two = RemoteWorkerClient(
+⋮----
+# Claim polling first recovers the abandoned ACKed job, then observes
+# the persisted cancel request and finalizes cancellation instead of
+# assigning the job to worker two.
+⋮----
+job = second.queue.get(job_key)
+⋮----
+final = second.managed_projects.get(project_id)
+⋮----
+control_state = second.dashboard_control.job_state(job_key)
+⋮----
+events = second.backend.events_after(0, 2000)
+```
+
 ## File: test_remote_worker.py
 ```python
 def test_remote_worker_claim_ack_complete(tmp_path)
@@ -4703,6 +4781,14 @@ def test_durable_queue_claim_and_complete(tmp_path)
 queue=SQLiteJobQueue(backend)
 queued=queue.enqueue({
 claimed=queue.claim_next("w1",capabilities=["python"])
+⋮----
+def test_queued_job_can_be_cancelled_atomically_without_worker(tmp_path)
+⋮----
+backend=SQLiteBackend(tmp_path/"cancel.db")
+⋮----
+cancelled=queue.cancel_queued(queued["key"], reason="operator cancel")
+⋮----
+replay=queue.cancel_queued(queued["key"], reason="operator cancel")
 ```
 
 ## File: test_sqlite_migration.py

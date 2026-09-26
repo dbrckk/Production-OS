@@ -5,28 +5,32 @@
     "example_count": 64,
     "rejected_count": 0,
     "terms": [
-      "42",
+      "43",
+      "cancellation",
       "feat",
-      "idempotent",
-      "launch",
-      "one-tap",
-      "release"
+      "production",
+      "release",
+      "safe"
     ],
     "test_count": 0,
-    "useful_count": 7
+    "useful_count": 11
   },
   "note": "Selected tests are routing hints; this artifact does not claim they executed successfully.",
   "rejected": [],
   "schema_version": 1,
-  "task": "feat: release 42 idempotent one-tap launch",
+  "task": "feat: release 43 safe production cancellation",
   "tests_selected": [],
   "useful": [
     "src/production_os/control_plane.py",
+    "src/production_os/dashboard_service.py",
     "src/production_os/dashboard_ui.py",
-    "src/production_os/managed_projects.py",
+    "src/production_os/postgres_backend.py",
+    "src/production_os/sqlite_backend.py",
     "tests/test_dashboard_api.py",
+    "tests/test_dashboard_production_status.py",
     "tests/test_dashboard_ui_v3.py",
-    "tests/test_managed_projects_v4.py",
-    "tests/test_release42_idempotent_launch_e2e.py"
+    "tests/test_postgres_backend.py",
+    "tests/test_release43_safe_production_cancel_e2e.py",
+    "tests/test_sqlite_backend.py"
   ]
 }
