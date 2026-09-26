@@ -1550,6 +1550,28 @@ The focused panel shows:
 
 The detail loads even when the selected production is outside the current inbox filter/search result. Closing the panel clears only the URL target and keeps the current inbox filter/search/sort state.
 
+
+## Release 49 — Unified production actions
+
+The mobile operator flow now converges on the Productions surface.
+
+Managed Project attention cards in `À faire` now deep-link to the inline production detail instead of forcing a switch to the technical Managed Projects view.
+
+For productions in `NEEDS_ATTENTION` or `REVIEW_REQUIRED`, the inline detail exposes a custom follow-up instruction field. Submitting it reuses the existing guarded Managed Project instructions endpoint:
+
+```text
+POST /v1/managed-projects/{project_id}/instructions
+```
+
+After submission, Production-OS creates the next immutable generation using the existing Managed Project lifecycle and refreshes:
+
+- the focused production detail;
+- the production inbox;
+- the attention feed;
+- the last-production tracker.
+
+No new mutation endpoint or browser-side workflow authority is introduced. Advanced Managed Projects remains available as an explicit escape hatch.
+
 ## Design principles
 
 - Evidence over assumptions
