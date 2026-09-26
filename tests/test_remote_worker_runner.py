@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import sys
 import threading
+import time
 from http.server import ThreadingHTTPServer
 
 from production_os.api_auth import TokenAuthorizer, token_digest
@@ -161,10 +162,10 @@ print(json.dumps({
         assert control.queue.get(queued["key"])["status"] == "completed"
         execution = control.dashboard_store.latest_execution(queued["key"])
         assert execution["status"] == "succeeded"
-        assert execution["result"]["summary"] == (
+        assert execution["result_summary"]["summary"] == (
             "executed: Implement runner protocol."
         )
-        assert execution["result"]["validation"]["status"] == "passed"
+        assert execution["result_summary"]["validation"]["status"] == "passed"
     finally:
         _stop(server, thread)
 
@@ -213,3 +214,74 @@ def test_remote_worker_runner_fails_job_on_invalid_executor_output(tmp_path):
         assert execution["error_message"] == "executor_invalid_output"
     finally:
         _stop(server, thread)
+
+def test_remote_worker_runner_acknowledges_cancel_and_terminates_executor(tmp_path):
+    control = ControlPlane(str(tmp_path / "cancel.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":{
+            "repository":"dbrckk/runner-cancel",
+            "task":"Sleep until cancelled.",
+        },
+        "required_capabilities":[],
+    })
+    executor = tmp_path / "slow.py"
+    executor.write_text(
+        """
+import json, sys, time
+json.load(sys.stdin)
+time.sleep(30)
+print(json.dumps({"status":"succeeded","result":{"summary":"too late"}}))
+""".strip(),
+        encoding="utf-8",
+    )
+
+    server, server_thread, base = _server(control)
+    outcomes = []
+    try:
+        client = RemoteWorkerClient(
+            base,
+            "worker-secret",
+            "runner-1",
+            [],
+            timeout=5,
+        )
+        runner = RemoteWorkerRunner(
+            client,
+            [sys.executable, str(executor)],
+            heartbeat_interval_seconds=0.05,
+            executor_timeout_seconds=10,
+        )
+        worker_thread = threading.Thread(
+            target=lambda: outcomes.extend(
+                runner.run(cycles=1, idle_sleep_seconds=0)
+            ),
+            daemon=True,
+        )
+        worker_thread.start()
+
+        deadline = time.time() + 5
+        while time.time() < deadline:
+            if control.queue.get(queued["key"])["status"] == "acked":
+                break
+            time.sleep(0.02)
+        assert control.queue.get(queued["key"])["status"] == "acked"
+
+        control.dashboard_control.request_job_cancel(
+            queued["key"],
+            requested_by="operator:test",
+        )
+        worker_thread.join(timeout=5)
+
+        assert not worker_thread.is_alive()
+        assert outcomes == [{
+            "job_key":queued["key"],
+            "status":"cancelled",
+        }]
+        assert control.queue.get(queued["key"])["status"] == "cancelled"
+        state = control.dashboard_control.job_state(queued["key"])
+        assert state["acknowledged_at"] is not None
+        execution = control.dashboard_store.latest_execution(queued["key"])
+        assert execution["status"] == "cancelled"
+    finally:
+        _stop(server, server_thread)
+
