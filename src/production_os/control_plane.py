@@ -525,6 +525,8 @@ def make_handler(control: ControlPlane):
                         payload = service.production_inbox(
                             limit=int(query.get("limit", ["50"])[0]),
                             category=query.get("filter", ["all"])[0],
+                            search=query.get("q", [""])[0],
+                            sort=query.get("sort", ["priority"])[0],
                         )
                     elif parsed.path == "/v1/dashboard/attention":
                         payload = service.attention(
