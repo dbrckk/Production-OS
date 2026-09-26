@@ -2,9 +2,17 @@ services:
   production-os:
     build: .
     restart: unless-stopped
+    init: true
+    stop_grace_period: 30s
     ports:
       - "8787:8787"
     environment:
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      PRODUCTION_OS_ACTIONS_REPOSITORY: ${PRODUCTION_OS_ACTIONS_REPOSITORY:-dbrckk/ai-dev-server}
+      PRODUCTION_OS_ACTIONS_WORKFLOW: ${PRODUCTION_OS_ACTIONS_WORKFLOW:-production-os-actions-worker.yml}
+      PRODUCTION_OS_ACTIONS_REF: ${PRODUCTION_OS_ACTIONS_REF:-main}
+      PRODUCTION_OS_BACKUP_DIR: ${PRODUCTION_OS_BACKUP_DIR:-/data/backups}
+      PRODUCTION_OS_GITHUB_OWNER: ${PRODUCTION_OS_GITHUB_OWNER:-dbrckk}
       PRODUCTION_OS_GITHUB_WEBHOOK_SECRET: ${PRODUCTION_OS_GITHUB_WEBHOOK_SECRET:-}
       PRODUCTION_OS_VALIDATION_ATTESTATION_KEYS: ${PRODUCTION_OS_VALIDATION_ATTESTATION_KEYS:-{}}
       PRODUCTION_OS_RELEASE_PROVENANCE_SECRET: ${PRODUCTION_OS_RELEASE_PROVENANCE_SECRET:-}
@@ -35,3 +43,13 @@ services:
       - 0.0.0.0
       - --port
       - "8787"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; response=urllib.request.urlopen('http://127.0.0.1:8787/health', timeout=3); raise SystemExit(0 if response.status == 200 else 1)"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
