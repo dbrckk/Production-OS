@@ -180,6 +180,7 @@ test_trust_status_summary.py
 test_vault_auth.py
 test_vault_signer.py
 test_witness.py
+test_worker_compose_deployment.py
 test_workers.py
 test_workflow_api.py
 test_workflow_cache.py
@@ -5496,6 +5497,13 @@ envelope=sign_checkpoint(
 def test_checkpoint_root_tampering_is_detected()
 ⋮----
 def test_checkpoint_expected_root_mismatch_fails()
+```
+
+## File: test_worker_compose_deployment.py
+```python
+def test_worker_compose_profile_is_safe_and_deployable()
+⋮----
+payload = Path("compose.worker.yaml").read_text(encoding="utf-8")
 ```
 
 ## File: test_workers.py

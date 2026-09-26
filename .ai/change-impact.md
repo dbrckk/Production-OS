@@ -1,25 +1,21 @@
 # Change impact
 
-Base: 822b7a386ffb49ce2d17957c240201825b43d7dc
-Head: 4f715b1013c47166b1b20fef347757334f283679
+Base: 5f6f90f7dee3a4079ae65c53850056edd59b76f1
+Head: 9e3c80c9ed49b381603eb20ec8f6a8ce47d8685b
 
 ## Changed files
 - M README.md
-- A docs/superpowers/plans/2026-09-26-release-53-graceful-runner-shutdown.md
-- M src/production_os/cli.py
-- M src/production_os/remote_worker_runner.py
-- M tests/test_cli.py
-- M tests/test_remote_worker_runner.py
+- A compose.worker.yaml
+- A docs/superpowers/plans/2026-09-26-release-54-worker-compose-deployment.md
+- A tests/test_worker_compose_deployment.py
 
 ## Affected areas
 - (root)
 - docs
-- src
 - tests
 
 ## Related test candidates
-- tests/test_cli.py
-- tests/test_remote_worker_runner.py
+- No direct filename-based test match detected.
 
 ## Agent guidance
 - Read this file before broad repository exploration.

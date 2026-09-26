@@ -22,17 +22,20 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-26T15:28:55Z
+Generated: 2026-09-26T15:46:01Z
 
 ### Git
 - Branch: `main`
-- Head: `4f715b1013c4`
-- Commit date: 2026-09-26T17:28:42+02:00
-- Commit: feat: release 53 graceful runner shutdown
-- Tracked files: 456
+- Head: `9e3c80c9ed49`
+- Commit date: 2026-09-26T17:45:49+02:00
+- Commit: feat: release 54 deployable remote worker
+- Tracked files: 459
 
 ### Recently changed files
 - `README.md`
+- `compose.worker.yaml`
+- `docs/superpowers/plans/2026-09-26-release-54-worker-compose-deployment.md`
+- `tests/test_worker_compose_deployment.py`
 - `docs/superpowers/plans/2026-09-26-release-53-graceful-runner-shutdown.md`
 - `src/production_os/cli.py`
 - `src/production_os/remote_worker_runner.py`
@@ -45,11 +48,6 @@ Generated: 2026-09-26T15:28:55Z
 - `docs/superpowers/plans/2026-09-26-release-50-remote-worker-runner.md`
 - `src/production_os/control_plane.py`
 - `src/production_os/remote_worker.py`
-- `docs/superpowers/plans/2026-09-26-release-49-unified-production-actions.md`
-- `src/production_os/dashboard_service.py`
-- `src/production_os/dashboard_ui.py`
-- `tests/test_dashboard_attention.py`
-- `tests/test_dashboard_production_inbox_filters_ui.py`
 
 ### Project signals
 - `pyproject.toml`

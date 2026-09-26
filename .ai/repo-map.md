@@ -311,6 +311,7 @@ tests/
   test_vault_auth.py
   test_vault_signer.py
   test_witness.py
+  test_worker_compose_deployment.py
   test_workers.py
   test_workflow_api.py
   test_workflow_cache.py
@@ -322,6 +323,7 @@ tests/
 AGENTS.md
 compose.postgres.yaml
 compose.tls.yaml
+compose.worker.yaml
 compose.yaml
 pyproject.toml
 README.md
@@ -13662,6 +13664,13 @@ def test_checkpoint_root_tampering_is_detected()
 def test_checkpoint_expected_root_mismatch_fails()
 ````
 
+## File: tests/test_worker_compose_deployment.py
+````python
+def test_worker_compose_profile_is_safe_and_deployable()
+⋮----
+payload = Path("compose.worker.yaml").read_text(encoding="utf-8")
+````
+
 ## File: tests/test_workers.py
 ````python
 def test_selects_least_loaded_capable_worker(tmp_path)
@@ -14104,6 +14113,53 @@ services:
 volumes:
   caddy_data:
   caddy_config:
+````
+
+## File: compose.worker.yaml
+````yaml
+services:
+  production-os:
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8787/healthz', timeout=2).read()"
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+
+  production-worker:
+    profiles:
+      - worker
+    build: .
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 15s
+    depends_on:
+      production-os:
+        condition: service_healthy
+    environment:
+      PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
+    volumes:
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
+    command:
+      - remote-worker-run
+      - --url
+      - http://production-os:8787
+      - --worker-id
+      - ${PRODUCTION_OS_WORKER_ID:-worker-one}
+      - --executor-command
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_COMMAND:-}
+      - --max-concurrency
+      - ${PRODUCTION_OS_WORKER_MAX_CONCURRENCY:-1}
+      - --heartbeat-interval-seconds
+      - ${PRODUCTION_OS_WORKER_HEARTBEAT_SECONDS:-5}
+      - --executor-timeout-seconds
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_TIMEOUT_SECONDS:-3600}
+      - --ack-timeout-seconds
+      - ${PRODUCTION_OS_WORKER_ACK_TIMEOUT_SECONDS:-120}
 ````
 
 ## File: compose.yaml
@@ -18773,4 +18829,21 @@ Workers publish live execution telemetry through
 `POST /v1/jobs/{job_key}/telemetry`; this endpoint requires the owning worker
 credential. Release 1 dashboard observability is read-only: pause, drain,
 cancellation, retry and kick controls belong to Release 2.
+
+
+## Release 54 — Deployable remote worker
+
+The persistent remote worker can now be deployed beside the control plane with the dedicated Compose overlay:
+
+```bash
+PRODUCTION_OS_WORKER_TOKEN=... \
+PRODUCTION_OS_WORKER_EXECUTOR_COMMAND="python /worker/executor.py" \
+docker compose -f compose.yaml -f compose.worker.yaml --profile worker up --build
+```
+
+The overlay adds a control-plane health check and starts the worker only after `/healthz` is ready. Worker credentials remain environment-only; the bearer token is never placed on the process command line.
+
+The executor remains external and is mounted read-only from `PRODUCTION_OS_WORKER_EXECUTOR_DIR` (default `./worker`). Concurrency, heartbeat interval, executor timeout and ACK timeout are configurable through environment variables.
+
+The worker container uses Docker init/reaping and a 15-second stop grace period so SIGTERM can flow through the Release 53 cooperative shutdown path, terminate active executor children, publish the final zero-active heartbeat and leave unfinished jobs recoverable.
 ````
