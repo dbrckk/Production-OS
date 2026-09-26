@@ -1723,6 +1723,9 @@ async function loadProductionInboxDetail(projectId){
    (runtime.worker_id?'<div class="small"><strong>Worker :</strong> '+esc(String(runtime.worker_id))+'</div>':"")+
    (runtime.stage?'<div class="small"><strong>Stage :</strong> '+esc(String(runtime.stage))+'</div>':"")+
    renderProductionOutcome(project.outcome||{},true)+
+   ((phase==="needs_attention"||phase==="review_required")
+    ?'<div class="attention-inline-instruction"><textarea id="production-detail-instruction-'+esc(value)+'" rows="3" placeholder="Instruction supplémentaire"></textarea><button class="primary-btn" type="button" data-project-id="'+esc(value)+'" onclick="submitProductionInstruction(this.dataset.projectId)">Ajouter et relancer</button></div>'
+    :"")+
    '<h3 style="font-size:.85rem;margin:14px 0 6px">Historique des générations</h3>'+history+
    '<div class="detail-actions">'+productionInboxActions(value,phase)+
    '<button class="secondary-btn" type="button" data-project-id="'+esc(value)+'" onclick="openLastProduction(this.dataset.projectId)">Vue Managed avancée</button>'+
@@ -1732,6 +1735,33 @@ async function loadProductionInboxDetail(projectId){
  }catch(e){
   detail.innerHTML=errorCard(e);
   return null;
+ }
+}
+async function submitProductionInstruction(projectId){
+ const value=String(projectId||"").trim();
+ if(!value)return;
+ const field=document.getElementById("production-detail-instruction-"+value);
+ const instruction=field?field.value.trim():"";
+ if(!instruction)return;
+ try{
+  await api(
+   "/v1/managed-projects/"+encodeURIComponent(value)+"/instructions",
+   {method:"POST",body:JSON.stringify({instruction:instruction})}
+  );
+  appState.focus=value;
+  await Promise.all([
+   loadProductionInbox(),
+   loadAttention(),
+   loadLastProduction()
+  ]);
+ }catch(e){
+  const detail=document.getElementById("production-detail");
+  if(detail){
+   detail.insertAdjacentHTML(
+    "beforeend",
+    '<div class="status-message">'+esc(String(e).replace(/^Error:\\s*/,""))+'</div>'
+   );
+  }
  }
 }
 function productionInboxActions(projectId,phase){
