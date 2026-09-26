@@ -81,6 +81,7 @@ test_dashboard_maintenance.py
 test_dashboard_observability_e2e.py
 test_dashboard_playbook_api.py
 test_dashboard_playbooks.py
+test_dashboard_production_inbox_filters_ui.py
 test_dashboard_production_inbox.py
 test_dashboard_production_status.py
 test_dashboard_remediation_api.py
@@ -2004,14 +2005,21 @@ inspect = next(x for x in result["suggestions"] if x["action"] == "inspect-job")
 cancel = next(x for x in result["suggestions"] if x["action"] == "cancel-current")
 ```
 
+## File: test_dashboard_production_inbox_filters_ui.py
+```python
+def test_production_inbox_exposes_mobile_filter_tabs_and_counts()
+⋮----
+def test_production_inbox_requests_selected_server_filter()
+⋮----
+def test_production_inbox_filter_does_not_duplicate_mutation_contracts()
+```
+
 ## File: test_dashboard_production_inbox.py
 ```python
-def test_production_inbox_aggregates_live_review_attention_and_done(tmp_path)
+def _production_fixture(tmp_path)
 ⋮----
 control = ControlPlane(str(tmp_path / "production-inbox.sqlite"))
-⋮----
 queued = control.managed_projects.create(
-⋮----
 review = control.managed_projects.create(
 ⋮----
 attention = control.managed_projects.create(
@@ -2019,17 +2027,45 @@ cancelled = control.dashboard.cancel_production(
 ⋮----
 done = control.managed_projects.create(
 ⋮----
+def test_production_inbox_aggregates_live_review_attention_and_done(tmp_path)
+⋮----
 payload = control.dashboard.production_inbox(limit=50)
 ⋮----
 by_id = {item["project_id"]:item for item in payload["items"]}
 ⋮----
 summary = payload["summary"]
 ⋮----
-def test_production_inbox_respects_response_limit(tmp_path)
+def test_production_inbox_filters_server_side_without_changing_totals(tmp_path)
+⋮----
+active = control.dashboard.production_inbox(limit=50, category="active")
+⋮----
+review_payload = control.dashboard.production_inbox(limit=50, category="review")
+⋮----
+problems = control.dashboard.production_inbox(limit=50, category="problems")
+⋮----
+completed = control.dashboard.production_inbox(limit=50, category="completed")
+⋮----
+def test_production_inbox_rejects_unknown_filter(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "production-inbox-filter.sqlite"))
+⋮----
+def test_production_inbox_orders_operator_decisions_before_live_and_done(tmp_path)
+⋮----
+phases = [row["runtime"]["phase"] for row in payload["items"]]
+⋮----
+def test_production_inbox_respects_response_limit_after_priority_sort(tmp_path)
 ⋮----
 control = ControlPlane(str(tmp_path / "production-inbox-limit.sqlite"))
 ⋮----
 payload = control.dashboard.production_inbox(limit=2)
+⋮----
+def test_production_inbox_orders_recent_activity_first_within_same_priority(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "production-inbox-recency.sqlite"))
+older = control.managed_projects.create(
+newer = control.managed_projects.create(
+⋮----
+payload = control.dashboard.production_inbox(limit=50, category="active")
 ```
 
 ## File: test_dashboard_production_status.py

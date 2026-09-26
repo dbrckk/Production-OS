@@ -211,6 +211,7 @@ tests/
   test_dashboard_observability_e2e.py
   test_dashboard_playbook_api.py
   test_dashboard_playbooks.py
+  test_dashboard_production_inbox_filters_ui.py
   test_dashboard_production_inbox.py
   test_dashboard_production_status.py
   test_dashboard_remediation_api.py
@@ -4007,23 +4008,31 @@ message = "Projet terminé."
 ⋮----
 message = "Préparation de l’exécution."
 ⋮----
-def production_inbox(self, *, limit: int = 50) -> dict
+selected_filter = str(category or "all").strip().lower()
+allowed = {"all", "active", "review", "problems", "completed"}
 ⋮----
 managed = self.control.managed_projects.list(limit=500)
+allowed_statuses = {
+candidates = [
 ⋮----
-active = [
-recent_done = [
-⋮----
-selected = (active + recent_done)[:bounded]
 items = []
 phase_counts: dict[str, int] = {}
 ⋮----
-project_id = str(project.get("project_id") or project.get("id") or "")
+project_id = str(
 ⋮----
 status = self.production_status(project_id)
 current = status.get("project") or project
 runtime = status.get("runtime") or {}
 phase = str(runtime.get("phase") or "preparing")
+⋮----
+def group(item: dict) -> str
+⋮----
+phase = str(
+⋮----
+priority = {
+⋮----
+filtered = (
+visible = filtered[:bounded]
 ⋮----
 live_phases = {
 ⋮----
@@ -10048,14 +10057,21 @@ inspect = next(x for x in result["suggestions"] if x["action"] == "inspect-job")
 cancel = next(x for x in result["suggestions"] if x["action"] == "cancel-current")
 ````
 
+## File: tests/test_dashboard_production_inbox_filters_ui.py
+````python
+def test_production_inbox_exposes_mobile_filter_tabs_and_counts()
+⋮----
+def test_production_inbox_requests_selected_server_filter()
+⋮----
+def test_production_inbox_filter_does_not_duplicate_mutation_contracts()
+````
+
 ## File: tests/test_dashboard_production_inbox.py
 ````python
-def test_production_inbox_aggregates_live_review_attention_and_done(tmp_path)
+def _production_fixture(tmp_path)
 ⋮----
 control = ControlPlane(str(tmp_path / "production-inbox.sqlite"))
-⋮----
 queued = control.managed_projects.create(
-⋮----
 review = control.managed_projects.create(
 ⋮----
 attention = control.managed_projects.create(
@@ -10063,17 +10079,45 @@ cancelled = control.dashboard.cancel_production(
 ⋮----
 done = control.managed_projects.create(
 ⋮----
+def test_production_inbox_aggregates_live_review_attention_and_done(tmp_path)
+⋮----
 payload = control.dashboard.production_inbox(limit=50)
 ⋮----
 by_id = {item["project_id"]:item for item in payload["items"]}
 ⋮----
 summary = payload["summary"]
 ⋮----
-def test_production_inbox_respects_response_limit(tmp_path)
+def test_production_inbox_filters_server_side_without_changing_totals(tmp_path)
+⋮----
+active = control.dashboard.production_inbox(limit=50, category="active")
+⋮----
+review_payload = control.dashboard.production_inbox(limit=50, category="review")
+⋮----
+problems = control.dashboard.production_inbox(limit=50, category="problems")
+⋮----
+completed = control.dashboard.production_inbox(limit=50, category="completed")
+⋮----
+def test_production_inbox_rejects_unknown_filter(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "production-inbox-filter.sqlite"))
+⋮----
+def test_production_inbox_orders_operator_decisions_before_live_and_done(tmp_path)
+⋮----
+phases = [row["runtime"]["phase"] for row in payload["items"]]
+⋮----
+def test_production_inbox_respects_response_limit_after_priority_sort(tmp_path)
 ⋮----
 control = ControlPlane(str(tmp_path / "production-inbox-limit.sqlite"))
 ⋮----
 payload = control.dashboard.production_inbox(limit=2)
+⋮----
+def test_production_inbox_orders_recent_activity_first_within_same_priority(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "production-inbox-recency.sqlite"))
+older = control.managed_projects.create(
+newer = control.managed_projects.create(
+⋮----
+payload = control.dashboard.production_inbox(limit=50, category="active")
 ````
 
 ## File: tests/test_dashboard_production_status.py
@@ -15255,6 +15299,49 @@ The inbox includes:
 The mobile dashboard now has a dedicated **Productions** view with 5-second polling. The Attention view remains focused on decisions that require operator action, while Productions answers a different question: “what is currently running or recently completed?”
 
 A dedicated restart E2E proves that two concurrent productions — one running with live telemetry and one queued — are reconstructed with the same project identities and runtime phases after a full Control Plane restart, without any browser-local project state.
+
+
+## Release 46 — Prioritized production inbox filters
+
+The server-backed production inbox now supports explicit operator categories:
+
+```text
+all
+active
+review
+problems
+completed
+```
+
+Use:
+
+```text
+GET /v1/dashboard/productions?filter=problems&limit=50
+```
+
+Filtering is performed server-side from persistent Managed Project and runtime state. Summary totals remain global even when a category is selected, so the mobile UI can show the complete workload context while displaying only the requested subset.
+
+The inbox ordering is now deterministic and operator-oriented:
+
+```text
+problems
+  ↓
+review required
+  ↓
+active
+  ↓
+completed
+```
+
+Within the same priority group, the most recently active production is shown first. The response limit is applied only after classification, priority ordering and filtering.
+
+The mobile **Productions** view adds horizontally scrollable filters:
+
+```text
+Toutes · Actives · À revoir · Problèmes · Terminées
+```
+
+Existing cancel, retest and DONE mutations are reused unchanged. Release 46 adds no new mutation primitive or authorization path.
 
 ## Design principles
 

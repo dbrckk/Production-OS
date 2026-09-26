@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "generated_by": "dbrckk/repo-brain",
-  "base": "6a33f20f36488960b14b326969668c7abacedb6a",
-  "head": "19e09c10685131d7ed0c8b36ab190421aebd75fe",
+  "base": "19e09c10685131d7ed0c8b36ab190421aebd75fe",
+  "head": "57b8284cc986899def2694d26d3bd1177fdb4ee5",
   "index_mode": "incremental",
   "changed_files": [
     {
@@ -10,7 +10,7 @@
       "status": "M"
     },
     {
-      "path": "docs/superpowers/plans/2026-09-26-release-45-production-inbox.md",
+      "path": "docs/superpowers/plans/2026-09-26-release-46-production-inbox-filters.md",
       "status": "A"
     },
     {
@@ -26,19 +26,11 @@
       "status": "M"
     },
     {
-      "path": "tests/test_dashboard_api.py",
-      "status": "M"
-    },
-    {
       "path": "tests/test_dashboard_production_inbox.py",
-      "status": "A"
-    },
-    {
-      "path": "tests/test_dashboard_ui_v3.py",
       "status": "M"
     },
     {
-      "path": "tests/test_release45_production_inbox_e2e.py",
+      "path": "tests/test_dashboard_production_inbox_filters_ui.py",
       "status": "A"
     }
   ],
@@ -46,10 +38,8 @@
     "src/production_os/control_plane.py",
     "src/production_os/dashboard_service.py",
     "src/production_os/dashboard_ui.py",
-    "tests/test_dashboard_api.py",
     "tests/test_dashboard_production_inbox.py",
-    "tests/test_dashboard_ui_v3.py",
-    "tests/test_release45_production_inbox_e2e.py"
+    "tests/test_dashboard_production_inbox_filters_ui.py"
   ],
   "impacted_files": [
     "src/production_os/cli.py",
@@ -75,6 +65,7 @@
     "tests/test_dashboard_observability_e2e.py",
     "tests/test_dashboard_playbook_api.py",
     "tests/test_dashboard_production_inbox.py",
+    "tests/test_dashboard_production_inbox_filters_ui.py",
     "tests/test_dashboard_production_status.py",
     "tests/test_dashboard_remediation_api.py",
     "tests/test_dashboard_retention_prune.py",
@@ -726,19 +717,19 @@
       "name": "do_POST",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 922
+      "line": 923
     },
     {
       "name": "audit_control",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 1834
+      "line": 1835
     },
     {
       "name": "serve_control_plane",
       "kind": "function",
       "file": "src/production_os/control_plane.py",
-      "line": 3087
+      "line": 3088
     },
     {
       "name": "DashboardNotFound",
@@ -969,76 +960,82 @@
       "line": 1203
     },
     {
-      "name": "repositories",
+      "name": "group",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1268
+      "line": 1249
     },
     {
-      "name": "projects",
+      "name": "repositories",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
       "line": 1309
     },
     {
+      "name": "projects",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 1350
+    },
+    {
       "name": "_require_project",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1314
+      "line": 1355
     },
     {
       "name": "project_detail",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1317
+      "line": 1358
     },
     {
       "name": "_progress_snapshot_state",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1323
+      "line": 1364
     },
     {
       "name": "project_progress",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1343
+      "line": 1384
     },
     {
       "name": "project_commits",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1406
+      "line": 1447
     },
     {
       "name": "_legacy_workflow_usage_rows",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1414
+      "line": 1455
     },
     {
       "name": "project_usage",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1463
+      "line": 1504
     },
     {
       "name": "project_workflows",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1472
+      "line": 1513
     },
     {
       "name": "project_history",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1478
+      "line": 1519
     },
     {
       "name": "activity",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1500
+      "line": 1541
     },
     {
       "name": "request",
@@ -1897,12 +1894,6 @@
       "kind": "function",
       "file": "tests/test_dashboard_launch.py",
       "line": 74
-    },
-    {
-      "name": "test_dashboard_worker_status_uses_authenticated_api",
-      "kind": "function",
-      "file": "tests/test_dashboard_launch.py",
-      "line": 81
     }
   ],
   "selected_tests": [
@@ -1925,6 +1916,7 @@
     "tests/test_dashboard_observability_e2e.py",
     "tests/test_dashboard_playbook_api.py",
     "tests/test_dashboard_production_inbox.py",
+    "tests/test_dashboard_production_inbox_filters_ui.py",
     "tests/test_dashboard_production_status.py",
     "tests/test_dashboard_remediation_api.py",
     "tests/test_dashboard_retention_prune.py",

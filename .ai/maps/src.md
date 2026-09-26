@@ -3473,23 +3473,31 @@ message = "Projet terminé."
 ⋮----
 message = "Préparation de l’exécution."
 ⋮----
-def production_inbox(self, *, limit: int = 50) -> dict
+selected_filter = str(category or "all").strip().lower()
+allowed = {"all", "active", "review", "problems", "completed"}
 ⋮----
 managed = self.control.managed_projects.list(limit=500)
+allowed_statuses = {
+candidates = [
 ⋮----
-active = [
-recent_done = [
-⋮----
-selected = (active + recent_done)[:bounded]
 items = []
 phase_counts: dict[str, int] = {}
 ⋮----
-project_id = str(project.get("project_id") or project.get("id") or "")
+project_id = str(
 ⋮----
 status = self.production_status(project_id)
 current = status.get("project") or project
 runtime = status.get("runtime") or {}
 phase = str(runtime.get("phase") or "preparing")
+⋮----
+def group(item: dict) -> str
+⋮----
+phase = str(
+⋮----
+priority = {
+⋮----
+filtered = (
+visible = filtered[:bounded]
 ⋮----
 live_phases = {
 ⋮----

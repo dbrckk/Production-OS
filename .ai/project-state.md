@@ -22,23 +22,25 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-26T06:30:21Z
+Generated: 2026-09-26T10:11:38Z
 
 ### Git
 - Branch: `main`
-- Head: `19e09c106851`
-- Commit date: 2026-09-26T08:30:10+02:00
-- Commit: feat: release 45 server-backed production inbox
-- Tracked files: 443
+- Head: `57b8284cc986`
+- Commit date: 2026-09-26T12:11:17+02:00
+- Commit: feat: release 46 production inbox filters
+- Tracked files: 445
 
 ### Recently changed files
 - `README.md`
-- `docs/superpowers/plans/2026-09-26-release-45-production-inbox.md`
+- `docs/superpowers/plans/2026-09-26-release-46-production-inbox-filters.md`
 - `src/production_os/control_plane.py`
 - `src/production_os/dashboard_service.py`
 - `src/production_os/dashboard_ui.py`
-- `tests/test_dashboard_api.py`
 - `tests/test_dashboard_production_inbox.py`
+- `tests/test_dashboard_production_inbox_filters_ui.py`
+- `docs/superpowers/plans/2026-09-26-release-45-production-inbox.md`
+- `tests/test_dashboard_api.py`
 - `tests/test_dashboard_ui_v3.py`
 - `tests/test_release45_production_inbox_e2e.py`
 - `docs/superpowers/plans/2026-09-26-release-44-one-tap-recovery-actions.md`
@@ -50,8 +52,6 @@ Generated: 2026-09-26T06:30:21Z
 - `tests/test_postgres_backend.py`
 - `tests/test_release43_safe_production_cancel_e2e.py`
 - `tests/test_sqlite_backend.py`
-- `docs/superpowers/plans/2026-09-25-release-42-idempotent-one-tap-launch.md`
-- `src/production_os/managed_projects.py`
 
 ### Project signals
 - `pyproject.toml`

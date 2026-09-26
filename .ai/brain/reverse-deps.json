@@ -55,6 +55,7 @@
         "tests/test_dashboard_playbook_api.py",
         "tests/test_dashboard_playbooks.py",
         "tests/test_dashboard_production_inbox.py",
+        "tests/test_dashboard_production_inbox_filters_ui.py",
         "tests/test_dashboard_production_status.py",
         "tests/test_dashboard_remediation_api.py",
         "tests/test_dashboard_remediation_history.py",
@@ -157,7 +158,7 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 145,
+      "in_degree": 146,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -875,9 +876,10 @@
       "dependencies": [],
       "dependents": [
         "src/production_os/control_plane.py",
+        "tests/test_dashboard_production_inbox_filters_ui.py",
         "tests/test_dashboard_ui_v3.py"
       ],
-      "in_degree": 2,
+      "in_degree": 3,
       "out_degree": 0
     },
     "src/production_os/dashboard_usage.py": {
@@ -2647,6 +2649,15 @@
       "dependencies": [
         "src/production_os/__init__.py",
         "src/production_os/control_plane.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 2
+    },
+    "tests/test_dashboard_production_inbox_filters_ui.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/dashboard_ui.py"
       ],
       "dependents": [],
       "in_degree": 0,
