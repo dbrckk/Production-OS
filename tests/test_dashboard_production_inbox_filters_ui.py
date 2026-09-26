@@ -74,3 +74,19 @@ def test_production_inbox_target_restores_detail_even_outside_visible_list():
     assert "loadProductionInboxDetail(appState.focus)" in body
     assert "CSS.escape(String(appState.focus))" in body
 
+def test_inline_production_detail_supports_custom_follow_up_instruction():
+    assert "submitProductionInstruction" in DASHBOARD_HTML
+    assert "production-detail-instruction-" in DASHBOARD_HTML
+    assert "Instruction supplémentaire" in DASHBOARD_HTML
+    assert '"/instructions"' in DASHBOARD_HTML
+    assert "Ajouter et relancer" in DASHBOARD_HTML
+
+
+def test_custom_follow_up_refreshes_unified_operator_surfaces():
+    start = DASHBOARD_HTML.index("async function submitProductionInstruction")
+    end = DASHBOARD_HTML.index("function productionInboxActions", start)
+    body = DASHBOARD_HTML[start:end]
+    assert "loadProductionInbox()" in body
+    assert "loadAttention()" in body
+    assert "loadLastProduction()" in body
+
