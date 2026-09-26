@@ -1421,6 +1421,32 @@ DONE
 
 A dedicated E2E qualification proves that cancel → retest → worker completion → DONE keeps the same Managed Project identity while creating a distinct immutable workflow generation for the retry.
 
+
+## Release 45 — Server-backed production inbox
+
+Production-OS now exposes a server-authoritative multi-production inbox:
+
+```text
+GET /v1/dashboard/productions
+```
+
+Unlike the device-local “last production” tracker, this view is reconstructed entirely from persistent Managed Projects, workflows, jobs and execution telemetry. A fresh browser or another device can therefore see the same active productions without sharing local storage.
+
+The inbox includes:
+
+- preparing, queued, claimed and running productions;
+- cooperative cancellation state;
+- productions waiting for operator review;
+- productions requiring attention;
+- a small recent-DONE tail for context;
+- worker, attempt, stage, queue position and progress where available;
+- normalized outcome evidence;
+- the existing safe cancel / retest / DONE actions.
+
+The mobile dashboard now has a dedicated **Productions** view with 5-second polling. The Attention view remains focused on decisions that require operator action, while Productions answers a different question: “what is currently running or recently completed?”
+
+A dedicated restart E2E proves that two concurrent productions — one running with live telemetry and one queued — are reconstructed with the same project identities and runtime phases after a full Control Plane restart, without any browser-local project state.
+
 ## Design principles
 
 - Evidence over assumptions

@@ -562,14 +562,14 @@ def test_managed_technical_creation_options_are_collapsed_by_default():
 
 
 def test_managed_view_can_be_restored_from_navigation_query():
-    assert '["attention","overview","projects","workers","autopilot","managed","activity"]' in DASHBOARD_HTML
+    assert '["attention","productions","overview","projects","workers","autopilot","managed","activity"]' in DASHBOARD_HTML
 
 def test_attention_center_is_default_mobile_view():
     assert 'data-view="attention"' in DASHBOARD_HTML
     assert 'id="view-attention" class="v3-view active"' in DASHBOARD_HTML
     assert "À faire maintenant" in DASHBOARD_HTML
     assert 'const appState={view:"attention"' in DASHBOARD_HTML
-    assert '["attention","overview","projects","workers","autopilot","managed","activity"]' in DASHBOARD_HTML
+    assert '["attention","productions","overview","projects","workers","autopilot","managed","activity"]' in DASHBOARD_HTML
 
 
 def test_attention_center_uses_server_aggregated_feed_and_action_counts():
@@ -760,4 +760,29 @@ def test_last_production_recovery_actions_refresh_server_backed_surfaces():
     assert "loadLaunchReadiness()" in body
     assert "Nouvelle génération de vérification lancée." in body
     assert "Production validée DONE." in body
+
+def test_dashboard_has_server_backed_multi_production_view():
+    assert 'data-view="productions"' in DASHBOARD_HTML
+    assert 'id="view-productions"' in DASHBOARD_HTML
+    assert "Productions</h2>" in DASHBOARD_HTML
+    assert "async function loadProductionInbox" in DASHBOARD_HTML
+    assert "/v1/dashboard/productions?limit=50" in DASHBOARD_HTML
+    assert "productions:loadProductionInbox" in DASHBOARD_HTML
+    assert '["attention","productions","overview","projects","workers","autopilot","managed","activity"]' in DASHBOARD_HTML
+
+
+def test_production_inbox_renders_live_runtime_and_server_actions():
+    assert "productionInboxActions" in DASHBOARD_HTML
+    assert "summary.active" in DASHBOARD_HTML
+    assert "summary.queued" in DASHBOARD_HTML
+    assert "summary.running" in DASHBOARD_HTML
+    assert "summary.cancelling" in DASHBOARD_HTML
+    assert "summary.review_required" in DASHBOARD_HTML
+    assert "summary.needs_attention" in DASHBOARD_HTML
+    assert "runtime.progress_percent" in DASHBOARD_HTML
+    assert "runtime.queue_position" in DASHBOARD_HTML
+    assert "renderProductionOutcome(item.outcome||{},true)" in DASHBOARD_HTML
+    assert "Relancer / retester" in DASHBOARD_HTML
+    assert "Valider DONE" in DASHBOARD_HTML
+    assert "cancelLastProduction(this.dataset.projectId)" in DASHBOARD_HTML
 
