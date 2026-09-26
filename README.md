@@ -1447,6 +1447,49 @@ The mobile dashboard now has a dedicated **Productions** view with 5-second poll
 
 A dedicated restart E2E proves that two concurrent productions — one running with live telemetry and one queued — are reconstructed with the same project identities and runtime phases after a full Control Plane restart, without any browser-local project state.
 
+
+## Release 46 — Prioritized production inbox filters
+
+The server-backed production inbox now supports explicit operator categories:
+
+```text
+all
+active
+review
+problems
+completed
+```
+
+Use:
+
+```text
+GET /v1/dashboard/productions?filter=problems&limit=50
+```
+
+Filtering is performed server-side from persistent Managed Project and runtime state. Summary totals remain global even when a category is selected, so the mobile UI can show the complete workload context while displaying only the requested subset.
+
+The inbox ordering is now deterministic and operator-oriented:
+
+```text
+problems
+  ↓
+review required
+  ↓
+active
+  ↓
+completed
+```
+
+Within the same priority group, the most recently active production is shown first. The response limit is applied only after classification, priority ordering and filtering.
+
+The mobile **Productions** view adds horizontally scrollable filters:
+
+```text
+Toutes · Actives · À revoir · Problèmes · Terminées
+```
+
+Existing cancel, retest and DONE mutations are reused unchanged. Release 46 adds no new mutation primitive or authorization path.
+
 ## Design principles
 
 - Evidence over assumptions
