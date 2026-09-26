@@ -120,6 +120,9 @@ textarea{resize:vertical;min-height:150px;line-height:1.45}
 .attention-card .secondary-btn{margin-top:10px}
 .attention-required{border-left:3px solid rgba(251,191,36,.8)}
 .attention-done{opacity:.78}
+.production-inbox-summary{position:sticky;top:8px;z-index:2}
+.production-inbox-card{scroll-margin-top:80px}
+.production-inbox-card .live-progress{margin:10px 0}
 .attention-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .attention-focus{outline:2px solid rgba(110,168,254,.7);box-shadow:0 0 0 4px rgba(110,168,254,.12)}
 .attention-inline-instruction{display:grid;gap:8px;width:100%;margin-top:8px}
@@ -180,6 +183,7 @@ body{overflow-x:hidden}
 
 <nav class="v3-nav" aria-label="Navigation principale">
 <button data-view="attention" onclick="navigate({view:'attention',workerId:null,repository:null,tab:null})">À faire</button>
+<button data-view="productions" onclick="navigate({view:'productions',workerId:null,repository:null,tab:null})">Productions</button>
 <button data-view="overview" onclick="navigate({view:'overview',workerId:null,repository:null,tab:null})">Vue générale</button>
 <button data-view="projects" onclick="navigate({view:'projects',workerId:null,repository:null,tab:null})">Projets</button>
 <button data-view="workers" onclick="navigate({view:'workers',workerId:null,repository:null,tab:null})">Workers</button>
@@ -189,6 +193,7 @@ body{overflow-x:hidden}
 </nav>
 <section class="v3-workspace" aria-live="polite">
 <div id="view-attention" class="v3-view active"><div class="section-head"><h2>À faire maintenant</h2><span id="attention-count" class="badge">0</span></div><div id="attention-list"></div></div>
+<div id="view-productions" class="v3-view"><div class="section-head"><h2>Productions</h2><span id="productions-count" class="badge">0</span></div><div id="productions-list"></div></div>
 <div id="view-overview" class="v3-view"><div class="section-head"><h2>Vue générale</h2><div class="v3-tabs" aria-label="Période"><button type="button" onclick="setDashboardWindow('24h')">24h</button><button type="button" onclick="setDashboardWindow('7d')">7d</button><button type="button" onclick="setDashboardWindow('30d')">30d</button></div></div><div id="overview-metrics"></div></div>
 <div id="view-projects" class="v3-view"><h2>Projets</h2><div id="projects-list"></div><div class="v3-tabs" aria-label="Détail projet"><button>Aperçu</button><button>Avancement</button><button>Commits</button><button>API</button><button>Workflows</button><button>Qualité</button><button>Historique</button></div><div id="project-detail"></div></div>
 <div id="view-workers" class="v3-view"><h2>Workers</h2><div id="workers-list"></div><div class="v3-tabs" aria-label="Détail worker"><button>Aperçu</button><button>Tâches</button><button>Logs</button><button>API</button><button>Historique</button><button data-worker-tab="control">Control</button></div><div id="worker-detail"></div></div>
@@ -583,7 +588,8 @@ async function cancelLastProduction(projectId){
   await Promise.all([
    loadLastProduction(),
    loadManagedProjects(),
-   loadAttention()
+   loadAttention(),
+   loadProductionInbox()
   ]);
  }catch(e){
   const status=document.getElementById("launch-status");
@@ -612,7 +618,8 @@ async function lastProductionManagedAction(projectId,action){
    loadLastProduction(),
    loadManagedProjects(),
    loadAttention(),
-   loadLaunchReadiness()
+   loadLaunchReadiness(),
+   loadProductionInbox()
   ]);
  }catch(e){
   const status=document.getElementById("launch-status");
@@ -775,7 +782,8 @@ async function launchWorkflow(){
    loadManagedProjects(),
    loadAttention(),
    loadLastProduction(),
-   loadLaunchReadiness()
+   loadLaunchReadiness(),
+   loadProductionInbox()
   ]);
   if(workflowId) appState.repository=repository;
  }catch(e){
@@ -816,7 +824,7 @@ const appState={view:"attention",workerId:null,repository:null,tab:null,focus:nu
 (function restoreNavigation(){
  const q=new URLSearchParams(window.location.search);
  const view=q.get("view");
- if(["attention","overview","projects","workers","autopilot","managed","activity"].includes(view))appState.view=view;
+ if(["attention","productions","overview","projects","workers","autopilot","managed","activity"].includes(view))appState.view=view;
  appState.workerId=q.get("worker")||null;
  appState.repository=q.get("repo")||null;
  appState.tab=q.get("tab")||null;
@@ -1627,6 +1635,92 @@ function renderAttentionActions(item){
  }).join("");
  return buttons?'<div class="attention-actions">'+buttons+'</div>':"";
 }
+function productionPhaseLabel(phase){
+ const labels={
+  preparing:"Préparation",
+  queued:"En file",
+  claimed:"Réclamé",
+  running:"En cours",
+  cancelling:"Annulation",
+  review_required:"À revoir",
+  needs_attention:"Action requise",
+  done:"Terminé"
+ };
+ return labels[phase]||String(phase||"Préparation");
+}
+function productionInboxActions(projectId,phase){
+ const id=esc(String(projectId||""));
+ const open='<button class="secondary-btn" type="button" data-project-id="'+id+'" onclick="openLastProduction(this.dataset.projectId)">Ouvrir</button>';
+ if(["preparing","queued","claimed","running"].includes(phase)){
+  return open+'<button class="danger-btn" type="button" data-project-id="'+id+'" onclick="cancelLastProduction(this.dataset.projectId)">Annuler</button>';
+ }
+ if(phase==="cancelling"){
+  return open+'<button class="danger-btn" type="button" disabled>Annulation en cours</button>';
+ }
+ if(phase==="needs_attention"){
+  return open+'<button class="primary-btn" type="button" data-project-id="'+id+'" onclick="lastProductionManagedAction(this.dataset.projectId,\'verify\')">Relancer / retester</button>';
+ }
+ if(phase==="review_required"){
+  return open+
+   '<button class="secondary-btn" type="button" data-project-id="'+id+'" onclick="lastProductionManagedAction(this.dataset.projectId,\'verify\')">Retester</button>'+
+   '<button class="primary-btn" type="button" data-project-id="'+id+'" onclick="lastProductionManagedAction(this.dataset.projectId,\'complete\')">Valider DONE</button>';
+ }
+ return open;
+}
+async function loadProductionInbox(){
+ const el=document.getElementById("productions-list");
+ const count=document.getElementById("productions-count");
+ if(!el||!count)return null;
+ try{
+  const data=await api("/v1/dashboard/productions?limit=50");
+  const rows=data.items||[];
+  const summary=data.summary||{};
+  count.textContent=String(summary.visible||rows.length||0);
+  const summaryHtml=
+   '<div class="card production-inbox-summary"><div class="small">'+
+   '<strong>Actives :</strong> '+formatNumber(summary.active||0)+
+   ' · <strong>En file :</strong> '+formatNumber(summary.queued||0)+
+   ' · <strong>En cours :</strong> '+formatNumber(summary.running||0)+
+   ' · <strong>Annulation :</strong> '+formatNumber(summary.cancelling||0)+
+   ' · <strong>À revoir :</strong> '+formatNumber(summary.review_required||0)+
+   ' · <strong>Action requise :</strong> '+formatNumber(summary.needs_attention||0)+
+   '</div></div>';
+  if(!rows.length){
+   el.innerHTML=summaryHtml+'<div class="empty">Aucune production serveur visible.</div>';
+   return data;
+  }
+  el.innerHTML=summaryHtml+rows.map(function(item){
+   const runtime=item.runtime||{};
+   const phase=String(runtime.phase||"preparing");
+   const details=[];
+   if(runtime.worker_id)details.push("worker "+String(runtime.worker_id));
+   if(runtime.attempt!=null)details.push("tentative "+String(runtime.attempt));
+   if(runtime.stage)details.push("stage "+String(runtime.stage));
+   if(runtime.queue_position!=null)details.push("position "+String(runtime.queue_position));
+   const rawProgress=Number(runtime.progress_percent);
+   const hasProgress=Number.isFinite(rawProgress);
+   const progress=hasProgress?Math.max(0,Math.min(100,rawProgress)):null;
+   const progressHtml=hasProgress
+    ?'<div class="live-progress" aria-label="Progression '+esc(String(progress))+' %"><div class="live-progress-fill" style="width:'+esc(String(progress))+'%"></div></div>'
+    :"";
+   return '<div class="card production-inbox-card" data-production-project-id="'+esc(String(item.project_id||""))+'">'+
+    '<div class="section-head"><strong>'+esc(String(item.repository||""))+'</strong><span class="badge">'+esc(productionPhaseLabel(phase))+'</span></div>'+
+    '<div class="small">'+esc(String(item.final_goal||""))+'</div>'+
+    '<div class="small"><strong>Génération :</strong> '+formatNumber(item.generation||1)+' · '+esc(String(runtime.message||""))+'</div>'+
+    (details.length?'<div class="small">'+esc(details.join(" · "))+'</div>':"")+
+    progressHtml+
+    renderProductionOutcome(item.outcome||{},true)+
+    '<div class="attention-actions">'+productionInboxActions(item.project_id,phase)+'</div>'+
+    '</div>';
+  }).join("");
+  return data;
+ }catch(e){
+  count.textContent="!";
+  el.innerHTML=errorCard(e);
+  return null;
+ }
+}
+
 async function loadAttention(){
  const el=document.getElementById("attention-list");
  const count=document.getElementById("attention-count");
@@ -1775,7 +1869,7 @@ async function renderActiveView(){
  const target=document.getElementById("view-"+appState.view);
  if(target)target.classList.add("active");
  clearViewPolls();
- const loaders={attention:loadAttention,overview:loadOverview,projects:loadProjectsView,workers:loadWorkersView,autopilot:loadAutopilot,managed:loadManagedProjects,activity:loadActivityView};
+ const loaders={attention:loadAttention,productions:loadProductionInbox,overview:loadOverview,projects:loadProjectsView,workers:loadWorkersView,autopilot:loadAutopilot,managed:loadManagedProjects,activity:loadActivityView};
  const loader=loaders[appState.view]||loadAttention;
  await loader();
  schedulePoll("active-view",appState.view==="overview"?15000:5000,loader);
