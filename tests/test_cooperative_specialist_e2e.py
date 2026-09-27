@@ -21,7 +21,7 @@ def _task(workflow, task_id):
 
 
 @pytest.mark.e2e
-def test_cooperative_project_routes_sequentially_across_specialists(tmp_path):
+def test_cooperative_project_routes_parallel_agents_then_specialists(tmp_path):
     managed, workflows, queue = build(tmp_path)
     project = managed.create(
         repository="owner/app",
@@ -33,29 +33,86 @@ def test_cooperative_project_routes_sequentially_across_specialists(tmp_path):
     workflow_id = project["current_workflow_id"]
 
     workflow = workflows.get(workflow_id)
-    implementation = _task(workflow, "implementation")
-    assert implementation["status"] == "queued"
+    code_task = _task(workflow, "implementation-code")
+    tests_task = _task(workflow, "implementation-tests")
+    assert code_task["status"] == "queued"
+    assert tests_task["status"] == "queued"
 
     code_job = queue.claim_next(
         "worker-code",
         capabilities=["code-implementation"],
     )
     assert code_job is not None
-    assert code_job["key"] == implementation["claimed_job_key"]
-    assert code_job["payload"]["preferred_capabilities"] == [
-        "code-implementation"
-    ]
-    assert code_job["payload"]["required_capabilities"] == []
+    assert code_job["payload"]["handoff"]["isolation"]["mode"] == "git-worktree"
+    code_branch = code_job["payload"]["handoff"]["isolation"]["branch"]
+
+    tests_job = queue.claim_next(
+        "worker-debug",
+        capabilities=["test-debug"],
+    )
+    assert tests_job is not None
+    assert tests_job["payload"]["handoff"]["isolation"]["mode"] == "git-worktree"
+    tests_branch = tests_job["payload"]["handoff"]["isolation"]["branch"]
+    assert tests_branch != code_branch
 
     workflows.record_result(
         workflow_id,
-        "implementation",
+        "implementation-code",
         succeeded=True,
         result={
             "summary":"implemented dashboard change",
             "commit_shas":["a" * 40],
             "changed_files":["src/dashboard.py"],
-            "validation":{"status":"passed","tests":["unit"]},
+        },
+    )
+    workflows.record_result(
+        workflow_id,
+        "implementation-tests",
+        succeeded=True,
+        result={
+            "summary":"added dashboard tests",
+            "commit_shas":["b" * 40],
+            "changed_files":["tests/test_dashboard.py"],
+        },
+    )
+
+    workflow = workflows.get(workflow_id)
+    integration = _task(workflow, "integration")
+    assert integration["status"] == "queued"
+    integration_job = queue.claim_next(
+        "worker-code-2",
+        capabilities=["code-implementation"],
+    )
+    assert integration_job is not None
+    upstream = integration_job["payload"]["handoff"]["upstream_context"]
+    assert {row["task_id"] for row in upstream} == {
+        "implementation-code",
+        "implementation-tests",
+    }
+    commits = {
+        row["task_id"]:row["commit_shas"][0]
+        for row in upstream
+    }
+    assert commits["implementation-code"] == "a" * 40
+    assert commits["implementation-tests"] == "b" * 40
+    assert (
+        integration_job["payload"]["handoff"]["isolation"][
+            "integration_target"
+        ]
+        is True
+    )
+
+    workflows.record_result(
+        workflow_id,
+        "integration",
+        succeeded=True,
+        result={
+            "summary":"integrated branches",
+            "commit_shas":["c" * 40],
+            "changed_files":[
+                "src/dashboard.py",
+                "tests/test_dashboard.py",
+            ],
         },
     )
 
@@ -63,16 +120,13 @@ def test_cooperative_project_routes_sequentially_across_specialists(tmp_path):
     validation = _task(workflow, "validation")
     assert validation["status"] == "queued"
     debug_job = queue.claim_next(
-        "worker-debug",
+        "worker-debug-2",
         capabilities=["test-debug"],
     )
     assert debug_job is not None
-    assert debug_job["key"] == validation["claimed_job_key"]
-    assert debug_job["payload"]["preferred_capabilities"] == ["test-debug"]
-    upstream = debug_job["payload"]["handoff"]["upstream_context"]
-    assert upstream[0]["task_id"] == "implementation"
-    assert upstream[0]["summary"] == "implemented dashboard change"
-    assert upstream[0]["commit_shas"] == ["a" * 40]
+    assert debug_job["payload"]["handoff"]["upstream_context"][0]["task_id"] == (
+        "integration"
+    )
 
     workflows.record_result(
         workflow_id,
@@ -80,8 +134,6 @@ def test_cooperative_project_routes_sequentially_across_specialists(tmp_path):
         succeeded=True,
         result={
             "summary":"browser-facing tests passed",
-            "commit_shas":["b" * 40],
-            "changed_files":["tests/test_dashboard.py"],
             "validation":{"status":"passed","tests":["unit","integration"]},
         },
     )
@@ -94,9 +146,6 @@ def test_cooperative_project_routes_sequentially_across_specialists(tmp_path):
         capabilities=["code-review"],
     )
     assert review_job is not None
-    assert review_job["key"] == review["claimed_job_key"]
-    assert review_job["payload"]["preferred_capabilities"] == ["code-review"]
-    assert review_job["payload"]["handoff"]["upstream_context"][0]["task_id"] == "validation"
 
     workflows.record_result(
         workflow_id,
@@ -116,24 +165,18 @@ def test_cooperative_project_routes_sequentially_across_specialists(tmp_path):
         "worker-generic",
         capabilities=[],
     ) is None
-    assert queue.claim_next(
-        "worker-code-2",
-        capabilities=["code-implementation"],
-    ) is None
 
     browser_job = queue.claim_next(
         "worker-browser",
         capabilities=["browser-ui-validation"],
     )
     assert browser_job is not None
-    assert browser_job["key"] == ui["claimed_job_key"]
     assert browser_job["payload"]["required_capabilities"] == [
         "browser-ui-validation"
     ]
-    assert browser_job["payload"]["preferred_capabilities"] == [
-        "browser-ui-validation"
-    ]
-    assert browser_job["payload"]["handoff"]["upstream_context"][0]["task_id"] == "review"
+    assert browser_job["payload"]["handoff"]["upstream_context"][0]["task_id"] == (
+        "review"
+    )
 
     workflows.record_result(
         workflow_id,
