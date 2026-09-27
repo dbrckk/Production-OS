@@ -322,6 +322,68 @@ def test_post_merge_failure_resolution_builds_compensating_rollback_plan():
     assert "open a pull request" in plan["instruction"]
 
 
+def test_reconcile_marks_project_done_after_post_merge_green_ci(tmp_path):
+    backend = SQLiteBackend(tmp_path / "automerge-complete.sqlite")
+    service = ManagedProjectService(
+        WorkflowEngine(backend, SQLiteJobQueue(backend)),
+        github_client_factory=lambda: FakeGitHub(),
+    )
+    project = service.create(
+        repository="o/a",
+        final_goal="Ship a verified backend change",
+        token_budget=1000,
+        cooperative=True,
+        requested_by="operator:test",
+    )
+    workflow_id = project["current_workflow_id"]
+    service.workflows.record_result(
+        workflow_id,
+        "implementation",
+        succeeded=True,
+        result={
+            "summary":"implemented",
+            "commit_shas":["a"*40],
+        },
+    )
+    service.workflows.record_result(
+        workflow_id,
+        "validation",
+        succeeded=True,
+        result={
+            "summary":"validated",
+            "validation":{"status":"passed","tests":["unit"]},
+        },
+    )
+    service.workflows.record_result(
+        workflow_id,
+        "review",
+        succeeded=True,
+        result={
+            "summary":"reviewed",
+            "pull_request":{"number":12,"state":"merged"},
+        },
+    )
+
+    merged_green = state(
+        pr_state="closed",
+        merged=True,
+        ci_state="passed",
+        status_state="passed",
+        ready_for_promotion=False,
+        validation_sha="b"*40,
+        promotion_blockers=("already-merged","pr-not-open"),
+    )
+    with patch(
+        "production_os.managed_projects.fetch_github_work_state",
+        return_value=merged_green,
+    ):
+        completed = service.get(project["project_id"])
+
+    assert completed["status"] == "DONE"
+    assert completed["completed_by"] == "system:github-promotion"
+    assert completed["completed_at"]
+
+
 def test_reconcile_launches_exactly_one_automatic_rollback_generation(tmp_path):
     backend = SQLiteBackend(tmp_path / "rollback.sqlite")
     service = ManagedProjectService(
