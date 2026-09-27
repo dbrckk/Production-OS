@@ -439,6 +439,44 @@ class GitHubClient:
         return payload if isinstance(payload, list) else []
 
 
+    def merge_pull_request(
+        self,
+        full_name: str,
+        pr_number: int,
+        *,
+        head_sha: str,
+        method: str = "squash",
+        commit_title: str | None = None,
+    ) -> dict[str, Any]:
+        if not self.token:
+            raise GitHubAPIError(
+                "GITHUB_TOKEN is required to merge a pull request"
+            )
+        sha = str(head_sha or "").strip().lower()
+        if not re.fullmatch(r"[0-9a-f]{40}", sha):
+            raise ValueError("head_sha must be a full commit sha")
+        merge_method = str(method or "squash").strip().lower()
+        if merge_method not in {"merge", "squash", "rebase"}:
+            raise ValueError("unsupported merge method")
+        payload: dict[str, Any] = {
+            "sha":sha,
+            "merge_method":merge_method,
+        }
+        title = str(commit_title or "").strip()
+        if title:
+            payload["commit_title"] = title[:256]
+        result = self._request(
+            "PUT",
+            f"/repos/{full_name}/pulls/{int(pr_number)}/merge",
+            payload,
+        )
+        if not isinstance(result, dict):
+            raise GitHubAPIError(
+                "GitHub merge response must be an object"
+            )
+        return result
+
+
     def list_pull_request_files(
         self,
         full_name: str,
