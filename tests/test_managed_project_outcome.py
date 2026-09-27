@@ -150,6 +150,15 @@ def test_outcome_preserves_bounded_mobile_validation_evidence():
                         "device_serial":"emulator-5554",
                         "fatal_errors":[],
                         "screenshots":["home.png"],
+                        "adb_verification":{
+                            "passed":True,
+                            "device_state_verified":True,
+                            "package_installed_verified":True,
+                            "activity_visible_verified":True,
+                            "device_state_log":"device",
+                            "package_log":"package:/data/app/com.example.app/base.apk",
+                            "activity_log":"mResumedActivity com.example.app/.MainActivity",
+                        },
                         "copied_artifacts":["home.png","report.json","logcat.txt"],
                         "execution":{
                             "returncode":0,
@@ -172,6 +181,10 @@ def test_outcome_preserves_bounded_mobile_validation_evidence():
     assert mobile["package_name"] == "com.example.app"
     assert mobile["activity"] == "com.example.app.MainActivity"
     assert mobile["device_serial"] == "emulator-5554"
+    assert mobile["adb_verification"]["passed"] is True
+    assert mobile["adb_verification"]["device_state_verified"] is True
+    assert mobile["adb_verification"]["package_installed_verified"] is True
+    assert mobile["adb_verification"]["activity_visible_verified"] is True
     assert mobile["screenshots"] == ["home.png"]
     assert mobile["copied_artifacts"] == ["home.png", "report.json", "logcat.txt"]
     assert mobile["execution"]["returncode"] == 0
