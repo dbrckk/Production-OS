@@ -26,6 +26,7 @@ class GitHubWorkState:
     change_categories: tuple[str, ...]
     human_review_required: bool
     head_sha: str | None
+    validation_sha: str | None
 
     def to_dict(self) -> dict:
         return {
@@ -46,6 +47,7 @@ class GitHubWorkState:
             "change_categories": list(self.change_categories),
             "human_review_required": self.human_review_required,
             "head_sha": self.head_sha,
+            "validation_sha": self.validation_sha,
         }
 
 
@@ -173,6 +175,7 @@ def fetch_github_work_state(
     change_categories: tuple[str, ...] = ()
     human_review_required = False
     head_sha = None
+    validation_sha = None
 
     if issue_number is not None:
         issue = client.get_issue(repository, issue_number)
@@ -186,6 +189,8 @@ def fetch_github_work_state(
             draft = bool(pr.get("draft"))
             head = pr.get("head") or {}
             head_sha = head.get("sha") if isinstance(head, dict) else None
+            merge_sha = str(pr.get("merge_commit_sha") or "").strip()
+            validation_sha = merge_sha if merged and merge_sha else head_sha
             base = pr.get("base") or {}
             base_ref = (
                 str(base.get("ref") or "").strip()
@@ -205,12 +210,12 @@ def fetch_github_work_state(
         change_categories = change_review.categories
         human_review_required = change_review.requires_human_review
 
-        if head_sha:
-            runs = client.get_commit_workflow_runs(repository, head_sha)
+        if validation_sha:
+            runs = client.get_commit_workflow_runs(repository, validation_sha)
             ci_state = _ci_state(runs)
-            statuses = client.get_commit_statuses(repository, head_sha)
+            statuses = client.get_commit_statuses(repository, validation_sha)
             status_state = _status_state(statuses)
-            check_runs = client.get_commit_check_runs(repository, head_sha)
+            check_runs = client.get_commit_check_runs(repository, validation_sha)
             required = (
                 client.get_branch_required_checks(repository, base_ref)
                 if base_ref
@@ -252,18 +257,23 @@ def fetch_github_work_state(
         change_categories=change_categories,
         human_review_required=human_review_required,
         head_sha=head_sha,
+        validation_sha=validation_sha,
     )
 
 
 def runtime_decision_from_github(state: GitHubWorkState) -> str:
     if state.merged:
-        return "promote"
+        if state.ci_state == "failed" or state.status_state == "failed":
+            return "rollback"
+        if state.ci_state == "passed" and state.status_state in {None, "passed"}:
+            return "promote"
+        return "running"
     if (
         state.ci_state == "failed"
         or state.status_state == "failed"
         or state.review_state == "changes-requested"
     ):
         return "retry"
-    if state.pr_state == "closed" and not state.merged:
+    if state.pr_state == "closed":
         return "replan"
     return "running"
