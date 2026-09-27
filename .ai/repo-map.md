@@ -2376,6 +2376,14 @@ actions_repository = str(
 actions_workflow = str(
 actions_ref = str(
 ⋮----
+def cooperative_worker_fleet_available(self) -> bool
+⋮----
+specialist = {
+⋮----
+status = str(getattr(worker, "status", "") or "").lower()
+⋮----
+capabilities = {
+⋮----
 @staticmethod
     def _parse_timestamp(value)
 ⋮----
@@ -12784,6 +12792,19 @@ project_after_worker = refreshed["project"]
 ⋮----
 restarted = ControlPlane(database, authorizer=_auth())
 restored = restarted.managed_projects.get(project_id)
+⋮----
+@pytest.mark.e2e
+def test_one_tap_auto_enables_cooperative_mode_when_specialist_fleet_exists(tmp_path)
+⋮----
+control = ControlPlane(
+⋮----
+workflow = control.workflows.get(
+⋮----
+tasks = {
+⋮----
+first_job = next(
+⋮----
+queued = control.queue.get(first_job["claimed_job_key"])
 ````
 
 ## File: tests/test_release33_auto_worker_recovery_e2e.py

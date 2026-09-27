@@ -1832,6 +1832,14 @@ actions_repository = str(
 actions_workflow = str(
 actions_ref = str(
 ⋮----
+def cooperative_worker_fleet_available(self) -> bool
+⋮----
+specialist = {
+⋮----
+status = str(getattr(worker, "status", "") or "").lower()
+⋮----
+capabilities = {
+⋮----
 @staticmethod
     def _parse_timestamp(value)
 ⋮----

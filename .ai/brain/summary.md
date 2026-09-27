@@ -2,11 +2,11 @@
 
 - Index mode: incremental
 - Files indexed: 272
-- Files reparsed this run: 6
-- Symbols: 2222
+- Files reparsed this run: 2
+- Symbols: 2224
 - Internal import edges: 773
-- Impacted files: 25
-- Selected tests: 21
+- Impacted files: 48
+- Selected tests: 46
 
 ## Languages
 - python: 272 files
@@ -25,7 +25,7 @@
 - tests/test_dashboard_api.py: 30 symbols
 - tests/test_transparency_receipts.py: 29 symbols
 - src/production_os/managed_projects.py: 27 symbols
-- src/production_os/control_plane.py: 25 symbols
+- src/production_os/control_plane.py: 26 symbols
 - src/production_os/dashboard_backups.py: 25 symbols
 - src/production_os/rekor_checkpoint_state.py: 22 symbols
 - src/production_os/release_ledger.py: 22 symbols
@@ -42,10 +42,10 @@
 ## ast-grep enrichment
 - ast-grep outline: available
 - AST index mode: incremental
-- AST files reparsed this run: 6
+- AST files reparsed this run: 2
 - outline files retained: 272
-- top-level items retained: 2881
-- direct members retained: 909
+- top-level items retained: 2882
+- direct members retained: 910
 - symbol shards: 25
 - route named symbols via ast-routing.json, then fetch one ast-symbols/<initial>.json shard
 

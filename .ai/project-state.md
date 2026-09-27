@@ -22,16 +22,18 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-27T09:07:17Z
+Generated: 2026-09-27T09:12:11Z
 
 ### Git
 - Branch: `main`
-- Head: `b27bc1185e14`
-- Commit date: 2026-09-27T11:06:31+02:00
-- Commit: feat: add cooperative multi-agent managed projects
+- Head: `1bdb90c53057`
+- Commit date: 2026-09-27T11:12:00+02:00
+- Commit: feat: auto-enable cooperative one-tap for specialist fleets
 - Tracked files: 470
 
 ### Recently changed files
+- `src/production_os/control_plane.py`
+- `tests/test_release32_one_tap_e2e.py`
 - `src/production_os/managed_projects.py`
 - `src/production_os/task_capabilities.py`
 - `src/production_os/workflow_engine.py`
@@ -50,8 +52,6 @@ Generated: 2026-09-27T09:07:17Z
 - `tests/test_github_change_review.py`
 - `tests/test_github_work_state.py`
 - `tests/test_release51_one_tap_runner_e2e.py`
-- `tests/test_rollback_plan.py`
-- `src/production_os/dashboard_ui.py`
 
 ### Project signals
 - `pyproject.toml`
