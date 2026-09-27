@@ -76,3 +76,25 @@ def test_explicit_specialist_preference_overrides_text_inference():
         }
     )
     assert preferred == ["code-review"]
+
+
+
+def test_explicit_required_capability_overrides_visual_text_inference_when_authoritative():
+    required = inferred_required_capabilities(
+        {
+            "task":"Validate visual regressions and capture screenshots in browser",
+            "required_capabilities":["browser-ui-validation"],
+            "required_capabilities_authoritative":True,
+        }
+    )
+    assert required == ["browser-ui-validation"]
+
+
+def test_explicit_required_capabilities_remain_additive_by_default():
+    required = inferred_required_capabilities(
+        {
+            "task":"Generate a sprite sheet",
+            "required_capabilities":["android"],
+        }
+    )
+    assert required == ["android", VISUAL_CAPABILITY]
