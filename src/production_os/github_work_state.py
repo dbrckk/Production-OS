@@ -17,6 +17,7 @@ class GitHubWorkState:
     draft: bool
     review_state: str | None
     ci_state: str | None
+    status_state: str | None
     head_sha: str | None
 
     def to_dict(self) -> dict:
@@ -30,6 +31,7 @@ class GitHubWorkState:
             "draft": self.draft,
             "review_state": self.review_state,
             "ci_state": self.ci_state,
+            "status_state": self.status_state,
             "head_sha": self.head_sha,
         }
 
@@ -52,12 +54,29 @@ def _ci_state(runs: list[dict[str, Any]]) -> str | None:
         return None
     conclusions = [str(r.get("conclusion") or "").lower() for r in runs]
     statuses = [str(r.get("status") or "").lower() for r in runs]
-    if any(c in {"failure","cancelled","timed_out","action_required"} for c in conclusions):
+    if any(c in {"failure","cancelled","timed_out","action_required","startup_failure"} for c in conclusions):
         return "failed"
-    if runs and all(c == "success" for c in conclusions if c):
-        return "passed"
-    if any(s in {"queued","in_progress","pending"} for s in statuses):
+    if any(s in {"queued","in_progress","pending","requested","waiting"} for s in statuses):
         return "running"
+    if all(
+        str(r.get("status") or "").lower() == "completed"
+        and str(r.get("conclusion") or "").lower() == "success"
+        for r in runs
+    ):
+        return "passed"
+    return "unknown"
+
+
+def _status_state(statuses: list[dict[str, Any]]) -> str | None:
+    if not statuses:
+        return None
+    states = [str(item.get("state") or "").lower() for item in statuses if isinstance(item, dict)]
+    if any(state in {"failure","error"} for state in states):
+        return "failed"
+    if any(state in {"pending","expected"} for state in states):
+        return "running"
+    if states and all(state == "success" for state in states):
+        return "passed"
     return "unknown"
 
 
@@ -74,6 +93,7 @@ def fetch_github_work_state(
     draft = False
     review_state = None
     ci_state = None
+    status_state = None
     head_sha = None
 
     if issue_number is not None:
@@ -95,6 +115,8 @@ def fetch_github_work_state(
         if head_sha:
             runs = client.get_commit_workflow_runs(repository, head_sha)
             ci_state = _ci_state(runs)
+            statuses = client.get_commit_statuses(repository, head_sha)
+            status_state = _status_state(statuses)
 
     return GitHubWorkState(
         repository=repository,
@@ -106,6 +128,7 @@ def fetch_github_work_state(
         draft=draft,
         review_state=review_state,
         ci_state=ci_state,
+        status_state=status_state,
         head_sha=head_sha,
     )
 
@@ -113,7 +136,11 @@ def fetch_github_work_state(
 def runtime_decision_from_github(state: GitHubWorkState) -> str:
     if state.merged:
         return "promote"
-    if state.ci_state == "failed" or state.review_state == "changes-requested":
+    if (
+        state.ci_state == "failed"
+        or state.status_state == "failed"
+        or state.review_state == "changes-requested"
+    ):
         return "retry"
     if state.pr_state == "closed" and not state.merged:
         return "replan"
