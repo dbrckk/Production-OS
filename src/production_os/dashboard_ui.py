@@ -1545,10 +1545,24 @@ function renderProductionOutcome(outcome,includeSummary){
    (pr.state?" · "+esc(String(pr.state)):"")
   );
  }
+ const ci=value.ci||null;
+ if(ci){
+  const ciBits=[];
+  if(ci.workflow)ciBits.push(String(ci.workflow));
+  if(ci.job)ciBits.push(String(ci.job));
+  if(ci.step)ciBits.push(String(ci.step));
+  if(ci.conclusion||ci.status)ciBits.push(String(ci.conclusion||ci.status));
+  if(ciBits.length)parts.push(
+   "<strong>CI :</strong> "+ciBits.map(function(x){return esc(x)}).join(" / ")
+  );
+ }
+ const ciDetail=includeSummary&&ci&&ci.log_excerpt
+  ?'<div class="small outcome-ci"><strong>Diagnostic CI :</strong> <code>'+esc(String(ci.log_excerpt).slice(0,1200))+'</code></div>'
+  :"";
  const summary=includeSummary&&value.summary
   ?'<div class="small outcome-summary"><strong>Résultat :</strong> '+esc(String(value.summary))+'</div>'
   :"";
- return summary+(parts.length?'<div class="small outcome-evidence">'+parts.join(" · ")+'</div>':"");
+ return summary+ciDetail+(parts.length?'<div class="small outcome-evidence">'+parts.join(" · ")+'</div>':"");
 }
 function attentionKindLabel(kind){
  const labels={

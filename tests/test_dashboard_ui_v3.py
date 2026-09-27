@@ -642,6 +642,9 @@ def test_managed_and_attention_cards_render_normalized_production_outcome():
     assert "value.artifact_count" in DASHBOARD_HTML
     assert "value.changed_file_count" in DASHBOARD_HTML
     assert "value.pull_request" in DASHBOARD_HTML
+    assert "value.ci" in DASHBOARD_HTML
+    assert "ci.log_excerpt" in DASHBOARD_HTML
+    assert "Diagnostic CI" in DASHBOARD_HTML
     assert "<strong>Résultat :</strong>" in DASHBOARD_HTML
     assert "<strong>Workflow :</strong>" in DASHBOARD_HTML
     assert "<strong>Validation :</strong>" in DASHBOARD_HTML

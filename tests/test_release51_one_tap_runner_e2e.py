@@ -74,6 +74,17 @@ print(json.dumps({
         "usage":{"total_tokens":2400,"runs":1,"agents":{"auto":1}},
         "commit_shas":["0123456789abcdef0123456789abcdef01234567"],
         "changed_files":["src/app.py","tests/test_app.py"],
+        "ci":{
+            "provider":"github-actions",
+            "status":"failed",
+            "workflow":"CI",
+            "job":"tests",
+            "step":"pytest",
+            "conclusion":"failure",
+            "url":"https://github.com/dbrckk/release51-success/actions/runs/123",
+            "sha":"0123456789abcdef0123456789abcdef01234567",
+            "log_excerpt":"FAILED tests/test_app.py::test_login",
+        },
     },
 }))
 """.strip(),
@@ -128,6 +139,11 @@ print(json.dumps({
         assert outcome["commit_shas"] == [
             "0123456789abcdef0123456789abcdef01234567"
         ]
+        assert outcome["ci"]["provider"] == "github-actions"
+        assert outcome["ci"]["workflow"] == "CI"
+        assert outcome["ci"]["job"] == "tests"
+        assert outcome["ci"]["step"] == "pytest"
+        assert "FAILED" in outcome["ci"]["log_excerpt"]
 
         status, inbox = _request(
             base,

@@ -31,6 +31,69 @@ def _execute(db, backend, statement: str, params: tuple = ()):
     return db.execute(_sql(backend, statement), params)
 
 
+def _retry_context(result: dict | None) -> dict | None:
+    if not isinstance(result, dict) or not result:
+        return None
+    evidence = result.get("evidence")
+    if not isinstance(evidence, dict):
+        evidence = {}
+    summary = (
+        result.get("summary")
+        or evidence.get("summary")
+        or result.get("message")
+        or evidence.get("message")
+        or result.get("reason")
+    )
+    validation = result.get("validation")
+    if not isinstance(validation, dict):
+        validation = evidence.get("validation")
+    ci = result.get("ci")
+    if not isinstance(ci, dict):
+        ci = evidence.get("ci")
+
+    context = {}
+    if summary is not None:
+        text = str(summary).strip()
+        if text:
+            context["summary"] = text[:4000]
+    if isinstance(validation, dict):
+        clean_validation = {}
+        status = str(validation.get("status") or "").strip()
+        if status:
+            clean_validation["status"] = status[:120]
+        tests = validation.get("tests")
+        if isinstance(tests, list):
+            clean_validation["tests"] = [
+                str(item).strip()[:300]
+                for item in tests
+                if str(item).strip()
+            ][:20]
+        if clean_validation:
+            context["validation"] = clean_validation
+    if isinstance(ci, dict):
+        clean_ci = {}
+        for key, limit in {
+            "provider":120,
+            "status":120,
+            "workflow":300,
+            "job":300,
+            "step":300,
+            "conclusion":120,
+            "url":2000,
+            "sha":80,
+            "log_excerpt":8000,
+        }.items():
+            value = ci.get(key)
+            if value is None:
+                continue
+            text = str(value).strip()
+            if text:
+                clean_ci[key] = text[:limit]
+        if clean_ci:
+            context["ci"] = clean_ci
+    return context or None
+
+
 @dataclass(frozen=True, slots=True)
 class WorkflowTaskSpec:
     task_id: str
@@ -1114,18 +1177,22 @@ class WorkflowEngine:
                             )
                             cache_hits += 1
                     continue
+            attempt_number = int(task["attempts"]) + 1
             handoff = dict(payload.get("handoff") or payload)
             handoff.setdefault("repository", workflow["repository"])
             handoff.setdefault("task", task["title"])
             handoff.setdefault("priority", task["priority"])
             handoff["workflow_id"] = workflow_id
             handoff["workflow_task_id"] = task["task_id"]
+            if attempt_number > 1:
+                retry_context = _retry_context(task.get("result"))
+                if retry_context is not None:
+                    handoff["retry_context"] = retry_context
             asset_forge = asset_forge_tool_contract(handoff)
             if asset_forge is not None:
                 contracts = dict(handoff.get("tool_contracts") or {})
                 contracts["asset_forge"] = asset_forge
                 handoff["tool_contracts"] = contracts
-            attempt_number = int(task["attempts"]) + 1
             metadata = dict(workflow.get("metadata") or {})
             queue_payload = {
                 **payload,
