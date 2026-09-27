@@ -1,11 +1,11 @@
 # Change impact
 
-Base: a686af462d04aa95fbcbcac1eb92704e9d96da3f
-Head: 59ef51d7a99342cdb79ab314645fb91251793dc7
+Base: 15eea6d8eb228477e150b2b6c500889e9035bc23
+Head: 67be12fb1149ef6380fdb7b1d51b9304f221e0a5
 
 ## Changed files
 - M src/production_os/workflow_engine.py
-- A tests/test_dynamic_agent_fanout.py
+- M tests/test_dynamic_agent_fanout.py
 
 ## Affected areas
 - src

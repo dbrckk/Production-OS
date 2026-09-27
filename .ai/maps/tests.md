@@ -3045,6 +3045,17 @@ def test_invalid_planner_plan_is_rejected_before_child_dispatch(tmp_path)
 current = engine.get(workflow["id"])
 ⋮----
 planner = current["tasks"][0]
+⋮----
+def test_dynamic_planner_uses_validated_fallback_when_model_plan_missing(tmp_path)
+⋮----
+fallback = {
+planner = _planner_spec()
+⋮----
+def test_dynamic_planner_rejects_invalid_primary_and_invalid_fallback(tmp_path)
+⋮----
+def test_dynamic_planner_generates_post_integration_validation_chain(tmp_path)
+⋮----
+progressed = engine.get(workflow["id"])
 ```
 
 ## File: test_emergency_key_revocation.py

@@ -9113,6 +9113,8 @@ raw_plan = result.get("agent_plan")
 ⋮----
 available_budget = int(config.get("available_token_budget") or 0)
 max_agents = int(config.get("max_agents") or 6)
+fallback_plan = config.get("fallback_plan")
+⋮----
 planned = validate_agent_plan(
 ⋮----
 repository = workflow["repository"]
@@ -9132,6 +9134,23 @@ integration_task_id = str(
 integration_budget = int(
 ⋮----
 integration_handoff = {
+⋮----
+continuation = config.get("post_integration_tasks") or []
+⋮----
+previous_dependency = integration_task_id
+known_ids = {
+⋮----
+continuation_id = str(raw.get("task_id") or "").strip()
+⋮----
+title = str(raw.get("title") or continuation_id).strip()
+instruction = str(raw.get("instruction") or "").strip()
+⋮----
+token_budget = int(raw.get("token_budget"))
+⋮----
+preferred = raw.get("preferred_capabilities") or []
+required = raw.get("required_capabilities") or []
+⋮----
+previous_dependency = continuation_id
 ⋮----
 existing = {
 ⋮----
@@ -12049,6 +12068,17 @@ def test_invalid_planner_plan_is_rejected_before_child_dispatch(tmp_path)
 current = engine.get(workflow["id"])
 ⋮----
 planner = current["tasks"][0]
+⋮----
+def test_dynamic_planner_uses_validated_fallback_when_model_plan_missing(tmp_path)
+⋮----
+fallback = {
+planner = _planner_spec()
+⋮----
+def test_dynamic_planner_rejects_invalid_primary_and_invalid_fallback(tmp_path)
+⋮----
+def test_dynamic_planner_generates_post_integration_validation_chain(tmp_path)
+⋮----
+progressed = engine.get(workflow["id"])
 ````
 
 ## File: tests/test_emergency_key_revocation.py

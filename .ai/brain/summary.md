@@ -3,7 +3,7 @@
 - Index mode: incremental
 - Files indexed: 289
 - Files reparsed this run: 2
-- Symbols: 2389
+- Symbols: 2392
 - Internal import edges: 817
 - Impacted files: 25
 - Selected tests: 21
@@ -44,7 +44,7 @@
 - AST index mode: incremental
 - AST files reparsed this run: 2
 - outline files retained: 289
-- top-level items retained: 3080
+- top-level items retained: 3083
 - direct members retained: 982
 - symbol shards: 25
 - route named symbols via ast-routing.json, then fetch one ast-symbols/<initial>.json shard

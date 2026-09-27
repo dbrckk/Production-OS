@@ -8549,6 +8549,8 @@ raw_plan = result.get("agent_plan")
 ⋮----
 available_budget = int(config.get("available_token_budget") or 0)
 max_agents = int(config.get("max_agents") or 6)
+fallback_plan = config.get("fallback_plan")
+⋮----
 planned = validate_agent_plan(
 ⋮----
 repository = workflow["repository"]
@@ -8568,6 +8570,23 @@ integration_task_id = str(
 integration_budget = int(
 ⋮----
 integration_handoff = {
+⋮----
+continuation = config.get("post_integration_tasks") or []
+⋮----
+previous_dependency = integration_task_id
+known_ids = {
+⋮----
+continuation_id = str(raw.get("task_id") or "").strip()
+⋮----
+title = str(raw.get("title") or continuation_id).strip()
+instruction = str(raw.get("instruction") or "").strip()
+⋮----
+token_budget = int(raw.get("token_budget"))
+⋮----
+preferred = raw.get("preferred_capabilities") or []
+required = raw.get("required_capabilities") or []
+⋮----
+previous_dependency = continuation_id
 ⋮----
 existing = {
 ⋮----
