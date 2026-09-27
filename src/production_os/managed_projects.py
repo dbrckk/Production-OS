@@ -112,6 +112,54 @@ def _clean_commit_shas(values) -> list[str]:
     return clean[:20]
 
 
+def _result_tasks_by_depth(workflow: dict) -> list[dict]:
+    tasks = [
+        task
+        for task in workflow.get("tasks", [])
+        if isinstance(task, dict) and isinstance(task.get("result"), dict)
+    ]
+    by_id = {
+        str(task.get("task_id") or ""): task
+        for task in tasks
+        if str(task.get("task_id") or "")
+    }
+    memo: dict[str, int] = {}
+
+    def depth(task_id: str, visiting: set[str] | None = None) -> int:
+        if task_id in memo:
+            return memo[task_id]
+        visiting = set(visiting or ())
+        if task_id in visiting:
+            return 0
+        visiting.add(task_id)
+        task = by_id.get(task_id) or {}
+        deps = [
+            str(item)
+            for item in (task.get("dependencies") or [])
+            if str(item) in by_id
+        ]
+        value = 0 if not deps else 1 + max(
+            depth(dep, visiting)
+            for dep in deps
+        )
+        memo[task_id] = value
+        return value
+
+    return sorted(
+        tasks,
+        key=lambda task: (
+            depth(str(task.get("task_id") or "")),
+            str(task.get("updated_at") or ""),
+            str(task.get("task_id") or ""),
+        ),
+    )
+
+
+def _result_evidence(result: dict) -> dict:
+    evidence = result.get("evidence")
+    return evidence if isinstance(evidence, dict) else {}
+
+
 def _outcome_from_workflow(workflow: dict | None) -> dict:
     if not isinstance(workflow, dict):
         return {
@@ -129,17 +177,13 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
             "completed_at":None,
         }
 
+    result_tasks = _result_tasks_by_depth(workflow)
     results = [
-        task.get("result")
-        for task in workflow.get("tasks", [])
-        if isinstance(task, dict) and isinstance(task.get("result"), dict)
+        task["result"]
+        for task in result_tasks
     ]
     result = results[-1] if results else {}
-    evidence = (
-        result.get("evidence")
-        if isinstance(result.get("evidence"), dict)
-        else {}
-    )
+    evidence = _result_evidence(result)
     summary = (
         result.get("summary")
         or evidence.get("summary")
@@ -176,17 +220,26 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
         else []
     )
 
-    raw_commits = (
-        result.get("commit_shas")
-        or evidence.get("commit_shas")
-        or result.get("commits")
-        or evidence.get("commits")
-        or result.get("commit_sha")
-        or evidence.get("commit_sha")
-    )
-    if isinstance(raw_commits, (str, dict)):
-        raw_commits = [raw_commits]
-    commit_shas = _clean_commit_shas(raw_commits)
+    commit_shas = []
+    for item in results:
+        item_evidence = _result_evidence(item)
+        raw_commits = (
+            item.get("commit_shas")
+            or item_evidence.get("commit_shas")
+            or item.get("commits")
+            or item_evidence.get("commits")
+            or item.get("commit_sha")
+            or item_evidence.get("commit_sha")
+        )
+        if isinstance(raw_commits, (str, dict)):
+            raw_commits = [raw_commits]
+        for sha in _clean_commit_shas(raw_commits):
+            if sha not in commit_shas:
+                commit_shas.append(sha)
+            if len(commit_shas) >= 20:
+                break
+        if len(commit_shas) >= 20:
+            break
 
     artifacts = [
         artifact
@@ -199,33 +252,58 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
         if str(artifact.get("name") or "").strip()
     ][:20]
 
-    changed_files = (
-        result.get("changed_files")
-        or evidence.get("changed_files")
-        or []
-    )
-    changed_file_count = (
-        len(changed_files)
-        if isinstance(changed_files, (list, tuple))
-        else 0
-    )
+    changed_files = []
+    for item in results:
+        item_evidence = _result_evidence(item)
+        raw_changed = (
+            item.get("changed_files")
+            or item_evidence.get("changed_files")
+            or []
+        )
+        if not isinstance(raw_changed, (list, tuple)):
+            continue
+        for raw in raw_changed:
+            value = str(raw or "").strip()
+            if value and value not in changed_files:
+                changed_files.append(value)
+            if len(changed_files) >= 500:
+                break
+        if len(changed_files) >= 500:
+            break
+    changed_file_count = len(changed_files)
 
-    pr = result.get("pull_request") or evidence.get("pull_request")
+    pr = None
+    pr_source = result
+    pr_evidence = evidence
+    for item in reversed(results):
+        item_evidence = _result_evidence(item)
+        candidate = item.get("pull_request") or item_evidence.get("pull_request")
+        candidate_number = (
+            item.get("pull_request_number")
+            or item_evidence.get("pull_request_number")
+            or item.get("pr_number")
+            or item_evidence.get("pr_number")
+        )
+        if isinstance(candidate, dict) or candidate_number is not None:
+            pr = candidate
+            pr_source = item
+            pr_evidence = item_evidence
+            break
     pull_request = None
     if isinstance(pr, dict):
         number = pr.get("number")
         state = str(pr.get("state") or "").strip() or None
     else:
         number = (
-            result.get("pull_request_number")
-            or evidence.get("pull_request_number")
-            or result.get("pr_number")
-            or evidence.get("pr_number")
+            pr_source.get("pull_request_number")
+            or pr_evidence.get("pull_request_number")
+            or pr_source.get("pr_number")
+            or pr_evidence.get("pr_number")
         )
         state = (
             str(
-                result.get("pull_request_state")
-                or evidence.get("pull_request_state")
+                pr_source.get("pull_request_state")
+                or pr_evidence.get("pull_request_state")
                 or ""
             ).strip()
             or None
@@ -237,7 +315,13 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
     if number is not None or state is not None:
         pull_request = {"number":number, "state":state}
 
-    raw_ci = result.get("ci") or evidence.get("ci")
+    raw_ci = None
+    for item in reversed(results):
+        item_evidence = _result_evidence(item)
+        candidate = item.get("ci") or item_evidence.get("ci")
+        if isinstance(candidate, dict):
+            raw_ci = candidate
+            break
     ci = None
     if isinstance(raw_ci, dict):
         clean_ci = {}
