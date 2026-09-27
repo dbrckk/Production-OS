@@ -2,32 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat: control center release 9 recurrence tracking",
-      "terms": [
-        "center",
-        "control",
-        "feat",
-        "recurrence",
-        "release",
-        "tracking"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/dashboard_remediation_metrics.py",
-        "src/production_os/dashboard_service.py",
-        "src/production_os/dashboard_store.py",
-        "src/production_os/dashboard_ui.py",
-        "src/production_os/postgres_backend.py",
-        "src/production_os/sqlite_backend.py",
-        "tests/test_dashboard_control_audit.py",
-        "tests/test_dashboard_remediation_history.py",
-        "tests/test_dashboard_remediation_metrics.py",
-        "tests/test_dashboard_store_postgres.py",
-        "tests/test_dashboard_ui_v3.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat: control center release 10 remediation durability",
       "terms": [
         "10",
@@ -1273,6 +1247,24 @@
       "tests": [],
       "useful": [
         "src/production_os/managed_projects.py"
+      ]
+    },
+    {
+      "rejected": [],
+      "task": "feat: require mobile specialist for native UI one-tap",
+      "terms": [
+        "feat",
+        "mobile",
+        "native",
+        "one-tap",
+        "require",
+        "specialist",
+        "ui"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/control_plane.py",
+        "tests/test_release32_one_tap_e2e.py"
       ]
     }
   ],
@@ -2598,11 +2590,13 @@
       "src/production_os/asset_forge.py": 4
     },
     "mobile": {
+      "src/production_os/control_plane.py": 4,
       "src/production_os/dashboard_ui.py": 8,
       "src/production_os/managed_projects.py": 8,
       "tests/test_cooperative_managed_projects.py": 4,
       "tests/test_dashboard_ui_v3.py": 8,
-      "tests/test_managed_project_outcome.py": 4
+      "tests/test_managed_project_outcome.py": 4,
+      "tests/test_release32_one_tap_e2e.py": 4
     },
     "multi-agent": {
       "src/production_os/dashboard_ui.py": 4,
@@ -2615,11 +2609,13 @@
       "tests/test_workflow_engine.py": 4
     },
     "native": {
+      "src/production_os/control_plane.py": 4,
       "src/production_os/dashboard_ui.py": 4,
       "src/production_os/managed_projects.py": 12,
       "tests/test_cooperative_managed_projects.py": 8,
       "tests/test_dashboard_ui_v3.py": 4,
-      "tests/test_managed_project_outcome.py": 4
+      "tests/test_managed_project_outcome.py": 4,
+      "tests/test_release32_one_tap_e2e.py": 4
     },
     "navigable": {
       "src/production_os/control_plane.py": 4,
@@ -2662,14 +2658,14 @@
       "tests/test_release21_offline_restore_e2e.py": 4
     },
     "one-tap": {
-      "src/production_os/control_plane.py": 12,
+      "src/production_os/control_plane.py": 16,
       "src/production_os/dashboard_ui.py": 12,
       "src/production_os/managed_projects.py": 4,
       "tests/test_dashboard_api.py": 8,
       "tests/test_dashboard_launch.py": 4,
       "tests/test_dashboard_ui_v3.py": 12,
       "tests/test_managed_projects_v4.py": 4,
-      "tests/test_release32_one_tap_e2e.py": 8,
+      "tests/test_release32_one_tap_e2e.py": 12,
       "tests/test_release42_idempotent_launch_e2e.py": 4,
       "tests/test_release44_one_tap_recovery_actions_e2e.py": 4,
       "tests/test_release51_one_tap_runner_e2e.py": 4
@@ -3111,6 +3107,10 @@
       "src/production_os/control_plane.py": 8,
       "tests/test_dashboard_launch.py": 8
     },
+    "require": {
+      "src/production_os/control_plane.py": 4,
+      "tests/test_release32_one_tap_e2e.py": 4
+    },
     "required": {
       "src/production_os/managed_projects.py": 4,
       "src/production_os/task_capabilities.py": 4,
@@ -3304,7 +3304,7 @@
       "tests/test_asset_forge.py": 4
     },
     "specialist": {
-      "src/production_os/control_plane.py": 8,
+      "src/production_os/control_plane.py": 12,
       "src/production_os/dashboard_ui.py": 8,
       "src/production_os/managed_projects.py": 12,
       "src/production_os/remote_worker_runner.py": 4,
@@ -3315,7 +3315,7 @@
       "tests/test_cooperative_specialist_e2e.py": 4,
       "tests/test_dashboard_ui_v3.py": 8,
       "tests/test_managed_project_outcome.py": 8,
-      "tests/test_release32_one_tap_e2e.py": 8,
+      "tests/test_release32_one_tap_e2e.py": 12,
       "tests/test_remote_worker_runner.py": 4,
       "tests/test_specialist_job_preferences.py": 4,
       "tests/test_task_capabilities.py": 4,
@@ -3467,11 +3467,13 @@
       "tests/test_asset_forge.py": 4
     },
     "ui": {
+      "src/production_os/control_plane.py": 4,
       "src/production_os/dashboard_ui.py": 4,
       "src/production_os/managed_projects.py": 8,
       "tests/test_cooperative_managed_projects.py": 8,
       "tests/test_dashboard_ui_v3.py": 4,
-      "tests/test_managed_project_outcome.py": 4
+      "tests/test_managed_project_outcome.py": 4,
+      "tests/test_release32_one_tap_e2e.py": 4
     },
     "unified": {
       "src/production_os/dashboard_service.py": 4,

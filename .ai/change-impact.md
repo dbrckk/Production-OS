@@ -1,16 +1,18 @@
 # Change impact
 
-Base: fa4658f190a977fecc37d7249ce8ced98c327c4b
-Head: 7faf2adb63c857ddd65388de0a6b1c8acab9a34c
+Base: 831ae003c1a2e7956612d482900f1b0957f30cb1
+Head: 27b362165add9252cbbac95878c51cbb9058d713
 
 ## Changed files
-- M src/production_os/managed_projects.py
+- M src/production_os/control_plane.py
+- M tests/test_release32_one_tap_e2e.py
 
 ## Affected areas
 - src
+- tests
 
 ## Related test candidates
-- No direct filename-based test match detected.
+- tests/test_control_plane.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

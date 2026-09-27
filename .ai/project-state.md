@@ -22,16 +22,18 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-27T13:09:20Z
+Generated: 2026-09-27T13:58:19Z
 
 ### Git
 - Branch: `main`
-- Head: `7faf2adb63c8`
-- Commit date: 2026-09-27T15:08:45+02:00
-- Commit: fix: provision AVDs for native mobile validation
+- Head: `27b362165add`
+- Commit date: 2026-09-27T15:58:09+02:00
+- Commit: feat: require mobile specialist for native UI one-tap
 - Tracked files: 475
 
 ### Recently changed files
+- `src/production_os/control_plane.py`
+- `tests/test_release32_one_tap_e2e.py`
 - `src/production_os/managed_projects.py`
 - `src/production_os/dashboard_ui.py`
 - `tests/test_cooperative_managed_projects.py`

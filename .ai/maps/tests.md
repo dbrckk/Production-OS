@@ -4479,6 +4479,8 @@ worker = control.workers.register(
 ⋮----
 def test_ui_goal_requires_online_browser_specialist_for_cooperative_mode(tmp_path)
 ⋮----
+def test_native_ui_goal_requires_online_mobile_specialist_for_cooperative_mode(tmp_path)
+⋮----
 def test_non_ui_goal_can_use_any_online_specialist_for_cooperative_mode(tmp_path)
 ```
 

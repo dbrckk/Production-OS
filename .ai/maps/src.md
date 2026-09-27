@@ -1833,7 +1833,12 @@ actions_workflow = str(
 actions_ref = str(
 ⋮----
 specialist = {
-required = (
+⋮----
+required = {"mobile-ui-validation"}
+⋮----
+required = {"browser-ui-validation"}
+⋮----
+required = set()
 ⋮----
 status = str(getattr(worker, "status", "") or "").lower()
 ⋮----
