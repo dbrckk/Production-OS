@@ -536,6 +536,21 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=os.getenv("PRODUCTION_OS_RUNTIME_DIR", ""),
         help="Durable per-job executor workspace root",
     )
+    remoterun.add_argument(
+        "--repository-root",
+        action="append",
+        default=[],
+        metavar="OWNER/REPO=PATH",
+        help=(
+            "Explicit local repository mapping used for automatic worktree "
+            "isolation; may be supplied more than once"
+        ),
+    )
+    remoterun.add_argument(
+        "--worktree-root",
+        default=os.getenv("PRODUCTION_OS_WORKTREE_DIR", ""),
+        help="Parent directory for isolated Git worktrees",
+    )
 
     workflowcreate = sub.add_parser("workflow-create", help="Create a persistent DAG workflow")
     workflowcreate.add_argument("--database", required=True)
@@ -1921,6 +1936,34 @@ def run_remote_worker_poll(args: argparse.Namespace) -> int:
 
 
 
+def _repository_root_map(values: list[str]) -> dict[str, str]:
+    roots: dict[str, str] = {}
+    for raw in values:
+        value = str(raw or "").strip()
+        if "=" not in value:
+            raise ValueError(
+                "--repository-root must use OWNER/REPO=PATH"
+            )
+        repository, path = value.split("=", 1)
+        repository = repository.strip()
+        path = path.strip()
+        parts = repository.split("/")
+        if (
+            len(parts) != 2
+            or any(not part or part in {".", ".."} for part in parts)
+            or not path
+        ):
+            raise ValueError(
+                "--repository-root must use OWNER/REPO=PATH"
+            )
+        if repository in roots and roots[repository] != path:
+            raise ValueError(
+                f"duplicate repository root mapping for {repository}"
+            )
+        roots[repository] = path
+    return roots
+
+
 def run_remote_worker_run(args: argparse.Namespace) -> int:
     token = str(os.getenv(args.token_env) or "").strip()
     if not token:
@@ -1942,6 +1985,8 @@ def run_remote_worker_run(args: argparse.Namespace) -> int:
         executor_timeout_seconds=args.executor_timeout_seconds,
         secret_env_names=[args.token_env],
         runtime_root=args.runtime_root or None,
+        repository_roots=_repository_root_map(args.repository_root),
+        worktree_root=args.worktree_root or None,
     )
     previous_handlers = {}
 
