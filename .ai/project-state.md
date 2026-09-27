@@ -22,16 +22,18 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-27T09:12:11Z
+Generated: 2026-09-27T09:16:10Z
 
 ### Git
 - Branch: `main`
-- Head: `1bdb90c53057`
-- Commit date: 2026-09-27T11:12:00+02:00
-- Commit: feat: auto-enable cooperative one-tap for specialist fleets
+- Head: `a018b909f789`
+- Commit date: 2026-09-27T11:15:59+02:00
+- Commit: feat: show cooperative multi-agent progress in dashboard
 - Tracked files: 470
 
 ### Recently changed files
+- `src/production_os/dashboard_ui.py`
+- `tests/test_dashboard_ui_v3.py`
 - `src/production_os/control_plane.py`
 - `tests/test_release32_one_tap_e2e.py`
 - `src/production_os/managed_projects.py`
@@ -50,8 +52,6 @@ Generated: 2026-09-27T09:12:11Z
 - `src/production_os/github_work_state.py`
 - `src/production_os/rollback_plan.py`
 - `tests/test_github_change_review.py`
-- `tests/test_github_work_state.py`
-- `tests/test_release51_one_tap_runner_e2e.py`
 
 ### Project signals
 - `pyproject.toml`

@@ -3,16 +3,16 @@
 - Index mode: incremental
 - Files indexed: 272
 - Files reparsed this run: 2
-- Symbols: 2224
+- Symbols: 2225
 - Internal import edges: 773
-- Impacted files: 48
-- Selected tests: 46
+- Impacted files: 4
+- Selected tests: 2
 
 ## Languages
 - python: 272 files
 
 ## Highest-density symbol files
-- tests/test_dashboard_ui_v3.py: 91 symbols
+- tests/test_dashboard_ui_v3.py: 92 symbols
 - src/production_os/cli.py: 83 symbols
 - src/production_os/postgres_backend.py: 56 symbols
 - src/production_os/sqlite_backend.py: 56 symbols
@@ -44,7 +44,7 @@
 - AST index mode: incremental
 - AST files reparsed this run: 2
 - outline files retained: 272
-- top-level items retained: 2882
+- top-level items retained: 2883
 - direct members retained: 910
 - symbol shards: 25
 - route named symbols via ast-routing.json, then fetch one ast-symbols/<initial>.json shard

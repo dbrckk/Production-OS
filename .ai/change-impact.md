@@ -1,18 +1,18 @@
 # Change impact
 
-Base: 8b6495f4ba91edc56d109dbe78716e3c8fe7fc7b
-Head: 1bdb90c53057470d3871464bf28284265e1058c8
+Base: 6ed5a55c5f4c860b373c01feb19d49508d656311
+Head: a018b909f7899747fcf458ed8032d5cbad3c2068
 
 ## Changed files
-- M src/production_os/control_plane.py
-- M tests/test_release32_one_tap_e2e.py
+- M src/production_os/dashboard_ui.py
+- M tests/test_dashboard_ui_v3.py
 
 ## Affected areas
 - src
 - tests
 
 ## Related test candidates
-- tests/test_control_plane.py
+- No direct filename-based test match detected.
 
 ## Agent guidance
 - Read this file before broad repository exploration.

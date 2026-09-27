@@ -2779,6 +2779,8 @@ load_start = DASHBOARD_HTML.index("async function loadAttention")
 load_end = DASHBOARD_HTML.index("async function loadManagedProjects", load_start)
 attention_body = DASHBOARD_HTML[load_start:load_end]
 ⋮----
+def test_cooperative_multi_agent_progress_is_visible_in_managed_and_production_detail()
+⋮----
 def test_managed_and_attention_cards_render_normalized_production_outcome()
 ⋮----
 def test_launch_preflight_is_server_backed_and_mobile_visible()
