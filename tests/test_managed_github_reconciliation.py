@@ -159,3 +159,27 @@ def test_succeeded_workflow_without_pull_request_keeps_legacy_path():
         "o/a",
         workflow,
     ) is None
+
+
+
+def test_succeeded_pull_request_without_ci_moves_to_review_instead_of_stalling():
+    service = ManagedProjectService(
+        FakeWorkflows(),
+        github_client_factory=lambda: object(),
+    )
+    no_ci = state(
+        ci_state=None,
+        status_state=None,
+        ready_for_promotion=False,
+        promotion_blockers=("actions-not-passed",),
+    )
+    with patch(
+        "production_os.managed_projects.fetch_github_work_state",
+        return_value=no_ci,
+    ):
+        target = service._github_target_for_succeeded_workflow(
+            "o/a",
+            workflow_with_pr(),
+        )
+
+    assert target == REVIEW_REQUIRED
