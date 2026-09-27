@@ -477,18 +477,16 @@ class GitHubClient:
         return result
 
 
-    def list_pull_request_files(
+    def get_pull_request_file_details(
         self,
         full_name: str,
         pr_number: int,
-    ) -> list[str]:
-        """Return every changed path in a pull request.
+    ) -> list[dict[str, Any]]:
+        """Return bounded changed-file metadata and patches for deterministic review.
 
-        Unlike informational GitHub reads, this method intentionally propagates
-        API failures. Incremental pruning must fail closed when the changed-file
-        set cannot be established reliably.
+        API failures intentionally propagate so promotion gates fail closed.
         """
-        files: list[str] = []
+        files: list[dict[str, Any]] = []
         page = 1
         while True:
             payload = self._get(
@@ -503,12 +501,40 @@ class GitHubClient:
                 if not isinstance(item, dict):
                     continue
                 filename = str(item.get("filename") or "").strip()
-                if filename:
-                    files.append(filename)
+                if not filename:
+                    continue
+                patch = item.get("patch")
+                files.append({
+                    "filename":filename,
+                    "status":str(item.get("status") or "").strip()[:40],
+                    "additions":int(item.get("additions") or 0),
+                    "deletions":int(item.get("deletions") or 0),
+                    "changes":int(item.get("changes") or 0),
+                    "patch":(
+                        str(patch)[:120_000]
+                        if isinstance(patch, str)
+                        else None
+                    ),
+                })
             if len(payload) < 100:
                 break
             page += 1
-        return sorted(set(files))
+        return files
+
+    def list_pull_request_files(
+        self,
+        full_name: str,
+        pr_number: int,
+    ) -> list[str]:
+        """Return every changed path in a pull request."""
+        return sorted({
+            str(item.get("filename") or "").strip()
+            for item in self.get_pull_request_file_details(
+                full_name,
+                pr_number,
+            )
+            if str(item.get("filename") or "").strip()
+        })
 
     def get_commit_workflow_runs(self, full_name: str, commit_sha: str) -> list[dict[str, Any]]:
         try:
