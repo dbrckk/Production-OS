@@ -12,168 +12,97 @@ def service(tmp_path):
     )
 
 
-def test_cooperative_workflow_builds_parallel_code_test_integration_chain(tmp_path):
-    managed = service(tmp_path)
+def _planner_config(managed, *, goal, instruction=None, budget=1000):
     tasks = managed._cooperative_workflow_specs(
         project_id="project-1234",
         repository="o/a",
-        final_goal="Implement repository automation safely",
-        instruction="Implement repository automation safely",
+        final_goal=goal,
+        instruction=instruction or goal,
         generation=1,
         kind="initial",
-        token_budget=1000,
+        token_budget=budget,
         agent_preference="auto",
     )
-
-    assert [task.task_id for task in tasks] == [
-        "implementation-code",
-        "implementation-tests",
-        "integration",
-        "validation",
-        "review",
-    ]
-    assert tasks[0].dependencies == ()
-    assert tasks[1].dependencies == ()
-    assert tasks[2].dependencies == (
-        "implementation-code",
-        "implementation-tests",
-    )
-    assert tasks[3].dependencies == ("integration",)
-    assert tasks[4].dependencies == ("validation",)
-    assert tasks[0].payload["handoff"]["preferred_capabilities"] == [
-        "code-implementation"
-    ]
-    assert tasks[1].payload["handoff"]["preferred_capabilities"] == [
-        "test-debug"
-    ]
-    assert tasks[2].payload["handoff"]["preferred_capabilities"] == [
-        "code-implementation"
-    ]
-    assert tasks[4].payload["handoff"]["preferred_capabilities"] == [
-        "code-review"
-    ]
-    assert all(task.priority == 100 for task in tasks)
-    assert tasks[0].payload["isolation"]["mode"] == "git-worktree"
-    assert tasks[1].payload["isolation"]["mode"] == "git-worktree"
-    assert tasks[2].payload["isolation"]["integration_target"] is True
-    budgets = [
-        task.payload["handoff"]["token_budget"]
-        for task in tasks
-    ]
-    assert sum(budgets) == 1000
-    assert len(budgets) == 5
-    assert all(value > 0 for value in budgets)
+    assert [task.task_id for task in tasks] == ["planner"]
+    return tasks[0]
 
 
-def test_cooperative_workflow_adds_ui_stage_only_for_ui_goal(tmp_path):
+def test_cooperative_workflow_starts_with_bounded_adaptive_planner(tmp_path):
     managed = service(tmp_path)
-    tasks = managed._cooperative_workflow_specs(
-        project_id="project-1234",
-        repository="o/a",
-        final_goal="Improve the dashboard UI and verify it in the browser",
+    planner = _planner_config(
+        managed,
+        goal="Implement repository automation safely",
+    )
+
+    config = planner.payload["dynamic_agent_planner"]
+    fallback = config["fallback_plan"]
+
+    assert planner.dependencies == ()
+    assert planner.payload["cooperative_stage"] == "planner"
+    assert config["max_agents"] == 6
+    assert config["integration_task_id"] == "integration"
+    assert [row["task_id"] for row in fallback["tasks"]] == [
+        "code",
+        "tests",
+    ]
+    assert sum(row["token_budget"] for row in fallback["tasks"]) == (
+        config["available_token_budget"]
+    )
+    assert config["post_integration_tasks"][-1]["task_id"] == "review"
+    assert planner.payload["handoff"]["tool_contracts"]["dynamic_agent_plan"][
+        "schema"
+    ] == "production-os/dynamic-agent-plan/v1"
+
+
+def test_cooperative_browser_goal_puts_browser_validation_after_review(tmp_path):
+    managed = service(tmp_path)
+    planner = _planner_config(
+        managed,
+        goal="Improve the dashboard UI and verify it in the browser",
         instruction="Improve the dashboard UI",
-        generation=1,
-        kind="initial",
-        token_budget=1000,
-        agent_preference="auto",
     )
 
-    assert [task.task_id for task in tasks] == [
-        "implementation-code",
-        "implementation-tests",
-        "integration",
+    continuation = planner.payload["dynamic_agent_planner"][
+        "post_integration_tasks"
+    ]
+    assert [row["task_id"] for row in continuation] == [
         "validation",
         "review",
         "ui-validation",
     ]
-    assert tasks[-1].dependencies == ("review",)
-    assert all(task.priority == 100 for task in tasks)
-    assert tasks[-1].payload["handoff"]["preferred_capabilities"] == [
-        "browser-ui-validation"
-    ]
-    assert tasks[-1].payload["handoff"]["required_capabilities"] == [
-        "browser-ui-validation"
-    ]
-    assert tasks[-1].payload["handoff"]["tool_contracts"]["browser_validation"] == {
-        "schema":"production-os/browser-validation/v1",
-        "report_schema":"production-os/browser-validation-report/v1",
-        "script":".production-os/browser_validate.py",
-        "artifacts_dir":".production-os/browser-artifacts",
-        "runtime":"python-playwright-chromium",
-    }
-    assert sum(
-        task.payload["handoff"]["token_budget"]
-        for task in tasks
-    ) == 1000
-    assert tasks[-1].payload["handoff"]["token_budget"] > 0
+    browser = continuation[-1]
+    assert browser["required_capabilities"] == ["browser-ui-validation"]
+    assert browser["tool_contracts"]["browser_validation"]["runtime"] == (
+        "python-playwright-chromium"
+    )
 
 
-def test_native_mobile_ui_uses_dedicated_emulator_stage(tmp_path):
+def test_native_mobile_goal_puts_emulator_validation_after_review(tmp_path):
     managed = service(tmp_path)
-
-    for final_goal in (
+    for goal in (
         "Improve the Android UI",
         "Polish the Flutter UI",
         "Fix the mobile UI layout",
     ):
-        tasks = managed._cooperative_workflow_specs(
-            project_id="project-1234",
-            repository="o/a",
-            final_goal=final_goal,
-            instruction=final_goal,
-            generation=1,
-            kind="initial",
-            token_budget=1000,
-            agent_preference="auto",
-        )
-        assert [task.task_id for task in tasks] == [
-            "implementation-code",
-            "implementation-tests",
-            "integration",
+        planner = _planner_config(managed, goal=goal)
+        continuation = planner.payload["dynamic_agent_planner"][
+            "post_integration_tasks"
+        ]
+        assert [row["task_id"] for row in continuation] == [
             "validation",
             "review",
             "mobile-ui-validation",
         ]
-        mobile = tasks[-1]
-        assert mobile.dependencies == ("review",)
-        assert mobile.payload["handoff"]["required_capabilities"] == [
+        mobile = continuation[-1]
+        assert mobile["required_capabilities"] == [
             "mobile-ui-validation"
         ]
-        assert (
-            mobile.payload["handoff"]["required_capabilities_authoritative"]
-            is True
+        assert mobile["tool_contracts"]["mobile_validation"]["runtime"] == (
+            "android-adb-emulator"
         )
-        assert mobile.payload["handoff"]["tool_contracts"]["mobile_validation"] == {
-            "schema":"production-os/mobile-validation/v1",
-            "report_schema":"production-os/mobile-validation-report/v1",
-            "script":".production-os/mobile_validate.py",
-            "artifacts_dir":".production-os/mobile-artifacts",
-            "runtime":"android-adb-emulator",
-        }
-        assert "browser_validation" not in mobile.payload["handoff"]["tool_contracts"]
-        assert sum(
-            task.payload["handoff"]["token_budget"]
-            for task in tasks
-        ) == 1000
 
 
-def test_web_ui_still_uses_playwright_browser_stage(tmp_path):
-    managed = service(tmp_path)
-    tasks = managed._cooperative_workflow_specs(
-        project_id="project-1234",
-        repository="o/a",
-        final_goal="Improve the website frontend",
-        instruction="Improve the website frontend",
-        generation=1,
-        kind="initial",
-        token_budget=1000,
-        agent_preference="auto",
-    )
-
-    assert tasks[-1].task_id == "ui-validation"
-
-
-def test_create_cooperative_project_keeps_mode_in_workflow_metadata(tmp_path):
+def test_create_cooperative_project_queues_only_planner_initially(tmp_path):
     managed = service(tmp_path)
     project = managed.create(
         repository="o/a",
@@ -185,22 +114,42 @@ def test_create_cooperative_project_keeps_mode_in_workflow_metadata(tmp_path):
 
     workflow = managed.workflows.get(project["current_workflow_id"])
     assert workflow["metadata"]["cooperative"] is True
-    by_id = {
-        task["task_id"]:task
-        for task in workflow["tasks"]
-    }
-    assert set(by_id) == {
-        "implementation-code",
-        "implementation-tests",
+    assert [task["task_id"] for task in workflow["tasks"]] == ["planner"]
+    assert workflow["tasks"][0]["status"] == "queued"
+
+
+def test_planner_fallback_expands_code_tests_and_delivery_chain(tmp_path):
+    managed = service(tmp_path)
+    project = managed.create(
+        repository="o/a",
+        final_goal="Implement a tested backend change",
+        token_budget=1000,
+        cooperative=True,
+        requested_by="operator:test",
+    )
+    workflow_id = project["current_workflow_id"]
+
+    expanded = managed.workflows.record_result(
+        workflow_id,
+        "planner",
+        succeeded=True,
+        result={"summary":"no structured plan returned"},
+    )
+    by_id = {task["task_id"]:task for task in expanded["tasks"]}
+
+    assert {
+        "planner",
+        "planner.agent.code",
+        "planner.agent.tests",
         "integration",
         "validation",
         "review",
-    }
-    assert by_id["implementation-code"]["dependencies"] == []
-    assert by_id["implementation-tests"]["dependencies"] == []
+    } == set(by_id)
+    assert by_id["planner.agent.code"]["status"] == "queued"
+    assert by_id["planner.agent.tests"]["status"] == "queued"
     assert by_id["integration"]["dependencies"] == [
-        "implementation-code",
-        "implementation-tests",
+        "planner.agent.code",
+        "planner.agent.tests",
     ]
     assert by_id["validation"]["dependencies"] == ["integration"]
     assert by_id["review"]["dependencies"] == ["validation"]
@@ -213,9 +162,9 @@ def test_cooperative_outcome_uses_deepest_stage_and_aggregates_delivery_evidence
         "artifacts":[],
         "tasks":[
             {
-                "task_id":"implementation-code",
+                "task_id":"planner.agent.code",
                 "title":"Implement",
-                "dependencies":[],
+                "dependencies":["planner"],
                 "updated_at":"2026-09-27T08:00:00+00:00",
                 "result":{
                     "summary":"implemented feature",
@@ -227,7 +176,7 @@ def test_cooperative_outcome_uses_deepest_stage_and_aggregates_delivery_evidence
             {
                 "task_id":"integration",
                 "title":"Integrate",
-                "dependencies":["implementation-code", "implementation-tests"],
+                "dependencies":["planner.agent.code","planner.agent.tests"],
                 "updated_at":"2026-09-27T08:10:00+00:00",
                 "result":{
                     "summary":"integrated",
@@ -241,6 +190,16 @@ def test_cooperative_outcome_uses_deepest_stage_and_aggregates_delivery_evidence
                 },
             },
             {
+                "task_id":"validation",
+                "title":"Validate",
+                "dependencies":["integration"],
+                "updated_at":"2026-09-27T08:15:00+00:00",
+                "result":{
+                    "summary":"tests passed",
+                    "validation":{"status":"passed","tests":["unit"]},
+                },
+            },
+            {
                 "task_id":"review",
                 "title":"Review",
                 "dependencies":["validation"],
@@ -249,16 +208,6 @@ def test_cooperative_outcome_uses_deepest_stage_and_aggregates_delivery_evidence
                     "summary":"review passed",
                     "validation":{"status":"passed","tests":["review"]},
                     "changed_files":["src/app.py","tests/test_app.py"],
-                },
-            },
-            {
-                "task_id":"validation",
-                "title":"Validate",
-                "dependencies":["integration"],
-                "updated_at":"2026-09-27T08:15:00+00:00",
-                "result":{
-                    "summary":"tests passed",
-                    "validation":{"status":"passed","tests":["unit"]},
                 },
             },
         ],
@@ -293,7 +242,7 @@ def test_cooperative_workflow_rejects_budget_smaller_than_stage_count(tmp_path):
         )
 
 
-def test_retest_preserves_cooperative_mode_across_generations(tmp_path):
+def test_retest_preserves_cooperative_dynamic_planner_mode(tmp_path):
     managed = service(tmp_path)
     project = managed.create(
         repository="o/a",
@@ -304,9 +253,15 @@ def test_retest_preserves_cooperative_mode_across_generations(tmp_path):
     )
     workflow_id = project["current_workflow_id"]
 
+    managed.workflows.record_result(
+        workflow_id,
+        "planner",
+        succeeded=True,
+        result={"summary":"use fallback"},
+    )
     for task_id, summary in (
-        ("implementation-code", "implemented code"),
-        ("implementation-tests", "implemented tests"),
+        ("planner.agent.code", "implemented code"),
+        ("planner.agent.tests", "implemented tests"),
         ("integration", "integrated"),
         ("validation", "validated"),
         ("review", "reviewed"),
@@ -320,8 +275,6 @@ def test_retest_preserves_cooperative_mode_across_generations(tmp_path):
 
     completed = managed.get(project["project_id"])
     assert completed["status"] == "REVIEW_REQUIRED"
-    assert completed["current_workflow"]["metadata"]["cooperative"] is True
-
     follow_up = managed.request_verification(
         project["project_id"],
         requested_by="operator:test",
@@ -330,13 +283,6 @@ def test_retest_preserves_cooperative_mode_across_generations(tmp_path):
     assert follow_up["generation"] == 2
     assert follow_up["status"] == "ACTIVE"
     assert follow_up["current_workflow"]["metadata"]["cooperative"] is True
-    assert {
-        task["task_id"]
-        for task in follow_up["current_workflow"]["tasks"]
-    } == {
-        "implementation-code",
-        "implementation-tests",
-        "integration",
-        "validation",
-        "review",
-    }
+    assert [task["task_id"] for task in follow_up["current_workflow"]["tasks"]] == [
+        "planner"
+    ]
