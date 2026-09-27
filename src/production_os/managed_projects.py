@@ -968,6 +968,12 @@ class ManagedProjectService:
         if state.ready_for_promotion:
             return REVIEW_REQUIRED
         if (
+            state.ci_state is None
+            and state.status_state is None
+            and not state.required_checks_missing
+        ):
+            return REVIEW_REQUIRED
+        if (
             state.human_review_required
             and state.ci_state == "passed"
             and state.status_state in {None, "passed"}
