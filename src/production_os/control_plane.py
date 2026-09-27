@@ -119,12 +119,14 @@ class ControlPlane:
             "test-debug",
             "code-review",
             "browser-ui-validation",
+            "mobile-ui-validation",
         }
-        required = (
-            {"browser-ui-validation"}
-            if ManagedProjectService._needs_browser_validation(final_goal)
-            else set()
-        )
+        if ManagedProjectService._needs_mobile_ui_validation(final_goal):
+            required = {"mobile-ui-validation"}
+        elif ManagedProjectService._needs_browser_validation(final_goal):
+            required = {"browser-ui-validation"}
+        else:
+            required = set()
         try:
             self.workers.load()
         except Exception:
