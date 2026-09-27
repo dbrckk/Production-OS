@@ -76,3 +76,14 @@ def test_explicit_specialist_preference_overrides_text_inference():
         }
     )
     assert preferred == ["code-review"]
+
+
+
+def test_explicit_required_capability_overrides_visual_text_inference():
+    required = inferred_required_capabilities(
+        {
+            "task":"Validate visual regressions and capture screenshots in browser",
+            "required_capabilities":["browser-ui-validation"],
+        }
+    )
+    assert required == ["browser-ui-validation"]
