@@ -52,6 +52,7 @@ def _run_git(
     args: list[str],
     *,
     cwd: Path | None = None,
+    check: bool = True,
 ) -> subprocess.CompletedProcess[str]:
     try:
         return subprocess.run(
@@ -60,7 +61,7 @@ def _run_git(
             text=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            check=True,
+            check=check,
         )
     except FileNotFoundError as exc:
         raise RepositoryCacheError("git executable is unavailable") from exc
@@ -151,16 +152,35 @@ class RepositoryCache:
             fetched = True
 
             # Make origin's default branch addressable as HEAD in the cache.
-            remote_head = _run_git(
+            remote_head_result = _run_git(
                 ["symbolic-ref", "--quiet", "refs/remotes/origin/HEAD"],
                 cwd=target,
-            ).stdout.strip()
+                check=False,
+            )
+            remote_head = remote_head_result.stdout.strip()
+            branch = ""
             if remote_head.startswith("refs/remotes/origin/"):
                 branch = remote_head.removeprefix("refs/remotes/origin/")
-                _run_git(
-                    ["checkout", "-B", branch, f"refs/remotes/origin/{branch}"],
+            else:
+                local_head = _run_git(
+                    ["symbolic-ref", "--quiet", "--short", "HEAD"],
                     cwd=target,
-                )
+                    check=False,
+                ).stdout.strip()
+                if local_head:
+                    branch = local_head
+            if branch:
+                remote_ref = f"refs/remotes/origin/{branch}"
+                exists = _run_git(
+                    ["show-ref", "--verify", "--quiet", remote_ref],
+                    cwd=target,
+                    check=False,
+                ).returncode == 0
+                if exists:
+                    _run_git(
+                        ["checkout", "-B", branch, remote_ref],
+                        cwd=target,
+                    )
 
             return CachedRepository(
                 repository=value,
