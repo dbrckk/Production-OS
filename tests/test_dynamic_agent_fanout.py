@@ -220,3 +220,5 @@ def test_invalid_planner_plan_is_rejected_before_child_dispatch(tmp_path):
         task["task_id"]
         for task in current["tasks"]
     } == {"planner"}
+    planner = current["tasks"][0]
+    assert planner["status"] == "queued"
