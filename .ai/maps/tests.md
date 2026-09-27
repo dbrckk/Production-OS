@@ -200,6 +200,7 @@ test_workflow_change_impact.py
 test_workflow_engine.py
 test_workflow_postgres.py
 test_workflow_splitting.py
+test_worktree_contract.py
 ```
 
 # Files
@@ -968,7 +969,7 @@ def service(tmp_path)
 ⋮----
 backend = SQLiteBackend(tmp_path / "cooperative.sqlite")
 ⋮----
-def test_cooperative_workflow_builds_code_debug_review_chain_with_bounded_budget(tmp_path)
+def test_cooperative_workflow_builds_parallel_code_test_integration_chain(tmp_path)
 ⋮----
 managed = service(tmp_path)
 tasks = managed._cooperative_workflow_specs(
@@ -1020,21 +1021,34 @@ managed = ManagedProjectService(workflows)
 def _task(workflow, task_id)
 ⋮----
 @pytest.mark.e2e
-def test_cooperative_project_routes_sequentially_across_specialists(tmp_path)
+def test_cooperative_project_routes_parallel_agents_then_specialists(tmp_path)
 ⋮----
 project = managed.create(
 workflow_id = project["current_workflow_id"]
 ⋮----
 workflow = workflows.get(workflow_id)
-implementation = _task(workflow, "implementation")
+code_task = _task(workflow, "implementation-code")
+tests_task = _task(workflow, "implementation-tests")
 ⋮----
 code_job = queue.claim_next(
+⋮----
+code_branch = code_job["payload"]["handoff"]["isolation"]["branch"]
+⋮----
+tests_job = queue.claim_next(
+⋮----
+tests_branch = tests_job["payload"]["handoff"]["isolation"]["branch"]
+⋮----
+integration = _task(workflow, "integration")
+⋮----
+integration_job = queue.claim_next(
+⋮----
+upstream = integration_job["payload"]["handoff"]["upstream_context"]
+⋮----
+commits = {
 ⋮----
 validation = _task(workflow, "validation")
 ⋮----
 debug_job = queue.claim_next(
-⋮----
-upstream = debug_job["payload"]["handoff"]["upstream_context"]
 ⋮----
 review = _task(workflow, "review")
 ⋮----
@@ -4664,9 +4678,11 @@ workflow = control.workflows.get(
 ⋮----
 tasks = {
 ⋮----
-first_job = next(
+code_task = tasks["implementation-code"]
+tests_task = tasks["implementation-tests"]
 ⋮----
-queued = control.queue.get(first_job["claimed_job_key"])
+code_job = control.queue.get(code_task["claimed_job_key"])
+tests_job = control.queue.get(tests_task["claimed_job_key"])
 ⋮----
 def test_cooperative_fleet_detection_ignores_dead_specialists(tmp_path)
 ⋮----
@@ -6249,4 +6265,33 @@ jobs=engine.dispatch_ready(workflow["id"],limit=10)
 ⋮----
 current=engine.get(workflow["id"])
 tasks={task["task_id"]:task for task in current["tasks"]}
+```
+
+## File: test_worktree_contract.py
+```python
+def test_worktree_contract_is_deterministic_and_attempt_scoped()
+⋮----
+first = build_worktree_contract(
+again = build_worktree_contract(
+retry = build_worktree_contract(
+⋮----
+def test_dispatch_ready_injects_unique_worktree_contracts_for_parallel_tasks(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "workflow.sqlite")
+queue = SQLiteJobQueue(backend)
+engine = WorkflowEngine(backend, queue)
+workflow = engine.create(
+⋮----
+jobs = engine.dispatch_ready(workflow["id"], limit=10)
+⋮----
+by_task = {
+code = by_task["code"]["payload"]["handoff"]["isolation"]
+tests = by_task["tests"]["payload"]["handoff"]["isolation"]
+⋮----
+def test_integration_target_contract_is_preserved_in_dispatch(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "integration.sqlite")
+⋮----
+job = engine.dispatch_ready(workflow["id"], limit=1)[0]
+isolation = job["payload"]["handoff"]["isolation"]
 ```

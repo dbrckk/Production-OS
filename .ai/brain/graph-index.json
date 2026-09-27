@@ -165,9 +165,10 @@
         "tests/test_workflow_change_impact.py",
         "tests/test_workflow_engine.py",
         "tests/test_workflow_postgres.py",
-        "tests/test_workflow_splitting.py"
+        "tests/test_workflow_splitting.py",
+        "tests/test_worktree_contract.py"
       ],
-      "in_degree": 158,
+      "in_degree": 159,
       "out_degree": 0,
       "path": "src/production_os/__init__.py"
     },
@@ -534,6 +535,60 @@
     },
     {
       "dependencies": [
+        "src/production_os/claims.py",
+        "src/production_os/runtime_state.py",
+        "src/production_os/workers.py",
+        "tests/test_asset_forge.py",
+        "tests/test_fairness.py"
+      ],
+      "dependents": [
+        "src/production_os/dispatch.py",
+        "src/production_os/storage.py",
+        "tests/test_cli.py",
+        "tests/test_cooperative_managed_projects.py",
+        "tests/test_cooperative_specialist_e2e.py",
+        "tests/test_dashboard_backups.py",
+        "tests/test_dashboard_control.py",
+        "tests/test_dashboard_control_audit.py",
+        "tests/test_dashboard_github.py",
+        "tests/test_dashboard_incidents.py",
+        "tests/test_dashboard_maintenance.py",
+        "tests/test_dashboard_remediation_history.py",
+        "tests/test_dashboard_retention_prune.py",
+        "tests/test_dashboard_store.py",
+        "tests/test_execution_optimizer.py",
+        "tests/test_github_webhook.py",
+        "tests/test_incident_history.py",
+        "tests/test_managed_github_reconciliation.py",
+        "tests/test_managed_projects_v4.py",
+        "tests/test_portfolio_optimizer.py",
+        "tests/test_rekor_checkpoint_state.py",
+        "tests/test_rekor_checkpoint_state_cli.py",
+        "tests/test_rekor_checkpoint_state_concurrency.py",
+        "tests/test_rekor_witness_quorum.py",
+        "tests/test_rekor_witness_quorum_cli.py",
+        "tests/test_release21_offline_restore_e2e.py",
+        "tests/test_release_ledger.py",
+        "tests/test_result_cache.py",
+        "tests/test_secure_release_e2e.py",
+        "tests/test_specialist_job_preferences.py",
+        "tests/test_speculation.py",
+        "tests/test_sqlite_backend.py",
+        "tests/test_sqlite_migration.py",
+        "tests/test_stragglers.py",
+        "tests/test_transparency_cli.py",
+        "tests/test_workflow_cache.py",
+        "tests/test_workflow_change_impact.py",
+        "tests/test_workflow_engine.py",
+        "tests/test_workflow_splitting.py",
+        "tests/test_worktree_contract.py"
+      ],
+      "in_degree": 40,
+      "out_degree": 5,
+      "path": "src/production_os/sqlite_backend.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/workers.py"
       ],
       "dependents": [
@@ -587,56 +642,45 @@
     },
     {
       "dependencies": [
-        "src/production_os/claims.py",
+        "src/production_os/change_impact.py",
+        "src/production_os/result_cache.py",
         "src/production_os/runtime_state.py",
+        "src/production_os/task_capabilities.py",
         "src/production_os/workers.py",
-        "tests/test_asset_forge.py",
-        "tests/test_fairness.py"
+        "src/production_os/worktree_contract.py",
+        "tests/test_asset_forge.py"
       ],
       "dependents": [
-        "src/production_os/dispatch.py",
-        "src/production_os/storage.py",
-        "tests/test_cli.py",
+        "src/production_os/cli.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/managed_projects.py",
+        "tests/test_control_plane_pr_impact.py",
+        "tests/test_control_plane_release.py",
+        "tests/test_control_plane_webhook.py",
         "tests/test_cooperative_managed_projects.py",
         "tests/test_cooperative_specialist_e2e.py",
-        "tests/test_dashboard_backups.py",
-        "tests/test_dashboard_control.py",
-        "tests/test_dashboard_control_audit.py",
-        "tests/test_dashboard_github.py",
-        "tests/test_dashboard_incidents.py",
-        "tests/test_dashboard_maintenance.py",
-        "tests/test_dashboard_remediation_history.py",
-        "tests/test_dashboard_retention_prune.py",
-        "tests/test_dashboard_store.py",
-        "tests/test_execution_optimizer.py",
-        "tests/test_github_webhook.py",
+        "tests/test_dashboard_control_api.py",
+        "tests/test_dashboard_control_e2e.py",
+        "tests/test_dashboard_observability_e2e.py",
+        "tests/test_dashboard_store_postgres.py",
         "tests/test_incident_history.py",
         "tests/test_managed_github_reconciliation.py",
         "tests/test_managed_projects_v4.py",
+        "tests/test_portfolio_claim_api.py",
         "tests/test_portfolio_optimizer.py",
-        "tests/test_rekor_checkpoint_state.py",
-        "tests/test_rekor_checkpoint_state_cli.py",
-        "tests/test_rekor_checkpoint_state_concurrency.py",
-        "tests/test_rekor_witness_quorum.py",
-        "tests/test_rekor_witness_quorum_cli.py",
-        "tests/test_release21_offline_restore_e2e.py",
         "tests/test_release_ledger.py",
-        "tests/test_result_cache.py",
+        "tests/test_remote_worker.py",
         "tests/test_secure_release_e2e.py",
-        "tests/test_specialist_job_preferences.py",
-        "tests/test_speculation.py",
-        "tests/test_sqlite_backend.py",
-        "tests/test_sqlite_migration.py",
-        "tests/test_stragglers.py",
-        "tests/test_transparency_cli.py",
         "tests/test_workflow_cache.py",
         "tests/test_workflow_change_impact.py",
         "tests/test_workflow_engine.py",
-        "tests/test_workflow_splitting.py"
+        "tests/test_workflow_postgres.py",
+        "tests/test_workflow_splitting.py",
+        "tests/test_worktree_contract.py"
       ],
-      "in_degree": 39,
-      "out_degree": 5,
-      "path": "src/production_os/sqlite_backend.py"
+      "in_degree": 26,
+      "out_degree": 7,
+      "path": "src/production_os/workflow_engine.py"
     },
     {
       "dependencies": [
@@ -717,46 +761,6 @@
       "in_degree": 31,
       "out_degree": 0,
       "path": "src/production_os/signing.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/change_impact.py",
-        "src/production_os/result_cache.py",
-        "src/production_os/runtime_state.py",
-        "src/production_os/task_capabilities.py",
-        "src/production_os/workers.py",
-        "tests/test_asset_forge.py"
-      ],
-      "dependents": [
-        "src/production_os/cli.py",
-        "src/production_os/control_plane.py",
-        "src/production_os/managed_projects.py",
-        "tests/test_control_plane_pr_impact.py",
-        "tests/test_control_plane_release.py",
-        "tests/test_control_plane_webhook.py",
-        "tests/test_cooperative_managed_projects.py",
-        "tests/test_cooperative_specialist_e2e.py",
-        "tests/test_dashboard_control_api.py",
-        "tests/test_dashboard_control_e2e.py",
-        "tests/test_dashboard_observability_e2e.py",
-        "tests/test_dashboard_store_postgres.py",
-        "tests/test_incident_history.py",
-        "tests/test_managed_github_reconciliation.py",
-        "tests/test_managed_projects_v4.py",
-        "tests/test_portfolio_claim_api.py",
-        "tests/test_portfolio_optimizer.py",
-        "tests/test_release_ledger.py",
-        "tests/test_remote_worker.py",
-        "tests/test_secure_release_e2e.py",
-        "tests/test_workflow_cache.py",
-        "tests/test_workflow_change_impact.py",
-        "tests/test_workflow_engine.py",
-        "tests/test_workflow_postgres.py",
-        "tests/test_workflow_splitting.py"
-      ],
-      "in_degree": 25,
-      "out_degree": 6,
-      "path": "src/production_os/workflow_engine.py"
     },
     {
       "dependencies": [
@@ -1818,8 +1822,8 @@
       "path": "src/production_os/database_maintenance_lock.py"
     }
   ],
-  "edge_count": 1436,
+  "edge_count": 1443,
   "generated_by": "dbrckk/repo-brain-v7-graph",
-  "node_count": 279,
+  "node_count": 281,
   "schema_version": 1
 }

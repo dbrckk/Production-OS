@@ -171,6 +171,7 @@ src/
     witness.py
     workers.py
     workflow_engine.py
+    worktree_contract.py
 tests/
   test_adaptation_plan.py
   test_adaptation.py
@@ -334,6 +335,7 @@ tests/
   test_workflow_engine.py
   test_workflow_postgres.py
   test_workflow_splitting.py
+  test_worktree_contract.py
 .repo-standards.yml
 AGENTS.md
 compose.postgres.yaml
@@ -5667,6 +5669,15 @@ def _positive_int(value, *, field: str) -> int
 ⋮----
 number = int(value)
 ⋮----
+def _stage_budgets(total: int, weights: list[int]) -> list[int]
+⋮----
+remaining = int(total) - len(weights)
+weight_total = sum(int(weight) for weight in weights)
+shares = [
+budgets = [1 + int(share) for share in shares]
+leftover = int(total) - sum(budgets)
+order = sorted(
+⋮----
 def _usage_from_result(result: dict | None) -> dict
 ⋮----
 candidates = [result.get("usage")]
@@ -5865,17 +5876,14 @@ markers = (
 mobile = self._needs_mobile_ui_validation(final_goal)
 browser = self._needs_browser_validation(final_goal) and not mobile
 specialist = browser or mobile
-stage_count = 4 if specialist else 3
 ⋮----
-implementation_budget = max(1, int(token_budget * 0.55))
-validation_budget = max(1, int(token_budget * 0.25))
-remaining = max(
-review_budget = (
-specialist_budget = (
-browser_budget = specialist_budget if browser else 0
-mobile_budget = specialist_budget if mobile else 0
+weights = [35, 15, 15, 15, 10, 10] if specialist else [40, 20, 15, 15, 10]
+budgets = _stage_budgets(int(token_budget), weights)
+⋮----
+specialist_budget = specialist_budgets[0] if specialist_budgets else 0
 ⋮----
 common = {
+isolated = {"mode":"git-worktree"}
 ⋮----
 tasks = (
 workflow = self.workflows.create(
@@ -8881,6 +8889,8 @@ upstream = _upstream_context(
 ⋮----
 retry_context = _retry_context(task.get("result"))
 ⋮----
+isolation = dict(payload.get("isolation") or {})
+⋮----
 asset_forge = asset_forge_tool_contract(handoff)
 ⋮----
 contracts = dict(handoff.get("tool_contracts") or {})
@@ -8940,6 +8950,24 @@ result = (weight, [task_id])
 ⋮----
 best = max(
 result = (best[0] + weight, best[1] + [task_id])
+````
+
+## File: src/production_os/worktree_contract.py
+````python
+_SCHEMA = "production-os/git-worktree-isolation/v1"
+⋮----
+def _slug(value: str, *, limit: int = 32) -> str
+⋮----
+text = re.sub(r"[^a-zA-Z0-9._-]+", "-", str(value or "").strip())
+text = re.sub(r"-+", "-", text).strip("-.").lower()
+⋮----
+repository = str(repository or "").strip()
+workflow_id = str(workflow_id or "").strip()
+task_id = str(task_id or "").strip()
+⋮----
+digest = hashlib.sha256(
+branch = (
+workspace_key = f"{_slug(task_id, limit=20)}-{digest}"
 ````
 
 ## File: tests/test_adaptation_plan.py
@@ -9706,7 +9734,7 @@ def service(tmp_path)
 ⋮----
 backend = SQLiteBackend(tmp_path / "cooperative.sqlite")
 ⋮----
-def test_cooperative_workflow_builds_code_debug_review_chain_with_bounded_budget(tmp_path)
+def test_cooperative_workflow_builds_parallel_code_test_integration_chain(tmp_path)
 ⋮----
 managed = service(tmp_path)
 tasks = managed._cooperative_workflow_specs(
@@ -9758,21 +9786,34 @@ managed = ManagedProjectService(workflows)
 def _task(workflow, task_id)
 ⋮----
 @pytest.mark.e2e
-def test_cooperative_project_routes_sequentially_across_specialists(tmp_path)
+def test_cooperative_project_routes_parallel_agents_then_specialists(tmp_path)
 ⋮----
 project = managed.create(
 workflow_id = project["current_workflow_id"]
 ⋮----
 workflow = workflows.get(workflow_id)
-implementation = _task(workflow, "implementation")
+code_task = _task(workflow, "implementation-code")
+tests_task = _task(workflow, "implementation-tests")
 ⋮----
 code_job = queue.claim_next(
+⋮----
+code_branch = code_job["payload"]["handoff"]["isolation"]["branch"]
+⋮----
+tests_job = queue.claim_next(
+⋮----
+tests_branch = tests_job["payload"]["handoff"]["isolation"]["branch"]
+⋮----
+integration = _task(workflow, "integration")
+⋮----
+integration_job = queue.claim_next(
+⋮----
+upstream = integration_job["payload"]["handoff"]["upstream_context"]
+⋮----
+commits = {
 ⋮----
 validation = _task(workflow, "validation")
 ⋮----
 debug_job = queue.claim_next(
-⋮----
-upstream = debug_job["payload"]["handoff"]["upstream_context"]
 ⋮----
 review = _task(workflow, "review")
 ⋮----
@@ -13402,9 +13443,11 @@ workflow = control.workflows.get(
 ⋮----
 tasks = {
 ⋮----
-first_job = next(
+code_task = tasks["implementation-code"]
+tests_task = tasks["implementation-tests"]
 ⋮----
-queued = control.queue.get(first_job["claimed_job_key"])
+code_job = control.queue.get(code_task["claimed_job_key"])
+tests_job = control.queue.get(tests_task["claimed_job_key"])
 ⋮----
 def test_cooperative_fleet_detection_ignores_dead_specialists(tmp_path)
 ⋮----
@@ -14987,6 +15030,35 @@ jobs=engine.dispatch_ready(workflow["id"],limit=10)
 ⋮----
 current=engine.get(workflow["id"])
 tasks={task["task_id"]:task for task in current["tasks"]}
+````
+
+## File: tests/test_worktree_contract.py
+````python
+def test_worktree_contract_is_deterministic_and_attempt_scoped()
+⋮----
+first = build_worktree_contract(
+again = build_worktree_contract(
+retry = build_worktree_contract(
+⋮----
+def test_dispatch_ready_injects_unique_worktree_contracts_for_parallel_tasks(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "workflow.sqlite")
+queue = SQLiteJobQueue(backend)
+engine = WorkflowEngine(backend, queue)
+workflow = engine.create(
+⋮----
+jobs = engine.dispatch_ready(workflow["id"], limit=10)
+⋮----
+by_task = {
+code = by_task["code"]["payload"]["handoff"]["isolation"]
+tests = by_task["tests"]["payload"]["handoff"]["isolation"]
+⋮----
+def test_integration_target_contract_is_preserved_in_dispatch(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "integration.sqlite")
+⋮----
+job = engine.dispatch_ready(workflow["id"], limit=1)[0]
+isolation = job["payload"]["handoff"]["isolation"]
 ````
 
 ## File: .repo-standards.yml

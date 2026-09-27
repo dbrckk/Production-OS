@@ -156,6 +156,7 @@ production_os/
   witness.py
   workers.py
   workflow_engine.py
+  worktree_contract.py
 ```
 
 # Files
@@ -5108,6 +5109,15 @@ def _positive_int(value, *, field: str) -> int
 ⋮----
 number = int(value)
 ⋮----
+def _stage_budgets(total: int, weights: list[int]) -> list[int]
+⋮----
+remaining = int(total) - len(weights)
+weight_total = sum(int(weight) for weight in weights)
+shares = [
+budgets = [1 + int(share) for share in shares]
+leftover = int(total) - sum(budgets)
+order = sorted(
+⋮----
 def _usage_from_result(result: dict | None) -> dict
 ⋮----
 candidates = [result.get("usage")]
@@ -5306,17 +5316,14 @@ markers = (
 mobile = self._needs_mobile_ui_validation(final_goal)
 browser = self._needs_browser_validation(final_goal) and not mobile
 specialist = browser or mobile
-stage_count = 4 if specialist else 3
 ⋮----
-implementation_budget = max(1, int(token_budget * 0.55))
-validation_budget = max(1, int(token_budget * 0.25))
-remaining = max(
-review_budget = (
-specialist_budget = (
-browser_budget = specialist_budget if browser else 0
-mobile_budget = specialist_budget if mobile else 0
+weights = [35, 15, 15, 15, 10, 10] if specialist else [40, 20, 15, 15, 10]
+budgets = _stage_budgets(int(token_budget), weights)
+⋮----
+specialist_budget = specialist_budgets[0] if specialist_budgets else 0
 ⋮----
 common = {
+isolated = {"mode":"git-worktree"}
 ⋮----
 tasks = (
 workflow = self.workflows.create(
@@ -8322,6 +8329,8 @@ upstream = _upstream_context(
 ⋮----
 retry_context = _retry_context(task.get("result"))
 ⋮----
+isolation = dict(payload.get("isolation") or {})
+⋮----
 asset_forge = asset_forge_tool_contract(handoff)
 ⋮----
 contracts = dict(handoff.get("tool_contracts") or {})
@@ -8381,4 +8390,22 @@ result = (weight, [task_id])
 ⋮----
 best = max(
 result = (best[0] + weight, best[1] + [task_id])
+```
+
+## File: production_os/worktree_contract.py
+```python
+_SCHEMA = "production-os/git-worktree-isolation/v1"
+⋮----
+def _slug(value: str, *, limit: int = 32) -> str
+⋮----
+text = re.sub(r"[^a-zA-Z0-9._-]+", "-", str(value or "").strip())
+text = re.sub(r"-+", "-", text).strip("-.").lower()
+⋮----
+repository = str(repository or "").strip()
+workflow_id = str(workflow_id or "").strip()
+task_id = str(task_id or "").strip()
+⋮----
+digest = hashlib.sha256(
+branch = (
+workspace_key = f"{_slug(task_id, limit=20)}-{digest}"
 ```

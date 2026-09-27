@@ -22,16 +22,25 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-27T18:00:55Z
+Generated: 2026-09-27T18:23:06Z
 
 ### Git
 - Branch: `main`
-- Head: `353f88278bdb`
-- Commit date: 2026-09-27T20:00:45+02:00
-- Commit: feat(runtime): add active durable checkpoint protocol
-- Tracked files: 482
+- Head: `7df2e9b04910`
+- Commit date: 2026-09-27T20:22:30+02:00
+- Commit: feat(agents): run cooperative code and test agents in isolated worktrees
+- Tracked files: 484
 
 ### Recently changed files
+- `docs/remote-worker-executor-protocol.md`
+- `src/production_os/managed_projects.py`
+- `src/production_os/workflow_engine.py`
+- `src/production_os/worktree_contract.py`
+- `tests/test_cooperative_managed_projects.py`
+- `tests/test_cooperative_specialist_e2e.py`
+- `tests/test_managed_github_reconciliation.py`
+- `tests/test_release32_one_tap_e2e.py`
+- `tests/test_worktree_contract.py`
 - `src/production_os/agent_runtime.py`
 - `src/production_os/remote_worker_runner.py`
 - `tests/test_persistent_agent_runtime.py`
@@ -42,11 +51,7 @@ Generated: 2026-09-27T18:00:55Z
 - `src/production_os/github_change_review.py`
 - `src/production_os/github_client.py`
 - `src/production_os/github_work_state.py`
-- `src/production_os/managed_projects.py`
 - `tests/test_github_automerge.py`
-- `tests/test_github_change_review.py`
-- `tests/test_github_work_state.py`
-- `tests/test_managed_github_reconciliation.py`
 
 ### Project signals
 - `pyproject.toml`
