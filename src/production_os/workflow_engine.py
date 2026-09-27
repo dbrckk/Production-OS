@@ -1399,16 +1399,26 @@ class WorkflowEngine:
         raw_plan = result.get("agent_plan")
         if not config:
             return []
-        if not isinstance(raw_plan, dict):
-            raise ValueError("dynamic planner result requires agent_plan")
 
         available_budget = int(config.get("available_token_budget") or 0)
         max_agents = int(config.get("max_agents") or 6)
-        planned = validate_agent_plan(
-            raw_plan,
-            available_token_budget=available_budget,
-            max_agents=max_agents,
-        )
+        fallback_plan = config.get("fallback_plan")
+        try:
+            if not isinstance(raw_plan, dict):
+                raise ValueError("dynamic planner result requires agent_plan")
+            planned = validate_agent_plan(
+                raw_plan,
+                available_token_budget=available_budget,
+                max_agents=max_agents,
+            )
+        except ValueError:
+            if not isinstance(fallback_plan, dict):
+                raise
+            planned = validate_agent_plan(
+                fallback_plan,
+                available_token_budget=available_budget,
+                max_agents=max_agents,
+            )
         workflow = self.get(workflow_id)
         repository = workflow["repository"]
         common_handoff = dict(config.get("handoff") or {})
