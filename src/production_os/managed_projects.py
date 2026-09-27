@@ -548,6 +548,7 @@ class ManagedProjectService:
                             "agent_preference":agent_preference,
                             "token_budget":browser_budget,
                             "required_capabilities":["browser-ui-validation"],
+                            "required_capabilities_authoritative":True,
                             "preferred_capabilities":["browser-ui-validation"],
                             "tool_contracts":{
                                 "browser_validation":{
