@@ -189,3 +189,67 @@ def test_repository_root_mapping_rejects_ambiguous_values():
             "owner/repo=/one",
             "owner/repo=/two",
         ])
+
+
+
+def test_runner_uses_repository_cache_when_no_explicit_mapping(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+
+    from production_os.remote_worker import RemoteJob
+    from production_os.remote_worker_runner import RemoteWorkerRunner
+
+    repo = _repo(tmp_path)
+
+    class DummyClient:
+        worker_id = "worker-test"
+
+    runner = RemoteWorkerRunner(
+        DummyClient(),
+        ["true"],
+        repository_cache_root=str(tmp_path / "cache"),
+        worktree_root=str(tmp_path / "worktrees"),
+    )
+    monkeypatch.setattr(
+        runner.repository_cache,
+        "ensure",
+        lambda repository: SimpleNamespace(path=str(repo)),
+    )
+    contract = build_worktree_contract(
+        repository="owner/repo",
+        workflow_id="wf-cache",
+        task_id="implementation-code",
+        attempt=1,
+    )
+    job = RemoteJob(
+        "job-cache",
+        {
+            "payload":{
+                "handoff":{
+                    "repository":"owner/repo",
+                    "isolation":contract,
+                },
+            },
+        },
+    )
+
+    prepared = runner._prepare_worktree(job)
+
+    assert prepared is not None
+    assert Path(prepared.worktree_path).is_dir()
+    assert prepared.branch == contract["branch"]
+
+
+def test_remote_worker_cli_exposes_repository_cache_root():
+    from production_os.cli import _parse_args
+
+    args = _parse_args([
+        "remote-worker-run",
+        "--url", "http://example.invalid",
+        "--worker-id", "worker-a",
+        "--executor-command", "python executor.py",
+        "--repository-cache-root", "/srv/cache",
+        "--worktree-root", "/srv/worktrees",
+    ])
+
+    assert args.repository_cache_root == "/srv/cache"
+    assert args.worktree_root == "/srv/worktrees"
