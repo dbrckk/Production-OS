@@ -531,6 +531,11 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     remoterun.add_argument("--ack-timeout-seconds", type=int, default=120)
     remoterun.add_argument("--max-concurrency", type=int, default=1)
+    remoterun.add_argument(
+        "--runtime-root",
+        default=os.getenv("PRODUCTION_OS_RUNTIME_DIR", ""),
+        help="Durable per-job executor workspace root",
+    )
 
     workflowcreate = sub.add_parser("workflow-create", help="Create a persistent DAG workflow")
     workflowcreate.add_argument("--database", required=True)
@@ -1936,6 +1941,7 @@ def run_remote_worker_run(args: argparse.Namespace) -> int:
         heartbeat_interval_seconds=args.heartbeat_interval_seconds,
         executor_timeout_seconds=args.executor_timeout_seconds,
         secret_env_names=[args.token_env],
+        runtime_root=args.runtime_root or None,
     )
     previous_handlers = {}
 
