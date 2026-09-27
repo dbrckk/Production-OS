@@ -973,6 +973,10 @@ budgets = [
 ⋮----
 def test_cooperative_workflow_adds_ui_stage_only_for_ui_goal(tmp_path)
 ⋮----
+def test_native_mobile_ui_does_not_use_playwright_browser_stage(tmp_path)
+⋮----
+def test_web_ui_still_uses_playwright_browser_stage(tmp_path)
+⋮----
 def test_create_cooperative_project_keeps_mode_in_workflow_metadata(tmp_path)
 ⋮----
 project = managed.create(

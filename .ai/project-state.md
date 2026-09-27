@@ -22,25 +22,25 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-27T11:16:05Z
+Generated: 2026-09-27T12:39:17Z
 
 ### Git
 - Branch: `main`
-- Head: `320af900ea82`
-- Commit date: 2026-09-27T13:15:50+02:00
-- Commit: test: verify cooperative specialist pipeline end to end
+- Head: `c7c9439ef0cc`
+- Commit date: 2026-09-27T14:39:07+02:00
+- Commit: fix: keep native UI goals out of Playwright routing
 - Tracked files: 475
 
 ### Recently changed files
+- `src/production_os/managed_projects.py`
+- `tests/test_cooperative_managed_projects.py`
 - `tests/test_cooperative_specialist_e2e.py`
 - `src/production_os/dashboard_ui.py`
-- `src/production_os/managed_projects.py`
 - `tests/test_dashboard_ui_v3.py`
 - `tests/test_managed_project_outcome.py`
 - `.github/workflows/ci.yml`
 - `src/production_os/task_capabilities.py`
 - `tests/test_task_capabilities.py`
-- `tests/test_cooperative_managed_projects.py`
 
 ### Project signals
 - `pyproject.toml`

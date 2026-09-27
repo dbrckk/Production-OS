@@ -1,12 +1,14 @@
 # Change impact
 
-Base: e784a08c5ae1aeb3594376860220918a906ec2f7
-Head: 320af900ea820beca1414e97e2452f8941560f8d
+Base: 5345a3f994b749d6d49bb9389a10127bf9122925
+Head: c7c9439ef0cc2e9564fb08840996322f96fac516
 
 ## Changed files
-- A tests/test_cooperative_specialist_e2e.py
+- M src/production_os/managed_projects.py
+- M tests/test_cooperative_managed_projects.py
 
 ## Affected areas
+- src
 - tests
 
 ## Related test candidates
