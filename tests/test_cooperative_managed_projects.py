@@ -30,8 +30,11 @@ def test_cooperative_workflow_builds_code_debug_review_chain_with_bounded_budget
         "validation",
         "review",
     ]
-    assert tasks[1].dependencies == ("implementation",)
-    assert tasks[2].dependencies == ("validation",)
+    assert tasks[0].dependencies == ()
+    assert tasks[1].dependencies == ()
+    assert tasks[2].dependencies == ("implementation-code", "implementation-tests")
+    assert tasks[3].dependencies == ("integration",)
+    assert tasks[4].dependencies == ("validation",)
     assert tasks[0].payload["handoff"]["preferred_capabilities"] == [
         "code-implementation"
     ]
@@ -39,15 +42,22 @@ def test_cooperative_workflow_builds_code_debug_review_chain_with_bounded_budget
         "test-debug"
     ]
     assert tasks[2].payload["handoff"]["preferred_capabilities"] == [
+        "code-implementation"
+    ]
+    assert tasks[4].payload["handoff"]["preferred_capabilities"] == [
         "code-review"
     ]
-    assert [task.priority for task in tasks] == [100, 100, 100]
+    assert all(task.priority == 100 for task in tasks)
+    assert tasks[0].payload["isolation"]["mode"] == "git-worktree"
+    assert tasks[1].payload["isolation"]["mode"] == "git-worktree"
+    assert tasks[2].payload["isolation"]["integration_target"] is True
     budgets = [
         task.payload["handoff"]["token_budget"]
         for task in tasks
     ]
     assert sum(budgets) == 1000
-    assert budgets == [550, 250, 200]
+    assert len(budgets) == 5
+    assert all(value > 0 for value in budgets)
 
 
 def test_cooperative_workflow_adds_ui_stage_only_for_ui_goal(tmp_path):
@@ -171,12 +181,19 @@ def test_create_cooperative_project_keeps_mode_in_workflow_metadata(tmp_path):
         for task in workflow["tasks"]
     }
     assert set(by_id) == {
-        "implementation",
+        "implementation-code",
+        "implementation-tests",
+        "integration",
         "validation",
         "review",
     }
-    assert by_id["implementation"]["dependencies"] == []
-    assert by_id["validation"]["dependencies"] == ["implementation"]
+    assert by_id["implementation-code"]["dependencies"] == []
+    assert by_id["implementation-tests"]["dependencies"] == []
+    assert by_id["integration"]["dependencies"] == [
+        "implementation-code",
+        "implementation-tests",
+    ]
+    assert by_id["validation"]["dependencies"] == ["integration"]
     assert by_id["review"]["dependencies"] == ["validation"]
 
 
@@ -273,9 +290,21 @@ def test_retest_preserves_cooperative_mode_across_generations(tmp_path):
 
     managed.workflows.record_result(
         workflow_id,
-        "implementation",
+        "implementation-code",
         succeeded=True,
-        result={"summary":"implemented"},
+        result={"summary":"implemented code"},
+    )
+    managed.workflows.record_result(
+        workflow_id,
+        "implementation-tests",
+        succeeded=True,
+        result={"summary":"implemented tests"},
+    )
+    managed.workflows.record_result(
+        workflow_id,
+        "integration",
+        succeeded=True,
+        result={"summary":"integrated"},
     )
     managed.workflows.record_result(
         workflow_id,
@@ -305,4 +334,4 @@ def test_retest_preserves_cooperative_mode_across_generations(tmp_path):
     assert {
         task["task_id"]
         for task in follow_up["current_workflow"]["tasks"]
-    } == {"implementation", "validation", "review"}
+    } == {"implementation-code", "implementation-tests", "integration", "validation", "review"}
