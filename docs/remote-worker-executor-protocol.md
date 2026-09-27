@@ -84,3 +84,39 @@ Recommended auth entry:
 ```
 
 This lets a restarted runner reconcile its own abandoned work without possessing an operator token.
+
+
+## Git worktree isolation
+
+Cooperative multi-agent workflow jobs may include:
+
+```json
+{
+  "handoff": {
+    "isolation": {
+      "schema_version": "production-os/git-worktree-isolation/v1",
+      "mode": "git-worktree",
+      "repository": "owner/repo",
+      "workflow_id": "workflow-id",
+      "task_id": "implementation-code",
+      "attempt": 1,
+      "branch": "production-os/workflow-id/implementation-code-a1-...",
+      "workspace_key": "implementation-code-...",
+      "base_ref": "HEAD",
+      "integration_target": false,
+      "requirements": {
+        "exclusive_workspace": true,
+        "no_shared_working_tree_writes": true,
+        "commit_changes_before_success": true,
+        "report_commit_shas": true
+      }
+    }
+  }
+}
+```
+
+An executor that receives this contract must create or reuse an isolated Git worktree for exactly that job attempt. It must not write into another active agent's working tree. Successful mutation tasks must commit their changes and return the resulting commit SHAs.
+
+Parallel implementation tasks deliberately receive distinct branch and workspace identities. Their integration task depends on both tasks and receives both results through `upstream_context`, including reported commit SHAs. The integration executor is responsible for combining those commits conservatively in its own isolated integration worktree before validation and review continue.
+
+A retry receives a new attempt-scoped branch/workspace identity. This prevents an interrupted attempt from silently sharing an uncommitted working tree with its retry.
