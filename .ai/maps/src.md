@@ -4201,6 +4201,10 @@ _DATA_PREFIXES = (
 _RUNTIME_PREFIXES = (
 _SECRET_NAMES = (
 ⋮----
+_HIGH_RISK_ADDITION_PATTERNS = (
+⋮----
+_BINARY_EXTENSIONS = {
+⋮----
 @dataclass(frozen=True, slots=True)
 class DiffReview
 ⋮----
@@ -4234,7 +4238,28 @@ sensitive = tuple(sorted(set(sensitive)))
 ⋮----
 requires_human_review = bool(blockers)
 ⋮----
+def _added_patch_lines(patch: str | None) -> tuple[str, ...]
+⋮----
+lines = []
+⋮----
+def review_changed_files(files) -> DiffReview
+⋮----
+details = [
+base = review_changed_paths(
+sensitive = set(base.sensitive_files)
+categories = set(base.categories)
+blockers = set(base.blockers)
+⋮----
+filename = str(item.get("filename") or "").strip()
+low = filename.lower()
+patch = item.get("patch")
+changes = max(0, int(item.get("changes") or 0))
+⋮----
 def review_pull_request(client, repository: str, pr_number: int) -> DiffReview
+⋮----
+detailed = getattr(client, "get_pull_request_file_details", None)
+⋮----
+details = detailed(
 ⋮----
 files = client.list_pull_request_files(repository, pr_number)
 ```
@@ -4364,16 +4389,24 @@ def get_pull_request_reviews(self, full_name: str, pr_number: int) -> list[dict[
 ⋮----
 payload = self._get(f"/repos/{full_name}/pulls/{pr_number}/reviews")
 ⋮----
-"""Return every changed path in a pull request.
+sha = str(head_sha or "").strip().lower()
+⋮----
+merge_method = str(method or "squash").strip().lower()
+⋮----
+title = str(commit_title or "").strip()
+⋮----
+"""Return bounded changed-file metadata and patches for deterministic review.
 
-        Unlike informational GitHub reads, this method intentionally propagates
-        API failures. Incremental pruning must fail closed when the changed-file
-        set cannot be established reliably.
+        API failures intentionally propagate so promotion gates fail closed.
         """
-files: list[str] = []
+files: list[dict[str, Any]] = []
 page = 1
 ⋮----
 filename = str(item.get("filename") or "").strip()
+⋮----
+patch = item.get("patch")
+⋮----
+"""Return every changed path in a pull request."""
 ⋮----
 def get_commit_workflow_runs(self, full_name: str, commit_sha: str) -> list[dict[str, Any]]
 ⋮----
@@ -4520,6 +4553,7 @@ sensitive_files: tuple[str, ...]
 change_categories: tuple[str, ...]
 human_review_required: bool
 head_sha: str | None
+base_sha: str | None
 validation_sha: str | None
 ⋮----
 def to_dict(self) -> dict
@@ -4559,6 +4593,7 @@ sensitive_files: tuple[str, ...] = ()
 change_categories: tuple[str, ...] = ()
 human_review_required = False
 head_sha = None
+base_sha = None
 validation_sha = None
 ⋮----
 issue = client.get_issue(repository, issue_number)
@@ -4575,12 +4610,12 @@ merge_sha = str(pr.get("merge_commit_sha") or "").strip()
 validation_sha = merge_sha if merged and merge_sha else head_sha
 base = pr.get("base") or {}
 base_ref = (
+base_sha = (
 ⋮----
 reviews = client.get_pull_request_reviews(repository, pr_number)
 review_state = _review_state(reviews)
 ⋮----
-changed_paths = client.list_pull_request_files(repository, pr_number)
-change_review = review_changed_paths(changed_paths)
+change_review = review_pull_request(
 ⋮----
 change_review = review_changed_paths(())
 sensitive_files = change_review.sensitive_files
@@ -5223,12 +5258,18 @@ status = NEEDS_ATTENTION
 ⋮----
 status = ACTIVE
 ⋮----
+rows = _execute(
+⋮----
+payload = json.loads(row["payload_json"])
+⋮----
 outcome = _outcome_from_workflow(workflow)
 pull_request = outcome.get("pull_request")
 ⋮----
 number = pull_request.get("number")
 ⋮----
 pr_number = int(number)
+⋮----
+client = self.github_client_factory()
 ⋮----
 state = fetch_github_work_state(
 ⋮----
@@ -5237,6 +5278,26 @@ decision = runtime_decision_from_github(state)
 rollback_plan = None
 ⋮----
 rollback_plan = build_rollback_plan(
+⋮----
+head_sha = str(state.head_sha or "").strip().lower()
+base_sha = str(state.base_sha or "").strip().lower()
+metadata = workflow.get("metadata")
+metadata = metadata if isinstance(metadata, dict) else {}
+project_id = str(
+workflow_id = str(workflow.get("id") or "").strip()
+⋮----
+receipt = self._automerge_receipt(
+⋮----
+fresh_state = fetch_github_work_state(
+⋮----
+fresh_head = str(
+fresh_base = str(
+⋮----
+fresh_decision = runtime_decision_from_github(
+⋮----
+merge = client.merge_pull_request(
+⋮----
+merge_sha = str(merge.get("sha") or "")[:40] or None
 ⋮----
 resolution = self._github_resolution_for_succeeded_workflow(
 ⋮----
@@ -5300,8 +5361,6 @@ display_state = (
 def list(self, *, limit: int = 100) -> list[dict]
 ⋮----
 bounded = max(1, min(500, int(limit)))
-⋮----
-rows = _execute(
 ⋮----
 legacy_rows = _execute(
 ⋮----

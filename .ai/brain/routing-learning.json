@@ -2,29 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat: control center release 13 safe retention",
-      "terms": [
-        "13",
-        "center",
-        "control",
-        "feat",
-        "release",
-        "retention",
-        "safe"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/control_plane.py",
-        "src/production_os/dashboard_maintenance.py",
-        "src/production_os/dashboard_service.py",
-        "src/production_os/dashboard_ui.py",
-        "tests/test_dashboard_retention_prune.py",
-        "tests/test_dashboard_store_postgres.py",
-        "tests/test_dashboard_ui_v3.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat: control center release 14 backup readiness",
       "terms": [
         "14",
@@ -1254,6 +1231,30 @@
         "src/production_os/managed_projects.py",
         "tests/test_managed_github_reconciliation.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "feat: safely auto-merge green nonsensitive managed PRs",
+      "terms": [
+        "auto-merge",
+        "feat",
+        "green",
+        "managed",
+        "nonsensitive",
+        "prs",
+        "safely"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/github_change_review.py",
+        "src/production_os/github_client.py",
+        "src/production_os/github_work_state.py",
+        "src/production_os/managed_projects.py",
+        "tests/test_github_automerge.py",
+        "tests/test_github_change_review.py",
+        "tests/test_github_work_state.py",
+        "tests/test_managed_github_reconciliation.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1727,6 +1728,16 @@
     "auto-enable": {
       "src/production_os/control_plane.py": 4,
       "tests/test_release32_one_tap_e2e.py": 4
+    },
+    "auto-merge": {
+      "src/production_os/github_change_review.py": 4,
+      "src/production_os/github_client.py": 4,
+      "src/production_os/github_work_state.py": 4,
+      "src/production_os/managed_projects.py": 4,
+      "tests/test_github_automerge.py": 4,
+      "tests/test_github_change_review.py": 4,
+      "tests/test_github_work_state.py": 4,
+      "tests/test_managed_github_reconciliation.py": 4
     },
     "automatic": {
       "src/production_os/asset_forge.py": 4,
@@ -2273,9 +2284,9 @@
       "src/production_os/dashboard_ui.py": 40,
       "src/production_os/dashboard_usage.py": 4,
       "src/production_os/database_maintenance_lock.py": 4,
-      "src/production_os/github_change_review.py": 4,
-      "src/production_os/github_client.py": 24,
-      "src/production_os/github_work_state.py": 8,
+      "src/production_os/github_change_review.py": 8,
+      "src/production_os/github_client.py": 28,
+      "src/production_os/github_work_state.py": 12,
       "src/production_os/managed_projects.py": 40,
       "src/production_os/postgres_backend.py": 36,
       "src/production_os/project_progress.py": 4,
@@ -2401,6 +2412,16 @@
     "graph": {
       "src/production_os/asset_forge.py": 4,
       "tests/test_asset_forge.py": 4
+    },
+    "green": {
+      "src/production_os/github_change_review.py": 4,
+      "src/production_os/github_client.py": 4,
+      "src/production_os/github_work_state.py": 4,
+      "src/production_os/managed_projects.py": 4,
+      "tests/test_github_automerge.py": 4,
+      "tests/test_github_change_review.py": 4,
+      "tests/test_github_work_state.py": 4,
+      "tests/test_managed_github_reconciliation.py": 4
     },
     "guarded": {
       "src/production_os/control_plane.py": 4,
@@ -2587,7 +2608,10 @@
     "managed": {
       "src/production_os/control_plane.py": 8,
       "src/production_os/dashboard_ui.py": 12,
-      "src/production_os/managed_projects.py": 16,
+      "src/production_os/github_change_review.py": 4,
+      "src/production_os/github_client.py": 4,
+      "src/production_os/github_work_state.py": 4,
+      "src/production_os/managed_projects.py": 20,
       "src/production_os/postgres_backend.py": 4,
       "src/production_os/sqlite_backend.py": 4,
       "src/production_os/task_capabilities.py": 4,
@@ -2597,7 +2621,10 @@
       "tests/test_dashboard_remediation_history.py": 4,
       "tests/test_dashboard_store_postgres.py": 4,
       "tests/test_dashboard_ui_v3.py": 12,
-      "tests/test_managed_github_reconciliation.py": 4,
+      "tests/test_github_automerge.py": 4,
+      "tests/test_github_change_review.py": 4,
+      "tests/test_github_work_state.py": 4,
+      "tests/test_managed_github_reconciliation.py": 8,
       "tests/test_managed_projects_http_v4.py": 8,
       "tests/test_managed_projects_v4.py": 8,
       "tests/test_release18_managed_projects_e2e.py": 4,
@@ -2647,6 +2674,16 @@
       "tests/test_dashboard_api.py": 4,
       "tests/test_dashboard_production_inbox.py": 4,
       "tests/test_dashboard_production_inbox_filters_ui.py": 4
+    },
+    "nonsensitive": {
+      "src/production_os/github_change_review.py": 4,
+      "src/production_os/github_client.py": 4,
+      "src/production_os/github_work_state.py": 4,
+      "src/production_os/managed_projects.py": 4,
+      "tests/test_github_automerge.py": 4,
+      "tests/test_github_change_review.py": 4,
+      "tests/test_github_work_state.py": 4,
+      "tests/test_managed_github_reconciliation.py": 4
     },
     "observability": {
       "src/production_os/control_plane.py": 4,
@@ -2890,6 +2927,16 @@
     },
     "provision": {
       "src/production_os/managed_projects.py": 4
+    },
+    "prs": {
+      "src/production_os/github_change_review.py": 4,
+      "src/production_os/github_client.py": 4,
+      "src/production_os/github_work_state.py": 4,
+      "src/production_os/managed_projects.py": 4,
+      "tests/test_github_automerge.py": 4,
+      "tests/test_github_change_review.py": 4,
+      "tests/test_github_work_state.py": 4,
+      "tests/test_managed_github_reconciliation.py": 4
     },
     "prune": {
       "src/production_os/control_plane.py": 4,
@@ -3251,6 +3298,16 @@
       "tests/test_release51_one_tap_runner_e2e.py": 4,
       "tests/test_rollback_plan.py": 4,
       "tests/test_sqlite_backend.py": 4
+    },
+    "safely": {
+      "src/production_os/github_change_review.py": 4,
+      "src/production_os/github_client.py": 4,
+      "src/production_os/github_work_state.py": 4,
+      "src/production_os/managed_projects.py": 4,
+      "tests/test_github_automerge.py": 4,
+      "tests/test_github_change_review.py": 4,
+      "tests/test_github_work_state.py": 4,
+      "tests/test_managed_github_reconciliation.py": 4
     },
     "savings": {
       "src/production_os/control_plane.py": 4

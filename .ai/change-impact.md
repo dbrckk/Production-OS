@@ -1,10 +1,16 @@
 # Change impact
 
-Base: af40eec179f37610b9b7666380b89ddc5aebebde
-Head: 8868a2a591a553f260918f6399e1332a39a068b2
+Base: 6b9e6a32da720c2de8d506e93000682f65670fe4
+Head: 1296a4950bc656af89fdfcb11c7c7ecbff88f4d7
 
 ## Changed files
+- M src/production_os/github_change_review.py
+- M src/production_os/github_client.py
+- M src/production_os/github_work_state.py
 - M src/production_os/managed_projects.py
+- A tests/test_github_automerge.py
+- M tests/test_github_change_review.py
+- M tests/test_github_work_state.py
 - M tests/test_managed_github_reconciliation.py
 
 ## Affected areas
@@ -12,7 +18,8 @@ Head: 8868a2a591a553f260918f6399e1332a39a068b2
 - tests
 
 ## Related test candidates
-- No direct filename-based test match detected.
+- tests/test_github_change_review.py
+- tests/test_github_work_state.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

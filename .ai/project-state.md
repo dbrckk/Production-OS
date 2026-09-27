@@ -22,17 +22,23 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-27T15:12:04Z
+Generated: 2026-09-27T16:08:48Z
 
 ### Git
 - Branch: `main`
-- Head: `8868a2a591a5`
-- Commit date: 2026-09-27T17:11:26+02:00
-- Commit: feat: launch automatic compensating rollback generations
-- Tracked files: 478
+- Head: `1296a4950bc6`
+- Commit date: 2026-09-27T18:08:36+02:00
+- Commit: feat: safely auto-merge green nonsensitive managed PRs
+- Tracked files: 479
 
 ### Recently changed files
+- `src/production_os/github_change_review.py`
+- `src/production_os/github_client.py`
+- `src/production_os/github_work_state.py`
 - `src/production_os/managed_projects.py`
+- `tests/test_github_automerge.py`
+- `tests/test_github_change_review.py`
+- `tests/test_github_work_state.py`
 - `tests/test_managed_github_reconciliation.py`
 - `.github/workflows/ci.yml`
 - `Dockerfile.mobile-worker`

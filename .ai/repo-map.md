@@ -236,6 +236,7 @@ tests/
   test_execution_optimizer_postgres.py
   test_execution_optimizer.py
   test_fairness.py
+  test_github_automerge.py
   test_github_change_review.py
   test_github_client_pr_files.py
   test_github_client_put_file.py
@@ -4757,6 +4758,10 @@ _DATA_PREFIXES = (
 _RUNTIME_PREFIXES = (
 _SECRET_NAMES = (
 ⋮----
+_HIGH_RISK_ADDITION_PATTERNS = (
+⋮----
+_BINARY_EXTENSIONS = {
+⋮----
 @dataclass(frozen=True, slots=True)
 class DiffReview
 ⋮----
@@ -4790,7 +4795,28 @@ sensitive = tuple(sorted(set(sensitive)))
 ⋮----
 requires_human_review = bool(blockers)
 ⋮----
+def _added_patch_lines(patch: str | None) -> tuple[str, ...]
+⋮----
+lines = []
+⋮----
+def review_changed_files(files) -> DiffReview
+⋮----
+details = [
+base = review_changed_paths(
+sensitive = set(base.sensitive_files)
+categories = set(base.categories)
+blockers = set(base.blockers)
+⋮----
+filename = str(item.get("filename") or "").strip()
+low = filename.lower()
+patch = item.get("patch")
+changes = max(0, int(item.get("changes") or 0))
+⋮----
 def review_pull_request(client, repository: str, pr_number: int) -> DiffReview
+⋮----
+detailed = getattr(client, "get_pull_request_file_details", None)
+⋮----
+details = detailed(
 ⋮----
 files = client.list_pull_request_files(repository, pr_number)
 ````
@@ -4920,16 +4946,24 @@ def get_pull_request_reviews(self, full_name: str, pr_number: int) -> list[dict[
 ⋮----
 payload = self._get(f"/repos/{full_name}/pulls/{pr_number}/reviews")
 ⋮----
-"""Return every changed path in a pull request.
+sha = str(head_sha or "").strip().lower()
+⋮----
+merge_method = str(method or "squash").strip().lower()
+⋮----
+title = str(commit_title or "").strip()
+⋮----
+"""Return bounded changed-file metadata and patches for deterministic review.
 
-        Unlike informational GitHub reads, this method intentionally propagates
-        API failures. Incremental pruning must fail closed when the changed-file
-        set cannot be established reliably.
+        API failures intentionally propagate so promotion gates fail closed.
         """
-files: list[str] = []
+files: list[dict[str, Any]] = []
 page = 1
 ⋮----
 filename = str(item.get("filename") or "").strip()
+⋮----
+patch = item.get("patch")
+⋮----
+"""Return every changed path in a pull request."""
 ⋮----
 def get_commit_workflow_runs(self, full_name: str, commit_sha: str) -> list[dict[str, Any]]
 ⋮----
@@ -5076,6 +5110,7 @@ sensitive_files: tuple[str, ...]
 change_categories: tuple[str, ...]
 human_review_required: bool
 head_sha: str | None
+base_sha: str | None
 validation_sha: str | None
 ⋮----
 def to_dict(self) -> dict
@@ -5115,6 +5150,7 @@ sensitive_files: tuple[str, ...] = ()
 change_categories: tuple[str, ...] = ()
 human_review_required = False
 head_sha = None
+base_sha = None
 validation_sha = None
 ⋮----
 issue = client.get_issue(repository, issue_number)
@@ -5131,12 +5167,12 @@ merge_sha = str(pr.get("merge_commit_sha") or "").strip()
 validation_sha = merge_sha if merged and merge_sha else head_sha
 base = pr.get("base") or {}
 base_ref = (
+base_sha = (
 ⋮----
 reviews = client.get_pull_request_reviews(repository, pr_number)
 review_state = _review_state(reviews)
 ⋮----
-changed_paths = client.list_pull_request_files(repository, pr_number)
-change_review = review_changed_paths(changed_paths)
+change_review = review_pull_request(
 ⋮----
 change_review = review_changed_paths(())
 sensitive_files = change_review.sensitive_files
@@ -5779,12 +5815,18 @@ status = NEEDS_ATTENTION
 ⋮----
 status = ACTIVE
 ⋮----
+rows = _execute(
+⋮----
+payload = json.loads(row["payload_json"])
+⋮----
 outcome = _outcome_from_workflow(workflow)
 pull_request = outcome.get("pull_request")
 ⋮----
 number = pull_request.get("number")
 ⋮----
 pr_number = int(number)
+⋮----
+client = self.github_client_factory()
 ⋮----
 state = fetch_github_work_state(
 ⋮----
@@ -5793,6 +5835,26 @@ decision = runtime_decision_from_github(state)
 rollback_plan = None
 ⋮----
 rollback_plan = build_rollback_plan(
+⋮----
+head_sha = str(state.head_sha or "").strip().lower()
+base_sha = str(state.base_sha or "").strip().lower()
+metadata = workflow.get("metadata")
+metadata = metadata if isinstance(metadata, dict) else {}
+project_id = str(
+workflow_id = str(workflow.get("id") or "").strip()
+⋮----
+receipt = self._automerge_receipt(
+⋮----
+fresh_state = fetch_github_work_state(
+⋮----
+fresh_head = str(
+fresh_base = str(
+⋮----
+fresh_decision = runtime_decision_from_github(
+⋮----
+merge = client.merge_pull_request(
+⋮----
+merge_sha = str(merge.get("sha") or "")[:40] or None
 ⋮----
 resolution = self._github_resolution_for_succeeded_workflow(
 ⋮----
@@ -5856,8 +5918,6 @@ display_state = (
 def list(self, *, limit: int = 100) -> list[dict]
 ⋮----
 bounded = max(1, min(500, int(limit)))
-⋮----
-rows = _execute(
 ⋮----
 legacy_rows = _execute(
 ⋮----
@@ -11583,6 +11643,30 @@ rows=[
 result=round_robin_by_repository(rows)
 ````
 
+## File: tests/test_github_automerge.py
+````python
+class Client(GitHubClient)
+⋮----
+def __init__(self, token="token")
+⋮----
+def _request(self, method, path, payload=None)
+⋮----
+def test_merge_pull_request_is_pinned_to_observed_head_sha()
+⋮----
+client = Client()
+⋮----
+result = client.merge_pull_request(
+⋮----
+def test_merge_pull_request_requires_token()
+⋮----
+client = Client(token=None)
+⋮----
+@pytest.mark.parametrize("sha", ["", "abc1234", "g" * 40])
+def test_merge_pull_request_rejects_unpinned_or_invalid_sha(sha)
+⋮----
+def test_merge_pull_request_rejects_unknown_method()
+````
+
 ## File: tests/test_github_change_review.py
 ````python
 def test_review_changed_paths_allows_ordinary_source_changes()
@@ -11596,6 +11680,22 @@ def test_review_changed_paths_flags_credential_material()
 def test_review_changed_paths_fails_closed_when_file_list_unavailable()
 ⋮----
 review = review_changed_paths([])
+⋮----
+def test_review_changed_files_flags_private_key_material_on_added_line()
+⋮----
+review = review_changed_files([{
+⋮----
+def test_review_changed_files_flags_dangerous_shell_and_destructive_sql()
+⋮----
+review = review_changed_files([
+⋮----
+def test_review_changed_files_flags_tls_verification_disable()
+⋮----
+def test_review_changed_files_ignores_risky_text_when_removed()
+⋮----
+def test_review_changed_files_blocks_large_unavailable_text_diff()
+⋮----
+def test_review_changed_files_allows_unavailable_binary_patch()
 ````
 
 ## File: tests/test_github_client_pr_files.py
@@ -11934,21 +12034,28 @@ class FakeWorkflows
 ⋮----
 backend = object()
 ⋮----
+class FakeGitHub
+⋮----
+def __init__(self, merge=None, error=None)
+⋮----
 def state(**overrides)
 ⋮----
 values = {
 ⋮----
 def workflow_with_pr()
 ⋮----
-def test_green_pull_request_moves_succeeded_workflow_to_review_required()
+def test_green_pull_request_is_sha_pinned_merged_then_waits_for_post_merge_ci()
 ⋮----
+github = FakeGitHub()
 service = ManagedProjectService(
 ⋮----
-target = service._github_target_for_succeeded_workflow(
+resolution = service._github_resolution_for_succeeded_workflow(
 ⋮----
 def test_pending_pull_request_keeps_project_active()
 ⋮----
 pending = state(
+⋮----
+target = service._github_target_for_succeeded_workflow(
 ⋮----
 def test_failed_pull_request_moves_project_to_needs_attention()
 ⋮----
@@ -11957,6 +12064,28 @@ failed = state(
 def test_sensitive_green_pull_request_requires_review()
 ⋮----
 sensitive = state(
+⋮----
+def test_automerge_receipt_prevents_duplicate_merge_during_github_staleness(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "automerge-idempotent.sqlite")
+⋮----
+workflow = workflow_with_pr()
+⋮----
+first = service._github_resolution_for_succeeded_workflow(
+second = service._github_resolution_for_succeeded_workflow(
+⋮----
+def test_automerge_aborts_when_base_sha_changes_during_final_recheck()
+⋮----
+initial = state()
+changed = state(
+⋮----
+def test_green_pull_request_merge_declined_requires_review()
+⋮----
+github = FakeGitHub(
+⋮----
+def test_post_merge_green_resolution_completes_managed_project()
+⋮----
+merged_green = state(
 ⋮----
 def test_succeeded_workflow_without_pull_request_keeps_legacy_path()
 ⋮----
@@ -11970,16 +12099,20 @@ def test_post_merge_failure_resolution_builds_compensating_rollback_plan()
 ⋮----
 merged_failed = state(
 ⋮----
-resolution = service._github_resolution_for_succeeded_workflow(
-⋮----
 plan = resolution["rollback_plan"]
+⋮----
+def test_reconcile_marks_project_done_after_post_merge_green_ci(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "automerge-complete.sqlite")
+⋮----
+project = service.create(
+workflow_id = project["current_workflow_id"]
+⋮----
+completed = service.get(project["project_id"])
 ⋮----
 def test_reconcile_launches_exactly_one_automatic_rollback_generation(tmp_path)
 ⋮----
 backend = SQLiteBackend(tmp_path / "rollback.sqlite")
-⋮----
-project = service.create(
-workflow_id = project["current_workflow_id"]
 ⋮----
 recovered = service.get(project["project_id"])
 polled_again = service.get(project["project_id"])

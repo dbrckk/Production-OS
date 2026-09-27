@@ -103,6 +103,7 @@ test_execution_feedback_trends.py
 test_execution_optimizer_postgres.py
 test_execution_optimizer.py
 test_fairness.py
+test_github_automerge.py
 test_github_change_review.py
 test_github_client_pr_files.py
 test_github_client_put_file.py
@@ -3037,6 +3038,30 @@ rows=[
 result=round_robin_by_repository(rows)
 ```
 
+## File: test_github_automerge.py
+```python
+class Client(GitHubClient)
+⋮----
+def __init__(self, token="token")
+⋮----
+def _request(self, method, path, payload=None)
+⋮----
+def test_merge_pull_request_is_pinned_to_observed_head_sha()
+⋮----
+client = Client()
+⋮----
+result = client.merge_pull_request(
+⋮----
+def test_merge_pull_request_requires_token()
+⋮----
+client = Client(token=None)
+⋮----
+@pytest.mark.parametrize("sha", ["", "abc1234", "g" * 40])
+def test_merge_pull_request_rejects_unpinned_or_invalid_sha(sha)
+⋮----
+def test_merge_pull_request_rejects_unknown_method()
+```
+
 ## File: test_github_change_review.py
 ```python
 def test_review_changed_paths_allows_ordinary_source_changes()
@@ -3050,6 +3075,22 @@ def test_review_changed_paths_flags_credential_material()
 def test_review_changed_paths_fails_closed_when_file_list_unavailable()
 ⋮----
 review = review_changed_paths([])
+⋮----
+def test_review_changed_files_flags_private_key_material_on_added_line()
+⋮----
+review = review_changed_files([{
+⋮----
+def test_review_changed_files_flags_dangerous_shell_and_destructive_sql()
+⋮----
+review = review_changed_files([
+⋮----
+def test_review_changed_files_flags_tls_verification_disable()
+⋮----
+def test_review_changed_files_ignores_risky_text_when_removed()
+⋮----
+def test_review_changed_files_blocks_large_unavailable_text_diff()
+⋮----
+def test_review_changed_files_allows_unavailable_binary_patch()
 ```
 
 ## File: test_github_client_pr_files.py
@@ -3388,21 +3429,28 @@ class FakeWorkflows
 ⋮----
 backend = object()
 ⋮----
+class FakeGitHub
+⋮----
+def __init__(self, merge=None, error=None)
+⋮----
 def state(**overrides)
 ⋮----
 values = {
 ⋮----
 def workflow_with_pr()
 ⋮----
-def test_green_pull_request_moves_succeeded_workflow_to_review_required()
+def test_green_pull_request_is_sha_pinned_merged_then_waits_for_post_merge_ci()
 ⋮----
+github = FakeGitHub()
 service = ManagedProjectService(
 ⋮----
-target = service._github_target_for_succeeded_workflow(
+resolution = service._github_resolution_for_succeeded_workflow(
 ⋮----
 def test_pending_pull_request_keeps_project_active()
 ⋮----
 pending = state(
+⋮----
+target = service._github_target_for_succeeded_workflow(
 ⋮----
 def test_failed_pull_request_moves_project_to_needs_attention()
 ⋮----
@@ -3411,6 +3459,28 @@ failed = state(
 def test_sensitive_green_pull_request_requires_review()
 ⋮----
 sensitive = state(
+⋮----
+def test_automerge_receipt_prevents_duplicate_merge_during_github_staleness(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "automerge-idempotent.sqlite")
+⋮----
+workflow = workflow_with_pr()
+⋮----
+first = service._github_resolution_for_succeeded_workflow(
+second = service._github_resolution_for_succeeded_workflow(
+⋮----
+def test_automerge_aborts_when_base_sha_changes_during_final_recheck()
+⋮----
+initial = state()
+changed = state(
+⋮----
+def test_green_pull_request_merge_declined_requires_review()
+⋮----
+github = FakeGitHub(
+⋮----
+def test_post_merge_green_resolution_completes_managed_project()
+⋮----
+merged_green = state(
 ⋮----
 def test_succeeded_workflow_without_pull_request_keeps_legacy_path()
 ⋮----
@@ -3424,16 +3494,20 @@ def test_post_merge_failure_resolution_builds_compensating_rollback_plan()
 ⋮----
 merged_failed = state(
 ⋮----
-resolution = service._github_resolution_for_succeeded_workflow(
-⋮----
 plan = resolution["rollback_plan"]
+⋮----
+def test_reconcile_marks_project_done_after_post_merge_green_ci(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "automerge-complete.sqlite")
+⋮----
+project = service.create(
+workflow_id = project["current_workflow_id"]
+⋮----
+completed = service.get(project["project_id"])
 ⋮----
 def test_reconcile_launches_exactly_one_automatic_rollback_generation(tmp_path)
 ⋮----
 backend = SQLiteBackend(tmp_path / "rollback.sqlite")
-⋮----
-project = service.create(
-workflow_id = project["current_workflow_id"]
 ⋮----
 recovered = service.get(project["project_id"])
 polled_again = service.get(project["project_id"])
