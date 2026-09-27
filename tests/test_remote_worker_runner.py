@@ -171,6 +171,60 @@ print(json.dumps({
         _stop(server, thread)
 
 
+def test_remote_worker_runner_tolerates_transient_active_heartbeat_failure(tmp_path):
+    control = ControlPlane(str(tmp_path / "heartbeat-retry.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":{
+            "repository":"dbrckk/runner-heartbeat",
+            "task":"Survive one transient heartbeat failure.",
+        },
+        "required_capabilities":[],
+    })
+    executor = tmp_path / "slow_success.py"
+    executor.write_text(
+        """
+import json, sys, time
+json.load(sys.stdin)
+time.sleep(0.15)
+print(json.dumps({"status":"succeeded","result":{"summary":"ok"}}))
+""".strip(),
+        encoding="utf-8",
+    )
+
+    server, thread, base = _server(control)
+    try:
+        client = RemoteWorkerClient(
+            base,
+            "worker-secret",
+            "runner-1",
+            [],
+            timeout=5,
+        )
+        runner = RemoteWorkerRunner(
+            client,
+            [sys.executable, str(executor)],
+            heartbeat_interval_seconds=0.03,
+            executor_timeout_seconds=3,
+        )
+        real_heartbeat = runner._heartbeat_active
+        calls = {"count":0}
+
+        def flaky_heartbeat(key):
+            calls["count"] += 1
+            if calls["count"] == 1:
+                raise RuntimeError("transient control-plane hiccup")
+            return real_heartbeat(key)
+
+        runner._heartbeat_active = flaky_heartbeat
+        outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+
+        assert outcomes == [{"job_key":queued["key"], "status":"completed"}]
+        assert calls["count"] >= 2
+        assert control.queue.get(queued["key"])["status"] == "completed"
+    finally:
+        _stop(server, thread)
+
+
 def test_remote_worker_runner_fails_job_on_invalid_executor_output(tmp_path):
     control = ControlPlane(str(tmp_path / "invalid-output.sqlite"), authorizer=_auth())
     queued = control.queue.enqueue({

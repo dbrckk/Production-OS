@@ -39,6 +39,7 @@ class RemoteWorkerRunner:
         self._active_job_keys: set[str] = set()
         self._active_lock = threading.RLock()
         self._stop_event = threading.Event()
+        self.max_consecutive_heartbeat_failures = 3
         secret_names = {
             "PRODUCTION_OS_WORKER_TOKEN",
             *(
@@ -154,6 +155,7 @@ class RemoteWorkerRunner:
             )
             first_communicate = True
             stdout = ""
+            heartbeat_failures = 0
             while True:
                 if self._stop_event.is_set():
                     self._terminate(process)
@@ -194,13 +196,20 @@ class RemoteWorkerRunner:
                     first_communicate = False
                     try:
                         heartbeat = self._heartbeat_active(key)
+                        heartbeat_failures = 0
                     except RuntimeError:
-                        self._terminate(process)
-                        return {
-                            "job_key":key,
-                            "status":"abandoned",
-                            "reason":"control_plane_unavailable",
-                        }
+                        heartbeat_failures += 1
+                        if (
+                            heartbeat_failures
+                            >= self.max_consecutive_heartbeat_failures
+                        ):
+                            self._terminate(process)
+                            return {
+                                "job_key":key,
+                                "status":"abandoned",
+                                "reason":"control_plane_unavailable",
+                            }
+                        continue
 
                     if key in heartbeat.get("stale_job_keys", []):
                         self._terminate(process)

@@ -41,3 +41,139 @@ services:
       - ${PRODUCTION_OS_WORKER_EXECUTOR_TIMEOUT_SECONDS:-3600}
       - --ack-timeout-seconds
       - ${PRODUCTION_OS_WORKER_ACK_TIMEOUT_SECONDS:-120}
+
+  production-worker-code:
+    profiles:
+      - worker-specialists
+    build: .
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 15s
+    depends_on:
+      production-os:
+        condition: service_healthy
+    environment:
+      PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
+      PRODUCTION_OS_WORKER_SPECIALTIES: code
+    volumes:
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
+    command:
+      - remote-worker-run
+      - --url
+      - http://production-os:8787
+      - --worker-id
+      - worker-code
+      - --capability
+      - code-implementation
+      - --executor-command
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_COMMAND:-}
+      - --max-concurrency
+      - ${PRODUCTION_OS_SPECIALIST_MAX_CONCURRENCY:-1}
+      - --heartbeat-interval-seconds
+      - ${PRODUCTION_OS_WORKER_HEARTBEAT_SECONDS:-5}
+      - --executor-timeout-seconds
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_TIMEOUT_SECONDS:-3600}
+      - --ack-timeout-seconds
+      - ${PRODUCTION_OS_WORKER_ACK_TIMEOUT_SECONDS:-120}
+
+  production-worker-debug:
+    profiles:
+      - worker-specialists
+    build: .
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 15s
+    depends_on:
+      production-os:
+        condition: service_healthy
+    environment:
+      PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
+      PRODUCTION_OS_WORKER_SPECIALTIES: debug
+    volumes:
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
+    command:
+      - remote-worker-run
+      - --url
+      - http://production-os:8787
+      - --worker-id
+      - worker-debug
+      - --capability
+      - test-debug
+      - --executor-command
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_COMMAND:-}
+      - --max-concurrency
+      - ${PRODUCTION_OS_SPECIALIST_MAX_CONCURRENCY:-1}
+      - --heartbeat-interval-seconds
+      - ${PRODUCTION_OS_WORKER_HEARTBEAT_SECONDS:-5}
+      - --executor-timeout-seconds
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_TIMEOUT_SECONDS:-3600}
+      - --ack-timeout-seconds
+      - ${PRODUCTION_OS_WORKER_ACK_TIMEOUT_SECONDS:-120}
+
+  production-worker-review:
+    profiles:
+      - worker-specialists
+    build: .
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 15s
+    depends_on:
+      production-os:
+        condition: service_healthy
+    environment:
+      PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
+      PRODUCTION_OS_WORKER_SPECIALTIES: review
+    volumes:
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
+    command:
+      - remote-worker-run
+      - --url
+      - http://production-os:8787
+      - --worker-id
+      - worker-review
+      - --capability
+      - code-review
+      - --executor-command
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_COMMAND:-}
+      - --max-concurrency
+      - ${PRODUCTION_OS_SPECIALIST_MAX_CONCURRENCY:-1}
+      - --heartbeat-interval-seconds
+      - ${PRODUCTION_OS_WORKER_HEARTBEAT_SECONDS:-5}
+      - --executor-timeout-seconds
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_TIMEOUT_SECONDS:-3600}
+      - --ack-timeout-seconds
+      - ${PRODUCTION_OS_WORKER_ACK_TIMEOUT_SECONDS:-120}
+
+  production-worker-browser:
+    profiles:
+      - worker-specialists
+    build: .
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 15s
+    depends_on:
+      production-os:
+        condition: service_healthy
+    environment:
+      PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
+      PRODUCTION_OS_WORKER_SPECIALTIES: browser
+    volumes:
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
+    command:
+      - remote-worker-run
+      - --url
+      - http://production-os:8787
+      - --worker-id
+      - worker-browser
+      - --capability
+      - browser-ui-validation
+      - --executor-command
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_COMMAND:-}
+      - --max-concurrency
+      - ${PRODUCTION_OS_SPECIALIST_MAX_CONCURRENCY:-1}
+      - --heartbeat-interval-seconds
+      - ${PRODUCTION_OS_WORKER_HEARTBEAT_SECONDS:-5}
+      - --executor-timeout-seconds
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_TIMEOUT_SECONDS:-3600}
+      - --ack-timeout-seconds
+      - ${PRODUCTION_OS_WORKER_ACK_TIMEOUT_SECONDS:-120}

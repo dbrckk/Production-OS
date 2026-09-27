@@ -4,6 +4,11 @@ import re
 
 VISUAL_CAPABILITY = "visual-asset-production"
 VISUAL_3D_CAPABILITY = "visual-asset-3d-production"
+
+CODE_CAPABILITY = "code-implementation"
+TEST_CAPABILITY = "test-debug"
+REVIEW_CAPABILITY = "code-review"
+BROWSER_CAPABILITY = "browser-ui-validation"
 ASSET_FORGE_REQUEST_SCHEMA = "asset-forge/production-request/v1"
 ASSET_FORGE_REPORT_SCHEMA = "asset-forge/production-report/v1"
 
@@ -78,6 +83,24 @@ def is_3d_generation_task(handoff: dict) -> bool:
         )
     )
     return has_3d and has_generation
+
+
+def inferred_preferred_capabilities(handoff: dict) -> list[str]:
+    if not isinstance(handoff, dict):
+        return []
+    text = _handoff_text(handoff)
+    preferred = set()
+    if re.search(r"\b(?:test|tests|pytest|unit|integration|debug|bug|failure|failing|regression|fix)\b", text):
+        preferred.add(TEST_CAPABILITY)
+    if re.search(r"\b(?:review|diff|audit|security review|code review)\b", text):
+        preferred.add(REVIEW_CAPABILITY)
+    if re.search(r"\b(?:browser|playwright|selenium|ui test|visual regression|screenshot|frontend)\b", text):
+        preferred.add(BROWSER_CAPABILITY)
+    if re.search(r"\b(?:implement|implementation|code|feature|refactor|build|develop|fix)\b", text):
+        preferred.add(CODE_CAPABILITY)
+    if is_visual_asset_task(handoff):
+        preferred.add(VISUAL_CAPABILITY)
+    return sorted(preferred)
 
 
 def inferred_required_capabilities(handoff: dict) -> list[str]:
