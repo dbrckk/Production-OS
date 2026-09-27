@@ -176,6 +176,7 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
             "changed_file_count":0,
             "pull_request":None,
             "ci":None,
+            "browser_validation":None,
             "completed_at":None,
         }
 
@@ -348,6 +349,67 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
         if clean_ci:
             ci = clean_ci
 
+    raw_browser_validation = None
+    for item in reversed(results):
+        item_evidence = _result_evidence(item)
+        candidate = (
+            item.get("browser_validation")
+            or item_evidence.get("browser_validation")
+        )
+        if isinstance(candidate, dict):
+            raw_browser_validation = candidate
+            break
+    browser_validation = None
+    if isinstance(raw_browser_validation, dict):
+        clean_browser = {}
+        for key, limit in {
+            "status":120,
+            "reason":500,
+            "runtime":120,
+            "script":300,
+            "url":2000,
+        }.items():
+            value = raw_browser_validation.get(key)
+            if value is None:
+                continue
+            text = str(value).strip()
+            if text:
+                clean_browser[key] = text[:limit]
+        passed = raw_browser_validation.get("passed")
+        if isinstance(passed, bool):
+            clean_browser["passed"] = passed
+        for key, limit in {
+            "console_errors":50,
+            "page_errors":50,
+            "screenshots":20,
+            "copied_artifacts":25,
+        }.items():
+            value = raw_browser_validation.get(key)
+            if isinstance(value, list):
+                clean_browser[key] = [
+                    str(item).strip()[:1000]
+                    for item in value
+                    if str(item).strip()
+                ][:limit]
+        execution = raw_browser_validation.get("execution")
+        if isinstance(execution, dict):
+            clean_execution = {}
+            for key in (
+                "returncode",
+                "duration_seconds",
+                "credential_isolated",
+                "network_allowed",
+            ):
+                if execution.get(key) is not None:
+                    clean_execution[key] = execution.get(key)
+            log_tail = str(execution.get("log_tail") or "").strip()
+            if log_tail:
+                clean_execution["log_tail"] = log_tail[-4000:]
+            if clean_execution:
+                clean_browser["execution"] = clean_execution
+        if clean_browser:
+            browser_validation = clean_browser
+
     workflow_status = str(workflow.get("status") or "").strip() or None
     terminal = workflow_status in {"succeeded", "failed", "cancelled"}
     available = terminal or any((
@@ -359,6 +421,7 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
         changed_file_count,
         pull_request,
         ci,
+        browser_validation,
     ))
     return {
         "available":bool(available),
@@ -372,6 +435,7 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
         "changed_file_count":changed_file_count,
         "pull_request":pull_request,
         "ci":ci,
+        "browser_validation":browser_validation,
         "completed_at":workflow.get("updated_at") if terminal else None,
     }
 
