@@ -431,6 +431,31 @@ class GitHubClient:
             return None
         return payload if isinstance(payload, dict) else None
 
+    def merge_pull_request(
+        self,
+        full_name: str,
+        pr_number: int,
+        *,
+        expected_head_sha: str,
+        merge_method: str = "squash",
+    ) -> dict[str, Any]:
+        sha = str(expected_head_sha or "").strip().lower()
+        if not re.fullmatch(r"[0-9a-f]{40}", sha):
+            raise ValueError("expected_head_sha must be a full commit sha")
+        if merge_method not in {"merge", "squash", "rebase"}:
+            raise ValueError("invalid merge_method")
+        payload = self._request(
+            "PUT",
+            f"/repos/{full_name}/pulls/{int(pr_number)}/merge",
+            {
+                "sha":sha,
+                "merge_method":merge_method,
+            },
+        )
+        if not isinstance(payload, dict):
+            raise GitHubAPIError("GitHub merge response unavailable")
+        return payload
+
     def get_pull_request_reviews(self, full_name: str, pr_number: int) -> list[dict[str, Any]]:
         try:
             payload = self._get(f"/repos/{full_name}/pulls/{pr_number}/reviews")
