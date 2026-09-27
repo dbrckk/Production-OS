@@ -472,6 +472,21 @@ class ManagedProjectService:
         )
         return any(marker in text for marker in markers)
 
+    @staticmethod
+    def _needs_mobile_ui_validation(final_goal: str) -> bool:
+        text = str(final_goal or "").lower()
+        markers = (
+            "android ui",
+            "flutter ui",
+            "mobile ui",
+            "android app ui",
+            "flutter app ui",
+            "android interface",
+            "flutter interface",
+            "mobile interface",
+        )
+        return any(marker in text for marker in markers)
+
     def _cooperative_workflow_specs(
         self,
         *,
@@ -484,8 +499,10 @@ class ManagedProjectService:
         token_budget: int,
         agent_preference: str,
     ) -> list[WorkflowTaskSpec]:
-        browser = self._needs_browser_validation(final_goal)
-        stage_count = 4 if browser else 3
+        mobile = self._needs_mobile_ui_validation(final_goal)
+        browser = self._needs_browser_validation(final_goal) and not mobile
+        specialist = browser or mobile
+        stage_count = 4 if specialist else 3
         if int(token_budget) < stage_count:
             raise ValueError(
                 "cooperative token_budget must cover every stage"
@@ -498,14 +515,16 @@ class ManagedProjectService:
         )
         review_budget = (
             max(1, int(remaining * 0.55))
-            if browser
+            if specialist
             else remaining
         )
-        browser_budget = (
+        specialist_budget = (
             max(1, remaining - review_budget)
-            if browser
+            if specialist
             else 0
         )
+        browser_budget = specialist_budget if browser else 0
+        mobile_budget = specialist_budget if mobile else 0
 
         common = {
             "managed_project_id":project_id,
@@ -629,6 +648,53 @@ class ManagedProjectService:
                     priority=100,
                     max_attempts=2,
                     estimated_minutes=15,
+                )
+            )
+        if mobile:
+            tasks.append(
+                WorkflowTaskSpec(
+                    task_id="mobile-ui-validation",
+                    title="Validate the native user interface on an Android emulator",
+                    payload={
+                        **common,
+                        "cooperative_stage":"mobile-ui-validation",
+                        "handoff":{
+                            "repository":repository,
+                            "task":(
+                                "Validate the relevant native Android or Flutter user "
+                                "interface on a real Android emulator using ADB. Create "
+                                "or update .production-os/mobile_validate.py as the "
+                                "validation entrypoint. It must build or locate the "
+                                "debug APK, boot or reuse an emulator, install the APK, "
+                                "launch the target activity, exercise the changed user "
+                                "flow, capture at least one emulator screenshot under "
+                                ".production-os/mobile-artifacts/, collect fatal/crash "
+                                "evidence from logcat, and write "
+                                ".production-os/mobile-artifacts/report.json using the "
+                                "required mobile validation report schema. Fix only "
+                                "defects caused by this implementation."
+                            ),
+                            "final_goal":final_goal,
+                            "agent_preference":agent_preference,
+                            "token_budget":mobile_budget,
+                            "required_capabilities":["mobile-ui-validation"],
+                            "required_capabilities_authoritative":True,
+                            "preferred_capabilities":["mobile-ui-validation"],
+                            "tool_contracts":{
+                                "mobile_validation":{
+                                    "schema":"production-os/mobile-validation/v1",
+                                    "report_schema":"production-os/mobile-validation-report/v1",
+                                    "script":".production-os/mobile_validate.py",
+                                    "artifacts_dir":".production-os/mobile-artifacts",
+                                    "runtime":"android-adb-emulator",
+                                },
+                            },
+                        },
+                    },
+                    dependencies=("review",),
+                    priority=100,
+                    max_attempts=2,
+                    estimated_minutes=20,
                 )
             )
         return tasks
