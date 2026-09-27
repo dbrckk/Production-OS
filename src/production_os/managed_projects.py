@@ -6,6 +6,7 @@ from uuid import uuid4
 from .workflow_engine import WorkflowEngine, WorkflowTaskSpec, _execute
 from .github_client import GitHubAPIError, GitHubClient
 from .github_work_state import fetch_github_work_state, runtime_decision_from_github
+from .rollback_plan import build_rollback_plan
 
 
 MANAGED_PROJECT_SCHEMA = "production-os/managed-project/v3"
@@ -936,11 +937,11 @@ class ManagedProjectService:
             )
         return project_id
 
-    def _github_target_for_succeeded_workflow(
+    def _github_resolution_for_succeeded_workflow(
         self,
         repository: str,
         workflow: dict,
-    ) -> str | None:
+    ) -> dict | None:
         outcome = _outcome_from_workflow(workflow)
         pull_request = outcome.get("pull_request")
         if not isinstance(pull_request, dict):
@@ -960,28 +961,167 @@ class ManagedProjectService:
                 pr_number=pr_number,
             )
         except (GitHubAPIError, OSError, ValueError):
-            return ACTIVE
+            return {"target":ACTIVE, "decision":"unavailable", "state":None}
 
         decision = runtime_decision_from_github(state)
-        if decision in {"retry", "replan", "rollback"}:
-            return NEEDS_ATTENTION
+        if decision == "rollback":
+            rollback_plan = None
+            if isinstance(state.validation_sha, str) and len(state.validation_sha) == 40:
+                try:
+                    rollback_plan = build_rollback_plan(
+                        repository=repository,
+                        merge_sha=state.validation_sha,
+                        failure_summary=outcome.get("summary"),
+                        ci=outcome.get("ci"),
+                    )
+                except ValueError:
+                    rollback_plan = None
+            return {
+                "target":NEEDS_ATTENTION,
+                "decision":"rollback",
+                "state":state,
+                "rollback_plan":rollback_plan,
+            }
+        if decision in {"retry", "replan"}:
+            return {"target":NEEDS_ATTENTION, "decision":decision, "state":state}
         if state.ready_for_promotion:
-            return REVIEW_REQUIRED
+            return {"target":REVIEW_REQUIRED, "decision":decision, "state":state}
         if (
             state.ci_state is None
             and state.status_state is None
             and not state.required_checks_missing
         ):
-            return REVIEW_REQUIRED
+            return {"target":REVIEW_REQUIRED, "decision":decision, "state":state}
         if (
             state.human_review_required
             and state.ci_state == "passed"
             and state.status_state in {None, "passed"}
         ):
-            return REVIEW_REQUIRED
+            return {"target":REVIEW_REQUIRED, "decision":decision, "state":state}
         if state.merged and decision == "promote":
-            return REVIEW_REQUIRED
-        return ACTIVE
+            return {"target":REVIEW_REQUIRED, "decision":decision, "state":state}
+        return {"target":ACTIVE, "decision":decision, "state":state}
+
+    def _github_target_for_succeeded_workflow(
+        self,
+        repository: str,
+        workflow: dict,
+    ) -> str | None:
+        resolution = self._github_resolution_for_succeeded_workflow(
+            repository,
+            workflow,
+        )
+        if not isinstance(resolution, dict):
+            return None
+        return resolution.get("target")
+
+    def _start_automatic_rollback(
+        self,
+        current: dict,
+        current_workflow: dict,
+        plan: dict,
+    ) -> dict:
+        project_id = str(current["id"])
+        generation = int(current["generation"]) + 1
+        metadata = (
+            current_workflow.get("metadata")
+            if isinstance(current_workflow, dict)
+            else {}
+        )
+        cooperative = bool(
+            isinstance(metadata, dict)
+            and metadata.get("cooperative") is True
+        )
+        workflow = self._create_workflow(
+            project_id=project_id,
+            repository=str(current["repository"]),
+            final_goal=str(current["final_goal"]),
+            instruction=str(plan["instruction"]),
+            generation=generation,
+            kind="rollback",
+            token_budget=int(current["token_budget"]),
+            agent_preference=str(current["agent_preference"]),
+            dispatch=False,
+            cooperative=cooperative,
+        )
+        now = _now()
+        try:
+            with self.backend.transaction() as db:
+                row = _execute(
+                    db,
+                    self.backend,
+                    """SELECT status,generation,current_workflow_id
+                       FROM managed_projects WHERE id=?""",
+                    (project_id,),
+                ).fetchone()
+                if (
+                    row is None
+                    or row["status"] != NEEDS_ATTENTION
+                    or int(row["generation"]) != generation - 1
+                    or str(row["current_workflow_id"] or "")
+                    != str(current.get("current_workflow_id") or "")
+                ):
+                    raise RuntimeError("managed project rollback generation changed")
+                updated = _execute(
+                    db,
+                    self.backend,
+                    """UPDATE managed_projects
+                       SET status='ACTIVE', current_workflow_id=?,
+                           generation=?, updated_at=?, reviewed_at=NULL
+                       WHERE id=? AND generation=?
+                         AND status='NEEDS_ATTENTION'""",
+                    (
+                        workflow["id"],
+                        generation,
+                        now,
+                        project_id,
+                        generation - 1,
+                    ),
+                )
+                if updated.rowcount != 1:
+                    raise RuntimeError("managed project rollback generation changed")
+                _execute(
+                    db,
+                    self.backend,
+                    """INSERT INTO managed_project_runs(
+                        id, project_id, generation, kind, instruction,
+                        workflow_id, requested_by, created_at
+                    ) VALUES(?,?,?,?,?,?,?,?)""",
+                    (
+                        uuid4().hex,
+                        project_id,
+                        generation,
+                        "rollback",
+                        str(plan["instruction"]),
+                        workflow["id"],
+                        "system:github-rollback",
+                        now,
+                    ),
+                )
+        except Exception:
+            self._delete_unstarted_workflow(workflow["id"])
+            raise
+
+        self.workflows.dispatch_ready(workflow["id"], limit=1)
+        with self.backend.connect() as db:
+            row = _execute(
+                db,
+                self.backend,
+                "SELECT * FROM managed_projects WHERE id=?",
+                (project_id,),
+            ).fetchone()
+        updated_project = dict(row)
+        if (
+            target == NEEDS_ATTENTION
+            and isinstance(rollback_plan, dict)
+            and isinstance(workflow, dict)
+        ):
+            return self._start_automatic_rollback(
+                updated_project,
+                workflow,
+                rollback_plan,
+            )
+        return updated_project
 
     def reconcile(self, identifier: str) -> dict:
         project_id = self._resolve_project_id(identifier)
@@ -998,6 +1138,8 @@ class ManagedProjectService:
         if current["status"] == DONE:
             return current
 
+        rollback_plan = None
+        workflow = None
         workflow_id = current.get("current_workflow_id")
         if not workflow_id:
             target = NEEDS_ATTENTION
@@ -1009,21 +1151,31 @@ class ManagedProjectService:
             else:
                 workflow_status = workflow.get("status")
                 if workflow_status == "succeeded":
-                    github_target = self._github_target_for_succeeded_workflow(
+                    resolution = self._github_resolution_for_succeeded_workflow(
                         str(current["repository"]),
                         workflow,
                     )
-                    target = (
-                        github_target
-                        if github_target is not None
-                        else REVIEW_REQUIRED
-                    )
+                    if isinstance(resolution, dict):
+                        target = str(resolution.get("target") or ACTIVE)
+                        rollback_plan = resolution.get("rollback_plan")
+                    else:
+                        target = REVIEW_REQUIRED
                 elif workflow_status in {"failed", "cancelled"}:
                     target = NEEDS_ATTENTION
                 else:
                     target = ACTIVE
 
         if target == current["status"]:
+            if (
+                target == NEEDS_ATTENTION
+                and isinstance(rollback_plan, dict)
+                and isinstance(workflow, dict)
+            ):
+                return self._start_automatic_rollback(
+                    current,
+                    workflow,
+                    rollback_plan,
+                )
             return current
         now = _now()
         with self.backend.transaction() as db:
