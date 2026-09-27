@@ -141,6 +141,9 @@ def test_dependent_worktree_bases_from_single_upstream_commit(tmp_path):
 
     first = engine.dispatch_ready(workflow["id"], limit=10)
     assert len(first) == 1
+    claimed_integration = queue.claim_next("integrator", capabilities=[])
+    assert claimed_integration is not None
+    assert claimed_integration["payload"]["workflow_task_id"] == "integration"
     engine.record_result(
         workflow["id"],
         "integration",
@@ -196,6 +199,14 @@ def test_multi_parent_integration_does_not_guess_one_upstream_base(tmp_path):
         ],
     )
     engine.dispatch_ready(workflow["id"], limit=10)
+    claimed_a = queue.claim_next("worker-a", capabilities=[])
+    claimed_b = queue.claim_next("worker-b", capabilities=[])
+    assert claimed_a is not None
+    assert claimed_b is not None
+    assert {
+        claimed_a["payload"]["workflow_task_id"],
+        claimed_b["payload"]["workflow_task_id"],
+    } == {"a", "b"}
     engine.record_result(
         workflow["id"],
         "a",
