@@ -385,6 +385,38 @@ class GitHubClient:
             return None
         return isinstance(payload, dict)
 
+    def get_branch_required_checks(
+        self,
+        full_name: str,
+        branch: str,
+    ) -> list[str] | None:
+        encoded = urllib.parse.quote(branch, safe="")
+        try:
+            payload = self._get(
+                f"/repos/{full_name}/branches/{encoded}/protection"
+            )
+        except GitHubAPIError as exc:
+            if "404" in str(exc):
+                return []
+            return None
+        if not isinstance(payload, dict):
+            return None
+        required = payload.get("required_status_checks")
+        if not isinstance(required, dict):
+            return []
+        names = []
+        for item in required.get("checks") or []:
+            if not isinstance(item, dict):
+                continue
+            name = str(item.get("context") or "").strip()
+            if name and name not in names:
+                names.append(name)
+        for item in required.get("contexts") or []:
+            name = str(item or "").strip()
+            if name and name not in names:
+                names.append(name)
+        return names
+
     def get_issue(self, full_name: str, issue_number: int) -> dict[str, Any] | None:
         try:
             payload = self._get(f"/repos/{full_name}/issues/{issue_number}")
@@ -463,6 +495,18 @@ class GitHubClient:
             return []
         statuses = payload.get("statuses", [])
         return statuses if isinstance(statuses, list) else []
+
+    def get_commit_check_runs(self, full_name: str, commit_sha: str) -> list[dict[str, Any]]:
+        try:
+            payload = self._get(
+                f"/repos/{full_name}/commits/{urllib.parse.quote(commit_sha)}/check-runs?per_page=100"
+            )
+        except GitHubAPIError:
+            return []
+        if not isinstance(payload, dict):
+            return []
+        checks = payload.get("check_runs", [])
+        return checks if isinstance(checks, list) else []
 
     def list_accessible_repositories(self, owner: str) -> list[dict[str, Any]]:
         owner = str(owner or "").strip()
