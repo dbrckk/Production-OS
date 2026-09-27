@@ -110,6 +110,21 @@ class ControlPlane:
         self.github_webhook_secret = github_webhook_secret
         self.webhook_deliveries = WebhookDeliveryStore(self.backend)
 
+    @staticmethod
+    def worker_registration_allowed(
+        principal: Principal,
+        worker_id: str,
+    ) -> bool:
+        requested = str(worker_id or "").strip()
+        if not requested:
+            return False
+        if principal.allows("operator"):
+            return True
+        return (
+            principal.role == "worker"
+            and principal.name == requested
+        )
+
     def cooperative_worker_fleet_available(
         self,
         final_goal: str = "",
@@ -2399,9 +2414,9 @@ def make_handler(control: ControlPlane):
                     if principal is None:
                         return
                     worker_id = str(body["worker_id"]).strip()
-                    if (
-                        principal.role == "worker"
-                        and principal.name != worker_id
+                    if not control.worker_registration_allowed(
+                        principal,
+                        worker_id,
                     ):
                         self._send(
                             HTTPStatus.FORBIDDEN,
