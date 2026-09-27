@@ -98,6 +98,102 @@ def _retry_context(result: dict | None) -> dict | None:
     return context or None
 
 
+def _upstream_context(
+    workflow: dict,
+    dependencies: list[str] | tuple[str, ...],
+) -> list[dict]:
+    wanted = {str(item) for item in dependencies or ()}
+    if not wanted:
+        return []
+    rows = []
+    for task in workflow.get("tasks") or []:
+        if not isinstance(task, dict):
+            continue
+        task_id = str(task.get("task_id") or "")
+        if task_id not in wanted:
+            continue
+        result = task.get("result")
+        if not isinstance(result, dict):
+            continue
+        evidence = result.get("evidence")
+        if not isinstance(evidence, dict):
+            evidence = {}
+        row = {
+            "task_id":task_id,
+            "title":str(task.get("title") or "")[:300],
+        }
+        summary = (
+            result.get("summary")
+            or evidence.get("summary")
+            or result.get("message")
+            or evidence.get("message")
+        )
+        if summary is not None:
+            text = str(summary).strip()
+            if text:
+                row["summary"] = text[:3000]
+        validation = result.get("validation")
+        if not isinstance(validation, dict):
+            validation = evidence.get("validation")
+        if isinstance(validation, dict):
+            row["validation"] = {
+                "status":str(validation.get("status") or "")[:120],
+                "tests":[
+                    str(item).strip()[:200]
+                    for item in (validation.get("tests") or [])
+                    if str(item).strip()
+                ][:20],
+            }
+        for key, limit in (
+            ("commit_shas", 20),
+            ("changed_files", 100),
+        ):
+            value = result.get(key)
+            if value is None:
+                value = evidence.get(key)
+            if isinstance(value, list):
+                row[key] = [
+                    str(item).strip()[:500]
+                    for item in value
+                    if str(item).strip()
+                ][:limit]
+        pr = result.get("pull_request")
+        if not isinstance(pr, dict):
+            pr = evidence.get("pull_request")
+        if isinstance(pr, dict):
+            row["pull_request"] = {
+                key: pr.get(key)
+                for key in ("number", "state", "url")
+                if pr.get(key) is not None
+            }
+        ci = result.get("ci")
+        if not isinstance(ci, dict):
+            ci = evidence.get("ci")
+        if isinstance(ci, dict):
+            clean_ci = {}
+            for key, limit in {
+                "provider":120,
+                "status":120,
+                "workflow":300,
+                "job":300,
+                "step":300,
+                "conclusion":120,
+                "url":2000,
+                "sha":80,
+                "log_excerpt":4000,
+            }.items():
+                value = ci.get(key)
+                if value is None:
+                    continue
+                text = str(value).strip()
+                if text:
+                    clean_ci[key] = text[:limit]
+            if clean_ci:
+                row["ci"] = clean_ci
+        rows.append(row)
+    return rows[:12]
+
+
 @dataclass(frozen=True, slots=True)
 class WorkflowTaskSpec:
     task_id: str
@@ -1188,6 +1284,12 @@ class WorkflowEngine:
             handoff.setdefault("priority", task["priority"])
             handoff["workflow_id"] = workflow_id
             handoff["workflow_task_id"] = task["task_id"]
+            upstream = _upstream_context(
+                workflow,
+                task.get("dependencies") or [],
+            )
+            if upstream:
+                handoff["upstream_context"] = upstream
             if attempt_number > 1:
                 retry_context = _retry_context(task.get("result"))
                 if retry_context is not None:
