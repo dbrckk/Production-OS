@@ -194,6 +194,7 @@ tests/
   test_control_plane_webhook.py
   test_control_plane.py
   test_controller_asset_capabilities.py
+  test_cooperative_managed_projects.py
   test_dashboard_alerts.py
   test_dashboard_api.py
   test_dashboard_attention.py
@@ -5514,11 +5515,28 @@ clean: list[str] = []
 ⋮----
 value = (
 ⋮----
+def _result_tasks_by_depth(workflow: dict) -> list[dict]
+⋮----
+tasks = [
+by_id = {
+memo: dict[str, int] = {}
+⋮----
+def depth(task_id: str, visiting: set[str] | None = None) -> int
+⋮----
+visiting = set(visiting or ())
+⋮----
+task = by_id.get(task_id) or {}
+deps = [
+value = 0 if not deps else 1 + max(
+⋮----
+def _result_evidence(result: dict) -> dict
+⋮----
 def _outcome_from_workflow(workflow: dict | None) -> dict
 ⋮----
+result_tasks = _result_tasks_by_depth(workflow)
 results = [
 result = results[-1] if results else {}
-evidence = (
+evidence = _result_evidence(result)
 summary = (
 summary = str(summary).strip() if summary is not None else None
 ⋮----
@@ -5534,18 +5552,35 @@ validation_status = (
 raw_tests = (
 validation_tests = (
 ⋮----
+commit_shas = []
+⋮----
+item_evidence = _result_evidence(item)
 raw_commits = (
 ⋮----
 raw_commits = [raw_commits]
-commit_shas = _clean_commit_shas(raw_commits)
 ⋮----
 artifacts = [
 artifact_names = [
 ⋮----
-changed_files = (
-changed_file_count = (
+changed_files = []
 ⋮----
-pr = result.get("pull_request") or evidence.get("pull_request")
+raw_changed = (
+⋮----
+value = str(raw or "").strip()
+⋮----
+changed_file_count = len(changed_files)
+⋮----
+pr = None
+pr_source = result
+pr_evidence = evidence
+⋮----
+candidate = item.get("pull_request") or item_evidence.get("pull_request")
+candidate_number = (
+⋮----
+pr = candidate
+pr_source = item
+pr_evidence = item_evidence
+⋮----
 pull_request = None
 ⋮----
 number = pr.get("number")
@@ -5560,7 +5595,12 @@ number = None
 ⋮----
 pull_request = {"number":number, "state":state}
 ⋮----
-raw_ci = result.get("ci") or evidence.get("ci")
+raw_ci = None
+⋮----
+candidate = item.get("ci") or item_evidence.get("ci")
+⋮----
+raw_ci = candidate
+⋮----
 ci = None
 ⋮----
 clean_ci = {}
@@ -5586,6 +5626,24 @@ def __init__(self, workflows: WorkflowEngine)
 repository = str(repository or "").strip()
 parts = repository.split("/")
 ⋮----
+@staticmethod
+    def _needs_browser_validation(final_goal: str) -> bool
+⋮----
+text = str(final_goal or "").lower()
+markers = (
+⋮----
+browser = self._needs_browser_validation(final_goal)
+stage_count = 4 if browser else 3
+⋮----
+implementation_budget = max(1, int(token_budget * 0.55))
+validation_budget = max(1, int(token_budget * 0.25))
+remaining = max(
+review_budget = (
+browser_budget = (
+⋮----
+common = {
+⋮----
+tasks = (
 workflow = self.workflows.create(
 ⋮----
 def _delete_unstarted_workflow(self, workflow_id: str) -> None
@@ -7829,7 +7887,8 @@ has_generation = bool(
 ⋮----
 def inferred_preferred_capabilities(handoff: dict) -> list[str]
 ⋮----
-preferred = set()
+explicit = handoff.get("preferred_capabilities", [])
+preferred = {
 ⋮----
 def inferred_required_capabilities(handoff: dict) -> list[str]
 ⋮----
@@ -8312,6 +8371,24 @@ value = ci.get(key)
 ⋮----
 text = str(value).strip()
 ⋮----
+wanted = {str(item) for item in dependencies or ()}
+⋮----
+rows = []
+⋮----
+task_id = str(task.get("task_id") or "")
+⋮----
+result = task.get("result")
+⋮----
+row = {
+⋮----
+value = result.get(key)
+⋮----
+value = evidence.get(key)
+⋮----
+pr = result.get("pull_request")
+⋮----
+pr = evidence.get("pull_request")
+⋮----
 @dataclass(frozen=True, slots=True)
 class WorkflowTaskSpec
 ⋮----
@@ -8495,6 +8572,8 @@ updated = _execute(
 ⋮----
 attempt_number = int(task["attempts"]) + 1
 handoff = dict(payload.get("handoff") or payload)
+⋮----
+upstream = _upstream_context(
 ⋮----
 retry_context = _retry_context(task.get("result"))
 ⋮----
@@ -9308,6 +9387,38 @@ handoff = {"task": "Create and integrate new enemy sprites"}
 registry = WorkerRegistry(Path(td) / "workers.json")
 ⋮----
 worker = select_worker(registry, required)
+````
+
+## File: tests/test_cooperative_managed_projects.py
+````python
+def service(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "cooperative.sqlite")
+⋮----
+def test_cooperative_workflow_builds_code_debug_review_chain_with_bounded_budget(tmp_path)
+⋮----
+managed = service(tmp_path)
+tasks = managed._cooperative_workflow_specs(
+⋮----
+budgets = [
+⋮----
+def test_cooperative_workflow_adds_ui_stage_only_for_ui_goal(tmp_path)
+⋮----
+def test_create_cooperative_project_keeps_mode_in_workflow_metadata(tmp_path)
+⋮----
+project = managed.create(
+⋮----
+workflow = managed.workflows.get(project["current_workflow_id"])
+⋮----
+by_id = {
+⋮----
+def test_cooperative_outcome_uses_deepest_stage_and_aggregates_delivery_evidence()
+⋮----
+workflow = {
+⋮----
+outcome = _outcome_from_workflow(workflow)
+⋮----
+def test_cooperative_workflow_rejects_budget_smaller_than_stage_count(tmp_path)
 ````
 
 ## File: tests/test_dashboard_alerts.py
@@ -13744,6 +13855,10 @@ three_d = inferred_required_capabilities(
 def test_non_visual_software_task_is_not_misclassified()
 ⋮----
 def test_inferred_capabilities_preserve_explicit_requirements()
+⋮----
+def test_preferred_capabilities_preserve_explicit_specialist_routing()
+⋮----
+preferred = inferred_preferred_capabilities(
 ````
 
 ## File: tests/test_transparency_cli.py
@@ -14107,9 +14222,16 @@ def test_workflow_retry_budget(tmp_path)
 ⋮----
 current=wf.get(created["id"])["tasks"][0]
 ⋮----
-def test_workflow_retry_dispatch_includes_prior_failure_context(tmp_path)
+def test_downstream_job_receives_bounded_upstream_context(tmp_path)
 ⋮----
 first=wf.dispatch_ready(created["id"])
+⋮----
+review=next(
+⋮----
+job=wf.queue.get(review["claimed_job_key"])
+upstream=job["payload"]["handoff"]["upstream_context"]
+⋮----
+def test_workflow_retry_dispatch_includes_prior_failure_context(tmp_path)
 ⋮----
 second=wf.queue.get(current["claimed_job_key"])
 context=second["payload"]["handoff"]["retry_context"]

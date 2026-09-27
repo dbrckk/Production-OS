@@ -22,21 +22,25 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-27T08:56:38Z
+Generated: 2026-09-27T09:07:17Z
 
 ### Git
 - Branch: `main`
-- Head: `760c4867abda`
-- Commit date: 2026-09-27T10:56:26+02:00
-- Commit: feat: add specialist worker scheduling and deployment
-- Tracked files: 469
+- Head: `b27bc1185e14`
+- Commit date: 2026-09-27T11:06:31+02:00
+- Commit: feat: add cooperative multi-agent managed projects
+- Tracked files: 470
 
 ### Recently changed files
+- `src/production_os/managed_projects.py`
+- `src/production_os/task_capabilities.py`
+- `src/production_os/workflow_engine.py`
+- `tests/test_cooperative_managed_projects.py`
+- `tests/test_task_capabilities.py`
+- `tests/test_workflow_engine.py`
 - `compose.worker.yaml`
 - `src/production_os/remote_worker_runner.py`
 - `src/production_os/sqlite_backend.py`
-- `src/production_os/task_capabilities.py`
-- `src/production_os/workflow_engine.py`
 - `tests/test_remote_worker_runner.py`
 - `tests/test_specialist_job_preferences.py`
 - `tests/test_worker_compose_deployment.py`
@@ -48,10 +52,6 @@ Generated: 2026-09-27T08:56:38Z
 - `tests/test_release51_one_tap_runner_e2e.py`
 - `tests/test_rollback_plan.py`
 - `src/production_os/dashboard_ui.py`
-- `src/production_os/github_client.py`
-- `src/production_os/managed_projects.py`
-- `tests/test_dashboard_ui_v3.py`
-- `tests/test_managed_project_outcome.py`
 
 ### Project signals
 - `pyproject.toml`

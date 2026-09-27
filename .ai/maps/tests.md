@@ -61,6 +61,7 @@ test_control_plane_release.py
 test_control_plane_webhook.py
 test_control_plane.py
 test_controller_asset_capabilities.py
+test_cooperative_managed_projects.py
 test_dashboard_alerts.py
 test_dashboard_api.py
 test_dashboard_attention.py
@@ -945,6 +946,38 @@ handoff = {"task": "Create and integrate new enemy sprites"}
 registry = WorkerRegistry(Path(td) / "workers.json")
 ⋮----
 worker = select_worker(registry, required)
+```
+
+## File: test_cooperative_managed_projects.py
+```python
+def service(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "cooperative.sqlite")
+⋮----
+def test_cooperative_workflow_builds_code_debug_review_chain_with_bounded_budget(tmp_path)
+⋮----
+managed = service(tmp_path)
+tasks = managed._cooperative_workflow_specs(
+⋮----
+budgets = [
+⋮----
+def test_cooperative_workflow_adds_ui_stage_only_for_ui_goal(tmp_path)
+⋮----
+def test_create_cooperative_project_keeps_mode_in_workflow_metadata(tmp_path)
+⋮----
+project = managed.create(
+⋮----
+workflow = managed.workflows.get(project["current_workflow_id"])
+⋮----
+by_id = {
+⋮----
+def test_cooperative_outcome_uses_deepest_stage_and_aggregates_delivery_evidence()
+⋮----
+workflow = {
+⋮----
+outcome = _outcome_from_workflow(workflow)
+⋮----
+def test_cooperative_workflow_rejects_budget_smaller_than_stage_count(tmp_path)
 ```
 
 ## File: test_dashboard_alerts.py
@@ -5381,6 +5414,10 @@ three_d = inferred_required_capabilities(
 def test_non_visual_software_task_is_not_misclassified()
 ⋮----
 def test_inferred_capabilities_preserve_explicit_requirements()
+⋮----
+def test_preferred_capabilities_preserve_explicit_specialist_routing()
+⋮----
+preferred = inferred_preferred_capabilities(
 ```
 
 ## File: test_transparency_cli.py
@@ -5744,9 +5781,16 @@ def test_workflow_retry_budget(tmp_path)
 ⋮----
 current=wf.get(created["id"])["tasks"][0]
 ⋮----
-def test_workflow_retry_dispatch_includes_prior_failure_context(tmp_path)
+def test_downstream_job_receives_bounded_upstream_context(tmp_path)
 ⋮----
 first=wf.dispatch_ready(created["id"])
+⋮----
+review=next(
+⋮----
+job=wf.queue.get(review["claimed_job_key"])
+upstream=job["payload"]["handoff"]["upstream_context"]
+⋮----
+def test_workflow_retry_dispatch_includes_prior_failure_context(tmp_path)
 ⋮----
 second=wf.queue.get(current["claimed_job_key"])
 context=second["payload"]["handoff"]["retry_context"]

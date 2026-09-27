@@ -1,26 +1,21 @@
 # Change impact
 
-Base: 3ba41030169f1ca1849983eace9c6e456e8bef24
-Head: 760c4867abda7d201d81b8aad6a15d91986b58cc
+Base: 6efeb0a60aa91f9081da2a573104037a311d88b2
+Head: b27bc1185e149a9d6467d4a34b7c9b10c6320eea
 
 ## Changed files
-- M compose.worker.yaml
-- M src/production_os/remote_worker_runner.py
-- M src/production_os/sqlite_backend.py
+- M src/production_os/managed_projects.py
 - M src/production_os/task_capabilities.py
 - M src/production_os/workflow_engine.py
-- M tests/test_remote_worker_runner.py
-- A tests/test_specialist_job_preferences.py
-- M tests/test_worker_compose_deployment.py
+- A tests/test_cooperative_managed_projects.py
+- M tests/test_task_capabilities.py
+- M tests/test_workflow_engine.py
 
 ## Affected areas
-- (root)
 - src
 - tests
 
 ## Related test candidates
-- tests/test_remote_worker_runner.py
-- tests/test_sqlite_backend.py
 - tests/test_task_capabilities.py
 - tests/test_workflow_engine.py
 

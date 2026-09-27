@@ -34,6 +34,7 @@
         "tests/test_control_plane_release.py",
         "tests/test_control_plane_webhook.py",
         "tests/test_controller_asset_capabilities.py",
+        "tests/test_cooperative_managed_projects.py",
         "tests/test_dashboard_alerts.py",
         "tests/test_dashboard_api.py",
         "tests/test_dashboard_attention.py",
@@ -164,7 +165,7 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 152,
+      "in_degree": 153,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -1164,6 +1165,7 @@
       "dependents": [
         "src/production_os/cli.py",
         "src/production_os/controller.py",
+        "src/production_os/managed_projects.py",
         "src/production_os/rollback_plan.py",
         "src/production_os/task_capabilities.py",
         "src/production_os/validation.py",
@@ -1173,7 +1175,7 @@
         "tests/test_release_ledger.py",
         "tests/test_rollback_plan.py"
       ],
-      "in_degree": 10,
+      "in_degree": 11,
       "out_degree": 1
     },
     "src/production_os/journal.py": {
@@ -1244,17 +1246,19 @@
     },
     "src/production_os/managed_projects.py": {
       "dependencies": [
+        "src/production_os/history.py",
         "src/production_os/workflow_engine.py",
         "tests/test_asset_forge.py"
       ],
       "dependents": [
         "src/production_os/control_plane.py",
+        "tests/test_cooperative_managed_projects.py",
         "tests/test_managed_project_outcome.py",
         "tests/test_managed_projects_v4.py",
         "tests/test_workflow_postgres.py"
       ],
-      "in_degree": 4,
-      "out_degree": 2
+      "in_degree": 5,
+      "out_degree": 3
     },
     "src/production_os/metrics.py": {
       "dependencies": [],
@@ -1816,6 +1820,7 @@
         "src/production_os/dispatch.py",
         "src/production_os/storage.py",
         "tests/test_cli.py",
+        "tests/test_cooperative_managed_projects.py",
         "tests/test_dashboard_backups.py",
         "tests/test_dashboard_control.py",
         "tests/test_dashboard_control_audit.py",
@@ -1850,7 +1855,7 @@
         "tests/test_workflow_engine.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 36,
+      "in_degree": 37,
       "out_degree": 5
     },
     "src/production_os/sqlite_migration.py": {
@@ -2130,6 +2135,7 @@
         "tests/test_control_plane_pr_impact.py",
         "tests/test_control_plane_release.py",
         "tests/test_control_plane_webhook.py",
+        "tests/test_cooperative_managed_projects.py",
         "tests/test_dashboard_control_api.py",
         "tests/test_dashboard_control_e2e.py",
         "tests/test_dashboard_observability_e2e.py",
@@ -2147,7 +2153,7 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 22,
+      "in_degree": 23,
       "out_degree": 6
     },
     "tests/test_adaptation.py": {
@@ -2472,6 +2478,17 @@
       "dependents": [],
       "in_degree": 0,
       "out_degree": 5
+    },
+    "tests/test_cooperative_managed_projects.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/managed_projects.py",
+        "src/production_os/sqlite_backend.py",
+        "src/production_os/workflow_engine.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 4
     },
     "tests/test_dashboard_alerts.py": {
       "dependencies": [
