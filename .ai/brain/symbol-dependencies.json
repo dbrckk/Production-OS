@@ -5,41 +5,6336 @@
   "semantic": false,
   "note": "Dependencies are known symbol names lexically present inside the symbol's AST/source range.",
   "symbols": {
-    "test_dashboard_css_uses_defined_border_token_for_cooperative_stages": {
+    "_utc_now": {
       "source": {
-        "file": "tests/test_dashboard_mobile_stability.py",
-        "start": 4,
-        "end": 7
+        "file": "src/production_os/agent_runtime.py",
+        "start": 16,
+        "end": 17
       },
       "symbol_dependencies": [],
       "dependency_count": 0
     },
-    "test_dashboard_navigation_matches_eight_destinations_without_overflow_prone_six_column_grid": {
+    "AgentRuntimeContext": {
       "source": {
-        "file": "tests/test_dashboard_mobile_stability.py",
-        "start": 10,
-        "end": 14
+        "file": "src/production_os/agent_runtime.py",
+        "start": 21,
+        "end": 42
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 31,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "to_dict": {
+      "source": {
+        "file": "src/production_os/agent_runtime.py",
+        "start": 31,
+        "end": 151
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "AgentRuntimeContext",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 21,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "PersistentAgentRuntime",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 45,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "__init__",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 53,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_job_dir_name",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 58,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_read_json",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 70,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_utc_now",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 16,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_write_json_atomic",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 78,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "mark_outcome",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 133,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "prepare",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 87,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "workspace_for",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 64,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 10
+    },
+    "PersistentAgentRuntime": {
+      "source": {
+        "file": "src/production_os/agent_runtime.py",
+        "start": 45,
+        "end": 159
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "AgentRuntimeContext",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 21,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "__init__",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 53,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_job_dir_name",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 58,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_read_json",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 70,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_utc_now",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 16,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_write_json_atomic",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 78,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "inspect",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 157,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "mark_outcome",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 133,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "prepare",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 87,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "workspace_for",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 64,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 10
+    },
+    "__init__": {
+      "source": {
+        "file": "src/production_os/agent_runtime.py",
+        "start": 53,
+        "end": 173
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "AgentRuntimeContext",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 21,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_job_dir_name",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 58,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_read_json",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 70,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_utc_now",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 16,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_write_json_atomic",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 78,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "inspect",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 157,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "mark_outcome",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 133,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "prepare",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 87,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "workspace_for",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 64,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 9
+    },
+    "_job_dir_name": {
+      "source": {
+        "file": "src/production_os/agent_runtime.py",
+        "start": 58,
+        "end": 62
       },
       "symbol_dependencies": [],
       "dependency_count": 0
     },
-    "test_dashboard_exposes_visible_keyboard_focus_and_reduced_motion_contracts": {
+    "workspace_for": {
       "source": {
-        "file": "tests/test_dashboard_mobile_stability.py",
-        "start": 17,
-        "end": 21
+        "file": "src/production_os/agent_runtime.py",
+        "start": 64,
+        "end": 67
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_job_dir_name",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 58,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "_read_json": {
+      "source": {
+        "file": "src/production_os/agent_runtime.py",
+        "start": 70,
+        "end": 75
       },
       "symbol_dependencies": [],
       "dependency_count": 0
     },
-    "test_dashboard_long_content_wraps_instead_of_forcing_horizontal_scroll": {
+    "_write_json_atomic": {
       "source": {
-        "file": "tests/test_dashboard_mobile_stability.py",
-        "start": 24,
-        "end": 27
+        "file": "src/production_os/agent_runtime.py",
+        "start": 78,
+        "end": 85
       },
       "symbol_dependencies": [],
       "dependency_count": 0
+    },
+    "prepare": {
+      "source": {
+        "file": "src/production_os/agent_runtime.py",
+        "start": 87,
+        "end": 131
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "AgentRuntimeContext",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 21,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_read_json",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 70,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_utc_now",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 16,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_write_json_atomic",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 78,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "workspace_for",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 64,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 5
+    },
+    "mark_outcome": {
+      "source": {
+        "file": "src/production_os/agent_runtime.py",
+        "start": 133,
+        "end": 155
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_read_json",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 70,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_utc_now",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 16,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_write_json_atomic",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 78,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "workspace_for",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 64,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "inspect": {
+      "source": {
+        "file": "src/production_os/agent_runtime.py",
+        "start": 157,
+        "end": 159
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_read_json",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 70,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "workspace_for",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_runtime.py",
+              "line": 64,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "_parse_args": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 99,
+        "end": 758
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ack",
+          "definitions": [
+            {
+              "file": "src/production_os/claims.py",
+              "line": 88,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 143,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "active",
+          "definitions": [
+            {
+              "file": "src/production_os/quarantine.py",
+              "line": 44,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "add",
+          "definitions": [
+            {
+              "file": "src/production_os/scoring.py",
+              "line": 58,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "append",
+          "definitions": [
+            {
+              "file": "src/production_os/journal.py",
+              "line": 30,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "cancel",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 1582,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "check",
+          "definitions": [
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 50,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "claim",
+          "definitions": [
+            {
+              "file": "src/production_os/claims.py",
+              "line": 57,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 127,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "complete",
+          "definitions": [
+            {
+              "file": "src/production_os/claims.py",
+              "line": 99,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 165,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "create",
+          "definitions": [
+            {
+              "file": "src/production_os/trust_policy.py",
+              "line": 50,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 340,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "duration",
+          "definitions": [
+            {
+              "file": "src/production_os/execution_optimizer.py",
+              "line": 303,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "heartbeat",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 84,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workers.py",
+              "line": 81,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "main",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 2716,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "poll",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 211,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "promote",
+          "definitions": [
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 554,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "publish",
+          "definitions": [
+            {
+              "file": "src/production_os/transparency_receipts.py",
+              "line": 26,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/transparency_receipts.py",
+              "line": 543,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "record",
+          "definitions": [
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 71,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/rekor_witness_quorum.py",
+              "line": 128,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "refresh",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 1091,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "register",
+          "definitions": [
+            {
+              "file": "src/production_os/workers.py",
+              "line": 55,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "release",
+          "definitions": [
+            {
+              "file": "src/production_os/database_maintenance_lock.py",
+              "line": 82,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "repository",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 83,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "rollback",
+          "definitions": [
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 1326,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "run",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 367,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "stragglers",
+          "definitions": [
+            {
+              "file": "src/production_os/execution_optimizer.py",
+              "line": 201,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "validate",
+          "definitions": [
+            {
+              "file": "src/production_os/trust_policy.py",
+              "line": 22,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "verify",
+          "definitions": [
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 1064,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 25
+    },
+    "_rank_actions": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 761,
+        "end": 763
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ActionCandidate",
+          "definitions": [
+            {
+              "file": "src/production_os/models.py",
+              "line": 59,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "RepoAssessment",
+          "definitions": [
+            {
+              "file": "src/production_os/models.py",
+              "line": 87,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "_external_refs_for_action": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 766,
+        "end": 780
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ActionCandidate",
+          "definitions": [
+            {
+              "file": "src/production_os/models.py",
+              "line": 59,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/rekor_checkpoint_state.py",
+              "line": 230,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 70,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 896,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "release",
+          "definitions": [
+            {
+              "file": "src/production_os/database_maintenance_lock.py",
+              "line": 82,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "repository",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 83,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "suggest_external_references",
+          "definitions": [
+            {
+              "file": "src/production_os/starlist.py",
+              "line": 107,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 20,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 35,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 19,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/claims.py",
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/dispatch.py",
+              "line": 31,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 6
+    },
+    "_handoff": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 783,
+        "end": 865
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ActionCandidate",
+          "definitions": [
+            {
+              "file": "src/production_os/models.py",
+              "line": 59,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_external_refs_for_action",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 766,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "append",
+          "definitions": [
+            {
+              "file": "src/production_os/journal.py",
+              "line": 30,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/rekor_checkpoint_state.py",
+              "line": 230,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 70,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 896,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "repository",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 83,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 20,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 35,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 19,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/claims.py",
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/dispatch.py",
+              "line": 31,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 6
+    },
+    "_print_human": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 868,
+        "end": 915
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/rekor_checkpoint_state.py",
+              "line": 230,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 70,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 896,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "repository",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 83,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "run_scan": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 918,
+        "end": 1028
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "GitHubAPIError",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 17,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "GitHubClient",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 21,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "RepoAssessment",
+          "definitions": [
+            {
+              "file": "src/production_os/models.py",
+              "line": 87,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "RuntimeState",
+          "definitions": [
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 41,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_handoff",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 783,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_print_human",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 868,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_rank_actions",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 761,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "allocate_resources",
+          "definitions": [
+            {
+              "file": "src/production_os/resources.py",
+              "line": 4,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "append",
+          "definitions": [
+            {
+              "file": "src/production_os/journal.py",
+              "line": 30,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "assess_repository",
+          "definitions": [
+            {
+              "file": "src/production_os/scoring.py",
+              "line": 157,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "build_knowledge_graph",
+          "definitions": [
+            {
+              "file": "src/production_os/graph.py",
+              "line": 25,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "build_learning_signals",
+          "definitions": [
+            {
+              "file": "src/production_os/learning.py",
+              "line": 36,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "build_schedule",
+          "definitions": [
+            {
+              "file": "src/production_os/scheduler.py",
+              "line": 110,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "build_snapshot",
+          "definitions": [
+            {
+              "file": "src/production_os/history.py",
+              "line": 20,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "collect_evidence",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 736,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "detect_regressions",
+          "definitions": [
+            {
+              "file": "src/production_os/history.py",
+              "line": 57,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "detect_reuse",
+          "definitions": [
+            {
+              "file": "src/production_os/reuse.py",
+              "line": 81,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/rekor_checkpoint_state.py",
+              "line": 230,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 70,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 896,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "list_repositories",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 611,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "load_snapshot",
+          "definitions": [
+            {
+              "file": "src/production_os/history.py",
+              "line": 50,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "read_json_file",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 654,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "repository",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 83,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "save_snapshot",
+          "definitions": [
+            {
+              "file": "src/production_os/history.py",
+              "line": 44,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "set",
+          "definitions": [
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 54,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/quarantine.py",
+              "line": 33,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 20,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 35,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 19,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/claims.py",
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/dispatch.py",
+              "line": 31,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "write_control_surface",
+          "definitions": [
+            {
+              "file": "src/production_os/control_surface.py",
+              "line": 63,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 26
+    },
+    "run_validation_results": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1031,
+        "end": 1060
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/rekor_checkpoint_state.py",
+              "line": 230,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 70,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 896,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "summarize_validation_results",
+          "definitions": [
+            {
+              "file": "src/production_os/feedback.py",
+              "line": 24,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 20,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 35,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 19,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/claims.py",
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/dispatch.py",
+              "line": 31,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "run_execution_feedback": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1063,
+        "end": 1097
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ExecutionJournal",
+          "definitions": [
+            {
+              "file": "src/production_os/journal.py",
+              "line": 11,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "RuntimeState",
+          "definitions": [
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 41,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "append",
+          "definitions": [
+            {
+              "file": "src/production_os/journal.py",
+              "line": 30,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "decide_execution_outcome",
+          "definitions": [
+            {
+              "file": "src/production_os/execution_feedback.py",
+              "line": 22,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/rekor_checkpoint_state.py",
+              "line": 230,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 70,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 896,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "promote",
+          "definitions": [
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 554,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "record",
+          "definitions": [
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 71,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/rekor_witness_quorum.py",
+              "line": 128,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "record_outcome",
+          "definitions": [
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 156,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "repository",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 83,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 20,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 35,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 19,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/claims.py",
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/dispatch.py",
+              "line": 31,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 10
+    },
+    "run_trends": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1100,
+        "end": 1110
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "build_trends",
+          "definitions": [
+            {
+              "file": "src/production_os/trends.py",
+              "line": 26,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 20,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 35,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 19,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/claims.py",
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/dispatch.py",
+              "line": 31,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "run_heartbeat": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1113,
+        "end": 1125
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "RuntimeState",
+          "definitions": [
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 41,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "heartbeat",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 84,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workers.py",
+              "line": 81,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "heartbeat_lease",
+          "definitions": [
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 124,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "record",
+          "definitions": [
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 71,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/rekor_witness_quorum.py",
+              "line": 128,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "repository",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 83,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 20,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 35,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 19,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/claims.py",
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/dispatch.py",
+              "line": 31,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 6
+    },
+    "run_reconcile": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1128,
+        "end": 1135
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "RuntimeState",
+          "definitions": [
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 41,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "reconcile_runtime_state",
+          "definitions": [
+            {
+              "file": "src/production_os/reconciliation.py",
+              "line": 27,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 20,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 35,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 19,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/claims.py",
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/dispatch.py",
+              "line": 31,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "run_dispatch": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1138,
+        "end": 1215
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ApprovalStore",
+          "definitions": [
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 30,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "BudgetLedger",
+          "definitions": [
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 28,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "PolicySet",
+          "definitions": [
+            {
+              "file": "src/production_os/policy.py",
+              "line": 37,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "QuarantineStore",
+          "definitions": [
+            {
+              "file": "src/production_os/quarantine.py",
+              "line": 11,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "RateLimitStore",
+          "definitions": [
+            {
+              "file": "src/production_os/rate_limit.py",
+              "line": 52,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "RuntimeState",
+          "definitions": [
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 41,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "WorkerRegistry",
+          "definitions": [
+            {
+              "file": "src/production_os/workers.py",
+              "line": 25,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "dispatch_handoff",
+          "definitions": [
+            {
+              "file": "src/production_os/dispatch.py",
+              "line": 43,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "job_queue_for",
+          "definitions": [
+            {
+              "file": "src/production_os/storage.py",
+              "line": 47,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "load",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 36,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 45,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 41,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/claims.py",
+              "line": 44,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/policy.py",
+              "line": 42,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "open_backend",
+          "definitions": [
+            {
+              "file": "src/production_os/storage.py",
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 20,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 35,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 19,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/claims.py",
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/dispatch.py",
+              "line": 31,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 12
+    },
+    "_write_asset_result": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1217,
+        "end": 1225
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "_asset_failure_result": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1228,
+        "end": 1236
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "run_asset_forge_dispatch": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1239,
+        "end": 1301
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_asset_failure_result",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 1228,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_write_asset_result",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 1217,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "build_asset_forge_request",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 50,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "execute_asset_forge",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 287,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/rekor_checkpoint_state.py",
+              "line": 230,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 70,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 896,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 20,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 35,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 19,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/claims.py",
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/dispatch.py",
+              "line": 31,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 6
+    },
+    "run_asset_forge_batch": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1304,
+        "end": 1328
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_asset_failure_result",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 1228,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_write_asset_result",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 1217,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "execute_asset_forge_batch",
+          "definitions": [
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 794,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/rekor_checkpoint_state.py",
+              "line": 230,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 70,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 896,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "run_github_reconcile": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1331,
+        "end": 1382
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ExecutionJournal",
+          "definitions": [
+            {
+              "file": "src/production_os/journal.py",
+              "line": 11,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "GitHubClient",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 21,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "RuntimeState",
+          "definitions": [
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 41,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "append",
+          "definitions": [
+            {
+              "file": "src/production_os/journal.py",
+              "line": 30,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "fetch_github_work_state",
+          "definitions": [
+            {
+              "file": "src/production_os/github_work_state.py",
+              "line": 161,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/rekor_checkpoint_state.py",
+              "line": 230,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 70,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 896,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "promote",
+          "definitions": [
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 554,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "record_outcome",
+          "definitions": [
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 156,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "repository",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 83,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "runtime_decision_from_github",
+          "definitions": [
+            {
+              "file": "src/production_os/github_work_state.py",
+              "line": 276,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 20,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 35,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 19,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/claims.py",
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/dispatch.py",
+              "line": 31,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 11
+    },
+    "run_controller_command": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1385,
+        "end": 1419
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "run",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 367,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "run_controller",
+          "definitions": [
+            {
+              "file": "src/production_os/controller.py",
+              "line": 389,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "run_worker_register": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1421,
+        "end": 1432
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "WorkerRegistry",
+          "definitions": [
+            {
+              "file": "src/production_os/workers.py",
+              "line": 25,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "register",
+          "definitions": [
+            {
+              "file": "src/production_os/workers.py",
+              "line": 55,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 20,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 35,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 19,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/claims.py",
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/dispatch.py",
+              "line": 31,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "run_worker_heartbeat": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1435,
+        "end": 1442
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "WorkerRegistry",
+          "definitions": [
+            {
+              "file": "src/production_os/workers.py",
+              "line": 25,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "heartbeat",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 84,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workers.py",
+              "line": 81,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 20,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 35,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 19,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/claims.py",
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/dispatch.py",
+              "line": 31,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "run_worker_list": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1445,
+        "end": 1453
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "WorkerRegistry",
+          "definitions": [
+            {
+              "file": "src/production_os/workers.py",
+              "line": 25,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "detect_dead",
+          "definitions": [
+            {
+              "file": "src/production_os/workers.py",
+              "line": 100,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 20,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 35,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 19,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/claims.py",
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/dispatch.py",
+              "line": 31,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "run_job_claim": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1458,
+        "end": 1482
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ClaimStore",
+          "definitions": [
+            {
+              "file": "src/production_os/claims.py",
+              "line": 27,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "claim",
+          "definitions": [
+            {
+              "file": "src/production_os/claims.py",
+              "line": 57,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 127,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/rekor_checkpoint_state.py",
+              "line": 230,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 70,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 896,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "repository",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 83,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 20,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 35,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 19,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/claims.py",
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/dispatch.py",
+              "line": 31,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 5
+    },
+    "run_job_ack": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1485,
+        "end": 1492
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ClaimStore",
+          "definitions": [
+            {
+              "file": "src/production_os/claims.py",
+              "line": 27,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "ack",
+          "definitions": [
+            {
+              "file": "src/production_os/claims.py",
+              "line": 88,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 143,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "claim",
+          "definitions": [
+            {
+              "file": "src/production_os/claims.py",
+              "line": 57,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 127,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 20,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 35,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 19,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/claims.py",
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/dispatch.py",
+              "line": 31,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "run_job_complete": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1495,
+        "end": 1515
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ClaimStore",
+          "definitions": [
+            {
+              "file": "src/production_os/claims.py",
+              "line": 27,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "RuntimeState",
+          "definitions": [
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 41,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "WorkerRegistry",
+          "definitions": [
+            {
+              "file": "src/production_os/workers.py",
+              "line": 25,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "adjust_active_tasks",
+          "definitions": [
+            {
+              "file": "src/production_os/workers.py",
+              "line": 92,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "claim",
+          "definitions": [
+            {
+              "file": "src/production_os/claims.py",
+              "line": 57,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 127,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "complete",
+          "definitions": [
+            {
+              "file": "src/production_os/claims.py",
+              "line": 99,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 165,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/rekor_checkpoint_state.py",
+              "line": 230,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 70,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 896,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "record",
+          "definitions": [
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 71,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/rekor_witness_quorum.py",
+              "line": 128,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "release_lease",
+          "definitions": [
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 144,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "repository",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 83,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 20,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 35,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 19,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/claims.py",
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/dispatch.py",
+              "line": 31,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 11
+    },
+    "run_delivery_recover": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1518,
+        "end": 1533
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ClaimStore",
+          "definitions": [
+            {
+              "file": "src/production_os/claims.py",
+              "line": 27,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "RuntimeState",
+          "definitions": [
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 41,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "WorkerRegistry",
+          "definitions": [
+            {
+              "file": "src/production_os/workers.py",
+              "line": 25,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "recover_unacked_jobs",
+          "definitions": [
+            {
+              "file": "src/production_os/delivery.py",
+              "line": 11,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "run_preempt_request": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1537,
+        "end": 1544
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "RuntimeState",
+          "definitions": [
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 41,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "record",
+          "definitions": [
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 71,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/rekor_witness_quorum.py",
+              "line": 128,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "repository",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 83,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "request_preemption",
+          "definitions": [
+            {
+              "file": "src/production_os/preemption.py",
+              "line": 78,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "run_preempt_checkpoint": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1547,
+        "end": 1562
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "RuntimeState",
+          "definitions": [
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 41,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "WorkerRegistry",
+          "definitions": [
+            {
+              "file": "src/production_os/workers.py",
+              "line": 25,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "confirm_checkpoint_and_release",
+          "definitions": [
+            {
+              "file": "src/production_os/preemption.py",
+              "line": 94,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "record",
+          "definitions": [
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 71,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/rekor_witness_quorum.py",
+              "line": 128,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "repository",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 83,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 5
+    },
+    "run_emergency_stop": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1566,
+        "end": 1569
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "set_emergency_stop",
+          "definitions": [
+            {
+              "file": "src/production_os/emergency.py",
+              "line": 10,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "run_emergency_resume": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1572,
+        "end": 1575
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "clear_emergency_stop",
+          "definitions": [
+            {
+              "file": "src/production_os/emergency.py",
+              "line": 21,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "run_audit_verify": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1578,
+        "end": 1581
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/rekor_checkpoint_state.py",
+              "line": 230,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 70,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 896,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "verify_hash_chain",
+          "definitions": [
+            {
+              "file": "src/production_os/audit_integrity.py",
+              "line": 18,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "run_backup": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1584,
+        "end": 1587
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "create_backup",
+          "definitions": [
+            {
+              "file": "src/production_os/backup.py",
+              "line": 20,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "run_restore": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1590,
+        "end": 1593
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "restore_backup",
+          "definitions": [
+            {
+              "file": "src/production_os/backup.py",
+              "line": 52,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "run_restore_activate": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1596,
+        "end": 1622
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "BackupError",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_backups.py",
+              "line": 19,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "DatabaseInUseError",
+          "definitions": [
+            {
+              "file": "src/production_os/database_maintenance_lock.py",
+              "line": 17,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "activate_staged_sqlite_restore",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_backups.py",
+              "line": 1024,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "open_backend",
+          "definitions": [
+            {
+              "file": "src/production_os/storage.py",
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "run_approve": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1626,
+        "end": 1638
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ApprovalStore",
+          "definitions": [
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 30,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "set",
+          "definitions": [
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 54,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/quarantine.py",
+              "line": 33,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 20,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 35,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 19,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/claims.py",
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/dispatch.py",
+              "line": 31,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "run_revoke": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1641,
+        "end": 1653
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ApprovalStore",
+          "definitions": [
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 30,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "set",
+          "definitions": [
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 54,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/quarantine.py",
+              "line": 33,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 20,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 35,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 19,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/claims.py",
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/dispatch.py",
+              "line": 31,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "run_migrate_state": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1656,
+        "end": 1659
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "migrate_state_file",
+          "definitions": [
+            {
+              "file": "src/production_os/migrations.py",
+              "line": 9,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "run_migrate_many": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1663,
+        "end": 1669
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "migrate_many",
+          "definitions": [
+            {
+              "file": "src/production_os/migration_registry.py",
+              "line": 25,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 20,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 35,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 19,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/claims.py",
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/dispatch.py",
+              "line": 31,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "run_queue_compact": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1672,
+        "end": 1683
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ClaimStore",
+          "definitions": [
+            {
+              "file": "src/production_os/claims.py",
+              "line": 27,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "compact_queue",
+          "definitions": [
+            {
+              "file": "src/production_os/queue_maintenance.py",
+              "line": 11,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "run_dead_letter_retry": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1686,
+        "end": 1696
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "retry_dead_letters",
+          "definitions": [
+            {
+              "file": "src/production_os/queue_maintenance.py",
+              "line": 55,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "run_audit_checkpoint_create": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1699,
+        "end": 1706
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "create_audit_checkpoint",
+          "definitions": [
+            {
+              "file": "src/production_os/audit_checkpoint.py",
+              "line": 13,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "run_audit_checkpoint_verify": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1709,
+        "end": 1715
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/rekor_checkpoint_state.py",
+              "line": 230,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 70,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 896,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "verify_audit_checkpoint",
+          "definitions": [
+            {
+              "file": "src/production_os/audit_checkpoint.py",
+              "line": 49,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "run_quarantine": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1719,
+        "end": 1727
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "QuarantineStore",
+          "definitions": [
+            {
+              "file": "src/production_os/quarantine.py",
+              "line": 11,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "active",
+          "definitions": [
+            {
+              "file": "src/production_os/quarantine.py",
+              "line": 44,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "repository",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 83,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "set",
+          "definitions": [
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 54,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/quarantine.py",
+              "line": 33,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "run_unquarantine": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1730,
+        "end": 1738
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "QuarantineStore",
+          "definitions": [
+            {
+              "file": "src/production_os/quarantine.py",
+              "line": 11,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "active",
+          "definitions": [
+            {
+              "file": "src/production_os/quarantine.py",
+              "line": 44,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "release",
+          "definitions": [
+            {
+              "file": "src/production_os/database_maintenance_lock.py",
+              "line": 82,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "repository",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 83,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "set",
+          "definitions": [
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 54,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/quarantine.py",
+              "line": 33,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 5
+    },
+    "run_budget_record": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1741,
+        "end": 1756
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "BudgetLedger",
+          "definitions": [
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 28,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "record",
+          "definitions": [
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 71,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/rekor_witness_quorum.py",
+              "line": 128,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "repository",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 83,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "run_policy_validate": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1760,
+        "end": 1767
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 20,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 35,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 19,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/claims.py",
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/dispatch.py",
+              "line": 31,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "validate_policy_payload",
+          "definitions": [
+            {
+              "file": "src/production_os/policy_validation.py",
+              "line": 17,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "run_policy_check": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1770,
+        "end": 1780
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "PolicySet",
+          "definitions": [
+            {
+              "file": "src/production_os/policy.py",
+              "line": 37,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "evaluate_policy",
+          "definitions": [
+            {
+              "file": "src/production_os/policy.py",
+              "line": 106,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/rekor_checkpoint_state.py",
+              "line": 230,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 70,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 896,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "load",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 36,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 45,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 41,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/claims.py",
+              "line": 44,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/policy.py",
+              "line": 42,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "repository",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 83,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 20,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 35,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 19,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/claims.py",
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/dispatch.py",
+              "line": 31,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 6
+    },
+    "run_db_init": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1784,
+        "end": 1797
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "open_backend",
+          "definitions": [
+            {
+              "file": "src/production_os/storage.py",
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "run_db_import": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1800,
+        "end": 1809
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "import_json_state",
+          "definitions": [
+            {
+              "file": "src/production_os/sqlite_migration.py",
+              "line": 12,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "open_backend",
+          "definitions": [
+            {
+              "file": "src/production_os/storage.py",
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "run_token_hash": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1812,
+        "end": 1817
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "token_digest",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 18,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "_trusted_validation_keys_from_env": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1820,
+        "end": 1833
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "run_control_plane": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1836,
+        "end": 1899
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_trusted_validation_keys_from_env",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 1820,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "create_signer",
+          "definitions": [
+            {
+              "file": "src/production_os/signer_factory.py",
+              "line": 156,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "key_id",
+          "definitions": [
+            {
+              "file": "src/production_os/signer_factory.py",
+              "line": 74,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/signing.py",
+              "line": 37,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "serve_control_plane",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 3186,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "run_remote_worker_poll": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1903,
+        "end": 1920
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "RemoteWorkerClient",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 22,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "poll",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 211,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 20,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/asset_forge.py",
+              "line": 35,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 19,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/claims.py",
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/dispatch.py",
+              "line": 31,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "run_remote_worker_run": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1924,
+        "end": 1971
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "RemoteWorkerClient",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 22,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "RemoteWorkerRunner",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 15,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_request_stop",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 1948,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "request_stop",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 63,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "run",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 367,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 5
+    },
+    "_request_stop": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1948,
+        "end": 2068
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ExecutionOptimizer",
+          "definitions": [
+            {
+              "file": "src/production_os/execution_optimizer.py",
+              "line": 33,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "SpeculationManager",
+          "definitions": [
+            {
+              "file": "src/production_os/speculation.py",
+              "line": 25,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "WorkflowEngine",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 225,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "WorkflowTaskSpec",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 198,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_workflow_engine",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 1974,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "create",
+          "definitions": [
+            {
+              "file": "src/production_os/trust_policy.py",
+              "line": 50,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 340,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "critical_path",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 1745,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "dispatch_ready",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 1200,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "from_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 208,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/rekor_checkpoint_state.py",
+              "line": 230,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 70,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 896,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "job_queue_for",
+          "definitions": [
+            {
+              "file": "src/production_os/storage.py",
+              "line": 47,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "load",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 36,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 45,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 41,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/claims.py",
+              "line": 44,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/policy.py",
+              "line": 42,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "open_backend",
+          "definitions": [
+            {
+              "file": "src/production_os/storage.py",
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "repository",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 83,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "request_stop",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 63,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "run",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 367,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "run_speculate_stragglers",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 2061,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "run_stragglers",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 2043,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "run_workflow_create",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 1979,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "run_workflow_critical_path",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 2023,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "run_workflow_dispatch",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 2012,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "run_workflow_eta",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 2031,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "run_workflow_status",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 2003,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "stragglers",
+          "definitions": [
+            {
+              "file": "src/production_os/execution_optimizer.py",
+              "line": 201,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "worker_registry_for",
+          "definitions": [
+            {
+              "file": "src/production_os/storage.py",
+              "line": 35,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "workflow_eta",
+          "definitions": [
+            {
+              "file": "src/production_os/execution_optimizer.py",
+              "line": 299,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 26
+    },
+    "_workflow_engine": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1974,
+        "end": 1976
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "WorkflowEngine",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 225,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "job_queue_for",
+          "definitions": [
+            {
+              "file": "src/production_os/storage.py",
+              "line": 47,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "open_backend",
+          "definitions": [
+            {
+              "file": "src/production_os/storage.py",
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "run_workflow_create": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 1979,
+        "end": 2000
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "WorkflowTaskSpec",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 198,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_workflow_engine",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 1974,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "create",
+          "definitions": [
+            {
+              "file": "src/production_os/trust_policy.py",
+              "line": 50,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 340,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "from_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 208,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/rekor_checkpoint_state.py",
+              "line": 230,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 70,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 896,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "repository",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 83,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 6
+    },
+    "run_workflow_status": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 2003,
+        "end": 2009
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_workflow_engine",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 1974,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/rekor_checkpoint_state.py",
+              "line": 230,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 70,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 896,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "run_workflow_dispatch": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 2012,
+        "end": 2020
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_workflow_engine",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 1974,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "dispatch_ready",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 1200,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/rekor_checkpoint_state.py",
+              "line": 230,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 70,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 896,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "run_workflow_critical_path": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 2023,
+        "end": 2028
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_workflow_engine",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 1974,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "critical_path",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 1745,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "run_workflow_eta": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 2031,
+        "end": 2040
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ExecutionOptimizer",
+          "definitions": [
+            {
+              "file": "src/production_os/execution_optimizer.py",
+              "line": 33,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_workflow_engine",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 1974,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/rekor_checkpoint_state.py",
+              "line": 230,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 70,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 896,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "workflow_eta",
+          "definitions": [
+            {
+              "file": "src/production_os/execution_optimizer.py",
+              "line": 299,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "run_stragglers": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 2043,
+        "end": 2058
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ExecutionOptimizer",
+          "definitions": [
+            {
+              "file": "src/production_os/execution_optimizer.py",
+              "line": 33,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "load",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 36,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 45,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 41,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/claims.py",
+              "line": 44,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/policy.py",
+              "line": 42,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "open_backend",
+          "definitions": [
+            {
+              "file": "src/production_os/storage.py",
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "stragglers",
+          "definitions": [
+            {
+              "file": "src/production_os/execution_optimizer.py",
+              "line": 201,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "worker_registry_for",
+          "definitions": [
+            {
+              "file": "src/production_os/storage.py",
+              "line": 35,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 5
+    },
+    "run_speculate_stragglers": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 2061,
+        "end": 2103
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ExecutionOptimizer",
+          "definitions": [
+            {
+              "file": "src/production_os/execution_optimizer.py",
+              "line": 33,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "SpeculationManager",
+          "definitions": [
+            {
+              "file": "src/production_os/speculation.py",
+              "line": 25,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "append",
+          "definitions": [
+            {
+              "file": "src/production_os/journal.py",
+              "line": 30,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/rekor_checkpoint_state.py",
+              "line": 230,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 70,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 896,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "job_queue_for",
+          "definitions": [
+            {
+              "file": "src/production_os/storage.py",
+              "line": 47,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "load",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 36,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/approvals.py",
+              "line": 45,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/budgets.py",
+              "line": 41,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/claims.py",
+              "line": 44,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/policy.py",
+              "line": 42,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "open_backend",
+          "definitions": [
+            {
+              "file": "src/production_os/storage.py",
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "spawn",
+          "definitions": [
+            {
+              "file": "src/production_os/speculation.py",
+              "line": 40,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "stragglers",
+          "definitions": [
+            {
+              "file": "src/production_os/execution_optimizer.py",
+              "line": 201,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "worker_registry_for",
+          "definitions": [
+            {
+              "file": "src/production_os/storage.py",
+              "line": 35,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 10
+    },
+    "run_workflow_impact": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 2106,
+        "end": 2117
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_workflow_engine",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 1974,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "apply_change_impact",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 431,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/rekor_checkpoint_state.py",
+              "line": 230,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 70,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 896,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "run_workflow_impact_pr": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 2120,
+        "end": 2139
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "GitHubClient",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 21,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_workflow_engine",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 1974,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "apply_change_impact",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 431,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/rekor_checkpoint_state.py",
+              "line": 230,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 70,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 896,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "list_pull_request_files",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 524,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "repository",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 83,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 6
+    },
+    "run_pr_refresh": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 2142,
+        "end": 2183
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "GitHubClient",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 21,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_workflow_engine",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 1974,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "append",
+          "definitions": [
+            {
+              "file": "src/production_os/journal.py",
+              "line": 30,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "apply_change_impact",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 431,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "find_by_github_pr",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 863,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/rekor_checkpoint_state.py",
+              "line": 230,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 70,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 896,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "list_pull_request_files",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 524,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "refresh",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 1091,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "repository",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 83,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 9
+    },
+    "run_workflow_cancel": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 2186,
+        "end": 2192
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_workflow_engine",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 1974,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "cancel",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 1582,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "run_artifact_add": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 2195,
+        "end": 2219
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_workflow_engine",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 1974,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "add_artifact",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 1677,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "_release_ledger": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 2221,
+        "end": 2266
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ReleaseLedger",
+          "definitions": [
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 81,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_trusted_validation_keys_from_env",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 1820,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_workflow_engine",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 1974,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 3
     }
   }
 }

@@ -57,6 +57,7 @@ src/
     __init__.py
     adaptation_plan.py
     adaptation.py
+    agent_runtime.py
     api_auth.py
     approvals.py
     asset_forge.py
@@ -258,6 +259,7 @@ tests/
   test_mobile_worker_image.py
   test_observability.py
   test_p6_hardening.py
+  test_persistent_agent_runtime.py
   test_policy_budgets.py
   test_policy_validation.py
   test_portfolio_claim_api.py
@@ -821,6 +823,83 @@ level = "medium"
 level = "high"
 ⋮----
 level = "very-high"
+````
+
+## File: src/production_os/agent_runtime.py
+````python
+_RUNTIME_SCHEMA = "production-os/persistent-agent-runtime/v1"
+⋮----
+def _utc_now() -> str
+⋮----
+@dataclass(frozen=True, slots=True)
+class AgentRuntimeContext
+⋮----
+job_key: str
+session_id: str
+workspace: str
+state_path: str
+checkpoint_path: str
+attempt: int
+resume: bool
+checkpoint_available: bool
+⋮----
+def to_dict(self) -> dict[str, Any]
+⋮----
+class PersistentAgentRuntime
+⋮----
+"""Durable per-job runtime metadata and workspace.
+
+    The control plane remains authoritative for queue ownership. This store only
+    preserves executor-local context needed to resume useful work after a worker
+    restart. Job keys are hashed before being used as paths.
+    """
+⋮----
+def __init__(self, root: str | os.PathLike[str])
+⋮----
+@staticmethod
+    def _job_dir_name(job_key: str) -> str
+⋮----
+key = str(job_key or "").strip()
+⋮----
+def workspace_for(self, job_key: str) -> Path
+⋮----
+path = self.root / self._job_dir_name(job_key)
+⋮----
+@staticmethod
+    def _read_json(path: Path) -> dict[str, Any]
+⋮----
+value = json.loads(path.read_text(encoding="utf-8"))
+⋮----
+@staticmethod
+    def _write_json_atomic(path: Path, payload: dict[str, Any]) -> None
+⋮----
+temp = path.with_suffix(path.suffix + ".tmp")
+⋮----
+def prepare(self, job_key: str) -> AgentRuntimeContext
+⋮----
+key = str(job_key).strip()
+workspace = self.workspace_for(key)
+state_path = workspace / "runtime-state.json"
+checkpoint_path = workspace / "checkpoint.json"
+previous = self._read_json(state_path)
+⋮----
+same_job = previous.get("job_key") == key
+previous_status = str(previous.get("status") or "")
+attempt = int(previous.get("attempt") or 0) + 1 if same_job else 1
+session_id = (
+resume = bool(
+⋮----
+payload = {
+⋮----
+def mark_outcome(self, job_key: str, outcome: dict[str, Any]) -> None
+⋮----
+workspace = self.workspace_for(job_key)
+⋮----
+state = self._read_json(state_path)
+⋮----
+status = str(outcome.get("status") or "unknown")
+⋮----
+def inspect(self, job_key: str) -> dict[str, Any]
 ````
 
 ## File: src/production_os/api_auth.py
@@ -7100,6 +7179,8 @@ class RemoteWorkerRunner
 ⋮----
 command = [str(part) for part in executor_command if str(part)]
 ⋮----
+configured_runtime_root = runtime_root or os.getenv("PRODUCTION_OS_RUNTIME_DIR")
+⋮----
 secret_names = {
 ⋮----
 def request_stop(self) -> None
@@ -7123,10 +7204,14 @@ def _heartbeat_active(self, key: str) -> dict
 def _execute(self, job: RemoteJob) -> dict
 ⋮----
 key = job.key
+runtime_context = (
 ⋮----
 active_registered = True
 heartbeat = self._activate(key)
 process: subprocess.Popen[str] | None = None
+⋮----
+request_payload = {
+executor_env = self.executor_env.copy()
 ⋮----
 request = json.dumps(
 started = time.monotonic()
@@ -7167,6 +7252,8 @@ futures: dict[Future[dict], str] = {}
 index = 0
 ⋮----
 def collect(done) -> None
+⋮----
+outcome = future.result()
 ⋮----
 job = self.client.claim(
 ⋮----
@@ -12310,6 +12397,59 @@ def test_rate_limit()
 result = check_rate_limit([], limit=2, window_seconds=60)
 ````
 
+## File: tests/test_persistent_agent_runtime.py
+````python
+class FakeClient
+⋮----
+worker_id = "worker-test"
+⋮----
+def __init__(self, jobs)
+⋮----
+def open_session(self, **_kwargs)
+⋮----
+def heartbeat(self, **_kwargs)
+⋮----
+def claim(self, **_kwargs)
+⋮----
+def ack(self, key)
+⋮----
+def complete(self, key, *, result_payload=None, duration_seconds=None)
+⋮----
+def fail(self, key, reason, *, result_payload=None, duration_seconds=None)
+⋮----
+def checkpoint_stale(self, key, checkpoint_ref)
+⋮----
+def test_persistent_runtime_reuses_session_and_marks_resume(tmp_path)
+⋮----
+runtime = PersistentAgentRuntime(tmp_path / "runtime")
+first = runtime.prepare("job/unsafe/../key")
+⋮----
+checkpoint = tmp_path / "runtime" / runtime._job_dir_name("job/unsafe/../key") / "checkpoint.json"
+⋮----
+second = runtime.prepare("job/unsafe/../key")
+⋮----
+def test_remote_runner_passes_durable_runtime_context_to_executor(tmp_path)
+⋮----
+executor = tmp_path / "executor.py"
+⋮----
+client = FakeClient([RemoteJob("job-1", {"payload":{"task":"x"}})])
+runner = RemoteWorkerRunner(
+⋮----
+outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+⋮----
+result = client.completed[0][1]
+⋮----
+state = runner.agent_runtime.inspect("job-1")
+⋮----
+def test_worker_compose_mounts_shared_durable_runtime()
+⋮----
+compose = open("compose.worker.yaml", encoding="utf-8").read()
+⋮----
+def test_remote_worker_cli_exposes_runtime_root()
+⋮----
+args = _parse_args([
+````
+
 ## File: tests/test_policy_budgets.py
 ````python
 def test_high_risk_requires_approval()
@@ -15036,8 +15176,10 @@ services:
         condition: service_healthy
     environment:
       PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
+      PRODUCTION_OS_RUNTIME_DIR: /var/lib/production-os/runtime
     volumes:
       - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
+      - production-worker-runtime:/var/lib/production-os/runtime
     command:
       - remote-worker-run
       - --url
@@ -15067,9 +15209,11 @@ services:
         condition: service_healthy
     environment:
       PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
+      PRODUCTION_OS_RUNTIME_DIR: /var/lib/production-os/runtime
       PRODUCTION_OS_WORKER_SPECIALTIES: code
     volumes:
       - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
+      - production-worker-runtime:/var/lib/production-os/runtime
     command:
       - remote-worker-run
       - --url
@@ -15101,9 +15245,11 @@ services:
         condition: service_healthy
     environment:
       PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
+      PRODUCTION_OS_RUNTIME_DIR: /var/lib/production-os/runtime
       PRODUCTION_OS_WORKER_SPECIALTIES: debug
     volumes:
       - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
+      - production-worker-runtime:/var/lib/production-os/runtime
     command:
       - remote-worker-run
       - --url
@@ -15135,9 +15281,11 @@ services:
         condition: service_healthy
     environment:
       PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
+      PRODUCTION_OS_RUNTIME_DIR: /var/lib/production-os/runtime
       PRODUCTION_OS_WORKER_SPECIALTIES: review
     volumes:
       - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
+      - production-worker-runtime:/var/lib/production-os/runtime
     command:
       - remote-worker-run
       - --url
@@ -15171,9 +15319,11 @@ services:
         condition: service_healthy
     environment:
       PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
+      PRODUCTION_OS_RUNTIME_DIR: /var/lib/production-os/runtime
       PRODUCTION_OS_WORKER_SPECIALTIES: browser
     volumes:
       - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
+      - production-worker-runtime:/var/lib/production-os/runtime
     command:
       - remote-worker-run
       - --url
@@ -15210,11 +15360,13 @@ services:
         condition: service_healthy
     environment:
       PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
+      PRODUCTION_OS_RUNTIME_DIR: /var/lib/production-os/runtime
       PRODUCTION_OS_WORKER_SPECIALTIES: mobile
       PRODUCTION_OS_ANDROID_AVD: ${PRODUCTION_OS_ANDROID_AVD:-production-os-api35}
       ANDROID_AVD_HOME: /opt/android-avd
     volumes:
       - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
+      - production-worker-runtime:/var/lib/production-os/runtime
     command:
       - remote-worker-run
       - --url
@@ -15233,6 +15385,10 @@ services:
       - ${PRODUCTION_OS_MOBILE_WORKER_TIMEOUT_SECONDS:-5400}
       - --ack-timeout-seconds
       - ${PRODUCTION_OS_WORKER_ACK_TIMEOUT_SECONDS:-120}
+
+
+volumes:
+  production-worker-runtime:
 ````
 
 ## File: compose.yaml

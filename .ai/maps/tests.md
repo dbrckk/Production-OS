@@ -125,6 +125,7 @@ test_managed_projects_v4.py
 test_mobile_worker_image.py
 test_observability.py
 test_p6_hardening.py
+test_persistent_agent_runtime.py
 test_policy_budgets.py
 test_policy_validation.py
 test_portfolio_claim_api.py
@@ -3703,6 +3704,59 @@ h = hash_event(prev, event)
 def test_rate_limit()
 ⋮----
 result = check_rate_limit([], limit=2, window_seconds=60)
+```
+
+## File: test_persistent_agent_runtime.py
+```python
+class FakeClient
+⋮----
+worker_id = "worker-test"
+⋮----
+def __init__(self, jobs)
+⋮----
+def open_session(self, **_kwargs)
+⋮----
+def heartbeat(self, **_kwargs)
+⋮----
+def claim(self, **_kwargs)
+⋮----
+def ack(self, key)
+⋮----
+def complete(self, key, *, result_payload=None, duration_seconds=None)
+⋮----
+def fail(self, key, reason, *, result_payload=None, duration_seconds=None)
+⋮----
+def checkpoint_stale(self, key, checkpoint_ref)
+⋮----
+def test_persistent_runtime_reuses_session_and_marks_resume(tmp_path)
+⋮----
+runtime = PersistentAgentRuntime(tmp_path / "runtime")
+first = runtime.prepare("job/unsafe/../key")
+⋮----
+checkpoint = tmp_path / "runtime" / runtime._job_dir_name("job/unsafe/../key") / "checkpoint.json"
+⋮----
+second = runtime.prepare("job/unsafe/../key")
+⋮----
+def test_remote_runner_passes_durable_runtime_context_to_executor(tmp_path)
+⋮----
+executor = tmp_path / "executor.py"
+⋮----
+client = FakeClient([RemoteJob("job-1", {"payload":{"task":"x"}})])
+runner = RemoteWorkerRunner(
+⋮----
+outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+⋮----
+result = client.completed[0][1]
+⋮----
+state = runner.agent_runtime.inspect("job-1")
+⋮----
+def test_worker_compose_mounts_shared_durable_runtime()
+⋮----
+compose = open("compose.worker.yaml", encoding="utf-8").read()
+⋮----
+def test_remote_worker_cli_exposes_runtime_root()
+⋮----
+args = _parse_args([
 ```
 
 ## File: test_policy_budgets.py

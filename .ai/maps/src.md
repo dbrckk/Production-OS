@@ -42,6 +42,7 @@ production_os/
   __init__.py
   adaptation_plan.py
   adaptation.py
+  agent_runtime.py
   api_auth.py
   approvals.py
   asset_forge.py
@@ -263,6 +264,83 @@ level = "medium"
 level = "high"
 ⋮----
 level = "very-high"
+```
+
+## File: production_os/agent_runtime.py
+```python
+_RUNTIME_SCHEMA = "production-os/persistent-agent-runtime/v1"
+⋮----
+def _utc_now() -> str
+⋮----
+@dataclass(frozen=True, slots=True)
+class AgentRuntimeContext
+⋮----
+job_key: str
+session_id: str
+workspace: str
+state_path: str
+checkpoint_path: str
+attempt: int
+resume: bool
+checkpoint_available: bool
+⋮----
+def to_dict(self) -> dict[str, Any]
+⋮----
+class PersistentAgentRuntime
+⋮----
+"""Durable per-job runtime metadata and workspace.
+
+    The control plane remains authoritative for queue ownership. This store only
+    preserves executor-local context needed to resume useful work after a worker
+    restart. Job keys are hashed before being used as paths.
+    """
+⋮----
+def __init__(self, root: str | os.PathLike[str])
+⋮----
+@staticmethod
+    def _job_dir_name(job_key: str) -> str
+⋮----
+key = str(job_key or "").strip()
+⋮----
+def workspace_for(self, job_key: str) -> Path
+⋮----
+path = self.root / self._job_dir_name(job_key)
+⋮----
+@staticmethod
+    def _read_json(path: Path) -> dict[str, Any]
+⋮----
+value = json.loads(path.read_text(encoding="utf-8"))
+⋮----
+@staticmethod
+    def _write_json_atomic(path: Path, payload: dict[str, Any]) -> None
+⋮----
+temp = path.with_suffix(path.suffix + ".tmp")
+⋮----
+def prepare(self, job_key: str) -> AgentRuntimeContext
+⋮----
+key = str(job_key).strip()
+workspace = self.workspace_for(key)
+state_path = workspace / "runtime-state.json"
+checkpoint_path = workspace / "checkpoint.json"
+previous = self._read_json(state_path)
+⋮----
+same_job = previous.get("job_key") == key
+previous_status = str(previous.get("status") or "")
+attempt = int(previous.get("attempt") or 0) + 1 if same_job else 1
+session_id = (
+resume = bool(
+⋮----
+payload = {
+⋮----
+def mark_outcome(self, job_key: str, outcome: dict[str, Any]) -> None
+⋮----
+workspace = self.workspace_for(job_key)
+⋮----
+state = self._read_json(state_path)
+⋮----
+status = str(outcome.get("status") or "unknown")
+⋮----
+def inspect(self, job_key: str) -> dict[str, Any]
 ```
 
 ## File: production_os/api_auth.py
@@ -6542,6 +6620,8 @@ class RemoteWorkerRunner
 ⋮----
 command = [str(part) for part in executor_command if str(part)]
 ⋮----
+configured_runtime_root = runtime_root or os.getenv("PRODUCTION_OS_RUNTIME_DIR")
+⋮----
 secret_names = {
 ⋮----
 def request_stop(self) -> None
@@ -6565,10 +6645,14 @@ def _heartbeat_active(self, key: str) -> dict
 def _execute(self, job: RemoteJob) -> dict
 ⋮----
 key = job.key
+runtime_context = (
 ⋮----
 active_registered = True
 heartbeat = self._activate(key)
 process: subprocess.Popen[str] | None = None
+⋮----
+request_payload = {
+executor_env = self.executor_env.copy()
 ⋮----
 request = json.dumps(
 started = time.monotonic()
@@ -6609,6 +6693,8 @@ futures: dict[Future[dict], str] = {}
 index = 0
 ⋮----
 def collect(done) -> None
+⋮----
+outcome = future.result()
 ⋮----
 job = self.client.claim(
 ⋮----

@@ -1,18 +1,23 @@
 # Change impact
 
-Base: eee8227c17886768130aded1bca3c2c66f16b42f
-Head: c6fcd0df120145bc8209ee0dcccac4229b6e7701
+Base: 22150ea76da2af0a0434a08bb5b4783a7c43b781
+Head: 667e05a03669e588fc05de0702b3f877ac96f09d
 
 ## Changed files
-- M src/production_os/dashboard_ui.py
-- A tests/test_dashboard_mobile_stability.py
+- M compose.worker.yaml
+- A src/production_os/agent_runtime.py
+- M src/production_os/cli.py
+- M src/production_os/remote_worker_runner.py
+- A tests/test_persistent_agent_runtime.py
 
 ## Affected areas
+- (root)
 - src
 - tests
 
 ## Related test candidates
-- No direct filename-based test match detected.
+- tests/test_cli.py
+- tests/test_remote_worker_runner.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

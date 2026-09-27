@@ -22,16 +22,21 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-27T16:48:15Z
+Generated: 2026-09-27T17:47:03Z
 
 ### Git
 - Branch: `main`
-- Head: `c6fcd0df1201`
-- Commit date: 2026-09-27T18:48:04+02:00
-- Commit: fix(ui): stabilize mobile dashboard layout and accessibility
-- Tracked files: 480
+- Head: `667e05a03669`
+- Commit date: 2026-09-27T19:46:54+02:00
+- Commit: feat(runtime): add persistent agent sessions and resumable workspaces
+- Tracked files: 482
 
 ### Recently changed files
+- `compose.worker.yaml`
+- `src/production_os/agent_runtime.py`
+- `src/production_os/cli.py`
+- `src/production_os/remote_worker_runner.py`
+- `tests/test_persistent_agent_runtime.py`
 - `src/production_os/dashboard_ui.py`
 - `tests/test_dashboard_mobile_stability.py`
 - `src/production_os/github_change_review.py`
@@ -44,11 +49,8 @@ Generated: 2026-09-27T16:48:15Z
 - `tests/test_managed_github_reconciliation.py`
 - `.github/workflows/ci.yml`
 - `Dockerfile.mobile-worker`
-- `compose.worker.yaml`
 - `tests/test_mobile_worker_image.py`
 - `tests/test_worker_compose_deployment.py`
-- `tests/test_dashboard_ui_v3.py`
-- `tests/test_managed_project_outcome.py`
 
 ### Project signals
 - `pyproject.toml`
