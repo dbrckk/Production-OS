@@ -231,23 +231,32 @@ def test_one_tap_auto_enables_cooperative_mode_when_specialist_fleet_exists(tmp_
             for task in workflow["tasks"]
         }
         assert set(tasks) == {
-            "implementation",
+            "implementation-code",
+            "implementation-tests",
+            "integration",
             "validation",
             "review",
         }
-        assert tasks["validation"]["dependencies"] == [
-            "implementation"
+        assert tasks["implementation-code"]["dependencies"] == []
+        assert tasks["implementation-tests"]["dependencies"] == []
+        assert tasks["integration"]["dependencies"] == [
+            "implementation-code",
+            "implementation-tests",
         ]
+        assert tasks["validation"]["dependencies"] == ["integration"]
         assert tasks["review"]["dependencies"] == ["validation"]
 
-        first_job = next(
-            task for task in tasks.values()
-            if task["task_id"] == "implementation"
-        )
-        assert first_job["status"] == "queued"
-        queued = control.queue.get(first_job["claimed_job_key"])
-        assert queued["payload"]["preferred_capabilities"] == [
+        code_task = tasks["implementation-code"]
+        tests_task = tasks["implementation-tests"]
+        assert code_task["status"] == "queued"
+        assert tests_task["status"] == "queued"
+        code_job = control.queue.get(code_task["claimed_job_key"])
+        tests_job = control.queue.get(tests_task["claimed_job_key"])
+        assert code_job["payload"]["preferred_capabilities"] == [
             "code-implementation"
+        ]
+        assert tests_job["payload"]["preferred_capabilities"] == [
+            "test-debug"
         ]
     finally:
         server.shutdown()
