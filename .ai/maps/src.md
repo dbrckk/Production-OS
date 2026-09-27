@@ -7370,7 +7370,8 @@ preferred = set()
 def inferred_required_capabilities(handoff: dict) -> list[str]
 ⋮----
 explicit = handoff.get("required_capabilities", []) if isinstance(handoff, dict) else []
-required = {
+⋮----
+required = set(explicit_values)
 ⋮----
 def asset_forge_tool_contract(handoff: dict) -> dict | None
 ⋮----

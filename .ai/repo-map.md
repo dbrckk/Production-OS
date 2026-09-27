@@ -7916,7 +7916,8 @@ preferred = set()
 def inferred_required_capabilities(handoff: dict) -> list[str]
 ⋮----
 explicit = handoff.get("required_capabilities", []) if isinstance(handoff, dict) else []
-required = {
+⋮----
+required = set(explicit_values)
 ⋮----
 def asset_forge_tool_contract(handoff: dict) -> dict | None
 ⋮----
@@ -13961,6 +13962,10 @@ def test_preferred_capabilities_preserve_explicit_specialist_routing()
 preferred = inferred_preferred_capabilities(
 ⋮----
 def test_explicit_specialist_preference_overrides_text_inference()
+⋮----
+def test_explicit_required_capability_overrides_visual_text_inference_when_authoritative()
+⋮----
+def test_explicit_required_capabilities_remain_additive_by_default()
 ````
 
 ## File: tests/test_transparency_cli.py

@@ -22,17 +22,19 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-27T10:13:51Z
+Generated: 2026-09-27T11:08:12Z
 
 ### Git
 - Branch: `main`
-- Head: `5250e46bcf5e`
-- Commit date: 2026-09-27T12:13:29+02:00
-- Commit: feat: define structured browser validation evidence contract
+- Head: `b4d40a521e34`
+- Commit date: 2026-09-27T13:07:58+02:00
+- Commit: fix: support authoritative required capability sets
 - Tracked files: 474
 
 ### Recently changed files
 - `src/production_os/managed_projects.py`
+- `src/production_os/task_capabilities.py`
+- `tests/test_task_capabilities.py`
 - `tests/test_cooperative_managed_projects.py`
 - `src/production_os/control_plane.py`
 - `tests/test_release32_one_tap_e2e.py`
@@ -41,8 +43,6 @@ Generated: 2026-09-27T10:13:51Z
 - `tests/test_browser_worker_image.py`
 - `tests/test_worker_compose_deployment.py`
 - `tests/test_managed_github_reconciliation.py`
-- `src/production_os/task_capabilities.py`
-- `tests/test_task_capabilities.py`
 
 ### Project signals
 - `pyproject.toml`

@@ -1,18 +1,18 @@
 # CI status
 
-Summary: 3 success / 2 failure / 3 active
+Summary: 3 success / 4 failure / 1 active
 
-- CI: in_progress / pending (5250e46b)
-- CI: in_progress / pending (421b710f)
-- CI: in_progress / pending (9394497a)
-- CI: completed / success (6077a5d8)
-- CI: completed / failure (68c59908)
-- CI: completed / success (2aa17191)
-- CI: completed / success (5c25d5c3)
-- CI: completed / failure (c06b2264)
+- CI: in_progress / pending (b4d40a52)
+- CI: completed / failure (82380e39)
+- CI: completed / success (95160002)
+- CI: completed / failure (b251cd42)
+- CI: completed / failure (1439f1d8)
+- CI: completed / success (3e8bf160)
+- CI: completed / failure (235af902)
+- CI: completed / success (5250e46b)
 
 ## Latest failed run structure
 - Job: test
-  - Failed step: Production E2E
+  - Failed step: Browser worker image smoke test
 
 > Generated summary only; inspect GitHub Actions for full logs when needed.
