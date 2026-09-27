@@ -8,6 +8,7 @@ from typing import Any
 
 from .runtime_state import task_key
 from .result_cache import ResultCache, fingerprint
+from .agent_plan import validate_agent_plan
 from .change_impact import analyze_change_impact
 from .task_capabilities import (
     asset_forge_tool_contract,
@@ -1387,6 +1388,133 @@ class WorkflowEngine:
                 )
         return dispatched
 
+    def _expand_dynamic_agent_plan(
+        self,
+        workflow_id: str,
+        planner_task_id: str,
+        planner_payload: dict,
+        result: dict,
+    ) -> None:
+        config = dict(planner_payload.get("dynamic_agent_planner") or {})
+        raw_plan = result.get("agent_plan")
+        if not config or not isinstance(raw_plan, dict):
+            return
+
+        available_budget = int(config.get("available_token_budget") or 0)
+        max_agents = int(config.get("max_agents") or 6)
+        planned = validate_agent_plan(
+            raw_plan,
+            available_token_budget=available_budget,
+            max_agents=max_agents,
+        )
+        workflow = self.get(workflow_id)
+        repository = workflow["repository"]
+        common_handoff = dict(config.get("handoff") or {})
+        prefix = f"{planner_task_id}.agent."
+        child_ids = {
+            task.task_id:f"{prefix}{task.task_id}"
+            for task in planned
+        }
+
+        for task in planned:
+            dependencies = tuple(
+                child_ids[dependency]
+                for dependency in task.dependencies
+            )
+            if not dependencies:
+                dependencies = (planner_task_id,)
+            handoff = {
+                **common_handoff,
+                "repository":repository,
+                "task":task.instruction,
+                "token_budget":task.token_budget,
+                "preferred_capabilities":list(
+                    task.preferred_capabilities
+                ),
+            }
+            self.add_task(
+                workflow_id,
+                WorkflowTaskSpec(
+                    task_id=child_ids[task.task_id],
+                    title=task.title,
+                    payload={
+                        "dynamic_agent_child":True,
+                        "dynamic_agent_planner_task_id":planner_task_id,
+                        "isolation":{"mode":"git-worktree"},
+                        "handoff":handoff,
+                    },
+                    dependencies=dependencies,
+                    priority=float(config.get("priority", 100)),
+                    max_attempts=max(
+                        1,
+                        int(config.get("max_attempts", 2)),
+                    ),
+                    estimated_minutes=task.estimated_minutes,
+                ),
+            )
+
+        integration_task_id = str(
+            config.get("integration_task_id")
+            or f"{planner_task_id}.integration"
+        )
+        integration_budget = int(
+            config.get("integration_token_budget") or 1
+        )
+        if integration_budget < 1:
+            raise ValueError(
+                "dynamic planner integration_token_budget must be >= 1"
+            )
+        integration_handoff = {
+            **common_handoff,
+            "repository":repository,
+            "task":str(
+                config.get("integration_instruction")
+                or (
+                    "Integrate all dynamic agent results from upstream_context "
+                    "into one coherent implementation. Use reported commit SHAs, "
+                    "resolve conflicts conservatively, run targeted checks, "
+                    "commit the integrated result, and report evidence."
+                )
+            ),
+            "token_budget":integration_budget,
+            "preferred_capabilities":[
+                str(value)
+                for value in (
+                    config.get("integration_capabilities")
+                    or ["code-implementation"]
+                )
+            ],
+        }
+        self.add_task(
+            workflow_id,
+            WorkflowTaskSpec(
+                task_id=integration_task_id,
+                title=str(
+                    config.get("integration_title")
+                    or "Integrate dynamic agent results"
+                )[:200],
+                payload={
+                    "dynamic_agent_integration":True,
+                    "dynamic_agent_planner_task_id":planner_task_id,
+                    "isolation":{
+                        "mode":"git-worktree",
+                        "integration_target":True,
+                    },
+                    "handoff":integration_handoff,
+                },
+                dependencies=tuple(child_ids.values()),
+                priority=float(config.get("priority", 100)),
+                max_attempts=max(
+                    1,
+                    int(config.get("integration_max_attempts", 2)),
+                ),
+                estimated_minutes=max(
+                    0.1,
+                    float(config.get("integration_estimated_minutes", 20)),
+                ),
+            ),
+        )
+
     def record_result(
         self,
         workflow_id: str,
@@ -1445,8 +1573,16 @@ class WorkflowEngine:
                 task_key_value=row["claimed_job_key"],
             )
 
+        task_payload = json.loads(row["payload_json"])
         if succeeded:
-            task_payload = json.loads(row["payload_json"])
+            self._expand_dynamic_agent_plan(
+                workflow_id,
+                task_id,
+                task_payload,
+                dict(result or {}),
+            )
+
+        if succeeded:
             if bool(task_payload.get("cacheable", False)):
                 cache_inputs = dict(
                     task_payload.get("cache_inputs")
