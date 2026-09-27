@@ -110,6 +110,30 @@ class ControlPlane:
         self.github_webhook_secret = github_webhook_secret
         self.webhook_deliveries = WebhookDeliveryStore(self.backend)
 
+    def cooperative_worker_fleet_available(self) -> bool:
+        specialist = {
+            "code-implementation",
+            "test-debug",
+            "code-review",
+            "browser-ui-validation",
+        }
+        try:
+            self.workers.load()
+        except Exception:
+            return False
+        for worker in self.workers.workers.values():
+            status = str(getattr(worker, "status", "") or "").lower()
+            if status in {"offline", "stale", "disabled"}:
+                continue
+            capabilities = {
+                str(item).strip()
+                for item in getattr(worker, "capabilities", [])
+                if str(item).strip()
+            }
+            if capabilities.intersection(specialist):
+                return True
+        return False
+
     @staticmethod
     def _parse_timestamp(value):
         if not value:
@@ -963,6 +987,9 @@ def make_handler(control: ControlPlane):
                             f"{principal.role}:{principal.name}"
                         ),
                         project_id=project_id,
+                        cooperative=(
+                            control.cooperative_worker_fleet_available()
+                        ),
                     )
                 except ValueError as exc:
                     self._send(
