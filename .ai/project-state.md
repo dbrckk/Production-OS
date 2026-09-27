@@ -22,21 +22,21 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-27T17:47:03Z
+Generated: 2026-09-27T18:00:55Z
 
 ### Git
 - Branch: `main`
-- Head: `667e05a03669`
-- Commit date: 2026-09-27T19:46:54+02:00
-- Commit: feat(runtime): add persistent agent sessions and resumable workspaces
+- Head: `353f88278bdb`
+- Commit date: 2026-09-27T20:00:45+02:00
+- Commit: feat(runtime): add active durable checkpoint protocol
 - Tracked files: 482
 
 ### Recently changed files
-- `compose.worker.yaml`
 - `src/production_os/agent_runtime.py`
-- `src/production_os/cli.py`
 - `src/production_os/remote_worker_runner.py`
 - `tests/test_persistent_agent_runtime.py`
+- `compose.worker.yaml`
+- `src/production_os/cli.py`
 - `src/production_os/dashboard_ui.py`
 - `tests/test_dashboard_mobile_stability.py`
 - `src/production_os/github_change_review.py`
@@ -47,10 +47,6 @@ Generated: 2026-09-27T17:47:03Z
 - `tests/test_github_change_review.py`
 - `tests/test_github_work_state.py`
 - `tests/test_managed_github_reconciliation.py`
-- `.github/workflows/ci.yml`
-- `Dockerfile.mobile-worker`
-- `tests/test_mobile_worker_image.py`
-- `tests/test_worker_compose_deployment.py`
 
 ### Project signals
 - `pyproject.toml`

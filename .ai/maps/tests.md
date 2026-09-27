@@ -3712,11 +3712,13 @@ class FakeClient
 ⋮----
 worker_id = "worker-test"
 ⋮----
-def __init__(self, jobs)
+def __init__(self, jobs, *, stale=False)
 ⋮----
 def open_session(self, **_kwargs)
 ⋮----
-def heartbeat(self, **_kwargs)
+def heartbeat(self, **kwargs)
+⋮----
+active = [str(key) for key in kwargs.get("active_job_keys") or []]
 ⋮----
 def claim(self, **_kwargs)
 ⋮----
@@ -3757,6 +3759,33 @@ compose = open("compose.worker.yaml", encoding="utf-8").read()
 def test_remote_worker_cli_exposes_runtime_root()
 ⋮----
 args = _parse_args([
+⋮----
+def test_active_checkpoint_protocol_is_atomic_validated_and_observed(tmp_path)
+⋮----
+context = runtime.prepare("job-checkpoint")
+⋮----
+observed = runtime.observe_checkpoint(context.job_key)
+⋮----
+state = runtime.inspect(context.job_key)
+⋮----
+def test_checkpoint_with_wrong_session_is_not_resumable(tmp_path)
+⋮----
+context = runtime.prepare("job-session-bound")
+⋮----
+def test_stale_job_reports_real_durable_checkpoint_reference(tmp_path)
+⋮----
+client = FakeClient(
+⋮----
+seeded = runner.agent_runtime.prepare("job-stale")
+⋮----
+state = runner.agent_runtime.inspect("job-stale")
+⋮----
+def test_invalid_checkpoint_does_not_replace_runtime_resume_contract(tmp_path)
+⋮----
+first = runtime.prepare("job-invalid")
+checkpoint = runtime.workspace_for("job-invalid") / "checkpoint.json"
+⋮----
+second = runtime.prepare("job-invalid")
 ```
 
 ## File: test_policy_budgets.py

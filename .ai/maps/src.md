@@ -269,8 +269,26 @@ level = "very-high"
 ## File: production_os/agent_runtime.py
 ```python
 _RUNTIME_SCHEMA = "production-os/persistent-agent-runtime/v1"
+_CHECKPOINT_SCHEMA = "production-os/agent-checkpoint/v1"
+_MAX_CHECKPOINT_BYTES = 4 * 1024 * 1024
 ⋮----
 def _utc_now() -> str
+⋮----
+def _write_json_atomic(path: Path, payload: dict[str, Any]) -> None
+⋮----
+temp = path.with_suffix(path.suffix + ".tmp")
+⋮----
+"""Atomically publish a resumable executor checkpoint."""
+key = str(job_key or "").strip()
+session = str(session_id or "").strip()
+⋮----
+payload = {
+⋮----
+encoded = json.dumps(
+⋮----
+target = Path(path)
+⋮----
+temp = target.with_suffix(target.suffix + ".tmp")
 ⋮----
 @dataclass(frozen=True, slots=True)
 class AgentRuntimeContext
@@ -300,8 +318,6 @@ def __init__(self, root: str | os.PathLike[str])
 @staticmethod
     def _job_dir_name(job_key: str) -> str
 ⋮----
-key = str(job_key or "").strip()
-⋮----
 def workspace_for(self, job_key: str) -> Path
 ⋮----
 path = self.root / self._job_dir_name(job_key)
@@ -314,29 +330,54 @@ value = json.loads(path.read_text(encoding="utf-8"))
 @staticmethod
     def _write_json_atomic(path: Path, payload: dict[str, Any]) -> None
 ⋮----
-temp = path.with_suffix(path.suffix + ".tmp")
+workspace = self.workspace_for(job_key)
+checkpoint_path = workspace / "checkpoint.json"
+⋮----
+raw = checkpoint_path.read_bytes()
+⋮----
+payload = json.loads(raw)
+⋮----
+schema = str(payload.get("schema_version") or "")
+sequence = 0
+⋮----
+sequence = int(payload.get("sequence"))
+⋮----
+# Backwards compatibility with the first persistent-runtime release.
+schema = "legacy-json-object"
+⋮----
+digest = hashlib.sha256(raw).hexdigest()
+⋮----
+def observe_checkpoint(self, job_key: str) -> dict[str, Any]
+⋮----
+state_path = workspace / "runtime-state.json"
+state = self._read_json(state_path)
+session_id = (
+details = self._checkpoint_details(
+previous = dict(state.get("checkpoint") or {})
+changed = False
+⋮----
+checkpoint = {
+⋮----
+changed = True
+⋮----
+reason = str(details.get("reason") or "invalid")
 ⋮----
 def prepare(self, job_key: str) -> AgentRuntimeContext
 ⋮----
 key = str(job_key).strip()
 workspace = self.workspace_for(key)
-state_path = workspace / "runtime-state.json"
-checkpoint_path = workspace / "checkpoint.json"
+⋮----
 previous = self._read_json(state_path)
 ⋮----
 same_job = previous.get("job_key") == key
 previous_status = str(previous.get("status") or "")
 attempt = int(previous.get("attempt") or 0) + 1 if same_job else 1
-session_id = (
+⋮----
+checkpoint = self._checkpoint_details(
+checkpoint_available = bool(checkpoint.get("valid"))
 resume = bool(
 ⋮----
-payload = {
-⋮----
 def mark_outcome(self, job_key: str, outcome: dict[str, Any]) -> None
-⋮----
-workspace = self.workspace_for(job_key)
-⋮----
-state = self._read_json(state_path)
 ⋮----
 status = str(outcome.get("status") or "unknown")
 ⋮----
@@ -6630,6 +6671,12 @@ def request_stop(self) -> None
 ⋮----
 @property
     def stop_requested(self) -> bool
+⋮----
+def _observe_checkpoint(self, key: str) -> dict
+⋮----
+def _checkpoint_ref(self, key: str) -> str
+⋮----
+checkpoint = self._observe_checkpoint(key)
 ⋮----
 @staticmethod
     def _terminate(process: subprocess.Popen[str]) -> None
