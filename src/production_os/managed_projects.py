@@ -542,7 +542,7 @@ class ManagedProjectService:
                             "final_goal":final_goal,
                             "agent_preference":agent_preference,
                             "token_budget":browser_budget,
-                            "required_capabilities":[],
+                            "required_capabilities":["browser-ui-validation"],
                             "preferred_capabilities":["browser-ui-validation"],
                         },
                     },
