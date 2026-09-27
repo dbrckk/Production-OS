@@ -18,6 +18,8 @@ class GitHubWorkState:
     review_state: str | None
     ci_state: str | None
     status_state: str | None
+    ready_for_promotion: bool
+    promotion_blockers: tuple[str, ...]
     head_sha: str | None
 
     def to_dict(self) -> dict:
@@ -32,6 +34,8 @@ class GitHubWorkState:
             "review_state": self.review_state,
             "ci_state": self.ci_state,
             "status_state": self.status_state,
+            "ready_for_promotion": self.ready_for_promotion,
+            "promotion_blockers": list(self.promotion_blockers),
             "head_sha": self.head_sha,
         }
 
@@ -80,6 +84,31 @@ def _status_state(statuses: list[dict[str, Any]]) -> str | None:
     return "unknown"
 
 
+def _promotion_readiness(
+    *,
+    pr_state: str | None,
+    merged: bool,
+    draft: bool,
+    review_state: str | None,
+    ci_state: str | None,
+    status_state: str | None,
+) -> tuple[bool, tuple[str, ...]]:
+    blockers = []
+    if merged:
+        blockers.append("already-merged")
+    if pr_state != "open":
+        blockers.append("pr-not-open")
+    if draft:
+        blockers.append("draft")
+    if review_state == "changes-requested":
+        blockers.append("changes-requested")
+    if ci_state != "passed":
+        blockers.append("actions-not-passed")
+    if status_state not in {None, "passed"}:
+        blockers.append("external-statuses-not-passed")
+    return (not blockers, tuple(blockers))
+
+
 def fetch_github_work_state(
     client: GitHubClient,
     repository: str,
@@ -118,6 +147,15 @@ def fetch_github_work_state(
             statuses = client.get_commit_statuses(repository, head_sha)
             status_state = _status_state(statuses)
 
+    ready_for_promotion, promotion_blockers = _promotion_readiness(
+        pr_state=pr_state,
+        merged=merged,
+        draft=draft,
+        review_state=review_state,
+        ci_state=ci_state,
+        status_state=status_state,
+    )
+
     return GitHubWorkState(
         repository=repository,
         issue_number=issue_number,
@@ -129,6 +167,8 @@ def fetch_github_work_state(
         review_state=review_state,
         ci_state=ci_state,
         status_state=status_state,
+        ready_for_promotion=ready_for_promotion,
+        promotion_blockers=promotion_blockers,
         head_sha=head_sha,
     )
 
