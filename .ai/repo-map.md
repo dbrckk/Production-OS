@@ -142,6 +142,7 @@ src/
     release_ledger.py
     remote_worker_runner.py
     remote_worker.py
+    repository_cache.py
     resources.py
     result_cache.py
     reuse.py
@@ -304,6 +305,7 @@ tests/
   test_remote_worker_runner.py
   test_remote_worker.py
   test_render_start.py
+  test_repository_cache.py
   test_result_cache.py
   test_rollback_plan.py
   test_runtime_state.py
@@ -7291,6 +7293,8 @@ class RemoteWorkerRunner
 ⋮----
 command = [str(part) for part in executor_command if str(part)]
 ⋮----
+configured_repository_cache_root = (
+⋮----
 configured_runtime_root = runtime_root or os.getenv("PRODUCTION_OS_RUNTIME_DIR")
 ⋮----
 secret_names = {
@@ -7317,9 +7321,10 @@ isolation = dict(handoff.get("isolation") or {})
 repository = str(handoff.get("repository") or "").strip()
 root = self.repository_roots.get(repository)
 ⋮----
+root = self.repository_cache.ensure(repository).path
+⋮----
 # Backwards compatibility: the external executor may implement the
-# isolation contract itself. Automatic worktree management is only
-# enabled for repositories explicitly mounted/configured here.
+# isolation contract itself when no local checkout source exists.
 ⋮----
 @staticmethod
     def _terminate(process: subprocess.Popen[str]) -> None
@@ -7436,6 +7441,79 @@ def ack(self, key: str) -> dict
 jobs: list[RemoteJob] = []
 ⋮----
 job = self.claim(ack_timeout_seconds=ack_timeout_seconds)
+````
+
+## File: src/production_os/repository_cache.py
+````python
+class RepositoryCacheError(RuntimeError)
+⋮----
+@dataclass(frozen=True, slots=True)
+class CachedRepository
+⋮----
+repository: str
+path: str
+remote_url: str
+created: bool
+fetched: bool
+⋮----
+def to_dict(self) -> dict
+⋮----
+def _validate_repository(repository: str) -> str
+⋮----
+value = str(repository or "").strip()
+parts = value.split("/")
+allowed = re.compile(r"^[A-Za-z0-9_.-]+$")
+⋮----
+message = (exc.stderr or exc.stdout or "git command failed").strip()
+⋮----
+class RepositoryCache
+⋮----
+"""Local checkout cache used as the parent repository for agent worktrees."""
+⋮----
+def _lock_for(self, repository: str) -> threading.Lock
+⋮----
+def _path_for(self, repository: str) -> Path
+⋮----
+digest = hashlib.sha256(repository.encode("utf-8")).hexdigest()[:12]
+⋮----
+safe = f"{owner}-{name}-{digest}"
+path = (self.root / safe).resolve()
+⋮----
+def remote_url(self, repository: str) -> str
+⋮----
+value = _validate_repository(repository)
+⋮----
+def ensure(self, repository: str) -> CachedRepository
+⋮----
+target = self._path_for(value)
+remote = self.remote_url(value)
+⋮----
+created = False
+fetched = False
+⋮----
+created = True
+⋮----
+actual = _run_git(
+⋮----
+# Fetch every time before worktree preparation so a one-tap launch
+# sees the current remote refs. Authentication, when required, is
+# delegated to the worker's normal Git credential configuration.
+⋮----
+fetched = True
+⋮----
+# Make origin's default branch addressable as HEAD in the cache.
+remote_head_result = _run_git(
+remote_head = remote_head_result.stdout.strip()
+branch = ""
+⋮----
+branch = remote_head.removeprefix("refs/remotes/origin/")
+⋮----
+local_head = _run_git(
+⋮----
+branch = local_head
+⋮----
+remote_ref = f"refs/remotes/origin/{branch}"
+exists = _run_git(
 ````
 
 ## File: src/production_os/resources.py
@@ -9338,6 +9416,8 @@ def test_validation_attestation_rejects_expired_signature()
 def test_browser_worker_image_pins_playwright_and_installs_chromium()
 ⋮----
 payload = Path("Dockerfile.browser-worker").read_text(encoding="utf-8")
+⋮----
+def test_browser_worker_image_includes_git_for_repository_materialization()
 ````
 
 ## File: tests/test_builder_identity_validation.py
@@ -11945,6 +12025,20 @@ def test_remote_worker_cli_parses_repository_worktree_configuration()
 args = _parse_args([
 ⋮----
 def test_repository_root_mapping_rejects_ambiguous_values()
+⋮----
+def test_runner_uses_repository_cache_when_no_explicit_mapping(tmp_path, monkeypatch)
+⋮----
+class DummyClient
+⋮----
+worker_id = "worker-test"
+⋮----
+runner = RemoteWorkerRunner(
+⋮----
+job = RemoteJob(
+⋮----
+prepared = runner._prepare_worktree(job)
+⋮----
+def test_remote_worker_cli_exposes_repository_cache_root()
 ````
 
 ## File: tests/test_fairness.py
@@ -12583,6 +12677,8 @@ normal = projects.create(
 def test_mobile_worker_image_pins_flutter_android_runtime_and_avd()
 ⋮----
 payload = Path("Dockerfile.mobile-worker").read_text(encoding="utf-8")
+⋮----
+def test_mobile_worker_image_includes_git_for_repository_materialization()
 ````
 
 ## File: tests/test_observability.py
@@ -14299,6 +14395,38 @@ payload = json.loads(auth_path.read_text(encoding="utf-8"))
 def test_invalid_port_fails_closed(self)
 ````
 
+## File: tests/test_repository_cache.py
+````python
+def _git(path: Path, *args: str) -> str
+⋮----
+result = subprocess.run(
+⋮----
+def _remote_repo(tmp_path: Path) -> tuple[Path, Path]
+⋮----
+source = tmp_path / "source"
+⋮----
+remote = tmp_path / "remote.git"
+⋮----
+def test_repository_cache_clones_fetches_and_updates_remote_refs(tmp_path, monkeypatch)
+⋮----
+cache = RepositoryCache(tmp_path / "cache")
+⋮----
+first = cache.ensure("owner/repo")
+⋮----
+checkout = Path(first.path)
+⋮----
+first_sha = _git(checkout, "rev-parse", "refs/remotes/origin/master")
+⋮----
+second = cache.ensure("owner/repo")
+second_sha = _git(checkout, "rev-parse", "refs/remotes/origin/master")
+⋮----
+def test_repository_cache_uses_stable_collision_resistant_path(tmp_path, monkeypatch)
+⋮----
+def test_repository_cache_rejects_invalid_repository_names(tmp_path, repository)
+⋮----
+def test_repository_cache_rejects_origin_mismatch(tmp_path, monkeypatch)
+````
+
 ## File: tests/test_result_cache.py
 ````python
 def test_result_cache_roundtrip(tmp_path)
@@ -14949,6 +15077,8 @@ def test_worker_compose_exposes_specialist_pool_without_replacing_generic_worker
 # Browser worker is present but cannot claim browser validation until a real runtime is provisioned.
 ⋮----
 def test_worker_compose_exposes_kvm_mobile_specialist()
+⋮----
+def test_worker_compose_persists_repository_cache_and_worktrees()
 ````
 
 ## File: tests/test_workers.py
@@ -15466,9 +15596,13 @@ services:
     environment:
       PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
       PRODUCTION_OS_RUNTIME_DIR: /var/lib/production-os/runtime
+      PRODUCTION_OS_REPOSITORY_CACHE_DIR: /var/lib/production-os/repositories
+      PRODUCTION_OS_WORKTREE_DIR: /var/lib/production-os/worktrees
     volumes:
       - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
       - production-worker-runtime:/var/lib/production-os/runtime
+      - production-worker-repositories:/var/lib/production-os/repositories
+      - production-worker-worktrees:/var/lib/production-os/worktrees
     command:
       - remote-worker-run
       - --url
@@ -15499,10 +15633,14 @@ services:
     environment:
       PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
       PRODUCTION_OS_RUNTIME_DIR: /var/lib/production-os/runtime
+      PRODUCTION_OS_REPOSITORY_CACHE_DIR: /var/lib/production-os/repositories
+      PRODUCTION_OS_WORKTREE_DIR: /var/lib/production-os/worktrees
       PRODUCTION_OS_WORKER_SPECIALTIES: code
     volumes:
       - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
       - production-worker-runtime:/var/lib/production-os/runtime
+      - production-worker-repositories:/var/lib/production-os/repositories
+      - production-worker-worktrees:/var/lib/production-os/worktrees
     command:
       - remote-worker-run
       - --url
@@ -15535,10 +15673,14 @@ services:
     environment:
       PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
       PRODUCTION_OS_RUNTIME_DIR: /var/lib/production-os/runtime
+      PRODUCTION_OS_REPOSITORY_CACHE_DIR: /var/lib/production-os/repositories
+      PRODUCTION_OS_WORKTREE_DIR: /var/lib/production-os/worktrees
       PRODUCTION_OS_WORKER_SPECIALTIES: debug
     volumes:
       - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
       - production-worker-runtime:/var/lib/production-os/runtime
+      - production-worker-repositories:/var/lib/production-os/repositories
+      - production-worker-worktrees:/var/lib/production-os/worktrees
     command:
       - remote-worker-run
       - --url
@@ -15571,10 +15713,14 @@ services:
     environment:
       PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
       PRODUCTION_OS_RUNTIME_DIR: /var/lib/production-os/runtime
+      PRODUCTION_OS_REPOSITORY_CACHE_DIR: /var/lib/production-os/repositories
+      PRODUCTION_OS_WORKTREE_DIR: /var/lib/production-os/worktrees
       PRODUCTION_OS_WORKER_SPECIALTIES: review
     volumes:
       - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
       - production-worker-runtime:/var/lib/production-os/runtime
+      - production-worker-repositories:/var/lib/production-os/repositories
+      - production-worker-worktrees:/var/lib/production-os/worktrees
     command:
       - remote-worker-run
       - --url
@@ -15609,10 +15755,14 @@ services:
     environment:
       PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
       PRODUCTION_OS_RUNTIME_DIR: /var/lib/production-os/runtime
+      PRODUCTION_OS_REPOSITORY_CACHE_DIR: /var/lib/production-os/repositories
+      PRODUCTION_OS_WORKTREE_DIR: /var/lib/production-os/worktrees
       PRODUCTION_OS_WORKER_SPECIALTIES: browser
     volumes:
       - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
       - production-worker-runtime:/var/lib/production-os/runtime
+      - production-worker-repositories:/var/lib/production-os/repositories
+      - production-worker-worktrees:/var/lib/production-os/worktrees
     command:
       - remote-worker-run
       - --url
@@ -15650,12 +15800,16 @@ services:
     environment:
       PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
       PRODUCTION_OS_RUNTIME_DIR: /var/lib/production-os/runtime
+      PRODUCTION_OS_REPOSITORY_CACHE_DIR: /var/lib/production-os/repositories
+      PRODUCTION_OS_WORKTREE_DIR: /var/lib/production-os/worktrees
       PRODUCTION_OS_WORKER_SPECIALTIES: mobile
       PRODUCTION_OS_ANDROID_AVD: ${PRODUCTION_OS_ANDROID_AVD:-production-os-api35}
       ANDROID_AVD_HOME: /opt/android-avd
     volumes:
       - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
       - production-worker-runtime:/var/lib/production-os/runtime
+      - production-worker-repositories:/var/lib/production-os/repositories
+      - production-worker-worktrees:/var/lib/production-os/worktrees
     command:
       - remote-worker-run
       - --url
@@ -15678,6 +15832,8 @@ services:
 
 volumes:
   production-worker-runtime:
+  production-worker-repositories:
+  production-worker-worktrees:
 ````
 
 ## File: compose.yaml

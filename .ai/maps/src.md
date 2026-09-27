@@ -127,6 +127,7 @@ production_os/
   release_ledger.py
   remote_worker_runner.py
   remote_worker.py
+  repository_cache.py
   resources.py
   result_cache.py
   reuse.py
@@ -6730,6 +6731,8 @@ class RemoteWorkerRunner
 ⋮----
 command = [str(part) for part in executor_command if str(part)]
 ⋮----
+configured_repository_cache_root = (
+⋮----
 configured_runtime_root = runtime_root or os.getenv("PRODUCTION_OS_RUNTIME_DIR")
 ⋮----
 secret_names = {
@@ -6756,9 +6759,10 @@ isolation = dict(handoff.get("isolation") or {})
 repository = str(handoff.get("repository") or "").strip()
 root = self.repository_roots.get(repository)
 ⋮----
+root = self.repository_cache.ensure(repository).path
+⋮----
 # Backwards compatibility: the external executor may implement the
-# isolation contract itself. Automatic worktree management is only
-# enabled for repositories explicitly mounted/configured here.
+# isolation contract itself when no local checkout source exists.
 ⋮----
 @staticmethod
     def _terminate(process: subprocess.Popen[str]) -> None
@@ -6875,6 +6879,79 @@ def ack(self, key: str) -> dict
 jobs: list[RemoteJob] = []
 ⋮----
 job = self.claim(ack_timeout_seconds=ack_timeout_seconds)
+```
+
+## File: production_os/repository_cache.py
+```python
+class RepositoryCacheError(RuntimeError)
+⋮----
+@dataclass(frozen=True, slots=True)
+class CachedRepository
+⋮----
+repository: str
+path: str
+remote_url: str
+created: bool
+fetched: bool
+⋮----
+def to_dict(self) -> dict
+⋮----
+def _validate_repository(repository: str) -> str
+⋮----
+value = str(repository or "").strip()
+parts = value.split("/")
+allowed = re.compile(r"^[A-Za-z0-9_.-]+$")
+⋮----
+message = (exc.stderr or exc.stdout or "git command failed").strip()
+⋮----
+class RepositoryCache
+⋮----
+"""Local checkout cache used as the parent repository for agent worktrees."""
+⋮----
+def _lock_for(self, repository: str) -> threading.Lock
+⋮----
+def _path_for(self, repository: str) -> Path
+⋮----
+digest = hashlib.sha256(repository.encode("utf-8")).hexdigest()[:12]
+⋮----
+safe = f"{owner}-{name}-{digest}"
+path = (self.root / safe).resolve()
+⋮----
+def remote_url(self, repository: str) -> str
+⋮----
+value = _validate_repository(repository)
+⋮----
+def ensure(self, repository: str) -> CachedRepository
+⋮----
+target = self._path_for(value)
+remote = self.remote_url(value)
+⋮----
+created = False
+fetched = False
+⋮----
+created = True
+⋮----
+actual = _run_git(
+⋮----
+# Fetch every time before worktree preparation so a one-tap launch
+# sees the current remote refs. Authentication, when required, is
+# delegated to the worker's normal Git credential configuration.
+⋮----
+fetched = True
+⋮----
+# Make origin's default branch addressable as HEAD in the cache.
+remote_head_result = _run_git(
+remote_head = remote_head_result.stdout.strip()
+branch = ""
+⋮----
+branch = remote_head.removeprefix("refs/remotes/origin/")
+⋮----
+local_head = _run_git(
+⋮----
+branch = local_head
+⋮----
+remote_ref = f"refs/remotes/origin/{branch}"
+exists = _run_git(
 ```
 
 ## File: production_os/resources.py

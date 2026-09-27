@@ -168,6 +168,7 @@ test_release55_worker_operations.py
 test_remote_worker_runner.py
 test_remote_worker.py
 test_render_start.py
+test_repository_cache.py
 test_result_cache.py
 test_rollback_plan.py
 test_runtime_state.py
@@ -494,6 +495,8 @@ def test_validation_attestation_rejects_expired_signature()
 def test_browser_worker_image_pins_playwright_and_installs_chromium()
 ⋮----
 payload = Path("Dockerfile.browser-worker").read_text(encoding="utf-8")
+⋮----
+def test_browser_worker_image_includes_git_for_repository_materialization()
 ```
 
 ## File: test_builder_identity_validation.py
@@ -3101,6 +3104,20 @@ def test_remote_worker_cli_parses_repository_worktree_configuration()
 args = _parse_args([
 ⋮----
 def test_repository_root_mapping_rejects_ambiguous_values()
+⋮----
+def test_runner_uses_repository_cache_when_no_explicit_mapping(tmp_path, monkeypatch)
+⋮----
+class DummyClient
+⋮----
+worker_id = "worker-test"
+⋮----
+runner = RemoteWorkerRunner(
+⋮----
+job = RemoteJob(
+⋮----
+prepared = runner._prepare_worktree(job)
+⋮----
+def test_remote_worker_cli_exposes_repository_cache_root()
 ```
 
 ## File: test_fairness.py
@@ -3739,6 +3756,8 @@ normal = projects.create(
 def test_mobile_worker_image_pins_flutter_android_runtime_and_avd()
 ⋮----
 payload = Path("Dockerfile.mobile-worker").read_text(encoding="utf-8")
+⋮----
+def test_mobile_worker_image_includes_git_for_repository_materialization()
 ```
 
 ## File: test_observability.py
@@ -5455,6 +5474,38 @@ payload = json.loads(auth_path.read_text(encoding="utf-8"))
 def test_invalid_port_fails_closed(self)
 ```
 
+## File: test_repository_cache.py
+```python
+def _git(path: Path, *args: str) -> str
+⋮----
+result = subprocess.run(
+⋮----
+def _remote_repo(tmp_path: Path) -> tuple[Path, Path]
+⋮----
+source = tmp_path / "source"
+⋮----
+remote = tmp_path / "remote.git"
+⋮----
+def test_repository_cache_clones_fetches_and_updates_remote_refs(tmp_path, monkeypatch)
+⋮----
+cache = RepositoryCache(tmp_path / "cache")
+⋮----
+first = cache.ensure("owner/repo")
+⋮----
+checkout = Path(first.path)
+⋮----
+first_sha = _git(checkout, "rev-parse", "refs/remotes/origin/master")
+⋮----
+second = cache.ensure("owner/repo")
+second_sha = _git(checkout, "rev-parse", "refs/remotes/origin/master")
+⋮----
+def test_repository_cache_uses_stable_collision_resistant_path(tmp_path, monkeypatch)
+⋮----
+def test_repository_cache_rejects_invalid_repository_names(tmp_path, repository)
+⋮----
+def test_repository_cache_rejects_origin_mismatch(tmp_path, monkeypatch)
+```
+
 ## File: test_result_cache.py
 ```python
 def test_result_cache_roundtrip(tmp_path)
@@ -6105,6 +6156,8 @@ def test_worker_compose_exposes_specialist_pool_without_replacing_generic_worker
 # Browser worker is present but cannot claim browser validation until a real runtime is provisioned.
 ⋮----
 def test_worker_compose_exposes_kvm_mobile_specialist()
+⋮----
+def test_worker_compose_persists_repository_cache_and_worktrees()
 ```
 
 ## File: test_workers.py

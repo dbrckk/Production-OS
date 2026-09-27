@@ -22,35 +22,36 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-27T18:27:55Z
+Generated: 2026-09-27T18:38:58Z
 
 ### Git
 - Branch: `main`
-- Head: `099b684b6ff6`
-- Commit date: 2026-09-27T20:27:45+02:00
-- Commit: feat(agents): execute isolated worktree contracts in remote workers
-- Tracked files: 486
+- Head: `1e8b5d3d06af`
+- Commit date: 2026-09-27T20:38:46+02:00
+- Commit: feat(agents): materialize repositories automatically for one-tap worktrees
+- Tracked files: 488
 
 ### Recently changed files
+- `Dockerfile`
+- `Dockerfile.browser-worker`
+- `Dockerfile.mobile-worker`
+- `compose.worker.yaml`
 - `docs/remote-worker-executor-protocol.md`
 - `src/production_os/cli.py`
-- `src/production_os/executor_worktree.py`
 - `src/production_os/remote_worker_runner.py`
+- `src/production_os/repository_cache.py`
+- `tests/test_browser_worker_image.py`
 - `tests/test_executor_worktree.py`
+- `tests/test_mobile_worker_image.py`
+- `tests/test_repository_cache.py`
+- `tests/test_worker_compose_deployment.py`
+- `src/production_os/executor_worktree.py`
 - `tests/test_remote_worker_runner.py`
 - `src/production_os/managed_projects.py`
 - `src/production_os/workflow_engine.py`
 - `src/production_os/worktree_contract.py`
 - `tests/test_cooperative_managed_projects.py`
 - `tests/test_cooperative_specialist_e2e.py`
-- `tests/test_managed_github_reconciliation.py`
-- `tests/test_release32_one_tap_e2e.py`
-- `tests/test_worktree_contract.py`
-- `src/production_os/agent_runtime.py`
-- `tests/test_persistent_agent_runtime.py`
-- `compose.worker.yaml`
-- `src/production_os/dashboard_ui.py`
-- `tests/test_dashboard_mobile_stability.py`
 
 ### Project signals
 - `pyproject.toml`

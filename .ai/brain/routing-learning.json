@@ -2,23 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "test: release 18 managed projects e2e qualification",
-      "terms": [
-        "18",
-        "e2e",
-        "managed",
-        "projects",
-        "qualification",
-        "release",
-        "test"
-      ],
-      "tests": [],
-      "useful": [
-        "tests/test_release18_managed_projects_e2e.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat: managed projects mobile UX",
       "terms": [
         "feat",
@@ -1248,6 +1231,30 @@
         "tests/test_executor_worktree.py",
         "tests/test_remote_worker_runner.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "feat(agents): materialize repositories automatically for one-tap worktrees",
+      "terms": [
+        "agents",
+        "automatically",
+        "feat",
+        "materialize",
+        "one-tap",
+        "repositories",
+        "worktrees"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/cli.py",
+        "src/production_os/remote_worker_runner.py",
+        "src/production_os/repository_cache.py",
+        "tests/test_browser_worker_image.py",
+        "tests/test_executor_worktree.py",
+        "tests/test_mobile_worker_image.py",
+        "tests/test_repository_cache.py",
+        "tests/test_worker_compose_deployment.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1645,18 +1652,23 @@
       "tests/test_persistent_agent_runtime.py": 4
     },
     "agents": {
-      "src/production_os/cli.py": 4,
+      "src/production_os/cli.py": 8,
       "src/production_os/executor_worktree.py": 4,
       "src/production_os/managed_projects.py": 4,
-      "src/production_os/remote_worker_runner.py": 4,
+      "src/production_os/remote_worker_runner.py": 8,
+      "src/production_os/repository_cache.py": 4,
       "src/production_os/workflow_engine.py": 4,
       "src/production_os/worktree_contract.py": 4,
+      "tests/test_browser_worker_image.py": 4,
       "tests/test_cooperative_managed_projects.py": 4,
       "tests/test_cooperative_specialist_e2e.py": 4,
-      "tests/test_executor_worktree.py": 4,
+      "tests/test_executor_worktree.py": 8,
       "tests/test_managed_github_reconciliation.py": 4,
+      "tests/test_mobile_worker_image.py": 4,
       "tests/test_release32_one_tap_e2e.py": 4,
       "tests/test_remote_worker_runner.py": 4,
+      "tests/test_repository_cache.py": 4,
+      "tests/test_worker_compose_deployment.py": 4,
       "tests/test_worktree_contract.py": 4
     },
     "ai": {
@@ -1774,6 +1786,16 @@
       "tests/test_asset_forge.py": 4,
       "tests/test_managed_github_reconciliation.py": 4,
       "tests/test_release33_auto_worker_recovery_e2e.py": 4
+    },
+    "automatically": {
+      "src/production_os/cli.py": 4,
+      "src/production_os/remote_worker_runner.py": 4,
+      "src/production_os/repository_cache.py": 4,
+      "tests/test_browser_worker_image.py": 4,
+      "tests/test_executor_worktree.py": 4,
+      "tests/test_mobile_worker_image.py": 4,
+      "tests/test_repository_cache.py": 4,
+      "tests/test_worker_compose_deployment.py": 4
     },
     "autonomous": {
       "src/production_os/dashboard_ui.py": 4,
@@ -2332,7 +2354,7 @@
       "scripts/render-start.py": 4,
       "src/production_os/agent_runtime.py": 8,
       "src/production_os/asset_forge.py": 24,
-      "src/production_os/cli.py": 36,
+      "src/production_os/cli.py": 40,
       "src/production_os/control_plane.py": 40,
       "src/production_os/dashboard_alerts.py": 4,
       "src/production_os/dashboard_backups.py": 40,
@@ -2357,14 +2379,15 @@
       "src/production_os/postgres_backend.py": 36,
       "src/production_os/project_progress.py": 4,
       "src/production_os/remote_worker.py": 8,
-      "src/production_os/remote_worker_runner.py": 28,
+      "src/production_os/remote_worker_runner.py": 32,
+      "src/production_os/repository_cache.py": 4,
       "src/production_os/rollback_plan.py": 4,
       "src/production_os/sqlite_backend.py": 40,
       "src/production_os/task_capabilities.py": 8,
       "src/production_os/workflow_engine.py": 24,
       "src/production_os/worktree_contract.py": 4,
       "tests/test_asset_forge.py": 16,
-      "tests/test_browser_worker_image.py": 4,
+      "tests/test_browser_worker_image.py": 8,
       "tests/test_cli.py": 12,
       "tests/test_cooperative_managed_projects.py": 24,
       "tests/test_cooperative_specialist_e2e.py": 4,
@@ -2381,7 +2404,6 @@
       "tests/test_dashboard_health.py": 8,
       "tests/test_dashboard_incident_signals.py": 8,
       "tests/test_dashboard_incidents.py": 4,
-      "tests/test_dashboard_launch.py": 4,
       "tests/test_dashboard_production_inbox.py": 12,
       "tests/test_dashboard_production_inbox_filters_ui.py": 16,
       "tests/test_dashboard_production_status.py": 8,
@@ -2715,6 +2737,16 @@
       "tests/test_workflow_engine.py": 8,
       "tests/test_workflow_postgres.py": 8
     },
+    "materialize": {
+      "src/production_os/cli.py": 4,
+      "src/production_os/remote_worker_runner.py": 4,
+      "src/production_os/repository_cache.py": 4,
+      "tests/test_browser_worker_image.py": 4,
+      "tests/test_executor_worktree.py": 4,
+      "tests/test_mobile_worker_image.py": 4,
+      "tests/test_repository_cache.py": 4,
+      "tests/test_worker_compose_deployment.py": 4
+    },
     "merge": {
       "src/production_os/control_plane.py": 8,
       "tests/test_dashboard_launch.py": 8
@@ -2802,17 +2834,25 @@
       "tests/test_release21_offline_restore_e2e.py": 4
     },
     "one-tap": {
+      "src/production_os/cli.py": 4,
       "src/production_os/control_plane.py": 16,
       "src/production_os/dashboard_ui.py": 12,
       "src/production_os/managed_projects.py": 4,
+      "src/production_os/remote_worker_runner.py": 4,
+      "src/production_os/repository_cache.py": 4,
+      "tests/test_browser_worker_image.py": 4,
       "tests/test_dashboard_api.py": 8,
       "tests/test_dashboard_launch.py": 4,
       "tests/test_dashboard_ui_v3.py": 12,
+      "tests/test_executor_worktree.py": 4,
       "tests/test_managed_projects_v4.py": 4,
+      "tests/test_mobile_worker_image.py": 4,
       "tests/test_release32_one_tap_e2e.py": 12,
       "tests/test_release42_idempotent_launch_e2e.py": 4,
       "tests/test_release44_one_tap_recovery_actions_e2e.py": 4,
-      "tests/test_release51_one_tap_runner_e2e.py": 4
+      "tests/test_release51_one_tap_runner_e2e.py": 4,
+      "tests/test_repository_cache.py": 4,
+      "tests/test_worker_compose_deployment.py": 4
     },
     "operations": {
       "src/production_os/remote_worker.py": 4,
@@ -3264,6 +3304,16 @@
     "reporting": {
       "src/production_os/asset_forge.py": 4,
       "tests/test_asset_forge.py": 4
+    },
+    "repositories": {
+      "src/production_os/cli.py": 4,
+      "src/production_os/remote_worker_runner.py": 4,
+      "src/production_os/repository_cache.py": 4,
+      "tests/test_browser_worker_image.py": 4,
+      "tests/test_executor_worktree.py": 4,
+      "tests/test_mobile_worker_image.py": 4,
+      "tests/test_repository_cache.py": 4,
+      "tests/test_worker_compose_deployment.py": 4
     },
     "repository": {
       "src/production_os/asset_forge.py": 4,
@@ -3839,13 +3889,21 @@
       "tests/test_remote_worker_runner.py": 4
     },
     "worktrees": {
+      "src/production_os/cli.py": 4,
       "src/production_os/managed_projects.py": 4,
+      "src/production_os/remote_worker_runner.py": 4,
+      "src/production_os/repository_cache.py": 4,
       "src/production_os/workflow_engine.py": 4,
       "src/production_os/worktree_contract.py": 4,
+      "tests/test_browser_worker_image.py": 4,
       "tests/test_cooperative_managed_projects.py": 4,
       "tests/test_cooperative_specialist_e2e.py": 4,
+      "tests/test_executor_worktree.py": 4,
       "tests/test_managed_github_reconciliation.py": 4,
+      "tests/test_mobile_worker_image.py": 4,
       "tests/test_release32_one_tap_e2e.py": 4,
+      "tests/test_repository_cache.py": 4,
+      "tests/test_worker_compose_deployment.py": 4,
       "tests/test_worktree_contract.py": 4
     }
   },
