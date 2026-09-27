@@ -302,6 +302,38 @@ def test_ui_goal_requires_online_browser_specialist_for_cooperative_mode(tmp_pat
     ) is True
 
 
+
+def test_native_ui_goal_requires_online_mobile_specialist_for_cooperative_mode(tmp_path):
+    control = ControlPlane(
+        str(tmp_path / "native-ui-cooperative-readiness.sqlite"),
+        authorizer=_auth(),
+    )
+    control.workers.register(
+        "worker-code",
+        ["code-implementation"],
+        1,
+    )
+
+    assert control.cooperative_worker_fleet_available(
+        "Improve the Android UI"
+    ) is False
+    assert control.cooperative_worker_fleet_available(
+        "Polish the Flutter UI"
+    ) is False
+
+    control.workers.register(
+        "worker-mobile",
+        ["mobile-ui-validation"],
+        1,
+    )
+
+    assert control.cooperative_worker_fleet_available(
+        "Improve the Android UI"
+    ) is True
+    assert control.cooperative_worker_fleet_available(
+        "Polish the Flutter UI"
+    ) is True
+
 def test_non_ui_goal_can_use_any_online_specialist_for_cooperative_mode(tmp_path):
     control = ControlPlane(
         str(tmp_path / "backend-cooperative-readiness.sqlite"),
