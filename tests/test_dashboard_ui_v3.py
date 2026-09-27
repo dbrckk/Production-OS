@@ -26,6 +26,10 @@ def test_dashboard_renders_native_mobile_validation_evidence():
         "package_name",
         "device_serial",
         "fatal_errors",
+        "adb_verification",
+        "device_state_verified",
+        "package_installed_verified",
+        "activity_visible_verified",
     ):
         assert label in DASHBOARD_HTML
 

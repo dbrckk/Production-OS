@@ -454,6 +454,31 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
                     for item in value
                     if str(item).strip()
                 ][:limit]
+        adb_verification = raw_mobile_validation.get("adb_verification")
+        if isinstance(adb_verification, dict):
+            clean_adb = {}
+            for key in (
+                "passed",
+                "device_state_verified",
+                "package_installed_verified",
+                "activity_visible_verified",
+            ):
+                value = adb_verification.get(key)
+                if isinstance(value, bool):
+                    clean_adb[key] = value
+            reason = str(adb_verification.get("reason") or "").strip()
+            if reason:
+                clean_adb["reason"] = reason[:500]
+            for key, limit in {
+                "device_state_log":1200,
+                "package_log":1200,
+                "activity_log":3000,
+            }.items():
+                value = str(adb_verification.get(key) or "").strip()
+                if value:
+                    clean_adb[key] = value[-limit:]
+            if clean_adb:
+                clean_mobile["adb_verification"] = clean_adb
         execution = raw_mobile_validation.get("execution")
         if isinstance(execution, dict):
             clean_execution = {}
