@@ -39,6 +39,7 @@ def test_outcome_normalizes_worker_result_evidence():
         "artifact_names":["test-report","release-evidence"],
         "changed_file_count":0,
         "pull_request":{"number":42,"state":"open"},
+        "ci":None,
         "completed_at":"2026-09-25T18:40:00+00:00",
     }
 
@@ -78,6 +79,7 @@ def test_outcome_uses_evidence_fallback_and_keeps_optional_shape_stable():
         "artifact_names":[],
         "changed_file_count":0,
         "pull_request":None,
+        "ci":None,
         "completed_at":None,
     }
 
