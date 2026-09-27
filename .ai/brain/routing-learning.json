@@ -2,26 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat: control center release 5 playbooks",
-      "terms": [
-        "center",
-        "control",
-        "feat",
-        "playbooks",
-        "release"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/dashboard_playbooks.py",
-        "src/production_os/dashboard_service.py",
-        "src/production_os/dashboard_ui.py",
-        "tests/test_dashboard_playbook_api.py",
-        "tests/test_dashboard_playbooks.py",
-        "tests/test_dashboard_ui_v3.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat: control center release 6 remediation history",
       "terms": [
         "center",
@@ -1294,6 +1274,26 @@
         "src/production_os/task_capabilities.py",
         "tests/test_task_capabilities.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "test: verify cooperative specialist pipeline end to end",
+      "terms": [
+        "cooperative",
+        "end",
+        "pipeline",
+        "specialist",
+        "test",
+        "verify"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/dashboard_ui.py",
+        "src/production_os/managed_projects.py",
+        "tests/test_cooperative_specialist_e2e.py",
+        "tests/test_dashboard_ui_v3.py",
+        "tests/test_managed_project_outcome.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -2026,12 +2026,14 @@
     },
     "cooperative": {
       "src/production_os/control_plane.py": 4,
-      "src/production_os/dashboard_ui.py": 4,
-      "src/production_os/managed_projects.py": 4,
+      "src/production_os/dashboard_ui.py": 8,
+      "src/production_os/managed_projects.py": 8,
       "src/production_os/task_capabilities.py": 4,
       "src/production_os/workflow_engine.py": 4,
       "tests/test_cooperative_managed_projects.py": 4,
-      "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_cooperative_specialist_e2e.py": 4,
+      "tests/test_dashboard_ui_v3.py": 8,
+      "tests/test_managed_project_outcome.py": 4,
       "tests/test_release32_one_tap_e2e.py": 4,
       "tests/test_task_capabilities.py": 4,
       "tests/test_workflow_engine.py": 4
@@ -2210,6 +2212,13 @@
       "tests/test_release16_operations_e2e.py": 4,
       "tests/test_release18_managed_projects_e2e.py": 4,
       "tests/test_release32_one_tap_e2e.py": 4
+    },
+    "end": {
+      "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/managed_projects.py": 4,
+      "tests/test_cooperative_specialist_e2e.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_managed_project_outcome.py": 4
     },
     "escape": {
       "src/production_os/asset_forge.py": 4,
@@ -2711,6 +2720,13 @@
     },
     "persisted": {
       "tests/test_cli.py": 4
+    },
+    "pipeline": {
+      "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/managed_projects.py": 4,
+      "tests/test_cooperative_specialist_e2e.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_managed_project_outcome.py": 4
     },
     "playbooks": {
       "src/production_os/dashboard_playbooks.py": 4,
@@ -3281,12 +3297,16 @@
     },
     "specialist": {
       "src/production_os/control_plane.py": 8,
-      "src/production_os/managed_projects.py": 4,
+      "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/managed_projects.py": 8,
       "src/production_os/remote_worker_runner.py": 4,
       "src/production_os/sqlite_backend.py": 4,
       "src/production_os/task_capabilities.py": 8,
       "src/production_os/workflow_engine.py": 4,
       "tests/test_cooperative_managed_projects.py": 4,
+      "tests/test_cooperative_specialist_e2e.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_managed_project_outcome.py": 4,
       "tests/test_release32_one_tap_e2e.py": 8,
       "tests/test_remote_worker_runner.py": 4,
       "tests/test_specialist_job_preferences.py": 4,
@@ -3373,7 +3393,9 @@
       "src/production_os/cli.py": 4,
       "src/production_os/control_plane.py": 20,
       "src/production_os/controller.py": 16,
+      "src/production_os/dashboard_ui.py": 4,
       "src/production_os/github_client.py": 4,
+      "src/production_os/managed_projects.py": 4,
       "src/production_os/reuse.py": 4,
       "src/production_os/task_capabilities.py": 8,
       "src/production_os/workflow_engine.py": 8,
@@ -3382,8 +3404,11 @@
       "tests/test_classification_history_reuse.py": 8,
       "tests/test_cli.py": 4,
       "tests/test_controller_asset_capabilities.py": 12,
+      "tests/test_cooperative_specialist_e2e.py": 4,
       "tests/test_dashboard_launch.py": 24,
+      "tests/test_dashboard_ui_v3.py": 4,
       "tests/test_github_client_put_file.py": 4,
+      "tests/test_managed_project_outcome.py": 4,
       "tests/test_release16_operations_e2e.py": 4,
       "tests/test_release18_managed_projects_e2e.py": 4,
       "tests/test_release32_one_tap_e2e.py": 4,
@@ -3494,7 +3519,12 @@
     },
     "verify": {
       "src/production_os/asset_forge.py": 8,
-      "tests/test_asset_forge.py": 8
+      "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/managed_projects.py": 4,
+      "tests/test_asset_forge.py": 8,
+      "tests/test_cooperative_specialist_e2e.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_managed_project_outcome.py": 4
     },
     "version": {
       "src/production_os/asset_forge.py": 8,

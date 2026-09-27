@@ -35,6 +35,7 @@
         "tests/test_control_plane_webhook.py",
         "tests/test_controller_asset_capabilities.py",
         "tests/test_cooperative_managed_projects.py",
+        "tests/test_cooperative_specialist_e2e.py",
         "tests/test_dashboard_alerts.py",
         "tests/test_dashboard_api.py",
         "tests/test_dashboard_attention.py",
@@ -166,7 +167,7 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 154,
+      "in_degree": 155,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -1259,12 +1260,13 @@
       "dependents": [
         "src/production_os/control_plane.py",
         "tests/test_cooperative_managed_projects.py",
+        "tests/test_cooperative_specialist_e2e.py",
         "tests/test_managed_github_reconciliation.py",
         "tests/test_managed_project_outcome.py",
         "tests/test_managed_projects_v4.py",
         "tests/test_workflow_postgres.py"
       ],
-      "in_degree": 6,
+      "in_degree": 7,
       "out_degree": 5
     },
     "src/production_os/metrics.py": {
@@ -1828,6 +1830,7 @@
         "src/production_os/storage.py",
         "tests/test_cli.py",
         "tests/test_cooperative_managed_projects.py",
+        "tests/test_cooperative_specialist_e2e.py",
         "tests/test_dashboard_backups.py",
         "tests/test_dashboard_control.py",
         "tests/test_dashboard_control_audit.py",
@@ -1862,7 +1865,7 @@
         "tests/test_workflow_engine.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 37,
+      "in_degree": 38,
       "out_degree": 5
     },
     "src/production_os/sqlite_migration.py": {
@@ -2084,6 +2087,7 @@
         "tests/test_cli.py",
         "tests/test_control_plane.py",
         "tests/test_controller_asset_capabilities.py",
+        "tests/test_cooperative_specialist_e2e.py",
         "tests/test_dashboard_alerts.py",
         "tests/test_dashboard_api.py",
         "tests/test_dashboard_attention.py",
@@ -2119,7 +2123,6 @@
         "tests/test_preemption.py",
         "tests/test_production_stack_e2e.py",
         "tests/test_reconciliation_dispatch.py",
-        "tests/test_release16_operations_e2e.py",
         "tests/test_stragglers.py",
         "tests/test_workers.py"
       ],
@@ -2143,6 +2146,7 @@
         "tests/test_control_plane_release.py",
         "tests/test_control_plane_webhook.py",
         "tests/test_cooperative_managed_projects.py",
+        "tests/test_cooperative_specialist_e2e.py",
         "tests/test_dashboard_control_api.py",
         "tests/test_dashboard_control_e2e.py",
         "tests/test_dashboard_observability_e2e.py",
@@ -2160,7 +2164,7 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 23,
+      "in_degree": 24,
       "out_degree": 6
     },
     "tests/test_adaptation.py": {
@@ -2505,6 +2509,18 @@
       "dependents": [],
       "in_degree": 0,
       "out_degree": 4
+    },
+    "tests/test_cooperative_specialist_e2e.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/managed_projects.py",
+        "src/production_os/sqlite_backend.py",
+        "src/production_os/workers.py",
+        "src/production_os/workflow_engine.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 5
     },
     "tests/test_dashboard_alerts.py": {
       "dependencies": [
@@ -3434,12 +3450,11 @@
         "src/production_os/__init__.py",
         "src/production_os/api_auth.py",
         "src/production_os/control_plane.py",
-        "src/production_os/workers.py",
         "tests/test_fairness.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 5
+      "out_degree": 4
     },
     "tests/test_release18_managed_projects_e2e.py": {
       "dependencies": [

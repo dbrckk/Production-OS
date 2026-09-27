@@ -196,6 +196,7 @@ tests/
   test_control_plane.py
   test_controller_asset_capabilities.py
   test_cooperative_managed_projects.py
+  test_cooperative_specialist_e2e.py
   test_dashboard_alerts.py
   test_dashboard_api.py
   test_dashboard_attention.py
@@ -461,6 +462,11 @@ jobs:
         run: |
           docker build -t production-os:ci .
           docker run --rm production-os:ci --help
+
+      - name: Browser worker image smoke test
+        run: |
+          docker build -f Dockerfile.browser-worker -t production-os-browser:ci .
+          docker run --rm --entrypoint python production-os-browser:ci -c "from playwright.sync_api import sync_playwright; p=sync_playwright().start(); b=p.chromium.launch(headless=True); page=b.new_page(); page.set_content('<title>browser-smoke</title>'); assert page.title() == 'browser-smoke'; b.close(); p.stop()"
 
       - name: CLI smoke test
         run: production-os --help
@@ -5621,6 +5627,28 @@ text = str(value).strip()
 ⋮----
 ci = clean_ci
 ⋮----
+raw_browser_validation = None
+⋮----
+candidate = (
+⋮----
+raw_browser_validation = candidate
+⋮----
+browser_validation = None
+⋮----
+clean_browser = {}
+⋮----
+value = raw_browser_validation.get(key)
+⋮----
+passed = raw_browser_validation.get("passed")
+⋮----
+execution = raw_browser_validation.get("execution")
+⋮----
+clean_execution = {}
+⋮----
+log_tail = str(execution.get("log_tail") or "").strip()
+⋮----
+browser_validation = clean_browser
+⋮----
 workflow_status = str(workflow.get("status") or "").strip() or None
 terminal = workflow_status in {"succeeded", "failed", "cancelled"}
 available = terminal or any((
@@ -9460,6 +9488,45 @@ completed = managed.get(project["project_id"])
 follow_up = managed.request_verification(
 ````
 
+## File: tests/test_cooperative_specialist_e2e.py
+````python
+def build(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "cooperative-specialists.sqlite")
+queue = SQLiteJobQueue(backend)
+workflows = WorkflowEngine(backend, queue)
+managed = ManagedProjectService(workflows)
+⋮----
+def _task(workflow, task_id)
+⋮----
+@pytest.mark.e2e
+def test_cooperative_project_routes_sequentially_across_specialists(tmp_path)
+⋮----
+project = managed.create(
+workflow_id = project["current_workflow_id"]
+⋮----
+workflow = workflows.get(workflow_id)
+implementation = _task(workflow, "implementation")
+⋮----
+code_job = queue.claim_next(
+⋮----
+validation = _task(workflow, "validation")
+⋮----
+debug_job = queue.claim_next(
+⋮----
+upstream = debug_job["payload"]["handoff"]["upstream_context"]
+⋮----
+review = _task(workflow, "review")
+⋮----
+review_job = queue.claim_next(
+⋮----
+ui = _task(workflow, "ui-validation")
+⋮----
+browser_job = queue.claim_next(
+⋮----
+completed = workflows.get(workflow_id)
+````
+
 ## File: tests/test_dashboard_alerts.py
 ````python
 def test_offline_worker_with_queued_work_is_high_alert()
@@ -11259,6 +11326,8 @@ load_start = DASHBOARD_HTML.index("async function loadAttention")
 load_end = DASHBOARD_HTML.index("async function loadManagedProjects", load_start)
 attention_body = DASHBOARD_HTML[load_start:load_end]
 ⋮----
+def test_browser_validation_evidence_is_rendered_in_production_outcome()
+⋮----
 def test_cooperative_multi_agent_progress_is_visible_in_managed_and_production_detail()
 ⋮----
 def test_managed_and_attention_cards_render_normalized_production_outcome()
@@ -11846,6 +11915,10 @@ empty = _outcome_from_workflow(None)
 def test_outcome_accepts_compact_worker_result_fields_without_exposing_paths()
 ⋮----
 def test_terminal_workflow_outcome_is_visible_without_structured_evidence()
+⋮----
+def test_outcome_preserves_bounded_browser_validation_evidence()
+⋮----
+browser = outcome["browser_validation"]
 ````
 
 ## File: tests/test_managed_projects_http_v4.py

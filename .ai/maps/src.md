@@ -5075,6 +5075,28 @@ text = str(value).strip()
 ⋮----
 ci = clean_ci
 ⋮----
+raw_browser_validation = None
+⋮----
+candidate = (
+⋮----
+raw_browser_validation = candidate
+⋮----
+browser_validation = None
+⋮----
+clean_browser = {}
+⋮----
+value = raw_browser_validation.get(key)
+⋮----
+passed = raw_browser_validation.get("passed")
+⋮----
+execution = raw_browser_validation.get("execution")
+⋮----
+clean_execution = {}
+⋮----
+log_tail = str(execution.get("log_tail") or "").strip()
+⋮----
+browser_validation = clean_browser
+⋮----
 workflow_status = str(workflow.get("status") or "").strip() or None
 terminal = workflow_status in {"succeeded", "failed", "cancelled"}
 available = terminal or any((

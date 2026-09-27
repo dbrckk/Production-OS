@@ -22,27 +22,25 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-27T11:08:12Z
+Generated: 2026-09-27T11:16:05Z
 
 ### Git
 - Branch: `main`
-- Head: `b4d40a521e34`
-- Commit date: 2026-09-27T13:07:58+02:00
-- Commit: fix: support authoritative required capability sets
-- Tracked files: 474
+- Head: `320af900ea82`
+- Commit date: 2026-09-27T13:15:50+02:00
+- Commit: test: verify cooperative specialist pipeline end to end
+- Tracked files: 475
 
 ### Recently changed files
+- `tests/test_cooperative_specialist_e2e.py`
+- `src/production_os/dashboard_ui.py`
 - `src/production_os/managed_projects.py`
+- `tests/test_dashboard_ui_v3.py`
+- `tests/test_managed_project_outcome.py`
+- `.github/workflows/ci.yml`
 - `src/production_os/task_capabilities.py`
 - `tests/test_task_capabilities.py`
 - `tests/test_cooperative_managed_projects.py`
-- `src/production_os/control_plane.py`
-- `tests/test_release32_one_tap_e2e.py`
-- `Dockerfile.browser-worker`
-- `compose.worker.yaml`
-- `tests/test_browser_worker_image.py`
-- `tests/test_worker_compose_deployment.py`
-- `tests/test_managed_github_reconciliation.py`
 
 ### Project signals
 - `pyproject.toml`

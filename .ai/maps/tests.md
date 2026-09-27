@@ -63,6 +63,7 @@ test_control_plane_webhook.py
 test_control_plane.py
 test_controller_asset_capabilities.py
 test_cooperative_managed_projects.py
+test_cooperative_specialist_e2e.py
 test_dashboard_alerts.py
 test_dashboard_api.py
 test_dashboard_attention.py
@@ -995,6 +996,45 @@ workflow_id = project["current_workflow_id"]
 completed = managed.get(project["project_id"])
 ⋮----
 follow_up = managed.request_verification(
+```
+
+## File: test_cooperative_specialist_e2e.py
+```python
+def build(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "cooperative-specialists.sqlite")
+queue = SQLiteJobQueue(backend)
+workflows = WorkflowEngine(backend, queue)
+managed = ManagedProjectService(workflows)
+⋮----
+def _task(workflow, task_id)
+⋮----
+@pytest.mark.e2e
+def test_cooperative_project_routes_sequentially_across_specialists(tmp_path)
+⋮----
+project = managed.create(
+workflow_id = project["current_workflow_id"]
+⋮----
+workflow = workflows.get(workflow_id)
+implementation = _task(workflow, "implementation")
+⋮----
+code_job = queue.claim_next(
+⋮----
+validation = _task(workflow, "validation")
+⋮----
+debug_job = queue.claim_next(
+⋮----
+upstream = debug_job["payload"]["handoff"]["upstream_context"]
+⋮----
+review = _task(workflow, "review")
+⋮----
+review_job = queue.claim_next(
+⋮----
+ui = _task(workflow, "ui-validation")
+⋮----
+browser_job = queue.claim_next(
+⋮----
+completed = workflows.get(workflow_id)
 ```
 
 ## File: test_dashboard_alerts.py
@@ -2796,6 +2836,8 @@ load_start = DASHBOARD_HTML.index("async function loadAttention")
 load_end = DASHBOARD_HTML.index("async function loadManagedProjects", load_start)
 attention_body = DASHBOARD_HTML[load_start:load_end]
 ⋮----
+def test_browser_validation_evidence_is_rendered_in_production_outcome()
+⋮----
 def test_cooperative_multi_agent_progress_is_visible_in_managed_and_production_detail()
 ⋮----
 def test_managed_and_attention_cards_render_normalized_production_outcome()
@@ -3383,6 +3425,10 @@ empty = _outcome_from_workflow(None)
 def test_outcome_accepts_compact_worker_result_fields_without_exposing_paths()
 ⋮----
 def test_terminal_workflow_outcome_is_visible_without_structured_evidence()
+⋮----
+def test_outcome_preserves_bounded_browser_validation_evidence()
+⋮----
+browser = outcome["browser_validation"]
 ```
 
 ## File: test_managed_projects_http_v4.py
