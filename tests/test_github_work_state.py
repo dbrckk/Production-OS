@@ -2,6 +2,7 @@ from production_os.github_work_state import (
     GitHubWorkState,
     _ci_state,
     _status_state,
+    _missing_required_checks,
     runtime_decision_from_github,
 )
 
@@ -20,6 +21,7 @@ def state(**kwargs):
         status_state=None,
         ready_for_promotion=False,
         promotion_blockers=(),
+        required_checks_missing=(),
         head_sha="abc",
     )
     base.update(kwargs)
@@ -119,3 +121,39 @@ def test_promotion_readiness_requires_open_non_draft_green_pr():
     )
     assert ready is False
     assert "draft" in blockers
+
+
+def test_missing_required_checks_detects_absent_contexts_across_sources():
+    missing = _missing_required_checks(
+        ["CI", "circleci/smoke", "security-scan"],
+        workflow_runs=[{"name":"CI"}],
+        statuses=[{"context":"circleci/smoke","state":"success"}],
+        check_runs=[{"name":"lint","conclusion":"success"}],
+    )
+    assert missing == ("security-scan",)
+
+
+def test_unknown_branch_protection_check_set_blocks_promotion():
+    missing = _missing_required_checks(
+        None,
+        workflow_runs=[],
+        statuses=[],
+        check_runs=[],
+    )
+    assert missing == ("required-checks-unknown",)
+
+
+def test_promotion_readiness_blocks_when_required_check_is_missing():
+    from production_os.github_work_state import _promotion_readiness
+
+    ready, blockers = _promotion_readiness(
+        pr_state="open",
+        merged=False,
+        draft=False,
+        review_state="approved",
+        ci_state="passed",
+        status_state="passed",
+        required_checks_missing=("security-scan",),
+    )
+    assert ready is False
+    assert "required-checks-missing" in blockers
