@@ -123,7 +123,7 @@ class ControlPlane:
             return False
         for worker in self.workers.workers.values():
             status = str(getattr(worker, "status", "") or "").lower()
-            if status in {"offline", "stale", "disabled"}:
+            if status != "online":
                 continue
             capabilities = {
                 str(item).strip()
