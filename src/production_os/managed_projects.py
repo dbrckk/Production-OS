@@ -1185,6 +1185,12 @@ class ManagedProjectService:
 
         project_id = current["project_id"]
         generation = int(current["generation"]) + 1
+        current_workflow = current.get("current_workflow")
+        cooperative = bool(
+            isinstance(current_workflow, dict)
+            and isinstance(current_workflow.get("metadata"), dict)
+            and current_workflow["metadata"].get("cooperative") is True
+        )
         workflow = self._create_workflow(
             project_id=project_id,
             repository=current["repository"],
@@ -1195,6 +1201,7 @@ class ManagedProjectService:
             token_budget=current["token_budget"],
             agent_preference=current["agent_preference"],
             dispatch=False,
+            cooperative=cooperative,
         )
         now = _now()
         actor = str(requested_by or "operator").strip() or "operator"
