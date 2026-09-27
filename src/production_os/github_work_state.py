@@ -26,6 +26,7 @@ class GitHubWorkState:
     change_categories: tuple[str, ...]
     human_review_required: bool
     head_sha: str | None
+    base_sha: str | None
     validation_sha: str | None
 
     def to_dict(self) -> dict:
@@ -47,6 +48,7 @@ class GitHubWorkState:
             "change_categories": list(self.change_categories),
             "human_review_required": self.human_review_required,
             "head_sha": self.head_sha,
+            "base_sha": self.base_sha,
             "validation_sha": self.validation_sha,
         }
 
@@ -175,6 +177,7 @@ def fetch_github_work_state(
     change_categories: tuple[str, ...] = ()
     human_review_required = False
     head_sha = None
+    base_sha = None
     validation_sha = None
 
     if issue_number is not None:
@@ -197,6 +200,11 @@ def fetch_github_work_state(
                 if isinstance(base, dict)
                 else ""
             )
+            base_sha = (
+                str(base.get("sha") or "").strip().lower()
+                if isinstance(base, dict)
+                else None
+            ) or None
 
         reviews = client.get_pull_request_reviews(repository, pr_number)
         review_state = _review_state(reviews)
@@ -257,6 +265,7 @@ def fetch_github_work_state(
         change_categories=change_categories,
         human_review_required=human_review_required,
         head_sha=head_sha,
+        base_sha=base_sha,
         validation_sha=validation_sha,
     )
 
