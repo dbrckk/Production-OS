@@ -118,6 +118,61 @@ def test_workflow_retry_budget(tmp_path):
     assert wf.get(created["id"])["status"]=="failed"
 
 
+def test_downstream_job_receives_bounded_upstream_context(tmp_path):
+    wf=engine(tmp_path)
+    created=wf.create(
+        name="cooperative",
+        repository="o/a",
+        tasks=[
+            WorkflowTaskSpec(
+                "implement",
+                "Implement",
+                {"handoff":{"task":"Implement feature"}},
+            ),
+            WorkflowTaskSpec(
+                "review",
+                "Review",
+                {"handoff":{"task":"Review implementation"}},
+                ("implement",),
+            ),
+        ],
+    )
+    first=wf.dispatch_ready(created["id"])
+    assert len(first)==1
+    assert first[0]["payload"]["workflow_task_id"]=="implement"
+
+    wf.record_result(
+        created["id"],
+        "implement",
+        succeeded=True,
+        result={
+            "summary":"implemented login flow",
+            "validation":{"status":"passed","tests":["unit"]},
+            "commit_shas":["a"*40],
+            "changed_files":["src/auth.py","tests/test_auth.py"],
+            "pull_request":{"number":12,"state":"open"},
+        },
+    )
+
+    current=wf.get(created["id"])
+    review=next(
+        task for task in current["tasks"]
+        if task["task_id"]=="review"
+    )
+    assert review["status"]=="queued"
+    job=wf.queue.get(review["claimed_job_key"])
+    upstream=job["payload"]["handoff"]["upstream_context"]
+    assert upstream==[{
+        "task_id":"implement",
+        "title":"Implement",
+        "summary":"implemented login flow",
+        "validation":{"status":"passed","tests":["unit"]},
+        "commit_shas":["a"*40],
+        "changed_files":["src/auth.py","tests/test_auth.py"],
+        "pull_request":{"number":12,"state":"open"},
+    }]
+
+
 def test_workflow_retry_dispatch_includes_prior_failure_context(tmp_path):
     wf=engine(tmp_path)
     created=wf.create(
