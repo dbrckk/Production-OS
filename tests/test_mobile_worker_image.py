@@ -13,3 +13,9 @@ def test_mobile_worker_image_pins_flutter_android_runtime_and_avd():
     assert "avdmanager create avd" in payload
     assert "production-os-api35" in payload
     assert "ANDROID_AVD_HOME=/opt/android-avd" in payload
+
+
+
+def test_mobile_worker_image_includes_git_for_repository_materialization():
+    payload = Path("Dockerfile.mobile-worker").read_text(encoding="utf-8")
+    assert "ca-certificates git" in payload
