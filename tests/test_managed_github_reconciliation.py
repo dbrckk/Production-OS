@@ -72,6 +72,57 @@ def state(**overrides):
     return GitHubWorkState(**values)
 
 
+
+def _complete_parallel_cooperative_workflow(
+    service,
+    workflow_id,
+    *,
+    review_result,
+):
+    service.workflows.record_result(
+        workflow_id,
+        "implementation-code",
+        succeeded=True,
+        result={
+            "summary":"implemented",
+            "commit_shas":["a"*40],
+        },
+    )
+    service.workflows.record_result(
+        workflow_id,
+        "implementation-tests",
+        succeeded=True,
+        result={
+            "summary":"tests implemented",
+            "commit_shas":["b"*40],
+        },
+    )
+    service.workflows.record_result(
+        workflow_id,
+        "integration",
+        succeeded=True,
+        result={
+            "summary":"integrated",
+            "commit_shas":["c"*40],
+        },
+    )
+    service.workflows.record_result(
+        workflow_id,
+        "validation",
+        succeeded=True,
+        result={
+            "summary":"validated",
+            "validation":{"status":"passed","tests":["unit"]},
+        },
+    )
+    service.workflows.record_result(
+        workflow_id,
+        "review",
+        succeeded=True,
+        result=review_result,
+    )
+
+
 def workflow_with_pr():
     return {
         "status":"succeeded",
@@ -399,29 +450,10 @@ def test_reconcile_marks_project_done_after_post_merge_green_ci(tmp_path):
         requested_by="operator:test",
     )
     workflow_id = project["current_workflow_id"]
-    service.workflows.record_result(
+    _complete_parallel_cooperative_workflow(
+        service,
         workflow_id,
-        "implementation",
-        succeeded=True,
-        result={
-            "summary":"implemented",
-            "commit_shas":["a"*40],
-        },
-    )
-    service.workflows.record_result(
-        workflow_id,
-        "validation",
-        succeeded=True,
-        result={
-            "summary":"validated",
-            "validation":{"status":"passed","tests":["unit"]},
-        },
-    )
-    service.workflows.record_result(
-        workflow_id,
-        "review",
-        succeeded=True,
-        result={
+        review_result={
             "summary":"reviewed",
             "pull_request":{"number":12,"state":"merged"},
         },
@@ -461,29 +493,10 @@ def test_reconcile_launches_exactly_one_automatic_rollback_generation(tmp_path):
         requested_by="operator:test",
     )
     workflow_id = project["current_workflow_id"]
-    service.workflows.record_result(
+    _complete_parallel_cooperative_workflow(
+        service,
         workflow_id,
-        "implementation",
-        succeeded=True,
-        result={
-            "summary":"implemented",
-            "commit_shas":["a"*40],
-        },
-    )
-    service.workflows.record_result(
-        workflow_id,
-        "validation",
-        succeeded=True,
-        result={
-            "summary":"validated",
-            "validation":{"status":"passed","tests":["unit"]},
-        },
-    )
-    service.workflows.record_result(
-        workflow_id,
-        "review",
-        succeeded=True,
-        result={
+        review_result={
             "summary":"reviewed",
             "pull_request":{"number":12,"state":"open"},
         },
