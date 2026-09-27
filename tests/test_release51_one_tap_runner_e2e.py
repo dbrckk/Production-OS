@@ -202,7 +202,11 @@ print(json.dumps({
             heartbeat_interval_seconds=0.05,
             executor_timeout_seconds=5,
         )
-        outcomes = runner.run(cycles=3, idle_sleep_seconds=0)
+        # Polling cycles are not equivalent to claimed jobs: after a failed
+        # executor result, workflow reconciliation can requeue the retry just
+        # after a poll. Allow bounded spare polls while still asserting exactly
+        # three real attempts below.
+        outcomes = runner.run(cycles=6, idle_sleep_seconds=0)
 
         # Managed Project implementation tasks have max_attempts=3. A worker
         # failure is automatically retried with a new job key until that

@@ -22,14 +22,47 @@ def state(**kwargs):
         ready_for_promotion=False,
         promotion_blockers=(),
         required_checks_missing=(),
+        sensitive_files=(),
+        change_categories=(),
+        human_review_required=False,
         head_sha="abc",
+        validation_sha="abc",
     )
     base.update(kwargs)
     return GitHubWorkState(**base)
 
 
-def test_merged_pr_promotes():
-    assert runtime_decision_from_github(state(merged=True, pr_state="closed")) == "promote"
+def test_merged_pr_promotes_only_after_post_merge_validation_passes():
+    assert runtime_decision_from_github(
+        state(
+            merged=True,
+            pr_state="closed",
+            ci_state="passed",
+            status_state="passed",
+        )
+    ) == "promote"
+
+
+def test_merged_pr_rolls_back_when_post_merge_ci_fails():
+    assert runtime_decision_from_github(
+        state(
+            merged=True,
+            pr_state="closed",
+            ci_state="failed",
+            status_state="passed",
+        )
+    ) == "rollback"
+
+
+def test_merged_pr_waits_while_post_merge_validation_is_running():
+    assert runtime_decision_from_github(
+        state(
+            merged=True,
+            pr_state="closed",
+            ci_state="running",
+            status_state="passed",
+        )
+    ) == "running"
 
 
 def test_failed_ci_retries():
@@ -157,3 +190,19 @@ def test_promotion_readiness_blocks_when_required_check_is_missing():
     )
     assert ready is False
     assert "required-checks-missing" in blockers
+
+
+def test_promotion_readiness_blocks_sensitive_changes():
+    from production_os.github_work_state import _promotion_readiness
+
+    ready, blockers = _promotion_readiness(
+        pr_state="open",
+        merged=False,
+        draft=False,
+        review_state="approved",
+        ci_state="passed",
+        status_state="passed",
+        human_review_required=True,
+    )
+    assert ready is False
+    assert "human-review-required" in blockers
