@@ -120,3 +120,36 @@ An executor that receives this contract must create or reuse an isolated Git wor
 Parallel implementation tasks deliberately receive distinct branch and workspace identities. Their integration task depends on both tasks and receives both results through `upstream_context`, including reported commit SHAs. The integration executor is responsible for combining those commits conservatively in its own isolated integration worktree before validation and review continue.
 
 A retry receives a new attempt-scoped branch/workspace identity. This prevents an interrupted attempt from silently sharing an uncommitted working tree with its retry.
+
+
+## Automatic worker-managed worktrees
+
+A remote worker can execute the isolation contract itself instead of delegating
+worktree setup to the external executor.
+
+Configure one or more mounted repositories and a worktree parent:
+
+```bash
+production-os remote-worker-run \
+  --url http://control-plane:8080 \
+  --worker-id worker-one \
+  --executor-command "python /worker/executor.py" \
+  --repository-root owner/repo=/srv/repos/repo \
+  --worktree-root /srv/worktrees
+```
+
+When the claimed job contains a `git-worktree` isolation contract for a
+configured repository, Production OS:
+
+1. validates that the configured path is exactly the Git top-level directory;
+2. resolves the requested base ref to a concrete commit;
+3. creates or safely reuses the attempt-scoped worktree;
+4. starts the external executor with that worktree as its current directory;
+5. adds `executor_workspace` to the JSON request;
+6. exposes `PRODUCTION_OS_REPOSITORY_ROOT`, `PRODUCTION_OS_WORKTREE`,
+   `PRODUCTION_OS_WORKTREE_BRANCH`, and `PRODUCTION_OS_WORKTREE_BASE`.
+
+Repository mappings are explicit by design. The worker never guesses a local
+path and never receives Git credentials from this mechanism. If no mapping is
+configured, the existing external-executor contract remains valid and the
+executor may implement isolation itself.

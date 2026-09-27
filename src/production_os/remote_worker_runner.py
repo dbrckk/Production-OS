@@ -9,6 +9,7 @@ from collections.abc import Sequence
 from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
 
 from .agent_runtime import PersistentAgentRuntime
+from .executor_worktree import PreparedWorktree, prepare_isolated_worktree
 from .remote_worker import RemoteJob, RemoteWorkerClient
 
 
@@ -23,6 +24,8 @@ class RemoteWorkerRunner:
         executor_timeout_seconds: float = 3600.0,
         secret_env_names: Sequence[str] | None = None,
         runtime_root: str | None = None,
+        repository_roots: dict[str, str] | None = None,
+        worktree_root: str | None = None,
     ):
         command = [str(part) for part in executor_command if str(part)]
         if not command:
@@ -42,6 +45,16 @@ class RemoteWorkerRunner:
         self._active_lock = threading.RLock()
         self._stop_event = threading.Event()
         self.max_consecutive_heartbeat_failures = 3
+        self.repository_roots = {
+            str(name):str(path)
+            for name, path in (repository_roots or {}).items()
+            if str(name).strip() and str(path).strip()
+        }
+        self.worktree_root = (
+            str(worktree_root)
+            if worktree_root
+            else os.getenv("PRODUCTION_OS_WORKTREE_DIR", "")
+        )
         configured_runtime_root = runtime_root or os.getenv("PRODUCTION_OS_RUNTIME_DIR")
         self.agent_runtime = (
             PersistentAgentRuntime(configured_runtime_root)
@@ -78,6 +91,27 @@ class RemoteWorkerRunner:
         if checkpoint.get("valid") and checkpoint.get("ref"):
             return str(checkpoint["ref"])
         return f"worker-runner://{self.client.worker_id}/{key}/stale"
+
+    def _prepare_worktree(self, job: RemoteJob) -> PreparedWorktree | None:
+        payload = dict(job.payload.get("payload") or {})
+        handoff = dict(payload.get("handoff") or {})
+        isolation = dict(handoff.get("isolation") or {})
+        if isolation.get("mode") != "git-worktree":
+            return None
+
+        repository = str(handoff.get("repository") or "").strip()
+        root = self.repository_roots.get(repository)
+        if not root or not self.worktree_root:
+            # Backwards compatibility: the external executor may implement the
+            # isolation contract itself. Automatic worktree management is only
+            # enabled for repositories explicitly mounted/configured here.
+            return None
+
+        return prepare_isolated_worktree(
+            root,
+            isolation,
+            worktree_root=self.worktree_root,
+        )
 
     @staticmethod
     def _terminate(process: subprocess.Popen[str]) -> None:
@@ -166,6 +200,23 @@ class RemoteWorkerRunner:
                 "job":job.to_dict(),
             }
             executor_env = self.executor_env.copy()
+            prepared_worktree = self._prepare_worktree(job)
+            executor_cwd = None
+            if prepared_worktree is not None:
+                request_payload["executor_workspace"] = (
+                    prepared_worktree.to_dict()
+                )
+                executor_cwd = prepared_worktree.worktree_path
+                executor_env.update({
+                    "PRODUCTION_OS_REPOSITORY_ROOT":
+                        prepared_worktree.repository_root,
+                    "PRODUCTION_OS_WORKTREE":
+                        prepared_worktree.worktree_path,
+                    "PRODUCTION_OS_WORKTREE_BRANCH":
+                        prepared_worktree.branch,
+                    "PRODUCTION_OS_WORKTREE_BASE":
+                        prepared_worktree.base_ref,
+                })
             if runtime_context is not None:
                 request_payload["runtime"] = runtime_context.to_dict()
                 executor_env.update({
@@ -194,6 +245,7 @@ class RemoteWorkerRunner:
                 stderr=subprocess.PIPE,
                 text=True,
                 env=executor_env,
+                cwd=executor_cwd,
             )
             first_communicate = True
             stdout = ""
