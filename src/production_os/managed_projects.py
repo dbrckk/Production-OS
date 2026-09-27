@@ -413,6 +413,11 @@ class ManagedProjectService:
         agent_preference: str,
     ) -> list[WorkflowTaskSpec]:
         browser = self._needs_browser_validation(final_goal)
+        stage_count = 4 if browser else 3
+        if int(token_budget) < stage_count:
+            raise ValueError(
+                "cooperative token_budget must cover every stage"
+            )
         implementation_budget = max(1, int(token_budget * 0.55))
         validation_budget = max(1, int(token_budget * 0.25))
         remaining = max(
