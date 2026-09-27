@@ -19,6 +19,17 @@ def test_dashboard_has_worker_and_project_detail_tabs():
         assert label in DASHBOARD_HTML
 
 
+def test_dashboard_renders_native_mobile_validation_evidence():
+    for label in (
+        "Preuve mobile",
+        "Android emulator / ADB",
+        "package_name",
+        "device_serial",
+        "fatal_errors",
+    ):
+        assert label in DASHBOARD_HTML
+
+
 def test_dashboard_preserves_launch_and_mobile_accessibility():
     assert 'id="repository"' in DASHBOARD_HTML
     assert 'id="instruction"' in DASHBOARD_HTML
