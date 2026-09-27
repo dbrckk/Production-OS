@@ -147,7 +147,9 @@ services:
   production-worker-browser:
     profiles:
       - worker-specialists
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.browser-worker
     restart: unless-stopped
     init: true
     stop_grace_period: 15s
@@ -165,6 +167,8 @@ services:
       - http://production-os:8787
       - --worker-id
       - worker-browser
+      - --capability
+      - browser-ui-validation
       - --executor-command
       - ${PRODUCTION_OS_WORKER_EXECUTOR_COMMAND:-}
       - --max-concurrency
