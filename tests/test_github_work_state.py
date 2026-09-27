@@ -22,6 +22,9 @@ def state(**kwargs):
         ready_for_promotion=False,
         promotion_blockers=(),
         required_checks_missing=(),
+        sensitive_files=(),
+        change_categories=(),
+        human_review_required=False,
         head_sha="abc",
     )
     base.update(kwargs)
@@ -157,3 +160,19 @@ def test_promotion_readiness_blocks_when_required_check_is_missing():
     )
     assert ready is False
     assert "required-checks-missing" in blockers
+
+
+def test_promotion_readiness_blocks_sensitive_changes():
+    from production_os.github_work_state import _promotion_readiness
+
+    ready, blockers = _promotion_readiness(
+        pr_state="open",
+        merged=False,
+        draft=False,
+        review_state="approved",
+        ci_state="passed",
+        status_state="passed",
+        human_review_required=True,
+    )
+    assert ready is False
+    assert "human-review-required" in blockers
