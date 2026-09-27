@@ -988,28 +988,42 @@ def service(tmp_path)
 ⋮----
 backend = SQLiteBackend(tmp_path / "cooperative.sqlite")
 ⋮----
-def test_cooperative_workflow_builds_parallel_code_test_integration_chain(tmp_path)
+def _planner_config(managed, *, goal, instruction=None, budget=1000)
 ⋮----
-managed = service(tmp_path)
 tasks = managed._cooperative_workflow_specs(
 ⋮----
-budgets = [
+def test_cooperative_workflow_starts_with_bounded_adaptive_planner(tmp_path)
 ⋮----
-def test_cooperative_workflow_adds_ui_stage_only_for_ui_goal(tmp_path)
+managed = service(tmp_path)
+planner = _planner_config(
 ⋮----
-def test_native_mobile_ui_uses_dedicated_emulator_stage(tmp_path)
+config = planner.payload["dynamic_agent_planner"]
+fallback = config["fallback_plan"]
 ⋮----
-mobile = tasks[-1]
+def test_cooperative_browser_goal_puts_browser_validation_after_review(tmp_path)
 ⋮----
-def test_web_ui_still_uses_playwright_browser_stage(tmp_path)
+continuation = planner.payload["dynamic_agent_planner"][
 ⋮----
-def test_create_cooperative_project_keeps_mode_in_workflow_metadata(tmp_path)
+browser = continuation[-1]
+⋮----
+def test_native_mobile_goal_puts_emulator_validation_after_review(tmp_path)
+⋮----
+planner = _planner_config(managed, goal=goal)
+⋮----
+mobile = continuation[-1]
+⋮----
+def test_create_cooperative_project_queues_only_planner_initially(tmp_path)
 ⋮----
 project = managed.create(
 ⋮----
 workflow = managed.workflows.get(project["current_workflow_id"])
 ⋮----
-by_id = {
+def test_planner_fallback_expands_code_tests_and_delivery_chain(tmp_path)
+⋮----
+workflow_id = project["current_workflow_id"]
+⋮----
+expanded = managed.workflows.record_result(
+by_id = {task["task_id"]:task for task in expanded["tasks"]}
 ⋮----
 def test_cooperative_outcome_uses_deepest_stage_and_aggregates_delivery_evidence()
 ⋮----
@@ -1019,9 +1033,7 @@ outcome = _outcome_from_workflow(workflow)
 ⋮----
 def test_cooperative_workflow_rejects_budget_smaller_than_stage_count(tmp_path)
 ⋮----
-def test_retest_preserves_cooperative_mode_across_generations(tmp_path)
-⋮----
-workflow_id = project["current_workflow_id"]
+def test_retest_preserves_cooperative_dynamic_planner_mode(tmp_path)
 ⋮----
 completed = managed.get(project["project_id"])
 ⋮----
@@ -1040,40 +1052,40 @@ managed = ManagedProjectService(workflows)
 def _task(workflow, task_id)
 ⋮----
 @pytest.mark.e2e
-def test_cooperative_project_routes_parallel_agents_then_specialists(tmp_path)
+def test_cooperative_project_routes_planner_fanout_then_specialists(tmp_path)
 ⋮----
 project = managed.create(
 workflow_id = project["current_workflow_id"]
 ⋮----
 workflow = workflows.get(workflow_id)
-code_task = _task(workflow, "implementation-code")
-tests_task = _task(workflow, "implementation-tests")
+planner = _task(workflow, "planner")
+⋮----
+planner_job = queue.claim_next(
+⋮----
+code_task = _task(workflow, "planner.agent.code")
+tests_task = _task(workflow, "planner.agent.tests")
 ⋮----
 code_job = queue.claim_next(
-⋮----
-code_branch = code_job["payload"]["handoff"]["isolation"]["branch"]
-⋮----
 tests_job = queue.claim_next(
 ⋮----
+code_branch = code_job["payload"]["handoff"]["isolation"]["branch"]
 tests_branch = tests_job["payload"]["handoff"]["isolation"]["branch"]
 ⋮----
-integration = _task(workflow, "integration")
+integration = _task(workflows.get(workflow_id), "integration")
 ⋮----
 integration_job = queue.claim_next(
 ⋮----
 upstream = integration_job["payload"]["handoff"]["upstream_context"]
 ⋮----
-commits = {
-⋮----
-validation = _task(workflow, "validation")
+validation = _task(workflows.get(workflow_id), "validation")
 ⋮----
 debug_job = queue.claim_next(
 ⋮----
-review = _task(workflow, "review")
+review = _task(workflows.get(workflow_id), "review")
 ⋮----
 review_job = queue.claim_next(
 ⋮----
-ui = _task(workflow, "ui-validation")
+ui = _task(workflows.get(workflow_id), "ui-validation")
 ⋮----
 browser_job = queue.claim_next(
 ⋮----
@@ -4811,11 +4823,14 @@ workflow = control.workflows.get(
 ⋮----
 tasks = {
 ⋮----
-code_task = tasks["implementation-code"]
-tests_task = tasks["implementation-tests"]
+planner = tasks["planner"]
 ⋮----
-code_job = control.queue.get(code_task["claimed_job_key"])
-tests_job = control.queue.get(tests_task["claimed_job_key"])
+planner_job = control.queue.get(planner["claimed_job_key"])
+⋮----
+contract = planner_job["payload"]["handoff"]["tool_contracts"][
+⋮----
+expanded = control.workflows.record_result(
+expanded_tasks = {
 ⋮----
 def test_cooperative_fleet_detection_ignores_dead_specialists(tmp_path)
 ⋮----

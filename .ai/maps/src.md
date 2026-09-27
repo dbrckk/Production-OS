@@ -5428,13 +5428,23 @@ mobile = self._needs_mobile_ui_validation(final_goal)
 browser = self._needs_browser_validation(final_goal) and not mobile
 specialist = browser or mobile
 ⋮----
-weights = [35, 15, 15, 15, 10, 10] if specialist else [40, 20, 15, 15, 10]
+weights = [8, 42, 15, 15, 10, 10] if specialist else [10, 45, 15, 15, 15]
 budgets = _stage_budgets(int(token_budget), weights)
 ⋮----
 specialist_budget = specialist_budgets[0] if specialist_budgets else 0
 ⋮----
+code_budget = max(1, (agent_budget * 7) // 10)
+tests_budget = agent_budget - code_budget
+⋮----
+tests_budget = 1
+code_budget = agent_budget - 1
+⋮----
 common = {
-isolated = {"mode":"git-worktree"}
+continuation = [
+⋮----
+fallback_plan = {
+⋮----
+planner_instruction = (
 ⋮----
 tasks = (
 workflow = self.workflows.create(

@@ -1,18 +1,21 @@
 # Change impact
 
-Base: 15eea6d8eb228477e150b2b6c500889e9035bc23
-Head: 67be12fb1149ef6380fdb7b1d51b9304f221e0a5
+Base: 9e6a976a66da19d850f1286c7ba2ef2c1f88c602
+Head: 08839b75623a8773d9673e1dc20138dc75c6c06c
 
 ## Changed files
-- M src/production_os/workflow_engine.py
-- M tests/test_dynamic_agent_fanout.py
+- M src/production_os/managed_projects.py
+- M tests/test_cooperative_managed_projects.py
+- M tests/test_cooperative_specialist_e2e.py
+- M tests/test_managed_github_reconciliation.py
+- M tests/test_release32_one_tap_e2e.py
 
 ## Affected areas
 - src
 - tests
 
 ## Related test candidates
-- tests/test_workflow_engine.py
+- No direct filename-based test match detected.
 
 ## Agent guidance
 - Read this file before broad repository exploration.

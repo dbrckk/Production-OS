@@ -22,16 +22,21 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-27T18:55:28Z
+Generated: 2026-09-27T18:59:34Z
 
 ### Git
 - Branch: `main`
-- Head: `67be12fb1149`
-- Commit date: 2026-09-27T20:55:16+02:00
-- Commit: feat(agents): add planner fallback and post-integration continuation
+- Head: `08839b75623a`
+- Commit date: 2026-09-27T20:59:23+02:00
+- Commit: feat(agents): activate adaptive planner in cooperative managed projects
 - Tracked files: 491
 
 ### Recently changed files
+- `src/production_os/managed_projects.py`
+- `tests/test_cooperative_managed_projects.py`
+- `tests/test_cooperative_specialist_e2e.py`
+- `tests/test_managed_github_reconciliation.py`
+- `tests/test_release32_one_tap_e2e.py`
 - `src/production_os/workflow_engine.py`
 - `tests/test_dynamic_agent_fanout.py`
 - `src/production_os/agent_plan.py`
@@ -47,10 +52,6 @@ Generated: 2026-09-27T18:55:28Z
 - `tests/test_browser_worker_image.py`
 - `tests/test_executor_worktree.py`
 - `tests/test_mobile_worker_image.py`
-- `tests/test_repository_cache.py`
-- `tests/test_worker_compose_deployment.py`
-- `src/production_os/executor_worktree.py`
-- `tests/test_remote_worker_runner.py`
 
 ### Project signals
 - `pyproject.toml`
