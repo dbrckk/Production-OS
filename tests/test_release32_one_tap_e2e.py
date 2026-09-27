@@ -182,3 +182,74 @@ def test_release32_one_tap_launch_worker_completion_survives_restart(tmp_path):
     assert restored["outcome"]["validation_tests"] == ["unit", "integration"]
     assert restored["runs"][0]["kind"] == "initial"
     assert restored["runs"][0]["workflow_id"] == workflow_id
+
+
+
+@pytest.mark.e2e
+def test_one_tap_auto_enables_cooperative_mode_when_specialist_fleet_exists(tmp_path):
+    control = ControlPlane(
+        str(tmp_path / "one-tap-cooperative.sqlite"),
+        authorizer=_auth(),
+    )
+    server, thread, base = _server(control)
+    try:
+        status, registered = _request(
+            base,
+            "/v1/workers/register",
+            "operator",
+            method="POST",
+            body={
+                "worker_id":"worker-code",
+                "capabilities":["code-implementation"],
+                "max_concurrency":1,
+            },
+        )
+        assert status == 200
+        assert registered["worker"]["capabilities"] == [
+            "code-implementation"
+        ]
+
+        status, launched = _request(
+            base,
+            "/v1/dashboard/launch",
+            "operator",
+            method="POST",
+            body={
+                "repository":"dbrckk/cooperative-one-tap",
+                "instruction":"Implement and validate repository automation",
+            },
+        )
+        assert status == 201
+        project = launched["project"]
+        workflow = control.workflows.get(
+            project["current_workflow_id"]
+        )
+
+        assert workflow["metadata"]["cooperative"] is True
+        tasks = {
+            task["task_id"]:task
+            for task in workflow["tasks"]
+        }
+        assert set(tasks) == {
+            "implementation",
+            "validation",
+            "review",
+        }
+        assert tasks["validation"]["dependencies"] == [
+            "implementation"
+        ]
+        assert tasks["review"]["dependencies"] == ["validation"]
+
+        first_job = next(
+            task for task in tasks.values()
+            if task["task_id"] == "implementation"
+        )
+        assert first_job["status"] == "queued"
+        queued = control.queue.get(first_job["claimed_job_key"])
+        assert queued["payload"]["preferred_capabilities"] == [
+            "code-implementation"
+        ]
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
