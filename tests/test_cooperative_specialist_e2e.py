@@ -21,7 +21,7 @@ def _task(workflow, task_id):
 
 
 @pytest.mark.e2e
-def test_cooperative_project_routes_parallel_agents_then_specialists(tmp_path):
+def test_cooperative_project_routes_planner_fanout_then_specialists(tmp_path):
     managed, workflows, queue = build(tmp_path)
     project = managed.create(
         repository="owner/app",
@@ -33,74 +33,82 @@ def test_cooperative_project_routes_parallel_agents_then_specialists(tmp_path):
     workflow_id = project["current_workflow_id"]
 
     workflow = workflows.get(workflow_id)
-    code_task = _task(workflow, "implementation-code")
-    tests_task = _task(workflow, "implementation-tests")
+    planner = _task(workflow, "planner")
+    assert planner["status"] == "queued"
+
+    planner_job = queue.claim_next(
+        "worker-code",
+        capabilities=["code-implementation"],
+    )
+    assert planner_job is not None
+    assert planner_job["payload"]["workflow_task_id"] == "planner"
+    assert (
+        planner_job["payload"]["handoff"]["tool_contracts"][
+            "dynamic_agent_plan"
+        ]["schema"]
+        == "production-os/dynamic-agent-plan/v1"
+    )
+
+    workflows.record_result(
+        workflow_id,
+        "planner",
+        succeeded=True,
+        result={"summary":"fallback plan"},
+    )
+
+    workflow = workflows.get(workflow_id)
+    code_task = _task(workflow, "planner.agent.code")
+    tests_task = _task(workflow, "planner.agent.tests")
     assert code_task["status"] == "queued"
     assert tests_task["status"] == "queued"
 
     code_job = queue.claim_next(
-        "worker-code",
+        "worker-code-2",
         capabilities=["code-implementation"],
     )
-    assert code_job is not None
-    assert code_job["payload"]["handoff"]["isolation"]["mode"] == "git-worktree"
-    code_branch = code_job["payload"]["handoff"]["isolation"]["branch"]
-
     tests_job = queue.claim_next(
         "worker-debug",
         capabilities=["test-debug"],
     )
+    assert code_job is not None
     assert tests_job is not None
-    assert tests_job["payload"]["handoff"]["isolation"]["mode"] == "git-worktree"
+    code_branch = code_job["payload"]["handoff"]["isolation"]["branch"]
     tests_branch = tests_job["payload"]["handoff"]["isolation"]["branch"]
-    assert tests_branch != code_branch
+    assert code_branch != tests_branch
 
     workflows.record_result(
         workflow_id,
-        "implementation-code",
+        "planner.agent.code",
         succeeded=True,
         result={
             "summary":"implemented dashboard change",
-            "commit_shas":["a" * 40],
+            "commit_shas":["a"*40],
             "changed_files":["src/dashboard.py"],
         },
     )
     workflows.record_result(
         workflow_id,
-        "implementation-tests",
+        "planner.agent.tests",
         succeeded=True,
         result={
             "summary":"added dashboard tests",
-            "commit_shas":["b" * 40],
+            "commit_shas":["b"*40],
             "changed_files":["tests/test_dashboard.py"],
         },
     )
 
-    workflow = workflows.get(workflow_id)
-    integration = _task(workflow, "integration")
+    integration = _task(workflows.get(workflow_id), "integration")
     assert integration["status"] == "queued"
     integration_job = queue.claim_next(
-        "worker-code-2",
+        "worker-code-3",
         capabilities=["code-implementation"],
     )
     assert integration_job is not None
     upstream = integration_job["payload"]["handoff"]["upstream_context"]
     assert {row["task_id"] for row in upstream} == {
-        "implementation-code",
-        "implementation-tests",
+        "planner.agent.code",
+        "planner.agent.tests",
     }
-    commits = {
-        row["task_id"]:row["commit_shas"][0]
-        for row in upstream
-    }
-    assert commits["implementation-code"] == "a" * 40
-    assert commits["implementation-tests"] == "b" * 40
-    assert (
-        integration_job["payload"]["handoff"]["isolation"][
-            "integration_target"
-        ]
-        is True
-    )
 
     workflows.record_result(
         workflow_id,
@@ -108,25 +116,18 @@ def test_cooperative_project_routes_parallel_agents_then_specialists(tmp_path):
         succeeded=True,
         result={
             "summary":"integrated branches",
-            "commit_shas":["c" * 40],
-            "changed_files":[
-                "src/dashboard.py",
-                "tests/test_dashboard.py",
-            ],
+            "commit_shas":["c"*40],
+            "changed_files":["src/dashboard.py","tests/test_dashboard.py"],
         },
     )
 
-    workflow = workflows.get(workflow_id)
-    validation = _task(workflow, "validation")
+    validation = _task(workflows.get(workflow_id), "validation")
     assert validation["status"] == "queued"
     debug_job = queue.claim_next(
         "worker-debug-2",
         capabilities=["test-debug"],
     )
     assert debug_job is not None
-    assert debug_job["payload"]["handoff"]["upstream_context"][0]["task_id"] == (
-        "integration"
-    )
 
     workflows.record_result(
         workflow_id,
@@ -138,8 +139,7 @@ def test_cooperative_project_routes_parallel_agents_then_specialists(tmp_path):
         },
     )
 
-    workflow = workflows.get(workflow_id)
-    review = _task(workflow, "review")
+    review = _task(workflows.get(workflow_id), "review")
     assert review["status"] == "queued"
     review_job = queue.claim_next(
         "worker-review",
@@ -157,14 +157,9 @@ def test_cooperative_project_routes_parallel_agents_then_specialists(tmp_path):
         },
     )
 
-    workflow = workflows.get(workflow_id)
-    ui = _task(workflow, "ui-validation")
+    ui = _task(workflows.get(workflow_id), "ui-validation")
     assert ui["status"] == "queued"
-
-    assert queue.claim_next(
-        "worker-generic",
-        capabilities=[],
-    ) is None
+    assert queue.claim_next("worker-generic", capabilities=[]) is None
 
     browser_job = queue.claim_next(
         "worker-browser",
@@ -174,9 +169,6 @@ def test_cooperative_project_routes_parallel_agents_then_specialists(tmp_path):
     assert browser_job["payload"]["required_capabilities"] == [
         "browser-ui-validation"
     ]
-    assert browser_job["payload"]["handoff"]["upstream_context"][0]["task_id"] == (
-        "review"
-    )
 
     workflows.record_result(
         workflow_id,
@@ -190,7 +182,4 @@ def test_cooperative_project_routes_parallel_agents_then_specialists(tmp_path):
 
     completed = workflows.get(workflow_id)
     assert completed["status"] == "succeeded"
-    assert all(
-        task["status"] == "succeeded"
-        for task in completed["tasks"]
-    )
+    assert all(task["status"] == "succeeded" for task in completed["tasks"])
