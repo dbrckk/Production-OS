@@ -110,13 +110,21 @@ class ControlPlane:
         self.github_webhook_secret = github_webhook_secret
         self.webhook_deliveries = WebhookDeliveryStore(self.backend)
 
-    def cooperative_worker_fleet_available(self) -> bool:
+    def cooperative_worker_fleet_available(
+        self,
+        final_goal: str = "",
+    ) -> bool:
         specialist = {
             "code-implementation",
             "test-debug",
             "code-review",
             "browser-ui-validation",
         }
+        required = (
+            {"browser-ui-validation"}
+            if ManagedProjectService._needs_browser_validation(final_goal)
+            else set()
+        )
         try:
             self.workers.load()
         except Exception:
@@ -130,6 +138,10 @@ class ControlPlane:
                 for item in getattr(worker, "capabilities", [])
                 if str(item).strip()
             }
+            if required:
+                if required.issubset(capabilities):
+                    return True
+                continue
             if capabilities.intersection(specialist):
                 return True
         return False
@@ -988,7 +1000,9 @@ def make_handler(control: ControlPlane):
                         ),
                         project_id=project_id,
                         cooperative=(
-                            control.cooperative_worker_fleet_available()
+                            control.cooperative_worker_fleet_available(
+                                str(body.get("instruction") or "")
+                            )
                         ),
                     )
                 except ValueError as exc:
