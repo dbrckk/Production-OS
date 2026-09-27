@@ -9,7 +9,11 @@ from typing import Any
 from .runtime_state import task_key
 from .result_cache import ResultCache, fingerprint
 from .change_impact import analyze_change_impact
-from .task_capabilities import asset_forge_tool_contract, inferred_required_capabilities
+from .task_capabilities import (
+    asset_forge_tool_contract,
+    inferred_preferred_capabilities,
+    inferred_required_capabilities,
+)
 
 
 TERMINAL_TASK_STATES = {"succeeded", "failed", "cancelled", "blocked"}
@@ -1198,6 +1202,7 @@ class WorkflowEngine:
                 **payload,
                 "schema_version":"production-os/workflow-dispatch/v1",
                 "required_capabilities": inferred_required_capabilities(handoff),
+                "preferred_capabilities": inferred_preferred_capabilities(handoff),
                 "workflow_id":workflow_id,
                 "workflow_task_id":task["task_id"],
                 "workflow_attempt":attempt_number,
