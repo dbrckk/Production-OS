@@ -968,7 +968,10 @@ class ManagedProjectService:
             },
         )
         if dispatch:
-            self.workflows.dispatch_ready(workflow["id"], limit=1)
+            self.workflows.dispatch_ready(
+                workflow["id"],
+                limit=10 if cooperative else 1,
+            )
         return self.workflows.get(workflow["id"])
 
     def _delete_unstarted_workflow(self, workflow_id: str) -> None:
