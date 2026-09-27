@@ -187,6 +187,31 @@ def test_sensitive_green_pull_request_requires_review():
     assert github.calls == []
 
 
+def test_automerge_aborts_when_base_sha_changes_during_final_recheck():
+    github = FakeGitHub()
+    service = ManagedProjectService(
+        FakeWorkflows(),
+        github_client_factory=lambda: github,
+    )
+    initial = state()
+    changed = state(
+        base_sha="d"*40,
+    )
+    with patch(
+        "production_os.managed_projects.fetch_github_work_state",
+        side_effect=[initial, changed],
+    ):
+        resolution = service._github_resolution_for_succeeded_workflow(
+            "o/a",
+            workflow_with_pr(),
+        )
+
+    assert resolution["target"] == ACTIVE
+    assert resolution["decision"] == "promotion-state-changed"
+    assert resolution["state"].base_sha == "d"*40
+    assert github.calls == []
+
+
 def test_green_pull_request_merge_declined_requires_review():
     github = FakeGitHub(
         merge={
