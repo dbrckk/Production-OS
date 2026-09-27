@@ -22,27 +22,27 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-27T10:03:23Z
+Generated: 2026-09-27T10:13:51Z
 
 ### Git
 - Branch: `main`
-- Head: `5c25d5c35e48`
-- Commit date: 2026-09-27T12:03:12+02:00
-- Commit: feat: add real Playwright browser validation worker
-- Tracked files: 473
+- Head: `5250e46bcf5e`
+- Commit date: 2026-09-27T12:13:29+02:00
+- Commit: feat: define structured browser validation evidence contract
+- Tracked files: 474
 
 ### Recently changed files
+- `src/production_os/managed_projects.py`
+- `tests/test_cooperative_managed_projects.py`
+- `src/production_os/control_plane.py`
+- `tests/test_release32_one_tap_e2e.py`
 - `Dockerfile.browser-worker`
 - `compose.worker.yaml`
-- `src/production_os/managed_projects.py`
 - `tests/test_browser_worker_image.py`
-- `tests/test_cooperative_managed_projects.py`
 - `tests/test_worker_compose_deployment.py`
 - `tests/test_managed_github_reconciliation.py`
 - `src/production_os/task_capabilities.py`
 - `tests/test_task_capabilities.py`
-- `src/production_os/control_plane.py`
-- `tests/test_release32_one_tap_e2e.py`
 
 ### Project signals
 - `pyproject.toml`

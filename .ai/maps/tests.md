@@ -4418,6 +4418,10 @@ queued = control.queue.get(first_job["claimed_job_key"])
 def test_cooperative_fleet_detection_ignores_dead_specialists(tmp_path)
 ⋮----
 worker = control.workers.register(
+⋮----
+def test_ui_goal_requires_online_browser_specialist_for_cooperative_mode(tmp_path)
+⋮----
+def test_non_ui_goal_can_use_any_online_specialist_for_cooperative_mode(tmp_path)
 ```
 
 ## File: test_release33_auto_worker_recovery_e2e.py

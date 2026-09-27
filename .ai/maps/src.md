@@ -1832,9 +1832,8 @@ actions_repository = str(
 actions_workflow = str(
 actions_ref = str(
 ⋮----
-def cooperative_worker_fleet_available(self) -> bool
-⋮----
 specialist = {
+required = (
 ⋮----
 status = str(getattr(worker, "status", "") or "").lower()
 ⋮----
