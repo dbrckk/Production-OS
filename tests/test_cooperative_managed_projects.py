@@ -12,7 +12,7 @@ def service(tmp_path):
     )
 
 
-def test_cooperative_workflow_builds_code_debug_review_chain_with_bounded_budget(tmp_path):
+def test_cooperative_workflow_builds_parallel_code_test_integration_chain(tmp_path):
     managed = service(tmp_path)
     tasks = managed._cooperative_workflow_specs(
         project_id="project-1234",
@@ -26,13 +26,18 @@ def test_cooperative_workflow_builds_code_debug_review_chain_with_bounded_budget
     )
 
     assert [task.task_id for task in tasks] == [
-        "implementation",
+        "implementation-code",
+        "implementation-tests",
+        "integration",
         "validation",
         "review",
     ]
     assert tasks[0].dependencies == ()
     assert tasks[1].dependencies == ()
-    assert tasks[2].dependencies == ("implementation-code", "implementation-tests")
+    assert tasks[2].dependencies == (
+        "implementation-code",
+        "implementation-tests",
+    )
     assert tasks[3].dependencies == ("integration",)
     assert tasks[4].dependencies == ("validation",)
     assert tasks[0].payload["handoff"]["preferred_capabilities"] == [
@@ -74,13 +79,15 @@ def test_cooperative_workflow_adds_ui_stage_only_for_ui_goal(tmp_path):
     )
 
     assert [task.task_id for task in tasks] == [
-        "implementation",
+        "implementation-code",
+        "implementation-tests",
+        "integration",
         "validation",
         "review",
         "ui-validation",
     ]
     assert tasks[-1].dependencies == ("review",)
-    assert [task.priority for task in tasks] == [100, 100, 100, 100]
+    assert all(task.priority == 100 for task in tasks)
     assert tasks[-1].payload["handoff"]["preferred_capabilities"] == [
         "browser-ui-validation"
     ]
@@ -120,7 +127,9 @@ def test_native_mobile_ui_uses_dedicated_emulator_stage(tmp_path):
             agent_preference="auto",
         )
         assert [task.task_id for task in tasks] == [
-            "implementation",
+            "implementation-code",
+            "implementation-tests",
+            "integration",
             "validation",
             "review",
             "mobile-ui-validation",
@@ -197,7 +206,6 @@ def test_create_cooperative_project_keeps_mode_in_workflow_metadata(tmp_path):
     assert by_id["review"]["dependencies"] == ["validation"]
 
 
-
 def test_cooperative_outcome_uses_deepest_stage_and_aggregates_delivery_evidence():
     workflow = {
         "status":"succeeded",
@@ -205,7 +213,7 @@ def test_cooperative_outcome_uses_deepest_stage_and_aggregates_delivery_evidence
         "artifacts":[],
         "tasks":[
             {
-                "task_id":"implementation",
+                "task_id":"implementation-code",
                 "title":"Implement",
                 "dependencies":[],
                 "updated_at":"2026-09-27T08:00:00+00:00",
@@ -214,6 +222,22 @@ def test_cooperative_outcome_uses_deepest_stage_and_aggregates_delivery_evidence
                     "commit_shas":["a"*40],
                     "changed_files":["src/app.py"],
                     "pull_request":{"number":12,"state":"open"},
+                },
+            },
+            {
+                "task_id":"integration",
+                "title":"Integrate",
+                "dependencies":["implementation-code", "implementation-tests"],
+                "updated_at":"2026-09-27T08:10:00+00:00",
+                "result":{
+                    "summary":"integrated",
+                    "commit_shas":["b"*40],
+                    "changed_files":["src/app.py","tests/test_app.py"],
+                    "ci":{
+                        "provider":"github-actions",
+                        "status":"passed",
+                        "workflow":"CI",
+                    },
                 },
             },
             {
@@ -230,17 +254,11 @@ def test_cooperative_outcome_uses_deepest_stage_and_aggregates_delivery_evidence
             {
                 "task_id":"validation",
                 "title":"Validate",
-                "dependencies":["implementation"],
-                "updated_at":"2026-09-27T08:10:00+00:00",
+                "dependencies":["integration"],
+                "updated_at":"2026-09-27T08:15:00+00:00",
                 "result":{
                     "summary":"tests passed",
                     "validation":{"status":"passed","tests":["unit"]},
-                    "commit_shas":["b"*40],
-                    "ci":{
-                        "provider":"github-actions",
-                        "status":"passed",
-                        "workflow":"CI",
-                    },
                 },
             },
         ],
@@ -255,7 +273,6 @@ def test_cooperative_outcome_uses_deepest_stage_and_aggregates_delivery_evidence
     assert outcome["changed_file_count"] == 2
     assert outcome["pull_request"] == {"number":12, "state":"open"}
     assert outcome["ci"]["workflow"] == "CI"
-
 
 
 def test_cooperative_workflow_rejects_budget_smaller_than_stage_count(tmp_path):
@@ -276,7 +293,6 @@ def test_cooperative_workflow_rejects_budget_smaller_than_stage_count(tmp_path):
         )
 
 
-
 def test_retest_preserves_cooperative_mode_across_generations(tmp_path):
     managed = service(tmp_path)
     project = managed.create(
@@ -288,36 +304,19 @@ def test_retest_preserves_cooperative_mode_across_generations(tmp_path):
     )
     workflow_id = project["current_workflow_id"]
 
-    managed.workflows.record_result(
-        workflow_id,
-        "implementation-code",
-        succeeded=True,
-        result={"summary":"implemented code"},
-    )
-    managed.workflows.record_result(
-        workflow_id,
-        "implementation-tests",
-        succeeded=True,
-        result={"summary":"implemented tests"},
-    )
-    managed.workflows.record_result(
-        workflow_id,
-        "integration",
-        succeeded=True,
-        result={"summary":"integrated"},
-    )
-    managed.workflows.record_result(
-        workflow_id,
-        "validation",
-        succeeded=True,
-        result={"summary":"validated"},
-    )
-    managed.workflows.record_result(
-        workflow_id,
-        "review",
-        succeeded=True,
-        result={"summary":"reviewed"},
-    )
+    for task_id, summary in (
+        ("implementation-code", "implemented code"),
+        ("implementation-tests", "implemented tests"),
+        ("integration", "integrated"),
+        ("validation", "validated"),
+        ("review", "reviewed"),
+    ):
+        managed.workflows.record_result(
+            workflow_id,
+            task_id,
+            succeeded=True,
+            result={"summary":summary},
+        )
 
     completed = managed.get(project["project_id"])
     assert completed["status"] == "REVIEW_REQUIRED"
@@ -334,4 +333,10 @@ def test_retest_preserves_cooperative_mode_across_generations(tmp_path):
     assert {
         task["task_id"]
         for task in follow_up["current_workflow"]["tasks"]
-    } == {"implementation-code", "implementation-tests", "integration", "validation", "review"}
+    } == {
+        "implementation-code",
+        "implementation-tests",
+        "integration",
+        "validation",
+        "review",
+    }
