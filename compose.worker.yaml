@@ -23,8 +23,10 @@ services:
         condition: service_healthy
     environment:
       PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
+      PRODUCTION_OS_RUNTIME_DIR: /var/lib/production-os/runtime
     volumes:
       - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
+      - production-worker-runtime:/var/lib/production-os/runtime
     command:
       - remote-worker-run
       - --url
@@ -54,9 +56,11 @@ services:
         condition: service_healthy
     environment:
       PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
+      PRODUCTION_OS_RUNTIME_DIR: /var/lib/production-os/runtime
       PRODUCTION_OS_WORKER_SPECIALTIES: code
     volumes:
       - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
+      - production-worker-runtime:/var/lib/production-os/runtime
     command:
       - remote-worker-run
       - --url
@@ -88,9 +92,11 @@ services:
         condition: service_healthy
     environment:
       PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
+      PRODUCTION_OS_RUNTIME_DIR: /var/lib/production-os/runtime
       PRODUCTION_OS_WORKER_SPECIALTIES: debug
     volumes:
       - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
+      - production-worker-runtime:/var/lib/production-os/runtime
     command:
       - remote-worker-run
       - --url
@@ -122,9 +128,11 @@ services:
         condition: service_healthy
     environment:
       PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
+      PRODUCTION_OS_RUNTIME_DIR: /var/lib/production-os/runtime
       PRODUCTION_OS_WORKER_SPECIALTIES: review
     volumes:
       - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
+      - production-worker-runtime:/var/lib/production-os/runtime
     command:
       - remote-worker-run
       - --url
@@ -158,9 +166,11 @@ services:
         condition: service_healthy
     environment:
       PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
+      PRODUCTION_OS_RUNTIME_DIR: /var/lib/production-os/runtime
       PRODUCTION_OS_WORKER_SPECIALTIES: browser
     volumes:
       - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
+      - production-worker-runtime:/var/lib/production-os/runtime
     command:
       - remote-worker-run
       - --url
@@ -197,11 +207,13 @@ services:
         condition: service_healthy
     environment:
       PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
+      PRODUCTION_OS_RUNTIME_DIR: /var/lib/production-os/runtime
       PRODUCTION_OS_WORKER_SPECIALTIES: mobile
       PRODUCTION_OS_ANDROID_AVD: ${PRODUCTION_OS_ANDROID_AVD:-production-os-api35}
       ANDROID_AVD_HOME: /opt/android-avd
     volumes:
       - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
+      - production-worker-runtime:/var/lib/production-os/runtime
     command:
       - remote-worker-run
       - --url
@@ -221,3 +233,6 @@ services:
       - --ack-timeout-seconds
       - ${PRODUCTION_OS_WORKER_ACK_TIMEOUT_SECONDS:-120}
 
+
+volumes:
+  production-worker-runtime:
