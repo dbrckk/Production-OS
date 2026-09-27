@@ -409,3 +409,101 @@ def test_dynamic_planner_generates_post_integration_validation_chain(tmp_path):
         task for task in progressed["tasks"]
         if task["task_id"] == "validation"
     )["status"] == "queued"
+
+
+
+def test_dynamic_plan_records_model_source_and_fanout_event(tmp_path):
+    engine, _queue = _build(tmp_path)
+    workflow = engine.create(
+        name="observability-model",
+        repository="owner/repo",
+        tasks=[_planner_spec()],
+    )
+    engine.dispatch_ready(workflow["id"])
+    expanded = engine.record_result(
+        workflow["id"],
+        "planner",
+        succeeded=True,
+        result={
+            "agent_plan":{
+                "schema_version":PLAN_SCHEMA,
+                "tasks":[
+                    {
+                        "task_id":"backend",
+                        "title":"Backend",
+                        "instruction":"Implement backend.",
+                        "token_budget":300,
+                    },
+                    {
+                        "task_id":"tests",
+                        "title":"Tests",
+                        "instruction":"Implement tests.",
+                        "token_budget":200,
+                    },
+                ],
+            },
+        },
+    )
+
+    children = [
+        task for task in expanded["tasks"]
+        if task["task_id"].startswith("planner.agent.")
+    ]
+    assert {task["payload"]["dynamic_agent_plan_source"] for task in children} == {
+        "model"
+    }
+    events = [
+        event for event in engine.backend.events_after()
+        if event["event_type"] == "workflow-dynamic-agent-plan-expanded"
+    ]
+    assert len(events) == 1
+    assert events[0]["payload"]["plan_source"] == "model"
+    assert events[0]["payload"]["child_agent_count"] == 2
+
+
+def test_dynamic_plan_records_fallback_source(tmp_path):
+    engine, _queue = _build(tmp_path)
+    planner = _planner_spec()
+    planner.payload["dynamic_agent_planner"]["fallback_plan"] = {
+        "schema_version":PLAN_SCHEMA,
+        "tasks":[
+            {
+                "task_id":"code",
+                "title":"Code",
+                "instruction":"Implement.",
+                "token_budget":300,
+            },
+            {
+                "task_id":"tests",
+                "title":"Tests",
+                "instruction":"Test.",
+                "token_budget":200,
+            },
+        ],
+    }
+    workflow = engine.create(
+        name="observability-fallback",
+        repository="owner/repo",
+        tasks=[planner],
+    )
+    engine.dispatch_ready(workflow["id"])
+    expanded = engine.record_result(
+        workflow["id"],
+        "planner",
+        succeeded=True,
+        result={"summary":"no structured plan"},
+    )
+
+    children = [
+        task for task in expanded["tasks"]
+        if task["task_id"].startswith("planner.agent.")
+    ]
+    assert {task["payload"]["dynamic_agent_plan_source"] for task in children} == {
+        "fallback"
+    }
+    events = [
+        event for event in engine.backend.events_after()
+        if event["event_type"] == "workflow-dynamic-agent-plan-expanded"
+    ]
+    assert len(events) == 1
+    assert events[0]["payload"]["plan_source"] == "fallback"
