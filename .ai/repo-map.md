@@ -57,6 +57,7 @@ src/
     __init__.py
     adaptation_plan.py
     adaptation.py
+    agent_plan.py
     agent_runtime.py
     api_auth.py
     approvals.py
@@ -177,6 +178,7 @@ src/
 tests/
   test_adaptation_plan.py
   test_adaptation.py
+  test_agent_plan.py
   test_api_auth.py
   test_approvals_migrations.py
   test_asset_forge.py
@@ -829,6 +831,53 @@ level = "medium"
 level = "high"
 ⋮----
 level = "very-high"
+````
+
+## File: src/production_os/agent_plan.py
+````python
+PLAN_SCHEMA = "production-os/dynamic-agent-plan/v1"
+_TASK_ID = re.compile(r"^[a-z0-9][a-z0-9._-]{0,63}$")
+_CAPABILITY = re.compile(r"^[a-z0-9][a-z0-9._-]{0,63}$")
+⋮----
+@dataclass(frozen=True, slots=True)
+class PlannedAgentTask
+⋮----
+task_id: str
+title: str
+instruction: str
+token_budget: int
+preferred_capabilities: tuple[str, ...]
+dependencies: tuple[str, ...]
+estimated_minutes: float
+⋮----
+def to_dict(self) -> dict[str, Any]
+⋮----
+raw_tasks = payload.get("tasks")
+⋮----
+normalized: list[PlannedAgentTask] = []
+seen: set[str] = set()
+total_budget = 0
+⋮----
+task_id = str(raw.get("task_id") or "").strip().lower()
+⋮----
+title = str(raw.get("title") or "").strip()
+instruction = str(raw.get("instruction") or "").strip()
+⋮----
+token_budget = int(raw.get("token_budget"))
+⋮----
+raw_capabilities = raw.get("preferred_capabilities") or []
+⋮----
+capabilities: list[str] = []
+⋮----
+capability = str(value or "").strip().lower()
+⋮----
+raw_dependencies = raw.get("dependencies") or []
+⋮----
+dependencies: list[str] = []
+⋮----
+dependency = str(value or "").strip().lower()
+⋮----
+estimated_minutes = float(raw.get("estimated_minutes", 20))
 ````
 
 ## File: src/production_os/agent_runtime.py
@@ -9165,6 +9214,19 @@ def test_tests_reduce_adaptation_risk()
 source = assessment("source", "android-app", "Kotlin", [component, test])
 target = assessment("target", "android-game", "Kotlin", [])
 scored = score_adaptation_risk(source, target, "android-play-billing", component)
+````
+
+## File: tests/test_agent_plan.py
+````python
+def test_agent_plan_accepts_bounded_ordered_dependency_graph()
+⋮----
+tasks = validate_agent_plan(
+⋮----
+def test_agent_plan_rejects_budget_overflow()
+⋮----
+def test_agent_plan_rejects_too_many_agents()
+⋮----
+def test_agent_plan_rejects_unsafe_graph_shapes(payload, match)
 ````
 
 ## File: tests/test_api_auth.py

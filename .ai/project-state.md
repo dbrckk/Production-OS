@@ -22,16 +22,18 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-27T18:38:58Z
+Generated: 2026-09-27T18:44:53Z
 
 ### Git
 - Branch: `main`
-- Head: `1e8b5d3d06af`
-- Commit date: 2026-09-27T20:38:46+02:00
-- Commit: feat(agents): materialize repositories automatically for one-tap worktrees
-- Tracked files: 488
+- Head: `20b4fc1beb0b`
+- Commit date: 2026-09-27T20:44:41+02:00
+- Commit: feat(agents): add bounded dynamic agent plan contract
+- Tracked files: 490
 
 ### Recently changed files
+- `src/production_os/agent_plan.py`
+- `tests/test_agent_plan.py`
 - `Dockerfile`
 - `Dockerfile.browser-worker`
 - `Dockerfile.mobile-worker`
@@ -50,8 +52,6 @@ Generated: 2026-09-27T18:38:58Z
 - `src/production_os/managed_projects.py`
 - `src/production_os/workflow_engine.py`
 - `src/production_os/worktree_contract.py`
-- `tests/test_cooperative_managed_projects.py`
-- `tests/test_cooperative_specialist_e2e.py`
 
 ### Project signals
 - `pyproject.toml`

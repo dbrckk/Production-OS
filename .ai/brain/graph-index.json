@@ -10,6 +10,7 @@
       "dependents": [
         "tests/test_adaptation.py",
         "tests/test_adaptation_plan.py",
+        "tests/test_agent_plan.py",
         "tests/test_api_auth.py",
         "tests/test_approvals_migrations.py",
         "tests/test_asset_forge.py",
@@ -170,7 +171,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 161,
+      "in_degree": 162,
       "out_degree": 0,
       "path": "src/production_os/__init__.py"
     },
@@ -983,6 +984,31 @@
     },
     {
       "dependencies": [
+        "src/production_os/models.py",
+        "src/production_os/workers.py"
+      ],
+      "dependents": [
+        "src/production_os/adaptation.py",
+        "src/production_os/adaptation_plan.py",
+        "src/production_os/agent_plan.py",
+        "src/production_os/cli.py",
+        "src/production_os/components.py",
+        "src/production_os/graph.py",
+        "src/production_os/reuse.py",
+        "src/production_os/scoring.py",
+        "src/production_os/starlist.py",
+        "src/production_os/validation.py",
+        "tests/test_capabilities_graph.py",
+        "tests/test_classification_history_reuse.py",
+        "tests/test_controller_asset_capabilities.py",
+        "tests/test_worker_compose_deployment.py"
+      ],
+      "in_degree": 14,
+      "out_degree": 2,
+      "path": "src/production_os/capabilities.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/capabilities.py",
         "src/production_os/models.py",
         "src/production_os/workers.py"
@@ -1030,30 +1056,6 @@
       "in_degree": 6,
       "out_degree": 10,
       "path": "src/production_os/release_ledger.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/models.py",
-        "src/production_os/workers.py"
-      ],
-      "dependents": [
-        "src/production_os/adaptation.py",
-        "src/production_os/adaptation_plan.py",
-        "src/production_os/cli.py",
-        "src/production_os/components.py",
-        "src/production_os/graph.py",
-        "src/production_os/reuse.py",
-        "src/production_os/scoring.py",
-        "src/production_os/starlist.py",
-        "src/production_os/validation.py",
-        "tests/test_capabilities_graph.py",
-        "tests/test_classification_history_reuse.py",
-        "tests/test_controller_asset_capabilities.py",
-        "tests/test_worker_compose_deployment.py"
-      ],
-      "in_degree": 13,
-      "out_degree": 2,
-      "path": "src/production_os/capabilities.py"
     },
     {
       "dependencies": [
@@ -1172,6 +1174,28 @@
     },
     {
       "dependencies": [
+        "src/production_os/models.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/controller.py",
+        "src/production_os/managed_projects.py",
+        "src/production_os/rollback_plan.py",
+        "src/production_os/task_capabilities.py",
+        "src/production_os/validation.py",
+        "tests/test_agent_plan.py",
+        "tests/test_classification_history_reuse.py",
+        "tests/test_compatibility_validation.py",
+        "tests/test_control_plane_release.py",
+        "tests/test_release_ledger.py",
+        "tests/test_rollback_plan.py"
+      ],
+      "in_degree": 12,
+      "out_degree": 1,
+      "path": "src/production_os/history.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/approvals.py",
         "src/production_os/attestations.py",
         "src/production_os/key_registry.py",
@@ -1235,27 +1259,6 @@
       "in_degree": 8,
       "out_degree": 5,
       "path": "src/production_os/postgres_backend.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/models.py"
-      ],
-      "dependents": [
-        "src/production_os/cli.py",
-        "src/production_os/controller.py",
-        "src/production_os/managed_projects.py",
-        "src/production_os/rollback_plan.py",
-        "src/production_os/task_capabilities.py",
-        "src/production_os/validation.py",
-        "tests/test_classification_history_reuse.py",
-        "tests/test_compatibility_validation.py",
-        "tests/test_control_plane_release.py",
-        "tests/test_release_ledger.py",
-        "tests/test_rollback_plan.py"
-      ],
-      "in_degree": 11,
-      "out_degree": 1,
-      "path": "src/production_os/history.py"
     },
     {
       "dependencies": [
@@ -1830,8 +1833,8 @@
       "path": "src/production_os/dashboard_maintenance.py"
     }
   ],
-  "edge_count": 1461,
+  "edge_count": 1465,
   "generated_by": "dbrckk/repo-brain-v7-graph",
-  "node_count": 284,
+  "node_count": 286,
   "schema_version": 1
 }

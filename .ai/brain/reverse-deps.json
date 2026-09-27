@@ -13,6 +13,7 @@
       "dependents": [
         "tests/test_adaptation.py",
         "tests/test_adaptation_plan.py",
+        "tests/test_agent_plan.py",
         "tests/test_api_auth.py",
         "tests/test_approvals_migrations.py",
         "tests/test_asset_forge.py",
@@ -173,7 +174,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 161,
+      "in_degree": 162,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -201,6 +202,16 @@
       ],
       "in_degree": 2,
       "out_degree": 3
+    },
+    "src/production_os/agent_plan.py": {
+      "dependencies": [
+        "src/production_os/capabilities.py"
+      ],
+      "dependents": [
+        "tests/test_agent_plan.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 1
     },
     "src/production_os/agent_runtime.py": {
       "dependencies": [
@@ -449,6 +460,7 @@
       "dependents": [
         "src/production_os/adaptation.py",
         "src/production_os/adaptation_plan.py",
+        "src/production_os/agent_plan.py",
         "src/production_os/cli.py",
         "src/production_os/components.py",
         "src/production_os/graph.py",
@@ -461,7 +473,7 @@
         "tests/test_controller_asset_capabilities.py",
         "tests/test_worker_compose_deployment.py"
       ],
-      "in_degree": 13,
+      "in_degree": 14,
       "out_degree": 2
     },
     "src/production_os/change_impact.py": {
@@ -1212,13 +1224,14 @@
         "src/production_os/rollback_plan.py",
         "src/production_os/task_capabilities.py",
         "src/production_os/validation.py",
+        "tests/test_agent_plan.py",
         "tests/test_classification_history_reuse.py",
         "tests/test_compatibility_validation.py",
         "tests/test_control_plane_release.py",
         "tests/test_release_ledger.py",
         "tests/test_rollback_plan.py"
       ],
-      "in_degree": 11,
+      "in_degree": 12,
       "out_degree": 1
     },
     "src/production_os/journal.py": {
@@ -2265,6 +2278,16 @@
       "dependents": [],
       "in_degree": 0,
       "out_degree": 4
+    },
+    "tests/test_agent_plan.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/agent_plan.py",
+        "src/production_os/history.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 3
     },
     "tests/test_api_auth.py": {
       "dependencies": [

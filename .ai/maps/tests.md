@@ -40,6 +40,7 @@ The content is organized as follows:
 ```
 test_adaptation_plan.py
 test_adaptation.py
+test_agent_plan.py
 test_api_auth.py
 test_approvals_migrations.py
 test_asset_forge.py
@@ -244,6 +245,19 @@ def test_tests_reduce_adaptation_risk()
 source = assessment("source", "android-app", "Kotlin", [component, test])
 target = assessment("target", "android-game", "Kotlin", [])
 scored = score_adaptation_risk(source, target, "android-play-billing", component)
+```
+
+## File: test_agent_plan.py
+```python
+def test_agent_plan_accepts_bounded_ordered_dependency_graph()
+⋮----
+tasks = validate_agent_plan(
+⋮----
+def test_agent_plan_rejects_budget_overflow()
+⋮----
+def test_agent_plan_rejects_too_many_agents()
+⋮----
+def test_agent_plan_rejects_unsafe_graph_shapes(payload, match)
 ```
 
 ## File: test_api_auth.py
