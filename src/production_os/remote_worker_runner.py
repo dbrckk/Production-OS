@@ -11,6 +11,7 @@ from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
 from .agent_runtime import PersistentAgentRuntime
 from .executor_worktree import PreparedWorktree, prepare_isolated_worktree
 from .remote_worker import RemoteJob, RemoteWorkerClient
+from .repository_cache import RepositoryCache
 
 
 class RemoteWorkerRunner:
@@ -26,6 +27,7 @@ class RemoteWorkerRunner:
         runtime_root: str | None = None,
         repository_roots: dict[str, str] | None = None,
         worktree_root: str | None = None,
+        repository_cache_root: str | None = None,
     ):
         command = [str(part) for part in executor_command if str(part)]
         if not command:
@@ -54,6 +56,15 @@ class RemoteWorkerRunner:
             str(worktree_root)
             if worktree_root
             else os.getenv("PRODUCTION_OS_WORKTREE_DIR", "")
+        )
+        configured_repository_cache_root = (
+            repository_cache_root
+            or os.getenv("PRODUCTION_OS_REPOSITORY_CACHE_DIR")
+        )
+        self.repository_cache = (
+            RepositoryCache(configured_repository_cache_root)
+            if configured_repository_cache_root
+            else None
         )
         configured_runtime_root = runtime_root or os.getenv("PRODUCTION_OS_RUNTIME_DIR")
         self.agent_runtime = (
@@ -101,10 +112,11 @@ class RemoteWorkerRunner:
 
         repository = str(handoff.get("repository") or "").strip()
         root = self.repository_roots.get(repository)
+        if not root and self.repository_cache is not None:
+            root = self.repository_cache.ensure(repository).path
         if not root or not self.worktree_root:
             # Backwards compatibility: the external executor may implement the
-            # isolation contract itself. Automatic worktree management is only
-            # enabled for repositories explicitly mounted/configured here.
+            # isolation contract itself when no local checkout source exists.
             return None
 
         return prepare_isolated_worktree(
