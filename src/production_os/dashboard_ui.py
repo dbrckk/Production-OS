@@ -1649,6 +1649,11 @@ function renderProductionOutcome(outcome,includeSummary){
   ?'<div class="small outcome-browser"><strong>Preuve mobile :</strong> '+
    (mobile.reason?esc(String(mobile.reason)):"Android emulator / ADB")+
    (mobile.activity?' · '+esc(String(mobile.activity)):"")+
+   (mobile.adb_verification
+     ?' · ADB device '+(mobile.adb_verification.device_state_verified?"✓":"✗")+
+      ' · package '+(mobile.adb_verification.package_installed_verified?"✓":"✗")+
+      ' · activité '+(mobile.adb_verification.activity_visible_verified?"✓":"✗")
+     :"")+
    ((mobile.fatal_errors||[]).length?' · <code>'+esc((mobile.fatal_errors||[]).slice(0,8).join(" | ")).slice(0,1600)+'</code>':"")+
    ((mobile.screenshots||[]).length?' · '+esc((mobile.screenshots||[]).slice(0,8).join(", ")):"")+
    '</div>'
