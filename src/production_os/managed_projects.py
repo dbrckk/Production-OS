@@ -468,7 +468,7 @@ class ManagedProjectService:
         markers = (
             "browser", "frontend", "front-end", "web ui", "website",
             "dashboard", "visual regression", "screenshot", "playwright",
-            "selenium", "mobile ui", "android ui", "flutter ui",
+            "selenium",
         )
         return any(marker in text for marker in markers)
 

@@ -91,6 +91,47 @@ def test_cooperative_workflow_adds_ui_stage_only_for_ui_goal(tmp_path):
     assert tasks[-1].payload["handoff"]["token_budget"] > 0
 
 
+def test_native_mobile_ui_does_not_use_playwright_browser_stage(tmp_path):
+    managed = service(tmp_path)
+
+    for final_goal in (
+        "Improve the Android UI",
+        "Polish the Flutter UI",
+        "Fix the mobile UI layout",
+    ):
+        tasks = managed._cooperative_workflow_specs(
+            project_id="project-1234",
+            repository="o/a",
+            final_goal=final_goal,
+            instruction=final_goal,
+            generation=1,
+            kind="initial",
+            token_budget=1000,
+            agent_preference="auto",
+        )
+        assert [task.task_id for task in tasks] == [
+            "implementation",
+            "validation",
+            "review",
+        ]
+
+
+def test_web_ui_still_uses_playwright_browser_stage(tmp_path):
+    managed = service(tmp_path)
+    tasks = managed._cooperative_workflow_specs(
+        project_id="project-1234",
+        repository="o/a",
+        final_goal="Improve the website frontend",
+        instruction="Improve the website frontend",
+        generation=1,
+        kind="initial",
+        token_budget=1000,
+        agent_preference="auto",
+    )
+
+    assert tasks[-1].task_id == "ui-validation"
+
+
 def test_create_cooperative_project_keeps_mode_in_workflow_metadata(tmp_path):
     managed = service(tmp_path)
     project = managed.create(
