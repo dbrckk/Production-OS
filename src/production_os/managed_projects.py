@@ -620,11 +620,11 @@ class ManagedProjectService:
         browser = self._needs_browser_validation(final_goal) and not mobile
         specialist = browser or mobile
 
-        weights = [35, 15, 15, 15, 10, 10] if specialist else [40, 20, 15, 15, 10]
+        weights = [8, 42, 15, 15, 10, 10] if specialist else [10, 45, 15, 15, 15]
         budgets = _stage_budgets(int(token_budget), weights)
         (
-            code_budget,
-            tests_budget,
+            planner_budget,
+            agent_budget,
             integration_budget,
             validation_budget,
             review_budget,
@@ -632,254 +632,207 @@ class ManagedProjectService:
         ) = budgets
         specialist_budget = specialist_budgets[0] if specialist_budgets else 0
 
+        code_budget = max(1, (agent_budget * 7) // 10)
+        tests_budget = max(1, agent_budget - code_budget)
+        if code_budget + tests_budget > agent_budget:
+            code_budget = max(1, agent_budget - tests_budget)
+
         common = {
             "managed_project_id":project_id,
             "managed_project_generation":generation,
             "managed_project_kind":kind,
         }
-        isolated = {"mode":"git-worktree"}
-
-        tasks = [
-            WorkflowTaskSpec(
-                task_id="implementation-code",
-                title=instruction[:120],
-                payload={
-                    **common,
-                    "cooperative_stage":"implementation-code",
-                    "isolation":isolated,
-                    "handoff":{
-                        "repository":repository,
-                        "task":(
-                            f"{instruction}\n\n"
-                            "Implement the production code in your isolated worktree. "
-                            "Do not modify tests unless required to keep the repository "
-                            "runnable. Commit every successful change and report commit "
-                            "SHAs and changed files."
-                        ),
-                        "final_goal":final_goal,
-                        "agent_preference":agent_preference,
-                        "token_budget":code_budget,
-                        "required_capabilities":[],
-                        "preferred_capabilities":["code-implementation"],
-                    },
-                },
-                priority=100,
-                max_attempts=3,
-                estimated_minutes=30,
-            ),
-            WorkflowTaskSpec(
-                task_id="implementation-tests",
-                title="Design tests for the requested change",
-                payload={
-                    **common,
-                    "cooperative_stage":"implementation-tests",
-                    "isolation":isolated,
-                    "handoff":{
-                        "repository":repository,
-                        "task":(
-                            "Independently design and implement the tests needed to "
-                            "prove the final goal. Work only in your isolated worktree. "
-                            "Prefer tests and test support code; avoid changing product "
-                            "code unless a minimal testability fix is essential. Commit "
-                            "the result and report commit SHAs and changed files."
-                        ),
-                        "final_goal":final_goal,
-                        "agent_preference":agent_preference,
-                        "token_budget":tests_budget,
-                        "required_capabilities":[],
-                        "preferred_capabilities":["test-debug"],
-                    },
-                },
-                priority=100,
-                max_attempts=3,
-                estimated_minutes=20,
-            ),
-            WorkflowTaskSpec(
-                task_id="integration",
-                title="Integrate parallel agent branches",
-                payload={
-                    **common,
-                    "cooperative_stage":"integration",
-                    "isolation":{
-                        "mode":"git-worktree",
-                        "integration_target":True,
-                    },
-                    "handoff":{
-                        "repository":repository,
-                        "task":(
-                            "Integrate the independent implementation and test-agent "
-                            "results from upstream_context into one clean branch. "
-                            "Use the reported commit SHAs as authoritative inputs. "
-                            "Resolve conflicts conservatively, preserve both agents' "
-                            "intent, run targeted checks, commit the integrated result, "
-                            "and report the final commit SHAs and changed files."
-                        ),
-                        "final_goal":final_goal,
-                        "agent_preference":agent_preference,
-                        "token_budget":integration_budget,
-                        "required_capabilities":[],
-                        "preferred_capabilities":["code-implementation"],
-                    },
-                },
-                dependencies=("implementation-code", "implementation-tests"),
-                priority=100,
-                max_attempts=2,
-                estimated_minutes=20,
-            ),
-            WorkflowTaskSpec(
-                task_id="validation",
-                title="Validate and debug the integrated implementation",
-                payload={
-                    **common,
-                    "cooperative_stage":"validation",
-                    "isolation":{
-                        "mode":"git-worktree",
-                        "integration_target":True,
-                    },
-                    "handoff":{
-                        "repository":repository,
-                        "task":(
-                            "Validate the integrated implementation against the final "
-                            "goal. Run the most relevant tests, diagnose failures, make "
-                            "the smallest correct fixes when needed, commit fixes, and "
-                            "report clear validation evidence."
-                        ),
-                        "final_goal":final_goal,
-                        "agent_preference":agent_preference,
-                        "token_budget":validation_budget,
-                        "required_capabilities":[],
-                        "preferred_capabilities":["test-debug"],
-                    },
-                },
-                dependencies=("integration",),
-                priority=100,
-                max_attempts=2,
-                estimated_minutes=20,
-            ),
-            WorkflowTaskSpec(
-                task_id="review",
-                title="Review the verified implementation",
-                payload={
-                    **common,
-                    "cooperative_stage":"review",
-                    "isolation":{
-                        "mode":"git-worktree",
-                        "integration_target":True,
-                    },
-                    "handoff":{
-                        "repository":repository,
-                        "task":(
-                            "Review the integrated implementation and validation "
-                            "evidence. Inspect correctness, regressions, security, "
-                            "maintainability and unnecessary changes. Fix only clearly "
-                            "actionable issues, commit any fixes, then report evidence."
-                        ),
-                        "final_goal":final_goal,
-                        "agent_preference":agent_preference,
-                        "token_budget":review_budget,
-                        "required_capabilities":[],
-                        "preferred_capabilities":["code-review"],
-                    },
-                },
-                dependencies=("validation",),
-                priority=100,
-                max_attempts=2,
-                estimated_minutes=15,
-            ),
+        continuation = [
+            {
+                "task_id":"validation",
+                "title":"Validate and debug the integrated implementation",
+                "instruction":(
+                    "Validate the integrated implementation against the final "
+                    "goal. Run the most relevant tests, diagnose failures, make "
+                    "the smallest correct fixes when needed, commit fixes, and "
+                    "report clear validation evidence."
+                ),
+                "token_budget":validation_budget,
+                "preferred_capabilities":["test-debug"],
+                "max_attempts":2,
+                "estimated_minutes":20,
+            },
+            {
+                "task_id":"review",
+                "title":"Review the verified implementation",
+                "instruction":(
+                    "Review the integrated implementation and validation "
+                    "evidence. Inspect correctness, regressions, security, "
+                    "maintainability and unnecessary changes. Fix only clearly "
+                    "actionable issues, commit any fixes, then report evidence."
+                ),
+                "token_budget":review_budget,
+                "preferred_capabilities":["code-review"],
+                "max_attempts":2,
+                "estimated_minutes":15,
+            },
         ]
         if browser:
-            tasks.append(
-                WorkflowTaskSpec(
-                    task_id="ui-validation",
-                    title="Validate the user interface in a real browser/runtime",
-                    payload={
-                        **common,
-                        "cooperative_stage":"ui-validation",
-                        "isolation":{
-                            "mode":"git-worktree",
-                            "integration_target":True,
-                        },
-                        "handoff":{
-                            "repository":repository,
-                            "task":(
-                                "Validate the relevant user interface in a real "
-                                "Chromium browser using Python Playwright. Create or "
-                                "update .production-os/browser_validate.py as the "
-                                "validation entrypoint. Exercise changed flows, capture "
-                                "console/page errors and screenshots, and write the "
-                                "required browser validation report. Commit only fixes "
-                                "caused by this implementation."
-                            ),
-                            "final_goal":final_goal,
-                            "agent_preference":agent_preference,
-                            "token_budget":specialist_budget,
-                            "required_capabilities":["browser-ui-validation"],
-                            "required_capabilities_authoritative":True,
-                            "preferred_capabilities":["browser-ui-validation"],
-                            "tool_contracts":{
-                                "browser_validation":{
-                                    "schema":"production-os/browser-validation/v1",
-                                    "report_schema":"production-os/browser-validation-report/v1",
-                                    "script":".production-os/browser_validate.py",
-                                    "artifacts_dir":".production-os/browser-artifacts",
-                                    "runtime":"python-playwright-chromium",
-                                },
-                            },
-                        },
+            continuation.append({
+                "task_id":"ui-validation",
+                "title":"Validate the user interface in a real browser/runtime",
+                "instruction":(
+                    "Validate the relevant user interface in a real Chromium "
+                    "browser using Python Playwright. Create or update "
+                    ".production-os/browser_validate.py as the validation "
+                    "entrypoint. Exercise changed flows, capture console/page "
+                    "errors and screenshots, and write the required browser "
+                    "validation report. Commit only fixes caused by this "
+                    "implementation."
+                ),
+                "token_budget":specialist_budget,
+                "required_capabilities":["browser-ui-validation"],
+                "preferred_capabilities":["browser-ui-validation"],
+                "tool_contracts":{
+                    "browser_validation":{
+                        "schema":"production-os/browser-validation/v1",
+                        "report_schema":"production-os/browser-validation-report/v1",
+                        "script":".production-os/browser_validate.py",
+                        "artifacts_dir":".production-os/browser-artifacts",
+                        "runtime":"python-playwright-chromium",
                     },
-                    dependencies=("review",),
-                    priority=100,
-                    max_attempts=2,
-                    estimated_minutes=15,
-                )
-            )
+                },
+                "max_attempts":2,
+                "estimated_minutes":15,
+            })
         if mobile:
-            tasks.append(
-                WorkflowTaskSpec(
-                    task_id="mobile-ui-validation",
-                    title="Validate the native user interface on an Android emulator",
-                    payload={
-                        **common,
-                        "cooperative_stage":"mobile-ui-validation",
-                        "isolation":{
-                            "mode":"git-worktree",
-                            "integration_target":True,
-                        },
+            continuation.append({
+                "task_id":"mobile-ui-validation",
+                "title":"Validate the native user interface on an Android emulator",
+                "instruction":(
+                    "Validate the relevant native Android or Flutter user "
+                    "interface on a real Android emulator using ADB. Build or "
+                    "locate the debug APK, boot or reuse an emulator, exercise "
+                    "the changed flow, capture screenshots and fatal/crash "
+                    "evidence, and write the required mobile validation report. "
+                    "Commit only fixes caused by this implementation."
+                ),
+                "token_budget":specialist_budget,
+                "required_capabilities":["mobile-ui-validation"],
+                "preferred_capabilities":["mobile-ui-validation"],
+                "tool_contracts":{
+                    "mobile_validation":{
+                        "schema":"production-os/mobile-validation/v1",
+                        "report_schema":"production-os/mobile-validation-report/v1",
+                        "script":".production-os/mobile_validate.py",
+                        "artifacts_dir":".production-os/mobile-artifacts",
+                        "runtime":"android-adb-emulator",
+                    },
+                },
+                "max_attempts":2,
+                "estimated_minutes":20,
+            })
+
+        fallback_plan = {
+            "schema_version":"production-os/dynamic-agent-plan/v1",
+            "tasks":[
+                {
+                    "task_id":"code",
+                    "title":instruction[:120] or "Implement requested change",
+                    "instruction":(
+                        f"{instruction}\n\n"
+                        "Implement the production code in your isolated worktree. "
+                        "Do not modify tests unless required to keep the repository "
+                        "runnable. Commit every successful change and report commit "
+                        "SHAs and changed files."
+                    ),
+                    "token_budget":code_budget,
+                    "preferred_capabilities":["code-implementation"],
+                    "estimated_minutes":30,
+                },
+                {
+                    "task_id":"tests",
+                    "title":"Design tests for the requested change",
+                    "instruction":(
+                        "Independently design and implement the tests needed to "
+                        "prove the final goal. Work only in your isolated worktree. "
+                        "Prefer tests and test support code; avoid changing product "
+                        "code unless a minimal testability fix is essential. Commit "
+                        "the result and report commit SHAs and changed files."
+                    ),
+                    "token_budget":tests_budget,
+                    "preferred_capabilities":["test-debug"],
+                    "estimated_minutes":20,
+                },
+            ],
+        }
+
+        planner_instruction = (
+            "Act as the implementation planner for this repository task. "
+            "Return a structured result.agent_plan using schema "
+            "production-os/dynamic-agent-plan/v1. Split the work only when "
+            "parallelism is useful. Use at most 6 tasks. Keep dependencies "
+            "acyclic by depending only on earlier tasks. Assign each task a "
+            "token_budget, title, instruction, preferred_capabilities and "
+            "estimated_minutes. The total child-agent token budget must not "
+            f"exceed {agent_budget}. Do not modify repository files in this "
+            "planning stage.\n\n"
+            f"Final goal: {final_goal}\n"
+            f"Current instruction: {instruction}"
+        )
+
+        return [
+            WorkflowTaskSpec(
+                task_id="planner",
+                title="Plan adaptive multi-agent implementation",
+                payload={
+                    **common,
+                    "cooperative_stage":"planner",
+                    "dynamic_agent_planner":{
+                        "available_token_budget":agent_budget,
+                        "max_agents":6,
+                        "fallback_plan":fallback_plan,
+                        "integration_task_id":"integration",
+                        "integration_title":"Integrate dynamic agent branches",
+                        "integration_instruction":(
+                            "Integrate all dynamic agent results from "
+                            "upstream_context into one clean branch. Use reported "
+                            "commit SHAs as authoritative inputs. Resolve conflicts "
+                            "conservatively, preserve each agent's intent, run "
+                            "targeted checks, commit the integrated result, and "
+                            "report final commit SHAs and changed files."
+                        ),
+                        "integration_token_budget":integration_budget,
+                        "integration_capabilities":["code-implementation"],
+                        "integration_max_attempts":2,
+                        "integration_estimated_minutes":20,
+                        "post_integration_tasks":continuation,
+                        "priority":100,
+                        "max_attempts":3,
                         "handoff":{
-                            "repository":repository,
-                            "task":(
-                                "Validate the relevant native Android or Flutter user "
-                                "interface on a real Android emulator using ADB. Build "
-                                "or locate the debug APK, boot or reuse an emulator, "
-                                "exercise the changed flow, capture screenshots and "
-                                "fatal/crash evidence, and write the required mobile "
-                                "validation report. Commit only fixes caused by this "
-                                "implementation."
-                            ),
                             "final_goal":final_goal,
                             "agent_preference":agent_preference,
-                            "token_budget":specialist_budget,
-                            "required_capabilities":["mobile-ui-validation"],
-                            "required_capabilities_authoritative":True,
-                            "preferred_capabilities":["mobile-ui-validation"],
-                            "tool_contracts":{
-                                "mobile_validation":{
-                                    "schema":"production-os/mobile-validation/v1",
-                                    "report_schema":"production-os/mobile-validation-report/v1",
-                                    "script":".production-os/mobile_validate.py",
-                                    "artifacts_dir":".production-os/mobile-artifacts",
-                                    "runtime":"android-adb-emulator",
-                                },
+                            **common,
+                        },
+                    },
+                    "handoff":{
+                        "repository":repository,
+                        "task":planner_instruction,
+                        "final_goal":final_goal,
+                        "agent_preference":agent_preference,
+                        "token_budget":planner_budget,
+                        "required_capabilities":[],
+                        "preferred_capabilities":["code-implementation"],
+                        "tool_contracts":{
+                            "dynamic_agent_plan":{
+                                "schema":"production-os/dynamic-agent-plan/v1",
+                                "result_field":"agent_plan",
+                                "max_agents":6,
+                                "max_total_token_budget":agent_budget,
                             },
                         },
                     },
-                    dependencies=("review",),
-                    priority=100,
-                    max_attempts=2,
-                    estimated_minutes=20,
-                )
-            )
-        return tasks
+                },
+                priority=100,
+                max_attempts=2,
+                estimated_minutes=10,
+            ),
+        ]
 
     def _workflow_spec(
         self,
