@@ -1,3 +1,5 @@
+import pytest
+
 from production_os.managed_projects import ManagedProjectService, _outcome_from_workflow
 from production_os.sqlite_backend import SQLiteBackend, SQLiteJobQueue
 from production_os.workflow_engine import WorkflowEngine
@@ -161,3 +163,22 @@ def test_cooperative_outcome_uses_deepest_stage_and_aggregates_delivery_evidence
     assert outcome["changed_file_count"] == 2
     assert outcome["pull_request"] == {"number":12, "state":"open"}
     assert outcome["ci"]["workflow"] == "CI"
+
+
+
+def test_cooperative_workflow_rejects_budget_smaller_than_stage_count(tmp_path):
+    managed = service(tmp_path)
+    with pytest.raises(
+        ValueError,
+        match="cooperative token_budget must cover every stage",
+    ):
+        managed._cooperative_workflow_specs(
+            project_id="project-1234",
+            repository="o/a",
+            final_goal="Improve the dashboard UI in a browser",
+            instruction="Improve the dashboard UI",
+            generation=1,
+            kind="initial",
+            token_budget=3,
+            agent_preference="auto",
+        )
