@@ -24,9 +24,13 @@ services:
     environment:
       PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
       PRODUCTION_OS_RUNTIME_DIR: /var/lib/production-os/runtime
+      PRODUCTION_OS_REPOSITORY_CACHE_DIR: /var/lib/production-os/repositories
+      PRODUCTION_OS_WORKTREE_DIR: /var/lib/production-os/worktrees
     volumes:
       - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
       - production-worker-runtime:/var/lib/production-os/runtime
+      - production-worker-repositories:/var/lib/production-os/repositories
+      - production-worker-worktrees:/var/lib/production-os/worktrees
     command:
       - remote-worker-run
       - --url
@@ -57,10 +61,14 @@ services:
     environment:
       PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
       PRODUCTION_OS_RUNTIME_DIR: /var/lib/production-os/runtime
+      PRODUCTION_OS_REPOSITORY_CACHE_DIR: /var/lib/production-os/repositories
+      PRODUCTION_OS_WORKTREE_DIR: /var/lib/production-os/worktrees
       PRODUCTION_OS_WORKER_SPECIALTIES: code
     volumes:
       - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
       - production-worker-runtime:/var/lib/production-os/runtime
+      - production-worker-repositories:/var/lib/production-os/repositories
+      - production-worker-worktrees:/var/lib/production-os/worktrees
     command:
       - remote-worker-run
       - --url
@@ -93,10 +101,14 @@ services:
     environment:
       PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
       PRODUCTION_OS_RUNTIME_DIR: /var/lib/production-os/runtime
+      PRODUCTION_OS_REPOSITORY_CACHE_DIR: /var/lib/production-os/repositories
+      PRODUCTION_OS_WORKTREE_DIR: /var/lib/production-os/worktrees
       PRODUCTION_OS_WORKER_SPECIALTIES: debug
     volumes:
       - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
       - production-worker-runtime:/var/lib/production-os/runtime
+      - production-worker-repositories:/var/lib/production-os/repositories
+      - production-worker-worktrees:/var/lib/production-os/worktrees
     command:
       - remote-worker-run
       - --url
@@ -129,10 +141,14 @@ services:
     environment:
       PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
       PRODUCTION_OS_RUNTIME_DIR: /var/lib/production-os/runtime
+      PRODUCTION_OS_REPOSITORY_CACHE_DIR: /var/lib/production-os/repositories
+      PRODUCTION_OS_WORKTREE_DIR: /var/lib/production-os/worktrees
       PRODUCTION_OS_WORKER_SPECIALTIES: review
     volumes:
       - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
       - production-worker-runtime:/var/lib/production-os/runtime
+      - production-worker-repositories:/var/lib/production-os/repositories
+      - production-worker-worktrees:/var/lib/production-os/worktrees
     command:
       - remote-worker-run
       - --url
@@ -167,10 +183,14 @@ services:
     environment:
       PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
       PRODUCTION_OS_RUNTIME_DIR: /var/lib/production-os/runtime
+      PRODUCTION_OS_REPOSITORY_CACHE_DIR: /var/lib/production-os/repositories
+      PRODUCTION_OS_WORKTREE_DIR: /var/lib/production-os/worktrees
       PRODUCTION_OS_WORKER_SPECIALTIES: browser
     volumes:
       - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
       - production-worker-runtime:/var/lib/production-os/runtime
+      - production-worker-repositories:/var/lib/production-os/repositories
+      - production-worker-worktrees:/var/lib/production-os/worktrees
     command:
       - remote-worker-run
       - --url
@@ -208,12 +228,16 @@ services:
     environment:
       PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
       PRODUCTION_OS_RUNTIME_DIR: /var/lib/production-os/runtime
+      PRODUCTION_OS_REPOSITORY_CACHE_DIR: /var/lib/production-os/repositories
+      PRODUCTION_OS_WORKTREE_DIR: /var/lib/production-os/worktrees
       PRODUCTION_OS_WORKER_SPECIALTIES: mobile
       PRODUCTION_OS_ANDROID_AVD: ${PRODUCTION_OS_ANDROID_AVD:-production-os-api35}
       ANDROID_AVD_HOME: /opt/android-avd
     volumes:
       - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
       - production-worker-runtime:/var/lib/production-os/runtime
+      - production-worker-repositories:/var/lib/production-os/repositories
+      - production-worker-worktrees:/var/lib/production-os/worktrees
     command:
       - remote-worker-run
       - --url
@@ -236,3 +260,5 @@ services:
 
 volumes:
   production-worker-runtime:
+  production-worker-repositories:
+  production-worker-worktrees:
