@@ -46,7 +46,7 @@ def test_stable_ui_preserves_operator_mutation_hooks():
     for hook in (
         "cancelLastProduction",
         "lastProductionManagedAction",
-        "setWorkerState",
+        "runWorkerControl",
         "submitProductionInstruction",
     ):
         assert hook in DASHBOARD_HTML
