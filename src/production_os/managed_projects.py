@@ -936,6 +936,36 @@ class ManagedProjectService:
             )
         return project_id
 
+    @staticmethod
+    def _managed_automerge_candidate(
+        pull_request: dict | None,
+        *,
+        expected_head_sha: str | None,
+    ) -> bool:
+        if not isinstance(pull_request, dict):
+            return False
+        if str(pull_request.get("state") or "").lower() != "open":
+            return False
+        if bool(pull_request.get("draft")):
+            return False
+        head = (
+            pull_request.get("head")
+            if isinstance(pull_request.get("head"), dict)
+            else {}
+        )
+        head_ref = str(head.get("ref") or "")
+        head_sha = str(head.get("sha") or "").lower()
+        expected = str(expected_head_sha or "").lower()
+        if not (
+            head_ref.startswith("studio/mp-")
+            or head_ref.startswith("studio/rb-")
+        ):
+            return False
+        return bool(
+            len(expected) == 40
+            and head_sha == expected
+        )
+
     def _github_target_for_succeeded_workflow(
         self,
         repository: str,
@@ -954,8 +984,9 @@ class ManagedProjectService:
             return None
 
         try:
+            client = self.github_client_factory()
             state = fetch_github_work_state(
-                self.github_client_factory(),
+                client,
                 repository,
                 pr_number=pr_number,
             )
@@ -966,9 +997,32 @@ class ManagedProjectService:
         if decision in {"retry", "replan", "rollback"}:
             return NEEDS_ATTENTION
         if state.ready_for_promotion:
+            try:
+                pr = client.get_pull_request(repository, pr_number)
+            except (GitHubAPIError, OSError, ValueError):
+                pr = None
+            if (
+                not state.human_review_required
+                and self._managed_automerge_candidate(
+                    pr,
+                    expected_head_sha=state.head_sha,
+                )
+            ):
+                try:
+                    merged = client.merge_pull_request(
+                        repository,
+                        pr_number,
+                        expected_head_sha=str(state.head_sha),
+                        merge_method="squash",
+                    )
+                except (GitHubAPIError, OSError, ValueError):
+                    merged = None
+                if isinstance(merged, dict) and merged.get("merged") is True:
+                    return ACTIVE
             return REVIEW_REQUIRED
         if (
-            state.ci_state is None
+            not state.merged
+            and state.ci_state is None
             and state.status_state is None
             and not state.required_checks_missing
         ):
