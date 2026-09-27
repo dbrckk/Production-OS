@@ -1231,21 +1231,80 @@ class ManagedProjectService:
             }
         if state.ready_for_promotion:
             head_sha = str(state.head_sha or "").strip().lower()
-            if len(head_sha) != 40:
+            base_sha = str(state.base_sha or "").strip().lower()
+            if len(head_sha) != 40 or len(base_sha) != 40:
                 return {
                     "target":REVIEW_REQUIRED,
                     "decision":"merge-blocked",
                     "state":state,
                     "merge":{
                         "merged":False,
-                        "reason":"invalid-head-sha",
+                        "reason":"invalid-observed-sha",
                     },
                 }
+
+            try:
+                fresh_state = fetch_github_work_state(
+                    client,
+                    repository,
+                    pr_number=pr_number,
+                )
+            except (GitHubAPIError, OSError, ValueError):
+                return {
+                    "target":ACTIVE,
+                    "decision":"promotion-recheck-unavailable",
+                    "state":state,
+                }
+
+            fresh_head = str(
+                fresh_state.head_sha or ""
+            ).strip().lower()
+            fresh_base = str(
+                fresh_state.base_sha or ""
+            ).strip().lower()
+            if (
+                fresh_head != head_sha
+                or fresh_base != base_sha
+            ):
+                return {
+                    "target":ACTIVE,
+                    "decision":"promotion-state-changed",
+                    "state":fresh_state,
+                }
+            if not fresh_state.ready_for_promotion:
+                fresh_decision = runtime_decision_from_github(
+                    fresh_state
+                )
+                if fresh_decision in {"retry", "replan"}:
+                    return {
+                        "target":NEEDS_ATTENTION,
+                        "decision":fresh_decision,
+                        "state":fresh_state,
+                    }
+                if (
+                    fresh_state.human_review_required
+                    or (
+                        fresh_state.ci_state is None
+                        and fresh_state.status_state is None
+                        and not fresh_state.required_checks_missing
+                    )
+                ):
+                    return {
+                        "target":REVIEW_REQUIRED,
+                        "decision":"promotion-recheck-blocked",
+                        "state":fresh_state,
+                    }
+                return {
+                    "target":ACTIVE,
+                    "decision":"promotion-recheck-pending",
+                    "state":fresh_state,
+                }
+
             try:
                 merge = client.merge_pull_request(
                     repository,
                     pr_number,
-                    head_sha=head_sha,
+                    head_sha=fresh_head,
                     method="squash",
                     commit_title=(
                         f"Production-OS: managed project PR #{pr_number}"
@@ -1255,7 +1314,7 @@ class ManagedProjectService:
                 return {
                     "target":REVIEW_REQUIRED,
                     "decision":"merge-blocked",
-                    "state":state,
+                    "state":fresh_state,
                     "merge":{
                         "merged":False,
                         "reason":type(exc).__name__,
@@ -1265,7 +1324,7 @@ class ManagedProjectService:
                 return {
                     "target":ACTIVE,
                     "decision":"merged-awaiting-validation",
-                    "state":state,
+                    "state":fresh_state,
                     "merge":{
                         "merged":True,
                         "sha":str(merge.get("sha") or "")[:40] or None,
@@ -1274,7 +1333,7 @@ class ManagedProjectService:
             return {
                 "target":REVIEW_REQUIRED,
                 "decision":"merge-blocked",
-                "state":state,
+                "state":fresh_state,
                 "merge":{
                     "merged":False,
                     "reason":str(
