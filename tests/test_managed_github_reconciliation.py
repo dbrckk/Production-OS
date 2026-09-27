@@ -65,6 +65,7 @@ def state(**overrides):
         "change_categories":(),
         "human_review_required":False,
         "head_sha":"a"*40,
+        "base_sha":"c"*40,
         "validation_sha":"a"*40,
     }
     values.update(overrides)
