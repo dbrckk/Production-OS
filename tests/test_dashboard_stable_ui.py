@@ -30,12 +30,14 @@ def test_stable_ui_mobile_layout_prevents_document_overflow():
 
 def test_stable_ui_preserves_all_dashboard_destinations():
     for view in (
-        "overview",
-        "productions",
-        "workers",
         "attention",
+        "productions",
+        "overview",
+        "projects",
+        "workers",
+        "autopilot",
         "managed",
-        "repositories",
+        "activity",
     ):
         assert f'data-view="{view}"' in DASHBOARD_HTML
 
