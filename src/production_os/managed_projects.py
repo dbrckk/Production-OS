@@ -177,6 +177,7 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
             "pull_request":None,
             "ci":None,
             "browser_validation":None,
+            "mobile_validation":None,
             "completed_at":None,
         }
 
@@ -410,6 +411,68 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
         if clean_browser:
             browser_validation = clean_browser
 
+    raw_mobile_validation = None
+    for item in reversed(results):
+        item_evidence = _result_evidence(item)
+        candidate = (
+            item.get("mobile_validation")
+            or item_evidence.get("mobile_validation")
+        )
+        if isinstance(candidate, dict):
+            raw_mobile_validation = candidate
+            break
+    mobile_validation = None
+    if isinstance(raw_mobile_validation, dict):
+        clean_mobile = {}
+        for key, limit in {
+            "status":120,
+            "reason":500,
+            "runtime":120,
+            "script":300,
+            "package_name":240,
+            "activity":500,
+            "device_serial":240,
+        }.items():
+            value = raw_mobile_validation.get(key)
+            if value is None:
+                continue
+            text = str(value).strip()
+            if text:
+                clean_mobile[key] = text[:limit]
+        passed = raw_mobile_validation.get("passed")
+        if isinstance(passed, bool):
+            clean_mobile["passed"] = passed
+        for key, limit in {
+            "fatal_errors":50,
+            "screenshots":20,
+            "copied_artifacts":30,
+        }.items():
+            value = raw_mobile_validation.get(key)
+            if isinstance(value, list):
+                clean_mobile[key] = [
+                    str(item).strip()[:1200]
+                    for item in value
+                    if str(item).strip()
+                ][:limit]
+        execution = raw_mobile_validation.get("execution")
+        if isinstance(execution, dict):
+            clean_execution = {}
+            for key in (
+                "returncode",
+                "duration_seconds",
+                "credential_isolated",
+                "network_allowed",
+            ):
+                if execution.get(key) is not None:
+                    clean_execution[key] = execution.get(key)
+            log_tail = str(execution.get("log_tail") or "").strip()
+            if log_tail:
+                clean_execution["log_tail"] = log_tail[-4000:]
+            if clean_execution:
+                clean_mobile["execution"] = clean_execution
+        if clean_mobile:
+            mobile_validation = clean_mobile
+
     workflow_status = str(workflow.get("status") or "").strip() or None
     terminal = workflow_status in {"succeeded", "failed", "cancelled"}
     available = terminal or any((
@@ -422,6 +485,7 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
         pull_request,
         ci,
         browser_validation,
+        mobile_validation,
     ))
     return {
         "available":bool(available),
@@ -436,6 +500,7 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
         "pull_request":pull_request,
         "ci":ci,
         "browser_validation":browser_validation,
+        "mobile_validation":mobile_validation,
         "completed_at":workflow.get("updated_at") if terminal else None,
     }
 
