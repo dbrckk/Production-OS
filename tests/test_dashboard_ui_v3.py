@@ -824,3 +824,14 @@ def test_production_inbox_renders_live_runtime_and_server_actions():
     assert "Valider DONE" in DASHBOARD_HTML
     assert "cancelLastProduction(this.dataset.projectId)" in DASHBOARD_HTML
 
+
+
+
+def test_production_outcome_renders_dynamic_planner_provenance():
+    assert "value.dynamic_plan" in DASHBOARD_HTML
+    assert "<strong>Plan :</strong>" in DASHBOARD_HTML
+    assert "Sous-agents :" in DASHBOARD_HTML
+    assert 'model:"IA"' in DASHBOARD_HTML
+    assert 'fallback:"fallback"' in DASHBOARD_HTML
+    assert "dynamicPlan.child_agent_count" in DASHBOARD_HTML
+    assert "dynamicPlan.task_ids" in DASHBOARD_HTML
