@@ -1,18 +1,18 @@
 # Change impact
 
-Base: 6ed5a55c5f4c860b373c01feb19d49508d656311
-Head: a018b909f7899747fcf458ed8032d5cbad3c2068
+Base: 7b6e361676c8a4924a6898482e7a56d99b23c236
+Head: 85fb04e57f2ded4ede9dce04922eb24d70be16ac
 
 ## Changed files
-- M src/production_os/dashboard_ui.py
-- M tests/test_dashboard_ui_v3.py
+- M src/production_os/task_capabilities.py
+- M tests/test_task_capabilities.py
 
 ## Affected areas
 - src
 - tests
 
 ## Related test candidates
-- No direct filename-based test match detected.
+- tests/test_task_capabilities.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

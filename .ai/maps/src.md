@@ -7352,7 +7352,9 @@ has_generation = bool(
 def inferred_preferred_capabilities(handoff: dict) -> list[str]
 ⋮----
 explicit = handoff.get("preferred_capabilities", [])
-preferred = {
+explicit_values = {
+⋮----
+preferred = set()
 ⋮----
 def inferred_required_capabilities(handoff: dict) -> list[str]
 ⋮----

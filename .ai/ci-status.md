@@ -1,14 +1,14 @@
 # CI status
 
-Summary: 6 success / 0 failure / 2 active
+Summary: 5 success / 0 failure / 3 active
 
-- CI: in_progress / pending (a018b909)
-- CI: in_progress / pending (f83ecb9d)
+- CI: in_progress / pending (85fb04e5)
+- CI: in_progress / pending (7b6e3616)
+- CI: in_progress / pending (378f1ac7)
+- CI: completed / success (db24a1d4)
+- CI: completed / success (e280df55)
+- CI: completed / success (a018b909)
+- CI: completed / success (f83ecb9d)
 - CI: completed / success (1b7b667a)
-- CI: completed / success (1bdb90c5)
-- CI: completed / success (36d0b9c4)
-- CI: completed / success (1263b1d6)
-- CI: completed / success (b27bc118)
-- CI: completed / success (cc52d9a9)
 
 > Generated summary only; inspect GitHub Actions for full logs when needed.

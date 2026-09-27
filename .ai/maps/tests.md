@@ -4358,6 +4358,10 @@ tasks = {
 first_job = next(
 ⋮----
 queued = control.queue.get(first_job["claimed_job_key"])
+⋮----
+def test_cooperative_fleet_detection_ignores_dead_specialists(tmp_path)
+⋮----
+worker = control.workers.register(
 ```
 
 ## File: test_release33_auto_worker_recovery_e2e.py
@@ -5433,6 +5437,8 @@ def test_inferred_capabilities_preserve_explicit_requirements()
 def test_preferred_capabilities_preserve_explicit_specialist_routing()
 ⋮----
 preferred = inferred_preferred_capabilities(
+⋮----
+def test_explicit_specialist_preference_overrides_text_inference()
 ```
 
 ## File: test_transparency_cli.py

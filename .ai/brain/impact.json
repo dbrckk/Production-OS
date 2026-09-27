@@ -1,30 +1,601 @@
 {
   "schema_version": 1,
   "generated_by": "dbrckk/repo-brain",
-  "base": "1bdb90c53057470d3871464bf28284265e1058c8",
-  "head": "a018b909f7899747fcf458ed8032d5cbad3c2068",
+  "base": "a018b909f7899747fcf458ed8032d5cbad3c2068",
+  "head": "85fb04e57f2ded4ede9dce04922eb24d70be16ac",
   "index_mode": "incremental",
   "changed_files": [
     {
-      "path": "src/production_os/dashboard_ui.py",
+      "path": "src/production_os/control_plane.py",
       "status": "M"
     },
     {
-      "path": "tests/test_dashboard_ui_v3.py",
+      "path": "src/production_os/managed_projects.py",
+      "status": "M"
+    },
+    {
+      "path": "src/production_os/task_capabilities.py",
+      "status": "M"
+    },
+    {
+      "path": "tests/test_cooperative_managed_projects.py",
+      "status": "M"
+    },
+    {
+      "path": "tests/test_release32_one_tap_e2e.py",
+      "status": "M"
+    },
+    {
+      "path": "tests/test_task_capabilities.py",
       "status": "M"
     }
   ],
   "changed_source_files": [
-    "src/production_os/dashboard_ui.py",
-    "tests/test_dashboard_ui_v3.py"
+    "src/production_os/control_plane.py",
+    "src/production_os/managed_projects.py",
+    "src/production_os/task_capabilities.py",
+    "tests/test_cooperative_managed_projects.py",
+    "tests/test_release32_one_tap_e2e.py",
+    "tests/test_task_capabilities.py"
   ],
   "impacted_files": [
+    "src/production_os/cli.py",
     "src/production_os/control_plane.py",
-    "src/production_os/dashboard_ui.py",
-    "tests/test_dashboard_production_inbox_filters_ui.py",
-    "tests/test_dashboard_ui_v3.py"
+    "src/production_os/controller.py",
+    "src/production_os/managed_projects.py",
+    "src/production_os/task_capabilities.py",
+    "src/production_os/workflow_engine.py",
+    "tests/test_control_plane.py",
+    "tests/test_control_plane_pr_impact.py",
+    "tests/test_control_plane_release.py",
+    "tests/test_control_plane_webhook.py",
+    "tests/test_cooperative_managed_projects.py",
+    "tests/test_dashboard_api.py",
+    "tests/test_dashboard_backup_api.py",
+    "tests/test_dashboard_control_api.py",
+    "tests/test_dashboard_control_audit.py",
+    "tests/test_dashboard_control_e2e.py",
+    "tests/test_dashboard_incidents.py",
+    "tests/test_dashboard_launch.py",
+    "tests/test_dashboard_launch_readiness.py",
+    "tests/test_dashboard_launch_ux.py",
+    "tests/test_dashboard_maintenance.py",
+    "tests/test_dashboard_observability_e2e.py",
+    "tests/test_dashboard_playbook_api.py",
+    "tests/test_dashboard_production_inbox.py",
+    "tests/test_dashboard_production_status.py",
+    "tests/test_dashboard_remediation_api.py",
+    "tests/test_dashboard_retention_prune.py",
+    "tests/test_dashboard_store_postgres.py",
+    "tests/test_database_maintenance_lock.py",
+    "tests/test_http_security_headers.py",
+    "tests/test_managed_project_outcome.py",
+    "tests/test_managed_projects_http_v4.py",
+    "tests/test_managed_projects_v4.py",
+    "tests/test_portfolio_claim_api.py",
+    "tests/test_production_stack_e2e.py",
+    "tests/test_release16_operations_e2e.py",
+    "tests/test_release18_managed_projects_e2e.py",
+    "tests/test_release19_restore_staging_e2e.py",
+    "tests/test_release21_offline_restore_e2e.py",
+    "tests/test_release32_one_tap_e2e.py",
+    "tests/test_release33_auto_worker_recovery_e2e.py",
+    "tests/test_release34_safe_running_recovery_e2e.py",
+    "tests/test_release35_control_plane_restart_e2e.py",
+    "tests/test_release36_worker_session_reconciliation_e2e.py",
+    "tests/test_release41_live_production_tracking_e2e.py",
+    "tests/test_release42_idempotent_launch_e2e.py",
+    "tests/test_release43_safe_production_cancel_e2e.py",
+    "tests/test_release44_one_tap_recovery_actions_e2e.py",
+    "tests/test_release45_production_inbox_e2e.py",
+    "tests/test_release51_one_tap_runner_e2e.py",
+    "tests/test_release55_worker_operations.py",
+    "tests/test_remote_worker.py",
+    "tests/test_remote_worker_runner.py",
+    "tests/test_speculation_api.py",
+    "tests/test_task_capabilities.py",
+    "tests/test_workflow_api.py",
+    "tests/test_workflow_postgres.py"
   ],
   "impacted_symbols": [
+    {
+      "name": "_parse_args",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 99
+    },
+    {
+      "name": "_rank_actions",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 756
+    },
+    {
+      "name": "_external_refs_for_action",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 761
+    },
+    {
+      "name": "_handoff",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 778
+    },
+    {
+      "name": "_print_human",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 863
+    },
+    {
+      "name": "run_scan",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 913
+    },
+    {
+      "name": "run_validation_results",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1026
+    },
+    {
+      "name": "run_execution_feedback",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1058
+    },
+    {
+      "name": "run_trends",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1095
+    },
+    {
+      "name": "run_heartbeat",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1108
+    },
+    {
+      "name": "run_reconcile",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1123
+    },
+    {
+      "name": "run_dispatch",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1133
+    },
+    {
+      "name": "_write_asset_result",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1212
+    },
+    {
+      "name": "_asset_failure_result",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1223
+    },
+    {
+      "name": "run_asset_forge_dispatch",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1234
+    },
+    {
+      "name": "run_asset_forge_batch",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1299
+    },
+    {
+      "name": "run_github_reconcile",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1326
+    },
+    {
+      "name": "run_controller_command",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1380
+    },
+    {
+      "name": "run_worker_register",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1416
+    },
+    {
+      "name": "run_worker_heartbeat",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1430
+    },
+    {
+      "name": "run_worker_list",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1440
+    },
+    {
+      "name": "run_job_claim",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1453
+    },
+    {
+      "name": "run_job_ack",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1480
+    },
+    {
+      "name": "run_job_complete",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1490
+    },
+    {
+      "name": "run_delivery_recover",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1513
+    },
+    {
+      "name": "run_preempt_request",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1532
+    },
+    {
+      "name": "run_preempt_checkpoint",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1542
+    },
+    {
+      "name": "run_emergency_stop",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1561
+    },
+    {
+      "name": "run_emergency_resume",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1567
+    },
+    {
+      "name": "run_audit_verify",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1573
+    },
+    {
+      "name": "run_backup",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1579
+    },
+    {
+      "name": "run_restore",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1585
+    },
+    {
+      "name": "run_restore_activate",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1591
+    },
+    {
+      "name": "run_approve",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1621
+    },
+    {
+      "name": "run_revoke",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1636
+    },
+    {
+      "name": "run_migrate_state",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1651
+    },
+    {
+      "name": "run_migrate_many",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1658
+    },
+    {
+      "name": "run_queue_compact",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1667
+    },
+    {
+      "name": "run_dead_letter_retry",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1681
+    },
+    {
+      "name": "run_audit_checkpoint_create",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1694
+    },
+    {
+      "name": "run_audit_checkpoint_verify",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1704
+    },
+    {
+      "name": "run_quarantine",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1714
+    },
+    {
+      "name": "run_unquarantine",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1725
+    },
+    {
+      "name": "run_budget_record",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1736
+    },
+    {
+      "name": "run_policy_validate",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1755
+    },
+    {
+      "name": "run_policy_check",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1765
+    },
+    {
+      "name": "run_db_init",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1779
+    },
+    {
+      "name": "run_db_import",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1795
+    },
+    {
+      "name": "run_token_hash",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1807
+    },
+    {
+      "name": "_trusted_validation_keys_from_env",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1815
+    },
+    {
+      "name": "run_control_plane",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1831
+    },
+    {
+      "name": "run_remote_worker_poll",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1898
+    },
+    {
+      "name": "run_remote_worker_run",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1919
+    },
+    {
+      "name": "_request_stop",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1942
+    },
+    {
+      "name": "_workflow_engine",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1968
+    },
+    {
+      "name": "run_workflow_create",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1973
+    },
+    {
+      "name": "run_workflow_status",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1997
+    },
+    {
+      "name": "run_workflow_dispatch",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2006
+    },
+    {
+      "name": "run_workflow_critical_path",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2017
+    },
+    {
+      "name": "run_workflow_eta",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2025
+    },
+    {
+      "name": "run_stragglers",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2037
+    },
+    {
+      "name": "run_speculate_stragglers",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2055
+    },
+    {
+      "name": "run_workflow_impact",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2100
+    },
+    {
+      "name": "run_workflow_impact_pr",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2114
+    },
+    {
+      "name": "run_pr_refresh",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2136
+    },
+    {
+      "name": "run_workflow_cancel",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2180
+    },
+    {
+      "name": "run_artifact_add",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2189
+    },
+    {
+      "name": "_release_ledger",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2215
+    },
+    {
+      "name": "run_signing_keygen",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2263
+    },
+    {
+      "name": "run_validation_attest_v2",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2275
+    },
+    {
+      "name": "run_transparency_checkpoint",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2312
+    },
+    {
+      "name": "run_transparency_checkpoint_verify",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2470
+    },
+    {
+      "name": "run_slsa_verify",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2518
+    },
+    {
+      "name": "run_provenance_verify_v2",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2536
+    },
+    {
+      "name": "run_validation_attest",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2553
+    },
+    {
+      "name": "run_incident_snapshot",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2601
+    },
+    {
+      "name": "run_incident_report",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2616
+    },
+    {
+      "name": "run_trust_status",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2626
+    },
+    {
+      "name": "run_release_verify",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2639
+    },
+    {
+      "name": "run_release_promote",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2651
+    },
+    {
+      "name": "run_release_rollback",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2687
+    },
+    {
+      "name": "run_health_server",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2705
+    },
+    {
+      "name": "main",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2710
+    },
     {
       "name": "ControlPlane",
       "kind": "class",
@@ -182,620 +753,1203 @@
       "line": 3170
     },
     {
-      "name": "test_production_inbox_exposes_mobile_filter_tabs_and_counts",
+      "name": "_rank_actions",
       "kind": "function",
-      "file": "tests/test_dashboard_production_inbox_filters_ui.py",
-      "line": 4
-    },
-    {
-      "name": "test_production_inbox_requests_selected_server_filter",
-      "kind": "function",
-      "file": "tests/test_dashboard_production_inbox_filters_ui.py",
-      "line": 16
-    },
-    {
-      "name": "test_production_inbox_filter_does_not_duplicate_mutation_contracts",
-      "kind": "function",
-      "file": "tests/test_dashboard_production_inbox_filters_ui.py",
-      "line": 22
-    },
-    {
-      "name": "test_production_inbox_exposes_search_sort_and_shareable_url_state",
-      "kind": "function",
-      "file": "tests/test_dashboard_production_inbox_filters_ui.py",
-      "line": 28
-    },
-    {
-      "name": "test_production_inbox_requests_server_search_and_sort",
-      "kind": "function",
-      "file": "tests/test_dashboard_production_inbox_filters_ui.py",
+      "file": "src/production_os/controller.py",
       "line": 44
     },
     {
-      "name": "test_production_inbox_has_shareable_inline_detail_panel",
+      "name": "_handoff_for_action",
       "kind": "function",
-      "file": "tests/test_dashboard_production_inbox_filters_ui.py",
+      "file": "src/production_os/controller.py",
       "line": 49
     },
     {
-      "name": "test_production_inbox_open_stays_in_productions_and_reuses_safe_actions",
+      "name": "_required_capabilities_for",
       "kind": "function",
-      "file": "tests/test_dashboard_production_inbox_filters_ui.py",
-      "line": 59
-    },
-    {
-      "name": "test_production_inbox_target_restores_detail_even_outside_visible_list",
-      "kind": "function",
-      "file": "tests/test_dashboard_production_inbox_filters_ui.py",
-      "line": 70
-    },
-    {
-      "name": "test_inline_production_detail_supports_custom_follow_up_instruction",
-      "kind": "function",
-      "file": "tests/test_dashboard_production_inbox_filters_ui.py",
-      "line": 77
-    },
-    {
-      "name": "test_custom_follow_up_refreshes_unified_operator_surfaces",
-      "kind": "function",
-      "file": "tests/test_dashboard_production_inbox_filters_ui.py",
-      "line": 85
-    },
-    {
-      "name": "test_dashboard_has_primary_views_and_clickable_entities",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 4
-    },
-    {
-      "name": "test_polling_does_not_reload_or_replace_location",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 11
-    },
-    {
-      "name": "test_dashboard_has_worker_and_project_detail_tabs",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 17
-    },
-    {
-      "name": "test_dashboard_preserves_launch_and_mobile_accessibility",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 22
-    },
-    {
-      "name": "test_dashboard_overview_is_bound_to_observability_api",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 34
-    },
-    {
-      "name": "test_dashboard_v3_has_usage_window_controls",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 40
-    },
-    {
-      "name": "test_dashboard_workers_view_is_bound_to_observability_api",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 46
-    },
-    {
-      "name": "test_dashboard_projects_view_is_bound_to_observability_api",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 54
-    },
-    {
-      "name": "test_dashboard_activity_view_is_bound_to_observability_api",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 62
-    },
-    {
-      "name": "test_worker_detail_exposes_live_task_and_health_information",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 68
-    },
-    {
-      "name": "test_worker_detail_exposes_api_usage_breakdown",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
+      "file": "src/production_os/controller.py",
       "line": 75
     },
     {
-      "name": "test_worker_detail_exposes_execution_history",
+      "name": "_load_github_mappings",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 81
+      "file": "src/production_os/controller.py",
+      "line": 91
     },
     {
-      "name": "test_worker_detail_exposes_structured_recent_logs",
+      "name": "_reconcile_github",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 88
+      "file": "src/production_os/controller.py",
+      "line": 102
     },
     {
-      "name": "test_worker_detail_exposes_capabilities_and_health",
+      "name": "run_control_cycle",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 95
+      "file": "src/production_os/controller.py",
+      "line": 141
     },
     {
-      "name": "test_project_detail_exposes_progress_evidence",
+      "name": "run_controller",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 103
+      "file": "src/production_os/controller.py",
+      "line": 389
     },
     {
-      "name": "test_project_detail_exposes_progress_components",
+      "name": "_now",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 111
+      "file": "src/production_os/managed_projects.py",
+      "line": 25
     },
     {
-      "name": "test_project_detail_exposes_commit_window_and_sources",
+      "name": "_positive_int",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 117
+      "file": "src/production_os/managed_projects.py",
+      "line": 29
     },
     {
-      "name": "test_project_detail_exposes_api_usage_breakdown",
+      "name": "_usage_from_result",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 125
+      "file": "src/production_os/managed_projects.py",
+      "line": 41
     },
     {
-      "name": "test_worker_control_tab_has_safe_actions",
+      "name": "_clean_commit_shas",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 132
+      "file": "src/production_os/managed_projects.py",
+      "line": 96
     },
     {
-      "name": "test_ui_distinguishes_requested_from_acknowledged",
+      "name": "_result_tasks_by_depth",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 142
+      "file": "src/production_os/managed_projects.py",
+      "line": 115
     },
     {
-      "name": "test_control_refresh_preserves_navigation_and_scroll_contract",
+      "name": "depth",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 149
+      "file": "src/production_os/managed_projects.py",
+      "line": 128
     },
     {
-      "name": "test_overview_renders_operational_alerts",
+      "name": "_result_evidence",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 156
+      "file": "src/production_os/managed_projects.py",
+      "line": 158
     },
     {
-      "name": "test_dashboard_has_autopilot_primary_view",
+      "name": "_outcome_from_workflow",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
+      "file": "src/production_os/managed_projects.py",
       "line": 163
     },
     {
-      "name": "test_autopilot_view_exposes_queue_explanations",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 171
+      "name": "ManagedProjectService",
+      "kind": "class",
+      "file": "src/production_os/managed_projects.py",
+      "line": 377
     },
     {
-      "name": "test_autopilot_navigation_preserves_polling_scroll_contract",
+      "name": "__init__",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 186
+      "file": "src/production_os/managed_projects.py",
+      "line": 378
     },
     {
-      "name": "test_autopilot_surfaces_degraded_ranking_state",
+      "name": "_validate_repository",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 193
+      "file": "src/production_os/managed_projects.py",
+      "line": 383
     },
     {
-      "name": "test_autopilot_view_shows_capacity_summary",
+      "name": "_needs_browser_validation",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 199
+      "file": "src/production_os/managed_projects.py",
+      "line": 394
     },
     {
-      "name": "test_activity_view_renders_operator_control_audit",
+      "name": "_cooperative_workflow_specs",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 213
+      "file": "src/production_os/managed_projects.py",
+      "line": 403
     },
     {
-      "name": "test_overview_renders_operational_health",
+      "name": "_workflow_spec",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 221
+      "file": "src/production_os/managed_projects.py",
+      "line": 549
     },
     {
-      "name": "test_worker_control_exposes_recover_stuck_only_from_recoverable_jobs",
+      "name": "_create_workflow",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 228
+      "file": "src/production_os/managed_projects.py",
+      "line": 581
     },
     {
-      "name": "test_overview_renders_and_acknowledges_durable_incidents",
+      "name": "_delete_unstarted_workflow",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 234
+      "file": "src/production_os/managed_projects.py",
+      "line": 639
     },
     {
-      "name": "test_overview_renders_server_backed_incident_playbooks",
+      "name": "create",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 242
+      "file": "src/production_os/managed_projects.py",
+      "line": 654
     },
     {
-      "name": "test_incident_playbook_actions_are_explicit_and_reuse_control_api",
+      "name": "_resolve_project_id",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 250
+      "file": "src/production_os/managed_projects.py",
+      "line": 808
     },
     {
-      "name": "test_incident_inspection_playbooks_only_navigate",
+      "name": "_migrate_legacy_workflow",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 257
+      "file": "src/production_os/managed_projects.py",
+      "line": 836
     },
     {
-      "name": "test_incident_playbook_actions_send_incident_id",
+      "name": "reconcile",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 263
+      "file": "src/production_os/managed_projects.py",
+      "line": 931
     },
     {
-      "name": "test_activity_view_renders_remediation_history",
+      "name": "_usage",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 269
+      "file": "src/production_os/managed_projects.py",
+      "line": 988
     },
     {
-      "name": "test_direct_worker_controls_do_not_require_incident_id",
+      "name": "get",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 277
+      "file": "src/production_os/managed_projects.py",
+      "line": 1016
     },
     {
-      "name": "test_activity_view_renders_remediation_verification_status",
+      "name": "list",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 282
+      "file": "src/production_os/managed_projects.py",
+      "line": 1068
     },
     {
-      "name": "test_activity_view_renders_remediation_analytics_with_sample_sizes",
+      "name": "_follow_up",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 290
+      "file": "src/production_os/managed_projects.py",
+      "line": 1106
     },
     {
-      "name": "test_activity_view_renders_remediation_recurrence_status",
+      "name": "add_instruction",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 301
+      "file": "src/production_os/managed_projects.py",
+      "line": 1203
     },
     {
-      "name": "test_activity_view_renders_remediation_durability_timing",
+      "name": "request_verification",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 311
+      "file": "src/production_os/managed_projects.py",
+      "line": 1217
     },
     {
-      "name": "test_launch_repository_picker_is_server_backed",
+      "name": "mark_done",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 320
+      "file": "src/production_os/managed_projects.py",
+      "line": 1236
     },
     {
-      "name": "test_mobile_launch_flow_remains_repo_plus_instruction",
+      "name": "_handoff_text",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
+      "file": "src/production_os/task_capabilities.py",
+      "line": 47
+    },
+    {
+      "name": "is_visual_asset_task",
+      "kind": "function",
+      "file": "src/production_os/task_capabilities.py",
+      "line": 63
+    },
+    {
+      "name": "is_3d_generation_task",
+      "kind": "function",
+      "file": "src/production_os/task_capabilities.py",
+      "line": 70
+    },
+    {
+      "name": "inferred_preferred_capabilities",
+      "kind": "function",
+      "file": "src/production_os/task_capabilities.py",
+      "line": 88
+    },
+    {
+      "name": "inferred_required_capabilities",
+      "kind": "function",
+      "file": "src/production_os/task_capabilities.py",
+      "line": 115
+    },
+    {
+      "name": "asset_forge_tool_contract",
+      "kind": "function",
+      "file": "src/production_os/task_capabilities.py",
+      "line": 129
+    },
+    {
+      "name": "_now",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 22
+    },
+    {
+      "name": "_is_postgres",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 26
+    },
+    {
+      "name": "_sql",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 30
+    },
+    {
+      "name": "_execute",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 34
+    },
+    {
+      "name": "_retry_context",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 38
+    },
+    {
+      "name": "_upstream_context",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 101
+    },
+    {
+      "name": "WorkflowTaskSpec",
+      "kind": "class",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 198
+    },
+    {
+      "name": "from_dict",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 208
+    },
+    {
+      "name": "WorkflowEngine",
+      "kind": "class",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 225
+    },
+    {
+      "name": "_expand_splittable_tasks",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 227
+    },
+    {
+      "name": "__init__",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 299
+    },
+    {
+      "name": "_validate",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 305
+    },
+    {
+      "name": "visit",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
       "line": 326
     },
     {
-      "name": "test_overview_renders_storage_maintenance_card",
+      "name": "create",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 335
+      "file": "src/production_os/workflow_engine.py",
+      "line": 340
     },
     {
-      "name": "test_storage_maintenance_failure_does_not_break_overview",
+      "name": "apply_change_impact",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 345
+      "file": "src/production_os/workflow_engine.py",
+      "line": 431
     },
     {
-      "name": "test_storage_retention_ui_separates_prunable_and_protected_rows",
+      "name": "_spec_from_task",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 351
+      "file": "src/production_os/workflow_engine.py",
+      "line": 560
     },
     {
-      "name": "test_retention_prune_requires_explicit_confirmation_and_exact_phrase",
+      "name": "create_pr_generation",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 360
+      "file": "src/production_os/workflow_engine.py",
+      "line": 580
     },
     {
-      "name": "test_retention_prune_button_only_renders_for_positive_prunable_count",
+      "name": "supersede",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 368
+      "file": "src/production_os/workflow_engine.py",
+      "line": 608
     },
     {
-      "name": "test_overview_renders_backup_readiness_and_safe_create_button",
+      "name": "find_pr_template",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 374
+      "file": "src/production_os/workflow_engine.py",
+      "line": 710
     },
     {
-      "name": "test_backup_ui_does_not_render_server_paths",
+      "name": "create_from_pr_template",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 384
+      "file": "src/production_os/workflow_engine.py",
+      "line": 733
     },
     {
-      "name": "test_backup_catalog_exposes_restore_readiness_and_safe_staging",
+      "name": "generation_refreshable",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 390
+      "file": "src/production_os/workflow_engine.py",
+      "line": 764
     },
     {
-      "name": "test_restore_staging_ui_never_exposes_live_activation_or_paths",
+      "name": "ensure_pr_generation",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 404
+      "file": "src/production_os/workflow_engine.py",
+      "line": 779
     },
     {
-      "name": "test_dashboard_has_managed_projects_view",
+      "name": "find_by_github_pr",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 412
+      "file": "src/production_os/workflow_engine.py",
+      "line": 863
     },
     {
-      "name": "test_managed_projects_view_exposes_safe_review_and_attention_actions",
+      "name": "get",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 419
+      "file": "src/production_os/workflow_engine.py",
+      "line": 896
     },
     {
-      "name": "test_managed_projects_navigation_preserves_existing_polling_contract",
+      "name": "_task_dict",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 940
+    },
+    {
+      "name": "_artifact_dict",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 963
+    },
+    {
+      "name": "update_metadata",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 975
+    },
+    {
+      "name": "add_task",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 1009
+    },
+    {
+      "name": "refresh",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 1091
+    },
+    {
+      "name": "dispatch_ready",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 1200
+    },
+    {
+      "name": "record_result",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 1373
+    },
+    {
+      "name": "retry_task",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 1456
+    },
+    {
+      "name": "record_cancelled",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 1532
+    },
+    {
+      "name": "cancel",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 1582
+    },
+    {
+      "name": "assert_generation_current",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 1621
+    },
+    {
+      "name": "job_generation_current",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 1660
+    },
+    {
+      "name": "add_artifact",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 1677
+    },
+    {
+      "name": "critical_path",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 1745
+    },
+    {
+      "name": "longest",
+      "kind": "function",
+      "file": "src/production_os/workflow_engine.py",
+      "line": 1750
+    },
+    {
+      "name": "request",
+      "kind": "function",
+      "file": "tests/test_control_plane.py",
+      "line": 11
+    },
+    {
+      "name": "test_control_plane_worker_and_queue",
+      "kind": "function",
+      "file": "tests/test_control_plane.py",
+      "line": 27
+    },
+    {
+      "name": "test_trust_status_endpoint_requires_auth_and_forwards_filters",
+      "kind": "function",
+      "file": "tests/test_control_plane.py",
+      "line": 76
+    },
+    {
+      "name": "trust_status",
+      "kind": "function",
+      "file": "tests/test_control_plane.py",
+      "line": 83
+    },
+    {
+      "name": "test_incident_history_endpoints_require_auth_and_forward_filter",
+      "kind": "function",
+      "file": "tests/test_control_plane.py",
+      "line": 130
+    },
+    {
+      "name": "test_incident_snapshot_requires_operator_and_reports_dedup",
+      "kind": "function",
+      "file": "tests/test_control_plane.py",
+      "line": 178
+    },
+    {
+      "name": "snapshot",
+      "kind": "function",
+      "file": "tests/test_control_plane.py",
+      "line": 185
+    },
+    {
+      "name": "test_incident_snapshot_rejects_invalid_payload_shapes",
+      "kind": "function",
+      "file": "tests/test_control_plane.py",
+      "line": 268
+    },
+    {
+      "name": "post",
+      "kind": "function",
+      "file": "tests/test_control_plane.py",
+      "line": 280
+    },
+    {
+      "name": "test_http_body_parser_rejects_invalid_json_and_oversized_payload",
+      "kind": "function",
+      "file": "tests/test_control_plane.py",
+      "line": 311
+    },
+    {
+      "name": "test_github_webhook_returns_413_for_oversized_body",
+      "kind": "function",
+      "file": "tests/test_control_plane.py",
+      "line": 357
+    },
+    {
+      "name": "test_generic_post_returns_413_before_endpoint_processing",
+      "kind": "function",
+      "file": "tests/test_control_plane.py",
+      "line": 386
+    },
+    {
+      "name": "request",
+      "kind": "function",
+      "file": "tests/test_control_plane_pr_impact.py",
+      "line": 11
+    },
+    {
+      "name": "test_control_plane_applies_pr_changed_paths",
+      "kind": "function",
+      "file": "tests/test_control_plane_pr_impact.py",
+      "line": 25
+    },
+    {
+      "name": "FakeGitHubClient",
+      "kind": "class",
+      "file": "tests/test_control_plane_pr_impact.py",
+      "line": 26
+    },
+    {
+      "name": "list_pull_request_files",
+      "kind": "function",
+      "file": "tests/test_control_plane_pr_impact.py",
+      "line": 27
+    },
+    {
+      "name": "get_request",
+      "kind": "function",
+      "file": "tests/test_control_plane_release.py",
+      "line": 12
+    },
+    {
+      "name": "request",
+      "kind": "function",
+      "file": "tests/test_control_plane_release.py",
+      "line": 25
+    },
+    {
+      "name": "test_control_plane_promote_and_rollback_release",
+      "kind": "function",
+      "file": "tests/test_control_plane_release.py",
+      "line": 39
+    },
+    {
+      "name": "signed_request",
+      "kind": "function",
+      "file": "tests/test_control_plane_webhook.py",
+      "line": 14
+    },
+    {
+      "name": "test_signed_pr_webhook_refreshes_and_dispatches",
+      "kind": "function",
+      "file": "tests/test_control_plane_webhook.py",
+      "line": 36
+    },
+    {
+      "name": "FakeGitHubClient",
+      "kind": "class",
+      "file": "tests/test_control_plane_webhook.py",
+      "line": 37
+    },
+    {
+      "name": "list_pull_request_files",
+      "kind": "function",
+      "file": "tests/test_control_plane_webhook.py",
+      "line": 40
+    },
+    {
+      "name": "test_webhook_rejects_bad_signature",
+      "kind": "function",
+      "file": "tests/test_control_plane_webhook.py",
+      "line": 144
+    },
+    {
+      "name": "test_webhook_creates_unseen_pr_from_template",
+      "kind": "function",
+      "file": "tests/test_control_plane_webhook.py",
+      "line": 181
+    },
+    {
+      "name": "FakeGitHubClient",
+      "kind": "class",
+      "file": "tests/test_control_plane_webhook.py",
+      "line": 182
+    },
+    {
+      "name": "list_pull_request_files",
+      "kind": "function",
+      "file": "tests/test_control_plane_webhook.py",
+      "line": 183
+    },
+    {
+      "name": "service",
+      "kind": "function",
+      "file": "tests/test_cooperative_managed_projects.py",
+      "line": 8
+    },
+    {
+      "name": "test_cooperative_workflow_builds_code_debug_review_chain_with_bounded_budget",
+      "kind": "function",
+      "file": "tests/test_cooperative_managed_projects.py",
+      "line": 15
+    },
+    {
+      "name": "test_cooperative_workflow_adds_ui_stage_only_for_ui_goal",
+      "kind": "function",
+      "file": "tests/test_cooperative_managed_projects.py",
+      "line": 53
+    },
+    {
+      "name": "test_create_cooperative_project_keeps_mode_in_workflow_metadata",
+      "kind": "function",
+      "file": "tests/test_cooperative_managed_projects.py",
+      "line": 84
+    },
+    {
+      "name": "test_cooperative_outcome_uses_deepest_stage_and_aggregates_delivery_evidence",
+      "kind": "function",
+      "file": "tests/test_cooperative_managed_projects.py",
+      "line": 111
+    },
+    {
+      "name": "test_cooperative_workflow_rejects_budget_smaller_than_stage_count",
+      "kind": "function",
+      "file": "tests/test_cooperative_managed_projects.py",
+      "line": 171
+    },
+    {
+      "name": "_auth",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 15
+    },
+    {
+      "name": "running_control_plane",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 25
+    },
+    {
+      "name": "get_api",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 38
+    },
+    {
+      "name": "api",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 49
+    },
+    {
+      "name": "_owned_execution",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 62
+    },
+    {
+      "name": "test_worker_can_publish_owned_job_telemetry",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 71
+    },
+    {
+      "name": "test_other_worker_and_viewer_cannot_publish_telemetry",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 84
+    },
+    {
+      "name": "test_heartbeat_persists_only_authenticated_quota_values",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 101
+    },
+    {
+      "name": "test_dashboard_overview_requires_viewer_and_has_stable_envelope",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 116
+    },
+    {
+      "name": "test_dashboard_rejects_invalid_window",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 126
+    },
+    {
+      "name": "test_dashboard_worker_routes_and_unknown_worker",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 131
+    },
+    {
+      "name": "test_dashboard_project_and_activity_routes",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 144
+    },
+    {
+      "name": "test_dashboard_autopilot_queue_ranks_jobs_and_explains_worker_eligibility",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 154
+    },
+    {
+      "name": "test_dashboard_autopilot_respects_pause_capacity_and_capabilities",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 188
+    },
+    {
+      "name": "test_dashboard_autopilot_honors_assigned_worker_and_access_rules",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 236
+    },
+    {
+      "name": "test_dashboard_autopilot_survives_stale_workflow_reference",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 272
+    },
+    {
+      "name": "test_dashboard_autopilot_summary_reports_capacity_and_eta",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 305
+    },
+    {
+      "name": "test_dashboard_health_requires_viewer_and_has_stable_shape",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 347
+    },
+    {
+      "name": "test_worker_detail_includes_recoverable_jobs",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 356
+    },
+    {
+      "name": "test_one_tap_launch_creates_persistent_managed_project_with_server_defaults",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 377
+    },
+    {
+      "name": "test_attention_feed_is_viewer_visible_and_worker_forbidden",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 437
+    },
+    {
+      "name": "test_attention_action_metadata_does_not_bypass_operator_permissions",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 458
+    },
+    {
+      "name": "test_launch_readiness_endpoint_is_viewer_visible_and_worker_forbidden",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 494
+    },
+    {
+      "name": "test_production_status_endpoint_is_viewer_visible_and_worker_forbidden",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 527
+    },
+    {
+      "name": "test_one_tap_launch_request_id_is_idempotent_and_conflict_safe",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 562
+    },
+    {
+      "name": "test_one_tap_launch_rejects_invalid_request_id",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 618
+    },
+    {
+      "name": "test_managed_production_cancel_requires_operator_and_exact_confirmation",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 634
+    },
+    {
+      "name": "test_production_inbox_is_viewer_visible_and_worker_forbidden",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 690
+    },
+    {
+      "name": "test_production_inbox_query_parameters_reach_server_search_and_sort",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 719
+    },
+    {
+      "name": "test_production_inbox_rejects_invalid_sort_over_http",
+      "kind": "function",
+      "file": "tests/test_dashboard_api.py",
+      "line": 756
+    },
+    {
+      "name": "_auth",
+      "kind": "function",
+      "file": "tests/test_dashboard_backup_api.py",
+      "line": 16
+    },
+    {
+      "name": "_request",
+      "kind": "function",
+      "file": "tests/test_dashboard_backup_api.py",
+      "line": 24
+    },
+    {
+      "name": "_server",
+      "kind": "function",
+      "file": "tests/test_dashboard_backup_api.py",
+      "line": 42
+    },
+    {
+      "name": "test_backup_catalog_is_viewer_readable_and_worker_forbidden",
+      "kind": "function",
+      "file": "tests/test_dashboard_backup_api.py",
+      "line": 49
+    },
+    {
+      "name": "test_backup_creation_requires_operator_and_exact_confirmation",
+      "kind": "function",
+      "file": "tests/test_dashboard_backup_api.py",
+      "line": 79
+    },
+    {
+      "name": "test_unconfigured_backup_returns_conflict_and_failed_audit",
+      "kind": "function",
+      "file": "tests/test_dashboard_backup_api.py",
+      "line": 127
+    },
+    {
+      "name": "test_restore_readiness_api_requires_operator_and_exact_confirmation",
+      "kind": "function",
+      "file": "tests/test_dashboard_backup_api.py",
+      "line": 152
+    },
+    {
+      "name": "test_restore_readiness_api_rejects_tampered_backup_and_audits_failure",
+      "kind": "function",
+      "file": "tests/test_dashboard_backup_api.py",
+      "line": 204
+    },
+    {
+      "name": "test_restore_staging_requires_operator_and_exact_confirmation",
+      "kind": "function",
+      "file": "tests/test_dashboard_backup_api.py",
+      "line": 237
+    },
+    {
+      "name": "test_restore_staging_rejects_tampered_backup_and_audits_failure",
+      "kind": "function",
+      "file": "tests/test_dashboard_backup_api.py",
+      "line": 295
+    },
+    {
+      "name": "test_backup_catalog_exposes_restore_activation_history_to_viewer",
+      "kind": "function",
+      "file": "tests/test_dashboard_backup_api.py",
+      "line": 332
+    },
+    {
+      "name": "test_backup_http_surface_has_no_restore_activation_route",
+      "kind": "function",
+      "file": "tests/test_dashboard_backup_api.py",
+      "line": 375
+    },
+    {
+      "name": "test_backup_catalog_exposes_aggregated_storage_inventory",
+      "kind": "function",
+      "file": "tests/test_dashboard_backup_api.py",
+      "line": 394
+    },
+    {
+      "name": "test_backup_temp_prune_requires_operator_exact_confirmation_and_expected_count",
+      "kind": "function",
+      "file": "tests/test_dashboard_backup_api.py",
       "line": 429
     },
     {
-      "name": "test_managed_projects_mobile_creation_form_is_inline_and_server_backed",
+      "name": "test_backup_temp_prune_never_deletes_protected_backup_artifacts",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 436
+      "file": "tests/test_dashboard_backup_api.py",
+      "line": 514
     },
     {
-      "name": "test_managed_project_instruction_uses_inline_textarea_not_prompt",
+      "name": "test_backup_catalog_exposes_filesystem_capacity_without_paths",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 447
+      "file": "tests/test_dashboard_backup_api.py",
+      "line": 554
     },
     {
-      "name": "test_managed_projects_mobile_view_renders_generation_history",
+      "name": "test_backup_retention_prune_requires_operator_confirmation_and_fingerprint",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 454
+      "file": "tests/test_dashboard_backup_api.py",
+      "line": 583
     },
     {
-      "name": "test_managed_repository_picker_reuses_server_repository_discovery",
+      "name": "_post",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 462
+      "file": "tests/test_dashboard_control_api.py",
+      "line": 14
     },
     {
-      "name": "test_backup_overview_renders_restore_activation_history",
+      "name": "_fixture",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 468
+      "file": "tests/test_dashboard_control_api.py",
+      "line": 33
     },
     {
-      "name": "test_backup_overview_renders_storage_inventory_read_only",
+      "name": "test_worker_control_requires_operator",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 477
+      "file": "tests/test_dashboard_control_api.py",
+      "line": 47
     },
     {
-      "name": "test_backup_temp_cleanup_ui_is_guarded_and_stale_only",
+      "name": "test_pause_returns_requested_state_not_fake_remote_ack",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 490
+      "file": "tests/test_dashboard_control_api.py",
+      "line": 62
     },
     {
-      "name": "test_backup_overview_renders_filesystem_capacity_read_only",
+      "name": "test_resume_and_drain_map_to_durable_states",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 502
+      "file": "tests/test_dashboard_control_api.py",
+      "line": 80
     },
     {
-      "name": "test_backup_overview_renders_verified_backup_age_distribution",
+      "name": "test_invalid_worker_control_action_is_rejected",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 512
+      "file": "tests/test_dashboard_control_api.py",
+      "line": 104
     },
     {
-      "name": "test_backup_overview_renders_retention_preview_read_only",
+      "name": "test_cancel_current_requires_explicit_job_key",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 522
+      "file": "tests/test_dashboard_control_api.py",
+      "line": 119
     },
     {
-      "name": "test_backup_retention_cleanup_ui_requires_preview_fingerprint",
+      "name": "test_cancel_current_targets_only_named_active_job",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 532
+      "file": "tests/test_dashboard_control_api.py",
+      "line": 134
     },
     {
-      "name": "test_one_tap_production_is_primary_and_uses_server_managed_launch",
+      "name": "test_worker_heartbeat_acknowledges_and_cancels_target_job",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 540
+      "file": "tests/test_dashboard_control_api.py",
+      "line": 163
     },
     {
-      "name": "test_managed_technical_creation_options_are_collapsed_by_default",
+      "name": "test_late_complete_after_cancel_is_rejected_and_job_stays_cancelled",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 556
+      "file": "tests/test_dashboard_control_api.py",
+      "line": 202
     },
     {
-      "name": "test_managed_view_can_be_restored_from_navigation_query",
+      "name": "test_cancel_request_after_complete_is_rejected",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 564
+      "file": "tests/test_dashboard_control_api.py",
+      "line": 250
     },
     {
-      "name": "test_attention_center_is_default_mobile_view",
+      "name": "test_cancel_current_converges_workflow_task_without_auto_retry",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 567
+      "file": "tests/test_dashboard_control_api.py",
+      "line": 273
     },
     {
-      "name": "test_attention_center_uses_server_aggregated_feed_and_action_counts",
+      "name": "test_retry_cancelled_workflow_task_creates_new_attempt_once",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 575
+      "file": "tests/test_dashboard_control_api.py",
+      "line": 326
     },
     {
-      "name": "test_attention_items_navigate_to_existing_operational_views",
+      "name": "test_retry_refuses_exhausted_attempt_budget",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 588
+      "file": "tests/test_dashboard_control_api.py",
+      "line": 395
     },
     {
-      "name": "test_attention_center_exposes_contextual_server_actions",
+      "name": "test_retry_rejects_superseded_workflow_generation_without_new_job",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 595
+      "file": "tests/test_dashboard_control_api.py",
+      "line": 446
     },
     {
-      "name": "test_attention_open_deep_links_to_exact_managed_project_or_job",
+      "name": "test_retry_allows_current_pr_workflow_generation",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 607
+      "file": "tests/test_dashboard_control_api.py",
+      "line": 511
     },
     {
-      "name": "test_attention_feed_caps_blocked_job_cards_without_hiding_total",
+      "name": "test_retry_dispatches_only_targeted_task",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 617
+      "file": "tests/test_dashboard_control_api.py",
+      "line": 570
     },
     {
-      "name": "test_attention_project_cards_accept_inline_follow_up_instruction",
+      "name": "test_recover_stuck_requires_expired_claim_and_is_audited",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 621
+      "file": "tests/test_dashboard_control_api.py",
+      "line": 643
     },
     {
-      "name": "test_completed_attention_items_remain_openable_for_inspection",
+      "name": "test_recover_stuck_respects_max_attempts",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 629
+      "file": "tests/test_dashboard_control_api.py",
+      "line": 688
     },
     {
-      "name": "test_cooperative_multi_agent_progress_is_visible_in_managed_and_production_detail",
+      "name": "test_control_audit_is_durable_and_newest_first",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 635
+      "file": "tests/test_dashboard_control_audit.py",
+      "line": 16
     },
     {
-      "name": "test_managed_and_attention_cards_render_normalized_production_outcome",
+      "name": "test_control_audit_schema_cannot_store_credentials",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 646
+      "file": "tests/test_dashboard_control_audit.py",
+      "line": 40
     },
     {
-      "name": "test_launch_preflight_is_server_backed_and_mobile_visible",
+      "name": "test_control_audit_limit_is_bounded",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 670
+      "file": "tests/test_dashboard_control_audit.py",
+      "line": 53
     },
     {
-      "name": "test_last_launched_project_survives_dashboard_reload_on_same_device",
+      "name": "_auth",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 679
+      "file": "tests/test_dashboard_control_audit.py",
+      "line": 67
     },
     {
-      "name": "test_dashboard_refresh_and_repository_change_refresh_launch_readiness",
+      "name": "_request",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 691
+      "file": "tests/test_dashboard_control_audit.py",
+      "line": 75
     },
     {
-      "name": "test_last_production_tracker_renders_live_runtime_status",
+      "name": "test_operator_control_api_writes_success_and_failure_audit",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 696
+      "file": "tests/test_dashboard_control_audit.py",
+      "line": 95
     },
     {
-      "name": "test_last_production_tracker_keeps_server_outcome_and_project_deep_link",
+      "name": "test_release17_schema_is_v15_and_contains_managed_project_tables",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 711
+      "file": "tests/test_dashboard_control_audit.py",
+      "line": 146
     },
     {
-      "name": "test_one_tap_launch_persists_request_id_until_successful_response",
+      "name": "test_control_action_remains_traced_if_audit_finalization_fails",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 717
+      "file": "tests/test_dashboard_control_audit.py",
+      "line": 183
     },
     {
-      "name": "test_one_tap_retry_state_does_not_persist_instruction_text",
+      "name": "fail_finalize",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 729
+      "file": "tests/test_dashboard_control_audit.py",
+      "line": 188
     },
     {
-      "name": "test_last_production_tracker_exposes_guarded_cancel_for_active_phases",
+      "name": "test_control_audit_does_not_echo_reason_or_credentials",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 737
+      "file": "tests/test_dashboard_control_audit.py",
+      "line": 215
     },
     {
-      "name": "test_last_production_tracker_renders_cancelling_phase_and_cancel_endpoint",
+      "name": "_auth",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 748
+      "file": "tests/test_dashboard_control_e2e.py",
+      "line": 14
     },
     {
-      "name": "test_last_production_tracker_exposes_recovery_and_completion_actions",
+      "name": "_post",
       "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 755
+      "file": "tests/test_dashboard_control_e2e.py",
+      "line": 21
     },
     {
-      "name": "test_last_production_recovery_actions_refresh_server_backed_surfaces",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 766
-    },
-    {
-      "name": "test_dashboard_has_server_backed_multi_production_view",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 778
-    },
-    {
-      "name": "test_production_inbox_renders_live_runtime_and_server_actions",
-      "kind": "function",
-      "file": "tests/test_dashboard_ui_v3.py",
-      "line": 788
+      "name": "_FakeGitHub",
+      "kind": "class",
+      "file": "tests/test_dashboard_control_e2e.py",
+      "line": 40
     }
   ],
   "selected_tests": [
-    "tests/test_dashboard_production_inbox_filters_ui.py",
-    "tests/test_dashboard_ui_v3.py"
+    "tests/test_control_plane.py",
+    "tests/test_control_plane_pr_impact.py",
+    "tests/test_control_plane_release.py",
+    "tests/test_control_plane_webhook.py",
+    "tests/test_cooperative_managed_projects.py",
+    "tests/test_dashboard_api.py",
+    "tests/test_dashboard_backup_api.py",
+    "tests/test_dashboard_control_api.py",
+    "tests/test_dashboard_control_audit.py",
+    "tests/test_dashboard_control_e2e.py",
+    "tests/test_dashboard_incidents.py",
+    "tests/test_dashboard_launch.py",
+    "tests/test_dashboard_launch_readiness.py",
+    "tests/test_dashboard_launch_ux.py",
+    "tests/test_dashboard_maintenance.py",
+    "tests/test_dashboard_observability_e2e.py",
+    "tests/test_dashboard_playbook_api.py",
+    "tests/test_dashboard_production_inbox.py",
+    "tests/test_dashboard_production_status.py",
+    "tests/test_dashboard_remediation_api.py",
+    "tests/test_dashboard_retention_prune.py",
+    "tests/test_dashboard_store_postgres.py",
+    "tests/test_database_maintenance_lock.py",
+    "tests/test_http_security_headers.py",
+    "tests/test_managed_project_outcome.py",
+    "tests/test_managed_projects_http_v4.py",
+    "tests/test_managed_projects_v4.py",
+    "tests/test_portfolio_claim_api.py",
+    "tests/test_production_stack_e2e.py",
+    "tests/test_release16_operations_e2e.py",
+    "tests/test_release18_managed_projects_e2e.py",
+    "tests/test_release19_restore_staging_e2e.py",
+    "tests/test_release21_offline_restore_e2e.py",
+    "tests/test_release32_one_tap_e2e.py",
+    "tests/test_release33_auto_worker_recovery_e2e.py",
+    "tests/test_release34_safe_running_recovery_e2e.py",
+    "tests/test_release35_control_plane_restart_e2e.py",
+    "tests/test_release36_worker_session_reconciliation_e2e.py",
+    "tests/test_release41_live_production_tracking_e2e.py",
+    "tests/test_release42_idempotent_launch_e2e.py",
+    "tests/test_release43_safe_production_cancel_e2e.py",
+    "tests/test_release44_one_tap_recovery_actions_e2e.py",
+    "tests/test_release45_production_inbox_e2e.py",
+    "tests/test_release51_one_tap_runner_e2e.py",
+    "tests/test_release55_worker_operations.py",
+    "tests/test_remote_worker.py",
+    "tests/test_remote_worker_runner.py",
+    "tests/test_speculation_api.py",
+    "tests/test_task_capabilities.py",
+    "tests/test_workflow_api.py",
+    "tests/test_workflow_postgres.py"
   ]
 }

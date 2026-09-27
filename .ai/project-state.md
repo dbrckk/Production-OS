@@ -22,36 +22,24 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-27T09:16:10Z
+Generated: 2026-09-27T09:23:59Z
 
 ### Git
 - Branch: `main`
-- Head: `a018b909f789`
-- Commit date: 2026-09-27T11:15:59+02:00
-- Commit: feat: show cooperative multi-agent progress in dashboard
+- Head: `85fb04e57f2d`
+- Commit date: 2026-09-27T11:23:34+02:00
+- Commit: fix: make explicit specialist routing authoritative
 - Tracked files: 470
 
 ### Recently changed files
-- `src/production_os/dashboard_ui.py`
-- `tests/test_dashboard_ui_v3.py`
+- `src/production_os/task_capabilities.py`
+- `tests/test_task_capabilities.py`
+- `src/production_os/managed_projects.py`
+- `tests/test_cooperative_managed_projects.py`
 - `src/production_os/control_plane.py`
 - `tests/test_release32_one_tap_e2e.py`
-- `src/production_os/managed_projects.py`
-- `src/production_os/task_capabilities.py`
-- `src/production_os/workflow_engine.py`
-- `tests/test_cooperative_managed_projects.py`
-- `tests/test_task_capabilities.py`
-- `tests/test_workflow_engine.py`
-- `compose.worker.yaml`
-- `src/production_os/remote_worker_runner.py`
-- `src/production_os/sqlite_backend.py`
-- `tests/test_remote_worker_runner.py`
-- `tests/test_specialist_job_preferences.py`
-- `tests/test_worker_compose_deployment.py`
-- `src/production_os/github_change_review.py`
-- `src/production_os/github_work_state.py`
-- `src/production_os/rollback_plan.py`
-- `tests/test_github_change_review.py`
+- `src/production_os/dashboard_ui.py`
+- `tests/test_dashboard_ui_v3.py`
 
 ### Project signals
 - `pyproject.toml`
