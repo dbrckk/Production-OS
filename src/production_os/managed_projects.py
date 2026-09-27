@@ -306,6 +306,153 @@ class ManagedProjectService:
             raise ValueError("repository must be owner/name")
         return repository
 
+    @staticmethod
+    def _needs_browser_validation(final_goal: str) -> bool:
+        text = str(final_goal or "").lower()
+        markers = (
+            "browser", "frontend", "front-end", "web ui", "website",
+            "dashboard", "visual regression", "screenshot", "playwright",
+            "selenium", "mobile ui", "android ui", "flutter ui",
+        )
+        return any(marker in text for marker in markers)
+
+    def _cooperative_workflow_specs(
+        self,
+        *,
+        project_id: str,
+        repository: str,
+        final_goal: str,
+        instruction: str,
+        generation: int,
+        kind: str,
+        token_budget: int,
+        agent_preference: str,
+    ) -> list[WorkflowTaskSpec]:
+        browser = self._needs_browser_validation(final_goal)
+        implementation_budget = max(1, int(token_budget * 0.55))
+        validation_budget = max(1, int(token_budget * 0.25))
+        remaining = max(
+            1,
+            token_budget - implementation_budget - validation_budget,
+        )
+        review_budget = (
+            max(1, int(remaining * 0.55))
+            if browser
+            else remaining
+        )
+        browser_budget = (
+            max(1, remaining - review_budget)
+            if browser
+            else 0
+        )
+
+        common = {
+            "managed_project_id":project_id,
+            "managed_project_generation":generation,
+            "managed_project_kind":kind,
+        }
+        tasks = [
+            WorkflowTaskSpec(
+                task_id="implementation",
+                title=instruction[:120],
+                payload={
+                    **common,
+                    "cooperative_stage":"implementation",
+                    "handoff":{
+                        "repository":repository,
+                        "task":instruction,
+                        "final_goal":final_goal,
+                        "agent_preference":agent_preference,
+                        "token_budget":implementation_budget,
+                        "required_capabilities":[],
+                    },
+                },
+                priority=100,
+                max_attempts=3,
+                estimated_minutes=30,
+            ),
+            WorkflowTaskSpec(
+                task_id="validation",
+                title="Validate and debug the implementation",
+                payload={
+                    **common,
+                    "cooperative_stage":"validation",
+                    "handoff":{
+                        "repository":repository,
+                        "task":(
+                            "Validate the current implementation against the final "
+                            "goal. Run the most relevant tests, diagnose failures, "
+                            "make the smallest correct fixes when needed, and report "
+                            "clear validation evidence."
+                        ),
+                        "final_goal":final_goal,
+                        "agent_preference":agent_preference,
+                        "token_budget":validation_budget,
+                        "required_capabilities":[],
+                    },
+                },
+                dependencies=("implementation",),
+                priority=90,
+                max_attempts=2,
+                estimated_minutes=20,
+            ),
+            WorkflowTaskSpec(
+                task_id="review",
+                title="Review the verified implementation",
+                payload={
+                    **common,
+                    "cooperative_stage":"review",
+                    "handoff":{
+                        "repository":repository,
+                        "task":(
+                            "Review the implementation and its validation evidence. "
+                            "Inspect the diff for correctness, regressions, security, "
+                            "maintainability and unnecessary changes. Fix only issues "
+                            "that are clearly actionable, then report review evidence."
+                        ),
+                        "final_goal":final_goal,
+                        "agent_preference":agent_preference,
+                        "token_budget":review_budget,
+                        "required_capabilities":[],
+                    },
+                },
+                dependencies=("validation",),
+                priority=80,
+                max_attempts=2,
+                estimated_minutes=15,
+            ),
+        ]
+        if browser:
+            tasks.append(
+                WorkflowTaskSpec(
+                    task_id="ui-validation",
+                    title="Validate the user interface in a real browser/runtime",
+                    payload={
+                        **common,
+                        "cooperative_stage":"ui-validation",
+                        "handoff":{
+                            "repository":repository,
+                            "task":(
+                                "Validate the relevant user interface in a real "
+                                "browser or runtime. Exercise the changed user flows, "
+                                "check console/runtime errors and visual regressions, "
+                                "and report reproducible evidence. Fix only defects "
+                                "caused by this implementation."
+                            ),
+                            "final_goal":final_goal,
+                            "agent_preference":agent_preference,
+                            "token_budget":browser_budget,
+                            "required_capabilities":[],
+                        },
+                    },
+                    dependencies=("review",),
+                    priority=70,
+                    max_attempts=2,
+                    estimated_minutes=15,
+                )
+            )
+        return tasks
+
     def _workflow_spec(
         self,
         *,
@@ -350,11 +497,21 @@ class ManagedProjectService:
         token_budget: int,
         agent_preference: str,
         dispatch: bool,
+        cooperative: bool = False,
     ) -> dict:
-        workflow = self.workflows.create(
-            name=f"Managed project: {repository} · g{generation}",
-            repository=repository,
-            tasks=[
+        tasks = (
+            self._cooperative_workflow_specs(
+                project_id=project_id,
+                repository=repository,
+                final_goal=final_goal,
+                instruction=instruction,
+                generation=generation,
+                kind=kind,
+                token_budget=token_budget,
+                agent_preference=agent_preference,
+            )
+            if cooperative
+            else [
                 self._workflow_spec(
                     project_id=project_id,
                     repository=repository,
@@ -365,7 +522,12 @@ class ManagedProjectService:
                     token_budget=token_budget,
                     agent_preference=agent_preference,
                 )
-            ],
+            ]
+        )
+        workflow = self.workflows.create(
+            name=f"Managed project: {repository} · g{generation}",
+            repository=repository,
+            tasks=tasks,
             metadata={
                 "managed_project_id":project_id,
                 "managed_project_generation":generation,
@@ -374,6 +536,7 @@ class ManagedProjectService:
                 "final_goal":final_goal,
                 "token_budget":token_budget,
                 "agent_preference":agent_preference,
+                "cooperative":bool(cooperative),
             },
         )
         if dispatch:
@@ -404,6 +567,7 @@ class ManagedProjectService:
         agent_preference: str = "auto",
         requested_by: str = "operator",
         project_id: str | None = None,
+        cooperative: bool = False,
     ) -> dict:
         repository = self._validate_repository(repository)
         final_goal = str(final_goal or "").strip()
@@ -494,6 +658,7 @@ class ManagedProjectService:
                 token_budget=budget,
                 agent_preference=agent,
                 dispatch=False,
+                cooperative=bool(cooperative),
             )
         except Exception:
             with self.backend.transaction() as db:
