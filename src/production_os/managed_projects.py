@@ -1191,9 +1191,10 @@ class ManagedProjectService:
         if pr_number < 1:
             return None
 
+        client = self.github_client_factory()
         try:
             state = fetch_github_work_state(
-                self.github_client_factory(),
+                client,
                 repository,
                 pr_number=pr_number,
             )
@@ -1229,10 +1230,58 @@ class ManagedProjectService:
                 "state":state,
             }
         if state.ready_for_promotion:
+            head_sha = str(state.head_sha or "").strip().lower()
+            if len(head_sha) != 40:
+                return {
+                    "target":REVIEW_REQUIRED,
+                    "decision":"merge-blocked",
+                    "state":state,
+                    "merge":{
+                        "merged":False,
+                        "reason":"invalid-head-sha",
+                    },
+                }
+            try:
+                merge = client.merge_pull_request(
+                    repository,
+                    pr_number,
+                    head_sha=head_sha,
+                    method="squash",
+                    commit_title=(
+                        f"Production-OS: managed project PR #{pr_number}"
+                    ),
+                )
+            except (GitHubAPIError, OSError, ValueError) as exc:
+                return {
+                    "target":REVIEW_REQUIRED,
+                    "decision":"merge-blocked",
+                    "state":state,
+                    "merge":{
+                        "merged":False,
+                        "reason":type(exc).__name__,
+                    },
+                }
+            if merge.get("merged") is True:
+                return {
+                    "target":ACTIVE,
+                    "decision":"merged-awaiting-validation",
+                    "state":state,
+                    "merge":{
+                        "merged":True,
+                        "sha":str(merge.get("sha") or "")[:40] or None,
+                    },
+                }
             return {
                 "target":REVIEW_REQUIRED,
-                "decision":decision,
+                "decision":"merge-blocked",
                 "state":state,
+                "merge":{
+                    "merged":False,
+                    "reason":str(
+                        merge.get("message")
+                        or "github-merge-declined"
+                    )[:500],
+                },
             }
         if (
             state.ci_state is None
@@ -1256,7 +1305,7 @@ class ManagedProjectService:
             }
         if state.merged and decision == "promote":
             return {
-                "target":REVIEW_REQUIRED,
+                "target":DONE,
                 "decision":decision,
                 "state":state,
             }
@@ -1445,10 +1494,38 @@ class ManagedProjectService:
                        reviewed_at=CASE
                            WHEN ?='REVIEW_REQUIRED' THEN ?
                            ELSE reviewed_at
+                       END,
+                       completed_at=CASE
+                           WHEN ?='DONE' THEN ?
+                           ELSE completed_at
+                       END,
+                       completed_by=CASE
+                           WHEN ?='DONE' THEN 'system:github-promotion'
+                           ELSE completed_by
                        END
                    WHERE id=? AND status<>'DONE'""",
-                (target, now, target, now, project_id),
+                (
+                    target,
+                    now,
+                    target,
+                    now,
+                    target,
+                    now,
+                    target,
+                    project_id,
+                ),
             )
+            if target == DONE:
+                self.backend.append_event(
+                    db,
+                    "managed-project-completed",
+                    {
+                        "project_id":project_id,
+                        "requested_by":"system:github-promotion",
+                        "reason":"post-merge-validation-passed",
+                    },
+                    repository=str(current["repository"]),
+                )
         with self.backend.connect() as db:
             row = _execute(
                 db,
