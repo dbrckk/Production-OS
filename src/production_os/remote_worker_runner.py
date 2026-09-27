@@ -8,6 +8,7 @@ import time
 from collections.abc import Sequence
 from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
 
+from .agent_runtime import PersistentAgentRuntime
 from .remote_worker import RemoteJob, RemoteWorkerClient
 
 
@@ -21,6 +22,7 @@ class RemoteWorkerRunner:
         heartbeat_interval_seconds: float = 5.0,
         executor_timeout_seconds: float = 3600.0,
         secret_env_names: Sequence[str] | None = None,
+        runtime_root: str | None = None,
     ):
         command = [str(part) for part in executor_command if str(part)]
         if not command:
@@ -40,6 +42,12 @@ class RemoteWorkerRunner:
         self._active_lock = threading.RLock()
         self._stop_event = threading.Event()
         self.max_consecutive_heartbeat_failures = 3
+        configured_runtime_root = runtime_root or os.getenv("PRODUCTION_OS_RUNTIME_DIR")
+        self.agent_runtime = (
+            PersistentAgentRuntime(configured_runtime_root)
+            if configured_runtime_root
+            else None
+        )
         secret_names = {
             "PRODUCTION_OS_WORKER_TOKEN",
             *(
@@ -115,6 +123,11 @@ class RemoteWorkerRunner:
 
     def _execute(self, job: RemoteJob) -> dict:
         key = job.key
+        runtime_context = (
+            self.agent_runtime.prepare(key)
+            if self.agent_runtime is not None
+            else None
+        )
         self.client.ack(key)
         active_registered = True
         heartbeat = self._activate(key)
@@ -136,12 +149,30 @@ class RemoteWorkerRunner:
                     "status":"stale",
                 }
 
+            request_payload = {
+                "schema_version":
+                    "production-os/worker-executor-request/v1",
+                "job":job.to_dict(),
+            }
+            executor_env = self.executor_env.copy()
+            if runtime_context is not None:
+                request_payload["runtime"] = runtime_context.to_dict()
+                executor_env.update({
+                    "PRODUCTION_OS_RUNTIME_SESSION_ID":
+                        runtime_context.session_id,
+                    "PRODUCTION_OS_RUNTIME_WORKSPACE":
+                        runtime_context.workspace,
+                    "PRODUCTION_OS_RUNTIME_STATE":
+                        runtime_context.state_path,
+                    "PRODUCTION_OS_RUNTIME_CHECKPOINT":
+                        runtime_context.checkpoint_path,
+                    "PRODUCTION_OS_RUNTIME_RESUME":
+                        "1" if runtime_context.resume else "0",
+                    "PRODUCTION_OS_RUNTIME_ATTEMPT":
+                        str(runtime_context.attempt),
+                })
             request = json.dumps(
-                {
-                    "schema_version":
-                        "production-os/worker-executor-request/v1",
-                    "job":job.to_dict(),
-                },
+                request_payload,
                 ensure_ascii=False,
             )
             started = time.monotonic()
@@ -151,7 +182,7 @@ class RemoteWorkerRunner:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
-                env=self.executor_env,
+                env=executor_env,
             )
             first_communicate = True
             stdout = ""
@@ -356,7 +387,13 @@ class RemoteWorkerRunner:
         def collect(done) -> None:
             for future in done:
                 futures.pop(future, None)
-                outcomes.append(future.result())
+                outcome = future.result()
+                if self.agent_runtime is not None:
+                    self.agent_runtime.mark_outcome(
+                        str(outcome.get("job_key") or ""),
+                        outcome,
+                    )
+                outcomes.append(outcome)
 
         with ThreadPoolExecutor(
             max_workers=self.max_concurrency,
