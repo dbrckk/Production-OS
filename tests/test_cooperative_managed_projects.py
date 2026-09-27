@@ -77,6 +77,13 @@ def test_cooperative_workflow_adds_ui_stage_only_for_ui_goal(tmp_path):
     assert tasks[-1].payload["handoff"]["required_capabilities"] == [
         "browser-ui-validation"
     ]
+    assert tasks[-1].payload["handoff"]["tool_contracts"]["browser_validation"] == {
+        "schema":"production-os/browser-validation/v1",
+        "report_schema":"production-os/browser-validation-report/v1",
+        "script":".production-os/browser_validate.py",
+        "artifacts_dir":".production-os/browser-artifacts",
+        "runtime":"python-playwright-chromium",
+    }
     assert sum(
         task.payload["handoff"]["token_budget"]
         for task in tasks
