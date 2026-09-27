@@ -5097,6 +5097,22 @@ log_tail = str(execution.get("log_tail") or "").strip()
 ⋮----
 browser_validation = clean_browser
 ⋮----
+raw_mobile_validation = None
+⋮----
+raw_mobile_validation = candidate
+⋮----
+mobile_validation = None
+⋮----
+clean_mobile = {}
+⋮----
+value = raw_mobile_validation.get(key)
+⋮----
+passed = raw_mobile_validation.get("passed")
+⋮----
+execution = raw_mobile_validation.get("execution")
+⋮----
+mobile_validation = clean_mobile
+⋮----
 workflow_status = str(workflow.get("status") or "").strip() or None
 terminal = workflow_status in {"succeeded", "failed", "cancelled"}
 available = terminal or any((
@@ -5115,14 +5131,21 @@ parts = repository.split("/")
 text = str(final_goal or "").lower()
 markers = (
 ⋮----
-browser = self._needs_browser_validation(final_goal)
-stage_count = 4 if browser else 3
+@staticmethod
+    def _needs_mobile_ui_validation(final_goal: str) -> bool
+⋮----
+mobile = self._needs_mobile_ui_validation(final_goal)
+browser = self._needs_browser_validation(final_goal) and not mobile
+specialist = browser or mobile
+stage_count = 4 if specialist else 3
 ⋮----
 implementation_budget = max(1, int(token_budget * 0.55))
 validation_budget = max(1, int(token_budget * 0.25))
 remaining = max(
 review_budget = (
-browser_budget = (
+specialist_budget = (
+browser_budget = specialist_budget if browser else 0
+mobile_budget = specialist_budget if mobile else 0
 ⋮----
 common = {
 ⋮----

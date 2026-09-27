@@ -973,7 +973,9 @@ budgets = [
 ⋮----
 def test_cooperative_workflow_adds_ui_stage_only_for_ui_goal(tmp_path)
 ⋮----
-def test_native_mobile_ui_does_not_use_playwright_browser_stage(tmp_path)
+def test_native_mobile_ui_uses_dedicated_emulator_stage(tmp_path)
+⋮----
+mobile = tasks[-1]
 ⋮----
 def test_web_ui_still_uses_playwright_browser_stage(tmp_path)
 ⋮----
@@ -2682,6 +2684,8 @@ def test_polling_does_not_reload_or_replace_location()
 ⋮----
 def test_dashboard_has_worker_and_project_detail_tabs()
 ⋮----
+def test_dashboard_renders_native_mobile_validation_evidence()
+⋮----
 def test_dashboard_preserves_launch_and_mobile_accessibility()
 ⋮----
 def test_dashboard_overview_is_bound_to_observability_api()
@@ -3429,6 +3433,10 @@ empty = _outcome_from_workflow(None)
 def test_outcome_accepts_compact_worker_result_fields_without_exposing_paths()
 ⋮----
 def test_terminal_workflow_outcome_is_visible_without_structured_evidence()
+⋮----
+def test_outcome_preserves_bounded_mobile_validation_evidence()
+⋮----
+mobile = outcome["mobile_validation"]
 ⋮----
 def test_outcome_preserves_bounded_browser_validation_evidence()
 ⋮----

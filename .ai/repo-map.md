@@ -5649,6 +5649,22 @@ log_tail = str(execution.get("log_tail") or "").strip()
 ⋮----
 browser_validation = clean_browser
 ⋮----
+raw_mobile_validation = None
+⋮----
+raw_mobile_validation = candidate
+⋮----
+mobile_validation = None
+⋮----
+clean_mobile = {}
+⋮----
+value = raw_mobile_validation.get(key)
+⋮----
+passed = raw_mobile_validation.get("passed")
+⋮----
+execution = raw_mobile_validation.get("execution")
+⋮----
+mobile_validation = clean_mobile
+⋮----
 workflow_status = str(workflow.get("status") or "").strip() or None
 terminal = workflow_status in {"succeeded", "failed", "cancelled"}
 available = terminal or any((
@@ -5667,14 +5683,21 @@ parts = repository.split("/")
 text = str(final_goal or "").lower()
 markers = (
 ⋮----
-browser = self._needs_browser_validation(final_goal)
-stage_count = 4 if browser else 3
+@staticmethod
+    def _needs_mobile_ui_validation(final_goal: str) -> bool
+⋮----
+mobile = self._needs_mobile_ui_validation(final_goal)
+browser = self._needs_browser_validation(final_goal) and not mobile
+specialist = browser or mobile
+stage_count = 4 if specialist else 3
 ⋮----
 implementation_budget = max(1, int(token_budget * 0.55))
 validation_budget = max(1, int(token_budget * 0.25))
 remaining = max(
 review_budget = (
-browser_budget = (
+specialist_budget = (
+browser_budget = specialist_budget if browser else 0
+mobile_budget = specialist_budget if mobile else 0
 ⋮----
 common = {
 ⋮----
@@ -9463,7 +9486,9 @@ budgets = [
 ⋮----
 def test_cooperative_workflow_adds_ui_stage_only_for_ui_goal(tmp_path)
 ⋮----
-def test_native_mobile_ui_does_not_use_playwright_browser_stage(tmp_path)
+def test_native_mobile_ui_uses_dedicated_emulator_stage(tmp_path)
+⋮----
+mobile = tasks[-1]
 ⋮----
 def test_web_ui_still_uses_playwright_browser_stage(tmp_path)
 ⋮----
@@ -11172,6 +11197,8 @@ def test_polling_does_not_reload_or_replace_location()
 ⋮----
 def test_dashboard_has_worker_and_project_detail_tabs()
 ⋮----
+def test_dashboard_renders_native_mobile_validation_evidence()
+⋮----
 def test_dashboard_preserves_launch_and_mobile_accessibility()
 ⋮----
 def test_dashboard_overview_is_bound_to_observability_api()
@@ -11919,6 +11946,10 @@ empty = _outcome_from_workflow(None)
 def test_outcome_accepts_compact_worker_result_fields_without_exposing_paths()
 ⋮----
 def test_terminal_workflow_outcome_is_visible_without_structured_evidence()
+⋮----
+def test_outcome_preserves_bounded_mobile_validation_evidence()
+⋮----
+mobile = outcome["mobile_validation"]
 ⋮----
 def test_outcome_preserves_bounded_browser_validation_evidence()
 ⋮----
