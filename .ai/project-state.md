@@ -22,16 +22,18 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-27T18:44:53Z
+Generated: 2026-09-27T18:50:58Z
 
 ### Git
 - Branch: `main`
-- Head: `20b4fc1beb0b`
-- Commit date: 2026-09-27T20:44:41+02:00
-- Commit: feat(agents): add bounded dynamic agent plan contract
-- Tracked files: 490
+- Head: `59ef51d7a993`
+- Commit date: 2026-09-27T20:50:45+02:00
+- Commit: feat(agents): expand planner results into dynamic parallel DAGs
+- Tracked files: 491
 
 ### Recently changed files
+- `src/production_os/workflow_engine.py`
+- `tests/test_dynamic_agent_fanout.py`
 - `src/production_os/agent_plan.py`
 - `tests/test_agent_plan.py`
 - `Dockerfile`
@@ -50,8 +52,6 @@ Generated: 2026-09-27T18:44:53Z
 - `src/production_os/executor_worktree.py`
 - `tests/test_remote_worker_runner.py`
 - `src/production_os/managed_projects.py`
-- `src/production_os/workflow_engine.py`
-- `src/production_os/worktree_contract.py`
 
 ### Project signals
 - `pyproject.toml`

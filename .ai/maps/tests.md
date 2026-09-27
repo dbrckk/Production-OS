@@ -100,6 +100,7 @@ test_dashboard_ui_v3.py
 test_dashboard_usage.py
 test_database_maintenance_lock.py
 test_deep_fingerprint_starlist.py
+test_dynamic_agent_fanout.py
 test_emergency_key_revocation.py
 test_execution_feedback_trends.py
 test_execution_optimizer_postgres.py
@@ -3006,6 +3007,44 @@ def test_starlist_catalog_is_ranked_by_score_and_match()
 ⋮----
 catalog = {
 refs = suggest_external_references("backtesting", catalog)
+```
+
+## File: test_dynamic_agent_fanout.py
+```python
+def _build(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "dynamic-agent.sqlite")
+queue = SQLiteJobQueue(backend)
+⋮----
+def _planner_spec()
+⋮----
+def test_planner_result_expands_parallel_agents_and_integration(tmp_path)
+⋮----
+workflow = engine.create(
+planner_job = engine.dispatch_ready(workflow["id"], limit=10)[0]
+⋮----
+expanded = engine.record_result(
+⋮----
+by_id = {task["task_id"]:task for task in expanded["tasks"]}
+⋮----
+code = queue.claim_next(
+tests = queue.claim_next(
+⋮----
+progressed = engine.record_result(
+⋮----
+integration = next(
+⋮----
+integration_job = queue.claim_next(
+⋮----
+upstream = integration_job["payload"]["handoff"]["upstream_context"]
+⋮----
+def test_planner_child_dependencies_preserve_ordered_dag(tmp_path)
+⋮----
+def test_invalid_planner_plan_is_rejected_before_child_dispatch(tmp_path)
+⋮----
+current = engine.get(workflow["id"])
+⋮----
+planner = current["tasks"][0]
 ```
 
 ## File: test_emergency_key_revocation.py

@@ -238,6 +238,7 @@ tests/
   test_dashboard_usage.py
   test_database_maintenance_lock.py
   test_deep_fingerprint_starlist.py
+  test_dynamic_agent_fanout.py
   test_emergency_key_revocation.py
   test_execution_feedback_trends.py
   test_execution_optimizer_postgres.py
@@ -9107,6 +9108,41 @@ job = self.queue.enqueue(queue_payload)
 ⋮----
 remaining = max(0, limit - len(dispatched))
 ⋮----
+config = dict(planner_payload.get("dynamic_agent_planner") or {})
+raw_plan = result.get("agent_plan")
+⋮----
+available_budget = int(config.get("available_token_budget") or 0)
+max_agents = int(config.get("max_agents") or 6)
+planned = validate_agent_plan(
+⋮----
+repository = workflow["repository"]
+common_handoff = dict(config.get("handoff") or {})
+prefix = f"{planner_task_id}.agent."
+child_ids = {
+⋮----
+specs: list[WorkflowTaskSpec] = []
+⋮----
+dependencies = tuple(
+⋮----
+dependencies = (planner_task_id,)
+handoff = {
+⋮----
+integration_task_id = str(
+⋮----
+integration_budget = int(
+⋮----
+integration_handoff = {
+⋮----
+existing = {
+⋮----
+dynamic_specs: list[WorkflowTaskSpec] = []
+⋮----
+preflight_row = _execute(
+⋮----
+preflight_payload = json.loads(
+⋮----
+dynamic_specs = self._dynamic_agent_specs(
+⋮----
 status = "succeeded"
 ⋮----
 status = "ready"
@@ -11975,6 +12011,44 @@ def test_starlist_catalog_is_ranked_by_score_and_match()
 ⋮----
 catalog = {
 refs = suggest_external_references("backtesting", catalog)
+````
+
+## File: tests/test_dynamic_agent_fanout.py
+````python
+def _build(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "dynamic-agent.sqlite")
+queue = SQLiteJobQueue(backend)
+⋮----
+def _planner_spec()
+⋮----
+def test_planner_result_expands_parallel_agents_and_integration(tmp_path)
+⋮----
+workflow = engine.create(
+planner_job = engine.dispatch_ready(workflow["id"], limit=10)[0]
+⋮----
+expanded = engine.record_result(
+⋮----
+by_id = {task["task_id"]:task for task in expanded["tasks"]}
+⋮----
+code = queue.claim_next(
+tests = queue.claim_next(
+⋮----
+progressed = engine.record_result(
+⋮----
+integration = next(
+⋮----
+integration_job = queue.claim_next(
+⋮----
+upstream = integration_job["payload"]["handoff"]["upstream_context"]
+⋮----
+def test_planner_child_dependencies_preserve_ordered_dag(tmp_path)
+⋮----
+def test_invalid_planner_plan_is_rejected_before_child_dispatch(tmp_path)
+⋮----
+current = engine.get(workflow["id"])
+⋮----
+planner = current["tasks"][0]
 ````
 
 ## File: tests/test_emergency_key_revocation.py

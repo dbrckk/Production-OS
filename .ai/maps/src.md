@@ -8544,6 +8544,41 @@ job = self.queue.enqueue(queue_payload)
 ⋮----
 remaining = max(0, limit - len(dispatched))
 ⋮----
+config = dict(planner_payload.get("dynamic_agent_planner") or {})
+raw_plan = result.get("agent_plan")
+⋮----
+available_budget = int(config.get("available_token_budget") or 0)
+max_agents = int(config.get("max_agents") or 6)
+planned = validate_agent_plan(
+⋮----
+repository = workflow["repository"]
+common_handoff = dict(config.get("handoff") or {})
+prefix = f"{planner_task_id}.agent."
+child_ids = {
+⋮----
+specs: list[WorkflowTaskSpec] = []
+⋮----
+dependencies = tuple(
+⋮----
+dependencies = (planner_task_id,)
+handoff = {
+⋮----
+integration_task_id = str(
+⋮----
+integration_budget = int(
+⋮----
+integration_handoff = {
+⋮----
+existing = {
+⋮----
+dynamic_specs: list[WorkflowTaskSpec] = []
+⋮----
+preflight_row = _execute(
+⋮----
+preflight_payload = json.loads(
+⋮----
+dynamic_specs = self._dynamic_agent_specs(
+⋮----
 status = "succeeded"
 ⋮----
 status = "ready"

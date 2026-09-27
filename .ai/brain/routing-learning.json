@@ -2,28 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat: release 19 restore staging",
-      "terms": [
-        "19",
-        "feat",
-        "release",
-        "restore",
-        "staging"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/control_plane.py",
-        "src/production_os/dashboard_backups.py",
-        "src/production_os/dashboard_service.py",
-        "src/production_os/dashboard_ui.py",
-        "tests/test_dashboard_backup_api.py",
-        "tests/test_dashboard_backups.py",
-        "tests/test_dashboard_ui_v3.py",
-        "tests/test_release19_restore_staging_e2e.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat: release 20 exclusive maintenance lock",
       "terms": [
         "20",
@@ -1258,6 +1236,26 @@
         "src/production_os/agent_plan.py",
         "tests/test_agent_plan.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "feat(agents): expand planner results into dynamic parallel DAGs",
+      "terms": [
+        "agents",
+        "dags",
+        "dynamic",
+        "expand",
+        "feat",
+        "into",
+        "parallel",
+        "planner",
+        "results"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/workflow_engine.py",
+        "tests/test_dynamic_agent_fanout.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1665,12 +1663,13 @@
       "src/production_os/managed_projects.py": 4,
       "src/production_os/remote_worker_runner.py": 8,
       "src/production_os/repository_cache.py": 4,
-      "src/production_os/workflow_engine.py": 4,
+      "src/production_os/workflow_engine.py": 8,
       "src/production_os/worktree_contract.py": 4,
       "tests/test_agent_plan.py": 4,
       "tests/test_browser_worker_image.py": 4,
       "tests/test_cooperative_managed_projects.py": 4,
       "tests/test_cooperative_specialist_e2e.py": 4,
+      "tests/test_dynamic_agent_fanout.py": 4,
       "tests/test_executor_worktree.py": 8,
       "tests/test_managed_github_reconciliation.py": 4,
       "tests/test_mobile_worker_image.py": 4,
@@ -2144,6 +2143,10 @@
       "src/production_os/cli.py": 4,
       "tests/test_asset_forge.py": 4
     },
+    "dags": {
+      "src/production_os/workflow_engine.py": 4,
+      "tests/test_dynamic_agent_fanout.py": 4
+    },
     "dashboard": {
       "src/production_os/asset_forge.py": 4,
       "src/production_os/control_plane.py": 40,
@@ -2294,7 +2297,9 @@
     },
     "dynamic": {
       "src/production_os/agent_plan.py": 4,
-      "tests/test_agent_plan.py": 4
+      "src/production_os/workflow_engine.py": 4,
+      "tests/test_agent_plan.py": 4,
+      "tests/test_dynamic_agent_fanout.py": 4
     },
     "e2e": {
       "tests/test_release16_operations_e2e.py": 4,
@@ -2343,6 +2348,10 @@
       "src/production_os/remote_worker_runner.py": 4,
       "tests/test_executor_worktree.py": 4,
       "tests/test_remote_worker_runner.py": 4
+    },
+    "expand": {
+      "src/production_os/workflow_engine.py": 4,
+      "tests/test_dynamic_agent_fanout.py": 4
     },
     "explicit": {
       "src/production_os/control_plane.py": 4,
@@ -2404,7 +2413,7 @@
       "src/production_os/rollback_plan.py": 4,
       "src/production_os/sqlite_backend.py": 40,
       "src/production_os/task_capabilities.py": 8,
-      "src/production_os/workflow_engine.py": 24,
+      "src/production_os/workflow_engine.py": 28,
       "src/production_os/worktree_contract.py": 4,
       "tests/test_agent_plan.py": 4,
       "tests/test_asset_forge.py": 16,
@@ -2625,6 +2634,10 @@
     },
     "integrity": {
       "src/production_os/asset_forge.py": 4
+    },
+    "into": {
+      "src/production_os/workflow_engine.py": 4,
+      "tests/test_dynamic_agent_fanout.py": 4
     },
     "inventory": {
       "src/production_os/dashboard_backups.py": 4,
@@ -2905,6 +2918,10 @@
       "src/production_os/asset_forge.py": 4,
       "tests/test_asset_forge.py": 4
     },
+    "parallel": {
+      "src/production_os/workflow_engine.py": 4,
+      "tests/test_dynamic_agent_fanout.py": 4
+    },
     "parent": {
       "src/production_os/asset_forge.py": 8,
       "tests/test_asset_forge.py": 4
@@ -2941,6 +2958,10 @@
     "plan": {
       "src/production_os/agent_plan.py": 4,
       "tests/test_agent_plan.py": 4
+    },
+    "planner": {
+      "src/production_os/workflow_engine.py": 4,
+      "tests/test_dynamic_agent_fanout.py": 4
     },
     "playbooks": {
       "src/production_os/dashboard_playbooks.py": 4,
@@ -3371,6 +3392,10 @@
       "tests/test_dashboard_ui_v3.py": 12,
       "tests/test_release19_restore_staging_e2e.py": 4,
       "tests/test_release21_offline_restore_e2e.py": 4
+    },
+    "results": {
+      "src/production_os/workflow_engine.py": 4,
+      "tests/test_dynamic_agent_fanout.py": 4
     },
     "resumable": {
       "src/production_os/agent_runtime.py": 4,

@@ -1,18 +1,18 @@
 # Change impact
 
-Base: a28f8f1a2583bde9c34bc74eb6233d2165394b5f
-Head: 20b4fc1beb0b209848aef24258a877c9f75028cf
+Base: a686af462d04aa95fbcbcac1eb92704e9d96da3f
+Head: 59ef51d7a99342cdb79ab314645fb91251793dc7
 
 ## Changed files
-- A src/production_os/agent_plan.py
-- A tests/test_agent_plan.py
+- M src/production_os/workflow_engine.py
+- A tests/test_dynamic_agent_fanout.py
 
 ## Affected areas
 - src
 - tests
 
 ## Related test candidates
-- tests/test_agent_plan.py
+- tests/test_workflow_engine.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.
