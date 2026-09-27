@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from .github_client import GitHubAPIError, GitHubClient
+from .github_change_review import review_changed_paths
 
 
 @dataclass(frozen=True, slots=True)
@@ -21,6 +22,9 @@ class GitHubWorkState:
     ready_for_promotion: bool
     promotion_blockers: tuple[str, ...]
     required_checks_missing: tuple[str, ...]
+    sensitive_files: tuple[str, ...]
+    change_categories: tuple[str, ...]
+    human_review_required: bool
     head_sha: str | None
 
     def to_dict(self) -> dict:
@@ -38,6 +42,9 @@ class GitHubWorkState:
             "ready_for_promotion": self.ready_for_promotion,
             "promotion_blockers": list(self.promotion_blockers),
             "required_checks_missing": list(self.required_checks_missing),
+            "sensitive_files": list(self.sensitive_files),
+            "change_categories": list(self.change_categories),
+            "human_review_required": self.human_review_required,
             "head_sha": self.head_sha,
         }
 
@@ -125,6 +132,7 @@ def _promotion_readiness(
     ci_state: str | None,
     status_state: str | None,
     required_checks_missing: tuple[str, ...] = (),
+    human_review_required: bool = False,
 ) -> tuple[bool, tuple[str, ...]]:
     blockers = []
     if merged:
@@ -141,6 +149,8 @@ def _promotion_readiness(
         blockers.append("external-statuses-not-passed")
     if required_checks_missing:
         blockers.append("required-checks-missing")
+    if human_review_required:
+        blockers.append("human-review-required")
     return (not blockers, tuple(blockers))
 
 
@@ -159,6 +169,9 @@ def fetch_github_work_state(
     ci_state = None
     status_state = None
     required_checks_missing: tuple[str, ...] = ()
+    sensitive_files: tuple[str, ...] = ()
+    change_categories: tuple[str, ...] = ()
+    human_review_required = False
     head_sha = None
 
     if issue_number is not None:
@@ -182,6 +195,15 @@ def fetch_github_work_state(
 
         reviews = client.get_pull_request_reviews(repository, pr_number)
         review_state = _review_state(reviews)
+
+        try:
+            changed_paths = client.list_pull_request_files(repository, pr_number)
+            change_review = review_changed_paths(changed_paths)
+        except GitHubAPIError:
+            change_review = review_changed_paths(())
+        sensitive_files = change_review.sensitive_files
+        change_categories = change_review.categories
+        human_review_required = change_review.requires_human_review
 
         if head_sha:
             runs = client.get_commit_workflow_runs(repository, head_sha)
@@ -209,6 +231,7 @@ def fetch_github_work_state(
         ci_state=ci_state,
         status_state=status_state,
         required_checks_missing=required_checks_missing,
+        human_review_required=human_review_required,
     )
 
     return GitHubWorkState(
@@ -225,6 +248,9 @@ def fetch_github_work_state(
         ready_for_promotion=ready_for_promotion,
         promotion_blockers=promotion_blockers,
         required_checks_missing=required_checks_missing,
+        sensitive_files=sensitive_files,
+        change_categories=change_categories,
+        human_review_required=human_review_required,
         head_sha=head_sha,
     )
 
