@@ -452,6 +452,18 @@ class GitHubClient:
         runs = payload.get("workflow_runs", [])
         return runs if isinstance(runs, list) else []
 
+    def get_commit_statuses(self, full_name: str, commit_sha: str) -> list[dict[str, Any]]:
+        try:
+            payload = self._get(
+                f"/repos/{full_name}/commits/{urllib.parse.quote(commit_sha)}/status"
+            )
+        except GitHubAPIError:
+            return []
+        if not isinstance(payload, dict):
+            return []
+        statuses = payload.get("statuses", [])
+        return statuses if isinstance(statuses, list) else []
+
     def list_accessible_repositories(self, owner: str) -> list[dict[str, Any]]:
         owner = str(owner or "").strip()
         if not owner:
