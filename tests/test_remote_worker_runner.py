@@ -622,6 +622,7 @@ print(json.dumps({{"status":"succeeded","result":{{"summary":"too late"}}}}))
 
 
 def test_remote_worker_runner_executes_in_configured_isolated_worktree(tmp_path):
+    import pathlib
     import subprocess
 
     repo = tmp_path / "repo"
