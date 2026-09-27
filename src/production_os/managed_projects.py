@@ -534,16 +534,30 @@ class ManagedProjectService:
                             "repository":repository,
                             "task":(
                                 "Validate the relevant user interface in a real "
-                                "browser or runtime. Exercise the changed user flows, "
-                                "check console/runtime errors and visual regressions, "
-                                "and report reproducible evidence. Fix only defects "
-                                "caused by this implementation."
+                                "Chromium browser using Python Playwright. Create or "
+                                "update .production-os/browser_validate.py as the "
+                                "validation entrypoint. It must exercise the changed "
+                                "user flows, capture console and page errors, save at "
+                                "least one screenshot under "
+                                ".production-os/browser-artifacts/, and write "
+                                ".production-os/browser-artifacts/report.json using "
+                                "the required browser validation report schema. Fix "
+                                "only defects caused by this implementation."
                             ),
                             "final_goal":final_goal,
                             "agent_preference":agent_preference,
                             "token_budget":browser_budget,
                             "required_capabilities":["browser-ui-validation"],
                             "preferred_capabilities":["browser-ui-validation"],
+                            "tool_contracts":{
+                                "browser_validation":{
+                                    "schema":"production-os/browser-validation/v1",
+                                    "report_schema":"production-os/browser-validation-report/v1",
+                                    "script":".production-os/browser_validate.py",
+                                    "artifacts_dir":".production-os/browser-artifacts",
+                                    "runtime":"python-playwright-chromium",
+                                },
+                            },
                         },
                     },
                     dependencies=("review",),
