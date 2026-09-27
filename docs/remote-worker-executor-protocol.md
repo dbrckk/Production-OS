@@ -153,3 +153,32 @@ Repository mappings are explicit by design. The worker never guesses a local
 path and never receives Git credentials from this mechanism. If no mapping is
 configured, the existing external-executor contract remains valid and the
 executor may implement isolation itself.
+
+
+## Automatic repository cache
+
+For one-tap repository selection, workers can materialize the selected GitHub
+repository automatically instead of requiring an `--repository-root` mapping.
+
+Set:
+
+```bash
+--repository-cache-root /var/lib/production-os/repositories
+--worktree-root /var/lib/production-os/worktrees
+```
+
+or the equivalent environment variables:
+
+- `PRODUCTION_OS_REPOSITORY_CACHE_DIR`
+- `PRODUCTION_OS_WORKTREE_DIR`
+
+For a validated `owner/repo` handoff, the cache clones
+`https://github.com/owner/repo.git` with no checkout, verifies the cached
+`origin` on reuse, fetches/prunes current remote branches, and then supplies
+that local checkout to the worktree runtime. Concurrent materialization of the
+same repository is serialized inside the worker process.
+
+No GitHub credential is copied into the executor request. Private-repository
+authentication remains the responsibility of the worker's normal Git
+credential configuration. Explicit `--repository-root` mappings take
+precedence over the automatic cache.
