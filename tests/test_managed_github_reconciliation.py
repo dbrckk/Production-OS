@@ -183,3 +183,38 @@ def test_succeeded_pull_request_without_ci_moves_to_review_instead_of_stalling()
         )
 
     assert target == REVIEW_REQUIRED
+
+
+
+def test_post_merge_failure_resolution_builds_compensating_rollback_plan():
+    service = ManagedProjectService(
+        FakeWorkflows(),
+        github_client_factory=lambda: object(),
+    )
+    merged_failed = state(
+        pr_state="closed",
+        merged=True,
+        ci_state="failed",
+        status_state="passed",
+        ready_for_promotion=False,
+        validation_sha="b"*40,
+        promotion_blockers=("actions-not-passed",),
+    )
+    with patch(
+        "production_os.managed_projects.fetch_github_work_state",
+        return_value=merged_failed,
+    ):
+        resolution = service._github_resolution_for_succeeded_workflow(
+            "o/a",
+            workflow_with_pr(),
+        )
+
+    assert resolution["target"] == NEEDS_ATTENTION
+    assert resolution["decision"] == "rollback"
+    plan = resolution["rollback_plan"]
+    assert plan["strategy"] == "compensating-pr"
+    assert plan["merge_sha"] == "b"*40
+    assert plan["history_rewrite_allowed"] is False
+    assert plan["force_push_allowed"] is False
+    assert "Do not reset" in plan["instruction"]
+    assert "open a pull request" in plan["instruction"]
