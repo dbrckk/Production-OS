@@ -40,4 +40,6 @@ def test_worker_compose_exposes_specialist_pool_without_replacing_generic_worker
     assert "PRODUCTION_OS_WORKER_SPECIALTIES: debug" in payload
     assert "PRODUCTION_OS_WORKER_SPECIALTIES: review" in payload
     assert "PRODUCTION_OS_WORKER_SPECIALTIES: browser" in payload
+    assert "dockerfile: Dockerfile.browser-worker" in payload
+    # Browser worker is present but cannot claim browser validation until a real runtime is provisioned.
     assert "PRODUCTION_OS_SPECIALIST_MAX_CONCURRENCY" in payload
