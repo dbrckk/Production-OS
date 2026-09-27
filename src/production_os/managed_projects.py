@@ -177,6 +177,7 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
             "pull_request":None,
             "ci":None,
             "browser_validation":None,
+            "mobile_validation":None,
             "completed_at":None,
         }
 
@@ -410,6 +411,68 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
         if clean_browser:
             browser_validation = clean_browser
 
+    raw_mobile_validation = None
+    for item in reversed(results):
+        item_evidence = _result_evidence(item)
+        candidate = (
+            item.get("mobile_validation")
+            or item_evidence.get("mobile_validation")
+        )
+        if isinstance(candidate, dict):
+            raw_mobile_validation = candidate
+            break
+    mobile_validation = None
+    if isinstance(raw_mobile_validation, dict):
+        clean_mobile = {}
+        for key, limit in {
+            "status":120,
+            "reason":500,
+            "runtime":120,
+            "script":300,
+            "package_name":240,
+            "activity":500,
+            "device_serial":240,
+        }.items():
+            value = raw_mobile_validation.get(key)
+            if value is None:
+                continue
+            text = str(value).strip()
+            if text:
+                clean_mobile[key] = text[:limit]
+        passed = raw_mobile_validation.get("passed")
+        if isinstance(passed, bool):
+            clean_mobile["passed"] = passed
+        for key, limit in {
+            "fatal_errors":50,
+            "screenshots":20,
+            "copied_artifacts":30,
+        }.items():
+            value = raw_mobile_validation.get(key)
+            if isinstance(value, list):
+                clean_mobile[key] = [
+                    str(item).strip()[:1200]
+                    for item in value
+                    if str(item).strip()
+                ][:limit]
+        execution = raw_mobile_validation.get("execution")
+        if isinstance(execution, dict):
+            clean_execution = {}
+            for key in (
+                "returncode",
+                "duration_seconds",
+                "credential_isolated",
+                "network_allowed",
+            ):
+                if execution.get(key) is not None:
+                    clean_execution[key] = execution.get(key)
+            log_tail = str(execution.get("log_tail") or "").strip()
+            if log_tail:
+                clean_execution["log_tail"] = log_tail[-4000:]
+            if clean_execution:
+                clean_mobile["execution"] = clean_execution
+        if clean_mobile:
+            mobile_validation = clean_mobile
+
     workflow_status = str(workflow.get("status") or "").strip() or None
     terminal = workflow_status in {"succeeded", "failed", "cancelled"}
     available = terminal or any((
@@ -422,6 +485,7 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
         pull_request,
         ci,
         browser_validation,
+        mobile_validation,
     ))
     return {
         "available":bool(available),
@@ -436,6 +500,7 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
         "pull_request":pull_request,
         "ci":ci,
         "browser_validation":browser_validation,
+        "mobile_validation":mobile_validation,
         "completed_at":workflow.get("updated_at") if terminal else None,
     }
 
@@ -472,6 +537,21 @@ class ManagedProjectService:
         )
         return any(marker in text for marker in markers)
 
+    @staticmethod
+    def _needs_mobile_ui_validation(final_goal: str) -> bool:
+        text = str(final_goal or "").lower()
+        markers = (
+            "android ui",
+            "flutter ui",
+            "mobile ui",
+            "android app ui",
+            "flutter app ui",
+            "android interface",
+            "flutter interface",
+            "mobile interface",
+        )
+        return any(marker in text for marker in markers)
+
     def _cooperative_workflow_specs(
         self,
         *,
@@ -484,8 +564,10 @@ class ManagedProjectService:
         token_budget: int,
         agent_preference: str,
     ) -> list[WorkflowTaskSpec]:
-        browser = self._needs_browser_validation(final_goal)
-        stage_count = 4 if browser else 3
+        mobile = self._needs_mobile_ui_validation(final_goal)
+        browser = self._needs_browser_validation(final_goal) and not mobile
+        specialist = browser or mobile
+        stage_count = 4 if specialist else 3
         if int(token_budget) < stage_count:
             raise ValueError(
                 "cooperative token_budget must cover every stage"
@@ -498,14 +580,16 @@ class ManagedProjectService:
         )
         review_budget = (
             max(1, int(remaining * 0.55))
-            if browser
+            if specialist
             else remaining
         )
-        browser_budget = (
+        specialist_budget = (
             max(1, remaining - review_budget)
-            if browser
+            if specialist
             else 0
         )
+        browser_budget = specialist_budget if browser else 0
+        mobile_budget = specialist_budget if mobile else 0
 
         common = {
             "managed_project_id":project_id,
@@ -629,6 +713,53 @@ class ManagedProjectService:
                     priority=100,
                     max_attempts=2,
                     estimated_minutes=15,
+                )
+            )
+        if mobile:
+            tasks.append(
+                WorkflowTaskSpec(
+                    task_id="mobile-ui-validation",
+                    title="Validate the native user interface on an Android emulator",
+                    payload={
+                        **common,
+                        "cooperative_stage":"mobile-ui-validation",
+                        "handoff":{
+                            "repository":repository,
+                            "task":(
+                                "Validate the relevant native Android or Flutter user "
+                                "interface on a real Android emulator using ADB. Create "
+                                "or update .production-os/mobile_validate.py as the "
+                                "validation entrypoint. It must build or locate the "
+                                "debug APK, boot or reuse an emulator, install the APK, "
+                                "launch the target activity, exercise the changed user "
+                                "flow, capture at least one emulator screenshot under "
+                                ".production-os/mobile-artifacts/, collect fatal/crash "
+                                "evidence from logcat, and write "
+                                ".production-os/mobile-artifacts/report.json using the "
+                                "required mobile validation report schema. Fix only "
+                                "defects caused by this implementation."
+                            ),
+                            "final_goal":final_goal,
+                            "agent_preference":agent_preference,
+                            "token_budget":mobile_budget,
+                            "required_capabilities":["mobile-ui-validation"],
+                            "required_capabilities_authoritative":True,
+                            "preferred_capabilities":["mobile-ui-validation"],
+                            "tool_contracts":{
+                                "mobile_validation":{
+                                    "schema":"production-os/mobile-validation/v1",
+                                    "report_schema":"production-os/mobile-validation-report/v1",
+                                    "script":".production-os/mobile_validate.py",
+                                    "artifacts_dir":".production-os/mobile-artifacts",
+                                    "runtime":"android-adb-emulator",
+                                },
+                            },
+                        },
+                    },
+                    dependencies=("review",),
+                    priority=100,
+                    max_attempts=2,
+                    estimated_minutes=20,
                 )
             )
         return tasks

@@ -91,7 +91,7 @@ def test_cooperative_workflow_adds_ui_stage_only_for_ui_goal(tmp_path):
     assert tasks[-1].payload["handoff"]["token_budget"] > 0
 
 
-def test_native_mobile_ui_does_not_use_playwright_browser_stage(tmp_path):
+def test_native_mobile_ui_uses_dedicated_emulator_stage(tmp_path):
     managed = service(tmp_path)
 
     for final_goal in (
@@ -113,7 +113,29 @@ def test_native_mobile_ui_does_not_use_playwright_browser_stage(tmp_path):
             "implementation",
             "validation",
             "review",
+            "mobile-ui-validation",
         ]
+        mobile = tasks[-1]
+        assert mobile.dependencies == ("review",)
+        assert mobile.payload["handoff"]["required_capabilities"] == [
+            "mobile-ui-validation"
+        ]
+        assert (
+            mobile.payload["handoff"]["required_capabilities_authoritative"]
+            is True
+        )
+        assert mobile.payload["handoff"]["tool_contracts"]["mobile_validation"] == {
+            "schema":"production-os/mobile-validation/v1",
+            "report_schema":"production-os/mobile-validation-report/v1",
+            "script":".production-os/mobile_validate.py",
+            "artifacts_dir":".production-os/mobile-artifacts",
+            "runtime":"android-adb-emulator",
+        }
+        assert "browser_validation" not in mobile.payload["handoff"]["tool_contracts"]
+        assert sum(
+            task.payload["handoff"]["token_budget"]
+            for task in tasks
+        ) == 1000
 
 
 def test_web_ui_still_uses_playwright_browser_stage(tmp_path):

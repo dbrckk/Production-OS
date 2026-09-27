@@ -1633,10 +1633,30 @@ function renderProductionOutcome(outcome,includeSummary){
    ((browser.screenshots||[]).length?' · '+esc((browser.screenshots||[]).slice(0,8).join(", ")):"")+
    '</div>'
   :"";
+ const mobile=value.mobile_validation||null;
+ if(mobile){
+  const mobileBits=[];
+  if(mobile.status)mobileBits.push(String(mobile.status));
+  if(mobile.package_name)mobileBits.push(String(mobile.package_name));
+  if(mobile.device_serial)mobileBits.push(String(mobile.device_serial));
+  const mobileScreenshots=mobile.screenshots||[];
+  if(mobileScreenshots.length)mobileBits.push(String(mobileScreenshots.length)+" screenshot(s)");
+  if(mobileBits.length)parts.push(
+   "<strong>Mobile :</strong> "+mobileBits.map(function(x){return esc(x)}).join(" · ")
+  );
+ }
+ const mobileDetail=includeSummary&&mobile
+  ?'<div class="small outcome-browser"><strong>Preuve mobile :</strong> '+
+   (mobile.reason?esc(String(mobile.reason)):"Android emulator / ADB")+
+   (mobile.activity?' · '+esc(String(mobile.activity)):"")+
+   ((mobile.fatal_errors||[]).length?' · <code>'+esc((mobile.fatal_errors||[]).slice(0,8).join(" | ")).slice(0,1600)+'</code>':"")+
+   ((mobile.screenshots||[]).length?' · '+esc((mobile.screenshots||[]).slice(0,8).join(", ")):"")+
+   '</div>'
+  :"";
  const summary=includeSummary&&value.summary
   ?'<div class="small outcome-summary"><strong>Résultat :</strong> '+esc(String(value.summary))+'</div>'
   :"";
- return summary+ciDetail+browserDetail+(parts.length?'<div class="small outcome-evidence">'+parts.join(" · ")+'</div>':"");
+ return summary+ciDetail+browserDetail+mobileDetail+(parts.length?'<div class="small outcome-evidence">'+parts.join(" · ")+'</div>':"");
 }
 function attentionKindLabel(kind){
  const labels={
