@@ -551,6 +551,13 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         default=os.getenv("PRODUCTION_OS_WORKTREE_DIR", ""),
         help="Parent directory for isolated Git worktrees",
     )
+    remoterun.add_argument(
+        "--repository-cache-root",
+        default=os.getenv("PRODUCTION_OS_REPOSITORY_CACHE_DIR", ""),
+        help=(
+            "Automatic local checkout cache for owner/repo worktree jobs"
+        ),
+    )
 
     workflowcreate = sub.add_parser("workflow-create", help="Create a persistent DAG workflow")
     workflowcreate.add_argument("--database", required=True)
@@ -1987,6 +1994,7 @@ def run_remote_worker_run(args: argparse.Namespace) -> int:
         runtime_root=args.runtime_root or None,
         repository_roots=_repository_root_map(args.repository_root),
         worktree_root=args.worktree_root or None,
+        repository_cache_root=args.repository_cache_root or None,
     )
     previous_handlers = {}
 
