@@ -40,6 +40,7 @@ def test_outcome_normalizes_worker_result_evidence():
         "changed_file_count":0,
         "pull_request":{"number":42,"state":"open"},
         "ci":None,
+        "browser_validation":None,
         "completed_at":"2026-09-25T18:40:00+00:00",
     }
 
@@ -80,6 +81,7 @@ def test_outcome_uses_evidence_fallback_and_keeps_optional_shape_stable():
         "changed_file_count":0,
         "pull_request":None,
         "ci":None,
+        "browser_validation":None,
         "completed_at":None,
     }
 
@@ -123,3 +125,48 @@ def test_terminal_workflow_outcome_is_visible_without_structured_evidence():
     assert outcome["validation_status"] is None
     assert outcome["completed_at"] == "2026-09-25T18:43:00+00:00"
 
+
+
+
+def test_outcome_preserves_bounded_browser_validation_evidence():
+    outcome = _outcome_from_workflow({
+        "status":"succeeded",
+        "updated_at":"2026-09-27T10:00:00+00:00",
+        "tasks":[{
+            "task_id":"ui-validation",
+            "dependencies":["review"],
+            "result":{
+                "summary":"UI validation passed.",
+                "evidence":{
+                    "browser_validation":{
+                        "status":"passed",
+                        "passed":True,
+                        "runtime":"python-playwright-chromium",
+                        "script":".production-os/browser_validate.py",
+                        "url":"http://127.0.0.1:4173/",
+                        "console_errors":[],
+                        "page_errors":[],
+                        "screenshots":["home.png"],
+                        "copied_artifacts":["home.png","report.json"],
+                        "execution":{
+                            "returncode":0,
+                            "duration_seconds":1.5,
+                            "credential_isolated":True,
+                            "network_allowed":True,
+                            "log_tail":"ok",
+                        },
+                    },
+                },
+            },
+        }],
+        "artifacts":[],
+    })
+
+    browser = outcome["browser_validation"]
+    assert browser["status"] == "passed"
+    assert browser["passed"] is True
+    assert browser["runtime"] == "python-playwright-chromium"
+    assert browser["url"] == "http://127.0.0.1:4173/"
+    assert browser["screenshots"] == ["home.png"]
+    assert browser["copied_artifacts"] == ["home.png", "report.json"]
+    assert browser["execution"]["returncode"] == 0
