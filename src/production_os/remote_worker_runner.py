@@ -68,6 +68,17 @@ class RemoteWorkerRunner:
     def stop_requested(self) -> bool:
         return self._stop_event.is_set()
 
+    def _observe_checkpoint(self, key: str) -> dict:
+        if self.agent_runtime is None:
+            return {"valid":False, "reason":"runtime_disabled"}
+        return self.agent_runtime.observe_checkpoint(key)
+
+    def _checkpoint_ref(self, key: str) -> str:
+        checkpoint = self._observe_checkpoint(key)
+        if checkpoint.get("valid") and checkpoint.get("ref"):
+            return str(checkpoint["ref"])
+        return f"worker-runner://{self.client.worker_id}/{key}/stale"
+
     @staticmethod
     def _terminate(process: subprocess.Popen[str]) -> None:
         if process.poll() is not None:
@@ -142,7 +153,7 @@ class RemoteWorkerRunner:
             if key in heartbeat.get("stale_job_keys", []):
                 self.client.checkpoint_stale(
                     key,
-                    f"worker-runner://{self.client.worker_id}/{key}/stale",
+                    self._checkpoint_ref(key),
                 )
                 return {
                     "job_key":key,
@@ -189,6 +200,7 @@ class RemoteWorkerRunner:
             heartbeat_failures = 0
             while True:
                 if self._stop_event.is_set():
+                    self._observe_checkpoint(key)
                     self._terminate(process)
                     return {
                         "job_key":key,
@@ -225,6 +237,7 @@ class RemoteWorkerRunner:
                     break
                 except subprocess.TimeoutExpired:
                     first_communicate = False
+                    self._observe_checkpoint(key)
                     try:
                         heartbeat = self._heartbeat_active(key)
                         heartbeat_failures = 0
@@ -234,6 +247,7 @@ class RemoteWorkerRunner:
                             heartbeat_failures
                             >= self.max_consecutive_heartbeat_failures
                         ):
+                            self._observe_checkpoint(key)
                             self._terminate(process)
                             return {
                                 "job_key":key,
@@ -246,10 +260,7 @@ class RemoteWorkerRunner:
                         self._terminate(process)
                         self.client.checkpoint_stale(
                             key,
-                            (
-                                "worker-runner://"
-                                f"{self.client.worker_id}/{key}/stale"
-                            ),
+                            self._checkpoint_ref(key),
                         )
                         return {
                             "job_key":key,
@@ -277,6 +288,7 @@ class RemoteWorkerRunner:
                         }
 
             duration = time.monotonic() - started
+            self._observe_checkpoint(key)
             if process.returncode != 0:
                 reason = f"executor_exit_{process.returncode}"
                 self.client.fail(
