@@ -236,8 +236,12 @@ def review_changed_files(files) -> DiffReview:
 
 
 def review_pull_request(client, repository: str, pr_number: int) -> DiffReview:
-    details = client.get_pull_request_file_details(
-        repository,
-        pr_number,
-    )
-    return review_changed_files(details)
+    detailed = getattr(client, "get_pull_request_file_details", None)
+    if callable(detailed):
+        details = detailed(
+            repository,
+            pr_number,
+        )
+        return review_changed_files(details)
+    files = client.list_pull_request_files(repository, pr_number)
+    return review_changed_paths(files)
