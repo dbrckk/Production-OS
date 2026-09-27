@@ -109,6 +109,7 @@ def test_green_pull_request_is_sha_pinned_merged_then_waits_for_post_merge_ci():
     assert resolution["merge"] == {
         "merged":True,
         "sha":"b"*40,
+        "receipt":False,
     }
     assert github.calls == [{
         "repository":"o/a",
@@ -185,6 +186,42 @@ def test_sensitive_green_pull_request_requires_review():
 
     assert target == REVIEW_REQUIRED
     assert github.calls == []
+
+
+def test_automerge_receipt_prevents_duplicate_merge_during_github_staleness(tmp_path):
+    backend = SQLiteBackend(tmp_path / "automerge-idempotent.sqlite")
+    github = FakeGitHub()
+    service = ManagedProjectService(
+        WorkflowEngine(backend, SQLiteJobQueue(backend)),
+        github_client_factory=lambda: github,
+    )
+    workflow = workflow_with_pr()
+    workflow["id"] = "workflow-1234"
+    workflow["metadata"] = {
+        "managed_project_id":"project-1234",
+    }
+
+    with patch(
+        "production_os.managed_projects.fetch_github_work_state",
+        return_value=state(),
+    ):
+        first = service._github_resolution_for_succeeded_workflow(
+            "o/a",
+            workflow,
+        )
+        second = service._github_resolution_for_succeeded_workflow(
+            "o/a",
+            workflow,
+        )
+
+    assert first["target"] == ACTIVE
+    assert first["decision"] == "merged-awaiting-validation"
+    assert first["merge"]["receipt"] is True
+    assert second["target"] == ACTIVE
+    assert second["decision"] == "merged-awaiting-validation"
+    assert second["merge"]["receipt"] is True
+    assert second["merge"]["sha"] == "b"*40
+    assert len(github.calls) == 1
 
 
 def test_automerge_aborts_when_base_sha_changes_during_final_recheck():
