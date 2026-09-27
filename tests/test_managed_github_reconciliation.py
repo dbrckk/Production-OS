@@ -81,7 +81,13 @@ def _complete_parallel_cooperative_workflow(
 ):
     service.workflows.record_result(
         workflow_id,
-        "implementation-code",
+        "planner",
+        succeeded=True,
+        result={"summary":"fallback plan"},
+    )
+    service.workflows.record_result(
+        workflow_id,
+        "planner.agent.code",
         succeeded=True,
         result={
             "summary":"implemented",
@@ -90,7 +96,7 @@ def _complete_parallel_cooperative_workflow(
     )
     service.workflows.record_result(
         workflow_id,
-        "implementation-tests",
+        "planner.agent.tests",
         succeeded=True,
         result={
             "summary":"tests implemented",
@@ -121,7 +127,6 @@ def _complete_parallel_cooperative_workflow(
         succeeded=True,
         result=review_result,
     )
-
 
 def workflow_with_pr():
     return {
