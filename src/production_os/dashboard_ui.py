@@ -1612,10 +1612,31 @@ function renderProductionOutcome(outcome,includeSummary){
  const ciDetail=includeSummary&&ci&&ci.log_excerpt
   ?'<div class="small outcome-ci"><strong>Diagnostic CI :</strong> <code>'+esc(String(ci.log_excerpt).slice(0,1200))+'</code></div>'
   :"";
+ const browser=value.browser_validation||null;
+ if(browser){
+  const browserBits=[];
+  if(browser.status)browserBits.push(String(browser.status));
+  if(browser.url)browserBits.push(String(browser.url));
+  const screenshots=browser.screenshots||[];
+  if(screenshots.length)browserBits.push(String(screenshots.length)+" screenshot(s)");
+  if(browserBits.length)parts.push(
+   "<strong>Navigateur :</strong> "+browserBits.map(function(x){return esc(x)}).join(" · ")
+  );
+ }
+ const browserErrors=[];
+ if(browser&&Array.isArray(browser.console_errors))browserErrors.push.apply(browserErrors,browser.console_errors);
+ if(browser&&Array.isArray(browser.page_errors))browserErrors.push.apply(browserErrors,browser.page_errors);
+ const browserDetail=includeSummary&&browser
+  ?'<div class="small outcome-browser"><strong>Preuve UI :</strong> '+
+   (browser.reason?esc(String(browser.reason)):"Playwright Chromium")+
+   (browserErrors.length?' · <code>'+esc(browserErrors.slice(0,8).join(" | ")).slice(0,1600)+'</code>':"")+
+   ((browser.screenshots||[]).length?' · '+esc((browser.screenshots||[]).slice(0,8).join(", ")):"")+
+   '</div>'
+  :"";
  const summary=includeSummary&&value.summary
   ?'<div class="small outcome-summary"><strong>Résultat :</strong> '+esc(String(value.summary))+'</div>'
   :"";
- return summary+ciDetail+(parts.length?'<div class="small outcome-evidence">'+parts.join(" · ")+'</div>':"");
+ return summary+ciDetail+browserDetail+(parts.length?'<div class="small outcome-evidence">'+parts.join(" · ")+'</div>':"");
 }
 function attentionKindLabel(kind){
  const labels={
