@@ -18,6 +18,8 @@ def state(**kwargs):
         review_state=None,
         ci_state="running",
         status_state=None,
+        ready_for_promotion=False,
+        promotion_blockers=(),
         head_sha="abc",
     )
     base.update(kwargs)
@@ -80,3 +82,40 @@ def test_pending_external_status_remains_running():
     assert runtime_decision_from_github(
         state(ci_state="passed", status_state="running")
     ) == "running"
+
+
+def test_promotion_readiness_requires_open_non_draft_green_pr():
+    from production_os.github_work_state import _promotion_readiness
+
+    ready, blockers = _promotion_readiness(
+        pr_state="open",
+        merged=False,
+        draft=False,
+        review_state="approved",
+        ci_state="passed",
+        status_state="passed",
+    )
+    assert ready is True
+    assert blockers == ()
+
+    ready, blockers = _promotion_readiness(
+        pr_state="open",
+        merged=False,
+        draft=False,
+        review_state=None,
+        ci_state="running",
+        status_state="passed",
+    )
+    assert ready is False
+    assert "actions-not-passed" in blockers
+
+    ready, blockers = _promotion_readiness(
+        pr_state="open",
+        merged=False,
+        draft=True,
+        review_state=None,
+        ci_state="passed",
+        status_state="passed",
+    )
+    assert ready is False
+    assert "draft" in blockers
