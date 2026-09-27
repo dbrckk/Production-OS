@@ -632,6 +632,17 @@ def test_completed_attention_items_remain_openable_for_inspection():
     attention_body = DASHBOARD_HTML[load_start:load_end]
     assert "const openButton=item.view" in attention_body
 
+def test_cooperative_multi_agent_progress_is_visible_in_managed_and_production_detail():
+    assert "function renderCooperativeStages" in DASHBOARD_HTML
+    assert "Pipeline multi-agent" in DASHBOARD_HTML
+    assert "Implémentation" in DASHBOARD_HTML
+    assert "Validation / debug" in DASHBOARD_HTML
+    assert "Review code" in DASHBOARD_HTML
+    assert "Validation UI" in DASHBOARD_HTML
+    assert "renderCooperativeStages(project)" in DASHBOARD_HTML
+    assert "renderCooperativeStages(row)" in DASHBOARD_HTML
+
+
 def test_managed_and_attention_cards_render_normalized_production_outcome():
     assert "renderProductionOutcome" in DASHBOARD_HTML
     assert "outcome.validation_status" not in DASHBOARD_HTML

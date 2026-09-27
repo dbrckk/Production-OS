@@ -78,6 +78,7 @@ textarea{resize:vertical;min-height:150px;line-height:1.45}
 .live-runtime{margin-top:9px;padding-top:9px;border-top:1px solid var(--line)}
 .live-progress{height:8px;border-radius:999px;background:#1e293b;overflow:hidden;margin-top:8px}
 .live-progress-fill{height:100%;background:linear-gradient(90deg,#4f8dfd,#34d399);border-radius:999px}
+.coop-stages{display:grid;gap:7px;margin-top:10px}.coop-stage{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:rgba(15,23,42,.35)}.coop-stage-main{min-width:0}.coop-stage-title{font-weight:600;font-size:.82rem}.coop-stage-meta{font-size:.74rem;color:var(--muted);margin-top:2px}.coop-stage-status{white-space:nowrap;font-size:.72rem}
 .section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px}
 .section-head h2{margin:0}
 .badge{display:inline-flex;align-items:center;border-radius:999px;padding:5px 9px;font-size:.75rem;font-weight:800;background:#1e293b;color:#cbd5e1}
@@ -1513,6 +1514,58 @@ async function managedAction(projectId,action){
   if(status)status.textContent=String(e).replace(/^Error:\\s*/,"");
  }
 }
+function cooperativeStageLabel(taskId){
+ const labels={
+  "implementation":"Implémentation",
+  "validation":"Validation / debug",
+  "review":"Review code",
+  "ui-validation":"Validation UI"
+ };
+ return labels[String(taskId||"")]||String(taskId||"Étape");
+}
+function cooperativeStageStatus(status){
+ const value=String(status||"pending");
+ const labels={
+  pending:"En attente",
+  blocked:"Bloquée",
+  ready:"Prête",
+  queued:"En file",
+  running:"En cours",
+  acked:"En cours",
+  succeeded:"Terminée",
+  failed:"Échec",
+  cancelled:"Annulée"
+ };
+ return labels[value]||value;
+}
+function renderCooperativeStages(project){
+ const workflow=project&&project.current_workflow;
+ const tasks=workflow&&Array.isArray(workflow.tasks)?workflow.tasks:[];
+ if(!tasks.length)return "";
+ const cooperative=workflow.metadata&&workflow.metadata.cooperative===true;
+ if(!cooperative&&!tasks.some(function(task){
+  return ["validation","review","ui-validation"].includes(String(task.task_id||""));
+ }))return "";
+ const order={"implementation":0,"validation":1,"review":2,"ui-validation":3};
+ const rows=tasks.slice().sort(function(a,b){
+  const ax=Object.prototype.hasOwnProperty.call(order,String(a.task_id||""))?order[String(a.task_id||"")]:99;
+  const bx=Object.prototype.hasOwnProperty.call(order,String(b.task_id||""))?order[String(b.task_id||"")]:99;
+  return ax-bx;
+ }).map(function(task){
+  const status=String(task.status||"pending");
+  const details=[];
+  if(task.attempts!=null)details.push("tentative "+String(task.attempts));
+  if(task.max_attempts!=null)details.push("max "+String(task.max_attempts));
+  if(Array.isArray(task.dependencies)&&task.dependencies.length){
+   details.push("après "+task.dependencies.join(", "));
+  }
+  return '<div class="coop-stage">'+
+   '<div class="coop-stage-main"><div class="coop-stage-title">'+esc(cooperativeStageLabel(task.task_id))+'</div>'+
+   (details.length?'<div class="coop-stage-meta">'+esc(details.join(" · "))+'</div>':"")+
+   '</div><div class="coop-stage-status"><span class="badge">'+esc(cooperativeStageStatus(status))+'</span></div></div>';
+ }).join("");
+ return '<div class="coop-stages"><div class="small"><strong>Pipeline multi-agent</strong></div>'+rows+'</div>';
+}
 function renderProductionOutcome(outcome,includeSummary){
  const value=outcome||{};
  if(value.available!==true)return "";
@@ -1736,6 +1789,7 @@ async function loadProductionInboxDetail(projectId){
    '<div class="small"><strong>Génération :</strong> '+formatNumber(project.generation||1)+' · '+esc(String(runtime.message||""))+'</div>'+
    (runtime.worker_id?'<div class="small"><strong>Worker :</strong> '+esc(String(runtime.worker_id))+'</div>':"")+
    (runtime.stage?'<div class="small"><strong>Stage :</strong> '+esc(String(runtime.stage))+'</div>':"")+
+   renderCooperativeStages(project)+
    renderProductionOutcome(project.outcome||{},true)+
    ((phase==="needs_attention"||phase==="review_required")
     ?'<div class="attention-inline-instruction"><textarea id="production-detail-instruction-'+esc(value)+'" rows="3" placeholder="Instruction supplémentaire"></textarea><button class="primary-btn" type="button" data-project-id="'+esc(value)+'" onclick="submitProductionInstruction(this.dataset.projectId)">Ajouter et relancer</button></div>'
@@ -1970,6 +2024,7 @@ async function loadManagedProjects(){
    const history=runs.length?'<div class="small"><strong>Générations :</strong> '+runs.map(function(run){return 'g'+esc(String(run.generation||""))+' '+esc(String(run.kind||""))}).join(" · ")+'</div>':'';
    return '<div class="card'+(appState.focus===projectId?' attention-focus':'')+'" data-managed-project-id="'+esc(projectId)+'"><div class="section-head"><strong>'+esc(String(row.repository||""))+'</strong><span class="badge">'+esc(status)+'</span></div>'+
     '<div class="small"><strong>Objectif :</strong> '+esc(String(row.final_goal||""))+'</div>'+
+    renderCooperativeStages(row)+
     renderProductionOutcome(outcome,true)+
     '<div class="small"><strong>Génération actuelle :</strong> '+formatNumber(row.generation||1)+' · <strong>Budget :</strong> '+formatNumber(row.token_budget)+' tokens · <strong>Utilisés :</strong> '+formatNumber(usage.total_tokens||0)+' · <strong>Agent :</strong> '+esc(String(row.agent_preference||"auto"))+'</div>'+
     history+actions+'</div>';
