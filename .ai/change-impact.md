@@ -1,18 +1,19 @@
 # Change impact
 
-Base: 7b6e361676c8a4924a6898482e7a56d99b23c236
-Head: 85fb04e57f2ded4ede9dce04922eb24d70be16ac
+Base: 8a90a6b12a8c1de4aa01483b66c6fae94d207c05
+Head: 65929eb52d7a3c5a82d1a9b4b44d265d3c222734
 
 ## Changed files
-- M src/production_os/task_capabilities.py
-- M tests/test_task_capabilities.py
+- M src/production_os/managed_projects.py
+- M tests/test_cooperative_managed_projects.py
+- A tests/test_managed_github_reconciliation.py
 
 ## Affected areas
 - src
 - tests
 
 ## Related test candidates
-- tests/test_task_capabilities.py
+- No direct filename-based test match detected.
 
 ## Agent guidance
 - Read this file before broad repository exploration.

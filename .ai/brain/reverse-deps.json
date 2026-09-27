@@ -87,6 +87,7 @@
         "tests/test_key_registry_validation.py",
         "tests/test_key_rotation.py",
         "tests/test_learning_control_surface.py",
+        "tests/test_managed_github_reconciliation.py",
         "tests/test_managed_project_outcome.py",
         "tests/test_managed_projects_http_v4.py",
         "tests/test_managed_projects_v4.py",
@@ -165,7 +166,7 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 153,
+      "in_degree": 154,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -1063,13 +1064,14 @@
         "src/production_os/controller.py",
         "src/production_os/dashboard_service.py",
         "src/production_os/github_work_state.py",
+        "src/production_os/managed_projects.py",
         "tests/test_control_plane_pr_impact.py",
         "tests/test_control_plane_webhook.py",
         "tests/test_dashboard_launch_ux.py",
         "tests/test_github_client_pr_files.py",
         "tests/test_github_client_put_file.py"
       ],
-      "in_degree": 11,
+      "in_degree": 12,
       "out_degree": 2
     },
     "src/production_os/github_webhook.py": {
@@ -1092,9 +1094,11 @@
       "dependents": [
         "src/production_os/cli.py",
         "src/production_os/controller.py",
-        "tests/test_github_work_state.py"
+        "src/production_os/managed_projects.py",
+        "tests/test_github_work_state.py",
+        "tests/test_managed_github_reconciliation.py"
       ],
-      "in_degree": 3,
+      "in_degree": 5,
       "out_degree": 3
     },
     "src/production_os/governance.py": {
@@ -1246,6 +1250,8 @@
     },
     "src/production_os/managed_projects.py": {
       "dependencies": [
+        "src/production_os/github_client.py",
+        "src/production_os/github_work_state.py",
         "src/production_os/history.py",
         "src/production_os/workflow_engine.py",
         "tests/test_asset_forge.py"
@@ -1253,12 +1259,13 @@
       "dependents": [
         "src/production_os/control_plane.py",
         "tests/test_cooperative_managed_projects.py",
+        "tests/test_managed_github_reconciliation.py",
         "tests/test_managed_project_outcome.py",
         "tests/test_managed_projects_v4.py",
         "tests/test_workflow_postgres.py"
       ],
-      "in_degree": 5,
-      "out_degree": 3
+      "in_degree": 6,
+      "out_degree": 5
     },
     "src/production_os/metrics.py": {
       "dependencies": [],
@@ -2246,6 +2253,7 @@
         "tests/test_github_work_state.py",
         "tests/test_governance.py",
         "tests/test_incident_history.py",
+        "tests/test_managed_github_reconciliation.py",
         "tests/test_managed_project_outcome.py",
         "tests/test_project_progress.py",
         "tests/test_release34_safe_running_recovery_e2e.py",
@@ -2258,7 +2266,7 @@
         "tests/test_sqlite_migration.py",
         "tests/test_workflow_engine.py"
       ],
-      "in_degree": 53,
+      "in_degree": 54,
       "out_degree": 2
     },
     "tests/test_asymmetric_attestations.py": {
@@ -3117,6 +3125,17 @@
       "dependents": [],
       "in_degree": 0,
       "out_degree": 3
+    },
+    "tests/test_managed_github_reconciliation.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/github_work_state.py",
+        "src/production_os/managed_projects.py",
+        "tests/test_asset_forge.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 4
     },
     "tests/test_managed_project_outcome.py": {
       "dependencies": [

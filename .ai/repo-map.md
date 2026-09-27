@@ -247,6 +247,7 @@ tests/
   test_key_registry_validation.py
   test_key_rotation.py
   test_learning_control_surface.py
+  test_managed_github_reconciliation.py
   test_managed_project_outcome.py
   test_managed_projects_http_v4.py
   test_managed_projects_v4.py
@@ -5626,8 +5627,6 @@ available = terminal or any((
 ⋮----
 class ManagedProjectService
 ⋮----
-def __init__(self, workflows: WorkflowEngine)
-⋮----
 @staticmethod
     def _validate_repository(repository: str) -> str
 ⋮----
@@ -5710,6 +5709,17 @@ status = NEEDS_ATTENTION
 ⋮----
 status = ACTIVE
 ⋮----
+outcome = _outcome_from_workflow(workflow)
+pull_request = outcome.get("pull_request")
+⋮----
+number = pull_request.get("number")
+⋮----
+pr_number = int(number)
+⋮----
+state = fetch_github_work_state(
+⋮----
+decision = runtime_decision_from_github(state)
+⋮----
 def reconcile(self, identifier: str) -> dict
 ⋮----
 project_id = self._resolve_project_id(identifier)
@@ -5726,7 +5736,8 @@ workflow = self.workflows.get(str(workflow_id))
 ⋮----
 workflow_status = workflow.get("status")
 ⋮----
-target = REVIEW_REQUIRED
+github_target = self._github_target_for_succeeded_workflow(
+target = (
 ⋮----
 target = ACTIVE
 ⋮----
@@ -5768,6 +5779,8 @@ instruction = str(instruction or "").strip()
 ⋮----
 project_id = current["project_id"]
 generation = int(current["generation"]) + 1
+current_workflow = current.get("current_workflow")
+cooperative = bool(
 ⋮----
 updated = _execute(
 ⋮----
@@ -9429,6 +9442,14 @@ workflow = {
 outcome = _outcome_from_workflow(workflow)
 ⋮----
 def test_cooperative_workflow_rejects_budget_smaller_than_stage_count(tmp_path)
+⋮----
+def test_retest_preserves_cooperative_mode_across_generations(tmp_path)
+⋮----
+workflow_id = project["current_workflow_id"]
+⋮----
+completed = managed.get(project["project_id"])
+⋮----
+follow_up = managed.request_verification(
 ````
 
 ## File: tests/test_dashboard_alerts.py
@@ -11763,6 +11784,45 @@ signals = build_learning_signals(events)
 def test_control_surface_contains_schedule()
 ⋮----
 html = render_control_surface({
+````
+
+## File: tests/test_managed_github_reconciliation.py
+````python
+class FakeWorkflows
+⋮----
+backend = object()
+⋮----
+def state(**overrides)
+⋮----
+values = {
+⋮----
+def workflow_with_pr()
+⋮----
+def test_green_pull_request_moves_succeeded_workflow_to_review_required()
+⋮----
+service = ManagedProjectService(
+⋮----
+target = service._github_target_for_succeeded_workflow(
+⋮----
+def test_pending_pull_request_keeps_project_active()
+⋮----
+pending = state(
+⋮----
+def test_failed_pull_request_moves_project_to_needs_attention()
+⋮----
+failed = state(
+⋮----
+def test_sensitive_green_pull_request_requires_review()
+⋮----
+sensitive = state(
+⋮----
+def test_succeeded_workflow_without_pull_request_keeps_legacy_path()
+⋮----
+workflow = {
+⋮----
+def test_succeeded_pull_request_without_ci_moves_to_review_instead_of_stalling()
+⋮----
+no_ci = state(
 ````
 
 ## File: tests/test_managed_project_outcome.py

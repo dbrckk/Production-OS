@@ -5082,8 +5082,6 @@ available = terminal or any((
 ⋮----
 class ManagedProjectService
 ⋮----
-def __init__(self, workflows: WorkflowEngine)
-⋮----
 @staticmethod
     def _validate_repository(repository: str) -> str
 ⋮----
@@ -5166,6 +5164,17 @@ status = NEEDS_ATTENTION
 ⋮----
 status = ACTIVE
 ⋮----
+outcome = _outcome_from_workflow(workflow)
+pull_request = outcome.get("pull_request")
+⋮----
+number = pull_request.get("number")
+⋮----
+pr_number = int(number)
+⋮----
+state = fetch_github_work_state(
+⋮----
+decision = runtime_decision_from_github(state)
+⋮----
 def reconcile(self, identifier: str) -> dict
 ⋮----
 project_id = self._resolve_project_id(identifier)
@@ -5182,7 +5191,8 @@ workflow = self.workflows.get(str(workflow_id))
 ⋮----
 workflow_status = workflow.get("status")
 ⋮----
-target = REVIEW_REQUIRED
+github_target = self._github_target_for_succeeded_workflow(
+target = (
 ⋮----
 target = ACTIVE
 ⋮----
@@ -5224,6 +5234,8 @@ instruction = str(instruction or "").strip()
 ⋮----
 project_id = current["project_id"]
 generation = int(current["generation"]) + 1
+current_workflow = current.get("current_workflow")
+cooperative = bool(
 ⋮----
 updated = _execute(
 ⋮----

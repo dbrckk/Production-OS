@@ -22,20 +22,21 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-27T09:23:59Z
+Generated: 2026-09-27T09:39:25Z
 
 ### Git
 - Branch: `main`
-- Head: `85fb04e57f2d`
-- Commit date: 2026-09-27T11:23:34+02:00
-- Commit: fix: make explicit specialist routing authoritative
-- Tracked files: 470
+- Head: `65929eb52d7a`
+- Commit date: 2026-09-27T11:39:13+02:00
+- Commit: feat: reconcile managed projects against GitHub PR gates
+- Tracked files: 471
 
 ### Recently changed files
-- `src/production_os/task_capabilities.py`
-- `tests/test_task_capabilities.py`
 - `src/production_os/managed_projects.py`
 - `tests/test_cooperative_managed_projects.py`
+- `tests/test_managed_github_reconciliation.py`
+- `src/production_os/task_capabilities.py`
+- `tests/test_task_capabilities.py`
 - `src/production_os/control_plane.py`
 - `tests/test_release32_one_tap_e2e.py`
 - `src/production_os/dashboard_ui.py`

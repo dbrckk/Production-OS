@@ -2,25 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat: dashboard autopilot queue release 3",
-      "terms": [
-        "autopilot",
-        "dashboard",
-        "feat",
-        "queue",
-        "release"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/control_plane.py",
-        "src/production_os/dashboard_service.py",
-        "src/production_os/dashboard_ui.py",
-        "tests/test_dashboard_api.py",
-        "tests/test_dashboard_ui_v3.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat: summarize autopilot capacity and eta",
       "terms": [
         "autopilot",
@@ -1309,6 +1290,26 @@
         "tests/test_release32_one_tap_e2e.py",
         "tests/test_task_capabilities.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "feat: reconcile managed projects against GitHub PR gates",
+      "terms": [
+        "against",
+        "feat",
+        "gates",
+        "github",
+        "managed",
+        "pr",
+        "projects",
+        "reconcile"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/managed_projects.py",
+        "tests/test_cooperative_managed_projects.py",
+        "tests/test_managed_github_reconciliation.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1667,6 +1668,11 @@
       "tests/test_task_capabilities.py": 4,
       "tests/test_worker_compose_deployment.py": 4,
       "tests/test_workflow_engine.py": 8
+    },
+    "against": {
+      "src/production_os/managed_projects.py": 4,
+      "tests/test_cooperative_managed_projects.py": 4,
+      "tests/test_managed_github_reconciliation.py": 4
     },
     "age": {
       "src/production_os/dashboard_backups.py": 4,
@@ -2257,7 +2263,7 @@
       "src/production_os/github_change_review.py": 4,
       "src/production_os/github_client.py": 24,
       "src/production_os/github_work_state.py": 8,
-      "src/production_os/managed_projects.py": 24,
+      "src/production_os/managed_projects.py": 28,
       "src/production_os/postgres_backend.py": 36,
       "src/production_os/project_progress.py": 4,
       "src/production_os/remote_worker.py": 8,
@@ -2268,7 +2274,7 @@
       "src/production_os/workflow_engine.py": 20,
       "tests/test_asset_forge.py": 16,
       "tests/test_cli.py": 12,
-      "tests/test_cooperative_managed_projects.py": 4,
+      "tests/test_cooperative_managed_projects.py": 8,
       "tests/test_dashboard_alerts.py": 4,
       "tests/test_dashboard_api.py": 40,
       "tests/test_dashboard_attention.py": 16,
@@ -2334,10 +2340,12 @@
       "src/production_os/dashboard_ui.py": 4,
       "src/production_os/github_client.py": 4,
       "src/production_os/github_work_state.py": 4,
-      "src/production_os/managed_projects.py": 4,
+      "src/production_os/managed_projects.py": 8,
       "src/production_os/workflow_engine.py": 4,
+      "tests/test_cooperative_managed_projects.py": 4,
       "tests/test_dashboard_ui_v3.py": 4,
       "tests/test_github_work_state.py": 4,
+      "tests/test_managed_github_reconciliation.py": 4,
       "tests/test_managed_project_outcome.py": 4,
       "tests/test_release51_one_tap_runner_e2e.py": 4,
       "tests/test_workflow_engine.py": 4
@@ -2360,8 +2368,11 @@
       "tests/test_workflow_postgres.py": 4
     },
     "github": {
+      "src/production_os/managed_projects.py": 4,
       "tests/test_asset_forge.py": 4,
-      "tests/test_github_client_put_file.py": 4
+      "tests/test_cooperative_managed_projects.py": 4,
+      "tests/test_github_client_put_file.py": 4,
+      "tests/test_managed_github_reconciliation.py": 4
     },
     "graceful": {
       "src/production_os/cli.py": 4,
@@ -2547,16 +2558,17 @@
     "managed": {
       "src/production_os/control_plane.py": 8,
       "src/production_os/dashboard_ui.py": 12,
-      "src/production_os/managed_projects.py": 12,
+      "src/production_os/managed_projects.py": 16,
       "src/production_os/postgres_backend.py": 4,
       "src/production_os/sqlite_backend.py": 4,
       "src/production_os/task_capabilities.py": 4,
       "src/production_os/workflow_engine.py": 8,
-      "tests/test_cooperative_managed_projects.py": 4,
+      "tests/test_cooperative_managed_projects.py": 8,
       "tests/test_dashboard_control_audit.py": 4,
       "tests/test_dashboard_remediation_history.py": 4,
       "tests/test_dashboard_store_postgres.py": 4,
       "tests/test_dashboard_ui_v3.py": 12,
+      "tests/test_managed_github_reconciliation.py": 4,
       "tests/test_managed_projects_http_v4.py": 8,
       "tests/test_managed_projects_v4.py": 8,
       "tests/test_release18_managed_projects_e2e.py": 4,
@@ -2703,6 +2715,11 @@
       "tests/test_release51_one_tap_runner_e2e.py": 4,
       "tests/test_rollback_plan.py": 4
     },
+    "pr": {
+      "src/production_os/managed_projects.py": 4,
+      "tests/test_cooperative_managed_projects.py": 4,
+      "tests/test_managed_github_reconciliation.py": 4
+    },
     "preferred": {
       "src/production_os/asset_forge.py": 4,
       "src/production_os/control_plane.py": 4,
@@ -2764,16 +2781,17 @@
     "projects": {
       "src/production_os/control_plane.py": 8,
       "src/production_os/dashboard_ui.py": 12,
-      "src/production_os/managed_projects.py": 12,
+      "src/production_os/managed_projects.py": 16,
       "src/production_os/postgres_backend.py": 4,
       "src/production_os/sqlite_backend.py": 4,
       "src/production_os/task_capabilities.py": 4,
       "src/production_os/workflow_engine.py": 8,
-      "tests/test_cooperative_managed_projects.py": 4,
+      "tests/test_cooperative_managed_projects.py": 8,
       "tests/test_dashboard_control_audit.py": 4,
       "tests/test_dashboard_remediation_history.py": 4,
       "tests/test_dashboard_store_postgres.py": 4,
       "tests/test_dashboard_ui_v3.py": 12,
+      "tests/test_managed_github_reconciliation.py": 4,
       "tests/test_managed_projects_http_v4.py": 8,
       "tests/test_managed_projects_v4.py": 8,
       "tests/test_release18_managed_projects_e2e.py": 4,
@@ -2869,6 +2887,11 @@
     "receives": {
       "src/production_os/asset_forge.py": 4,
       "tests/test_asset_forge.py": 4
+    },
+    "reconcile": {
+      "src/production_os/managed_projects.py": 4,
+      "tests/test_cooperative_managed_projects.py": 4,
+      "tests/test_managed_github_reconciliation.py": 4
     },
     "reconciliation": {
       "src/production_os/control_plane.py": 4,
