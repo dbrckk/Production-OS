@@ -632,6 +632,15 @@ def test_completed_attention_items_remain_openable_for_inspection():
     attention_body = DASHBOARD_HTML[load_start:load_end]
     assert "const openButton=item.view" in attention_body
 
+def test_browser_validation_evidence_is_rendered_in_production_outcome():
+    assert "value.browser_validation" in DASHBOARD_HTML
+    assert "Preuve UI" in DASHBOARD_HTML
+    assert "Navigateur" in DASHBOARD_HTML
+    assert "browser.console_errors" in DASHBOARD_HTML
+    assert "browser.page_errors" in DASHBOARD_HTML
+    assert "browser.screenshots" in DASHBOARD_HTML
+
+
 def test_cooperative_multi_agent_progress_is_visible_in_managed_and_production_detail():
     assert "function renderCooperativeStages" in DASHBOARD_HTML
     assert "Pipeline multi-agent" in DASHBOARD_HTML
