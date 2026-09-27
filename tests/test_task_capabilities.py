@@ -65,4 +65,14 @@ def test_preferred_capabilities_preserve_explicit_specialist_routing():
             "preferred_capabilities":["test-debug"],
         }
     )
-    assert "test-debug" in preferred
+    assert preferred == ["test-debug"]
+
+
+def test_explicit_specialist_preference_overrides_text_inference():
+    preferred = inferred_preferred_capabilities(
+        {
+            "task":"Review and fix code regressions in the browser",
+            "preferred_capabilities":["code-review"],
+        }
+    )
+    assert preferred == ["code-review"]
