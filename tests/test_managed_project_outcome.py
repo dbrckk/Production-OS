@@ -41,6 +41,7 @@ def test_outcome_normalizes_worker_result_evidence():
         "pull_request":{"number":42,"state":"open"},
         "ci":None,
         "browser_validation":None,
+        "mobile_validation":None,
         "completed_at":"2026-09-25T18:40:00+00:00",
     }
 
@@ -82,6 +83,7 @@ def test_outcome_uses_evidence_fallback_and_keeps_optional_shape_stable():
         "pull_request":None,
         "ci":None,
         "browser_validation":None,
+        "mobile_validation":None,
         "completed_at":None,
     }
 
@@ -126,6 +128,53 @@ def test_terminal_workflow_outcome_is_visible_without_structured_evidence():
     assert outcome["completed_at"] == "2026-09-25T18:43:00+00:00"
 
 
+
+
+def test_outcome_preserves_bounded_mobile_validation_evidence():
+    outcome = _outcome_from_workflow({
+        "status":"succeeded",
+        "updated_at":"2026-09-27T12:00:00+00:00",
+        "tasks":[{
+            "task_id":"mobile-ui-validation",
+            "dependencies":["review"],
+            "result":{
+                "summary":"Native UI validation passed.",
+                "evidence":{
+                    "mobile_validation":{
+                        "status":"passed",
+                        "passed":True,
+                        "runtime":"android-adb-emulator",
+                        "script":".production-os/mobile_validate.py",
+                        "package_name":"com.example.app",
+                        "activity":"com.example.app.MainActivity",
+                        "device_serial":"emulator-5554",
+                        "fatal_errors":[],
+                        "screenshots":["home.png"],
+                        "copied_artifacts":["home.png","report.json","logcat.txt"],
+                        "execution":{
+                            "returncode":0,
+                            "duration_seconds":32.0,
+                            "credential_isolated":True,
+                            "network_allowed":True,
+                            "log_tail":"ok",
+                        },
+                    },
+                },
+            },
+        }],
+        "artifacts":[],
+    })
+
+    mobile = outcome["mobile_validation"]
+    assert mobile["status"] == "passed"
+    assert mobile["passed"] is True
+    assert mobile["runtime"] == "android-adb-emulator"
+    assert mobile["package_name"] == "com.example.app"
+    assert mobile["activity"] == "com.example.app.MainActivity"
+    assert mobile["device_serial"] == "emulator-5554"
+    assert mobile["screenshots"] == ["home.png"]
+    assert mobile["copied_artifacts"] == ["home.png", "report.json", "logcat.txt"]
+    assert mobile["execution"]["returncode"] == 0
 
 
 def test_outcome_preserves_bounded_browser_validation_evidence():
