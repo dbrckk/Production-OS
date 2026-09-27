@@ -94,5 +94,10 @@ jobs:
           docker build -t production-os:ci .
           docker run --rm production-os:ci --help
 
+      - name: Browser worker image smoke test
+        run: |
+          docker build -f Dockerfile.browser-worker -t production-os-browser:ci .
+          docker run --rm --entrypoint python production-os-browser:ci -c "from playwright.sync_api import sync_playwright; p=sync_playwright().start(); b=p.chromium.launch(headless=True); page=b.new_page(); page.set_content('<title>browser-smoke</title>'); assert page.title() == 'browser-smoke'; b.close(); p.stop()"
+
       - name: CLI smoke test
         run: production-os --help
