@@ -9,3 +9,9 @@ def test_browser_worker_image_pins_playwright_and_installs_chromium():
     assert "PLAYWRIGHT_BROWSERS_PATH=/ms-playwright" in payload
     assert "chmod -R a+rX /ms-playwright" in payload
     assert 'USER productionos' in payload
+
+
+
+def test_browser_worker_image_includes_git_for_repository_materialization():
+    payload = Path("Dockerfile.browser-worker").read_text(encoding="utf-8")
+    assert "git ca-certificates" in payload
