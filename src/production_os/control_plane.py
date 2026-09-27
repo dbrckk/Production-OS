@@ -2448,10 +2448,23 @@ def make_handler(control: ControlPlane):
                     return
 
                 if parsed.path == "/v1/workers/register":
-                    principal = self._require("operator")
+                    principal = self._require("worker")
                     if principal is None:
                         return
                     worker_id = str(body["worker_id"])
+                    if (
+                        principal.role == "worker"
+                        and principal.name != worker_id
+                    ):
+                        self._send(
+                            HTTPStatus.FORBIDDEN,
+                            {
+                                "error":"worker token may only register its own worker_id",
+                                "required_worker_id":principal.name,
+                                "requested_worker_id":worker_id,
+                            },
+                        )
+                        return
                     worker = control.workers.register(
                         worker_id,
                         [str(x) for x in body.get("capabilities", [])],
