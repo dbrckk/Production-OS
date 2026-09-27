@@ -315,3 +315,97 @@ def test_dynamic_planner_rejects_invalid_primary_and_invalid_fallback(tmp_path):
 
     current = engine.get(workflow["id"])
     assert current["tasks"][0]["status"] == "queued"
+
+
+
+def test_dynamic_planner_generates_post_integration_validation_chain(tmp_path):
+    engine, queue = _build(tmp_path)
+    planner = _planner_spec()
+    planner.payload["dynamic_agent_planner"].update({
+        "integration_task_id":"integration",
+        "post_integration_tasks":[
+            {
+                "task_id":"validation",
+                "title":"Validate",
+                "instruction":"Run relevant tests and fix failures.",
+                "token_budget":120,
+                "preferred_capabilities":["test-debug"],
+            },
+            {
+                "task_id":"review",
+                "title":"Review",
+                "instruction":"Review correctness and regressions.",
+                "token_budget":80,
+                "preferred_capabilities":["code-review"],
+            },
+        ],
+    })
+    workflow = engine.create(
+        name="continuation",
+        repository="owner/repo",
+        tasks=[planner],
+    )
+    engine.dispatch_ready(workflow["id"])
+    expanded = engine.record_result(
+        workflow["id"],
+        "planner",
+        succeeded=True,
+        result={
+            "agent_plan":{
+                "schema_version":PLAN_SCHEMA,
+                "tasks":[
+                    {
+                        "task_id":"code",
+                        "title":"Code",
+                        "instruction":"Implement.",
+                        "token_budget":250,
+                    },
+                    {
+                        "task_id":"tests",
+                        "title":"Tests",
+                        "instruction":"Test.",
+                        "token_budget":250,
+                    },
+                ],
+            },
+        },
+    )
+
+    by_id = {task["task_id"]:task for task in expanded["tasks"]}
+    assert by_id["integration"]["dependencies"] == [
+        "planner.agent.code",
+        "planner.agent.tests",
+    ]
+    assert by_id["validation"]["dependencies"] == ["integration"]
+    assert by_id["review"]["dependencies"] == ["validation"]
+    assert by_id["validation"]["status"] == "pending"
+    assert by_id["review"]["status"] == "pending"
+
+    engine.record_result(
+        workflow["id"],
+        "planner.agent.code",
+        succeeded=True,
+        result={"commit_shas":["a"*40]},
+    )
+    progressed = engine.record_result(
+        workflow["id"],
+        "planner.agent.tests",
+        succeeded=True,
+        result={"commit_shas":["b"*40]},
+    )
+    assert next(
+        task for task in progressed["tasks"]
+        if task["task_id"] == "integration"
+    )["status"] == "queued"
+
+    engine.record_result(
+        workflow["id"],
+        "integration",
+        succeeded=True,
+        result={"commit_shas":["c"*40]},
+    )
+    progressed = engine.get(workflow["id"])
+    assert next(
+        task for task in progressed["tasks"]
+        if task["task_id"] == "validation"
+    )["status"] == "queued"
