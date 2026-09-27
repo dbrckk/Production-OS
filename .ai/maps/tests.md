@@ -3027,6 +3027,28 @@ def test_merged_pr_promotes()
 def test_failed_ci_retries()
 ⋮----
 def test_closed_unmerged_pr_replans()
+⋮----
+def test_ci_state_does_not_pass_while_any_workflow_is_running()
+⋮----
+runs = [
+⋮----
+def test_ci_state_passes_only_when_all_workflows_complete_successfully()
+⋮----
+def test_external_commit_statuses_fail_closed()
+⋮----
+def test_external_failed_status_retries()
+⋮----
+def test_pending_external_status_remains_running()
+⋮----
+def test_promotion_readiness_requires_open_non_draft_green_pr()
+⋮----
+def test_missing_required_checks_detects_absent_contexts_across_sources()
+⋮----
+missing = _missing_required_checks(
+⋮----
+def test_unknown_branch_protection_check_set_blocks_promotion()
+⋮----
+def test_promotion_readiness_blocks_when_required_check_is_missing()
 ```
 
 ## File: test_governance.py
@@ -5646,6 +5668,13 @@ def test_workflow_rejects_cycle(tmp_path)
 def test_workflow_retry_budget(tmp_path)
 ⋮----
 current=wf.get(created["id"])["tasks"][0]
+⋮----
+def test_workflow_retry_dispatch_includes_prior_failure_context(tmp_path)
+⋮----
+first=wf.dispatch_ready(created["id"])
+⋮----
+second=wf.queue.get(current["claimed_job_key"])
+context=second["payload"]["handoff"]["retry_context"]
 ⋮----
 def test_critical_path(tmp_path)
 ⋮----

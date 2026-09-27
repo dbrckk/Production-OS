@@ -22,16 +22,26 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-26T18:35:06Z
+Generated: 2026-09-27T07:35:22Z
 
 ### Git
 - Branch: `main`
-- Head: `b6614ac5672d`
-- Commit date: 2026-09-26T20:34:56+02:00
-- Commit: feat: release 55 worker operations
+- Head: `e456ba159fdf`
+- Commit date: 2026-09-27T09:35:12+02:00
+- Commit: feat: add autonomous CI diagnostics and promotion gates
 - Tracked files: 464
 
 ### Recently changed files
+- `src/production_os/dashboard_ui.py`
+- `src/production_os/github_client.py`
+- `src/production_os/github_work_state.py`
+- `src/production_os/managed_projects.py`
+- `src/production_os/workflow_engine.py`
+- `tests/test_dashboard_ui_v3.py`
+- `tests/test_github_work_state.py`
+- `tests/test_managed_project_outcome.py`
+- `tests/test_release51_one_tap_runner_e2e.py`
+- `tests/test_workflow_engine.py`
 - `src/production_os/remote_worker.py`
 - `tests/test_release55_worker_operations.py`
 - `docs/superpowers/specs/2026-09-26-release-55-worker-operations-copy2.md`

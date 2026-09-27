@@ -4823,6 +4823,14 @@ data = response.read(max_bytes + 1)
 ⋮----
 encoded = urllib.parse.quote(branch, safe="")
 ⋮----
+required = payload.get("required_status_checks")
+⋮----
+names = []
+⋮----
+name = str(item.get("context") or "").strip()
+⋮----
+name = str(item or "").strip()
+⋮----
 def get_issue(self, full_name: str, issue_number: int) -> dict[str, Any] | None
 ⋮----
 payload = self._get(f"/repos/{full_name}/issues/{issue_number}")
@@ -4849,6 +4857,14 @@ filename = str(item.get("filename") or "").strip()
 def get_commit_workflow_runs(self, full_name: str, commit_sha: str) -> list[dict[str, Any]]
 ⋮----
 runs = payload.get("workflow_runs", [])
+⋮----
+def get_commit_statuses(self, full_name: str, commit_sha: str) -> list[dict[str, Any]]
+⋮----
+statuses = payload.get("statuses", [])
+⋮----
+def get_commit_check_runs(self, full_name: str, commit_sha: str) -> list[dict[str, Any]]
+⋮----
+checks = payload.get("check_runs", [])
 ⋮----
 def list_accessible_repositories(self, owner: str) -> list[dict[str, Any]]
 ⋮----
@@ -4975,6 +4991,10 @@ merged: bool
 draft: bool
 review_state: str | None
 ci_state: str | None
+status_state: str | None
+ready_for_promotion: bool
+promotion_blockers: tuple[str, ...]
+required_checks_missing: tuple[str, ...]
 head_sha: str | None
 ⋮----
 def to_dict(self) -> dict
@@ -4988,12 +5008,28 @@ def _ci_state(runs: list[dict[str, Any]]) -> str | None
 conclusions = [str(r.get("conclusion") or "").lower() for r in runs]
 statuses = [str(r.get("status") or "").lower() for r in runs]
 ⋮----
+def _status_state(statuses: list[dict[str, Any]]) -> str | None
+⋮----
+states = [str(item.get("state") or "").lower() for item in statuses if isinstance(item, dict)]
+⋮----
+observed = set()
+⋮----
+name = str(run.get("name") or "").strip()
+⋮----
+name = str(item.get("context") or "").strip()
+⋮----
+name = str(item.get("name") or "").strip()
+⋮----
+blockers = []
+⋮----
 issue_state = None
 pr_state = None
 merged = False
 draft = False
 review_state = None
 ci_state = None
+status_state = None
+required_checks_missing: tuple[str, ...] = ()
 head_sha = None
 ⋮----
 issue = client.get_issue(repository, issue_number)
@@ -5006,12 +5042,19 @@ merged = bool(pr.get("merged") or pr.get("merged_at"))
 draft = bool(pr.get("draft"))
 head = pr.get("head") or {}
 head_sha = head.get("sha") if isinstance(head, dict) else None
+base = pr.get("base") or {}
+base_ref = (
 ⋮----
 reviews = client.get_pull_request_reviews(repository, pr_number)
 review_state = _review_state(reviews)
 ⋮----
 runs = client.get_commit_workflow_runs(repository, head_sha)
 ci_state = _ci_state(runs)
+statuses = client.get_commit_statuses(repository, head_sha)
+status_state = _status_state(statuses)
+check_runs = client.get_commit_check_runs(repository, head_sha)
+required = (
+required_checks_missing = _missing_required_checks(
 ⋮----
 def runtime_decision_from_github(state: GitHubWorkState) -> str
 ````
@@ -5446,6 +5489,18 @@ number = int(number) if number is not None else None
 number = None
 ⋮----
 pull_request = {"number":number, "state":state}
+⋮----
+raw_ci = result.get("ci") or evidence.get("ci")
+ci = None
+⋮----
+clean_ci = {}
+limits = {
+⋮----
+value = raw_ci.get(key)
+⋮----
+text = str(value).strip()
+⋮----
+ci = clean_ci
 ⋮----
 workflow_status = str(workflow.get("status") or "").strip() or None
 terminal = workflow_status in {"succeeded", "failed", "cancelled"}
@@ -8120,6 +8175,34 @@ def _sql(backend, statement: str) -> str
 ⋮----
 def _execute(db, backend, statement: str, params: tuple = ())
 ⋮----
+def _retry_context(result: dict | None) -> dict | None
+⋮----
+evidence = result.get("evidence")
+⋮----
+evidence = {}
+summary = (
+validation = result.get("validation")
+⋮----
+validation = evidence.get("validation")
+ci = result.get("ci")
+⋮----
+ci = evidence.get("ci")
+⋮----
+context = {}
+⋮----
+text = str(summary).strip()
+⋮----
+clean_validation = {}
+status = str(validation.get("status") or "").strip()
+⋮----
+tests = validation.get("tests")
+⋮----
+clean_ci = {}
+⋮----
+value = ci.get(key)
+⋮----
+text = str(value).strip()
+⋮----
 @dataclass(frozen=True, slots=True)
 class WorkflowTaskSpec
 ⋮----
@@ -8301,13 +8384,14 @@ cached = self.cache.get(cache_key)
 ⋮----
 updated = _execute(
 ⋮----
+attempt_number = int(task["attempts"]) + 1
 handoff = dict(payload.get("handoff") or payload)
+⋮----
+retry_context = _retry_context(task.get("result"))
 ⋮----
 asset_forge = asset_forge_tool_contract(handoff)
 ⋮----
 contracts = dict(handoff.get("tool_contracts") or {})
-⋮----
-attempt_number = int(task["attempts"]) + 1
 ⋮----
 queue_payload = {
 job = self.queue.enqueue(queue_payload)
@@ -11200,6 +11284,28 @@ def test_merged_pr_promotes()
 def test_failed_ci_retries()
 ⋮----
 def test_closed_unmerged_pr_replans()
+⋮----
+def test_ci_state_does_not_pass_while_any_workflow_is_running()
+⋮----
+runs = [
+⋮----
+def test_ci_state_passes_only_when_all_workflows_complete_successfully()
+⋮----
+def test_external_commit_statuses_fail_closed()
+⋮----
+def test_external_failed_status_retries()
+⋮----
+def test_pending_external_status_remains_running()
+⋮----
+def test_promotion_readiness_requires_open_non_draft_green_pr()
+⋮----
+def test_missing_required_checks_detects_absent_contexts_across_sources()
+⋮----
+missing = _missing_required_checks(
+⋮----
+def test_unknown_branch_protection_check_set_blocks_promotion()
+⋮----
+def test_promotion_readiness_blocks_when_required_check_is_missing()
 ````
 
 ## File: tests/test_governance.py
@@ -13819,6 +13925,13 @@ def test_workflow_rejects_cycle(tmp_path)
 def test_workflow_retry_budget(tmp_path)
 ⋮----
 current=wf.get(created["id"])["tasks"][0]
+⋮----
+def test_workflow_retry_dispatch_includes_prior_failure_context(tmp_path)
+⋮----
+first=wf.dispatch_ready(created["id"])
+⋮----
+second=wf.queue.get(current["claimed_job_key"])
+context=second["payload"]["handoff"]["retry_context"]
 ⋮----
 def test_critical_path(tmp_path)
 ⋮----
