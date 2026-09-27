@@ -56,3 +56,15 @@ def test_worker_compose_exposes_kvm_mobile_specialist():
     assert "PRODUCTION_OS_WORKER_SPECIALTIES: mobile" in payload
     assert "PRODUCTION_OS_ANDROID_AVD" in payload
     assert "PRODUCTION_OS_MOBILE_WORKER_TIMEOUT_SECONDS" in payload
+
+
+
+def test_worker_compose_persists_repository_cache_and_worktrees():
+    payload = Path("compose.worker.yaml").read_text(encoding="utf-8")
+
+    assert "PRODUCTION_OS_REPOSITORY_CACHE_DIR: /var/lib/production-os/repositories" in payload
+    assert "PRODUCTION_OS_WORKTREE_DIR: /var/lib/production-os/worktrees" in payload
+    assert "production-worker-repositories:/var/lib/production-os/repositories" in payload
+    assert "production-worker-worktrees:/var/lib/production-os/worktrees" in payload
+    assert "production-worker-repositories:" in payload
+    assert "production-worker-worktrees:" in payload
