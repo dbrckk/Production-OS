@@ -22,23 +22,22 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-27T12:55:26Z
+Generated: 2026-09-27T13:09:20Z
 
 ### Git
 - Branch: `main`
-- Head: `65dedaaa3f87`
-- Commit date: 2026-09-27T14:55:09+02:00
-- Commit: feat: add native mobile UI validation specialist
+- Head: `7faf2adb63c8`
+- Commit date: 2026-09-27T15:08:45+02:00
+- Commit: fix: provision AVDs for native mobile validation
 - Tracked files: 475
 
 ### Recently changed files
-- `src/production_os/dashboard_ui.py`
 - `src/production_os/managed_projects.py`
+- `src/production_os/dashboard_ui.py`
 - `tests/test_cooperative_managed_projects.py`
 - `tests/test_dashboard_ui_v3.py`
 - `tests/test_managed_project_outcome.py`
 - `tests/test_cooperative_specialist_e2e.py`
-- `.github/workflows/ci.yml`
 
 ### Project signals
 - `pyproject.toml`
