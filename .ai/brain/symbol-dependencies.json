@@ -1794,6 +1794,15 @@
       ],
       "dependency_count": 4
     },
+    "test_browser_worker_image_pins_playwright_and_installs_chromium": {
+      "source": {
+        "file": "tests/test_browser_worker_image.py",
+        "start": 4,
+        "end": 11
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
     "service": {
       "source": {
         "file": "tests/test_cooperative_managed_projects.py",
@@ -1890,7 +1899,7 @@
       "source": {
         "file": "tests/test_cooperative_managed_projects.py",
         "start": 53,
-        "end": 81
+        "end": 84
       },
       "symbol_dependencies": [
         {
@@ -1923,8 +1932,8 @@
     "test_create_cooperative_project_keeps_mode_in_workflow_metadata": {
       "source": {
         "file": "tests/test_cooperative_managed_projects.py",
-        "start": 84,
-        "end": 107
+        "start": 87,
+        "end": 110
       },
       "symbol_dependencies": [
         {
@@ -1993,8 +2002,8 @@
     "test_cooperative_outcome_uses_deepest_stage_and_aggregates_delivery_evidence": {
       "source": {
         "file": "tests/test_cooperative_managed_projects.py",
-        "start": 111,
-        "end": 167
+        "start": 114,
+        "end": 170
       },
       "symbol_dependencies": [
         {
@@ -2015,8 +2024,8 @@
     "test_cooperative_workflow_rejects_budget_smaller_than_stage_count": {
       "source": {
         "file": "tests/test_cooperative_managed_projects.py",
-        "start": 171,
-        "end": 186
+        "start": 174,
+        "end": 189
       },
       "symbol_dependencies": [
         {
@@ -2049,8 +2058,8 @@
     "test_retest_preserves_cooperative_mode_across_generations": {
       "source": {
         "file": "tests/test_cooperative_managed_projects.py",
-        "start": 190,
-        "end": 235
+        "start": 193,
+        "end": 238
       },
       "symbol_dependencies": [
         {
@@ -2140,514 +2149,23 @@
       ],
       "dependency_count": 5
     },
-    "FakeWorkflows": {
+    "test_worker_compose_profile_is_safe_and_deployable": {
       "source": {
-        "file": "tests/test_managed_github_reconciliation.py",
-        "start": 12,
-        "end": 13
+        "file": "tests/test_worker_compose_deployment.py",
+        "start": 4,
+        "end": 18
       },
       "symbol_dependencies": [],
       "dependency_count": 0
     },
-    "state": {
+    "test_worker_compose_exposes_specialist_pool_without_replacing_generic_worker": {
       "source": {
-        "file": "tests/test_managed_github_reconciliation.py",
-        "start": 16,
-        "end": 38
+        "file": "tests/test_worker_compose_deployment.py",
+        "start": 22,
+        "end": 45
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubWorkState",
-          "definitions": [
-            {
-              "file": "src/production_os/github_work_state.py",
-              "line": 11,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "workflow_with_pr": {
-      "source": {
-        "file": "tests/test_managed_github_reconciliation.py",
-        "start": 41,
-        "end": 55
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "state",
-          "definitions": [
-            {
-              "file": "tests/test_managed_github_reconciliation.py",
-              "line": 16,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "test_green_pull_request_moves_succeeded_workflow_to_review_required": {
-      "source": {
-        "file": "tests/test_managed_github_reconciliation.py",
-        "start": 58,
-        "end": 72
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "FakeWorkflows",
-          "definitions": [
-            {
-              "file": "tests/test_managed_github_reconciliation.py",
-              "line": 12,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "ManagedProjectService",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 379,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_github_target_for_succeeded_workflow",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 939,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "fetch_github_work_state",
-          "definitions": [
-            {
-              "file": "src/production_os/github_work_state.py",
-              "line": 159,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "state",
-          "definitions": [
-            {
-              "file": "tests/test_managed_github_reconciliation.py",
-              "line": 16,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "workflow_with_pr",
-          "definitions": [
-            {
-              "file": "tests/test_managed_github_reconciliation.py",
-              "line": 41,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 6
-    },
-    "test_pending_pull_request_keeps_project_active": {
-      "source": {
-        "file": "tests/test_managed_github_reconciliation.py",
-        "start": 75,
-        "end": 94
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "FakeWorkflows",
-          "definitions": [
-            {
-              "file": "tests/test_managed_github_reconciliation.py",
-              "line": 12,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "ManagedProjectService",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 379,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_github_target_for_succeeded_workflow",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 939,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "fetch_github_work_state",
-          "definitions": [
-            {
-              "file": "src/production_os/github_work_state.py",
-              "line": 159,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "state",
-          "definitions": [
-            {
-              "file": "tests/test_managed_github_reconciliation.py",
-              "line": 16,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "workflow_with_pr",
-          "definitions": [
-            {
-              "file": "tests/test_managed_github_reconciliation.py",
-              "line": 41,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 6
-    },
-    "test_failed_pull_request_moves_project_to_needs_attention": {
-      "source": {
-        "file": "tests/test_managed_github_reconciliation.py",
-        "start": 97,
-        "end": 116
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "FakeWorkflows",
-          "definitions": [
-            {
-              "file": "tests/test_managed_github_reconciliation.py",
-              "line": 12,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "ManagedProjectService",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 379,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_github_target_for_succeeded_workflow",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 939,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "fetch_github_work_state",
-          "definitions": [
-            {
-              "file": "src/production_os/github_work_state.py",
-              "line": 159,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "state",
-          "definitions": [
-            {
-              "file": "tests/test_managed_github_reconciliation.py",
-              "line": 16,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "workflow_with_pr",
-          "definitions": [
-            {
-              "file": "tests/test_managed_github_reconciliation.py",
-              "line": 41,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 6
-    },
-    "test_sensitive_green_pull_request_requires_review": {
-      "source": {
-        "file": "tests/test_managed_github_reconciliation.py",
-        "start": 119,
-        "end": 138
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "FakeWorkflows",
-          "definitions": [
-            {
-              "file": "tests/test_managed_github_reconciliation.py",
-              "line": 12,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "ManagedProjectService",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 379,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_github_target_for_succeeded_workflow",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 939,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "fetch_github_work_state",
-          "definitions": [
-            {
-              "file": "src/production_os/github_work_state.py",
-              "line": 159,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "state",
-          "definitions": [
-            {
-              "file": "tests/test_managed_github_reconciliation.py",
-              "line": 16,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "workflow_with_pr",
-          "definitions": [
-            {
-              "file": "tests/test_managed_github_reconciliation.py",
-              "line": 41,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 6
-    },
-    "test_succeeded_workflow_without_pull_request_keeps_legacy_path": {
-      "source": {
-        "file": "tests/test_managed_github_reconciliation.py",
-        "start": 141,
-        "end": 161
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "FakeWorkflows",
-          "definitions": [
-            {
-              "file": "tests/test_managed_github_reconciliation.py",
-              "line": 12,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "ManagedProjectService",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 379,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_github_target_for_succeeded_workflow",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 939,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "test_succeeded_pull_request_without_ci_moves_to_review_instead_of_stalling": {
-      "source": {
-        "file": "tests/test_managed_github_reconciliation.py",
-        "start": 165,
-        "end": 185
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "FakeWorkflows",
-          "definitions": [
-            {
-              "file": "tests/test_managed_github_reconciliation.py",
-              "line": 12,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "ManagedProjectService",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 379,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_github_target_for_succeeded_workflow",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 939,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "fetch_github_work_state",
-          "definitions": [
-            {
-              "file": "src/production_os/github_work_state.py",
-              "line": 159,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "state",
-          "definitions": [
-            {
-              "file": "tests/test_managed_github_reconciliation.py",
-              "line": 16,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "workflow_with_pr",
-          "definitions": [
-            {
-              "file": "tests/test_managed_github_reconciliation.py",
-              "line": 41,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 6
+      "symbol_dependencies": [],
+      "dependency_count": 0
     }
   }
 }

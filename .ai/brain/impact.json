@@ -1,35 +1,50 @@
 {
   "schema_version": 1,
   "generated_by": "dbrckk/repo-brain",
-  "base": "85fb04e57f2ded4ede9dce04922eb24d70be16ac",
-  "head": "65929eb52d7a3c5a82d1a9b4b44d265d3c222734",
+  "base": "65929eb52d7a3c5a82d1a9b4b44d265d3c222734",
+  "head": "5c25d5c35e48b6e34f66d1adf09dbfd8d2558da3",
   "index_mode": "incremental",
   "changed_files": [
     {
+      "path": "Dockerfile.browser-worker",
+      "status": "A"
+    },
+    {
+      "path": "compose.worker.yaml",
+      "status": "M"
+    },
+    {
       "path": "src/production_os/managed_projects.py",
       "status": "M"
+    },
+    {
+      "path": "tests/test_browser_worker_image.py",
+      "status": "A"
     },
     {
       "path": "tests/test_cooperative_managed_projects.py",
       "status": "M"
     },
     {
-      "path": "tests/test_managed_github_reconciliation.py",
-      "status": "A"
+      "path": "tests/test_worker_compose_deployment.py",
+      "status": "M"
     }
   ],
   "changed_source_files": [
     "src/production_os/managed_projects.py",
+    "tests/test_browser_worker_image.py",
     "tests/test_cooperative_managed_projects.py",
-    "tests/test_managed_github_reconciliation.py"
+    "tests/test_worker_compose_deployment.py"
   ],
   "impacted_files": [
     "src/production_os/control_plane.py",
     "src/production_os/managed_projects.py",
+    "tests/test_browser_worker_image.py",
     "tests/test_cooperative_managed_projects.py",
     "tests/test_managed_github_reconciliation.py",
     "tests/test_managed_project_outcome.py",
     "tests/test_managed_projects_v4.py",
+    "tests/test_worker_compose_deployment.py",
     "tests/test_workflow_postgres.py"
   ],
   "impacted_symbols": [
@@ -358,6 +373,12 @@
       "line": 1306
     },
     {
+      "name": "test_browser_worker_image_pins_playwright_and_installs_chromium",
+      "kind": "function",
+      "file": "tests/test_browser_worker_image.py",
+      "line": 4
+    },
+    {
       "name": "service",
       "kind": "function",
       "file": "tests/test_cooperative_managed_projects.py",
@@ -379,25 +400,25 @@
       "name": "test_create_cooperative_project_keeps_mode_in_workflow_metadata",
       "kind": "function",
       "file": "tests/test_cooperative_managed_projects.py",
-      "line": 84
+      "line": 87
     },
     {
       "name": "test_cooperative_outcome_uses_deepest_stage_and_aggregates_delivery_evidence",
       "kind": "function",
       "file": "tests/test_cooperative_managed_projects.py",
-      "line": 111
+      "line": 114
     },
     {
       "name": "test_cooperative_workflow_rejects_budget_smaller_than_stage_count",
       "kind": "function",
       "file": "tests/test_cooperative_managed_projects.py",
-      "line": 171
+      "line": 174
     },
     {
       "name": "test_retest_preserves_cooperative_mode_across_generations",
       "kind": "function",
       "file": "tests/test_cooperative_managed_projects.py",
-      "line": 190
+      "line": 193
     },
     {
       "name": "FakeWorkflows",
@@ -544,6 +565,18 @@
       "line": 276
     },
     {
+      "name": "test_worker_compose_profile_is_safe_and_deployable",
+      "kind": "function",
+      "file": "tests/test_worker_compose_deployment.py",
+      "line": 4
+    },
+    {
+      "name": "test_worker_compose_exposes_specialist_pool_without_replacing_generic_worker",
+      "kind": "function",
+      "file": "tests/test_worker_compose_deployment.py",
+      "line": 22
+    },
+    {
       "name": "test_postgres_workflow_engine",
       "kind": "function",
       "file": "tests/test_workflow_postgres.py",
@@ -557,12 +590,14 @@
     }
   ],
   "selected_tests": [
+    "tests/test_browser_worker_image.py",
     "tests/test_cooperative_managed_projects.py",
     "tests/test_managed_github_reconciliation.py",
     "tests/test_managed_project_outcome.py",
     "tests/test_managed_projects_http_v4.py",
     "tests/test_managed_projects_v4.py",
     "tests/test_release18_managed_projects_e2e.py",
+    "tests/test_worker_compose_deployment.py",
     "tests/test_workflow_postgres.py"
   ]
 }

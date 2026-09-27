@@ -1,14 +1,18 @@
 # Change impact
 
-Base: 8a90a6b12a8c1de4aa01483b66c6fae94d207c05
-Head: 65929eb52d7a3c5a82d1a9b4b44d265d3c222734
+Base: 3cab82fcb9c12cc9aed8004a28ca1a16a15387ae
+Head: 5c25d5c35e48b6e34f66d1adf09dbfd8d2558da3
 
 ## Changed files
+- A Dockerfile.browser-worker
+- M compose.worker.yaml
 - M src/production_os/managed_projects.py
+- A tests/test_browser_worker_image.py
 - M tests/test_cooperative_managed_projects.py
-- A tests/test_managed_github_reconciliation.py
+- M tests/test_worker_compose_deployment.py
 
 ## Affected areas
+- (root)
 - src
 - tests
 

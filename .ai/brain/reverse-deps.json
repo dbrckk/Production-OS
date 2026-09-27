@@ -2079,6 +2079,7 @@
         "src/production_os/starlist.py",
         "src/production_os/workflow_engine.py",
         "tests/test_api_auth.py",
+        "tests/test_browser_worker_image.py",
         "tests/test_claims_delivery.py",
         "tests/test_cli.py",
         "tests/test_control_plane.py",
@@ -2119,7 +2120,6 @@
         "tests/test_production_stack_e2e.py",
         "tests/test_reconciliation_dispatch.py",
         "tests/test_release16_operations_e2e.py",
-        "tests/test_release18_managed_projects_e2e.py",
         "tests/test_stragglers.py",
         "tests/test_workers.py"
       ],
@@ -2290,6 +2290,14 @@
       "dependents": [],
       "in_degree": 0,
       "out_degree": 3
+    },
+    "tests/test_browser_worker_image.py": {
+      "dependencies": [
+        "src/production_os/workers.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
     },
     "tests/test_builder_identity.py": {
       "dependencies": [
@@ -3437,12 +3445,11 @@
       "dependencies": [
         "src/production_os/__init__.py",
         "src/production_os/api_auth.py",
-        "src/production_os/control_plane.py",
-        "src/production_os/workers.py"
+        "src/production_os/control_plane.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 4
+      "out_degree": 3
     },
     "tests/test_release19_restore_staging_e2e.py": {
       "dependencies": [

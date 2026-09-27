@@ -178,6 +178,7 @@ tests/
   test_asset_forge.py
   test_asymmetric_attestations.py
   test_attestations.py
+  test_browser_worker_image.py
   test_builder_identity_validation.py
   test_builder_identity.py
   test_builder_trust_rotation.py
@@ -8944,6 +8945,13 @@ provenance=create_release_provenance(
 def test_validation_attestation_rejects_expired_signature()
 ````
 
+## File: tests/test_browser_worker_image.py
+````python
+def test_browser_worker_image_pins_playwright_and_installs_chromium()
+⋮----
+payload = Path("Dockerfile.browser-worker").read_text(encoding="utf-8")
+````
+
 ## File: tests/test_builder_identity_validation.py
 ````python
 def policy(builder)
@@ -14215,6 +14223,8 @@ def test_worker_compose_profile_is_safe_and_deployable()
 payload = Path("compose.worker.yaml").read_text(encoding="utf-8")
 ⋮----
 def test_worker_compose_exposes_specialist_pool_without_replacing_generic_worker()
+⋮----
+# Browser worker is present but cannot claim browser validation until a real runtime is provisioned.
 ````
 
 ## File: tests/test_workers.py
@@ -14826,7 +14836,9 @@ services:
   production-worker-browser:
     profiles:
       - worker-specialists
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.browser-worker
     restart: unless-stopped
     init: true
     stop_grace_period: 15s
