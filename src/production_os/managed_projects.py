@@ -4,6 +4,8 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 from .workflow_engine import WorkflowEngine, WorkflowTaskSpec, _execute
+from .github_client import GitHubAPIError, GitHubClient
+from .github_work_state import fetch_github_work_state, runtime_decision_from_github
 
 
 MANAGED_PROJECT_SCHEMA = "production-os/managed-project/v3"
@@ -375,9 +377,15 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
 
 
 class ManagedProjectService:
-    def __init__(self, workflows: WorkflowEngine):
+    def __init__(
+        self,
+        workflows: WorkflowEngine,
+        *,
+        github_client_factory=GitHubClient,
+    ):
         self.workflows = workflows
         self.backend = workflows.backend
+        self.github_client_factory = github_client_factory
 
     @staticmethod
     def _validate_repository(repository: str) -> str:
@@ -928,6 +936,53 @@ class ManagedProjectService:
             )
         return project_id
 
+    def _github_target_for_succeeded_workflow(
+        self,
+        repository: str,
+        workflow: dict,
+    ) -> str | None:
+        outcome = _outcome_from_workflow(workflow)
+        pull_request = outcome.get("pull_request")
+        if not isinstance(pull_request, dict):
+            return None
+        number = pull_request.get("number")
+        try:
+            pr_number = int(number)
+        except (TypeError, ValueError):
+            return None
+        if pr_number < 1:
+            return None
+
+        try:
+            state = fetch_github_work_state(
+                self.github_client_factory(),
+                repository,
+                pr_number=pr_number,
+            )
+        except (GitHubAPIError, OSError, ValueError):
+            return ACTIVE
+
+        decision = runtime_decision_from_github(state)
+        if decision in {"retry", "replan", "rollback"}:
+            return NEEDS_ATTENTION
+        if state.ready_for_promotion:
+            return REVIEW_REQUIRED
+        if (
+            state.ci_state is None
+            and state.status_state is None
+            and not state.required_checks_missing
+        ):
+            return REVIEW_REQUIRED
+        if (
+            state.human_review_required
+            and state.ci_state == "passed"
+            and state.status_state in {None, "passed"}
+        ):
+            return REVIEW_REQUIRED
+        if state.merged and decision == "promote":
+            return REVIEW_REQUIRED
+        return ACTIVE
+
     def reconcile(self, identifier: str) -> dict:
         project_id = self._resolve_project_id(identifier)
         with self.backend.connect() as db:
@@ -954,7 +1009,15 @@ class ManagedProjectService:
             else:
                 workflow_status = workflow.get("status")
                 if workflow_status == "succeeded":
-                    target = REVIEW_REQUIRED
+                    github_target = self._github_target_for_succeeded_workflow(
+                        str(current["repository"]),
+                        workflow,
+                    )
+                    target = (
+                        github_target
+                        if github_target is not None
+                        else REVIEW_REQUIRED
+                    )
                 elif workflow_status in {"failed", "cancelled"}:
                     target = NEEDS_ATTENTION
                 else:
@@ -1122,6 +1185,12 @@ class ManagedProjectService:
 
         project_id = current["project_id"]
         generation = int(current["generation"]) + 1
+        current_workflow = current.get("current_workflow")
+        cooperative = bool(
+            isinstance(current_workflow, dict)
+            and isinstance(current_workflow.get("metadata"), dict)
+            and current_workflow["metadata"].get("cooperative") is True
+        )
         workflow = self._create_workflow(
             project_id=project_id,
             repository=current["repository"],
@@ -1132,6 +1201,7 @@ class ManagedProjectService:
             token_budget=current["token_budget"],
             agent_preference=current["agent_preference"],
             dispatch=False,
+            cooperative=cooperative,
         )
         now = _now()
         actor = str(requested_by or "operator").strip() or "operator"
