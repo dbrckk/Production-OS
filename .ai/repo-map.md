@@ -8901,6 +8901,12 @@ value = ci.get(key)
 ⋮----
 text = str(value).strip()
 ⋮----
+def _single_upstream_commit_ref(upstream: list[dict]) -> str | None
+⋮----
+commits = upstream[0].get("commit_shas")
+⋮----
+candidate = str(commits[-1] or "").strip().lower()
+⋮----
 wanted = {str(item) for item in dependencies or ()}
 ⋮----
 rows = []
@@ -15521,6 +15527,29 @@ backend = SQLiteBackend(tmp_path / "integration.sqlite")
 ⋮----
 job = engine.dispatch_ready(workflow["id"], limit=1)[0]
 isolation = job["payload"]["handoff"]["isolation"]
+⋮----
+def test_dependent_worktree_bases_from_single_upstream_commit(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "upstream-base.sqlite")
+⋮----
+first = engine.dispatch_ready(workflow["id"], limit=10)
+⋮----
+claimed_integration = queue.claim_next("integrator", capabilities=[])
+⋮----
+validation = queue.claim_next("validator", capabilities=[])
+⋮----
+isolation = validation["payload"]["handoff"]["isolation"]
+⋮----
+def test_multi_parent_integration_does_not_guess_one_upstream_base(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "multi-parent-base.sqlite")
+⋮----
+claimed_a = queue.claim_next("worker-a", capabilities=[])
+claimed_b = queue.claim_next("worker-b", capabilities=[])
+⋮----
+integration = queue.claim_next("integrator", capabilities=[])
+⋮----
+isolation = integration["payload"]["handoff"]["isolation"]
 ````
 
 ## File: .repo-standards.yml

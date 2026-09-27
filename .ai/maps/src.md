@@ -8337,6 +8337,12 @@ value = ci.get(key)
 ⋮----
 text = str(value).strip()
 ⋮----
+def _single_upstream_commit_ref(upstream: list[dict]) -> str | None
+⋮----
+commits = upstream[0].get("commit_shas")
+⋮----
+candidate = str(commits[-1] or "").strip().lower()
+⋮----
 wanted = {str(item) for item in dependencies or ()}
 ⋮----
 rows = []

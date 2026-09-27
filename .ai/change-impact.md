@@ -1,21 +1,18 @@
 # Change impact
 
-Base: 9e6a976a66da19d850f1286c7ba2ef2c1f88c602
-Head: 08839b75623a8773d9673e1dc20138dc75c6c06c
+Base: 06a4bee46d9c1da25307fc3420f1eae6e36ce8cb
+Head: bc5e0db957978e58266f1f76573347052e719de7
 
 ## Changed files
-- M src/production_os/managed_projects.py
-- M tests/test_cooperative_managed_projects.py
-- M tests/test_cooperative_specialist_e2e.py
-- M tests/test_managed_github_reconciliation.py
-- M tests/test_release32_one_tap_e2e.py
+- M src/production_os/workflow_engine.py
+- M tests/test_worktree_contract.py
 
 ## Affected areas
 - src
 - tests
 
 ## Related test candidates
-- No direct filename-based test match detected.
+- tests/test_workflow_engine.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

@@ -22,36 +22,26 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-27T18:59:34Z
+Generated: 2026-09-27T19:04:32Z
 
 ### Git
 - Branch: `main`
-- Head: `08839b75623a`
-- Commit date: 2026-09-27T20:59:23+02:00
-- Commit: feat(agents): activate adaptive planner in cooperative managed projects
+- Head: `bc5e0db95797`
+- Commit date: 2026-09-27T21:04:12+02:00
+- Commit: fix(agents): propagate upstream commit into dependent worktrees
 - Tracked files: 491
 
 ### Recently changed files
+- `src/production_os/workflow_engine.py`
+- `tests/test_worktree_contract.py`
 - `src/production_os/managed_projects.py`
 - `tests/test_cooperative_managed_projects.py`
 - `tests/test_cooperative_specialist_e2e.py`
 - `tests/test_managed_github_reconciliation.py`
 - `tests/test_release32_one_tap_e2e.py`
-- `src/production_os/workflow_engine.py`
 - `tests/test_dynamic_agent_fanout.py`
 - `src/production_os/agent_plan.py`
 - `tests/test_agent_plan.py`
-- `Dockerfile`
-- `Dockerfile.browser-worker`
-- `Dockerfile.mobile-worker`
-- `compose.worker.yaml`
-- `docs/remote-worker-executor-protocol.md`
-- `src/production_os/cli.py`
-- `src/production_os/remote_worker_runner.py`
-- `src/production_os/repository_cache.py`
-- `tests/test_browser_worker_image.py`
-- `tests/test_executor_worktree.py`
-- `tests/test_mobile_worker_image.py`
 
 ### Project signals
 - `pyproject.toml`

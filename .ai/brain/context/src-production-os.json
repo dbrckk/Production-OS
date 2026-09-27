@@ -2,7 +2,7 @@
   "area": "src-production-os",
   "files": [
     {
-      "path": "src/production_os/managed_projects.py",
+      "path": "src/production_os/workflow_engine.py",
       "reasons": [
         "changed",
         "changed-source",
@@ -10,7 +10,14 @@
         "impact",
         "symbol-indexed"
       ],
-      "score": 790
+      "score": 1705
+    },
+    {
+      "path": "src/production_os/sqlite_backend.py",
+      "reasons": [
+        "dependency-neighbor"
+      ],
+      "score": 700
     },
     {
       "path": "src/production_os/control_plane.py",
@@ -20,63 +27,61 @@
         "reverse-dependency-neighbor",
         "symbol-indexed"
       ],
-      "score": 420
+      "score": 680
     },
     {
-      "path": "src/production_os/workflow_engine.py",
+      "path": "src/production_os/cli.py",
       "reasons": [
-        "dependency-neighbor"
+        "impact",
+        "reverse-dependency-neighbor",
+        "symbol-indexed"
       ],
-      "score": 350
+      "score": 620
+    },
+    {
+      "path": "src/production_os/managed_projects.py",
+      "reasons": [
+        "dependency-neighbor",
+        "impact",
+        "reverse-dependency-neighbor",
+        "symbol-indexed"
+      ],
+      "score": 605
     },
     {
       "path": "src/production_os/__init__.py",
       "reasons": [
         "dependency-neighbor"
       ],
-      "score": 225
+      "score": 525
     },
     {
       "path": "src/production_os/api_auth.py",
       "reasons": [
         "dependency-neighbor"
       ],
-      "score": 200
-    },
-    {
-      "path": "src/production_os/sqlite_backend.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 200
-    },
-    {
-      "path": "src/production_os/github_client.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 100
-    },
-    {
-      "path": "src/production_os/github_work_state.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 75
+      "score": 325
     },
     {
       "path": "src/production_os/workers.py",
       "reasons": [
         "dependency-neighbor"
       ],
-      "score": 75
+      "score": 275
     },
     {
-      "path": "src/production_os/cli.py",
+      "path": "src/production_os/release_ledger.py",
       "reasons": [
-        "reverse-dependency-neighbor"
+        "dependency-neighbor"
       ],
-      "score": 60
+      "score": 250
+    },
+    {
+      "path": "src/production_os/approvals.py",
+      "reasons": [
+        "dependency-neighbor"
+      ],
+      "score": 150
     }
   ],
   "generated_by": "dbrckk/repo-brain-v6",
