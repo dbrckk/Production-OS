@@ -1,4 +1,4 @@
-from production_os.managed_projects import ManagedProjectService
+from production_os.managed_projects import ManagedProjectService, _outcome_from_workflow
 from production_os.sqlite_backend import SQLiteBackend, SQLiteJobQueue
 from production_os.workflow_engine import WorkflowEngine
 
@@ -101,3 +101,63 @@ def test_create_cooperative_project_keeps_mode_in_workflow_metadata(tmp_path):
     assert by_id["implementation"]["dependencies"] == []
     assert by_id["validation"]["dependencies"] == ["implementation"]
     assert by_id["review"]["dependencies"] == ["validation"]
+
+
+
+def test_cooperative_outcome_uses_deepest_stage_and_aggregates_delivery_evidence():
+    workflow = {
+        "status":"succeeded",
+        "updated_at":"2026-09-27T09:00:00+00:00",
+        "artifacts":[],
+        "tasks":[
+            {
+                "task_id":"implementation",
+                "title":"Implement",
+                "dependencies":[],
+                "updated_at":"2026-09-27T08:00:00+00:00",
+                "result":{
+                    "summary":"implemented feature",
+                    "commit_shas":["a"*40],
+                    "changed_files":["src/app.py"],
+                    "pull_request":{"number":12,"state":"open"},
+                },
+            },
+            {
+                "task_id":"review",
+                "title":"Review",
+                "dependencies":["validation"],
+                "updated_at":"2026-09-27T08:20:00+00:00",
+                "result":{
+                    "summary":"review passed",
+                    "validation":{"status":"passed","tests":["review"]},
+                    "changed_files":["src/app.py","tests/test_app.py"],
+                },
+            },
+            {
+                "task_id":"validation",
+                "title":"Validate",
+                "dependencies":["implementation"],
+                "updated_at":"2026-09-27T08:10:00+00:00",
+                "result":{
+                    "summary":"tests passed",
+                    "validation":{"status":"passed","tests":["unit"]},
+                    "commit_shas":["b"*40],
+                    "ci":{
+                        "provider":"github-actions",
+                        "status":"passed",
+                        "workflow":"CI",
+                    },
+                },
+            },
+        ],
+    }
+
+    outcome = _outcome_from_workflow(workflow)
+
+    assert outcome["summary"] == "review passed"
+    assert outcome["validation_status"] == "passed"
+    assert outcome["validation_tests"] == ["review"]
+    assert outcome["commit_shas"] == ["a"*40, "b"*40]
+    assert outcome["changed_file_count"] == 2
+    assert outcome["pull_request"] == {"number":12, "state":"open"}
+    assert outcome["ci"]["workflow"] == "CI"
