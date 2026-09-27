@@ -1601,6 +1601,23 @@ function renderProductionOutcome(outcome,includeSummary){
    (pr.state?" · "+esc(String(pr.state)):"")
   );
  }
+ const dynamicPlan=value.dynamic_plan||null;
+ if(dynamicPlan){
+  const sourceLabels={
+   model:"IA",
+   fallback:"fallback",
+   mixed:"mixte",
+   unknown:"dynamique"
+  };
+  const planBits=[];
+  const source=String(dynamicPlan.source||"unknown");
+  planBits.push(sourceLabels[source]||source);
+  const childCount=Number(dynamicPlan.child_agent_count||0);
+  if(childCount>0)planBits.push(String(childCount)+" agent(s)");
+  if(planBits.length)parts.push(
+   "<strong>Plan :</strong> "+planBits.map(function(x){return esc(x)}).join(" · ")
+  );
+ }
  const ci=value.ci||null;
  if(ci){
   const ciBits=[];
@@ -1612,6 +1629,11 @@ function renderProductionOutcome(outcome,includeSummary){
    "<strong>CI :</strong> "+ciBits.map(function(x){return esc(x)}).join(" / ")
   );
  }
+ const dynamicDetail=includeSummary&&dynamicPlan&&Array.isArray(dynamicPlan.task_ids)&&dynamicPlan.task_ids.length
+  ?'<div class="small outcome-plan"><strong>Sous-agents :</strong> '+
+   dynamicPlan.task_ids.slice(0,16).map(function(x){return esc(String(x))}).join(", ")+
+   '</div>'
+  :"";
  const ciDetail=includeSummary&&ci&&ci.log_excerpt
   ?'<div class="small outcome-ci"><strong>Diagnostic CI :</strong> <code>'+esc(String(ci.log_excerpt).slice(0,1200))+'</code></div>'
   :"";
@@ -1664,7 +1686,7 @@ function renderProductionOutcome(outcome,includeSummary){
  const summary=includeSummary&&value.summary
   ?'<div class="small outcome-summary"><strong>Résultat :</strong> '+esc(String(value.summary))+'</div>'
   :"";
- return summary+ciDetail+browserDetail+mobileDetail+(parts.length?'<div class="small outcome-evidence">'+parts.join(" · ")+'</div>':"");
+ return summary+dynamicDetail+ciDetail+browserDetail+mobileDetail+(parts.length?'<div class="small outcome-evidence">'+parts.join(" · ")+'</div>':"");
 }
 function attentionKindLabel(kind){
  const labels={
