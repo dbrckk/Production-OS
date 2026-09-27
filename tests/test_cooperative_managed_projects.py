@@ -74,6 +74,9 @@ def test_cooperative_workflow_adds_ui_stage_only_for_ui_goal(tmp_path):
     assert tasks[-1].payload["handoff"]["preferred_capabilities"] == [
         "browser-ui-validation"
     ]
+    assert tasks[-1].payload["handoff"]["required_capabilities"] == [
+        "browser-ui-validation"
+    ]
     assert sum(
         task.payload["handoff"]["token_budget"]
         for task in tasks
