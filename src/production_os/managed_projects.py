@@ -1110,18 +1110,7 @@ class ManagedProjectService:
                 "SELECT * FROM managed_projects WHERE id=?",
                 (project_id,),
             ).fetchone()
-        updated_project = dict(row)
-        if (
-            target == NEEDS_ATTENTION
-            and isinstance(rollback_plan, dict)
-            and isinstance(workflow, dict)
-        ):
-            return self._start_automatic_rollback(
-                updated_project,
-                workflow,
-                rollback_plan,
-            )
-        return updated_project
+        return dict(row)
 
     def reconcile(self, identifier: str) -> dict:
         project_id = self._resolve_project_id(identifier)
@@ -1198,7 +1187,18 @@ class ManagedProjectService:
                 "SELECT * FROM managed_projects WHERE id=?",
                 (project_id,),
             ).fetchone()
-        return dict(row)
+        updated_project = dict(row)
+        if (
+            target == NEEDS_ATTENTION
+            and isinstance(rollback_plan, dict)
+            and isinstance(workflow, dict)
+        ):
+            return self._start_automatic_rollback(
+                updated_project,
+                workflow,
+                rollback_plan,
+            )
+        return updated_project
 
     def _usage(self, runs: list[dict]) -> dict:
         usage = {
