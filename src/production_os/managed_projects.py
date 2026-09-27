@@ -1140,7 +1140,10 @@ class ManagedProjectService:
                 )
             raise
 
-        self.workflows.dispatch_ready(workflow["id"], limit=1)
+        self.workflows.dispatch_ready(
+            workflow["id"],
+            limit=10 if cooperative else 1,
+        )
         return self.get(project_id)
 
     def _resolve_project_id(self, identifier: str) -> str:
@@ -1669,7 +1672,10 @@ class ManagedProjectService:
             self._delete_unstarted_workflow(workflow["id"])
             raise
 
-        self.workflows.dispatch_ready(workflow["id"], limit=1)
+        self.workflows.dispatch_ready(
+            workflow["id"],
+            limit=10 if cooperative else 1,
+        )
         with self.backend.connect() as db:
             row = _execute(
                 db,
@@ -2019,7 +2025,10 @@ class ManagedProjectService:
             self._delete_unstarted_workflow(workflow["id"])
             raise
 
-        self.workflows.dispatch_ready(workflow["id"], limit=1)
+        self.workflows.dispatch_ready(
+            workflow["id"],
+            limit=10 if cooperative else 1,
+        )
         return self.get(project_id)
 
     def add_instruction(
