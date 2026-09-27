@@ -30,6 +30,15 @@ def test_cooperative_workflow_builds_code_debug_review_chain_with_bounded_budget
     ]
     assert tasks[1].dependencies == ("implementation",)
     assert tasks[2].dependencies == ("validation",)
+    assert tasks[0].payload["handoff"]["preferred_capabilities"] == [
+        "code-implementation"
+    ]
+    assert tasks[1].payload["handoff"]["preferred_capabilities"] == [
+        "test-debug"
+    ]
+    assert tasks[2].payload["handoff"]["preferred_capabilities"] == [
+        "code-review"
+    ]
     budgets = [
         task.payload["handoff"]["token_budget"]
         for task in tasks
@@ -58,6 +67,9 @@ def test_cooperative_workflow_adds_ui_stage_only_for_ui_goal(tmp_path):
         "ui-validation",
     ]
     assert tasks[-1].dependencies == ("review",)
+    assert tasks[-1].payload["handoff"]["preferred_capabilities"] == [
+        "browser-ui-validation"
+    ]
     assert sum(
         task.payload["handoff"]["token_budget"]
         for task in tasks
