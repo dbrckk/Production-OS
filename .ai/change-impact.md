@@ -1,27 +1,25 @@
 # Change impact
 
-Base: c92f7d4b880faf92e0d1b9a375e881356034abc7
-Head: e456ba159fdf6e11eea75eba89b17194689de234
+Base: 14cc218fe566635df76feac70b9224974fe0d462
+Head: 3a957cfc21e4ef6f6f365e11000f5f6f69d0f386
 
 ## Changed files
-- M src/production_os/dashboard_ui.py
-- M src/production_os/github_client.py
+- A src/production_os/github_change_review.py
 - M src/production_os/github_work_state.py
-- M src/production_os/managed_projects.py
-- M src/production_os/workflow_engine.py
-- M tests/test_dashboard_ui_v3.py
+- A src/production_os/rollback_plan.py
+- A tests/test_github_change_review.py
 - M tests/test_github_work_state.py
-- M tests/test_managed_project_outcome.py
 - M tests/test_release51_one_tap_runner_e2e.py
-- M tests/test_workflow_engine.py
+- A tests/test_rollback_plan.py
 
 ## Affected areas
 - src
 - tests
 
 ## Related test candidates
+- tests/test_github_change_review.py
 - tests/test_github_work_state.py
-- tests/test_workflow_engine.py
+- tests/test_rollback_plan.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

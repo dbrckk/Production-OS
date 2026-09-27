@@ -103,6 +103,7 @@ src/
     execution_optimizer.py
     fairness.py
     feedback.py
+    github_change_review.py
     github_client.py
     github_webhook.py
     github_work_state.py
@@ -142,6 +143,7 @@ src/
     resources.py
     result_cache.py
     reuse.py
+    rollback_plan.py
     runtime_state.py
     scheduler.py
     scoring.py
@@ -231,6 +233,7 @@ tests/
   test_execution_optimizer_postgres.py
   test_execution_optimizer.py
   test_fairness.py
+  test_github_change_review.py
   test_github_client_pr_files.py
   test_github_client_put_file.py
   test_github_webhook.py
@@ -290,6 +293,7 @@ tests/
   test_remote_worker.py
   test_render_start.py
   test_result_cache.py
+  test_rollback_plan.py
   test_runtime_state.py
   test_scheduler.py
   test_scoring.py
@@ -4718,6 +4722,53 @@ overall = "incomplete"
 overall = "passed"
 ````
 
+## File: src/production_os/github_change_review.py
+````python
+"""Deterministic, fail-closed review of pull-request changed paths."""
+⋮----
+_SECURITY_PREFIXES = (
+_DATA_PREFIXES = (
+_RUNTIME_PREFIXES = (
+_SECRET_NAMES = (
+⋮----
+@dataclass(frozen=True, slots=True)
+class DiffReview
+⋮----
+changed_files: tuple[str, ...]
+sensitive_files: tuple[str, ...]
+categories: tuple[str, ...]
+requires_human_review: bool
+blockers: tuple[str, ...]
+⋮----
+def to_dict(self) -> dict
+⋮----
+def _normalized(paths) -> tuple[str, ...]
+⋮----
+values = []
+⋮----
+path = str(raw or "").strip().replace("\\", "/")
+⋮----
+path = path[2:]
+⋮----
+def review_changed_paths(paths) -> DiffReview
+⋮----
+changed = _normalized(paths)
+sensitive = []
+categories = set()
+blockers = []
+⋮----
+low = path.lower()
+name = low.rsplit("/", 1)[-1]
+⋮----
+sensitive = tuple(sorted(set(sensitive)))
+⋮----
+requires_human_review = bool(blockers)
+⋮----
+def review_pull_request(client, repository: str, pr_number: int) -> DiffReview
+⋮----
+files = client.list_pull_request_files(repository, pr_number)
+````
+
 ## File: src/production_os/github_client.py
 ````python
 class GitHubAPIError(RuntimeError)
@@ -4995,7 +5046,11 @@ status_state: str | None
 ready_for_promotion: bool
 promotion_blockers: tuple[str, ...]
 required_checks_missing: tuple[str, ...]
+sensitive_files: tuple[str, ...]
+change_categories: tuple[str, ...]
+human_review_required: bool
 head_sha: str | None
+validation_sha: str | None
 ⋮----
 def to_dict(self) -> dict
 ⋮----
@@ -5030,7 +5085,11 @@ review_state = None
 ci_state = None
 status_state = None
 required_checks_missing: tuple[str, ...] = ()
+sensitive_files: tuple[str, ...] = ()
+change_categories: tuple[str, ...] = ()
+human_review_required = False
 head_sha = None
+validation_sha = None
 ⋮----
 issue = client.get_issue(repository, issue_number)
 issue_state = str(issue.get("state")) if issue else None
@@ -5042,17 +5101,27 @@ merged = bool(pr.get("merged") or pr.get("merged_at"))
 draft = bool(pr.get("draft"))
 head = pr.get("head") or {}
 head_sha = head.get("sha") if isinstance(head, dict) else None
+merge_sha = str(pr.get("merge_commit_sha") or "").strip()
+validation_sha = merge_sha if merged and merge_sha else head_sha
 base = pr.get("base") or {}
 base_ref = (
 ⋮----
 reviews = client.get_pull_request_reviews(repository, pr_number)
 review_state = _review_state(reviews)
 ⋮----
-runs = client.get_commit_workflow_runs(repository, head_sha)
+changed_paths = client.list_pull_request_files(repository, pr_number)
+change_review = review_changed_paths(changed_paths)
+⋮----
+change_review = review_changed_paths(())
+sensitive_files = change_review.sensitive_files
+change_categories = change_review.categories
+human_review_required = change_review.requires_human_review
+⋮----
+runs = client.get_commit_workflow_runs(repository, validation_sha)
 ci_state = _ci_state(runs)
-statuses = client.get_commit_statuses(repository, head_sha)
+statuses = client.get_commit_statuses(repository, validation_sha)
 status_state = _status_state(statuses)
-check_runs = client.get_commit_check_runs(repository, head_sha)
+check_runs = client.get_commit_check_runs(repository, validation_sha)
 required = (
 required_checks_missing = _missing_required_checks(
 ⋮----
@@ -7017,6 +7086,25 @@ validation_plan = [
 ⋮----
 missing = [
 major_mismatches = [
+````
+
+## File: src/production_os/rollback_plan.py
+````python
+"""Build safe compensating rollback instructions for a failed merged change."""
+⋮----
+_SHA40 = re.compile(r"^[0-9a-f]{40}$")
+⋮----
+repo = str(repository or "").strip()
+parts = repo.split("/")
+⋮----
+sha = str(merge_sha or "").strip().lower()
+⋮----
+summary = str(failure_summary or "").strip()[:4000]
+ci = ci if isinstance(ci, dict) else {}
+ci_bits = [
+excerpt = str(ci.get("log_excerpt") or "").strip()[:6000]
+⋮----
+instruction = [
 ````
 
 ## File: src/production_os/runtime_state.py
@@ -11188,6 +11276,21 @@ rows=[
 result=round_robin_by_repository(rows)
 ````
 
+## File: tests/test_github_change_review.py
+````python
+def test_review_changed_paths_allows_ordinary_source_changes()
+⋮----
+review = review_changed_paths([
+⋮----
+def test_review_changed_paths_flags_security_runtime_and_schema_surfaces()
+⋮----
+def test_review_changed_paths_flags_credential_material()
+⋮----
+def test_review_changed_paths_fails_closed_when_file_list_unavailable()
+⋮----
+review = review_changed_paths([])
+````
+
 ## File: tests/test_github_client_pr_files.py
 ````python
 class FakeGitHubClient(GitHubClient)
@@ -11279,7 +11382,11 @@ def state(**kwargs)
 ⋮----
 base = dict(
 ⋮----
-def test_merged_pr_promotes()
+def test_merged_pr_promotes_only_after_post_merge_validation_passes()
+⋮----
+def test_merged_pr_rolls_back_when_post_merge_ci_fails()
+⋮----
+def test_merged_pr_waits_while_post_merge_validation_is_running()
 ⋮----
 def test_failed_ci_retries()
 ⋮----
@@ -11306,6 +11413,8 @@ missing = _missing_required_checks(
 def test_unknown_branch_protection_check_set_blocks_promotion()
 ⋮----
 def test_promotion_readiness_blocks_when_required_check_is_missing()
+⋮----
+def test_promotion_readiness_blocks_sensitive_changes()
 ````
 
 ## File: tests/test_governance.py
@@ -13016,7 +13125,11 @@ database = str(tmp_path / "one-tap-runner-failure.sqlite")
 ⋮----
 executor = tmp_path / "failed_executor.py"
 ⋮----
-outcomes = runner.run(cycles=3, idle_sleep_seconds=0)
+# Polling cycles are not equivalent to claimed jobs: after a failed
+# executor result, workflow reconciliation can requeue the retry just
+# after a poll. Allow bounded spare polls while still asserting exactly
+# three real attempts below.
+outcomes = runner.run(cycles=6, idle_sleep_seconds=0)
 ⋮----
 # Managed Project implementation tasks have max_attempts=3. A worker
 # failure is automatically retried with a new job key until that
@@ -13237,6 +13350,15 @@ cache=ResultCache(backend)
 key=fingerprint(repository="o/a",task="Build",inputs={"commit":"abc"})
 ⋮----
 hit=cache.get(key)
+````
+
+## File: tests/test_rollback_plan.py
+````python
+def test_build_rollback_plan_is_compensating_and_preserves_history()
+⋮----
+plan = build_rollback_plan(
+⋮----
+def test_build_rollback_plan_rejects_unpinned_merge_commit()
 ````
 
 ## File: tests/test_runtime_state.py

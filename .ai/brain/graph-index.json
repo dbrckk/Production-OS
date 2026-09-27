@@ -70,6 +70,7 @@
         "tests/test_execution_optimizer.py",
         "tests/test_execution_optimizer_postgres.py",
         "tests/test_fairness.py",
+        "tests/test_github_change_review.py",
         "tests/test_github_client_pr_files.py",
         "tests/test_github_client_put_file.py",
         "tests/test_github_webhook.py",
@@ -128,6 +129,7 @@
         "tests/test_remote_worker.py",
         "tests/test_remote_worker_runner.py",
         "tests/test_result_cache.py",
+        "tests/test_rollback_plan.py",
         "tests/test_runtime_state.py",
         "tests/test_scheduler.py",
         "tests/test_scoring.py",
@@ -158,7 +160,7 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 149,
+      "in_degree": 151,
       "out_degree": 0,
       "path": "src/production_os/__init__.py"
     },
@@ -425,6 +427,7 @@
         "src/production_os/rekor_witness_quorum.py",
         "src/production_os/release_ledger.py",
         "src/production_os/remote_worker_runner.py",
+        "src/production_os/rollback_plan.py",
         "src/production_os/runtime_state.py",
         "src/production_os/scheduler.py",
         "src/production_os/self_healing.py",
@@ -455,10 +458,11 @@
         "tests/test_release51_one_tap_runner_e2e.py",
         "tests/test_release_ledger.py",
         "tests/test_remote_worker_runner.py",
+        "tests/test_rollback_plan.py",
         "tests/test_sqlite_migration.py",
         "tests/test_workflow_engine.py"
       ],
-      "in_degree": 51,
+      "in_degree": 53,
       "out_degree": 2,
       "path": "tests/test_asset_forge.py"
     },
@@ -1244,6 +1248,25 @@
     },
     {
       "dependencies": [
+        "src/production_os/models.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/controller.py",
+        "src/production_os/rollback_plan.py",
+        "src/production_os/validation.py",
+        "tests/test_classification_history_reuse.py",
+        "tests/test_compatibility_validation.py",
+        "tests/test_control_plane_release.py",
+        "tests/test_release_ledger.py",
+        "tests/test_rollback_plan.py"
+      ],
+      "in_degree": 9,
+      "out_degree": 1,
+      "path": "src/production_os/history.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/signers.py",
         "tests/test_asset_forge.py"
       ],
@@ -1347,23 +1370,6 @@
       "in_degree": 8,
       "out_degree": 0,
       "path": "src/production_os/policy.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/models.py"
-      ],
-      "dependents": [
-        "src/production_os/cli.py",
-        "src/production_os/controller.py",
-        "src/production_os/validation.py",
-        "tests/test_classification_history_reuse.py",
-        "tests/test_compatibility_validation.py",
-        "tests/test_control_plane_release.py",
-        "tests/test_release_ledger.py"
-      ],
-      "in_degree": 7,
-      "out_degree": 1,
-      "path": "src/production_os/history.py"
     },
     {
       "dependencies": [
@@ -1743,22 +1749,22 @@
     },
     {
       "dependencies": [
-        "src/production_os/policy.py",
-        "src/production_os/quarantine.py",
-        "src/production_os/runtime_state.py",
-        "tests/test_fairness.py"
+        "src/production_os/github_change_review.py",
+        "src/production_os/github_client.py",
+        "tests/test_asset_forge.py"
       ],
       "dependents": [
+        "src/production_os/cli.py",
         "src/production_os/controller.py",
-        "tests/test_governance.py"
+        "tests/test_github_work_state.py"
       ],
-      "in_degree": 2,
-      "out_degree": 4,
-      "path": "src/production_os/governance.py"
+      "in_degree": 3,
+      "out_degree": 3,
+      "path": "src/production_os/github_work_state.py"
     }
   ],
-  "edge_count": 1359,
+  "edge_count": 1368,
   "generated_by": "dbrckk/repo-brain-v7-graph",
-  "node_count": 264,
+  "node_count": 268,
   "schema_version": 1
 }

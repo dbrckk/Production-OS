@@ -88,6 +88,7 @@ production_os/
   execution_optimizer.py
   fairness.py
   feedback.py
+  github_change_review.py
   github_client.py
   github_webhook.py
   github_work_state.py
@@ -127,6 +128,7 @@ production_os/
   resources.py
   result_cache.py
   reuse.py
+  rollback_plan.py
   runtime_state.py
   scheduler.py
   scoring.py
@@ -4178,6 +4180,53 @@ overall = "incomplete"
 overall = "passed"
 ```
 
+## File: production_os/github_change_review.py
+```python
+"""Deterministic, fail-closed review of pull-request changed paths."""
+⋮----
+_SECURITY_PREFIXES = (
+_DATA_PREFIXES = (
+_RUNTIME_PREFIXES = (
+_SECRET_NAMES = (
+⋮----
+@dataclass(frozen=True, slots=True)
+class DiffReview
+⋮----
+changed_files: tuple[str, ...]
+sensitive_files: tuple[str, ...]
+categories: tuple[str, ...]
+requires_human_review: bool
+blockers: tuple[str, ...]
+⋮----
+def to_dict(self) -> dict
+⋮----
+def _normalized(paths) -> tuple[str, ...]
+⋮----
+values = []
+⋮----
+path = str(raw or "").strip().replace("\\", "/")
+⋮----
+path = path[2:]
+⋮----
+def review_changed_paths(paths) -> DiffReview
+⋮----
+changed = _normalized(paths)
+sensitive = []
+categories = set()
+blockers = []
+⋮----
+low = path.lower()
+name = low.rsplit("/", 1)[-1]
+⋮----
+sensitive = tuple(sorted(set(sensitive)))
+⋮----
+requires_human_review = bool(blockers)
+⋮----
+def review_pull_request(client, repository: str, pr_number: int) -> DiffReview
+⋮----
+files = client.list_pull_request_files(repository, pr_number)
+```
+
 ## File: production_os/github_client.py
 ```python
 class GitHubAPIError(RuntimeError)
@@ -4455,7 +4504,11 @@ status_state: str | None
 ready_for_promotion: bool
 promotion_blockers: tuple[str, ...]
 required_checks_missing: tuple[str, ...]
+sensitive_files: tuple[str, ...]
+change_categories: tuple[str, ...]
+human_review_required: bool
 head_sha: str | None
+validation_sha: str | None
 ⋮----
 def to_dict(self) -> dict
 ⋮----
@@ -4490,7 +4543,11 @@ review_state = None
 ci_state = None
 status_state = None
 required_checks_missing: tuple[str, ...] = ()
+sensitive_files: tuple[str, ...] = ()
+change_categories: tuple[str, ...] = ()
+human_review_required = False
 head_sha = None
+validation_sha = None
 ⋮----
 issue = client.get_issue(repository, issue_number)
 issue_state = str(issue.get("state")) if issue else None
@@ -4502,17 +4559,27 @@ merged = bool(pr.get("merged") or pr.get("merged_at"))
 draft = bool(pr.get("draft"))
 head = pr.get("head") or {}
 head_sha = head.get("sha") if isinstance(head, dict) else None
+merge_sha = str(pr.get("merge_commit_sha") or "").strip()
+validation_sha = merge_sha if merged and merge_sha else head_sha
 base = pr.get("base") or {}
 base_ref = (
 ⋮----
 reviews = client.get_pull_request_reviews(repository, pr_number)
 review_state = _review_state(reviews)
 ⋮----
-runs = client.get_commit_workflow_runs(repository, head_sha)
+changed_paths = client.list_pull_request_files(repository, pr_number)
+change_review = review_changed_paths(changed_paths)
+⋮----
+change_review = review_changed_paths(())
+sensitive_files = change_review.sensitive_files
+change_categories = change_review.categories
+human_review_required = change_review.requires_human_review
+⋮----
+runs = client.get_commit_workflow_runs(repository, validation_sha)
 ci_state = _ci_state(runs)
-statuses = client.get_commit_statuses(repository, head_sha)
+statuses = client.get_commit_statuses(repository, validation_sha)
 status_state = _status_state(statuses)
-check_runs = client.get_commit_check_runs(repository, head_sha)
+check_runs = client.get_commit_check_runs(repository, validation_sha)
 required = (
 required_checks_missing = _missing_required_checks(
 ⋮----
@@ -6477,6 +6544,25 @@ validation_plan = [
 ⋮----
 missing = [
 major_mismatches = [
+```
+
+## File: production_os/rollback_plan.py
+```python
+"""Build safe compensating rollback instructions for a failed merged change."""
+⋮----
+_SHA40 = re.compile(r"^[0-9a-f]{40}$")
+⋮----
+repo = str(repository or "").strip()
+parts = repo.split("/")
+⋮----
+sha = str(merge_sha or "").strip().lower()
+⋮----
+summary = str(failure_summary or "").strip()[:4000]
+ci = ci if isinstance(ci, dict) else {}
+ci_bits = [
+excerpt = str(ci.get("log_excerpt") or "").strip()[:6000]
+⋮----
+instruction = [
 ```
 
 ## File: production_os/runtime_state.py

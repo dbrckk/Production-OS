@@ -3291,6 +3291,41 @@
       "line": 24
     },
     {
+      "file": "src/production_os/github_change_review.py",
+      "language": "python",
+      "kind": "class",
+      "name": "DiffReview",
+      "line": 40
+    },
+    {
+      "file": "src/production_os/github_change_review.py",
+      "language": "python",
+      "kind": "function",
+      "name": "to_dict",
+      "line": 47
+    },
+    {
+      "file": "src/production_os/github_change_review.py",
+      "language": "python",
+      "kind": "function",
+      "name": "_normalized",
+      "line": 57
+    },
+    {
+      "file": "src/production_os/github_change_review.py",
+      "language": "python",
+      "kind": "function",
+      "name": "review_changed_paths",
+      "line": 68
+    },
+    {
+      "file": "src/production_os/github_change_review.py",
+      "language": "python",
+      "kind": "function",
+      "name": "review_pull_request",
+      "line": 114
+    },
+    {
       "file": "src/production_os/github_client.py",
       "language": "python",
       "kind": "class",
@@ -3631,63 +3666,63 @@
       "language": "python",
       "kind": "class",
       "name": "GitHubWorkState",
-      "line": 10
+      "line": 11
     },
     {
       "file": "src/production_os/github_work_state.py",
       "language": "python",
       "kind": "function",
       "name": "to_dict",
-      "line": 26
+      "line": 31
     },
     {
       "file": "src/production_os/github_work_state.py",
       "language": "python",
       "kind": "function",
       "name": "_review_state",
-      "line": 45
+      "line": 54
     },
     {
       "file": "src/production_os/github_work_state.py",
       "language": "python",
       "kind": "function",
       "name": "_ci_state",
-      "line": 58
+      "line": 67
     },
     {
       "file": "src/production_os/github_work_state.py",
       "language": "python",
       "kind": "function",
       "name": "_status_state",
-      "line": 76
+      "line": 85
     },
     {
       "file": "src/production_os/github_work_state.py",
       "language": "python",
       "kind": "function",
       "name": "_missing_required_checks",
-      "line": 89
+      "line": 98
     },
     {
       "file": "src/production_os/github_work_state.py",
       "language": "python",
       "kind": "function",
       "name": "_promotion_readiness",
-      "line": 119
+      "line": 128
     },
     {
       "file": "src/production_os/github_work_state.py",
       "language": "python",
       "kind": "function",
       "name": "fetch_github_work_state",
-      "line": 147
+      "line": 159
     },
     {
       "file": "src/production_os/github_work_state.py",
       "language": "python",
       "kind": "function",
       "name": "runtime_decision_from_github",
-      "line": 232
+      "line": 264
     },
     {
       "file": "src/production_os/governance.py",
@@ -5781,6 +5816,13 @@
       "kind": "function",
       "name": "detect_reuse",
       "line": 81
+    },
+    {
+      "file": "src/production_os/rollback_plan.py",
+      "language": "python",
+      "kind": "function",
+      "name": "build_rollback_plan",
+      "line": 10
     },
     {
       "file": "src/production_os/runtime_state.py",
@@ -12027,6 +12069,34 @@
       "line": 10
     },
     {
+      "file": "tests/test_github_change_review.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_review_changed_paths_allows_ordinary_source_changes",
+      "line": 4
+    },
+    {
+      "file": "tests/test_github_change_review.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_review_changed_paths_flags_security_runtime_and_schema_surfaces",
+      "line": 15
+    },
+    {
+      "file": "tests/test_github_change_review.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_review_changed_paths_flags_credential_material",
+      "line": 33
+    },
+    {
+      "file": "tests/test_github_change_review.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_review_changed_paths_fails_closed_when_file_list_unavailable",
+      "line": 45
+    },
+    {
       "file": "tests/test_github_client_pr_files.py",
       "language": "python",
       "kind": "class",
@@ -12184,85 +12254,106 @@
       "file": "tests/test_github_work_state.py",
       "language": "python",
       "kind": "function",
-      "name": "test_merged_pr_promotes",
-      "line": 31
-    },
-    {
-      "file": "tests/test_github_work_state.py",
-      "language": "python",
-      "kind": "function",
-      "name": "test_failed_ci_retries",
+      "name": "test_merged_pr_promotes_only_after_post_merge_validation_passes",
       "line": 35
     },
     {
       "file": "tests/test_github_work_state.py",
       "language": "python",
       "kind": "function",
+      "name": "test_merged_pr_rolls_back_when_post_merge_ci_fails",
+      "line": 46
+    },
+    {
+      "file": "tests/test_github_work_state.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_merged_pr_waits_while_post_merge_validation_is_running",
+      "line": 57
+    },
+    {
+      "file": "tests/test_github_work_state.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_failed_ci_retries",
+      "line": 68
+    },
+    {
+      "file": "tests/test_github_work_state.py",
+      "language": "python",
+      "kind": "function",
       "name": "test_closed_unmerged_pr_replans",
-      "line": 39
+      "line": 72
     },
     {
       "file": "tests/test_github_work_state.py",
       "language": "python",
       "kind": "function",
       "name": "test_ci_state_does_not_pass_while_any_workflow_is_running",
-      "line": 43
+      "line": 76
     },
     {
       "file": "tests/test_github_work_state.py",
       "language": "python",
       "kind": "function",
       "name": "test_ci_state_passes_only_when_all_workflows_complete_successfully",
-      "line": 51
+      "line": 84
     },
     {
       "file": "tests/test_github_work_state.py",
       "language": "python",
       "kind": "function",
       "name": "test_external_commit_statuses_fail_closed",
-      "line": 62
+      "line": 95
     },
     {
       "file": "tests/test_github_work_state.py",
       "language": "python",
       "kind": "function",
       "name": "test_external_failed_status_retries",
-      "line": 77
+      "line": 110
     },
     {
       "file": "tests/test_github_work_state.py",
       "language": "python",
       "kind": "function",
       "name": "test_pending_external_status_remains_running",
-      "line": 83
+      "line": 116
     },
     {
       "file": "tests/test_github_work_state.py",
       "language": "python",
       "kind": "function",
       "name": "test_promotion_readiness_requires_open_non_draft_green_pr",
-      "line": 89
+      "line": 122
     },
     {
       "file": "tests/test_github_work_state.py",
       "language": "python",
       "kind": "function",
       "name": "test_missing_required_checks_detects_absent_contexts_across_sources",
-      "line": 126
+      "line": 159
     },
     {
       "file": "tests/test_github_work_state.py",
       "language": "python",
       "kind": "function",
       "name": "test_unknown_branch_protection_check_set_blocks_promotion",
-      "line": 136
+      "line": 169
     },
     {
       "file": "tests/test_github_work_state.py",
       "language": "python",
       "kind": "function",
       "name": "test_promotion_readiness_blocks_when_required_check_is_missing",
-      "line": 146
+      "line": 179
+    },
+    {
+      "file": "tests/test_github_work_state.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_promotion_readiness_blocks_sensitive_changes",
+      "line": 195
     },
     {
       "file": "tests/test_governance.py",
@@ -14223,6 +14314,20 @@
       "kind": "function",
       "name": "test_result_cache_roundtrip",
       "line": 5
+    },
+    {
+      "file": "tests/test_rollback_plan.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_build_rollback_plan_is_compensating_and_preserves_history",
+      "line": 6
+    },
+    {
+      "file": "tests/test_rollback_plan.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_build_rollback_plan_rejects_unpinned_merge_commit",
+      "line": 30
     },
     {
       "file": "tests/test_runtime_state.py",

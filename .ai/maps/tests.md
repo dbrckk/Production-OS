@@ -100,6 +100,7 @@ test_execution_feedback_trends.py
 test_execution_optimizer_postgres.py
 test_execution_optimizer.py
 test_fairness.py
+test_github_change_review.py
 test_github_client_pr_files.py
 test_github_client_put_file.py
 test_github_webhook.py
@@ -159,6 +160,7 @@ test_remote_worker_runner.py
 test_remote_worker.py
 test_render_start.py
 test_result_cache.py
+test_rollback_plan.py
 test_runtime_state.py
 test_scheduler.py
 test_scoring.py
@@ -2931,6 +2933,21 @@ rows=[
 result=round_robin_by_repository(rows)
 ```
 
+## File: test_github_change_review.py
+```python
+def test_review_changed_paths_allows_ordinary_source_changes()
+⋮----
+review = review_changed_paths([
+⋮----
+def test_review_changed_paths_flags_security_runtime_and_schema_surfaces()
+⋮----
+def test_review_changed_paths_flags_credential_material()
+⋮----
+def test_review_changed_paths_fails_closed_when_file_list_unavailable()
+⋮----
+review = review_changed_paths([])
+```
+
 ## File: test_github_client_pr_files.py
 ```python
 class FakeGitHubClient(GitHubClient)
@@ -3022,7 +3039,11 @@ def state(**kwargs)
 ⋮----
 base = dict(
 ⋮----
-def test_merged_pr_promotes()
+def test_merged_pr_promotes_only_after_post_merge_validation_passes()
+⋮----
+def test_merged_pr_rolls_back_when_post_merge_ci_fails()
+⋮----
+def test_merged_pr_waits_while_post_merge_validation_is_running()
 ⋮----
 def test_failed_ci_retries()
 ⋮----
@@ -3049,6 +3070,8 @@ missing = _missing_required_checks(
 def test_unknown_branch_protection_check_set_blocks_promotion()
 ⋮----
 def test_promotion_readiness_blocks_when_required_check_is_missing()
+⋮----
+def test_promotion_readiness_blocks_sensitive_changes()
 ```
 
 ## File: test_governance.py
@@ -4759,7 +4782,11 @@ database = str(tmp_path / "one-tap-runner-failure.sqlite")
 ⋮----
 executor = tmp_path / "failed_executor.py"
 ⋮----
-outcomes = runner.run(cycles=3, idle_sleep_seconds=0)
+# Polling cycles are not equivalent to claimed jobs: after a failed
+# executor result, workflow reconciliation can requeue the retry just
+# after a poll. Allow bounded spare polls while still asserting exactly
+# three real attempts below.
+outcomes = runner.run(cycles=6, idle_sleep_seconds=0)
 ⋮----
 # Managed Project implementation tasks have max_attempts=3. A worker
 # failure is automatically retried with a new job key until that
@@ -4980,6 +5007,15 @@ cache=ResultCache(backend)
 key=fingerprint(repository="o/a",task="Build",inputs={"commit":"abc"})
 ⋮----
 hit=cache.get(key)
+```
+
+## File: test_rollback_plan.py
+```python
+def test_build_rollback_plan_is_compensating_and_preserves_history()
+⋮----
+plan = build_rollback_plan(
+⋮----
+def test_build_rollback_plan_rejects_unpinned_merge_commit()
 ```
 
 ## File: test_runtime_state.py

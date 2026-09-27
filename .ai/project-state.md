@@ -22,25 +22,29 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-27T07:35:22Z
+Generated: 2026-09-27T08:51:36Z
 
 ### Git
 - Branch: `main`
-- Head: `e456ba159fdf`
-- Commit date: 2026-09-27T09:35:12+02:00
-- Commit: feat: add autonomous CI diagnostics and promotion gates
-- Tracked files: 464
+- Head: `3a957cfc21e4`
+- Commit date: 2026-09-27T10:51:24+02:00
+- Commit: feat: add autonomous diff review and safe rollback policy
+- Tracked files: 468
 
 ### Recently changed files
+- `src/production_os/github_change_review.py`
+- `src/production_os/github_work_state.py`
+- `src/production_os/rollback_plan.py`
+- `tests/test_github_change_review.py`
+- `tests/test_github_work_state.py`
+- `tests/test_release51_one_tap_runner_e2e.py`
+- `tests/test_rollback_plan.py`
 - `src/production_os/dashboard_ui.py`
 - `src/production_os/github_client.py`
-- `src/production_os/github_work_state.py`
 - `src/production_os/managed_projects.py`
 - `src/production_os/workflow_engine.py`
 - `tests/test_dashboard_ui_v3.py`
-- `tests/test_github_work_state.py`
 - `tests/test_managed_project_outcome.py`
-- `tests/test_release51_one_tap_runner_e2e.py`
 - `tests/test_workflow_engine.py`
 - `src/production_os/remote_worker.py`
 - `tests/test_release55_worker_operations.py`

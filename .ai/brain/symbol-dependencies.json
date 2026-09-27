@@ -5,783 +5,59 @@
   "semantic": false,
   "note": "Dependencies are known symbol names lexically present inside the symbol's AST/source range.",
   "symbols": {
-    "GitHubAPIError": {
+    "DiffReview": {
       "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 17,
-        "end": 18
+        "file": "src/production_os/github_change_review.py",
+        "start": 40,
+        "end": 54
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/github_change_review.py",
+              "line": 47,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "to_dict": {
+      "source": {
+        "file": "src/production_os/github_change_review.py",
+        "start": 47,
+        "end": 54
       },
       "symbol_dependencies": [],
       "dependency_count": 0
     },
-    "GitHubClient": {
+    "_normalized": {
       "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 21,
-        "end": 749
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "RepoEvidence",
-          "definitions": [
-            {
-              "file": "src/production_os/models.py",
-              "line": 8,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "StripCredentialRedirect",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 344,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "TreeSamplePolicy",
-          "definitions": [
-            {
-              "file": "src/production_os/source_tree.py",
-              "line": 18,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "__init__",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 24,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_collect_source_documents",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 625,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_contents",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 563,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_headers",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 28,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_latest_workflow_run",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 600,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_read_text",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 574,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_recursive_tree_paths",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 611,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 57,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request_json_with_headers",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "collect_evidence",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 672,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "commit_files",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 128,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "default_branch_commit_count",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 89,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "dispatch_workflow",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 254,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "download_workflow_artifact",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 325,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_branch_protection",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 372,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_branch_required_checks",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 388,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_commit_check_runs",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 499,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_commit_statuses",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 487,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_commit_workflow_runs",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 475,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_issue",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 420,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_pull_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 427,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_pull_request_reviews",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 434,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "is_candidate_file",
-          "definitions": [
-            {
-              "file": "src/production_os/source_tree.py",
-              "line": 24,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "latest_ci_status",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 122,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "latest_commit",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 117,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "latest_release",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 108,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "list_accessible_repositories",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 511,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "list_pull_request_files",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 442,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "list_repositories",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 547,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "open_pull_request_count",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 102,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "path_priority",
-          "definitions": [
-            {
-              "file": "src/production_os/source_tree.py",
-              "line": 39,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "put_file",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 213,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "read_json_file",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 590,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "redirect_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 345,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "repository",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 83,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 40
-    },
-    "__init__": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 24,
-        "end": 144
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_headers",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 28,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_latest_workflow_run",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 600,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 57,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request_json_with_headers",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "commit_files",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 128,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "default_branch_commit_count",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 89,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "latest_ci_status",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 122,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "latest_commit",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 117,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "latest_release",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 108,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "open_pull_request_count",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 102,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "repository",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 83,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 13
-    },
-    "_headers": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 28,
-        "end": 34
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "_request_json_with_headers": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 36,
-        "end": 51
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_headers",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 28,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "_get": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 53,
-        "end": 55
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_headers",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 28,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request_json_with_headers",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "_request": {
-      "source": {
-        "file": "src/production_os/github_client.py",
+        "file": "src/production_os/github_change_review.py",
         "start": 57,
-        "end": 81
+        "end": 65
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
+      "symbol_dependencies": [],
+      "dependency_count": 0
     },
-    "repository": {
+    "review_changed_paths": {
       "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 83,
-        "end": 87
+        "file": "src/production_os/github_change_review.py",
+        "start": 68,
+        "end": 111
       },
       "symbol_dependencies": [
         {
-          "symbol": "GitHubAPIError",
+          "symbol": "DiffReview",
           "definitions": [
             {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
+              "file": "src/production_os/github_change_review.py",
+              "line": 40,
               "kind": "class",
               "language": "python"
             }
@@ -789,306 +65,10 @@
           "relation": "same_file"
         },
         {
-          "symbol": "_get",
+          "symbol": "_normalized",
           "definitions": [
             {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "default_branch_commit_count": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 89,
-        "end": 100
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request_json_with_headers",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "open_pull_request_count": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 102,
-        "end": 106
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "latest_release": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 108,
-        "end": 115
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "latest_commit": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 117,
-        "end": 120
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "latest_ci_status": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 122,
-        "end": 126
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_latest_workflow_run",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 600,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "commit_files": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 128,
-        "end": 210
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 57,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "repository",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 83,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "put_file": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 213,
-        "end": 251
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 57,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "repository",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 83,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "dispatch_workflow": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 254,
-        "end": 269
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
+              "file": "src/production_os/github_change_review.py",
               "line": 57,
               "kind": "function",
               "language": "python"
@@ -1099,41 +79,19 @@
       ],
       "dependency_count": 2
     },
-    "workflow_runs": {
+    "review_pull_request": {
       "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 274,
-        "end": 288
+        "file": "src/production_os/github_change_review.py",
+        "start": 114,
+        "end": 116
       },
       "symbol_dependencies": [
         {
-          "symbol": "_get",
+          "symbol": "DiffReview",
           "definitions": [
             {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "wait_for_workflow_run": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 290,
-        "end": 312
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
+              "file": "src/production_os/github_change_review.py",
+              "line": 40,
               "kind": "class",
               "language": "python"
             }
@@ -1141,11 +99,11 @@
           "relation": "same_file"
         },
         {
-          "symbol": "workflow_runs",
+          "symbol": "review_changed_paths",
           "definitions": [
             {
-              "file": "src/production_os/github_client.py",
-              "line": 274,
+              "file": "src/production_os/github_change_review.py",
+              "line": 68,
               "kind": "function",
               "language": "python"
             }
@@ -1154,1024 +112,12 @@
         }
       ],
       "dependency_count": 2
-    },
-    "workflow_run_artifacts": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 314,
-        "end": 323
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "download_workflow_artifact": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 325,
-        "end": 370
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "StripCredentialRedirect",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 344,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "redirect_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 345,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "StripCredentialRedirect": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 344,
-        "end": 464
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_branch_protection",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 372,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_branch_required_checks",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 388,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_issue",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 420,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_pull_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 427,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_pull_request_reviews",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 434,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "list_pull_request_files",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 442,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "redirect_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 345,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 9
-    },
-    "redirect_request": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 345,
-        "end": 465
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "StripCredentialRedirect",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 344,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_branch_protection",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 372,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_branch_required_checks",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 388,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_issue",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 420,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_pull_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 427,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_pull_request_reviews",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 434,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "list_pull_request_files",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 442,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 9
-    },
-    "get_branch_protection": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 372,
-        "end": 386
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "get_branch_required_checks": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 388,
-        "end": 418
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "get_issue": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 420,
-        "end": 425
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "get_pull_request": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 427,
-        "end": 432
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "get_pull_request_reviews": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 434,
-        "end": 439
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "list_pull_request_files": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 442,
-        "end": 473
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "get_commit_workflow_runs": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 475,
-        "end": 485
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "workflow_runs",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 274,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "get_commit_statuses": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 487,
-        "end": 497
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "get_commit_check_runs": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 499,
-        "end": 509
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "list_accessible_repositories": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 511,
-        "end": 545
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "list_repositories",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 547,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "list_repositories": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 547,
-        "end": 561
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "_contents": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 563,
-        "end": 572
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "_read_text": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 574,
-        "end": 588
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "read_json_file": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 590,
-        "end": 598
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_read_text",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 574,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "_latest_workflow_run": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 600,
-        "end": 609
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "workflow_runs",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 274,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "_recursive_tree_paths": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 611,
-        "end": 623
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "_collect_source_documents": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 625,
-        "end": 670
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "TreeSamplePolicy",
-          "definitions": [
-            {
-              "file": "src/production_os/source_tree.py",
-              "line": 18,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_read_text",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 574,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_recursive_tree_paths",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 611,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "is_candidate_file",
-          "definitions": [
-            {
-              "file": "src/production_os/source_tree.py",
-              "line": 24,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "path_priority",
-          "definitions": [
-            {
-              "file": "src/production_os/source_tree.py",
-              "line": 39,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 5
-    },
-    "collect_evidence": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 672,
-        "end": 749
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "RepoEvidence",
-          "definitions": [
-            {
-              "file": "src/production_os/models.py",
-              "line": 8,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_collect_source_documents",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 625,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_contents",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 563,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_latest_workflow_run",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 600,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_read_text",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 574,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "latest_ci_status",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 122,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 6
     },
     "GitHubWorkState": {
       "source": {
         "file": "src/production_os/github_work_state.py",
-        "start": 10,
-        "end": 42
+        "start": 11,
+        "end": 51
       },
       "symbol_dependencies": [
         {
@@ -2191,7 +137,7 @@
           "definitions": [
             {
               "file": "src/production_os/github_work_state.py",
-              "line": 26,
+              "line": 31,
               "kind": "function",
               "language": "python"
             }
@@ -2201,33 +147,11 @@
       ],
       "dependency_count": 2
     },
-    "to_dict": {
-      "source": {
-        "file": "src/production_os/github_work_state.py",
-        "start": 26,
-        "end": 42
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "repository",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 83,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 1
-    },
     "_review_state": {
       "source": {
         "file": "src/production_os/github_work_state.py",
-        "start": 45,
-        "end": 55
+        "start": 54,
+        "end": 64
       },
       "symbol_dependencies": [],
       "dependency_count": 0
@@ -2235,8 +159,8 @@
     "_ci_state": {
       "source": {
         "file": "src/production_os/github_work_state.py",
-        "start": 58,
-        "end": 73
+        "start": 67,
+        "end": 82
       },
       "symbol_dependencies": [],
       "dependency_count": 0
@@ -2244,8 +168,8 @@
     "_status_state": {
       "source": {
         "file": "src/production_os/github_work_state.py",
-        "start": 76,
-        "end": 86
+        "start": 85,
+        "end": 95
       },
       "symbol_dependencies": [],
       "dependency_count": 0
@@ -2253,8 +177,8 @@
     "_missing_required_checks": {
       "source": {
         "file": "src/production_os/github_work_state.py",
-        "start": 89,
-        "end": 116
+        "start": 98,
+        "end": 125
       },
       "symbol_dependencies": [
         {
@@ -2275,8 +199,8 @@
     "_promotion_readiness": {
       "source": {
         "file": "src/production_os/github_work_state.py",
-        "start": 119,
-        "end": 144
+        "start": 128,
+        "end": 156
       },
       "symbol_dependencies": [],
       "dependency_count": 0
@@ -2284,10 +208,22 @@
     "fetch_github_work_state": {
       "source": {
         "file": "src/production_os/github_work_state.py",
-        "start": 147,
-        "end": 229
+        "start": 159,
+        "end": 261
       },
       "symbol_dependencies": [
+        {
+          "symbol": "GitHubAPIError",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 17,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
         {
           "symbol": "GitHubClient",
           "definitions": [
@@ -2305,7 +241,7 @@
           "definitions": [
             {
               "file": "src/production_os/github_work_state.py",
-              "line": 10,
+              "line": 11,
               "kind": "class",
               "language": "python"
             }
@@ -2317,7 +253,7 @@
           "definitions": [
             {
               "file": "src/production_os/github_work_state.py",
-              "line": 58,
+              "line": 67,
               "kind": "function",
               "language": "python"
             }
@@ -2329,7 +265,7 @@
           "definitions": [
             {
               "file": "src/production_os/github_work_state.py",
-              "line": 89,
+              "line": 98,
               "kind": "function",
               "language": "python"
             }
@@ -2341,7 +277,7 @@
           "definitions": [
             {
               "file": "src/production_os/github_work_state.py",
-              "line": 119,
+              "line": 128,
               "kind": "function",
               "language": "python"
             }
@@ -2353,7 +289,7 @@
           "definitions": [
             {
               "file": "src/production_os/github_work_state.py",
-              "line": 45,
+              "line": 54,
               "kind": "function",
               "language": "python"
             }
@@ -2365,7 +301,7 @@
           "definitions": [
             {
               "file": "src/production_os/github_work_state.py",
-              "line": 76,
+              "line": 85,
               "kind": "function",
               "language": "python"
             }
@@ -2457,11 +393,35 @@
           "relation": "imported_module"
         },
         {
+          "symbol": "list_pull_request_files",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 442,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
           "symbol": "repository",
           "definitions": [
             {
               "file": "src/production_os/github_client.py",
               "line": 83,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "review_changed_paths",
+          "definitions": [
+            {
+              "file": "src/production_os/github_change_review.py",
+              "line": 68,
               "kind": "function",
               "language": "python"
             }
@@ -2481,13 +441,13 @@
           "relation": "imported_module"
         }
       ],
-      "dependency_count": 16
+      "dependency_count": 19
     },
     "runtime_decision_from_github": {
       "source": {
         "file": "src/production_os/github_work_state.py",
-        "start": 232,
-        "end": 243
+        "start": 264,
+        "end": 279
       },
       "symbol_dependencies": [
         {
@@ -2495,81 +455,160 @@
           "definitions": [
             {
               "file": "src/production_os/github_work_state.py",
+              "line": 11,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "build_rollback_plan": {
+      "source": {
+        "file": "src/production_os/rollback_plan.py",
+        "start": 10,
+        "end": 62
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "test_review_changed_paths_allows_ordinary_source_changes": {
+      "source": {
+        "file": "tests/test_github_change_review.py",
+        "start": 4,
+        "end": 12
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "review_changed_paths",
+          "definitions": [
+            {
+              "file": "src/production_os/github_change_review.py",
+              "line": 68,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "test_review_changed_paths_flags_security_runtime_and_schema_surfaces": {
+      "source": {
+        "file": "tests/test_github_change_review.py",
+        "start": 15,
+        "end": 30
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "review_changed_paths",
+          "definitions": [
+            {
+              "file": "src/production_os/github_change_review.py",
+              "line": 68,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "test_review_changed_paths_flags_credential_material": {
+      "source": {
+        "file": "tests/test_github_change_review.py",
+        "start": 33,
+        "end": 42
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "review_changed_paths",
+          "definitions": [
+            {
+              "file": "src/production_os/github_change_review.py",
+              "line": 68,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "test_review_changed_paths_fails_closed_when_file_list_unavailable": {
+      "source": {
+        "file": "tests/test_github_change_review.py",
+        "start": 45,
+        "end": 49
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "review_changed_paths",
+          "definitions": [
+            {
+              "file": "src/production_os/github_change_review.py",
+              "line": 68,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "state": {
+      "source": {
+        "file": "tests/test_github_work_state.py",
+        "start": 10,
+        "end": 32
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "GitHubWorkState",
+          "definitions": [
+            {
+              "file": "src/production_os/github_work_state.py",
+              "line": 11,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "test_merged_pr_promotes_only_after_post_merge_validation_passes": {
+      "source": {
+        "file": "tests/test_github_work_state.py",
+        "start": 35,
+        "end": 43
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "runtime_decision_from_github",
+          "definitions": [
+            {
+              "file": "src/production_os/github_work_state.py",
+              "line": 264,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "state",
+          "definitions": [
+            {
+              "file": "tests/test_github_work_state.py",
               "line": 10,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "_now": {
-      "source": {
-        "file": "src/production_os/managed_projects.py",
-        "start": 25,
-        "end": 26
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "_positive_int": {
-      "source": {
-        "file": "src/production_os/managed_projects.py",
-        "start": 29,
-        "end": 38
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "_usage_from_result": {
-      "source": {
-        "file": "src/production_os/managed_projects.py",
-        "start": 41,
-        "end": 93
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 758,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "_clean_commit_shas": {
-      "source": {
-        "file": "src/production_os/managed_projects.py",
-        "start": 96,
-        "end": 112
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 758,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "list",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 810,
               "kind": "function",
               "language": "python"
             }
@@ -2579,43 +618,31 @@
       ],
       "dependency_count": 2
     },
-    "_outcome_from_workflow": {
+    "test_merged_pr_rolls_back_when_post_merge_ci_fails": {
       "source": {
-        "file": "src/production_os/managed_projects.py",
-        "start": 115,
-        "end": 290
+        "file": "tests/test_github_work_state.py",
+        "start": 46,
+        "end": 54
       },
       "symbol_dependencies": [
         {
-          "symbol": "_clean_commit_shas",
+          "symbol": "runtime_decision_from_github",
           "definitions": [
             {
-              "file": "src/production_os/managed_projects.py",
-              "line": 96,
+              "file": "src/production_os/github_work_state.py",
+              "line": 264,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "same_file"
+          "relation": "imported_module"
         },
         {
-          "symbol": "get",
+          "symbol": "state",
           "definitions": [
             {
-              "file": "src/production_os/managed_projects.py",
-              "line": 758,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "list",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 810,
+              "file": "tests/test_github_work_state.py",
+              "line": 10,
               "kind": "function",
               "language": "python"
             }
@@ -2623,69 +650,291 @@
           "relation": "same_file"
         }
       ],
-      "dependency_count": 3
+      "dependency_count": 2
     },
-    "ManagedProjectService": {
+    "test_merged_pr_waits_while_post_merge_validation_is_running": {
       "source": {
-        "file": "src/production_os/managed_projects.py",
-        "start": 293,
-        "end": 1014
+        "file": "tests/test_github_work_state.py",
+        "start": 57,
+        "end": 65
       },
       "symbol_dependencies": [
         {
-          "symbol": "WorkflowEngine",
+          "symbol": "runtime_decision_from_github",
           "definitions": [
             {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 125,
-              "kind": "class",
+              "file": "src/production_os/github_work_state.py",
+              "line": 264,
+              "kind": "function",
               "language": "python"
             }
           ],
           "relation": "imported_module"
         },
         {
-          "symbol": "WorkflowTaskSpec",
+          "symbol": "state",
           "definitions": [
             {
-              "file": "src/production_os/workflow_engine.py",
+              "file": "tests/test_github_work_state.py",
+              "line": 10,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "test_failed_ci_retries": {
+      "source": {
+        "file": "tests/test_github_work_state.py",
+        "start": 68,
+        "end": 69
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "runtime_decision_from_github",
+          "definitions": [
+            {
+              "file": "src/production_os/github_work_state.py",
+              "line": 264,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "state",
+          "definitions": [
+            {
+              "file": "tests/test_github_work_state.py",
+              "line": 10,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "test_closed_unmerged_pr_replans": {
+      "source": {
+        "file": "tests/test_github_work_state.py",
+        "start": 72,
+        "end": 73
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "runtime_decision_from_github",
+          "definitions": [
+            {
+              "file": "src/production_os/github_work_state.py",
+              "line": 264,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "state",
+          "definitions": [
+            {
+              "file": "tests/test_github_work_state.py",
+              "line": 10,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "test_ci_state_does_not_pass_while_any_workflow_is_running": {
+      "source": {
+        "file": "tests/test_github_work_state.py",
+        "start": 76,
+        "end": 81
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_ci_state",
+          "definitions": [
+            {
+              "file": "src/production_os/github_work_state.py",
+              "line": 67,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "test_ci_state_passes_only_when_all_workflows_complete_successfully": {
+      "source": {
+        "file": "tests/test_github_work_state.py",
+        "start": 84,
+        "end": 92
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_ci_state",
+          "definitions": [
+            {
+              "file": "src/production_os/github_work_state.py",
+              "line": 67,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "test_external_commit_statuses_fail_closed": {
+      "source": {
+        "file": "tests/test_github_work_state.py",
+        "start": 95,
+        "end": 107
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_status_state",
+          "definitions": [
+            {
+              "file": "src/production_os/github_work_state.py",
+              "line": 85,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "state",
+          "definitions": [
+            {
+              "file": "tests/test_github_work_state.py",
+              "line": 10,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "test_external_failed_status_retries": {
+      "source": {
+        "file": "tests/test_github_work_state.py",
+        "start": 110,
+        "end": 113
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "runtime_decision_from_github",
+          "definitions": [
+            {
+              "file": "src/production_os/github_work_state.py",
+              "line": 264,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "state",
+          "definitions": [
+            {
+              "file": "tests/test_github_work_state.py",
+              "line": 10,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "test_pending_external_status_remains_running": {
+      "source": {
+        "file": "tests/test_github_work_state.py",
+        "start": 116,
+        "end": 119
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "runtime_decision_from_github",
+          "definitions": [
+            {
+              "file": "src/production_os/github_work_state.py",
+              "line": 264,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "state",
+          "definitions": [
+            {
+              "file": "tests/test_github_work_state.py",
+              "line": 10,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "test_promotion_readiness_requires_open_non_draft_green_pr": {
+      "source": {
+        "file": "tests/test_github_work_state.py",
+        "start": 122,
+        "end": 156
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_promotion_readiness",
+          "definitions": [
+            {
+              "file": "src/production_os/github_work_state.py",
+              "line": 128,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "test_missing_required_checks_detects_absent_contexts_across_sources": {
+      "source": {
+        "file": "tests/test_github_work_state.py",
+        "start": 159,
+        "end": 166
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_missing_required_checks",
+          "definitions": [
+            {
+              "file": "src/production_os/github_work_state.py",
               "line": 98,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_create_workflow",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 341,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_delete_unstarted_workflow",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 383,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 30,
               "kind": "function",
               "language": "python"
             }
@@ -2693,215 +942,11 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "_follow_up",
+          "symbol": "state",
           "definitions": [
             {
-              "file": "src/production_os/managed_projects.py",
-              "line": 848,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_migrate_legacy_workflow",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 578,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 25,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_outcome_from_workflow",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 115,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_positive_int",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 29,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_resolve_project_id",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 550,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_usage",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 730,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_usage_from_result",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 41,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_validate_repository",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 299,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_workflow_spec",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 309,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "add_instruction",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 945,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "create",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 398,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "dispatch_ready",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 1100,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 758,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "list",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 810,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "mark_done",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 978,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "reconcile",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 673,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "request_verification",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 959,
+              "file": "tests/test_github_work_state.py",
+              "line": 10,
               "kind": "function",
               "language": "python"
             }
@@ -2909,110 +954,21 @@
           "relation": "same_file"
         }
       ],
-      "dependency_count": 23
+      "dependency_count": 2
     },
-    "_validate_repository": {
+    "test_unknown_branch_protection_check_set_blocks_promotion": {
       "source": {
-        "file": "src/production_os/managed_projects.py",
-        "start": 299,
-        "end": 307
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "_workflow_spec": {
-      "source": {
-        "file": "src/production_os/managed_projects.py",
-        "start": 309,
-        "end": 339
+        "file": "tests/test_github_work_state.py",
+        "start": 169,
+        "end": 176
       },
       "symbol_dependencies": [
         {
-          "symbol": "WorkflowTaskSpec",
+          "symbol": "_missing_required_checks",
           "definitions": [
             {
-              "file": "src/production_os/workflow_engine.py",
+              "file": "src/production_os/github_work_state.py",
               "line": 98,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "_create_workflow": {
-      "source": {
-        "file": "src/production_os/managed_projects.py",
-        "start": 341,
-        "end": 381
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_workflow_spec",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 309,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "create",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 398,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "dispatch_ready",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 1100,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 758,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "_delete_unstarted_workflow": {
-      "source": {
-        "file": "src/production_os/managed_projects.py",
-        "start": 383,
-        "end": 396
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 30,
               "kind": "function",
               "language": "python"
             }
@@ -3022,752 +978,63 @@
       ],
       "dependency_count": 1
     },
-    "create": {
+    "test_promotion_readiness_blocks_when_required_check_is_missing": {
       "source": {
-        "file": "src/production_os/managed_projects.py",
-        "start": 398,
-        "end": 548
+        "file": "tests/test_github_work_state.py",
+        "start": 179,
+        "end": 192
       },
       "symbol_dependencies": [
         {
-          "symbol": "_create_workflow",
+          "symbol": "_promotion_readiness",
           "definitions": [
             {
-              "file": "src/production_os/managed_projects.py",
-              "line": 341,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_delete_unstarted_workflow",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 383,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 30,
+              "file": "src/production_os/github_work_state.py",
+              "line": 128,
               "kind": "function",
               "language": "python"
             }
           ],
           "relation": "imported_module"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 25,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_positive_int",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 29,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_validate_repository",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 299,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "dispatch_ready",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 1100,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 758,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 8
-    },
-    "_resolve_project_id": {
-      "source": {
-        "file": "src/production_os/managed_projects.py",
-        "start": 550,
-        "end": 576
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 30,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_migrate_legacy_workflow",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 578,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "_migrate_legacy_workflow": {
-      "source": {
-        "file": "src/production_os/managed_projects.py",
-        "start": 578,
-        "end": 671
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 30,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 25,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_positive_int",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 29,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 758,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "reconcile": {
-      "source": {
-        "file": "src/production_os/managed_projects.py",
-        "start": 673,
-        "end": 728
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 30,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 25,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_resolve_project_id",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 550,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 758,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "_usage": {
-      "source": {
-        "file": "src/production_os/managed_projects.py",
-        "start": 730,
-        "end": 756
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_usage_from_result",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 41,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 758,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "list",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 810,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "get": {
-      "source": {
-        "file": "src/production_os/managed_projects.py",
-        "start": 758,
-        "end": 808
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 30,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_outcome_from_workflow",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 115,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_usage",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 730,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "reconcile",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 673,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "list": {
-      "source": {
-        "file": "src/production_os/managed_projects.py",
-        "start": 810,
-        "end": 846
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 30,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_migrate_legacy_workflow",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 578,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 758,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "_follow_up": {
-      "source": {
-        "file": "src/production_os/managed_projects.py",
-        "start": 848,
-        "end": 943
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_create_workflow",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 341,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_delete_unstarted_workflow",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 383,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 30,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 25,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "dispatch_ready",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 1100,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 758,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 6
-    },
-    "add_instruction": {
-      "source": {
-        "file": "src/production_os/managed_projects.py",
-        "start": 945,
-        "end": 957
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_follow_up",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 848,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
         }
       ],
       "dependency_count": 1
     },
-    "request_verification": {
+    "test_promotion_readiness_blocks_sensitive_changes": {
       "source": {
-        "file": "src/production_os/managed_projects.py",
-        "start": 959,
-        "end": 976
+        "file": "tests/test_github_work_state.py",
+        "start": 195,
+        "end": 208
       },
       "symbol_dependencies": [
         {
-          "symbol": "_follow_up",
+          "symbol": "_promotion_readiness",
           "definitions": [
             {
-              "file": "src/production_os/managed_projects.py",
-              "line": 848,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 758,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "mark_done": {
-      "source": {
-        "file": "src/production_os/managed_projects.py",
-        "start": 978,
-        "end": 1014
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 30,
+              "file": "src/production_os/github_work_state.py",
+              "line": 128,
               "kind": "function",
               "language": "python"
             }
           ],
           "relation": "imported_module"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 25,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/managed_projects.py",
-              "line": 758,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
         }
       ],
-      "dependency_count": 3
+      "dependency_count": 1
     },
-    "_is_postgres": {
+    "_auth": {
       "source": {
-        "file": "src/production_os/workflow_engine.py",
-        "start": 22,
+        "file": "tests/test_release51_one_tap_runner_e2e.py",
+        "start": 18,
         "end": 23
       },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "_sql": {
-      "source": {
-        "file": "src/production_os/workflow_engine.py",
-        "start": 26,
-        "end": 27
-      },
       "symbol_dependencies": [
         {
-          "symbol": "_is_postgres",
+          "symbol": "TokenAuthorizer",
           "definitions": [
             {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 22,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "_execute": {
-      "source": {
-        "file": "src/production_os/workflow_engine.py",
-        "start": 30,
-        "end": 31
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_sql",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 26,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "_retry_context": {
-      "source": {
-        "file": "src/production_os/workflow_engine.py",
-        "start": 34,
-        "end": 94
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 796,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "WorkflowTaskSpec": {
-      "source": {
-        "file": "src/production_os/workflow_engine.py",
-        "start": 98,
-        "end": 122
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "from_dict",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 108,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 796,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "from_dict": {
-      "source": {
-        "file": "src/production_os/workflow_engine.py",
-        "start": 108,
-        "end": 122
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "WorkflowTaskSpec",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 98,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 796,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "WorkflowEngine": {
-      "source": {
-        "file": "src/production_os/workflow_engine.py",
-        "start": 125,
-        "end": 1668
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ResultCache",
-          "definitions": [
-            {
-              "file": "src/production_os/result_cache.py",
-              "line": 43,
+              "file": "src/production_os/api_auth.py",
+              "line": 31,
               "kind": "class",
               "language": "python"
             }
@@ -3775,442 +1042,132 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "WorkflowTaskSpec",
+          "symbol": "token_digest",
           "definitions": [
             {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 98,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_artifact_dict",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 863,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 30,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_expand_splittable_tasks",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 127,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
+              "file": "src/production_os/api_auth.py",
               "line": 18,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "same_file"
-        },
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "_request": {
+      "source": {
+        "file": "tests/test_release51_one_tap_runner_e2e.py",
+        "start": 26,
+        "end": 42
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "_server": {
+      "source": {
+        "file": "tests/test_release51_one_tap_runner_e2e.py",
+        "start": 45,
+        "end": 49
+      },
+      "symbol_dependencies": [
         {
-          "symbol": "_retry_context",
+          "symbol": "make_handler",
           "definitions": [
             {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 34,
+              "file": "src/production_os/control_plane.py",
+              "line": 352,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "same_file"
-        },
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "_stop": {
+      "source": {
+        "file": "tests/test_release51_one_tap_runner_e2e.py",
+        "start": 52,
+        "end": 55
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "test_release51_one_tap_launch_runs_through_real_runner_to_review_required": {
+      "source": {
+        "file": "tests/test_release51_one_tap_runner_e2e.py",
+        "start": 59,
+        "end": 159
+      },
+      "symbol_dependencies": [
         {
-          "symbol": "_spec_from_task",
+          "symbol": "ControlPlane",
           "definitions": [
             {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 460,
+              "file": "src/production_os/control_plane.py",
+              "line": 40,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "RemoteWorkerClient",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 22,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "RemoteWorkerRunner",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 14,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_request",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 39,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "same_file"
+          "relation": "imported_module"
         },
         {
-          "symbol": "_task_dict",
+          "symbol": "_stop",
           "definitions": [
             {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 840,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_validate",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 205,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "add_artifact",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 1570,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "add_task",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 909,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "analyze_change_impact",
-          "definitions": [
-            {
-              "file": "src/production_os/change_impact.py",
+              "file": "tests/test_release51_one_tap_runner_e2e.py",
               "line": 52,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "apply_change_impact",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 331,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
           "relation": "same_file"
         },
         {
-          "symbol": "assert_generation_current",
+          "symbol": "load",
           "definitions": [
             {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 1514,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "asset_forge_tool_contract",
-          "definitions": [
-            {
-              "file": "src/production_os/task_capabilities.py",
-              "line": 97,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "cancel",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 1475,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "create",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 240,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "create_from_pr_template",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 633,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "create_pr_generation",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 480,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "critical_path",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 1638,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "dispatch_ready",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 1100,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "ensure_pr_generation",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 679,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "find_by_github_pr",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 763,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "find_pr_template",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 610,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "fingerprint",
-          "definitions": [
-            {
-              "file": "src/production_os/result_cache.py",
-              "line": 24,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "generation_refreshable",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 664,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 796,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "inferred_required_capabilities",
-          "definitions": [
-            {
-              "file": "src/production_os/task_capabilities.py",
-              "line": 83,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "job_generation_current",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 1553,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "longest",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 1643,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "put",
-          "definitions": [
-            {
-              "file": "src/production_os/result_cache.py",
-              "line": 77,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "record_cancelled",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 1425,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "record_result",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 1266,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "refresh",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 991,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "retry_task",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 1349,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "supersede",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 508,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "task_key",
-          "definitions": [
-            {
-              "file": "src/production_os/runtime_state.py",
+              "file": "src/production_os/api_auth.py",
               "line": 36,
               "kind": "function",
               "language": "python"
@@ -4219,11 +1176,69 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "to_dict",
+          "symbol": "run",
           "definitions": [
             {
-              "file": "src/production_os/change_impact.py",
-              "line": 13,
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 327,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 7
+    },
+    "test_release51_executor_failure_surfaces_as_actionable_production": {
+      "source": {
+        "file": "tests/test_release51_one_tap_runner_e2e.py",
+        "start": 163,
+        "end": 258
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ControlPlane",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 40,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "RemoteWorkerClient",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 22,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "RemoteWorkerRunner",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 14,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_request",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 39,
               "kind": "function",
               "language": "python"
             }
@@ -4231,205 +1246,99 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "update_metadata",
+          "symbol": "_stop",
           "definitions": [
             {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 875,
+              "file": "tests/test_release51_one_tap_runner_e2e.py",
+              "line": 52,
               "kind": "function",
               "language": "python"
             }
           ],
           "relation": "same_file"
+        },
+        {
+          "symbol": "load",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 36,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "poll",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker.py",
+              "line": 211,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "run",
+          "definitions": [
+            {
+              "file": "src/production_os/remote_worker_runner.py",
+              "line": 327,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
         }
       ],
-      "dependency_count": 40
+      "dependency_count": 8
     },
-    "_expand_splittable_tasks": {
+    "test_build_rollback_plan_is_compensating_and_preserves_history": {
       "source": {
-        "file": "src/production_os/workflow_engine.py",
-        "start": 127,
-        "end": 197
+        "file": "tests/test_rollback_plan.py",
+        "start": 6,
+        "end": 27
       },
       "symbol_dependencies": [
         {
-          "symbol": "WorkflowTaskSpec",
+          "symbol": "build_rollback_plan",
           "definitions": [
             {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 98,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 796,
+              "file": "src/production_os/rollback_plan.py",
+              "line": 10,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "same_file"
+          "relation": "imported_module"
         }
       ],
-      "dependency_count": 2
+      "dependency_count": 1
     },
-    "_validate": {
+    "test_build_rollback_plan_rejects_unpinned_merge_commit": {
       "source": {
-        "file": "src/production_os/workflow_engine.py",
-        "start": 205,
-        "end": 238
+        "file": "tests/test_rollback_plan.py",
+        "start": 30,
+        "end": 35
       },
       "symbol_dependencies": [
         {
-          "symbol": "WorkflowTaskSpec",
+          "symbol": "build_rollback_plan",
           "definitions": [
             {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 98,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "visit",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 226,
+              "file": "src/production_os/rollback_plan.py",
+              "line": 10,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "same_file"
+          "relation": "imported_module"
         }
       ],
-      "dependency_count": 2
-    },
-    "visit": {
-      "source": {
-        "file": "src/production_os/workflow_engine.py",
-        "start": 226,
-        "end": 346
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "WorkflowTaskSpec",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 98,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 30,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_expand_splittable_tasks",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 127,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_now",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 18,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_validate",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 205,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "apply_change_impact",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 331,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "create",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 240,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 796,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "refresh",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 991,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 9
+      "dependency_count": 1
     }
   }
 }
