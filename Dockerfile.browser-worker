@@ -4,14 +4,15 @@ WORKDIR /app
 COPY pyproject.toml README.md LICENSE ./
 COPY src ./src
 
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+
 RUN python -m pip install --no-cache-dir ".[postgres]" "playwright==1.63.0" \
-    && python -m playwright install --with-deps chromium
+    && python -m playwright install --with-deps chromium \
+    && chmod -R a+rX /ms-playwright
 
 RUN useradd --create-home --uid 10001 productionos
 USER productionos
 WORKDIR /data
-
-ENV PLAYWRIGHT_BROWSERS_PATH=/root/.cache/ms-playwright
 
 ENTRYPOINT ["production-os"]
 CMD ["remote-worker-run","--help"]
