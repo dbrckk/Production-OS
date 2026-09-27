@@ -2,29 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat: control center release 14 backup readiness",
-      "terms": [
-        "14",
-        "backup",
-        "center",
-        "control",
-        "feat",
-        "readiness",
-        "release"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/control_plane.py",
-        "src/production_os/dashboard_backups.py",
-        "src/production_os/dashboard_service.py",
-        "src/production_os/dashboard_ui.py",
-        "tests/test_dashboard_backup_api.py",
-        "tests/test_dashboard_backups.py",
-        "tests/test_dashboard_ui_v3.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat: control center release 15 restore readiness",
       "terms": [
         "15",
@@ -1255,6 +1232,23 @@
         "tests/test_github_work_state.py",
         "tests/test_managed_github_reconciliation.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "fix(ui): stabilize mobile dashboard layout and accessibility",
+      "terms": [
+        "accessibility",
+        "dashboard",
+        "layout",
+        "mobile",
+        "stabilize",
+        "ui"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/dashboard_ui.py",
+        "tests/test_dashboard_mobile_stability.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1566,6 +1560,10 @@
     "accept": {
       "src/production_os/asset_forge.py": 4,
       "tests/test_asset_forge.py": 4
+    },
+    "accessibility": {
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_mobile_stability.py": 4
     },
     "actions": {
       "src/production_os/dashboard_service.py": 8,
@@ -2066,7 +2064,7 @@
       "src/production_os/dashboard_security.py": 4,
       "src/production_os/dashboard_service.py": 12,
       "src/production_os/dashboard_store.py": 8,
-      "src/production_os/dashboard_ui.py": 16,
+      "src/production_os/dashboard_ui.py": 20,
       "src/production_os/dashboard_usage.py": 4,
       "src/production_os/github_client.py": 4,
       "src/production_os/postgres_backend.py": 8,
@@ -2082,6 +2080,7 @@
       "tests/test_dashboard_control_e2e.py": 4,
       "tests/test_dashboard_github.py": 4,
       "tests/test_dashboard_launch.py": 24,
+      "tests/test_dashboard_mobile_stability.py": 4,
       "tests/test_dashboard_observability_e2e.py": 4,
       "tests/test_dashboard_security.py": 4,
       "tests/test_dashboard_store.py": 4,
@@ -2561,6 +2560,10 @@
       "tests/test_managed_projects_v4.py": 4,
       "tests/test_release42_idempotent_launch_e2e.py": 4
     },
+    "layout": {
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_mobile_stability.py": 4
+    },
     "library": {
       "src/production_os/asset_forge.py": 4,
       "src/production_os/control_plane.py": 4,
@@ -2641,9 +2644,10 @@
     },
     "mobile": {
       "src/production_os/control_plane.py": 4,
-      "src/production_os/dashboard_ui.py": 12,
+      "src/production_os/dashboard_ui.py": 16,
       "src/production_os/managed_projects.py": 12,
       "tests/test_cooperative_managed_projects.py": 4,
+      "tests/test_dashboard_mobile_stability.py": 4,
       "tests/test_dashboard_ui_v3.py": 12,
       "tests/test_managed_project_outcome.py": 8,
       "tests/test_release32_one_tap_e2e.py": 4
@@ -3404,6 +3408,10 @@
       "tests/test_task_capabilities.py": 4,
       "tests/test_worker_compose_deployment.py": 8
     },
+    "stabilize": {
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_mobile_stability.py": 4
+    },
     "staging": {
       "src/production_os/control_plane.py": 4,
       "src/production_os/dashboard_backups.py": 4,
@@ -3551,9 +3559,10 @@
     },
     "ui": {
       "src/production_os/control_plane.py": 4,
-      "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/dashboard_ui.py": 8,
       "src/production_os/managed_projects.py": 8,
       "tests/test_cooperative_managed_projects.py": 8,
+      "tests/test_dashboard_mobile_stability.py": 4,
       "tests/test_dashboard_ui_v3.py": 4,
       "tests/test_managed_project_outcome.py": 4,
       "tests/test_release32_one_tap_e2e.py": 4

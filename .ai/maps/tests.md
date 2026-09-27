@@ -81,6 +81,7 @@ test_dashboard_launch_readiness.py
 test_dashboard_launch_ux.py
 test_dashboard_launch.py
 test_dashboard_maintenance.py
+test_dashboard_mobile_stability.py
 test_dashboard_observability_e2e.py
 test_dashboard_playbook_api.py
 test_dashboard_playbooks.py
@@ -2011,6 +2012,17 @@ moments = iter([100.0, 101.0])
 ⋮----
 first = control.dashboard.maintenance()
 second = control.dashboard.maintenance()
+```
+
+## File: test_dashboard_mobile_stability.py
+```python
+def test_dashboard_css_uses_defined_border_token_for_cooperative_stages()
+⋮----
+def test_dashboard_navigation_matches_eight_destinations_without_overflow_prone_six_column_grid()
+⋮----
+def test_dashboard_exposes_visible_keyboard_focus_and_reduced_motion_contracts()
+⋮----
+def test_dashboard_long_content_wraps_instead_of_forcing_horizontal_scroll()
 ```
 
 ## File: test_dashboard_observability_e2e.py

@@ -22,16 +22,18 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-27T16:08:48Z
+Generated: 2026-09-27T16:48:15Z
 
 ### Git
 - Branch: `main`
-- Head: `1296a4950bc6`
-- Commit date: 2026-09-27T18:08:36+02:00
-- Commit: feat: safely auto-merge green nonsensitive managed PRs
-- Tracked files: 479
+- Head: `c6fcd0df1201`
+- Commit date: 2026-09-27T18:48:04+02:00
+- Commit: fix(ui): stabilize mobile dashboard layout and accessibility
+- Tracked files: 480
 
 ### Recently changed files
+- `src/production_os/dashboard_ui.py`
+- `tests/test_dashboard_mobile_stability.py`
 - `src/production_os/github_change_review.py`
 - `src/production_os/github_client.py`
 - `src/production_os/github_work_state.py`
@@ -45,11 +47,8 @@ Generated: 2026-09-27T16:08:48Z
 - `compose.worker.yaml`
 - `tests/test_mobile_worker_image.py`
 - `tests/test_worker_compose_deployment.py`
-- `src/production_os/dashboard_ui.py`
 - `tests/test_dashboard_ui_v3.py`
 - `tests/test_managed_project_outcome.py`
-- `src/production_os/control_plane.py`
-- `tests/test_release32_one_tap_e2e.py`
 
 ### Project signals
 - `pyproject.toml`
