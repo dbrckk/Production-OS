@@ -118,6 +118,59 @@ def test_workflow_retry_budget(tmp_path):
     assert wf.get(created["id"])["status"]=="failed"
 
 
+def test_workflow_retry_dispatch_includes_prior_failure_context(tmp_path):
+    wf=engine(tmp_path)
+    created=wf.create(
+        name="retry-context",
+        repository="o/a",
+        tasks=[
+            WorkflowTaskSpec(
+                "test",
+                "Test",
+                {"handoff":{"task":"Fix failing tests"}},
+                max_attempts=2,
+            )
+        ],
+    )
+    first=wf.dispatch_ready(created["id"])
+    assert len(first)==1
+    assert "retry_context" not in first[0]["payload"]["handoff"]
+
+    wf.record_result(
+        created["id"],
+        "test",
+        succeeded=False,
+        result={
+            "summary":"integration tests failed",
+            "validation":{"status":"failed","tests":["integration"]},
+            "ci":{
+                "provider":"github-actions",
+                "workflow":"CI",
+                "job":"tests",
+                "step":"pytest",
+                "conclusion":"failure",
+                "sha":"0123456",
+                "log_excerpt":"FAILED tests/test_app.py::test_login",
+            },
+        },
+    )
+
+    current=wf.get(created["id"])["tasks"][0]
+    assert current["status"]=="queued"
+    assert current["attempts"]==2
+    second=wf.queue.get(current["claimed_job_key"])
+    context=second["payload"]["handoff"]["retry_context"]
+    assert context["summary"]=="integration tests failed"
+    assert context["validation"]=={
+        "status":"failed",
+        "tests":["integration"],
+    }
+    assert context["ci"]["workflow"]=="CI"
+    assert context["ci"]["job"]=="tests"
+    assert context["ci"]["step"]=="pytest"
+    assert "FAILED" in context["ci"]["log_excerpt"]
+
+
 def test_critical_path(tmp_path):
     wf=engine(tmp_path)
     created=wf.create(
