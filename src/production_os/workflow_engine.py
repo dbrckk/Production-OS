@@ -1418,6 +1418,7 @@ class WorkflowEngine:
         available_budget = int(config.get("available_token_budget") or 0)
         max_agents = int(config.get("max_agents") or 6)
         fallback_plan = config.get("fallback_plan")
+        plan_source = "model"
         try:
             if not isinstance(raw_plan, dict):
                 raise ValueError("dynamic planner result requires agent_plan")
@@ -1434,6 +1435,7 @@ class WorkflowEngine:
                 available_token_budget=available_budget,
                 max_agents=max_agents,
             )
+            plan_source = "fallback"
         workflow = self.get(workflow_id)
         repository = workflow["repository"]
         common_handoff = dict(config.get("handoff") or {})
@@ -1466,6 +1468,7 @@ class WorkflowEngine:
                     title=task.title,
                     payload={
                         "dynamic_agent_child":True,
+                        "dynamic_agent_plan_source":plan_source,
                         "dynamic_agent_planner_task_id":planner_task_id,
                         "isolation":{"mode":"git-worktree"},
                         "handoff":handoff,
@@ -1527,6 +1530,7 @@ class WorkflowEngine:
                 )[:200],
                 payload={
                     "dynamic_agent_integration":True,
+                    "dynamic_agent_plan_source":plan_source,
                     "dynamic_agent_planner_task_id":planner_task_id,
                     "isolation":{
                         "mode":"git-worktree",
@@ -1614,6 +1618,7 @@ class WorkflowEngine:
                     title=title[:200],
                     payload={
                         "dynamic_agent_continuation":True,
+                        "dynamic_agent_plan_source":plan_source,
                         "dynamic_agent_planner_task_id":planner_task_id,
                         "isolation":{
                             "mode":"git-worktree",
@@ -1646,11 +1651,34 @@ class WorkflowEngine:
             str(task.get("task_id") or "")
             for task in self.get(workflow_id).get("tasks", [])
         }
+        added = []
         for spec in specs:
             if spec.task_id in existing:
                 continue
             self.add_task(workflow_id, spec)
             existing.add(spec.task_id)
+            added.append(spec.task_id)
+        if added:
+            source = str(
+                specs[0].payload.get("dynamic_agent_plan_source")
+                or "unknown"
+            )
+            child_count = sum(
+                1
+                for spec in specs
+                if bool(spec.payload.get("dynamic_agent_child"))
+            )
+            with self.backend.transaction() as db:
+                self.backend.append_event(
+                    db,
+                    "workflow-dynamic-agent-plan-expanded",
+                    {
+                        "workflow_id":workflow_id,
+                        "plan_source":source,
+                        "child_agent_count":child_count,
+                        "task_ids":added,
+                    },
+                )
 
     def record_result(
         self,
