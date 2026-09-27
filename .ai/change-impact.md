@@ -1,25 +1,28 @@
 # Change impact
 
-Base: 14cc218fe566635df76feac70b9224974fe0d462
-Head: 3a957cfc21e4ef6f6f365e11000f5f6f69d0f386
+Base: 3ba41030169f1ca1849983eace9c6e456e8bef24
+Head: 760c4867abda7d201d81b8aad6a15d91986b58cc
 
 ## Changed files
-- A src/production_os/github_change_review.py
-- M src/production_os/github_work_state.py
-- A src/production_os/rollback_plan.py
-- A tests/test_github_change_review.py
-- M tests/test_github_work_state.py
-- M tests/test_release51_one_tap_runner_e2e.py
-- A tests/test_rollback_plan.py
+- M compose.worker.yaml
+- M src/production_os/remote_worker_runner.py
+- M src/production_os/sqlite_backend.py
+- M src/production_os/task_capabilities.py
+- M src/production_os/workflow_engine.py
+- M tests/test_remote_worker_runner.py
+- A tests/test_specialist_job_preferences.py
+- M tests/test_worker_compose_deployment.py
 
 ## Affected areas
+- (root)
 - src
 - tests
 
 ## Related test candidates
-- tests/test_github_change_review.py
-- tests/test_github_work_state.py
-- tests/test_rollback_plan.py
+- tests/test_remote_worker_runner.py
+- tests/test_sqlite_backend.py
+- tests/test_task_capabilities.py
+- tests/test_workflow_engine.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

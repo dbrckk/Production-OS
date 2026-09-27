@@ -6365,6 +6365,7 @@ started = time.monotonic()
 process = subprocess.Popen(
 first_communicate = True
 stdout = ""
+heartbeat_failures = 0
 ⋮----
 elapsed = time.monotonic() - started
 remaining = self.executor_timeout_seconds - elapsed
@@ -7104,11 +7105,21 @@ claimed = db.execute(
 capabilities_set = set(capabilities or [])
 ⋮----
 chosen = None
+chosen_preference = -1
+chosen_priority = None
 ⋮----
 payload = json.loads(row["payload_json"])
 required = set(payload.get("required_capabilities", []))
 ⋮----
+row_priority = float(row["priority"])
+⋮----
+chosen_priority = row_priority
+⋮----
+preferred = set(payload.get("preferred_capabilities", []))
+preference = len(preferred.intersection(capabilities_set))
+⋮----
 chosen = row
+chosen_preference = preference
 ⋮----
 def ack(self, key: str, worker_id: str) -> dict
 ⋮----
@@ -7249,6 +7260,11 @@ public_key = builder_policy.resolve(
 ```python
 VISUAL_CAPABILITY = "visual-asset-production"
 VISUAL_3D_CAPABILITY = "visual-asset-3d-production"
+⋮----
+CODE_CAPABILITY = "code-implementation"
+TEST_CAPABILITY = "test-debug"
+REVIEW_CAPABILITY = "code-review"
+BROWSER_CAPABILITY = "browser-ui-validation"
 ASSET_FORGE_REQUEST_SCHEMA = "asset-forge/production-request/v1"
 ASSET_FORGE_REPORT_SCHEMA = "asset-forge/production-report/v1"
 ⋮----
@@ -7267,6 +7283,10 @@ def is_3d_generation_task(handoff: dict) -> bool
 ⋮----
 has_3d = bool(
 has_generation = bool(
+⋮----
+def inferred_preferred_capabilities(handoff: dict) -> list[str]
+⋮----
+preferred = set()
 ⋮----
 def inferred_required_capabilities(handoff: dict) -> list[str]
 ⋮----

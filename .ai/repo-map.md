@@ -302,6 +302,7 @@ tests/
   test_signer_factory.py
   test_signers.py
   test_source_tree.py
+  test_specialist_job_preferences.py
   test_speculation_api.py
   test_speculation.py
   test_sqlite_backend.py
@@ -6907,6 +6908,7 @@ started = time.monotonic()
 process = subprocess.Popen(
 first_communicate = True
 stdout = ""
+heartbeat_failures = 0
 ⋮----
 elapsed = time.monotonic() - started
 remaining = self.executor_timeout_seconds - elapsed
@@ -7646,11 +7648,21 @@ claimed = db.execute(
 capabilities_set = set(capabilities or [])
 ⋮----
 chosen = None
+chosen_preference = -1
+chosen_priority = None
 ⋮----
 payload = json.loads(row["payload_json"])
 required = set(payload.get("required_capabilities", []))
 ⋮----
+row_priority = float(row["priority"])
+⋮----
+chosen_priority = row_priority
+⋮----
+preferred = set(payload.get("preferred_capabilities", []))
+preference = len(preferred.intersection(capabilities_set))
+⋮----
 chosen = row
+chosen_preference = preference
 ⋮----
 def ack(self, key: str, worker_id: str) -> dict
 ⋮----
@@ -7791,6 +7803,11 @@ public_key = builder_policy.resolve(
 ````python
 VISUAL_CAPABILITY = "visual-asset-production"
 VISUAL_3D_CAPABILITY = "visual-asset-3d-production"
+⋮----
+CODE_CAPABILITY = "code-implementation"
+TEST_CAPABILITY = "test-debug"
+REVIEW_CAPABILITY = "code-review"
+BROWSER_CAPABILITY = "browser-ui-validation"
 ASSET_FORGE_REQUEST_SCHEMA = "asset-forge/production-request/v1"
 ASSET_FORGE_REPORT_SCHEMA = "asset-forge/production-report/v1"
 ⋮----
@@ -7809,6 +7826,10 @@ def is_3d_generation_task(handoff: dict) -> bool
 ⋮----
 has_3d = bool(
 has_generation = bool(
+⋮----
+def inferred_preferred_capabilities(handoff: dict) -> list[str]
+⋮----
+preferred = set()
 ⋮----
 def inferred_required_capabilities(handoff: dict) -> list[str]
 ⋮----
@@ -13222,6 +13243,17 @@ outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
 ⋮----
 execution = control.dashboard_store.latest_execution(queued["key"])
 ⋮----
+def test_remote_worker_runner_tolerates_transient_active_heartbeat_failure(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "heartbeat-retry.sqlite"), authorizer=_auth())
+⋮----
+executor = tmp_path / "slow_success.py"
+⋮----
+real_heartbeat = runner._heartbeat_active
+calls = {"count":0}
+⋮----
+def flaky_heartbeat(key)
+⋮----
 def test_remote_worker_runner_fails_job_on_invalid_executor_output(tmp_path)
 ⋮----
 control = ControlPlane(str(tmp_path / "invalid-output.sqlite"), authorizer=_auth())
@@ -13549,6 +13581,31 @@ witness=sign_checkpoint_with_signer(
 def test_candidate_source_filter()
 ⋮----
 def test_priority_prefers_source_dirs()
+````
+
+## File: tests/test_specialist_job_preferences.py
+````python
+def queue(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "jobs.sqlite")
+⋮----
+def test_claim_prefers_specialist_within_same_priority(tmp_path)
+⋮----
+q = queue(tmp_path)
+generic = q.enqueue({
+specialist = q.enqueue({
+⋮----
+claimed = q.claim_next(
+⋮----
+def test_claim_keeps_higher_priority_ahead_of_specialization(tmp_path)
+⋮----
+high = q.enqueue({
+⋮----
+def test_claim_falls_back_to_generic_worker_when_preference_not_available(tmp_path)
+⋮----
+job = q.enqueue({
+⋮----
+def test_required_capability_remains_strict(tmp_path)
 ````
 
 ## File: tests/test_speculation_api.py
@@ -13950,6 +14007,8 @@ def test_checkpoint_expected_root_mismatch_fails()
 def test_worker_compose_profile_is_safe_and_deployable()
 ⋮----
 payload = Path("compose.worker.yaml").read_text(encoding="utf-8")
+⋮----
+def test_worker_compose_exposes_specialist_pool_without_replacing_generic_worker()
 ````
 
 ## File: tests/test_workers.py
@@ -14442,6 +14501,142 @@ services:
       - ${PRODUCTION_OS_WORKER_EXECUTOR_COMMAND:-}
       - --max-concurrency
       - ${PRODUCTION_OS_WORKER_MAX_CONCURRENCY:-1}
+      - --heartbeat-interval-seconds
+      - ${PRODUCTION_OS_WORKER_HEARTBEAT_SECONDS:-5}
+      - --executor-timeout-seconds
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_TIMEOUT_SECONDS:-3600}
+      - --ack-timeout-seconds
+      - ${PRODUCTION_OS_WORKER_ACK_TIMEOUT_SECONDS:-120}
+
+  production-worker-code:
+    profiles:
+      - worker-specialists
+    build: .
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 15s
+    depends_on:
+      production-os:
+        condition: service_healthy
+    environment:
+      PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
+      PRODUCTION_OS_WORKER_SPECIALTIES: code
+    volumes:
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
+    command:
+      - remote-worker-run
+      - --url
+      - http://production-os:8787
+      - --worker-id
+      - worker-code
+      - --capability
+      - code-implementation
+      - --executor-command
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_COMMAND:-}
+      - --max-concurrency
+      - ${PRODUCTION_OS_SPECIALIST_MAX_CONCURRENCY:-1}
+      - --heartbeat-interval-seconds
+      - ${PRODUCTION_OS_WORKER_HEARTBEAT_SECONDS:-5}
+      - --executor-timeout-seconds
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_TIMEOUT_SECONDS:-3600}
+      - --ack-timeout-seconds
+      - ${PRODUCTION_OS_WORKER_ACK_TIMEOUT_SECONDS:-120}
+
+  production-worker-debug:
+    profiles:
+      - worker-specialists
+    build: .
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 15s
+    depends_on:
+      production-os:
+        condition: service_healthy
+    environment:
+      PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
+      PRODUCTION_OS_WORKER_SPECIALTIES: debug
+    volumes:
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
+    command:
+      - remote-worker-run
+      - --url
+      - http://production-os:8787
+      - --worker-id
+      - worker-debug
+      - --capability
+      - test-debug
+      - --executor-command
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_COMMAND:-}
+      - --max-concurrency
+      - ${PRODUCTION_OS_SPECIALIST_MAX_CONCURRENCY:-1}
+      - --heartbeat-interval-seconds
+      - ${PRODUCTION_OS_WORKER_HEARTBEAT_SECONDS:-5}
+      - --executor-timeout-seconds
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_TIMEOUT_SECONDS:-3600}
+      - --ack-timeout-seconds
+      - ${PRODUCTION_OS_WORKER_ACK_TIMEOUT_SECONDS:-120}
+
+  production-worker-review:
+    profiles:
+      - worker-specialists
+    build: .
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 15s
+    depends_on:
+      production-os:
+        condition: service_healthy
+    environment:
+      PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
+      PRODUCTION_OS_WORKER_SPECIALTIES: review
+    volumes:
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
+    command:
+      - remote-worker-run
+      - --url
+      - http://production-os:8787
+      - --worker-id
+      - worker-review
+      - --capability
+      - code-review
+      - --executor-command
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_COMMAND:-}
+      - --max-concurrency
+      - ${PRODUCTION_OS_SPECIALIST_MAX_CONCURRENCY:-1}
+      - --heartbeat-interval-seconds
+      - ${PRODUCTION_OS_WORKER_HEARTBEAT_SECONDS:-5}
+      - --executor-timeout-seconds
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_TIMEOUT_SECONDS:-3600}
+      - --ack-timeout-seconds
+      - ${PRODUCTION_OS_WORKER_ACK_TIMEOUT_SECONDS:-120}
+
+  production-worker-browser:
+    profiles:
+      - worker-specialists
+    build: .
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 15s
+    depends_on:
+      production-os:
+        condition: service_healthy
+    environment:
+      PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
+      PRODUCTION_OS_WORKER_SPECIALTIES: browser
+    volumes:
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
+    command:
+      - remote-worker-run
+      - --url
+      - http://production-os:8787
+      - --worker-id
+      - worker-browser
+      - --capability
+      - browser-ui-validation
+      - --executor-command
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_COMMAND:-}
+      - --max-concurrency
+      - ${PRODUCTION_OS_SPECIALIST_MAX_CONCURRENCY:-1}
       - --heartbeat-interval-seconds
       - ${PRODUCTION_OS_WORKER_HEARTBEAT_SECONDS:-5}
       - --executor-timeout-seconds

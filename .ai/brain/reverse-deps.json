@@ -141,6 +141,7 @@
         "tests/test_signer_factory.py",
         "tests/test_signers.py",
         "tests/test_source_tree.py",
+        "tests/test_specialist_job_preferences.py",
         "tests/test_speculation.py",
         "tests/test_speculation_api.py",
         "tests/test_sqlite_backend.py",
@@ -163,7 +164,7 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 151,
+      "in_degree": 152,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -436,9 +437,10 @@
         "src/production_os/validation.py",
         "tests/test_capabilities_graph.py",
         "tests/test_classification_history_reuse.py",
-        "tests/test_controller_asset_capabilities.py"
+        "tests/test_controller_asset_capabilities.py",
+        "tests/test_worker_compose_deployment.py"
       ],
-      "in_degree": 12,
+      "in_degree": 13,
       "out_degree": 2
     },
     "src/production_os/change_impact.py": {
@@ -1163,6 +1165,7 @@
         "src/production_os/cli.py",
         "src/production_os/controller.py",
         "src/production_os/rollback_plan.py",
+        "src/production_os/task_capabilities.py",
         "src/production_os/validation.py",
         "tests/test_classification_history_reuse.py",
         "tests/test_compatibility_validation.py",
@@ -1170,7 +1173,7 @@
         "tests/test_release_ledger.py",
         "tests/test_rollback_plan.py"
       ],
-      "in_degree": 9,
+      "in_degree": 10,
       "out_degree": 1
     },
     "src/production_os/journal.py": {
@@ -1836,6 +1839,7 @@
         "tests/test_release_ledger.py",
         "tests/test_result_cache.py",
         "tests/test_secure_release_e2e.py",
+        "tests/test_specialist_job_preferences.py",
         "tests/test_speculation.py",
         "tests/test_sqlite_backend.py",
         "tests/test_sqlite_migration.py",
@@ -1846,7 +1850,7 @@
         "tests/test_workflow_engine.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 35,
+      "in_degree": 36,
       "out_degree": 5
     },
     "src/production_os/sqlite_migration.py": {
@@ -1908,14 +1912,16 @@
       "out_degree": 3
     },
     "src/production_os/task_capabilities.py": {
-      "dependencies": [],
+      "dependencies": [
+        "src/production_os/history.py"
+      ],
       "dependents": [
         "src/production_os/controller.py",
         "src/production_os/workflow_engine.py",
         "tests/test_task_capabilities.py"
       ],
       "in_degree": 3,
-      "out_degree": 0
+      "out_degree": 1
     },
     "src/production_os/transparency.py": {
       "dependencies": [],
@@ -3717,6 +3723,15 @@
       "in_degree": 0,
       "out_degree": 2
     },
+    "tests/test_specialist_job_preferences.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/sqlite_backend.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 2
+    },
     "tests/test_speculation.py": {
       "dependencies": [
         "src/production_os/__init__.py",
@@ -3861,6 +3876,14 @@
       "dependents": [],
       "in_degree": 0,
       "out_degree": 3
+    },
+    "tests/test_worker_compose_deployment.py": {
+      "dependencies": [
+        "src/production_os/capabilities.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
     },
     "tests/test_workers.py": {
       "dependencies": [

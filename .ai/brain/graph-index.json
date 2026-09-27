@@ -138,6 +138,7 @@
         "tests/test_signer_factory.py",
         "tests/test_signers.py",
         "tests/test_source_tree.py",
+        "tests/test_specialist_job_preferences.py",
         "tests/test_speculation.py",
         "tests/test_speculation_api.py",
         "tests/test_sqlite_backend.py",
@@ -160,7 +161,7 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 151,
+      "in_degree": 152,
       "out_degree": 0,
       "path": "src/production_os/__init__.py"
     },
@@ -608,6 +609,7 @@
         "tests/test_release_ledger.py",
         "tests/test_result_cache.py",
         "tests/test_secure_release_e2e.py",
+        "tests/test_specialist_job_preferences.py",
         "tests/test_speculation.py",
         "tests/test_sqlite_backend.py",
         "tests/test_sqlite_migration.py",
@@ -618,7 +620,7 @@
         "tests/test_workflow_engine.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 35,
+      "in_degree": 36,
       "out_degree": 5,
       "path": "src/production_os/sqlite_backend.py"
     },
@@ -972,6 +974,30 @@
       "path": "src/production_os/release_ledger.py"
     },
     {
+      "dependencies": [
+        "src/production_os/models.py",
+        "src/production_os/workers.py"
+      ],
+      "dependents": [
+        "src/production_os/adaptation.py",
+        "src/production_os/adaptation_plan.py",
+        "src/production_os/cli.py",
+        "src/production_os/components.py",
+        "src/production_os/graph.py",
+        "src/production_os/reuse.py",
+        "src/production_os/scoring.py",
+        "src/production_os/starlist.py",
+        "src/production_os/validation.py",
+        "tests/test_capabilities_graph.py",
+        "tests/test_classification_history_reuse.py",
+        "tests/test_controller_asset_capabilities.py",
+        "tests/test_worker_compose_deployment.py"
+      ],
+      "in_degree": 13,
+      "out_degree": 2,
+      "path": "src/production_os/capabilities.py"
+    },
+    {
       "dependencies": [],
       "dependents": [
         "src/production_os/approvals.py",
@@ -992,29 +1018,6 @@
       "in_degree": 14,
       "out_degree": 0,
       "path": "src/production_os/atomic_io.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/models.py",
-        "src/production_os/workers.py"
-      ],
-      "dependents": [
-        "src/production_os/adaptation.py",
-        "src/production_os/adaptation_plan.py",
-        "src/production_os/cli.py",
-        "src/production_os/components.py",
-        "src/production_os/graph.py",
-        "src/production_os/reuse.py",
-        "src/production_os/scoring.py",
-        "src/production_os/starlist.py",
-        "src/production_os/validation.py",
-        "tests/test_capabilities_graph.py",
-        "tests/test_classification_history_reuse.py",
-        "tests/test_controller_asset_capabilities.py"
-      ],
-      "in_degree": 12,
-      "out_degree": 2,
-      "path": "src/production_os/capabilities.py"
     },
     {
       "dependencies": [
@@ -1149,6 +1152,26 @@
     },
     {
       "dependencies": [
+        "src/production_os/models.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/controller.py",
+        "src/production_os/rollback_plan.py",
+        "src/production_os/task_capabilities.py",
+        "src/production_os/validation.py",
+        "tests/test_classification_history_reuse.py",
+        "tests/test_compatibility_validation.py",
+        "tests/test_control_plane_release.py",
+        "tests/test_release_ledger.py",
+        "tests/test_rollback_plan.py"
+      ],
+      "in_degree": 10,
+      "out_degree": 1,
+      "path": "src/production_os/history.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/atomic_io.py",
         "src/production_os/locks.py"
       ],
@@ -1245,25 +1268,6 @@
       "in_degree": 0,
       "out_degree": 11,
       "path": "tests/test_release_ledger.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/models.py"
-      ],
-      "dependents": [
-        "src/production_os/cli.py",
-        "src/production_os/controller.py",
-        "src/production_os/rollback_plan.py",
-        "src/production_os/validation.py",
-        "tests/test_classification_history_reuse.py",
-        "tests/test_compatibility_validation.py",
-        "tests/test_control_plane_release.py",
-        "tests/test_release_ledger.py",
-        "tests/test_rollback_plan.py"
-      ],
-      "in_degree": 9,
-      "out_degree": 1,
-      "path": "src/production_os/history.py"
     },
     {
       "dependencies": [
@@ -1763,8 +1767,8 @@
       "path": "src/production_os/github_work_state.py"
     }
   ],
-  "edge_count": 1368,
+  "edge_count": 1373,
   "generated_by": "dbrckk/repo-brain-v7-graph",
-  "node_count": 268,
+  "node_count": 270,
   "schema_version": 1
 }

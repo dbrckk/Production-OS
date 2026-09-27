@@ -169,6 +169,7 @@ test_self_healing_heartbeat.py
 test_signer_factory.py
 test_signers.py
 test_source_tree.py
+test_specialist_job_preferences.py
 test_speculation_api.py
 test_speculation.py
 test_sqlite_backend.py
@@ -4879,6 +4880,17 @@ outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
 ⋮----
 execution = control.dashboard_store.latest_execution(queued["key"])
 ⋮----
+def test_remote_worker_runner_tolerates_transient_active_heartbeat_failure(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "heartbeat-retry.sqlite"), authorizer=_auth())
+⋮----
+executor = tmp_path / "slow_success.py"
+⋮----
+real_heartbeat = runner._heartbeat_active
+calls = {"count":0}
+⋮----
+def flaky_heartbeat(key)
+⋮----
 def test_remote_worker_runner_fails_job_on_invalid_executor_output(tmp_path)
 ⋮----
 control = ControlPlane(str(tmp_path / "invalid-output.sqlite"), authorizer=_auth())
@@ -5206,6 +5218,31 @@ witness=sign_checkpoint_with_signer(
 def test_candidate_source_filter()
 ⋮----
 def test_priority_prefers_source_dirs()
+```
+
+## File: test_specialist_job_preferences.py
+```python
+def queue(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "jobs.sqlite")
+⋮----
+def test_claim_prefers_specialist_within_same_priority(tmp_path)
+⋮----
+q = queue(tmp_path)
+generic = q.enqueue({
+specialist = q.enqueue({
+⋮----
+claimed = q.claim_next(
+⋮----
+def test_claim_keeps_higher_priority_ahead_of_specialization(tmp_path)
+⋮----
+high = q.enqueue({
+⋮----
+def test_claim_falls_back_to_generic_worker_when_preference_not_available(tmp_path)
+⋮----
+job = q.enqueue({
+⋮----
+def test_required_capability_remains_strict(tmp_path)
 ```
 
 ## File: test_speculation_api.py
@@ -5607,6 +5644,8 @@ def test_checkpoint_expected_root_mismatch_fails()
 def test_worker_compose_profile_is_safe_and_deployable()
 ⋮----
 payload = Path("compose.worker.yaml").read_text(encoding="utf-8")
+⋮----
+def test_worker_compose_exposes_specialist_pool_without_replacing_generic_worker()
 ```
 
 ## File: test_workers.py
