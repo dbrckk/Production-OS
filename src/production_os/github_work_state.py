@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from .github_client import GitHubAPIError, GitHubClient
-from .github_change_review import review_changed_paths
+from .github_change_review import review_changed_paths, review_pull_request
 
 
 @dataclass(frozen=True, slots=True)
@@ -210,8 +210,11 @@ def fetch_github_work_state(
         review_state = _review_state(reviews)
 
         try:
-            changed_paths = client.list_pull_request_files(repository, pr_number)
-            change_review = review_changed_paths(changed_paths)
+            change_review = review_pull_request(
+                client,
+                repository,
+                pr_number,
+            )
         except GitHubAPIError:
             change_review = review_changed_paths(())
         sensitive_files = change_review.sensitive_files
