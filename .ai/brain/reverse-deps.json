@@ -75,6 +75,7 @@
         "tests/test_execution_feedback_trends.py",
         "tests/test_execution_optimizer.py",
         "tests/test_execution_optimizer_postgres.py",
+        "tests/test_executor_worktree.py",
         "tests/test_fairness.py",
         "tests/test_github_automerge.py",
         "tests/test_github_change_review.py",
@@ -171,7 +172,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 159,
+      "in_degree": 160,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -573,10 +574,11 @@
       ],
       "dependents": [
         "tests/test_cli.py",
+        "tests/test_executor_worktree.py",
         "tests/test_persistent_agent_runtime.py",
         "tests/test_release21_offline_restore_e2e.py"
       ],
-      "in_degree": 3,
+      "in_degree": 4,
       "out_degree": 67
     },
     "src/production_os/compatibility.py": {
@@ -1040,6 +1042,17 @@
         "tests/test_stragglers.py"
       ],
       "in_degree": 6,
+      "out_degree": 1
+    },
+    "src/production_os/executor_worktree.py": {
+      "dependencies": [
+        "tests/test_asset_forge.py"
+      ],
+      "dependents": [
+        "src/production_os/remote_worker_runner.py",
+        "tests/test_executor_worktree.py"
+      ],
+      "in_degree": 2,
       "out_degree": 1
     },
     "src/production_os/fairness.py": {
@@ -1597,6 +1610,7 @@
     "src/production_os/remote_worker_runner.py": {
       "dependencies": [
         "src/production_os/agent_runtime.py",
+        "src/production_os/executor_worktree.py",
         "src/production_os/remote_worker.py",
         "src/production_os/workers.py",
         "tests/test_asset_forge.py",
@@ -1611,7 +1625,7 @@
         "tests/test_remote_worker_runner.py"
       ],
       "in_degree": 6,
-      "out_degree": 5
+      "out_degree": 6
     },
     "src/production_os/resources.py": {
       "dependencies": [],
@@ -2150,12 +2164,12 @@
         "tests/test_dashboard_ui_v3.py",
         "tests/test_execution_optimizer.py",
         "tests/test_execution_optimizer_postgres.py",
+        "tests/test_executor_worktree.py",
         "tests/test_github_change_review.py",
         "tests/test_incident_history.py",
         "tests/test_managed_project_outcome.py",
         "tests/test_managed_projects_http_v4.py",
         "tests/test_mobile_worker_image.py",
-        "tests/test_persistent_agent_runtime.py",
         "tests/test_preemption.py",
         "tests/test_stragglers.py",
         "tests/test_workers.py"
@@ -2208,9 +2222,10 @@
       "dependencies": [],
       "dependents": [
         "src/production_os/workflow_engine.py",
+        "tests/test_executor_worktree.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 2,
+      "in_degree": 3,
       "out_degree": 0
     },
     "tests/test_adaptation.py": {
@@ -2271,6 +2286,7 @@
         "src/production_os/dashboard_service.py",
         "src/production_os/dashboard_store.py",
         "src/production_os/execution_feedback.py",
+        "src/production_os/executor_worktree.py",
         "src/production_os/feedback.py",
         "src/production_os/github_work_state.py",
         "src/production_os/health.py",
@@ -2318,7 +2334,7 @@
         "tests/test_sqlite_migration.py",
         "tests/test_workflow_engine.py"
       ],
-      "in_degree": 55,
+      "in_degree": 56,
       "out_degree": 3
     },
     "tests/test_asymmetric_attestations.py": {
@@ -3020,6 +3036,18 @@
       "in_degree": 0,
       "out_degree": 4
     },
+    "tests/test_executor_worktree.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/cli.py",
+        "src/production_os/executor_worktree.py",
+        "src/production_os/workers.py",
+        "src/production_os/worktree_contract.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 5
+    },
     "tests/test_fairness.py": {
       "dependencies": [
         "src/production_os/__init__.py",
@@ -3322,13 +3350,12 @@
         "src/production_os/cli.py",
         "src/production_os/remote_worker.py",
         "src/production_os/remote_worker_runner.py",
-        "src/production_os/workers.py",
         "tests/test_asset_forge.py",
         "tests/test_github_automerge.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 8
+      "out_degree": 7
     },
     "tests/test_policy_budgets.py": {
       "dependencies": [

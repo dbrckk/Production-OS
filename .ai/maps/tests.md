@@ -103,6 +103,7 @@ test_emergency_key_revocation.py
 test_execution_feedback_trends.py
 test_execution_optimizer_postgres.py
 test_execution_optimizer.py
+test_executor_worktree.py
 test_fairness.py
 test_github_automerge.py
 test_github_change_review.py
@@ -3053,6 +3054,55 @@ placement=opt.choose_worker(
 def test_reliability_penalizes_flaky_worker(tmp_path)
 ```
 
+## File: test_executor_worktree.py
+```python
+def _git(path: Path, *args: str) -> str
+⋮----
+result = subprocess.run(
+⋮----
+def _repo(tmp_path: Path) -> Path
+⋮----
+repo = tmp_path / "repo"
+⋮----
+def test_prepare_isolated_worktree_creates_attempt_scoped_branch(tmp_path)
+⋮----
+repo = _repo(tmp_path)
+base = _git(repo, "rev-parse", "HEAD")
+contract = build_worktree_contract(
+⋮----
+prepared = prepare_isolated_worktree(
+⋮----
+path = Path(prepared.worktree_path)
+⋮----
+def test_prepare_isolated_worktree_reuses_matching_existing_workspace(tmp_path)
+⋮----
+first = prepare_isolated_worktree(
+second = prepare_isolated_worktree(
+⋮----
+def test_retry_contract_gets_distinct_worktree(tmp_path)
+⋮----
+first_contract = build_worktree_contract(
+retry_contract = build_worktree_contract(
+⋮----
+retry = prepare_isolated_worktree(
+⋮----
+def test_remove_isolated_worktree_detaches_and_prunes(tmp_path)
+⋮----
+listing = _git(repo, "worktree", "list", "--porcelain")
+⋮----
+def test_prepare_rejects_non_repository_root(tmp_path)
+⋮----
+folder = tmp_path / "not-repo"
+⋮----
+contract = {
+⋮----
+def test_remote_worker_cli_parses_repository_worktree_configuration()
+⋮----
+args = _parse_args([
+⋮----
+def test_repository_root_mapping_rejects_ambiguous_values()
+```
+
 ## File: test_fairness.py
 ```python
 class Action
@@ -5337,6 +5387,18 @@ pid = int(marker.read_text(encoding="utf-8"))
 ⋮----
 session = restarted.open_session(
 recovered = session["recovered_jobs"]
+⋮----
+def test_remote_worker_runner_executes_in_configured_isolated_worktree(tmp_path)
+⋮----
+repo = tmp_path / "repo"
+⋮----
+base_sha = subprocess.run(
+⋮----
+control = ControlPlane(str(tmp_path / "worktree-runner.sqlite"), authorizer=_auth())
+⋮----
+executor = tmp_path / "worktree_executor.py"
+⋮----
+result = execution["result_summary"]
 ```
 
 ## File: test_remote_worker.py

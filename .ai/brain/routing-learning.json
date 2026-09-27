@@ -2,33 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat: managed projects v5 immutable generations",
-      "terms": [
-        "feat",
-        "generations",
-        "immutable",
-        "managed",
-        "projects",
-        "v5"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/control_plane.py",
-        "src/production_os/dashboard_ui.py",
-        "src/production_os/managed_projects.py",
-        "src/production_os/postgres_backend.py",
-        "src/production_os/sqlite_backend.py",
-        "tests/test_dashboard_control_audit.py",
-        "tests/test_dashboard_remediation_history.py",
-        "tests/test_dashboard_store_postgres.py",
-        "tests/test_dashboard_ui_v3.py",
-        "tests/test_managed_projects_http_v4.py",
-        "tests/test_managed_projects_v4.py",
-        "tests/test_workflow_postgres.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "test: release 18 managed projects e2e qualification",
       "terms": [
         "18",
@@ -1253,6 +1226,28 @@
         "tests/test_release32_one_tap_e2e.py",
         "tests/test_worktree_contract.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "feat(agents): execute isolated worktree contracts in remote workers",
+      "terms": [
+        "agents",
+        "contracts",
+        "execute",
+        "feat",
+        "isolated",
+        "remote",
+        "workers",
+        "worktree"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/cli.py",
+        "src/production_os/executor_worktree.py",
+        "src/production_os/remote_worker_runner.py",
+        "tests/test_executor_worktree.py",
+        "tests/test_remote_worker_runner.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1650,13 +1645,18 @@
       "tests/test_persistent_agent_runtime.py": 4
     },
     "agents": {
+      "src/production_os/cli.py": 4,
+      "src/production_os/executor_worktree.py": 4,
       "src/production_os/managed_projects.py": 4,
+      "src/production_os/remote_worker_runner.py": 4,
       "src/production_os/workflow_engine.py": 4,
       "src/production_os/worktree_contract.py": 4,
       "tests/test_cooperative_managed_projects.py": 4,
       "tests/test_cooperative_specialist_e2e.py": 4,
+      "tests/test_executor_worktree.py": 4,
       "tests/test_managed_github_reconciliation.py": 4,
       "tests/test_release32_one_tap_e2e.py": 4,
+      "tests/test_remote_worker_runner.py": 4,
       "tests/test_worktree_contract.py": 4
     },
     "ai": {
@@ -2011,6 +2011,13 @@
       "tests/test_release32_one_tap_e2e.py": 4,
       "tests/test_workflow_engine.py": 4
     },
+    "contracts": {
+      "src/production_os/cli.py": 4,
+      "src/production_os/executor_worktree.py": 4,
+      "src/production_os/remote_worker_runner.py": 4,
+      "tests/test_executor_worktree.py": 4,
+      "tests/test_remote_worker_runner.py": 4
+    },
     "control": {
       "src/production_os/control_plane.py": 40,
       "src/production_os/dashboard_alerts.py": 4,
@@ -2289,6 +2296,13 @@
       "src/production_os/database_maintenance_lock.py": 4,
       "tests/test_database_maintenance_lock.py": 4
     },
+    "execute": {
+      "src/production_os/cli.py": 4,
+      "src/production_os/executor_worktree.py": 4,
+      "src/production_os/remote_worker_runner.py": 4,
+      "tests/test_executor_worktree.py": 4,
+      "tests/test_remote_worker_runner.py": 4
+    },
     "explicit": {
       "src/production_os/control_plane.py": 4,
       "src/production_os/managed_projects.py": 4,
@@ -2318,7 +2332,7 @@
       "scripts/render-start.py": 4,
       "src/production_os/agent_runtime.py": 8,
       "src/production_os/asset_forge.py": 24,
-      "src/production_os/cli.py": 32,
+      "src/production_os/cli.py": 36,
       "src/production_os/control_plane.py": 40,
       "src/production_os/dashboard_alerts.py": 4,
       "src/production_os/dashboard_backups.py": 40,
@@ -2335,6 +2349,7 @@
       "src/production_os/dashboard_ui.py": 40,
       "src/production_os/dashboard_usage.py": 4,
       "src/production_os/database_maintenance_lock.py": 4,
+      "src/production_os/executor_worktree.py": 4,
       "src/production_os/github_change_review.py": 8,
       "src/production_os/github_client.py": 28,
       "src/production_os/github_work_state.py": 12,
@@ -2342,7 +2357,7 @@
       "src/production_os/postgres_backend.py": 36,
       "src/production_os/project_progress.py": 4,
       "src/production_os/remote_worker.py": 8,
-      "src/production_os/remote_worker_runner.py": 24,
+      "src/production_os/remote_worker_runner.py": 28,
       "src/production_os/rollback_plan.py": 4,
       "src/production_os/sqlite_backend.py": 40,
       "src/production_os/task_capabilities.py": 8,
@@ -2367,7 +2382,6 @@
       "tests/test_dashboard_incident_signals.py": 8,
       "tests/test_dashboard_incidents.py": 4,
       "tests/test_dashboard_launch.py": 4,
-      "tests/test_dashboard_launch_readiness.py": 4,
       "tests/test_dashboard_production_inbox.py": 12,
       "tests/test_dashboard_production_inbox_filters_ui.py": 16,
       "tests/test_dashboard_production_status.py": 8,
@@ -2580,13 +2594,18 @@
       "tests/test_dashboard_ui_v3.py": 4
     },
     "isolated": {
+      "src/production_os/cli.py": 4,
+      "src/production_os/executor_worktree.py": 4,
       "src/production_os/managed_projects.py": 4,
+      "src/production_os/remote_worker_runner.py": 4,
       "src/production_os/workflow_engine.py": 4,
       "src/production_os/worktree_contract.py": 4,
       "tests/test_cooperative_managed_projects.py": 4,
       "tests/test_cooperative_specialist_e2e.py": 4,
+      "tests/test_executor_worktree.py": 4,
       "tests/test_managed_github_reconciliation.py": 4,
       "tests/test_release32_one_tap_e2e.py": 4,
+      "tests/test_remote_worker_runner.py": 4,
       "tests/test_worktree_contract.py": 4
     },
     "javascript": {
@@ -3219,13 +3238,15 @@
     },
     "remote": {
       "src/production_os/asset_forge.py": 4,
-      "src/production_os/cli.py": 4,
+      "src/production_os/cli.py": 8,
       "src/production_os/control_plane.py": 4,
+      "src/production_os/executor_worktree.py": 4,
       "src/production_os/remote_worker.py": 4,
-      "src/production_os/remote_worker_runner.py": 8,
+      "src/production_os/remote_worker_runner.py": 12,
       "tests/test_asset_forge.py": 4,
       "tests/test_cli.py": 4,
-      "tests/test_remote_worker_runner.py": 8,
+      "tests/test_executor_worktree.py": 4,
+      "tests/test_remote_worker_runner.py": 12,
       "tests/test_worker_compose_deployment.py": 4
     },
     "render": {
@@ -3789,8 +3810,13 @@
       "tests/test_workflow_engine.py": 4
     },
     "workers": {
+      "src/production_os/cli.py": 4,
       "src/production_os/controller.py": 4,
-      "tests/test_controller_asset_capabilities.py": 4
+      "src/production_os/executor_worktree.py": 4,
+      "src/production_os/remote_worker_runner.py": 4,
+      "tests/test_controller_asset_capabilities.py": 4,
+      "tests/test_executor_worktree.py": 4,
+      "tests/test_remote_worker_runner.py": 4
     },
     "workflow": {
       "src/production_os/controller.py": 4,
@@ -3804,6 +3830,13 @@
       "src/production_os/cli.py": 4,
       "src/production_os/remote_worker_runner.py": 4,
       "tests/test_persistent_agent_runtime.py": 4
+    },
+    "worktree": {
+      "src/production_os/cli.py": 4,
+      "src/production_os/executor_worktree.py": 4,
+      "src/production_os/remote_worker_runner.py": 4,
+      "tests/test_executor_worktree.py": 4,
+      "tests/test_remote_worker_runner.py": 4
     },
     "worktrees": {
       "src/production_os/managed_projects.py": 4,

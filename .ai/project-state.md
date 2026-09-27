@@ -22,17 +22,22 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-27T18:23:06Z
+Generated: 2026-09-27T18:27:55Z
 
 ### Git
 - Branch: `main`
-- Head: `7df2e9b04910`
-- Commit date: 2026-09-27T20:22:30+02:00
-- Commit: feat(agents): run cooperative code and test agents in isolated worktrees
-- Tracked files: 484
+- Head: `099b684b6ff6`
+- Commit date: 2026-09-27T20:27:45+02:00
+- Commit: feat(agents): execute isolated worktree contracts in remote workers
+- Tracked files: 486
 
 ### Recently changed files
 - `docs/remote-worker-executor-protocol.md`
+- `src/production_os/cli.py`
+- `src/production_os/executor_worktree.py`
+- `src/production_os/remote_worker_runner.py`
+- `tests/test_executor_worktree.py`
+- `tests/test_remote_worker_runner.py`
 - `src/production_os/managed_projects.py`
 - `src/production_os/workflow_engine.py`
 - `src/production_os/worktree_contract.py`
@@ -42,16 +47,10 @@ Generated: 2026-09-27T18:23:06Z
 - `tests/test_release32_one_tap_e2e.py`
 - `tests/test_worktree_contract.py`
 - `src/production_os/agent_runtime.py`
-- `src/production_os/remote_worker_runner.py`
 - `tests/test_persistent_agent_runtime.py`
 - `compose.worker.yaml`
-- `src/production_os/cli.py`
 - `src/production_os/dashboard_ui.py`
 - `tests/test_dashboard_mobile_stability.py`
-- `src/production_os/github_change_review.py`
-- `src/production_os/github_client.py`
-- `src/production_os/github_work_state.py`
-- `tests/test_github_automerge.py`
 
 ### Project signals
 - `pyproject.toml`

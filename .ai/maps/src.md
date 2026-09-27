@@ -87,6 +87,7 @@ production_os/
   emergency.py
   execution_feedback.py
   execution_optimizer.py
+  executor_worktree.py
   fairness.py
   feedback.py
   github_change_review.py
@@ -1665,6 +1666,16 @@ def run_remote_worker_poll(args: argparse.Namespace) -> int
 ⋮----
 client = RemoteWorkerClient(
 jobs = client.poll(
+⋮----
+def _repository_root_map(values: list[str]) -> dict[str, str]
+⋮----
+roots: dict[str, str] = {}
+⋮----
+value = str(raw or "").strip()
+⋮----
+repository = repository.strip()
+path = path.strip()
+parts = repository.split("/")
 ⋮----
 def run_remote_worker_run(args: argparse.Namespace) -> int
 ⋮----
@@ -4264,6 +4275,57 @@ value = (best[0] + weight, best[1] + [task_id])
 best = max((longest(task_id) for task_id in tasks), key=lambda x:x[0])
 ```
 
+## File: production_os/executor_worktree.py
+```python
+@dataclass(frozen=True, slots=True)
+class PreparedWorktree
+⋮----
+repository_root: str
+worktree_path: str
+branch: str
+base_ref: str
+created: bool
+⋮----
+def to_dict(self) -> dict[str, Any]
+⋮----
+class WorktreeRuntimeError(RuntimeError)
+⋮----
+def _git(repo: Path, *args: str, check: bool = True) -> subprocess.CompletedProcess[str]
+⋮----
+message = (exc.stderr or exc.stdout or "git command failed").strip()
+⋮----
+def validate_repository_root(path: str | os.PathLike[str]) -> Path
+⋮----
+root = Path(path).expanduser().resolve()
+⋮----
+result = _git(root, "rev-parse", "--show-toplevel")
+top = Path(result.stdout.strip()).resolve()
+⋮----
+root = validate_repository_root(repository_root)
+⋮----
+branch = str(contract.get("branch") or "").strip()
+workspace_key = str(contract.get("workspace_key") or "").strip()
+base_ref = str(contract.get("base_ref") or "HEAD").strip() or "HEAD"
+⋮----
+base_check = _git(root, "rev-parse", "--verify", f"{base_ref}^{{commit}}")
+base_sha = base_check.stdout.strip()
+⋮----
+parent = Path(worktree_root).expanduser().resolve()
+⋮----
+target = (parent / workspace_key).resolve()
+⋮----
+result = _git(target, "rev-parse", "--show-toplevel")
+⋮----
+branch_result = _git(target, "branch", "--show-current")
+⋮----
+branch_exists = _git(
+args = ["worktree", "add"]
+⋮----
+target = Path(worktree_path).expanduser().resolve()
+⋮----
+args = ["worktree", "remove"]
+```
+
 ## File: production_os/fairness.py
 ```python
 def round_robin_by_repository(rows: list[tuple]) -> list[tuple]
@@ -6685,6 +6747,19 @@ def _checkpoint_ref(self, key: str) -> str
 ⋮----
 checkpoint = self._observe_checkpoint(key)
 ⋮----
+def _prepare_worktree(self, job: RemoteJob) -> PreparedWorktree | None
+⋮----
+payload = dict(job.payload.get("payload") or {})
+handoff = dict(payload.get("handoff") or {})
+isolation = dict(handoff.get("isolation") or {})
+⋮----
+repository = str(handoff.get("repository") or "").strip()
+root = self.repository_roots.get(repository)
+⋮----
+# Backwards compatibility: the external executor may implement the
+# isolation contract itself. Automatic worktree management is only
+# enabled for repositories explicitly mounted/configured here.
+⋮----
 @staticmethod
     def _terminate(process: subprocess.Popen[str]) -> None
 ⋮----
@@ -6707,6 +6782,10 @@ process: subprocess.Popen[str] | None = None
 ⋮----
 request_payload = {
 executor_env = self.executor_env.copy()
+prepared_worktree = self._prepare_worktree(job)
+executor_cwd = None
+⋮----
+executor_cwd = prepared_worktree.worktree_path
 ⋮----
 request = json.dumps(
 started = time.monotonic()
