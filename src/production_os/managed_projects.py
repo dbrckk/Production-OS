@@ -125,6 +125,7 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
             "artifact_names":[],
             "changed_file_count":0,
             "pull_request":None,
+            "ci":None,
             "completed_at":None,
         }
 
@@ -236,6 +237,31 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
     if number is not None or state is not None:
         pull_request = {"number":number, "state":state}
 
+    raw_ci = result.get("ci") or evidence.get("ci")
+    ci = None
+    if isinstance(raw_ci, dict):
+        clean_ci = {}
+        limits = {
+            "provider":120,
+            "status":120,
+            "workflow":300,
+            "job":300,
+            "step":300,
+            "conclusion":120,
+            "url":2000,
+            "sha":80,
+            "log_excerpt":8000,
+        }
+        for key, limit in limits.items():
+            value = raw_ci.get(key)
+            if value is None:
+                continue
+            text = str(value).strip()
+            if text:
+                clean_ci[key] = text[:limit]
+        if clean_ci:
+            ci = clean_ci
+
     workflow_status = str(workflow.get("status") or "").strip() or None
     terminal = workflow_status in {"succeeded", "failed", "cancelled"}
     available = terminal or any((
@@ -246,6 +272,7 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
         artifact_names,
         changed_file_count,
         pull_request,
+        ci,
     ))
     return {
         "available":bool(available),
@@ -258,6 +285,7 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
         "artifact_names":artifact_names,
         "changed_file_count":changed_file_count,
         "pull_request":pull_request,
+        "ci":ci,
         "completed_at":workflow.get("updated_at") if terminal else None,
     }
 
