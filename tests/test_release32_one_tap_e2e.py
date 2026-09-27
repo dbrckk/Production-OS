@@ -273,3 +273,46 @@ def test_cooperative_fleet_detection_ignores_dead_specialists(tmp_path):
     control.workers.save()
 
     assert control.cooperative_worker_fleet_available() is False
+
+
+
+def test_ui_goal_requires_online_browser_specialist_for_cooperative_mode(tmp_path):
+    control = ControlPlane(
+        str(tmp_path / "ui-cooperative-readiness.sqlite"),
+        authorizer=_auth(),
+    )
+    control.workers.register(
+        "worker-code",
+        ["code-implementation"],
+        1,
+    )
+
+    assert control.cooperative_worker_fleet_available(
+        "Improve the dashboard UI and verify it in the browser"
+    ) is False
+
+    control.workers.register(
+        "worker-browser",
+        ["browser-ui-validation"],
+        1,
+    )
+
+    assert control.cooperative_worker_fleet_available(
+        "Improve the dashboard UI and verify it in the browser"
+    ) is True
+
+
+def test_non_ui_goal_can_use_any_online_specialist_for_cooperative_mode(tmp_path):
+    control = ControlPlane(
+        str(tmp_path / "backend-cooperative-readiness.sqlite"),
+        authorizer=_auth(),
+    )
+    control.workers.register(
+        "worker-debug",
+        ["test-debug"],
+        1,
+    )
+
+    assert control.cooperative_worker_fleet_available(
+        "Fix backend retry behavior"
+    ) is True
