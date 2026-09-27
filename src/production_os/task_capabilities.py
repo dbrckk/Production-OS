@@ -89,7 +89,12 @@ def inferred_preferred_capabilities(handoff: dict) -> list[str]:
     if not isinstance(handoff, dict):
         return []
     text = _handoff_text(handoff)
-    preferred = set()
+    explicit = handoff.get("preferred_capabilities", [])
+    preferred = {
+        str(item).strip()
+        for item in explicit
+        if isinstance(item, str) and str(item).strip()
+    }
     if re.search(r"\b(?:test|tests|pytest|unit|integration|debug|bug|failure|failing|regression|fix)\b", text):
         preferred.add(TEST_CAPABILITY)
     if re.search(r"\b(?:review|diff|audit|security review|code review)\b", text):
