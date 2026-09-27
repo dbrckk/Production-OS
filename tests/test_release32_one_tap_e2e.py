@@ -253,3 +253,23 @@ def test_one_tap_auto_enables_cooperative_mode_when_specialist_fleet_exists(tmp_
         server.shutdown()
         server.server_close()
         thread.join(timeout=2)
+
+
+
+def test_cooperative_fleet_detection_ignores_dead_specialists(tmp_path):
+    control = ControlPlane(
+        str(tmp_path / "cooperative-fleet-status.sqlite"),
+        authorizer=_auth(),
+    )
+    worker = control.workers.register(
+        "worker-code",
+        ["code-implementation"],
+        1,
+    )
+    assert worker.status == "online"
+    assert control.cooperative_worker_fleet_available() is True
+
+    control.workers.workers["worker-code"].status = "dead"
+    control.workers.save()
+
+    assert control.cooperative_worker_fleet_available() is False
