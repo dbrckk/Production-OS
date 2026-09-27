@@ -26,6 +26,7 @@ def state(**kwargs):
         change_categories=(),
         human_review_required=False,
         head_sha="abc",
+        base_sha="def",
         validation_sha="abc",
     )
     base.update(kwargs)
