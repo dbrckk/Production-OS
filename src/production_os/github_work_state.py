@@ -20,6 +20,7 @@ class GitHubWorkState:
     status_state: str | None
     ready_for_promotion: bool
     promotion_blockers: tuple[str, ...]
+    required_checks_missing: tuple[str, ...]
     head_sha: str | None
 
     def to_dict(self) -> dict:
@@ -36,6 +37,7 @@ class GitHubWorkState:
             "status_state": self.status_state,
             "ready_for_promotion": self.ready_for_promotion,
             "promotion_blockers": list(self.promotion_blockers),
+            "required_checks_missing": list(self.required_checks_missing),
             "head_sha": self.head_sha,
         }
 
@@ -84,6 +86,36 @@ def _status_state(statuses: list[dict[str, Any]]) -> str | None:
     return "unknown"
 
 
+def _missing_required_checks(
+    required: list[str] | None,
+    *,
+    workflow_runs: list[dict[str, Any]],
+    statuses: list[dict[str, Any]],
+    check_runs: list[dict[str, Any]],
+) -> tuple[str, ...]:
+    if required is None:
+        return ("required-checks-unknown",)
+    if not required:
+        return ()
+    observed = set()
+    for run in workflow_runs:
+        if isinstance(run, dict):
+            name = str(run.get("name") or "").strip()
+            if name:
+                observed.add(name)
+    for item in statuses:
+        if isinstance(item, dict):
+            name = str(item.get("context") or "").strip()
+            if name:
+                observed.add(name)
+    for item in check_runs:
+        if isinstance(item, dict):
+            name = str(item.get("name") or "").strip()
+            if name:
+                observed.add(name)
+    return tuple(name for name in required if name not in observed)
+
+
 def _promotion_readiness(
     *,
     pr_state: str | None,
@@ -92,6 +124,7 @@ def _promotion_readiness(
     review_state: str | None,
     ci_state: str | None,
     status_state: str | None,
+    required_checks_missing: tuple[str, ...] = (),
 ) -> tuple[bool, tuple[str, ...]]:
     blockers = []
     if merged:
@@ -106,6 +139,8 @@ def _promotion_readiness(
         blockers.append("actions-not-passed")
     if status_state not in {None, "passed"}:
         blockers.append("external-statuses-not-passed")
+    if required_checks_missing:
+        blockers.append("required-checks-missing")
     return (not blockers, tuple(blockers))
 
 
@@ -123,6 +158,7 @@ def fetch_github_work_state(
     review_state = None
     ci_state = None
     status_state = None
+    required_checks_missing: tuple[str, ...] = ()
     head_sha = None
 
     if issue_number is not None:
@@ -137,6 +173,12 @@ def fetch_github_work_state(
             draft = bool(pr.get("draft"))
             head = pr.get("head") or {}
             head_sha = head.get("sha") if isinstance(head, dict) else None
+            base = pr.get("base") or {}
+            base_ref = (
+                str(base.get("ref") or "").strip()
+                if isinstance(base, dict)
+                else ""
+            )
 
         reviews = client.get_pull_request_reviews(repository, pr_number)
         review_state = _review_state(reviews)
@@ -146,6 +188,18 @@ def fetch_github_work_state(
             ci_state = _ci_state(runs)
             statuses = client.get_commit_statuses(repository, head_sha)
             status_state = _status_state(statuses)
+            check_runs = client.get_commit_check_runs(repository, head_sha)
+            required = (
+                client.get_branch_required_checks(repository, base_ref)
+                if base_ref
+                else []
+            )
+            required_checks_missing = _missing_required_checks(
+                required,
+                workflow_runs=runs,
+                statuses=statuses,
+                check_runs=check_runs,
+            )
 
     ready_for_promotion, promotion_blockers = _promotion_readiness(
         pr_state=pr_state,
@@ -154,6 +208,7 @@ def fetch_github_work_state(
         review_state=review_state,
         ci_state=ci_state,
         status_state=status_state,
+        required_checks_missing=required_checks_missing,
     )
 
     return GitHubWorkState(
@@ -169,6 +224,7 @@ def fetch_github_work_state(
         status_state=status_state,
         ready_for_promotion=ready_for_promotion,
         promotion_blockers=promotion_blockers,
+        required_checks_missing=required_checks_missing,
         head_sha=head_sha,
     )
 
