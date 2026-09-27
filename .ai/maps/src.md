@@ -5114,6 +5114,16 @@ value = raw_mobile_validation.get(key)
 ⋮----
 passed = raw_mobile_validation.get("passed")
 ⋮----
+adb_verification = raw_mobile_validation.get("adb_verification")
+⋮----
+clean_adb = {}
+⋮----
+value = adb_verification.get(key)
+⋮----
+reason = str(adb_verification.get("reason") or "").strip()
+⋮----
+value = str(adb_verification.get(key) or "").strip()
+⋮----
 execution = raw_mobile_validation.get("execution")
 ⋮----
 mobile_validation = clean_mobile

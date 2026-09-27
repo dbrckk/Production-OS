@@ -22,24 +22,23 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-27T13:58:19Z
+Generated: 2026-09-27T14:10:17Z
 
 ### Git
 - Branch: `main`
-- Head: `27b362165add`
-- Commit date: 2026-09-27T15:58:09+02:00
-- Commit: feat: require mobile specialist for native UI one-tap
+- Head: `b2a7758e1c4d`
+- Commit date: 2026-09-27T16:10:07+02:00
+- Commit: feat: expose independent ADB mobile evidence
 - Tracked files: 475
 
 ### Recently changed files
-- `src/production_os/control_plane.py`
-- `tests/test_release32_one_tap_e2e.py`
-- `src/production_os/managed_projects.py`
 - `src/production_os/dashboard_ui.py`
-- `tests/test_cooperative_managed_projects.py`
+- `src/production_os/managed_projects.py`
 - `tests/test_dashboard_ui_v3.py`
 - `tests/test_managed_project_outcome.py`
-- `tests/test_cooperative_specialist_e2e.py`
+- `src/production_os/control_plane.py`
+- `tests/test_release32_one_tap_e2e.py`
+- `tests/test_cooperative_managed_projects.py`
 
 ### Project signals
 - `pyproject.toml`
