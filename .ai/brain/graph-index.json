@@ -604,6 +604,7 @@
         "tests/test_execution_optimizer.py",
         "tests/test_github_webhook.py",
         "tests/test_incident_history.py",
+        "tests/test_managed_github_reconciliation.py",
         "tests/test_managed_projects_v4.py",
         "tests/test_portfolio_optimizer.py",
         "tests/test_rekor_checkpoint_state.py",
@@ -626,7 +627,7 @@
         "tests/test_workflow_engine.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 38,
+      "in_degree": 39,
       "out_degree": 5,
       "path": "src/production_os/sqlite_backend.py"
     },
@@ -671,6 +672,46 @@
     },
     {
       "dependencies": [
+        "src/production_os/change_impact.py",
+        "src/production_os/result_cache.py",
+        "src/production_os/runtime_state.py",
+        "src/production_os/task_capabilities.py",
+        "src/production_os/workers.py",
+        "tests/test_asset_forge.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/managed_projects.py",
+        "tests/test_control_plane_pr_impact.py",
+        "tests/test_control_plane_release.py",
+        "tests/test_control_plane_webhook.py",
+        "tests/test_cooperative_managed_projects.py",
+        "tests/test_cooperative_specialist_e2e.py",
+        "tests/test_dashboard_control_api.py",
+        "tests/test_dashboard_control_e2e.py",
+        "tests/test_dashboard_observability_e2e.py",
+        "tests/test_dashboard_store_postgres.py",
+        "tests/test_incident_history.py",
+        "tests/test_managed_github_reconciliation.py",
+        "tests/test_managed_projects_v4.py",
+        "tests/test_portfolio_claim_api.py",
+        "tests/test_portfolio_optimizer.py",
+        "tests/test_release_ledger.py",
+        "tests/test_remote_worker.py",
+        "tests/test_secure_release_e2e.py",
+        "tests/test_workflow_cache.py",
+        "tests/test_workflow_change_impact.py",
+        "tests/test_workflow_engine.py",
+        "tests/test_workflow_postgres.py",
+        "tests/test_workflow_splitting.py"
+      ],
+      "in_degree": 25,
+      "out_degree": 6,
+      "path": "src/production_os/workflow_engine.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/approvals.py",
         "src/production_os/budgets.py",
         "src/production_os/claims.py",
@@ -708,45 +749,6 @@
       "in_degree": 2,
       "out_degree": 29,
       "path": "src/production_os/controller.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/change_impact.py",
-        "src/production_os/result_cache.py",
-        "src/production_os/runtime_state.py",
-        "src/production_os/task_capabilities.py",
-        "src/production_os/workers.py",
-        "tests/test_asset_forge.py"
-      ],
-      "dependents": [
-        "src/production_os/cli.py",
-        "src/production_os/control_plane.py",
-        "src/production_os/managed_projects.py",
-        "tests/test_control_plane_pr_impact.py",
-        "tests/test_control_plane_release.py",
-        "tests/test_control_plane_webhook.py",
-        "tests/test_cooperative_managed_projects.py",
-        "tests/test_cooperative_specialist_e2e.py",
-        "tests/test_dashboard_control_api.py",
-        "tests/test_dashboard_control_e2e.py",
-        "tests/test_dashboard_observability_e2e.py",
-        "tests/test_dashboard_store_postgres.py",
-        "tests/test_incident_history.py",
-        "tests/test_managed_projects_v4.py",
-        "tests/test_portfolio_claim_api.py",
-        "tests/test_portfolio_optimizer.py",
-        "tests/test_release_ledger.py",
-        "tests/test_remote_worker.py",
-        "tests/test_secure_release_e2e.py",
-        "tests/test_workflow_cache.py",
-        "tests/test_workflow_change_impact.py",
-        "tests/test_workflow_engine.py",
-        "tests/test_workflow_postgres.py",
-        "tests/test_workflow_splitting.py"
-      ],
-      "in_degree": 24,
-      "out_degree": 6,
-      "path": "src/production_os/workflow_engine.py"
     },
     {
       "dependencies": [
@@ -1141,6 +1143,28 @@
     },
     {
       "dependencies": [
+        "src/production_os/github_client.py",
+        "src/production_os/github_work_state.py",
+        "src/production_os/history.py",
+        "src/production_os/rollback_plan.py",
+        "src/production_os/workflow_engine.py",
+        "tests/test_asset_forge.py"
+      ],
+      "dependents": [
+        "src/production_os/control_plane.py",
+        "tests/test_cooperative_managed_projects.py",
+        "tests/test_cooperative_specialist_e2e.py",
+        "tests/test_managed_github_reconciliation.py",
+        "tests/test_managed_project_outcome.py",
+        "tests/test_managed_projects_v4.py",
+        "tests/test_workflow_postgres.py"
+      ],
+      "in_degree": 7,
+      "out_degree": 6,
+      "path": "src/production_os/managed_projects.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/models.py"
       ],
       "dependents": [
@@ -1159,27 +1183,6 @@
       "in_degree": 11,
       "out_degree": 1,
       "path": "src/production_os/history.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/github_client.py",
-        "src/production_os/github_work_state.py",
-        "src/production_os/history.py",
-        "src/production_os/workflow_engine.py",
-        "tests/test_asset_forge.py"
-      ],
-      "dependents": [
-        "src/production_os/control_plane.py",
-        "tests/test_cooperative_managed_projects.py",
-        "tests/test_cooperative_specialist_e2e.py",
-        "tests/test_managed_github_reconciliation.py",
-        "tests/test_managed_project_outcome.py",
-        "tests/test_managed_projects_v4.py",
-        "tests/test_workflow_postgres.py"
-      ],
-      "in_degree": 7,
-      "out_degree": 5,
-      "path": "src/production_os/managed_projects.py"
     },
     {
       "dependencies": [
@@ -1785,7 +1788,7 @@
       "path": "src/production_os/rate_limit.py"
     }
   ],
-  "edge_count": 1397,
+  "edge_count": 1402,
   "generated_by": "dbrckk/repo-brain-v7-graph",
   "node_count": 275,
   "schema_version": 1

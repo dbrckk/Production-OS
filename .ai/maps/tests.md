@@ -3419,6 +3419,24 @@ workflow = {
 def test_succeeded_pull_request_without_ci_moves_to_review_instead_of_stalling()
 ⋮----
 no_ci = state(
+⋮----
+def test_post_merge_failure_resolution_builds_compensating_rollback_plan()
+⋮----
+merged_failed = state(
+⋮----
+resolution = service._github_resolution_for_succeeded_workflow(
+⋮----
+plan = resolution["rollback_plan"]
+⋮----
+def test_reconcile_launches_exactly_one_automatic_rollback_generation(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "rollback.sqlite")
+⋮----
+project = service.create(
+workflow_id = project["current_workflow_id"]
+⋮----
+recovered = service.get(project["project_id"])
+polled_again = service.get(project["project_id"])
 ```
 
 ## File: test_managed_project_outcome.py

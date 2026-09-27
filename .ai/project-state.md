@@ -22,28 +22,28 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-27T14:59:40Z
+Generated: 2026-09-27T15:12:04Z
 
 ### Git
 - Branch: `main`
-- Head: `fa9b179221c6`
-- Commit date: 2026-09-27T16:59:14+02:00
-- Commit: feat: add deployable Android emulator specialist
-- Tracked files: 477
+- Head: `8868a2a591a5`
+- Commit date: 2026-09-27T17:11:26+02:00
+- Commit: feat: launch automatic compensating rollback generations
+- Tracked files: 478
 
 ### Recently changed files
+- `src/production_os/managed_projects.py`
+- `tests/test_managed_github_reconciliation.py`
 - `.github/workflows/ci.yml`
 - `Dockerfile.mobile-worker`
 - `compose.worker.yaml`
 - `tests/test_mobile_worker_image.py`
 - `tests/test_worker_compose_deployment.py`
 - `src/production_os/dashboard_ui.py`
-- `src/production_os/managed_projects.py`
 - `tests/test_dashboard_ui_v3.py`
 - `tests/test_managed_project_outcome.py`
 - `src/production_os/control_plane.py`
 - `tests/test_release32_one_tap_e2e.py`
-- `tests/test_cooperative_managed_projects.py`
 
 ### Project signals
 - `pyproject.toml`

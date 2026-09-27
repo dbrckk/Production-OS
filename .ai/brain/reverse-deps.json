@@ -1254,6 +1254,7 @@
         "src/production_os/github_client.py",
         "src/production_os/github_work_state.py",
         "src/production_os/history.py",
+        "src/production_os/rollback_plan.py",
         "src/production_os/workflow_engine.py",
         "tests/test_asset_forge.py"
       ],
@@ -1267,7 +1268,7 @@
         "tests/test_workflow_postgres.py"
       ],
       "in_degree": 7,
-      "out_degree": 5
+      "out_degree": 6
     },
     "src/production_os/metrics.py": {
       "dependencies": [],
@@ -1627,9 +1628,10 @@
         "tests/test_asset_forge.py"
       ],
       "dependents": [
+        "src/production_os/managed_projects.py",
         "tests/test_rollback_plan.py"
       ],
-      "in_degree": 1,
+      "in_degree": 2,
       "out_degree": 2
     },
     "src/production_os/runtime_state.py": {
@@ -1843,6 +1845,7 @@
         "tests/test_execution_optimizer.py",
         "tests/test_github_webhook.py",
         "tests/test_incident_history.py",
+        "tests/test_managed_github_reconciliation.py",
         "tests/test_managed_projects_v4.py",
         "tests/test_portfolio_optimizer.py",
         "tests/test_rekor_checkpoint_state.py",
@@ -1865,7 +1868,7 @@
         "tests/test_workflow_engine.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 38,
+      "in_degree": 39,
       "out_degree": 5
     },
     "src/production_os/sqlite_migration.py": {
@@ -2152,6 +2155,7 @@
         "tests/test_dashboard_observability_e2e.py",
         "tests/test_dashboard_store_postgres.py",
         "tests/test_incident_history.py",
+        "tests/test_managed_github_reconciliation.py",
         "tests/test_managed_projects_v4.py",
         "tests/test_portfolio_claim_api.py",
         "tests/test_portfolio_optimizer.py",
@@ -2164,7 +2168,7 @@
         "tests/test_workflow_postgres.py",
         "tests/test_workflow_splitting.py"
       ],
-      "in_degree": 24,
+      "in_degree": 25,
       "out_degree": 6
     },
     "tests/test_adaptation.py": {
@@ -3155,11 +3159,13 @@
         "src/production_os/__init__.py",
         "src/production_os/github_work_state.py",
         "src/production_os/managed_projects.py",
+        "src/production_os/sqlite_backend.py",
+        "src/production_os/workflow_engine.py",
         "tests/test_asset_forge.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 4
+      "out_degree": 6
     },
     "tests/test_managed_project_outcome.py": {
       "dependencies": [

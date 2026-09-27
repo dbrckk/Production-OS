@@ -5790,6 +5790,19 @@ state = fetch_github_work_state(
 ⋮----
 decision = runtime_decision_from_github(state)
 ⋮----
+rollback_plan = None
+⋮----
+rollback_plan = build_rollback_plan(
+⋮----
+resolution = self._github_resolution_for_succeeded_workflow(
+⋮----
+project_id = str(current["id"])
+generation = int(current["generation"]) + 1
+metadata = (
+cooperative = bool(
+⋮----
+updated = _execute(
+⋮----
 def reconcile(self, identifier: str) -> dict
 ⋮----
 project_id = self._resolve_project_id(identifier)
@@ -5798,6 +5811,7 @@ project = _execute(
 ⋮----
 current = dict(project)
 ⋮----
+workflow = None
 workflow_id = current.get("current_workflow_id")
 ⋮----
 target = NEEDS_ATTENTION
@@ -5806,10 +5820,14 @@ workflow = self.workflows.get(str(workflow_id))
 ⋮----
 workflow_status = workflow.get("status")
 ⋮----
-github_target = self._github_target_for_succeeded_workflow(
-target = (
+target = str(
+rollback_plan = resolution.get(
+⋮----
+target = REVIEW_REQUIRED
 ⋮----
 target = ACTIVE
+⋮----
+updated_project = dict(row)
 ⋮----
 def _usage(self, runs: list[dict]) -> dict
 ⋮----
@@ -5848,11 +5866,8 @@ current = self.get(identifier)
 instruction = str(instruction or "").strip()
 ⋮----
 project_id = current["project_id"]
-generation = int(current["generation"]) + 1
-current_workflow = current.get("current_workflow")
-cooperative = bool(
 ⋮----
-updated = _execute(
+current_workflow = current.get("current_workflow")
 ⋮----
 instruction = (
 ⋮----
@@ -11950,6 +11965,24 @@ workflow = {
 def test_succeeded_pull_request_without_ci_moves_to_review_instead_of_stalling()
 ⋮----
 no_ci = state(
+⋮----
+def test_post_merge_failure_resolution_builds_compensating_rollback_plan()
+⋮----
+merged_failed = state(
+⋮----
+resolution = service._github_resolution_for_succeeded_workflow(
+⋮----
+plan = resolution["rollback_plan"]
+⋮----
+def test_reconcile_launches_exactly_one_automatic_rollback_generation(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "rollback.sqlite")
+⋮----
+project = service.create(
+workflow_id = project["current_workflow_id"]
+⋮----
+recovered = service.get(project["project_id"])
+polled_again = service.get(project["project_id"])
 ````
 
 ## File: tests/test_managed_project_outcome.py

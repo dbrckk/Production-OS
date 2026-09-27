@@ -1,18 +1,14 @@
 # Change impact
 
-Base: a9e7075c56c52e0c375428f68bd159ee8b10e7d8
-Head: fa9b179221c6bda514b142edc12b4c6c4d872c0e
+Base: af40eec179f37610b9b7666380b89ddc5aebebde
+Head: 8868a2a591a553f260918f6399e1332a39a068b2
 
 ## Changed files
-- M .github/workflows/ci.yml
-- A Dockerfile.mobile-worker
-- M compose.worker.yaml
-- A tests/test_mobile_worker_image.py
-- M tests/test_worker_compose_deployment.py
+- M src/production_os/managed_projects.py
+- M tests/test_managed_github_reconciliation.py
 
 ## Affected areas
-- .github
-- (root)
+- src
 - tests
 
 ## Related test candidates

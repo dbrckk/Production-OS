@@ -5234,6 +5234,19 @@ state = fetch_github_work_state(
 ⋮----
 decision = runtime_decision_from_github(state)
 ⋮----
+rollback_plan = None
+⋮----
+rollback_plan = build_rollback_plan(
+⋮----
+resolution = self._github_resolution_for_succeeded_workflow(
+⋮----
+project_id = str(current["id"])
+generation = int(current["generation"]) + 1
+metadata = (
+cooperative = bool(
+⋮----
+updated = _execute(
+⋮----
 def reconcile(self, identifier: str) -> dict
 ⋮----
 project_id = self._resolve_project_id(identifier)
@@ -5242,6 +5255,7 @@ project = _execute(
 ⋮----
 current = dict(project)
 ⋮----
+workflow = None
 workflow_id = current.get("current_workflow_id")
 ⋮----
 target = NEEDS_ATTENTION
@@ -5250,10 +5264,14 @@ workflow = self.workflows.get(str(workflow_id))
 ⋮----
 workflow_status = workflow.get("status")
 ⋮----
-github_target = self._github_target_for_succeeded_workflow(
-target = (
+target = str(
+rollback_plan = resolution.get(
+⋮----
+target = REVIEW_REQUIRED
 ⋮----
 target = ACTIVE
+⋮----
+updated_project = dict(row)
 ⋮----
 def _usage(self, runs: list[dict]) -> dict
 ⋮----
@@ -5292,11 +5310,8 @@ current = self.get(identifier)
 instruction = str(instruction or "").strip()
 ⋮----
 project_id = current["project_id"]
-generation = int(current["generation"]) + 1
-current_workflow = current.get("current_workflow")
-cooperative = bool(
 ⋮----
-updated = _execute(
+current_workflow = current.get("current_workflow")
 ⋮----
 instruction = (
 ⋮----
