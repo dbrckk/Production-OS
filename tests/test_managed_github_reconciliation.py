@@ -508,3 +508,101 @@ def test_merge_api_rejection_falls_back_to_review_required():
 
     assert resolution["target"] == REVIEW_REQUIRED
     assert len(client.merge_calls) == 1
+
+
+
+def test_managed_project_automerge_then_post_merge_failure_launches_one_rollback(tmp_path):
+    backend = SQLiteBackend(tmp_path / "automerge-rollback.sqlite")
+    client = FakeMergeClient(managed_pr())
+    service = ManagedProjectService(
+        WorkflowEngine(backend, SQLiteJobQueue(backend)),
+        github_client_factory=lambda: client,
+    )
+    project = service.create(
+        repository="o/a",
+        final_goal="Ship a verified backend change",
+        token_budget=1000,
+        cooperative=True,
+        requested_by="operator:test",
+    )
+    workflow_id = project["current_workflow_id"]
+    service.workflows.record_result(
+        workflow_id,
+        "implementation",
+        succeeded=True,
+        result={
+            "summary":"implemented",
+            "commit_shas":["a"*40],
+        },
+    )
+    service.workflows.record_result(
+        workflow_id,
+        "validation",
+        succeeded=True,
+        result={
+            "summary":"validated",
+            "validation":{"status":"passed","tests":["unit"]},
+        },
+    )
+    service.workflows.record_result(
+        workflow_id,
+        "review",
+        succeeded=True,
+        result={
+            "summary":"reviewed",
+            "pull_request":{"number":12,"state":"open"},
+        },
+    )
+
+    ready = state(
+        pr_state="open",
+        merged=False,
+        ci_state="passed",
+        status_state="passed",
+        ready_for_promotion=True,
+        validation_sha="a"*40,
+    )
+    merged_failed = state(
+        pr_state="closed",
+        merged=True,
+        ci_state="failed",
+        status_state="passed",
+        ready_for_promotion=False,
+        validation_sha="b"*40,
+        promotion_blockers=("actions-not-passed",),
+    )
+
+    with patch(
+        "production_os.managed_projects.fetch_github_work_state",
+        side_effect=[ready, merged_failed, merged_failed],
+    ):
+        after_merge = service.get(project["project_id"])
+        after_failure = service.get(project["project_id"])
+        polled_again = service.get(project["project_id"])
+
+    assert client.merge_calls == [{
+        "repository":"o/a",
+        "pr_number":12,
+        "expected_head_sha":"a"*40,
+        "merge_method":"squash",
+    }]
+    assert after_merge["status"] == ACTIVE
+    assert after_merge["generation"] == 1
+
+    assert after_failure["status"] == ACTIVE
+    assert after_failure["generation"] == 2
+    assert after_failure["runs"][-1]["kind"] == "rollback"
+    assert (
+        after_failure["runs"][-1]["requested_by"]
+        == "system:github-rollback"
+    )
+    rollback_workflow = after_failure["current_workflow"]
+    assert rollback_workflow["metadata"]["cooperative"] is True
+    assert rollback_workflow["metadata"]["managed_project_kind"] == "rollback"
+    assert rollback_workflow["metadata"]["managed_project_generation"] == 2
+
+    assert polled_again["generation"] == 2
+    assert len([
+        run for run in polled_again["runs"]
+        if run["kind"] == "rollback"
+    ]) == 1
