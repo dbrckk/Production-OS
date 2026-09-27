@@ -14,6 +14,7 @@ from .task_capabilities import (
     inferred_preferred_capabilities,
     inferred_required_capabilities,
 )
+from .worktree_contract import build_worktree_contract
 
 
 TERMINAL_TASK_STATES = {"succeeded", "failed", "cancelled", "blocked"}
@@ -1294,12 +1295,28 @@ class WorkflowEngine:
                 retry_context = _retry_context(task.get("result"))
                 if retry_context is not None:
                     handoff["retry_context"] = retry_context
+            metadata = dict(workflow.get("metadata") or {})
+            isolation = dict(payload.get("isolation") or {})
+            if isolation.get("mode") == "git-worktree":
+                handoff["isolation"] = build_worktree_contract(
+                    repository=workflow["repository"],
+                    workflow_id=workflow_id,
+                    task_id=task["task_id"],
+                    attempt=attempt_number,
+                    base_ref=(
+                        isolation.get("base_ref")
+                        or metadata.get("github_pr_head_sha")
+                        or "HEAD"
+                    ),
+                    integration_target=bool(
+                        isolation.get("integration_target", False)
+                    ),
+                )
             asset_forge = asset_forge_tool_contract(handoff)
             if asset_forge is not None:
                 contracts = dict(handoff.get("tool_contracts") or {})
                 contracts["asset_forge"] = asset_forge
                 handoff["tool_contracts"] = contracts
-            metadata = dict(workflow.get("metadata") or {})
             queue_payload = {
                 **payload,
                 "schema_version":"production-os/workflow-dispatch/v1",
