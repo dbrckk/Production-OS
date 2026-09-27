@@ -406,7 +406,7 @@ def test_reconcile_marks_project_done_after_post_merge_green_ci(tmp_path):
         completed = service.get(project["project_id"])
 
     assert completed["status"] == "DONE"
-    assert completed["completed_by"] == "system:github-promotion"
+    assert completed["approved_by"] == "system:github-promotion"
     assert completed["completed_at"]
 
 
