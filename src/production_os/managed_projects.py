@@ -632,10 +632,16 @@ class ManagedProjectService:
         ) = budgets
         specialist_budget = specialist_budgets[0] if specialist_budgets else 0
 
+        if agent_budget < 2:
+            raise ValueError(
+                "cooperative token_budget must reserve at least 2 tokens "
+                "for fallback child agents"
+            )
         code_budget = max(1, (agent_budget * 7) // 10)
-        tests_budget = max(1, agent_budget - code_budget)
-        if code_budget + tests_budget > agent_budget:
-            code_budget = max(1, agent_budget - tests_budget)
+        tests_budget = agent_budget - code_budget
+        if tests_budget < 1:
+            tests_budget = 1
+            code_budget = agent_budget - 1
 
         common = {
             "managed_project_id":project_id,
