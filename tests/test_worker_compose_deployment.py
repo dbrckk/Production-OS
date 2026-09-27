@@ -43,3 +43,16 @@ def test_worker_compose_exposes_specialist_pool_without_replacing_generic_worker
     assert "dockerfile: Dockerfile.browser-worker" in payload
     # Browser worker is present but cannot claim browser validation until a real runtime is provisioned.
     assert "PRODUCTION_OS_SPECIALIST_MAX_CONCURRENCY" in payload
+
+
+
+def test_worker_compose_exposes_kvm_mobile_specialist():
+    payload = Path("compose.worker.yaml").read_text(encoding="utf-8")
+
+    assert "production-worker-mobile:" in payload
+    assert "dockerfile: Dockerfile.mobile-worker" in payload
+    assert "/dev/kvm:/dev/kvm" in payload
+    assert "--capability\n      - mobile-ui-validation" in payload
+    assert "PRODUCTION_OS_WORKER_SPECIALTIES: mobile" in payload
+    assert "PRODUCTION_OS_ANDROID_AVD" in payload
+    assert "PRODUCTION_OS_MOBILE_WORKER_TIMEOUT_SECONDS" in payload
