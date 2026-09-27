@@ -205,6 +205,7 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
             "ci":None,
             "browser_validation":None,
             "mobile_validation":None,
+            "dynamic_plan":None,
             "completed_at":None,
         }
 
@@ -525,6 +526,37 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
         if clean_mobile:
             mobile_validation = clean_mobile
 
+    dynamic_children = [
+        task
+        for task in (workflow.get("tasks") or [])
+        if isinstance(task, dict)
+        and isinstance(task.get("payload"), dict)
+        and task["payload"].get("dynamic_agent_child") is True
+    ]
+    dynamic_plan = None
+    if dynamic_children:
+        sources = {
+            str(task["payload"].get("dynamic_agent_plan_source") or "").strip()
+            for task in dynamic_children
+            if str(
+                task["payload"].get("dynamic_agent_plan_source") or ""
+            ).strip()
+        }
+        source = (
+            next(iter(sources))
+            if len(sources) == 1
+            else "mixed"
+        )
+        dynamic_plan = {
+            "source":source or "unknown",
+            "child_agent_count":len(dynamic_children),
+            "task_ids":[
+                str(task.get("task_id") or "")
+                for task in dynamic_children
+                if str(task.get("task_id") or "")
+            ][:16],
+        }
+
     workflow_status = str(workflow.get("status") or "").strip() or None
     terminal = workflow_status in {"succeeded", "failed", "cancelled"}
     available = terminal or any((
@@ -538,6 +570,7 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
         ci,
         browser_validation,
         mobile_validation,
+        dynamic_plan,
     ))
     return {
         "available":bool(available),
@@ -553,6 +586,7 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
         "ci":ci,
         "browser_validation":browser_validation,
         "mobile_validation":mobile_validation,
+        "dynamic_plan":dynamic_plan,
         "completed_at":workflow.get("updated_at") if terminal else None,
     }
 
