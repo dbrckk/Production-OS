@@ -1,6 +1,7 @@
 from production_os.task_capabilities import (
     VISUAL_CAPABILITY,
     VISUAL_3D_CAPABILITY,
+    inferred_preferred_capabilities,
     inferred_required_capabilities,
     is_visual_asset_task,
 )
@@ -54,3 +55,14 @@ def test_inferred_capabilities_preserve_explicit_requirements():
         }
     )
     assert required == ["android", VISUAL_CAPABILITY]
+
+
+
+def test_preferred_capabilities_preserve_explicit_specialist_routing():
+    preferred = inferred_preferred_capabilities(
+        {
+            "task":"Fix failing tests and review the result",
+            "preferred_capabilities":["test-debug"],
+        }
+    )
+    assert "test-debug" in preferred

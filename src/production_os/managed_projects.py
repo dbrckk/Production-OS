@@ -112,6 +112,54 @@ def _clean_commit_shas(values) -> list[str]:
     return clean[:20]
 
 
+def _result_tasks_by_depth(workflow: dict) -> list[dict]:
+    tasks = [
+        task
+        for task in workflow.get("tasks", [])
+        if isinstance(task, dict) and isinstance(task.get("result"), dict)
+    ]
+    by_id = {
+        str(task.get("task_id") or ""): task
+        for task in tasks
+        if str(task.get("task_id") or "")
+    }
+    memo: dict[str, int] = {}
+
+    def depth(task_id: str, visiting: set[str] | None = None) -> int:
+        if task_id in memo:
+            return memo[task_id]
+        visiting = set(visiting or ())
+        if task_id in visiting:
+            return 0
+        visiting.add(task_id)
+        task = by_id.get(task_id) or {}
+        deps = [
+            str(item)
+            for item in (task.get("dependencies") or [])
+            if str(item) in by_id
+        ]
+        value = 0 if not deps else 1 + max(
+            depth(dep, visiting)
+            for dep in deps
+        )
+        memo[task_id] = value
+        return value
+
+    return sorted(
+        tasks,
+        key=lambda task: (
+            depth(str(task.get("task_id") or "")),
+            str(task.get("updated_at") or ""),
+            str(task.get("task_id") or ""),
+        ),
+    )
+
+
+def _result_evidence(result: dict) -> dict:
+    evidence = result.get("evidence")
+    return evidence if isinstance(evidence, dict) else {}
+
+
 def _outcome_from_workflow(workflow: dict | None) -> dict:
     if not isinstance(workflow, dict):
         return {
@@ -129,17 +177,13 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
             "completed_at":None,
         }
 
+    result_tasks = _result_tasks_by_depth(workflow)
     results = [
-        task.get("result")
-        for task in workflow.get("tasks", [])
-        if isinstance(task, dict) and isinstance(task.get("result"), dict)
+        task["result"]
+        for task in result_tasks
     ]
     result = results[-1] if results else {}
-    evidence = (
-        result.get("evidence")
-        if isinstance(result.get("evidence"), dict)
-        else {}
-    )
+    evidence = _result_evidence(result)
     summary = (
         result.get("summary")
         or evidence.get("summary")
@@ -176,17 +220,26 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
         else []
     )
 
-    raw_commits = (
-        result.get("commit_shas")
-        or evidence.get("commit_shas")
-        or result.get("commits")
-        or evidence.get("commits")
-        or result.get("commit_sha")
-        or evidence.get("commit_sha")
-    )
-    if isinstance(raw_commits, (str, dict)):
-        raw_commits = [raw_commits]
-    commit_shas = _clean_commit_shas(raw_commits)
+    commit_shas = []
+    for item in results:
+        item_evidence = _result_evidence(item)
+        raw_commits = (
+            item.get("commit_shas")
+            or item_evidence.get("commit_shas")
+            or item.get("commits")
+            or item_evidence.get("commits")
+            or item.get("commit_sha")
+            or item_evidence.get("commit_sha")
+        )
+        if isinstance(raw_commits, (str, dict)):
+            raw_commits = [raw_commits]
+        for sha in _clean_commit_shas(raw_commits):
+            if sha not in commit_shas:
+                commit_shas.append(sha)
+            if len(commit_shas) >= 20:
+                break
+        if len(commit_shas) >= 20:
+            break
 
     artifacts = [
         artifact
@@ -199,33 +252,58 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
         if str(artifact.get("name") or "").strip()
     ][:20]
 
-    changed_files = (
-        result.get("changed_files")
-        or evidence.get("changed_files")
-        or []
-    )
-    changed_file_count = (
-        len(changed_files)
-        if isinstance(changed_files, (list, tuple))
-        else 0
-    )
+    changed_files = []
+    for item in results:
+        item_evidence = _result_evidence(item)
+        raw_changed = (
+            item.get("changed_files")
+            or item_evidence.get("changed_files")
+            or []
+        )
+        if not isinstance(raw_changed, (list, tuple)):
+            continue
+        for raw in raw_changed:
+            value = str(raw or "").strip()
+            if value and value not in changed_files:
+                changed_files.append(value)
+            if len(changed_files) >= 500:
+                break
+        if len(changed_files) >= 500:
+            break
+    changed_file_count = len(changed_files)
 
-    pr = result.get("pull_request") or evidence.get("pull_request")
+    pr = None
+    pr_source = result
+    pr_evidence = evidence
+    for item in reversed(results):
+        item_evidence = _result_evidence(item)
+        candidate = item.get("pull_request") or item_evidence.get("pull_request")
+        candidate_number = (
+            item.get("pull_request_number")
+            or item_evidence.get("pull_request_number")
+            or item.get("pr_number")
+            or item_evidence.get("pr_number")
+        )
+        if isinstance(candidate, dict) or candidate_number is not None:
+            pr = candidate
+            pr_source = item
+            pr_evidence = item_evidence
+            break
     pull_request = None
     if isinstance(pr, dict):
         number = pr.get("number")
         state = str(pr.get("state") or "").strip() or None
     else:
         number = (
-            result.get("pull_request_number")
-            or evidence.get("pull_request_number")
-            or result.get("pr_number")
-            or evidence.get("pr_number")
+            pr_source.get("pull_request_number")
+            or pr_evidence.get("pull_request_number")
+            or pr_source.get("pr_number")
+            or pr_evidence.get("pr_number")
         )
         state = (
             str(
-                result.get("pull_request_state")
-                or evidence.get("pull_request_state")
+                pr_source.get("pull_request_state")
+                or pr_evidence.get("pull_request_state")
                 or ""
             ).strip()
             or None
@@ -237,7 +315,13 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
     if number is not None or state is not None:
         pull_request = {"number":number, "state":state}
 
-    raw_ci = result.get("ci") or evidence.get("ci")
+    raw_ci = None
+    for item in reversed(results):
+        item_evidence = _result_evidence(item)
+        candidate = item.get("ci") or item_evidence.get("ci")
+        if isinstance(candidate, dict):
+            raw_ci = candidate
+            break
     ci = None
     if isinstance(raw_ci, dict):
         clean_ci = {}
@@ -306,6 +390,162 @@ class ManagedProjectService:
             raise ValueError("repository must be owner/name")
         return repository
 
+    @staticmethod
+    def _needs_browser_validation(final_goal: str) -> bool:
+        text = str(final_goal or "").lower()
+        markers = (
+            "browser", "frontend", "front-end", "web ui", "website",
+            "dashboard", "visual regression", "screenshot", "playwright",
+            "selenium", "mobile ui", "android ui", "flutter ui",
+        )
+        return any(marker in text for marker in markers)
+
+    def _cooperative_workflow_specs(
+        self,
+        *,
+        project_id: str,
+        repository: str,
+        final_goal: str,
+        instruction: str,
+        generation: int,
+        kind: str,
+        token_budget: int,
+        agent_preference: str,
+    ) -> list[WorkflowTaskSpec]:
+        browser = self._needs_browser_validation(final_goal)
+        stage_count = 4 if browser else 3
+        if int(token_budget) < stage_count:
+            raise ValueError(
+                "cooperative token_budget must cover every stage"
+            )
+        implementation_budget = max(1, int(token_budget * 0.55))
+        validation_budget = max(1, int(token_budget * 0.25))
+        remaining = max(
+            1,
+            token_budget - implementation_budget - validation_budget,
+        )
+        review_budget = (
+            max(1, int(remaining * 0.55))
+            if browser
+            else remaining
+        )
+        browser_budget = (
+            max(1, remaining - review_budget)
+            if browser
+            else 0
+        )
+
+        common = {
+            "managed_project_id":project_id,
+            "managed_project_generation":generation,
+            "managed_project_kind":kind,
+        }
+        tasks = [
+            WorkflowTaskSpec(
+                task_id="implementation",
+                title=instruction[:120],
+                payload={
+                    **common,
+                    "cooperative_stage":"implementation",
+                    "handoff":{
+                        "repository":repository,
+                        "task":instruction,
+                        "final_goal":final_goal,
+                        "agent_preference":agent_preference,
+                        "token_budget":implementation_budget,
+                        "required_capabilities":[],
+                        "preferred_capabilities":["code-implementation"],
+                    },
+                },
+                priority=100,
+                max_attempts=3,
+                estimated_minutes=30,
+            ),
+            WorkflowTaskSpec(
+                task_id="validation",
+                title="Validate and debug the implementation",
+                payload={
+                    **common,
+                    "cooperative_stage":"validation",
+                    "handoff":{
+                        "repository":repository,
+                        "task":(
+                            "Validate the current implementation against the final "
+                            "goal. Run the most relevant tests, diagnose failures, "
+                            "make the smallest correct fixes when needed, and report "
+                            "clear validation evidence."
+                        ),
+                        "final_goal":final_goal,
+                        "agent_preference":agent_preference,
+                        "token_budget":validation_budget,
+                        "required_capabilities":[],
+                        "preferred_capabilities":["test-debug"],
+                    },
+                },
+                dependencies=("implementation",),
+                priority=90,
+                max_attempts=2,
+                estimated_minutes=20,
+            ),
+            WorkflowTaskSpec(
+                task_id="review",
+                title="Review the verified implementation",
+                payload={
+                    **common,
+                    "cooperative_stage":"review",
+                    "handoff":{
+                        "repository":repository,
+                        "task":(
+                            "Review the implementation and its validation evidence. "
+                            "Inspect the diff for correctness, regressions, security, "
+                            "maintainability and unnecessary changes. Fix only issues "
+                            "that are clearly actionable, then report review evidence."
+                        ),
+                        "final_goal":final_goal,
+                        "agent_preference":agent_preference,
+                        "token_budget":review_budget,
+                        "required_capabilities":[],
+                        "preferred_capabilities":["code-review"],
+                    },
+                },
+                dependencies=("validation",),
+                priority=80,
+                max_attempts=2,
+                estimated_minutes=15,
+            ),
+        ]
+        if browser:
+            tasks.append(
+                WorkflowTaskSpec(
+                    task_id="ui-validation",
+                    title="Validate the user interface in a real browser/runtime",
+                    payload={
+                        **common,
+                        "cooperative_stage":"ui-validation",
+                        "handoff":{
+                            "repository":repository,
+                            "task":(
+                                "Validate the relevant user interface in a real "
+                                "browser or runtime. Exercise the changed user flows, "
+                                "check console/runtime errors and visual regressions, "
+                                "and report reproducible evidence. Fix only defects "
+                                "caused by this implementation."
+                            ),
+                            "final_goal":final_goal,
+                            "agent_preference":agent_preference,
+                            "token_budget":browser_budget,
+                            "required_capabilities":[],
+                            "preferred_capabilities":["browser-ui-validation"],
+                        },
+                    },
+                    dependencies=("review",),
+                    priority=70,
+                    max_attempts=2,
+                    estimated_minutes=15,
+                )
+            )
+        return tasks
+
     def _workflow_spec(
         self,
         *,
@@ -350,11 +590,21 @@ class ManagedProjectService:
         token_budget: int,
         agent_preference: str,
         dispatch: bool,
+        cooperative: bool = False,
     ) -> dict:
-        workflow = self.workflows.create(
-            name=f"Managed project: {repository} · g{generation}",
-            repository=repository,
-            tasks=[
+        tasks = (
+            self._cooperative_workflow_specs(
+                project_id=project_id,
+                repository=repository,
+                final_goal=final_goal,
+                instruction=instruction,
+                generation=generation,
+                kind=kind,
+                token_budget=token_budget,
+                agent_preference=agent_preference,
+            )
+            if cooperative
+            else [
                 self._workflow_spec(
                     project_id=project_id,
                     repository=repository,
@@ -365,7 +615,12 @@ class ManagedProjectService:
                     token_budget=token_budget,
                     agent_preference=agent_preference,
                 )
-            ],
+            ]
+        )
+        workflow = self.workflows.create(
+            name=f"Managed project: {repository} · g{generation}",
+            repository=repository,
+            tasks=tasks,
             metadata={
                 "managed_project_id":project_id,
                 "managed_project_generation":generation,
@@ -374,6 +629,7 @@ class ManagedProjectService:
                 "final_goal":final_goal,
                 "token_budget":token_budget,
                 "agent_preference":agent_preference,
+                "cooperative":bool(cooperative),
             },
         )
         if dispatch:
@@ -404,6 +660,7 @@ class ManagedProjectService:
         agent_preference: str = "auto",
         requested_by: str = "operator",
         project_id: str | None = None,
+        cooperative: bool = False,
     ) -> dict:
         repository = self._validate_repository(repository)
         final_goal = str(final_goal or "").strip()
@@ -494,6 +751,7 @@ class ManagedProjectService:
                 token_budget=budget,
                 agent_preference=agent,
                 dispatch=False,
+                cooperative=bool(cooperative),
             )
         except Exception:
             with self.backend.transaction() as db:
