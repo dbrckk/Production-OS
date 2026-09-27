@@ -179,3 +179,45 @@ services:
       - ${PRODUCTION_OS_WORKER_EXECUTOR_TIMEOUT_SECONDS:-3600}
       - --ack-timeout-seconds
       - ${PRODUCTION_OS_WORKER_ACK_TIMEOUT_SECONDS:-120}
+
+  production-worker-mobile:
+    profiles:
+      - worker-specialists
+    build:
+      context: .
+      dockerfile: Dockerfile.mobile-worker
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 20s
+    shm_size: 2gb
+    devices:
+      - /dev/kvm:/dev/kvm
+    depends_on:
+      production-os:
+        condition: service_healthy
+    environment:
+      PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
+      PRODUCTION_OS_WORKER_SPECIALTIES: mobile
+      PRODUCTION_OS_ANDROID_AVD: ${PRODUCTION_OS_ANDROID_AVD:-production-os-api35}
+      ANDROID_AVD_HOME: /opt/android-avd
+    volumes:
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
+    command:
+      - remote-worker-run
+      - --url
+      - http://production-os:8787
+      - --worker-id
+      - worker-mobile
+      - --capability
+      - mobile-ui-validation
+      - --executor-command
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_COMMAND:-}
+      - --max-concurrency
+      - ${PRODUCTION_OS_SPECIALIST_MAX_CONCURRENCY:-1}
+      - --heartbeat-interval-seconds
+      - ${PRODUCTION_OS_WORKER_HEARTBEAT_SECONDS:-5}
+      - --executor-timeout-seconds
+      - ${PRODUCTION_OS_MOBILE_WORKER_TIMEOUT_SECONDS:-5400}
+      - --ack-timeout-seconds
+      - ${PRODUCTION_OS_WORKER_ACK_TIMEOUT_SECONDS:-120}
+
