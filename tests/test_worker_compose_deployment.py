@@ -34,10 +34,11 @@ def test_worker_compose_exposes_specialist_pool_without_replacing_generic_worker
     assert "--capability\n      - code-implementation" in payload
     assert "--capability\n      - test-debug" in payload
     assert "--capability\n      - code-review" in payload
-    assert "--capability\n      - browser-ui-validation" in payload
+    assert "--capability\n      - browser-ui-validation" not in payload
 
     assert "PRODUCTION_OS_WORKER_SPECIALTIES: code" in payload
     assert "PRODUCTION_OS_WORKER_SPECIALTIES: debug" in payload
     assert "PRODUCTION_OS_WORKER_SPECIALTIES: review" in payload
     assert "PRODUCTION_OS_WORKER_SPECIALTIES: browser" in payload
+    # Browser worker is present but cannot claim browser validation until a real runtime is provisioned.
     assert "PRODUCTION_OS_SPECIALIST_MAX_CONCURRENCY" in payload
