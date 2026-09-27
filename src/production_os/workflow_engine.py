@@ -1531,6 +1531,93 @@ class WorkflowEngine:
                 ),
             )
         )
+
+        continuation = config.get("post_integration_tasks") or []
+        if not isinstance(continuation, list):
+            raise ValueError(
+                "dynamic planner post_integration_tasks must be a list"
+            )
+        previous_dependency = integration_task_id
+        known_ids = {
+            planner_task_id,
+            *child_ids.values(),
+            integration_task_id,
+        }
+        for index, raw in enumerate(continuation):
+            if not isinstance(raw, dict):
+                raise ValueError(
+                    "dynamic planner continuation task must be an object"
+                )
+            continuation_id = str(raw.get("task_id") or "").strip()
+            if (
+                not continuation_id
+                or continuation_id in known_ids
+                or continuation_id == planner_task_id
+            ):
+                raise ValueError(
+                    "dynamic planner continuation task_id is invalid"
+                )
+            title = str(raw.get("title") or continuation_id).strip()
+            instruction = str(raw.get("instruction") or "").strip()
+            if not title or not instruction:
+                raise ValueError(
+                    "dynamic planner continuation requires title and instruction"
+                )
+            try:
+                token_budget = int(raw.get("token_budget"))
+            except (TypeError, ValueError) as exc:
+                raise ValueError(
+                    "dynamic planner continuation token_budget is invalid"
+                ) from exc
+            if token_budget < 1:
+                raise ValueError(
+                    "dynamic planner continuation token_budget must be >= 1"
+                )
+            preferred = raw.get("preferred_capabilities") or []
+            required = raw.get("required_capabilities") or []
+            if not isinstance(preferred, list) or not isinstance(required, list):
+                raise ValueError(
+                    "dynamic planner continuation capabilities must be lists"
+                )
+            handoff = {
+                **common_handoff,
+                "repository":repository,
+                "task":instruction,
+                "token_budget":token_budget,
+                "preferred_capabilities":[str(value) for value in preferred],
+            }
+            if required:
+                handoff["required_capabilities"] = [
+                    str(value) for value in required
+                ]
+                handoff["required_capabilities_authoritative"] = True
+            if isinstance(raw.get("tool_contracts"), dict):
+                handoff["tool_contracts"] = dict(raw["tool_contracts"])
+            specs.append(
+                WorkflowTaskSpec(
+                    task_id=continuation_id,
+                    title=title[:200],
+                    payload={
+                        "dynamic_agent_continuation":True,
+                        "dynamic_agent_planner_task_id":planner_task_id,
+                        "isolation":{
+                            "mode":"git-worktree",
+                            "integration_target":True,
+                        },
+                        "handoff":handoff,
+                    },
+                    dependencies=(previous_dependency,),
+                    priority=float(raw.get("priority", config.get("priority", 100))),
+                    max_attempts=max(1, int(raw.get("max_attempts", 2))),
+                    estimated_minutes=max(
+                        0.1,
+                        float(raw.get("estimated_minutes", 20)),
+                    ),
+                )
+            )
+            known_ids.add(continuation_id)
+            previous_dependency = continuation_id
+
         return specs
 
     def _apply_dynamic_agent_specs(
