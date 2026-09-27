@@ -1420,12 +1420,23 @@ class SQLiteJobQueue:
                 (worker_id,),
             ).fetchall()
             chosen = None
+            chosen_preference = -1
+            chosen_priority = None
             for row in rows:
                 payload = json.loads(row["payload_json"])
                 required = set(payload.get("required_capabilities", []))
-                if required.issubset(capabilities_set):
-                    chosen = row
+                if not required.issubset(capabilities_set):
+                    continue
+                row_priority = float(row["priority"])
+                if chosen_priority is None:
+                    chosen_priority = row_priority
+                elif row_priority < chosen_priority:
                     break
+                preferred = set(payload.get("preferred_capabilities", []))
+                preference = len(preferred.intersection(capabilities_set))
+                if chosen is None or preference > chosen_preference:
+                    chosen = row
+                    chosen_preference = preference
             if chosen is None:
                 return None
             updated = db.execute(
