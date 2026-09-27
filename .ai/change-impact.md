@@ -1,16 +1,18 @@
 # Change impact
 
-Base: 0a72ff6a4d042f2befe709098f03c4067ad06c5f
-Head: b2a7758e1c4d22f191db53d8441e2b995bd2ebab
+Base: a9e7075c56c52e0c375428f68bd159ee8b10e7d8
+Head: fa9b179221c6bda514b142edc12b4c6c4d872c0e
 
 ## Changed files
-- M src/production_os/dashboard_ui.py
-- M src/production_os/managed_projects.py
-- M tests/test_dashboard_ui_v3.py
-- M tests/test_managed_project_outcome.py
+- M .github/workflows/ci.yml
+- A Dockerfile.mobile-worker
+- M compose.worker.yaml
+- A tests/test_mobile_worker_image.py
+- M tests/test_worker_compose_deployment.py
 
 ## Affected areas
-- src
+- .github
+- (root)
 - tests
 
 ## Related test candidates

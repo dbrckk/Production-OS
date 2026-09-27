@@ -22,16 +22,21 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-27T14:10:17Z
+Generated: 2026-09-27T14:59:40Z
 
 ### Git
 - Branch: `main`
-- Head: `b2a7758e1c4d`
-- Commit date: 2026-09-27T16:10:07+02:00
-- Commit: feat: expose independent ADB mobile evidence
-- Tracked files: 475
+- Head: `fa9b179221c6`
+- Commit date: 2026-09-27T16:59:14+02:00
+- Commit: feat: add deployable Android emulator specialist
+- Tracked files: 477
 
 ### Recently changed files
+- `.github/workflows/ci.yml`
+- `Dockerfile.mobile-worker`
+- `compose.worker.yaml`
+- `tests/test_mobile_worker_image.py`
+- `tests/test_worker_compose_deployment.py`
 - `src/production_os/dashboard_ui.py`
 - `src/production_os/managed_projects.py`
 - `tests/test_dashboard_ui_v3.py`

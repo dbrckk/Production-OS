@@ -2118,11 +2118,11 @@
         "tests/test_incident_history.py",
         "tests/test_managed_project_outcome.py",
         "tests/test_managed_projects_http_v4.py",
+        "tests/test_mobile_worker_image.py",
         "tests/test_portfolio_claim_api.py",
         "tests/test_postgres_backend.py",
         "tests/test_preemption.py",
         "tests/test_production_stack_e2e.py",
-        "tests/test_reconciliation_dispatch.py",
         "tests/test_stragglers.py",
         "tests/test_workers.py"
       ],
@@ -3194,6 +3194,14 @@
       "in_degree": 0,
       "out_degree": 4
     },
+    "tests/test_mobile_worker_image.py": {
+      "dependencies": [
+        "src/production_os/workers.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 1
+    },
     "tests/test_observability.py": {
       "dependencies": [
         "src/production_os/__init__.py",
@@ -3336,12 +3344,11 @@
         "src/production_os/__init__.py",
         "src/production_os/dispatch.py",
         "src/production_os/reconciliation.py",
-        "src/production_os/runtime_state.py",
-        "src/production_os/workers.py"
+        "src/production_os/runtime_state.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 5
+      "out_degree": 4
     },
     "tests/test_rekor_checkpoint_state.py": {
       "dependencies": [

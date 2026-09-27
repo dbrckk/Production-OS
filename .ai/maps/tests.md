@@ -120,6 +120,7 @@ test_managed_github_reconciliation.py
 test_managed_project_outcome.py
 test_managed_projects_http_v4.py
 test_managed_projects_v4.py
+test_mobile_worker_image.py
 test_observability.py
 test_p6_hardening.py
 test_policy_budgets.py
@@ -3564,6 +3565,13 @@ def test_deterministic_project_id_validation_preserves_default_creation(tmp_path
 normal = projects.create(
 ```
 
+## File: test_mobile_worker_image.py
+```python
+def test_mobile_worker_image_pins_flutter_android_runtime_and_avd()
+⋮----
+payload = Path("Dockerfile.mobile-worker").read_text(encoding="utf-8")
+```
+
 ## File: test_observability.py
 ```python
 def test_observability_payload_contains_all_sections()
@@ -5830,6 +5838,8 @@ payload = Path("compose.worker.yaml").read_text(encoding="utf-8")
 def test_worker_compose_exposes_specialist_pool_without_replacing_generic_worker()
 ⋮----
 # Browser worker is present but cannot claim browser validation until a real runtime is provisioned.
+⋮----
+def test_worker_compose_exposes_kvm_mobile_specialist()
 ```
 
 ## File: test_workers.py

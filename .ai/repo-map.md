@@ -253,6 +253,7 @@ tests/
   test_managed_project_outcome.py
   test_managed_projects_http_v4.py
   test_managed_projects_v4.py
+  test_mobile_worker_image.py
   test_observability.py
   test_p6_hardening.py
   test_policy_budgets.py
@@ -467,6 +468,9 @@ jobs:
         run: |
           docker build -f Dockerfile.browser-worker -t production-os-browser:ci .
           docker run --rm --entrypoint python production-os-browser:ci -c "from playwright.sync_api import sync_playwright; p=sync_playwright().start(); b=p.chromium.launch(headless=True); page=b.new_page(); page.set_content('<title>browser-smoke</title>'); assert page.title() == 'browser-smoke'; b.close(); p.stop()"
+
+      - name: Mobile worker Dockerfile validation
+        run: docker build --check -f Dockerfile.mobile-worker .
 
       - name: CLI smoke test
         run: production-os --help
@@ -12092,6 +12096,13 @@ def test_deterministic_project_id_validation_preserves_default_creation(tmp_path
 normal = projects.create(
 ````
 
+## File: tests/test_mobile_worker_image.py
+````python
+def test_mobile_worker_image_pins_flutter_android_runtime_and_avd()
+⋮----
+payload = Path("Dockerfile.mobile-worker").read_text(encoding="utf-8")
+````
+
 ## File: tests/test_observability.py
 ````python
 def test_observability_payload_contains_all_sections()
@@ -14358,6 +14369,8 @@ payload = Path("compose.worker.yaml").read_text(encoding="utf-8")
 def test_worker_compose_exposes_specialist_pool_without_replacing_generic_worker()
 ⋮----
 # Browser worker is present but cannot claim browser validation until a real runtime is provisioned.
+⋮----
+def test_worker_compose_exposes_kvm_mobile_specialist()
 ````
 
 ## File: tests/test_workers.py
@@ -14999,6 +15012,47 @@ services:
       - ${PRODUCTION_OS_WORKER_HEARTBEAT_SECONDS:-5}
       - --executor-timeout-seconds
       - ${PRODUCTION_OS_WORKER_EXECUTOR_TIMEOUT_SECONDS:-3600}
+      - --ack-timeout-seconds
+      - ${PRODUCTION_OS_WORKER_ACK_TIMEOUT_SECONDS:-120}
+
+  production-worker-mobile:
+    profiles:
+      - worker-specialists
+    build:
+      context: .
+      dockerfile: Dockerfile.mobile-worker
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 20s
+    shm_size: 2gb
+    devices:
+      - /dev/kvm:/dev/kvm
+    depends_on:
+      production-os:
+        condition: service_healthy
+    environment:
+      PRODUCTION_OS_WORKER_TOKEN: ${PRODUCTION_OS_WORKER_TOKEN:-}
+      PRODUCTION_OS_WORKER_SPECIALTIES: mobile
+      PRODUCTION_OS_ANDROID_AVD: ${PRODUCTION_OS_ANDROID_AVD:-production-os-api35}
+      ANDROID_AVD_HOME: /opt/android-avd
+    volumes:
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_DIR:-./worker}:/worker:ro
+    command:
+      - remote-worker-run
+      - --url
+      - http://production-os:8787
+      - --worker-id
+      - worker-mobile
+      - --capability
+      - mobile-ui-validation
+      - --executor-command
+      - ${PRODUCTION_OS_WORKER_EXECUTOR_COMMAND:-}
+      - --max-concurrency
+      - ${PRODUCTION_OS_SPECIALIST_MAX_CONCURRENCY:-1}
+      - --heartbeat-interval-seconds
+      - ${PRODUCTION_OS_WORKER_HEARTBEAT_SECONDS:-5}
+      - --executor-timeout-seconds
+      - ${PRODUCTION_OS_MOBILE_WORKER_TIMEOUT_SECONDS:-5400}
       - --ack-timeout-seconds
       - ${PRODUCTION_OS_WORKER_ACK_TIMEOUT_SECONDS:-120}
 ````
