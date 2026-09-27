@@ -184,3 +184,52 @@ def test_cooperative_workflow_rejects_budget_smaller_than_stage_count(tmp_path):
             token_budget=3,
             agent_preference="auto",
         )
+
+
+
+def test_retest_preserves_cooperative_mode_across_generations(tmp_path):
+    managed = service(tmp_path)
+    project = managed.create(
+        repository="o/a",
+        final_goal="Implement a tested backend change",
+        token_budget=1000,
+        cooperative=True,
+        requested_by="operator:test",
+    )
+    workflow_id = project["current_workflow_id"]
+
+    managed.workflows.record_result(
+        workflow_id,
+        "implementation",
+        succeeded=True,
+        result={"summary":"implemented"},
+    )
+    managed.workflows.record_result(
+        workflow_id,
+        "validation",
+        succeeded=True,
+        result={"summary":"validated"},
+    )
+    managed.workflows.record_result(
+        workflow_id,
+        "review",
+        succeeded=True,
+        result={"summary":"reviewed"},
+    )
+
+    completed = managed.get(project["project_id"])
+    assert completed["status"] == "REVIEW_REQUIRED"
+    assert completed["current_workflow"]["metadata"]["cooperative"] is True
+
+    follow_up = managed.request_verification(
+        project["project_id"],
+        requested_by="operator:test",
+    )
+
+    assert follow_up["generation"] == 2
+    assert follow_up["status"] == "ACTIVE"
+    assert follow_up["current_workflow"]["metadata"]["cooperative"] is True
+    assert {
+        task["task_id"]
+        for task in follow_up["current_workflow"]["tasks"]
+    } == {"implementation", "validation", "review"}
