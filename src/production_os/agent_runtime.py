@@ -208,6 +208,7 @@ class PersistentAgentRuntime:
             session_id=session_id or None,
         )
         previous = dict(state.get("checkpoint") or {})
+        changed = False
         if details.get("valid"):
             checkpoint = {
                 key: details[key]
@@ -224,12 +225,28 @@ class PersistentAgentRuntime:
                 if previous.get("sha256") == checkpoint["sha256"]
                 else _utc_now()
             )
-            state["checkpoint"] = checkpoint
-            state["checkpoint_available"] = True
+            if previous != checkpoint:
+                state["checkpoint"] = checkpoint
+                changed = True
+            if state.get("checkpoint_available") is not True:
+                state["checkpoint_available"] = True
+                changed = True
+            if "checkpoint_error" in state:
+                state.pop("checkpoint_error", None)
+                changed = True
         else:
-            state["checkpoint_available"] = False
-            state["checkpoint_error"] = str(details.get("reason") or "invalid")
-        if state.get("job_key") == str(job_key):
+            if state.get("checkpoint_available") is not False:
+                state["checkpoint_available"] = False
+                changed = True
+            reason = str(details.get("reason") or "invalid")
+            if reason not in {"missing", "empty"}:
+                if state.get("checkpoint_error") != reason:
+                    state["checkpoint_error"] = reason
+                    changed = True
+            elif "checkpoint_error" in state:
+                state.pop("checkpoint_error", None)
+                changed = True
+        if state.get("job_key") == str(job_key) and changed:
             state["updated_at"] = _utc_now()
             self._write_json_atomic(state_path, state)
         return details
