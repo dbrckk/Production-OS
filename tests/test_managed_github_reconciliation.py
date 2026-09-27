@@ -15,6 +15,37 @@ class FakeWorkflows:
     backend = object()
 
 
+class FakeGitHub:
+    def __init__(self, merge=None, error=None):
+        self.merge = (
+            {"merged":True, "sha":"b"*40, "message":"merged"}
+            if merge is None
+            else merge
+        )
+        self.error = error
+        self.calls = []
+
+    def merge_pull_request(
+        self,
+        repository,
+        pr_number,
+        *,
+        head_sha,
+        method,
+        commit_title,
+    ):
+        self.calls.append({
+            "repository":repository,
+            "pr_number":pr_number,
+            "head_sha":head_sha,
+            "method":method,
+            "commit_title":commit_title,
+        })
+        if self.error is not None:
+            raise self.error
+        return dict(self.merge)
+
+
 def state(**overrides):
     values = {
         "repository":"o/a",
@@ -57,21 +88,34 @@ def workflow_with_pr():
     }
 
 
-def test_green_pull_request_moves_succeeded_workflow_to_review_required():
+def test_green_pull_request_is_sha_pinned_merged_then_waits_for_post_merge_ci():
+    github = FakeGitHub()
     service = ManagedProjectService(
         FakeWorkflows(),
-        github_client_factory=lambda: object(),
+        github_client_factory=lambda: github,
     )
     with patch(
         "production_os.managed_projects.fetch_github_work_state",
         return_value=state(),
     ):
-        target = service._github_target_for_succeeded_workflow(
+        resolution = service._github_resolution_for_succeeded_workflow(
             "o/a",
             workflow_with_pr(),
         )
 
-    assert target == REVIEW_REQUIRED
+    assert resolution["target"] == ACTIVE
+    assert resolution["decision"] == "merged-awaiting-validation"
+    assert resolution["merge"] == {
+        "merged":True,
+        "sha":"b"*40,
+    }
+    assert github.calls == [{
+        "repository":"o/a",
+        "pr_number":12,
+        "head_sha":"a"*40,
+        "method":"squash",
+        "commit_title":"Production-OS: managed project PR #12",
+    }]
 
 
 def test_pending_pull_request_keeps_project_active():
@@ -119,9 +163,10 @@ def test_failed_pull_request_moves_project_to_needs_attention():
 
 
 def test_sensitive_green_pull_request_requires_review():
+    github = FakeGitHub()
     service = ManagedProjectService(
         FakeWorkflows(),
-        github_client_factory=lambda: object(),
+        github_client_factory=lambda: github,
     )
     sensitive = state(
         ready_for_promotion=False,
@@ -138,6 +183,61 @@ def test_sensitive_green_pull_request_requires_review():
         )
 
     assert target == REVIEW_REQUIRED
+    assert github.calls == []
+
+
+def test_green_pull_request_merge_declined_requires_review():
+    github = FakeGitHub(
+        merge={
+            "merged":False,
+            "sha":None,
+            "message":"Required approving review missing",
+        },
+    )
+    service = ManagedProjectService(
+        FakeWorkflows(),
+        github_client_factory=lambda: github,
+    )
+    with patch(
+        "production_os.managed_projects.fetch_github_work_state",
+        return_value=state(),
+    ):
+        resolution = service._github_resolution_for_succeeded_workflow(
+            "o/a",
+            workflow_with_pr(),
+        )
+
+    assert resolution["target"] == REVIEW_REQUIRED
+    assert resolution["decision"] == "merge-blocked"
+    assert resolution["merge"]["merged"] is False
+    assert "Required approving review" in resolution["merge"]["reason"]
+
+
+def test_post_merge_green_resolution_completes_managed_project():
+    service = ManagedProjectService(
+        FakeWorkflows(),
+        github_client_factory=lambda: FakeGitHub(),
+    )
+    merged_green = state(
+        pr_state="closed",
+        merged=True,
+        ci_state="passed",
+        status_state="passed",
+        ready_for_promotion=False,
+        validation_sha="b"*40,
+        promotion_blockers=("already-merged","pr-not-open"),
+    )
+    with patch(
+        "production_os.managed_projects.fetch_github_work_state",
+        return_value=merged_green,
+    ):
+        resolution = service._github_resolution_for_succeeded_workflow(
+            "o/a",
+            workflow_with_pr(),
+        )
+
+    assert resolution["target"] == "DONE"
+    assert resolution["decision"] == "promote"
 
 
 def test_succeeded_workflow_without_pull_request_keeps_legacy_path():
