@@ -618,3 +618,118 @@ print(json.dumps({{"status":"succeeded","result":{{"summary":"too late"}}}}))
             runner_thread.join(timeout=5)
         _stop(server, server_thread)
 
+
+
+
+def test_remote_worker_runner_executes_in_configured_isolated_worktree(tmp_path):
+    import subprocess
+
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    subprocess.run(["git", "init", str(repo)], check=True, stdout=subprocess.PIPE)
+    subprocess.run(
+        ["git", "-C", str(repo), "config", "user.email", "test@example.invalid"],
+        check=True,
+    )
+    subprocess.run(
+        ["git", "-C", str(repo), "config", "user.name", "Production OS Test"],
+        check=True,
+    )
+    (repo / "README.md").write_text("base\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(repo), "add", "README.md"], check=True)
+    subprocess.run(
+        ["git", "-C", str(repo), "commit", "-m", "base"],
+        check=True,
+        stdout=subprocess.PIPE,
+    )
+    base_sha = subprocess.run(
+        ["git", "-C", str(repo), "rev-parse", "HEAD"],
+        check=True,
+        text=True,
+        stdout=subprocess.PIPE,
+    ).stdout.strip()
+
+    control = ControlPlane(str(tmp_path / "worktree-runner.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":{
+            "repository":"dbrckk/worktree-target",
+            "task":"Write inside the isolated worktree.",
+            "isolation":{
+                "schema_version":"production-os/git-worktree-isolation/v1",
+                "mode":"git-worktree",
+                "repository":"dbrckk/worktree-target",
+                "workflow_id":"wf-1",
+                "task_id":"implementation-code",
+                "attempt":1,
+                "branch":"production-os/wf-1/implementation-code-a1-test",
+                "workspace_key":"implementation-code-test",
+                "base_ref":base_sha,
+                "integration_target":False,
+                "requirements":{
+                    "exclusive_workspace":True,
+                    "no_shared_working_tree_writes":True,
+                    "commit_changes_before_success":True,
+                    "report_commit_shas":True,
+                },
+            },
+        },
+        "required_capabilities":[],
+    })
+    executor = tmp_path / "worktree_executor.py"
+    executor.write_text(
+        """
+import json, os, pathlib, sys
+request = json.load(sys.stdin)
+cwd = pathlib.Path.cwd()
+(cwd / "agent.txt").write_text("isolated", encoding="utf-8")
+print(json.dumps({
+    "status":"succeeded",
+    "result":{
+        "summary":"isolated",
+        "cwd":str(cwd),
+        "env_worktree":os.environ.get("PRODUCTION_OS_WORKTREE"),
+        "branch":os.environ.get("PRODUCTION_OS_WORKTREE_BRANCH"),
+        "workspace":request.get("executor_workspace"),
+    },
+}))
+""".strip(),
+        encoding="utf-8",
+    )
+
+    server, thread, base = _server(control)
+    try:
+        client = RemoteWorkerClient(
+            base,
+            "worker-secret",
+            "runner-1",
+            [],
+            timeout=5,
+        )
+        runner = RemoteWorkerRunner(
+            client,
+            [sys.executable, str(executor)],
+            repository_roots={
+                "dbrckk/worktree-target":str(repo),
+            },
+            worktree_root=str(tmp_path / "worktrees"),
+            heartbeat_interval_seconds=0.1,
+            executor_timeout_seconds=5,
+        )
+
+        outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+
+        assert outcomes == [{
+            "job_key":queued["key"],
+            "status":"completed",
+        }]
+        execution = control.dashboard_store.latest_execution(queued["key"])
+        result = execution["result_summary"]
+        assert result["cwd"] == result["env_worktree"]
+        assert result["workspace"]["branch"] == (
+            "production-os/wf-1/implementation-code-a1-test"
+        )
+        assert result["workspace"]["created"] is True
+        assert (repo / "agent.txt").exists() is False
+        assert pathlib.Path(result["cwd"], "agent.txt").is_file()
+    finally:
+        _stop(server, thread)
