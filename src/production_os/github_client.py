@@ -439,18 +439,54 @@ class GitHubClient:
         return payload if isinstance(payload, list) else []
 
 
-    def list_pull_request_files(
+    def merge_pull_request(
         self,
         full_name: str,
         pr_number: int,
-    ) -> list[str]:
-        """Return every changed path in a pull request.
+        *,
+        head_sha: str,
+        method: str = "squash",
+        commit_title: str | None = None,
+    ) -> dict[str, Any]:
+        if not self.token:
+            raise GitHubAPIError(
+                "GITHUB_TOKEN is required to merge a pull request"
+            )
+        sha = str(head_sha or "").strip().lower()
+        if not re.fullmatch(r"[0-9a-f]{40}", sha):
+            raise ValueError("head_sha must be a full commit sha")
+        merge_method = str(method or "squash").strip().lower()
+        if merge_method not in {"merge", "squash", "rebase"}:
+            raise ValueError("unsupported merge method")
+        payload: dict[str, Any] = {
+            "sha":sha,
+            "merge_method":merge_method,
+        }
+        title = str(commit_title or "").strip()
+        if title:
+            payload["commit_title"] = title[:256]
+        result = self._request(
+            "PUT",
+            f"/repos/{full_name}/pulls/{int(pr_number)}/merge",
+            payload,
+        )
+        if not isinstance(result, dict):
+            raise GitHubAPIError(
+                "GitHub merge response must be an object"
+            )
+        return result
 
-        Unlike informational GitHub reads, this method intentionally propagates
-        API failures. Incremental pruning must fail closed when the changed-file
-        set cannot be established reliably.
+
+    def get_pull_request_file_details(
+        self,
+        full_name: str,
+        pr_number: int,
+    ) -> list[dict[str, Any]]:
+        """Return bounded changed-file metadata and patches for deterministic review.
+
+        API failures intentionally propagate so promotion gates fail closed.
         """
-        files: list[str] = []
+        files: list[dict[str, Any]] = []
         page = 1
         while True:
             payload = self._get(
@@ -465,12 +501,40 @@ class GitHubClient:
                 if not isinstance(item, dict):
                     continue
                 filename = str(item.get("filename") or "").strip()
-                if filename:
-                    files.append(filename)
+                if not filename:
+                    continue
+                patch = item.get("patch")
+                files.append({
+                    "filename":filename,
+                    "status":str(item.get("status") or "").strip()[:40],
+                    "additions":int(item.get("additions") or 0),
+                    "deletions":int(item.get("deletions") or 0),
+                    "changes":int(item.get("changes") or 0),
+                    "patch":(
+                        str(patch)[:120_000]
+                        if isinstance(patch, str)
+                        else None
+                    ),
+                })
             if len(payload) < 100:
                 break
             page += 1
-        return sorted(set(files))
+        return files
+
+    def list_pull_request_files(
+        self,
+        full_name: str,
+        pr_number: int,
+    ) -> list[str]:
+        """Return every changed path in a pull request."""
+        return sorted({
+            str(item.get("filename") or "").strip()
+            for item in self.get_pull_request_file_details(
+                full_name,
+                pr_number,
+            )
+            if str(item.get("filename") or "").strip()
+        })
 
     def get_commit_workflow_runs(self, full_name: str, commit_sha: str) -> list[dict[str, Any]]:
         try:

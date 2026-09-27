@@ -15,6 +15,37 @@ class FakeWorkflows:
     backend = object()
 
 
+class FakeGitHub:
+    def __init__(self, merge=None, error=None):
+        self.merge = (
+            {"merged":True, "sha":"b"*40, "message":"merged"}
+            if merge is None
+            else merge
+        )
+        self.error = error
+        self.calls = []
+
+    def merge_pull_request(
+        self,
+        repository,
+        pr_number,
+        *,
+        head_sha,
+        method,
+        commit_title,
+    ):
+        self.calls.append({
+            "repository":repository,
+            "pr_number":pr_number,
+            "head_sha":head_sha,
+            "method":method,
+            "commit_title":commit_title,
+        })
+        if self.error is not None:
+            raise self.error
+        return dict(self.merge)
+
+
 def state(**overrides):
     values = {
         "repository":"o/a",
@@ -34,6 +65,7 @@ def state(**overrides):
         "change_categories":(),
         "human_review_required":False,
         "head_sha":"a"*40,
+        "base_sha":"c"*40,
         "validation_sha":"a"*40,
     }
     values.update(overrides)
@@ -57,21 +89,35 @@ def workflow_with_pr():
     }
 
 
-def test_green_pull_request_moves_succeeded_workflow_to_review_required():
+def test_green_pull_request_is_sha_pinned_merged_then_waits_for_post_merge_ci():
+    github = FakeGitHub()
     service = ManagedProjectService(
         FakeWorkflows(),
-        github_client_factory=lambda: object(),
+        github_client_factory=lambda: github,
     )
     with patch(
         "production_os.managed_projects.fetch_github_work_state",
         return_value=state(),
     ):
-        target = service._github_target_for_succeeded_workflow(
+        resolution = service._github_resolution_for_succeeded_workflow(
             "o/a",
             workflow_with_pr(),
         )
 
-    assert target == REVIEW_REQUIRED
+    assert resolution["target"] == ACTIVE
+    assert resolution["decision"] == "merged-awaiting-validation"
+    assert resolution["merge"] == {
+        "merged":True,
+        "sha":"b"*40,
+        "receipt":False,
+    }
+    assert github.calls == [{
+        "repository":"o/a",
+        "pr_number":12,
+        "head_sha":"a"*40,
+        "method":"squash",
+        "commit_title":"Production-OS: managed project PR #12",
+    }]
 
 
 def test_pending_pull_request_keeps_project_active():
@@ -119,9 +165,10 @@ def test_failed_pull_request_moves_project_to_needs_attention():
 
 
 def test_sensitive_green_pull_request_requires_review():
+    github = FakeGitHub()
     service = ManagedProjectService(
         FakeWorkflows(),
-        github_client_factory=lambda: object(),
+        github_client_factory=lambda: github,
     )
     sensitive = state(
         ready_for_promotion=False,
@@ -138,6 +185,122 @@ def test_sensitive_green_pull_request_requires_review():
         )
 
     assert target == REVIEW_REQUIRED
+    assert github.calls == []
+
+
+def test_automerge_receipt_prevents_duplicate_merge_during_github_staleness(tmp_path):
+    backend = SQLiteBackend(tmp_path / "automerge-idempotent.sqlite")
+    github = FakeGitHub()
+    service = ManagedProjectService(
+        WorkflowEngine(backend, SQLiteJobQueue(backend)),
+        github_client_factory=lambda: github,
+    )
+    workflow = workflow_with_pr()
+    workflow["id"] = "workflow-1234"
+    workflow["metadata"] = {
+        "managed_project_id":"project-1234",
+    }
+
+    with patch(
+        "production_os.managed_projects.fetch_github_work_state",
+        return_value=state(),
+    ):
+        first = service._github_resolution_for_succeeded_workflow(
+            "o/a",
+            workflow,
+        )
+        second = service._github_resolution_for_succeeded_workflow(
+            "o/a",
+            workflow,
+        )
+
+    assert first["target"] == ACTIVE
+    assert first["decision"] == "merged-awaiting-validation"
+    assert first["merge"]["receipt"] is True
+    assert second["target"] == ACTIVE
+    assert second["decision"] == "merged-awaiting-validation"
+    assert second["merge"]["receipt"] is True
+    assert second["merge"]["sha"] == "b"*40
+    assert len(github.calls) == 1
+
+
+def test_automerge_aborts_when_base_sha_changes_during_final_recheck():
+    github = FakeGitHub()
+    service = ManagedProjectService(
+        FakeWorkflows(),
+        github_client_factory=lambda: github,
+    )
+    initial = state()
+    changed = state(
+        base_sha="d"*40,
+    )
+    with patch(
+        "production_os.managed_projects.fetch_github_work_state",
+        side_effect=[initial, changed],
+    ):
+        resolution = service._github_resolution_for_succeeded_workflow(
+            "o/a",
+            workflow_with_pr(),
+        )
+
+    assert resolution["target"] == ACTIVE
+    assert resolution["decision"] == "promotion-state-changed"
+    assert resolution["state"].base_sha == "d"*40
+    assert github.calls == []
+
+
+def test_green_pull_request_merge_declined_requires_review():
+    github = FakeGitHub(
+        merge={
+            "merged":False,
+            "sha":None,
+            "message":"Required approving review missing",
+        },
+    )
+    service = ManagedProjectService(
+        FakeWorkflows(),
+        github_client_factory=lambda: github,
+    )
+    with patch(
+        "production_os.managed_projects.fetch_github_work_state",
+        return_value=state(),
+    ):
+        resolution = service._github_resolution_for_succeeded_workflow(
+            "o/a",
+            workflow_with_pr(),
+        )
+
+    assert resolution["target"] == REVIEW_REQUIRED
+    assert resolution["decision"] == "merge-blocked"
+    assert resolution["merge"]["merged"] is False
+    assert "Required approving review" in resolution["merge"]["reason"]
+
+
+def test_post_merge_green_resolution_completes_managed_project():
+    service = ManagedProjectService(
+        FakeWorkflows(),
+        github_client_factory=lambda: FakeGitHub(),
+    )
+    merged_green = state(
+        pr_state="closed",
+        merged=True,
+        ci_state="passed",
+        status_state="passed",
+        ready_for_promotion=False,
+        validation_sha="b"*40,
+        promotion_blockers=("already-merged","pr-not-open"),
+    )
+    with patch(
+        "production_os.managed_projects.fetch_github_work_state",
+        return_value=merged_green,
+    ):
+        resolution = service._github_resolution_for_succeeded_workflow(
+            "o/a",
+            workflow_with_pr(),
+        )
+
+    assert resolution["target"] == "DONE"
+    assert resolution["decision"] == "promote"
 
 
 def test_succeeded_workflow_without_pull_request_keeps_legacy_path():
@@ -220,6 +383,68 @@ def test_post_merge_failure_resolution_builds_compensating_rollback_plan():
     assert plan["force_push_allowed"] is False
     assert "Do not reset" in plan["instruction"]
     assert "open a pull request" in plan["instruction"]
+
+
+def test_reconcile_marks_project_done_after_post_merge_green_ci(tmp_path):
+    backend = SQLiteBackend(tmp_path / "automerge-complete.sqlite")
+    service = ManagedProjectService(
+        WorkflowEngine(backend, SQLiteJobQueue(backend)),
+        github_client_factory=lambda: FakeGitHub(),
+    )
+    project = service.create(
+        repository="o/a",
+        final_goal="Ship a verified backend change",
+        token_budget=1000,
+        cooperative=True,
+        requested_by="operator:test",
+    )
+    workflow_id = project["current_workflow_id"]
+    service.workflows.record_result(
+        workflow_id,
+        "implementation",
+        succeeded=True,
+        result={
+            "summary":"implemented",
+            "commit_shas":["a"*40],
+        },
+    )
+    service.workflows.record_result(
+        workflow_id,
+        "validation",
+        succeeded=True,
+        result={
+            "summary":"validated",
+            "validation":{"status":"passed","tests":["unit"]},
+        },
+    )
+    service.workflows.record_result(
+        workflow_id,
+        "review",
+        succeeded=True,
+        result={
+            "summary":"reviewed",
+            "pull_request":{"number":12,"state":"merged"},
+        },
+    )
+
+    merged_green = state(
+        pr_state="closed",
+        merged=True,
+        ci_state="passed",
+        status_state="passed",
+        ready_for_promotion=False,
+        validation_sha="b"*40,
+        promotion_blockers=("already-merged","pr-not-open"),
+    )
+    with patch(
+        "production_os.managed_projects.fetch_github_work_state",
+        return_value=merged_green,
+    ):
+        completed = service.get(project["project_id"])
+
+    assert completed["status"] == "DONE"
+    assert completed["approved_by"] == "system:github-promotion"
+    assert completed["completed_at"]
 
 
 def test_reconcile_launches_exactly_one_automatic_rollback_generation(tmp_path):

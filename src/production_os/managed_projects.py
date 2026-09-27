@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import json
 from uuid import uuid4
 
 from .workflow_engine import WorkflowEngine, WorkflowTaskSpec, _execute
@@ -1174,6 +1175,71 @@ class ManagedProjectService:
             )
         return project_id
 
+    def _automerge_receipt(
+        self,
+        *,
+        repository: str,
+        project_id: str,
+        workflow_id: str,
+        pr_number: int,
+        head_sha: str,
+    ) -> dict | None:
+        with self.backend.connect() as db:
+            rows = _execute(
+                db,
+                self.backend,
+                """SELECT payload_json
+                   FROM events
+                   WHERE event_type='managed-project-automerge'
+                     AND repository=?
+                   ORDER BY id DESC
+                   LIMIT 50""",
+                (repository,),
+            ).fetchall()
+        for row in rows:
+            try:
+                payload = json.loads(row["payload_json"])
+            except (TypeError, ValueError, json.JSONDecodeError):
+                continue
+            if not isinstance(payload, dict):
+                continue
+            if (
+                str(payload.get("project_id") or "") == project_id
+                and str(payload.get("workflow_id") or "") == workflow_id
+                and int(payload.get("pr_number") or 0) == pr_number
+                and str(payload.get("head_sha") or "").lower() == head_sha
+                and payload.get("merged") is True
+            ):
+                return payload
+        return None
+
+    def _record_automerge_receipt(
+        self,
+        *,
+        repository: str,
+        project_id: str,
+        workflow_id: str,
+        pr_number: int,
+        head_sha: str,
+        base_sha: str,
+        merge_sha: str | None,
+    ) -> None:
+        with self.backend.transaction() as db:
+            self.backend.append_event(
+                db,
+                "managed-project-automerge",
+                {
+                    "project_id":project_id,
+                    "workflow_id":workflow_id,
+                    "pr_number":pr_number,
+                    "head_sha":head_sha,
+                    "base_sha":base_sha,
+                    "merge_sha":str(merge_sha or "")[:40] or None,
+                    "merged":True,
+                },
+                repository=repository,
+            )
+
     def _github_resolution_for_succeeded_workflow(
         self,
         repository: str,
@@ -1191,9 +1257,10 @@ class ManagedProjectService:
         if pr_number < 1:
             return None
 
+        client = self.github_client_factory()
         try:
             state = fetch_github_work_state(
-                self.github_client_factory(),
+                client,
                 repository,
                 pr_number=pr_number,
             )
@@ -1229,10 +1296,155 @@ class ManagedProjectService:
                 "state":state,
             }
         if state.ready_for_promotion:
+            head_sha = str(state.head_sha or "").strip().lower()
+            base_sha = str(state.base_sha or "").strip().lower()
+            metadata = workflow.get("metadata")
+            metadata = metadata if isinstance(metadata, dict) else {}
+            project_id = str(
+                metadata.get("managed_project_id") or ""
+            ).strip()
+            workflow_id = str(workflow.get("id") or "").strip()
+            if len(head_sha) != 40 or len(base_sha) != 40:
+                return {
+                    "target":REVIEW_REQUIRED,
+                    "decision":"merge-blocked",
+                    "state":state,
+                    "merge":{
+                        "merged":False,
+                        "reason":"invalid-observed-sha",
+                    },
+                }
+
+            if project_id and workflow_id:
+                receipt = self._automerge_receipt(
+                    repository=repository,
+                    project_id=project_id,
+                    workflow_id=workflow_id,
+                    pr_number=pr_number,
+                    head_sha=head_sha,
+                )
+                if isinstance(receipt, dict):
+                    return {
+                        "target":ACTIVE,
+                        "decision":"merged-awaiting-validation",
+                        "state":state,
+                        "merge":{
+                            "merged":True,
+                            "sha":receipt.get("merge_sha"),
+                            "receipt":True,
+                        },
+                    }
+
+            try:
+                fresh_state = fetch_github_work_state(
+                    client,
+                    repository,
+                    pr_number=pr_number,
+                )
+            except (GitHubAPIError, OSError, ValueError):
+                return {
+                    "target":ACTIVE,
+                    "decision":"promotion-recheck-unavailable",
+                    "state":state,
+                }
+
+            fresh_head = str(
+                fresh_state.head_sha or ""
+            ).strip().lower()
+            fresh_base = str(
+                fresh_state.base_sha or ""
+            ).strip().lower()
+            if (
+                fresh_head != head_sha
+                or fresh_base != base_sha
+            ):
+                return {
+                    "target":ACTIVE,
+                    "decision":"promotion-state-changed",
+                    "state":fresh_state,
+                }
+            if not fresh_state.ready_for_promotion:
+                fresh_decision = runtime_decision_from_github(
+                    fresh_state
+                )
+                if fresh_decision in {"retry", "replan"}:
+                    return {
+                        "target":NEEDS_ATTENTION,
+                        "decision":fresh_decision,
+                        "state":fresh_state,
+                    }
+                if (
+                    fresh_state.human_review_required
+                    or (
+                        fresh_state.ci_state is None
+                        and fresh_state.status_state is None
+                        and not fresh_state.required_checks_missing
+                    )
+                ):
+                    return {
+                        "target":REVIEW_REQUIRED,
+                        "decision":"promotion-recheck-blocked",
+                        "state":fresh_state,
+                    }
+                return {
+                    "target":ACTIVE,
+                    "decision":"promotion-recheck-pending",
+                    "state":fresh_state,
+                }
+
+            try:
+                merge = client.merge_pull_request(
+                    repository,
+                    pr_number,
+                    head_sha=fresh_head,
+                    method="squash",
+                    commit_title=(
+                        f"Production-OS: managed project PR #{pr_number}"
+                    ),
+                )
+            except (GitHubAPIError, OSError, ValueError) as exc:
+                return {
+                    "target":REVIEW_REQUIRED,
+                    "decision":"merge-blocked",
+                    "state":fresh_state,
+                    "merge":{
+                        "merged":False,
+                        "reason":type(exc).__name__,
+                    },
+                }
+            if merge.get("merged") is True:
+                merge_sha = str(merge.get("sha") or "")[:40] or None
+                if project_id and workflow_id:
+                    self._record_automerge_receipt(
+                        repository=repository,
+                        project_id=project_id,
+                        workflow_id=workflow_id,
+                        pr_number=pr_number,
+                        head_sha=fresh_head,
+                        base_sha=fresh_base,
+                        merge_sha=merge_sha,
+                    )
+                return {
+                    "target":ACTIVE,
+                    "decision":"merged-awaiting-validation",
+                    "state":fresh_state,
+                    "merge":{
+                        "merged":True,
+                        "sha":merge_sha,
+                        "receipt":bool(project_id and workflow_id),
+                    },
+                }
             return {
                 "target":REVIEW_REQUIRED,
-                "decision":decision,
-                "state":state,
+                "decision":"merge-blocked",
+                "state":fresh_state,
+                "merge":{
+                    "merged":False,
+                    "reason":str(
+                        merge.get("message")
+                        or "github-merge-declined"
+                    )[:500],
+                },
             }
         if (
             state.ci_state is None
@@ -1256,7 +1468,7 @@ class ManagedProjectService:
             }
         if state.merged and decision == "promote":
             return {
-                "target":REVIEW_REQUIRED,
+                "target":DONE,
                 "decision":decision,
                 "state":state,
             }
@@ -1445,10 +1657,38 @@ class ManagedProjectService:
                        reviewed_at=CASE
                            WHEN ?='REVIEW_REQUIRED' THEN ?
                            ELSE reviewed_at
+                       END,
+                       completed_at=CASE
+                           WHEN ?='DONE' THEN ?
+                           ELSE completed_at
+                       END,
+                       completed_by=CASE
+                           WHEN ?='DONE' THEN 'system:github-promotion'
+                           ELSE completed_by
                        END
                    WHERE id=? AND status<>'DONE'""",
-                (target, now, target, now, project_id),
+                (
+                    target,
+                    now,
+                    target,
+                    now,
+                    target,
+                    now,
+                    target,
+                    project_id,
+                ),
             )
+            if target == DONE:
+                self.backend.append_event(
+                    db,
+                    "managed-project-completed",
+                    {
+                        "project_id":project_id,
+                        "requested_by":"system:github-promotion",
+                        "reason":"post-merge-validation-passed",
+                    },
+                    repository=str(current["repository"]),
+                )
         with self.backend.connect() as db:
             row = _execute(
                 db,
