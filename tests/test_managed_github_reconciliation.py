@@ -183,3 +183,126 @@ def test_succeeded_pull_request_without_ci_moves_to_review_instead_of_stalling()
         )
 
     assert target == REVIEW_REQUIRED
+
+
+
+class FakeMergeClient:
+    def __init__(self, pr):
+        self.pr = pr
+        self.merge_calls = []
+
+    def get_pull_request(self, repository, pr_number):
+        return self.pr
+
+    def merge_pull_request(
+        self,
+        repository,
+        pr_number,
+        *,
+        expected_head_sha,
+        merge_method,
+    ):
+        self.merge_calls.append({
+            "repository":repository,
+            "pr_number":pr_number,
+            "expected_head_sha":expected_head_sha,
+            "merge_method":merge_method,
+        })
+        return {"merged":True, "sha":"c"*40}
+
+
+def managed_pr(*, head_ref="studio/mp-abc", head_sha="a"*40, draft=False):
+    return {
+        "number":12,
+        "state":"open",
+        "draft":draft,
+        "head":{"ref":head_ref, "sha":head_sha},
+        "base":{"ref":"main"},
+    }
+
+
+def test_green_exact_managed_pr_is_auto_merged_and_stays_active_for_post_merge_ci():
+    client = FakeMergeClient(managed_pr())
+    service = ManagedProjectService(
+        FakeWorkflows(),
+        github_client_factory=lambda: client,
+    )
+    with patch(
+        "production_os.managed_projects.fetch_github_work_state",
+        return_value=state(),
+    ):
+        target = service._github_target_for_succeeded_workflow(
+            "o/a",
+            workflow_with_pr(),
+        )
+
+    assert target == ACTIVE
+    assert client.merge_calls == [{
+        "repository":"o/a",
+        "pr_number":12,
+        "expected_head_sha":"a"*40,
+        "merge_method":"squash",
+    }]
+
+
+def test_foreign_branch_is_never_auto_merged():
+    client = FakeMergeClient(
+        managed_pr(head_ref="feature/user-branch")
+    )
+    service = ManagedProjectService(
+        FakeWorkflows(),
+        github_client_factory=lambda: client,
+    )
+    with patch(
+        "production_os.managed_projects.fetch_github_work_state",
+        return_value=state(),
+    ):
+        target = service._github_target_for_succeeded_workflow(
+            "o/a",
+            workflow_with_pr(),
+        )
+
+    assert target == REVIEW_REQUIRED
+    assert client.merge_calls == []
+
+
+def test_managed_branch_head_sha_mismatch_blocks_auto_merge():
+    client = FakeMergeClient(
+        managed_pr(head_sha="b"*40)
+    )
+    service = ManagedProjectService(
+        FakeWorkflows(),
+        github_client_factory=lambda: client,
+    )
+    with patch(
+        "production_os.managed_projects.fetch_github_work_state",
+        return_value=state(),
+    ):
+        target = service._github_target_for_succeeded_workflow(
+            "o/a",
+            workflow_with_pr(),
+        )
+
+    assert target == REVIEW_REQUIRED
+    assert client.merge_calls == []
+
+
+def test_managed_draft_pr_is_never_auto_merged():
+    client = FakeMergeClient(
+        managed_pr(draft=True)
+    )
+    service = ManagedProjectService(
+        FakeWorkflows(),
+        github_client_factory=lambda: client,
+    )
+    with patch(
+        "production_os.managed_projects.fetch_github_work_state",
+        return_value=state(draft=True),
+    ):
+        target = service._github_target_for_succeeded_workflow(
+            "o/a",
+            workflow_with_pr(),
+        )
+
+    assert target == ACTIVE
+    assert client.merge_calls == []
