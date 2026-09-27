@@ -156,3 +156,36 @@ def test_prepare_rejects_non_repository_root(tmp_path):
             contract,
             worktree_root=tmp_path / "worktrees",
         )
+
+
+
+def test_remote_worker_cli_parses_repository_worktree_configuration():
+    from production_os.cli import _parse_args, _repository_root_map
+
+    args = _parse_args([
+        "remote-worker-run",
+        "--url", "http://example.invalid",
+        "--worker-id", "worker-a",
+        "--executor-command", "python executor.py",
+        "--repository-root", "owner/repo=/srv/repos/repo",
+        "--repository-root", "owner/other=/srv/repos/other",
+        "--worktree-root", "/srv/worktrees",
+    ])
+
+    assert _repository_root_map(args.repository_root) == {
+        "owner/repo":"/srv/repos/repo",
+        "owner/other":"/srv/repos/other",
+    }
+    assert args.worktree_root == "/srv/worktrees"
+
+
+def test_repository_root_mapping_rejects_ambiguous_values():
+    from production_os.cli import _repository_root_map
+
+    with pytest.raises(ValueError, match="OWNER/REPO=PATH"):
+        _repository_root_map(["missing-path"])
+    with pytest.raises(ValueError, match="duplicate repository root mapping"):
+        _repository_root_map([
+            "owner/repo=/one",
+            "owner/repo=/two",
+        ])
