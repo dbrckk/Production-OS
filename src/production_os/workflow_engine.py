@@ -100,6 +100,20 @@ def _retry_context(result: dict | None) -> dict | None:
     return context or None
 
 
+def _single_upstream_commit_ref(upstream: list[dict]) -> str | None:
+    if len(upstream) != 1:
+        return None
+    commits = upstream[0].get("commit_shas")
+    if not isinstance(commits, list) or not commits:
+        return None
+    candidate = str(commits[-1] or "").strip().lower()
+    if len(candidate) not in {40, 64}:
+        return None
+    if any(char not in "0123456789abcdef" for char in candidate):
+        return None
+    return candidate
+
+
 def _upstream_context(
     workflow: dict,
     dependencies: list[str] | tuple[str, ...],
@@ -1306,6 +1320,7 @@ class WorkflowEngine:
                     attempt=attempt_number,
                     base_ref=(
                         isolation.get("base_ref")
+                        or _single_upstream_commit_ref(upstream)
                         or metadata.get("github_pr_head_sha")
                         or "HEAD"
                     ),
