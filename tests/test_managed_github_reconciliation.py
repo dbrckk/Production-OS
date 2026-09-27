@@ -1,6 +1,8 @@
 from unittest.mock import patch
 
 from production_os.github_work_state import GitHubWorkState
+from production_os.sqlite_backend import SQLiteBackend, SQLiteJobQueue
+from production_os.workflow_engine import WorkflowEngine
 from production_os.managed_projects import (
     ACTIVE,
     NEEDS_ATTENTION,
@@ -218,3 +220,76 @@ def test_post_merge_failure_resolution_builds_compensating_rollback_plan():
     assert plan["force_push_allowed"] is False
     assert "Do not reset" in plan["instruction"]
     assert "open a pull request" in plan["instruction"]
+
+
+
+def test_reconcile_launches_exactly_one_automatic_rollback_generation(tmp_path):
+    backend = SQLiteBackend(tmp_path / "rollback.sqlite")
+    service = ManagedProjectService(
+        WorkflowEngine(backend, SQLiteJobQueue(backend)),
+        github_client_factory=lambda: object(),
+    )
+    project = service.create(
+        repository="o/a",
+        final_goal="Ship a verified backend change",
+        token_budget=1000,
+        cooperative=True,
+        requested_by="operator:test",
+    )
+    workflow_id = project["current_workflow_id"]
+    service.workflows.record_result(
+        workflow_id,
+        "implementation",
+        succeeded=True,
+        result={
+            "summary":"implemented",
+            "commit_shas":["a"*40],
+        },
+    )
+    service.workflows.record_result(
+        workflow_id,
+        "validation",
+        succeeded=True,
+        result={
+            "summary":"validated",
+            "validation":{"status":"passed","tests":["unit"]},
+        },
+    )
+    service.workflows.record_result(
+        workflow_id,
+        "review",
+        succeeded=True,
+        result={
+            "summary":"reviewed",
+            "pull_request":{"number":12,"state":"open"},
+        },
+    )
+
+    merged_failed = state(
+        pr_state="closed",
+        merged=True,
+        ci_state="failed",
+        status_state="passed",
+        ready_for_promotion=False,
+        validation_sha="b"*40,
+        promotion_blockers=("actions-not-passed",),
+    )
+    with patch(
+        "production_os.managed_projects.fetch_github_work_state",
+        return_value=merged_failed,
+    ):
+        recovered = service.get(project["project_id"])
+        polled_again = service.get(project["project_id"])
+
+    assert recovered["status"] == ACTIVE
+    assert recovered["generation"] == 2
+    assert recovered["current_workflow"]["metadata"]["cooperative"] is True
+    assert recovered["runs"][-1]["kind"] == "rollback"
+    assert recovered["runs"][-1]["requested_by"] == "system:github-rollback"
+    assert "Do not reset" in recovered["runs"][-1]["instruction"]
+    assert "open a pull request" in recovered["runs"][-1]["instruction"]
+    assert polled_again["generation"] == 2
+    assert len([
+        run for run in polled_again["runs"]
+        if run["kind"] == "rollback"
+    ]) == 1
