@@ -119,10 +119,13 @@ def inferred_required_capabilities(handoff: dict) -> list[str]:
         for item in explicit
         if isinstance(item, str) and str(item).strip()
     }
-    if explicit_values:
+    if (
+        isinstance(handoff, dict)
+        and handoff.get("required_capabilities_authoritative") is True
+    ):
         return sorted(explicit_values)
 
-    required = set()
+    required = set(explicit_values)
     if is_visual_asset_task(handoff):
         required.add(VISUAL_CAPABILITY)
     if is_3d_generation_task(handoff):
