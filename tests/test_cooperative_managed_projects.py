@@ -77,8 +77,15 @@ def test_create_cooperative_project_keeps_mode_in_workflow_metadata(tmp_path):
 
     workflow = managed.workflows.get(project["current_workflow_id"])
     assert workflow["metadata"]["cooperative"] is True
-    assert [task["task_id"] for task in workflow["tasks"]] == [
+    by_id = {
+        task["task_id"]:task
+        for task in workflow["tasks"]
+    }
+    assert set(by_id) == {
         "implementation",
         "validation",
         "review",
-    ]
+    }
+    assert by_id["implementation"]["dependencies"] == []
+    assert by_id["validation"]["dependencies"] == ["implementation"]
+    assert by_id["review"]["dependencies"] == ["validation"]
