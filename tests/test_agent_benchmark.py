@@ -149,7 +149,12 @@ def test_benchmark_counts_retry_failures_and_operator_controls(tmp_path):
         },
     )
 
-    retry_job = engine.dispatch_ready(workflow["id"], limit=1)[0]
+    current = engine.get(workflow["id"])
+    retry_task = next(
+        task for task in current["tasks"]
+        if task["task_id"] == "code"
+    )
+    retry_job = queue.get(retry_task["claimed_job_key"])
     store.start_execution(
         _execution_job(retry_job, attempt=2),
         "worker-a",
@@ -290,3 +295,20 @@ def test_compare_reports_returns_metric_deltas_without_declaring_winner():
     assert comparison["deltas"]["operator_interventions"] == -2
     assert comparison["deltas"]["observed_cost_usd"] == -1.0
     assert "winner" not in comparison
+
+
+
+def test_agent_benchmark_cli_parses_multiple_workflows_and_baseline():
+    from production_os.cli import _parse_args
+
+    args = _parse_args([
+        "agent-benchmark",
+        "--database", "benchmark.sqlite",
+        "--workflow-id", "wf-a",
+        "--workflow-id", "wf-b",
+        "--baseline", "baseline.json",
+    ])
+
+    assert args.database == "benchmark.sqlite"
+    assert args.workflow_id == ["wf-a", "wf-b"]
+    assert args.baseline == "baseline.json"
