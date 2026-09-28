@@ -12,6 +12,7 @@ from .agent_runtime import PersistentAgentRuntime
 from .executor_worktree import (
     IntegrationPreflight,
     PreparedWorktree,
+    inspect_worktree_result,
     preintegrate_upstream_commits,
     prepare_isolated_worktree,
 )
@@ -243,11 +244,22 @@ class RemoteWorkerRunner:
                 prepared_worktree,
             )
             executor_cwd = None
+            executor_start_sha = None
             if prepared_worktree is not None:
                 request_payload["executor_workspace"] = (
                     prepared_worktree.to_dict()
                 )
                 executor_cwd = prepared_worktree.worktree_path
+                before_execution = inspect_worktree_result(
+                    prepared_worktree.worktree_path,
+                    base_sha=prepared_worktree.base_ref,
+                )
+                executor_start_sha = str(
+                    before_execution["final_sha"]
+                )
+                request_payload["executor_git_start"] = (
+                    before_execution
+                )
                 executor_env.update({
                     "PRODUCTION_OS_REPOSITORY_ROOT":
                         prepared_worktree.repository_root,
@@ -430,6 +442,61 @@ class RemoteWorkerRunner:
                 status = ""
 
             if status == "succeeded":
+                if prepared_worktree is not None:
+                    git_result = inspect_worktree_result(
+                        prepared_worktree.worktree_path,
+                        base_sha=prepared_worktree.base_ref,
+                        executor_start_sha=executor_start_sha,
+                    )
+                    result["executor_git"] = git_result
+                    if not bool(git_result.get("clean")):
+                        reason = "executor_worktree_dirty"
+                        self.client.fail(
+                            key,
+                            reason,
+                            result_payload={
+                                **result,
+                                "summary":(
+                                    "executor reported success with "
+                                    "uncommitted worktree changes"
+                                ),
+                            },
+                            duration_seconds=duration,
+                        )
+                        return {
+                            "job_key":key,
+                            "status":"failed",
+                            "reason":reason,
+                        }
+                    if not bool(git_result.get("base_is_ancestor")):
+                        reason = "executor_worktree_history_diverged"
+                        self.client.fail(
+                            key,
+                            reason,
+                            result_payload={
+                                **result,
+                                "summary":(
+                                    "executor reported success after "
+                                    "rewriting worktree history"
+                                ),
+                            },
+                            duration_seconds=duration,
+                        )
+                        return {
+                            "job_key":key,
+                            "status":"failed",
+                            "reason":reason,
+                        }
+                    commits = list(
+                        git_result.get("commits_since_base") or []
+                    )
+                    if not commits:
+                        commits = [str(git_result["final_sha"])]
+                    result["commit_shas"] = commits
+                    result["changed_files"] = list(
+                        git_result.get("changed_files") or []
+                    )
+
                 self.client.complete(
                     key,
                     result_payload=result,
