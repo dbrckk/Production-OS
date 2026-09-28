@@ -5,6 +5,7 @@ import json
 from uuid import uuid4
 
 from .workflow_engine import WorkflowEngine, WorkflowTaskSpec, _execute
+from .agent_planning_policy import planning_policy_for_repository
 from .github_client import GitHubAPIError, GitHubClient
 from .github_work_state import fetch_github_work_state, runtime_decision_from_github
 from .rollback_plan import build_rollback_plan
@@ -653,6 +654,11 @@ class ManagedProjectService:
         mobile = self._needs_mobile_ui_validation(final_goal)
         browser = self._needs_browser_validation(final_goal) and not mobile
         specialist = browser or mobile
+        planning_policy = planning_policy_for_repository(
+            self.backend,
+            repository,
+        )
+        planner_max_agents = planning_policy.max_agents
 
         weights = [8, 42, 15, 15, 10, 10] if specialist else [10, 45, 15, 15, 15]
         budgets = _stage_budgets(int(token_budget), weights)
@@ -806,12 +812,15 @@ class ManagedProjectService:
             "Act as the implementation planner for this repository task. "
             "Return a structured result.agent_plan using schema "
             "production-os/dynamic-agent-plan/v1. Split the work only when "
-            "parallelism is useful. Use at most 6 tasks. Keep dependencies "
+            f"parallelism is useful. Use at most {planner_max_agents} tasks. "
+            "Keep dependencies "
             "acyclic by depending only on earlier tasks. Assign each task a "
             "token_budget, title, instruction, preferred_capabilities and "
             "estimated_minutes. The total child-agent token budget must not "
             f"exceed {agent_budget}. Do not modify repository files in this "
-            "planning stage.\n\n"
+            "planning stage. "
+            f"Planning guidance from durable repository evidence: "
+            f"{planning_policy.guidance}\n\n"
             f"Final goal: {final_goal}\n"
             f"Current instruction: {instruction}"
         )
@@ -825,7 +834,7 @@ class ManagedProjectService:
                     "cooperative_stage":"planner",
                     "dynamic_agent_planner":{
                         "available_token_budget":agent_budget,
-                        "max_agents":6,
+                        "max_agents":planner_max_agents,
                         "fallback_plan":fallback_plan,
                         "integration_task_id":"integration",
                         "integration_title":"Integrate dynamic agent branches",
@@ -844,9 +853,11 @@ class ManagedProjectService:
                         "post_integration_tasks":continuation,
                         "priority":100,
                         "max_attempts":3,
+                        "planning_policy":planning_policy.to_dict(),
                         "handoff":{
                             "final_goal":final_goal,
                             "agent_preference":agent_preference,
+                            "planning_policy":planning_policy.to_dict(),
                             **common,
                         },
                     },
@@ -855,6 +866,7 @@ class ManagedProjectService:
                         "task":planner_instruction,
                         "final_goal":final_goal,
                         "agent_preference":agent_preference,
+                        "planning_policy":planning_policy.to_dict(),
                         "token_budget":planner_budget,
                         "required_capabilities":[],
                         "preferred_capabilities":["code-implementation"],
@@ -862,7 +874,7 @@ class ManagedProjectService:
                             "dynamic_agent_plan":{
                                 "schema":"production-os/dynamic-agent-plan/v1",
                                 "result_field":"agent_plan",
-                                "max_agents":6,
+                                "max_agents":planner_max_agents,
                                 "max_total_token_budget":agent_budget,
                             },
                         },
