@@ -1,21 +1,23 @@
 # Change impact
 
-Base: a39b98adbcc2952e96cfc0f9d780a262b12a9d94
-Head: c04351fa83280341de7035fa0417bf7a404c4ddc
+Base: 0b0e4e80ea3e7fa056fcc4ee6497ffdbe7c99c46
+Head: d19da15b417f4aa9d1595eb10e3055909ee29a8e
 
 ## Changed files
-- M src/production_os/managed_projects.py
-- M src/production_os/workflow_engine.py
-- M tests/test_dynamic_agent_fanout.py
-- A tests/test_managed_dynamic_plan_outcome.py
-- M tests/test_managed_project_outcome.py
+- M docs/remote-worker-executor-protocol.md
+- M src/production_os/executor_worktree.py
+- M src/production_os/remote_worker_runner.py
+- M tests/test_executor_worktree.py
+- M tests/test_remote_worker_runner.py
 
 ## Affected areas
+- docs
 - src
 - tests
 
 ## Related test candidates
-- tests/test_workflow_engine.py
+- tests/test_executor_worktree.py
+- tests/test_remote_worker_runner.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

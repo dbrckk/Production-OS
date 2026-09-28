@@ -22,16 +22,21 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-28T05:46:03Z
+Generated: 2026-09-28T05:47:30Z
 
 ### Git
 - Branch: `main`
-- Head: `c04351fa8328`
-- Commit date: 2026-09-28T07:45:53+02:00
-- Commit: feat(agents): expose dynamic planner provenance and fanout
+- Head: `d19da15b417f`
+- Commit date: 2026-09-28T07:47:19+02:00
+- Commit: feat(agents): preintegrate upstream commits before integration executors
 - Tracked files: 492
 
 ### Recently changed files
+- `docs/remote-worker-executor-protocol.md`
+- `src/production_os/executor_worktree.py`
+- `src/production_os/remote_worker_runner.py`
+- `tests/test_executor_worktree.py`
+- `tests/test_remote_worker_runner.py`
 - `src/production_os/managed_projects.py`
 - `src/production_os/workflow_engine.py`
 - `tests/test_dynamic_agent_fanout.py`

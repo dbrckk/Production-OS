@@ -3413,7 +3413,7 @@
       "file": "src/production_os/executor_worktree.py",
       "language": "python",
       "kind": "class",
-      "name": "PreparedWorktree",
+      "name": "IntegrationPreflight",
       "line": 12
     },
     {
@@ -3421,42 +3421,70 @@
       "language": "python",
       "kind": "function",
       "name": "to_dict",
-      "line": 19
+      "line": 22
+    },
+    {
+      "file": "src/production_os/executor_worktree.py",
+      "language": "python",
+      "kind": "class",
+      "name": "PreparedWorktree",
+      "line": 44
+    },
+    {
+      "file": "src/production_os/executor_worktree.py",
+      "language": "python",
+      "kind": "function",
+      "name": "to_dict",
+      "line": 51
     },
     {
       "file": "src/production_os/executor_worktree.py",
       "language": "python",
       "kind": "class",
       "name": "WorktreeRuntimeError",
-      "line": 29
+      "line": 61
     },
     {
       "file": "src/production_os/executor_worktree.py",
       "language": "python",
       "kind": "function",
       "name": "_git",
-      "line": 33
+      "line": 65
     },
     {
       "file": "src/production_os/executor_worktree.py",
       "language": "python",
       "kind": "function",
       "name": "validate_repository_root",
-      "line": 49
+      "line": 81
     },
     {
       "file": "src/production_os/executor_worktree.py",
       "language": "python",
       "kind": "function",
       "name": "prepare_isolated_worktree",
-      "line": 60
+      "line": 92
     },
     {
       "file": "src/production_os/executor_worktree.py",
       "language": "python",
       "kind": "function",
       "name": "remove_isolated_worktree",
-      "line": 130
+      "line": 162
+    },
+    {
+      "file": "src/production_os/executor_worktree.py",
+      "language": "python",
+      "kind": "function",
+      "name": "_validated_commit_candidates",
+      "line": 184
+    },
+    {
+      "file": "src/production_os/executor_worktree.py",
+      "language": "python",
+      "kind": "function",
+      "name": "preintegrate_upstream_commits",
+      "line": 203
     },
     {
       "file": "src/production_os/fairness.py",
@@ -5934,105 +5962,112 @@
       "language": "python",
       "kind": "class",
       "name": "RemoteWorkerRunner",
-      "line": 17
+      "line": 22
     },
     {
       "file": "src/production_os/remote_worker_runner.py",
       "language": "python",
       "kind": "function",
       "name": "__init__",
-      "line": 18
+      "line": 23
     },
     {
       "file": "src/production_os/remote_worker_runner.py",
       "language": "python",
       "kind": "function",
       "name": "request_stop",
-      "line": 87
-    },
-    {
-      "file": "src/production_os/remote_worker_runner.py",
-      "language": "python",
-      "kind": "function",
-      "name": "stop_requested",
       "line": 92
     },
     {
       "file": "src/production_os/remote_worker_runner.py",
       "language": "python",
       "kind": "function",
-      "name": "_observe_checkpoint",
-      "line": 95
+      "name": "stop_requested",
+      "line": 97
     },
     {
       "file": "src/production_os/remote_worker_runner.py",
       "language": "python",
       "kind": "function",
-      "name": "_checkpoint_ref",
+      "name": "_observe_checkpoint",
       "line": 100
     },
     {
       "file": "src/production_os/remote_worker_runner.py",
       "language": "python",
       "kind": "function",
+      "name": "_checkpoint_ref",
+      "line": 105
+    },
+    {
+      "file": "src/production_os/remote_worker_runner.py",
+      "language": "python",
+      "kind": "function",
+      "name": "_integration_preflight",
+      "line": 111
+    },
+    {
+      "file": "src/production_os/remote_worker_runner.py",
+      "language": "python",
+      "kind": "function",
       "name": "_prepare_worktree",
-      "line": 106
+      "line": 131
     },
     {
       "file": "src/production_os/remote_worker_runner.py",
       "language": "python",
       "kind": "function",
       "name": "_terminate",
-      "line": 129
+      "line": 154
     },
     {
       "file": "src/production_os/remote_worker_runner.py",
       "language": "python",
       "kind": "function",
       "name": "_heartbeat_snapshot",
-      "line": 139
+      "line": 164
     },
     {
       "file": "src/production_os/remote_worker_runner.py",
       "language": "python",
       "kind": "function",
       "name": "_activate",
-      "line": 152
+      "line": 177
     },
     {
       "file": "src/production_os/remote_worker_runner.py",
       "language": "python",
       "kind": "function",
       "name": "_deactivate",
-      "line": 157
+      "line": 182
     },
     {
       "file": "src/production_os/remote_worker_runner.py",
       "language": "python",
       "kind": "function",
       "name": "_heartbeat_active",
-      "line": 175
+      "line": 200
     },
     {
       "file": "src/production_os/remote_worker_runner.py",
       "language": "python",
       "kind": "function",
       "name": "_execute",
-      "line": 181
+      "line": 206
     },
     {
       "file": "src/production_os/remote_worker_runner.py",
       "language": "python",
       "kind": "function",
       "name": "run",
-      "line": 443
+      "line": 479
     },
     {
       "file": "src/production_os/remote_worker_runner.py",
       "language": "python",
       "kind": "function",
       "name": "collect",
-      "line": 463
+      "line": 499
     },
     {
       "file": "src/production_os/repository_cache.py",
@@ -12759,84 +12794,126 @@
       "language": "python",
       "kind": "function",
       "name": "_git",
-      "line": 16
+      "line": 17
     },
     {
       "file": "tests/test_executor_worktree.py",
       "language": "python",
       "kind": "function",
       "name": "_repo",
-      "line": 27
+      "line": 28
     },
     {
       "file": "tests/test_executor_worktree.py",
       "language": "python",
       "kind": "function",
       "name": "test_prepare_isolated_worktree_creates_attempt_scoped_branch",
-      "line": 39
+      "line": 40
     },
     {
       "file": "tests/test_executor_worktree.py",
       "language": "python",
       "kind": "function",
       "name": "test_prepare_isolated_worktree_reuses_matching_existing_workspace",
-      "line": 66
+      "line": 67
     },
     {
       "file": "tests/test_executor_worktree.py",
       "language": "python",
       "kind": "function",
       "name": "test_retry_contract_gets_distinct_worktree",
-      "line": 91
+      "line": 92
     },
     {
       "file": "tests/test_executor_worktree.py",
       "language": "python",
       "kind": "function",
       "name": "test_remove_isolated_worktree_detaches_and_prunes",
-      "line": 121
+      "line": 122
     },
     {
       "file": "tests/test_executor_worktree.py",
       "language": "python",
       "kind": "function",
       "name": "test_prepare_rejects_non_repository_root",
-      "line": 142
+      "line": 143
     },
     {
       "file": "tests/test_executor_worktree.py",
       "language": "python",
       "kind": "function",
       "name": "test_remote_worker_cli_parses_repository_worktree_configuration",
-      "line": 162
+      "line": 163
     },
     {
       "file": "tests/test_executor_worktree.py",
       "language": "python",
       "kind": "function",
       "name": "test_repository_root_mapping_rejects_ambiguous_values",
-      "line": 182
+      "line": 183
     },
     {
       "file": "tests/test_executor_worktree.py",
       "language": "python",
       "kind": "function",
       "name": "test_runner_uses_repository_cache_when_no_explicit_mapping",
-      "line": 195
+      "line": 196
     },
     {
       "file": "tests/test_executor_worktree.py",
       "language": "python",
       "kind": "class",
       "name": "DummyClient",
-      "line": 203
+      "line": 204
     },
     {
       "file": "tests/test_executor_worktree.py",
       "language": "python",
       "kind": "function",
       "name": "test_remote_worker_cli_exposes_repository_cache_root",
-      "line": 242
+      "line": 243
+    },
+    {
+      "file": "tests/test_executor_worktree.py",
+      "language": "python",
+      "kind": "function",
+      "name": "_commit",
+      "line": 260
+    },
+    {
+      "file": "tests/test_executor_worktree.py",
+      "language": "python",
+      "kind": "function",
+      "name": "_current_branch",
+      "line": 266
+    },
+    {
+      "file": "tests/test_executor_worktree.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_preintegrate_upstream_commits_applies_clean_independent_changes",
+      "line": 270
+    },
+    {
+      "file": "tests/test_executor_worktree.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_preintegrate_conflict_rolls_back_entire_preflight",
+      "line": 317
+    },
+    {
+      "file": "tests/test_executor_worktree.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_preintegrate_missing_commit_leaves_clean_starting_state",
+      "line": 363
+    },
+    {
+      "file": "tests/test_executor_worktree.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_preintegrate_dirty_workspace_defers_without_mutation",
+      "line": 393
     },
     {
       "file": "tests/test_fairness.py",
@@ -15525,6 +15602,13 @@
       "kind": "function",
       "name": "test_remote_worker_runner_executes_in_configured_isolated_worktree",
       "line": 624
+    },
+    {
+      "file": "tests/test_remote_worker_runner.py",
+      "language": "python",
+      "kind": "function",
+      "name": "test_remote_worker_runner_preintegrates_multi_parent_commits",
+      "line": 740
     },
     {
       "file": "tests/test_render_start.py",

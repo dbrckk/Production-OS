@@ -3203,6 +3203,34 @@ job = RemoteJob(
 prepared = runner._prepare_worktree(job)
 ⋮----
 def test_remote_worker_cli_exposes_repository_cache_root()
+⋮----
+def _commit(repo: Path, message: str) -> str
+⋮----
+def _current_branch(repo: Path) -> str
+⋮----
+def test_preintegrate_upstream_commits_applies_clean_independent_changes(tmp_path)
+⋮----
+base_branch = _current_branch(repo)
+⋮----
+commit_a = _commit(repo, "agent a")
+⋮----
+commit_b = _commit(repo, "agent b")
+⋮----
+result = preintegrate_upstream_commits(
+⋮----
+target = Path(prepared.worktree_path)
+⋮----
+def test_preintegrate_conflict_rolls_back_entire_preflight(tmp_path)
+⋮----
+commit_a = _commit(repo, "agent a conflict")
+⋮----
+commit_b = _commit(repo, "agent b conflict")
+⋮----
+def test_preintegrate_missing_commit_leaves_clean_starting_state(tmp_path)
+⋮----
+missing = "f" * 40
+⋮----
+def test_preintegrate_dirty_workspace_defers_without_mutation(tmp_path)
 ```
 
 ## File: test_fairness.py
@@ -5517,6 +5545,20 @@ control = ControlPlane(str(tmp_path / "worktree-runner.sqlite"), authorizer=_aut
 executor = tmp_path / "worktree_executor.py"
 ⋮----
 result = execution["result_summary"]
+⋮----
+def test_remote_worker_runner_preintegrates_multi_parent_commits(tmp_path)
+⋮----
+repo = tmp_path / "integration-repo"
+⋮----
+base_branch = subprocess.run(
+⋮----
+commit_a = subprocess.run(
+⋮----
+commit_b = subprocess.run(
+⋮----
+executor = tmp_path / "integration_executor.py"
+⋮----
+preflight = execution["result_summary"]["preflight"]
 ```
 
 ## File: test_remote_worker.py

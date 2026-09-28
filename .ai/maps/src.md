@@ -4327,6 +4327,20 @@ best = max((longest(task_id) for task_id in tasks), key=lambda x:x[0])
 ## File: production_os/executor_worktree.py
 ```python
 @dataclass(frozen=True, slots=True)
+class IntegrationPreflight
+⋮----
+status: str
+starting_sha: str
+final_sha: str
+candidate_commits: tuple[str, ...]
+applied_commits: tuple[str, ...]
+skipped_commits: tuple[str, ...]
+conflicted_commit: str | None = None
+conflict_files: tuple[str, ...] = ()
+⋮----
+def to_dict(self) -> dict[str, Any]
+⋮----
+@dataclass(frozen=True, slots=True)
 class PreparedWorktree
 ⋮----
 repository_root: str
@@ -4334,8 +4348,6 @@ worktree_path: str
 branch: str
 base_ref: str
 created: bool
-⋮----
-def to_dict(self) -> dict[str, Any]
 ⋮----
 class WorktreeRuntimeError(RuntimeError)
 ⋮----
@@ -4373,6 +4385,34 @@ args = ["worktree", "add"]
 target = Path(worktree_path).expanduser().resolve()
 ⋮----
 args = ["worktree", "remove"]
+⋮----
+def _validated_commit_candidates(upstream_context: list[dict[str, Any]]) -> list[str]
+⋮----
+candidates: list[str] = []
+⋮----
+commits = row.get("commit_shas")
+⋮----
+commit = str(raw or "").strip().lower()
+⋮----
+top = _git(target, "rev-parse", "--show-toplevel").stdout.strip()
+⋮----
+starting_sha = _git(target, "rev-parse", "HEAD").stdout.strip()
+candidates = _validated_commit_candidates(upstream_context)
+⋮----
+dirty = _git(target, "status", "--porcelain").stdout.strip()
+⋮----
+applied: list[str] = []
+skipped: list[str] = []
+⋮----
+exists = _git(
+⋮----
+ancestor = _git(
+⋮----
+picked = _git(
+⋮----
+conflicts = tuple(
+⋮----
+final_sha = _git(target, "rev-parse", "HEAD").stdout.strip()
 ```
 
 ## File: production_os/fairness.py
@@ -6815,11 +6855,13 @@ def _checkpoint_ref(self, key: str) -> str
 ⋮----
 checkpoint = self._observe_checkpoint(key)
 ⋮----
-def _prepare_worktree(self, job: RemoteJob) -> PreparedWorktree | None
-⋮----
 payload = dict(job.payload.get("payload") or {})
 handoff = dict(payload.get("handoff") or {})
 isolation = dict(handoff.get("isolation") or {})
+⋮----
+upstream = handoff.get("upstream_context")
+⋮----
+def _prepare_worktree(self, job: RemoteJob) -> PreparedWorktree | None
 ⋮----
 repository = str(handoff.get("repository") or "").strip()
 root = self.repository_roots.get(repository)
@@ -6852,6 +6894,7 @@ process: subprocess.Popen[str] | None = None
 request_payload = {
 executor_env = self.executor_env.copy()
 prepared_worktree = self._prepare_worktree(job)
+integration_preflight = self._integration_preflight(
 executor_cwd = None
 ⋮----
 executor_cwd = prepared_worktree.worktree_path
