@@ -2,14 +2,17 @@ from __future__ import annotations
 
 import ipaddress
 import json
+import os
 import re
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
-from urllib.parse import urlsplit
+from urllib.parse import urlsplit, urlunsplit
 
 
 BROWSER_PLAN_SCHEMA = "production-os/browser-computer-plan/v1"
+BROWSER_SESSION_SCHEMA = "production-os/browser-computer-session/v1"
 _ALLOWED_ACTIONS = {
     "navigate",
     "click",
@@ -107,6 +110,92 @@ def _validate_url(
     if not allow_private_network and _is_private_host(host):
         raise ValueError("browser private-network navigation is disabled")
     return value
+
+
+def _safe_resume_url(
+    value: str,
+    allowed_hosts: set[str],
+    *,
+    allow_private_network: bool,
+) -> str | None:
+    try:
+        validated = _validate_url(
+            value,
+            allowed_hosts,
+            allow_private_network=allow_private_network,
+        )
+    except ValueError:
+        return None
+    parsed = urlsplit(validated)
+    host = str(parsed.hostname or "").lower().rstrip(".")
+    netloc = host
+    if parsed.port is not None:
+        netloc = f"{host}:{parsed.port}"
+    return urlunsplit((
+        parsed.scheme,
+        netloc,
+        parsed.path or "/",
+        "",
+        "",
+    ))
+
+
+def _load_browser_session(
+    path: str | Path | None,
+    plan: BrowserPlan,
+) -> dict[str, Any]:
+    if path is None:
+        return {}
+    target = Path(path).expanduser().resolve()
+    try:
+        raw = json.loads(target.read_text(encoding="utf-8"))
+    except (FileNotFoundError, OSError, json.JSONDecodeError):
+        return {}
+    if not isinstance(raw, dict):
+        return {}
+    if raw.get("schema_version") != BROWSER_SESSION_SCHEMA:
+        return {}
+    last_url = _safe_resume_url(
+        str(raw.get("last_url") or ""),
+        set(plan.allowed_hosts),
+        allow_private_network=plan.allow_private_network,
+    )
+    if not last_url:
+        return {}
+    return {
+        "schema_version":BROWSER_SESSION_SCHEMA,
+        "last_url":last_url,
+        "updated_at":str(raw.get("updated_at") or ""),
+    }
+
+
+def _write_browser_session(
+    path: str | Path,
+    *,
+    last_url: str,
+    plan: BrowserPlan,
+) -> dict[str, Any] | None:
+    safe_url = _safe_resume_url(
+        last_url,
+        set(plan.allowed_hosts),
+        allow_private_network=plan.allow_private_network,
+    )
+    if not safe_url:
+        return None
+    target = Path(path).expanduser().resolve()
+    target.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "schema_version":BROWSER_SESSION_SCHEMA,
+        "last_url":safe_url,
+        "updated_at":datetime.now(timezone.utc).isoformat(),
+    }
+    temp = target.with_suffix(target.suffix + ".tmp")
+    temp.write_text(
+        json.dumps(payload, ensure_ascii=False, sort_keys=True, indent=2),
+        encoding="utf-8",
+    )
+    os.replace(temp, target)
+    return payload
 
 
 def validate_browser_plan(
@@ -213,6 +302,7 @@ def execute_browser_plan(
     *,
     artifacts_dir: str | Path,
     storage_state_path: str | Path | None = None,
+    session_state_path: str | Path | None = None,
     headless: bool = True,
 ) -> dict[str, Any]:
     try:
@@ -229,7 +319,16 @@ def execute_browser_plan(
         if storage_state_path is not None
         else None
     )
+    session_path = (
+        Path(session_state_path).expanduser().resolve()
+        if session_state_path is not None
+        else None
+    )
     allowed = set(plan.allowed_hosts)
+    previous_session = _load_browser_session(
+        session_path,
+        plan,
+    )
     results: list[dict[str, Any]] = []
 
     def assert_current_host(page) -> None:
@@ -256,7 +355,24 @@ def execute_browser_plan(
         context = browser.new_context(**context_kwargs)
         page = context.new_page()
         final_url: str | None = None
+        resumed_from_url: str | None = None
         try:
+            first_action = plan.actions[0].action if plan.actions else ""
+            previous_url = str(previous_session.get("last_url") or "")
+            if (
+                plan.persist_session
+                and previous_url
+                and first_action != "navigate"
+            ):
+                page.goto(
+                    previous_url,
+                    wait_until="domcontentloaded",
+                    timeout=10000,
+                )
+                assert_current_host(page)
+                final_url = page.url
+                resumed_from_url = previous_url
+
             for index, action in enumerate(plan.actions, start=1):
                 if action.action == "navigate":
                     page.goto(
@@ -322,6 +438,16 @@ def execute_browser_plan(
             if plan.persist_session and state_path is not None:
                 state_path.parent.mkdir(parents=True, exist_ok=True)
                 context.storage_state(path=str(state_path))
+            if (
+                plan.persist_session
+                and session_path is not None
+                and final_url
+            ):
+                _write_browser_session(
+                    session_path,
+                    last_url=final_url,
+                    plan=plan,
+                )
         finally:
             context.close()
             browser.close()
@@ -330,10 +456,16 @@ def execute_browser_plan(
         "schema_version":"production-os/browser-computer-result/v1",
         "status":"passed",
         "final_url":final_url,
+        "resumed_from_url":resumed_from_url,
         "results":results,
         "storage_state_path":(
             str(state_path)
             if plan.persist_session and state_path is not None
+            else None
+        ),
+        "session_state_path":(
+            str(session_path)
+            if plan.persist_session and session_path is not None
             else None
         ),
     }
