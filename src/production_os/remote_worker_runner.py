@@ -16,6 +16,7 @@ from .executor_worktree import (
     inspect_worktree_result,
     preintegrate_upstream_commits,
     prepare_isolated_worktree,
+    prune_integrated_workflow_branches,
     remove_isolated_worktree,
 )
 from .remote_worker import RemoteJob, RemoteWorkerClient
@@ -510,6 +511,16 @@ class RemoteWorkerRunner:
                             prepared_worktree.repository_root,
                             prepared_worktree.worktree_path,
                         )
+                        payload = dict(job.payload.get("payload") or {})
+                        handoff = dict(payload.get("handoff") or {})
+                        isolation = dict(handoff.get("isolation") or {})
+                        if bool(
+                            isolation.get("integration_target", False)
+                        ):
+                            prune_integrated_workflow_branches(
+                                prepared_worktree.repository_root,
+                                prepared_worktree.branch,
+                            )
                     except (WorktreeRuntimeError, OSError):
                         # Completion is already authoritative. Cleanup is
                         # best-effort and must not turn a completed job into
