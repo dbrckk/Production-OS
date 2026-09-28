@@ -7,6 +7,8 @@ from production_os.browser_computer import (
     _browser_plan_fingerprint,
     _load_browser_checkpoint,
     _load_browser_session,
+    _safe_link_target,
+    _safe_selector_value,
     _safe_resume_url,
     _write_browser_checkpoint,
     _write_browser_session,
@@ -364,3 +366,46 @@ def test_browser_checkpoint_state_defaults_to_runtime_workspace(monkeypatch):
     assert _browser_checkpoint_state(args) == (
         "/var/lib/production-os/runtime/job-a/browser-checkpoint.json"
     )
+
+
+
+def test_browser_plan_accepts_bounded_observation_action():
+    plan = validate_browser_plan({
+        "schema_version":BROWSER_PLAN_SCHEMA,
+        "allowed_hosts":["example.com"],
+        "persist_session":True,
+        "actions":[
+            {"action":"navigate","url":"https://example.com/app"},
+            {"action":"observe","name":"page-state"},
+        ],
+    })
+
+    assert plan.actions[1].action == "observe"
+    assert plan.actions[1].name == "page-state"
+
+
+def test_browser_observation_selector_hints_reject_unsafe_attribute_values():
+    assert _safe_selector_value("submit-button") == "submit-button"
+    assert _safe_selector_value("user.name") == "user.name"
+    assert _safe_selector_value('bad\"value') is None
+    assert _safe_selector_value("contains spaces") is None
+
+
+def test_browser_observation_link_target_strips_sensitive_query_data():
+    target = _safe_link_target(
+        "https://example.com/account?access_token=secret#profile",
+        allowed_hosts={"example.com"},
+        allow_private_network=False,
+    )
+
+    assert target == "https://example.com/account"
+
+
+def test_browser_observation_link_target_rejects_external_host():
+    target = _safe_link_target(
+        "https://evil.example/path",
+        allowed_hosts={"example.com"},
+        allow_private_network=False,
+    )
+
+    assert target is None
