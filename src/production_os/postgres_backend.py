@@ -22,7 +22,7 @@ def _utcnow() -> str:
 
 
 class PostgresBackend:
-    SCHEMA_VERSION = 16
+    SCHEMA_VERSION = 17
 
     def __init__(self, dsn: str):
         if psycopg is None:
@@ -264,9 +264,12 @@ class PostgresBackend:
                         capabilities_json TEXT NOT NULL DEFAULT '[]',
                         procedure_json TEXT NOT NULL DEFAULT '[]',
                         successes INTEGER NOT NULL DEFAULT 1,
+                        verified_successes INTEGER NOT NULL DEFAULT 0,
                         uses INTEGER NOT NULL DEFAULT 0,
+                        failed_uses INTEGER NOT NULL DEFAULT 0,
                         confidence DOUBLE PRECISION NOT NULL DEFAULT 0.6,
                         source_task TEXT NOT NULL,
+                        last_failure_at TEXT,
                         created_at TEXT NOT NULL,
                         updated_at TEXT NOT NULL
                     )
@@ -493,6 +496,20 @@ class PostgresBackend:
                 cur.execute("""
                     ALTER TABLE managed_projects
                     ADD COLUMN IF NOT EXISTS completed_by TEXT
+                """)
+                cur.execute("""
+                    ALTER TABLE learned_skills
+                    ADD COLUMN IF NOT EXISTS verified_successes INTEGER
+                    NOT NULL DEFAULT 0
+                """)
+                cur.execute("""
+                    ALTER TABLE learned_skills
+                    ADD COLUMN IF NOT EXISTS failed_uses INTEGER
+                    NOT NULL DEFAULT 0
+                """)
+                cur.execute("""
+                    ALTER TABLE learned_skills
+                    ADD COLUMN IF NOT EXISTS last_failure_at TEXT
                 """)
                 cur.execute("""
                     ALTER TABLE dashboard_remediation_events
