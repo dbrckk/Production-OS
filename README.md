@@ -4631,3 +4631,21 @@ The daemon shares the durable Production-OS database and artifact volume, uses
 container or host restarts. Configure
 `PRODUCTION_OS_CONTROLLER_INTERVAL_SECONDS` and
 `PRODUCTION_OS_CONTROLLER_MAX_BACKOFF_SECONDS` to tune cadence and recovery.
+
+
+### Controller daemon leader fencing
+
+Only one autonomous controller daemon may own a Production-OS state backend at
+a time.
+
+Daemon startup now acquires a backend-aware leader lock before the first
+control cycle:
+
+- SQLite / file-backed state: non-blocking POSIX `flock` on a durable
+  `.controller.lock` sidecar;
+- PostgreSQL: session-scoped `pg_try_advisory_lock`.
+
+A second daemon fails immediately instead of running a competing scheduler.
+The lock is held for the complete daemon lifetime and released automatically
+when the process exits or the PostgreSQL session closes. Bounded
+`production-os controller` runs are unchanged.
