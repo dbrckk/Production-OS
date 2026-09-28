@@ -496,3 +496,66 @@ def preintegrate_upstream_commits(
             target,
             upstream_context,
         )
+
+
+
+def prune_integrated_workflow_branches(
+    repository_root: str | os.PathLike[str],
+    integrated_branch: str,
+) -> dict[str, Any]:
+    root = validate_repository_root(repository_root)
+    branch = str(integrated_branch or "").strip()
+    parts = branch.split("/")
+    if len(parts) < 3 or parts[0] != "production-os" or not parts[1]:
+        raise WorktreeRuntimeError(
+            "integrated branch is not a Production OS workflow branch"
+        )
+    prefix = f"production-os/{parts[1]}/"
+
+    with filesystem_lock(_repository_lock_path(root)):
+        listed = _git(
+            root,
+            "for-each-ref",
+            "--format=%(refname:short)",
+            f"refs/heads/{prefix}",
+        ).stdout.splitlines()
+        candidates = sorted({
+            item.strip()
+            for item in listed
+            if item.strip().startswith(prefix)
+            and item.strip() != branch
+        })
+
+        deleted: list[str] = []
+        retained: list[str] = []
+        for candidate in candidates:
+            ancestor = _git(
+                root,
+                "merge-base",
+                "--is-ancestor",
+                candidate,
+                branch,
+                check=False,
+            )
+            if ancestor.returncode != 0:
+                retained.append(candidate)
+                continue
+            removed = _git(
+                root,
+                "branch",
+                "-D",
+                candidate,
+                check=False,
+            )
+            if removed.returncode == 0:
+                deleted.append(candidate)
+            else:
+                retained.append(candidate)
+
+        return {
+            "schema_version":"production-os/workflow-branch-prune/v1",
+            "integrated_branch":branch,
+            "prefix":prefix,
+            "deleted":deleted,
+            "retained":retained,
+        }
