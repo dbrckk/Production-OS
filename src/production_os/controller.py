@@ -390,12 +390,26 @@ def run_controller(
     *,
     cycles: int,
     interval_seconds: int,
+    stop_event=None,
     **kwargs,
 ) -> list[dict]:
-    if cycles < 1:
-        raise ValueError("cycles must be >= 1")
+    """Run bounded cycles or continuously when cycles=0.
+
+    A stop_event compatible with threading.Event may be supplied by service
+    runtimes so SIGTERM/SIGINT can interrupt the sleep between cycles without
+    abandoning a cycle halfway through.
+    """
+    if cycles < 0:
+        raise ValueError("cycles must be >= 0")
+    if interval_seconds < 0:
+        raise ValueError("interval_seconds must be >= 0")
+
+    continuous = cycles == 0
     results = []
-    for index in range(cycles):
+    index = 0
+    while continuous or index < cycles:
+        if stop_event is not None and stop_event.is_set():
+            break
         try:
             results.append(run_control_cycle(**kwargs))
         except Exception as exc:
@@ -419,6 +433,15 @@ def run_controller(
                         health_path,
                     )
             raise
-        if index + 1 < cycles:
-            time.sleep(max(1, interval_seconds))
+
+        index += 1
+        should_continue = continuous or index < cycles
+        if not should_continue:
+            break
+        delay = max(1, interval_seconds)
+        if stop_event is not None:
+            if stop_event.wait(delay):
+                break
+        else:
+            time.sleep(delay)
     return results
