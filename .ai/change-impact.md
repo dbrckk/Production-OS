@@ -1,21 +1,20 @@
 # Change impact
 
-Base: a0b7ea0e1288a779926564fab5699dabd3ddc79b
-Head: 87be5e33f21c10f6d1c941a61dc8caf20308c163
+Base: 8c96b7dd89e709a7396b946dc621b05868112dc4
+Head: ecd2e5acfea5245f0f563f6531c27bf653d83238
 
 ## Changed files
-- M src/production_os/managed_projects.py
-- A src/production_os/project_memory.py
-- M src/production_os/workflow_engine.py
-- A tests/test_project_memory.py
+- M src/production_os/browser_computer.py
+- M src/production_os/cli.py
+- M tests/test_browser_computer.py
 
 ## Affected areas
 - src
 - tests
 
 ## Related test candidates
-- tests/test_project_memory.py
-- tests/test_workflow_engine.py
+- tests/test_browser_computer.py
+- tests/test_cli.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

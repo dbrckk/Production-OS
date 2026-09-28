@@ -1768,6 +1768,7 @@ source = Path(item["source"])
 ## File: src/production_os/browser_computer.py
 ````python
 BROWSER_PLAN_SCHEMA = "production-os/browser-computer-plan/v1"
+BROWSER_SESSION_SCHEMA = "production-os/browser-computer-session/v1"
 _ALLOWED_ACTIONS = {
 _SAFE_NAME = re.compile(r"^[A-Za-z0-9._-]{1,120}$")
 ⋮----
@@ -1811,6 +1812,24 @@ parsed = urlsplit(value)
 ⋮----
 host = str(parsed.hostname or "").lower().rstrip(".")
 ⋮----
+validated = _validate_url(
+⋮----
+parsed = urlsplit(validated)
+⋮----
+netloc = host
+⋮----
+netloc = f"{host}:{parsed.port}"
+⋮----
+target = Path(path).expanduser().resolve()
+⋮----
+raw = json.loads(target.read_text(encoding="utf-8"))
+⋮----
+last_url = _safe_resume_url(
+⋮----
+safe_url = _safe_resume_url(
+⋮----
+temp = target.with_suffix(target.suffix + ".tmp")
+⋮----
 raw_hosts = payload.get("allowed_hosts")
 ⋮----
 allowed_hosts = tuple(dict.fromkeys(
@@ -1849,7 +1868,9 @@ name = str(raw.get("name") or f"step-{index + 1}").strip()
 artifacts = Path(artifacts_dir).expanduser().resolve()
 ⋮----
 state_path = (
+session_path = (
 allowed = set(plan.allowed_hosts)
+previous_session = _load_browser_session(
 results: list[dict[str, Any]] = []
 ⋮----
 def assert_current_host(page) -> None
@@ -1862,12 +1883,17 @@ context_kwargs: dict[str, Any] = {}
 context = browser.new_context(**context_kwargs)
 page = context.new_page()
 final_url: str | None = None
+resumed_from_url: str | None = None
+⋮----
+first_action = plan.actions[0].action if plan.actions else ""
+previous_url = str(previous_session.get("last_url") or "")
+⋮----
+final_url = page.url
+resumed_from_url = previous_url
 ⋮----
 text = page.locator(action.selector).inner_text(
 ⋮----
 target = artifacts / f"{action.name}.png"
-⋮----
-final_url = page.url
 ````
 
 ## File: src/production_os/budgets.py
@@ -2647,6 +2673,10 @@ def _browser_storage_state(args: argparse.Namespace) -> str | None
 explicit = str(args.storage_state or "").strip()
 ⋮----
 runtime_workspace = str(
+⋮----
+def _browser_session_state(args: argparse.Namespace) -> str | None
+⋮----
+explicit = str(args.session_state or "").strip()
 ⋮----
 def run_browser_plan(args: argparse.Namespace) -> int
 ⋮----

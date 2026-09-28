@@ -22,22 +22,24 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-28T18:51:57Z
+Generated: 2026-09-28T18:56:27Z
 
 ### Git
 - Branch: `main`
-- Head: `87be5e33f21c`
-- Commit date: 2026-09-28T20:51:45+02:00
-- Commit: feat(memory): add durable cross-generation project memory
+- Head: `ecd2e5acfea5`
+- Commit date: 2026-09-28T20:56:14+02:00
+- Commit: feat(browser): resume bounded browser sessions across worker restarts
 - Tracked files: 516
 
 ### Recently changed files
+- `src/production_os/browser_computer.py`
+- `src/production_os/cli.py`
+- `tests/test_browser_computer.py`
 - `src/production_os/managed_projects.py`
 - `src/production_os/project_memory.py`
 - `src/production_os/workflow_engine.py`
 - `tests/test_project_memory.py`
 - `docs/regression-bisect.md`
-- `src/production_os/cli.py`
 - `src/production_os/regression_bisect.py`
 - `tests/test_regression_bisect.py`
 - `src/production_os/agent_planning_policy.py`
@@ -45,7 +47,6 @@ Generated: 2026-09-28T18:51:57Z
 - `tests/test_fanout_learning.py`
 - `src/production_os/agent_benchmark.py`
 - `tests/test_agent_benchmark.py`
-- `tests/test_agent_planning_policy.py`
 
 ### Project signals
 - `pyproject.toml`
