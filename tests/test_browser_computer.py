@@ -3,8 +3,12 @@ import pytest
 from production_os.browser_computer import (
     BROWSER_PLAN_SCHEMA,
     BROWSER_SESSION_SCHEMA,
+    BROWSER_CHECKPOINT_SCHEMA,
+    _browser_plan_fingerprint,
+    _load_browser_checkpoint,
     _load_browser_session,
     _safe_resume_url,
+    _write_browser_checkpoint,
     _write_browser_session,
     validate_browser_plan,
 )
@@ -130,12 +134,14 @@ def test_browser_plan_cli_parses_runtime_paths():
         "--artifacts-dir", "/tmp/artifacts",
         "--storage-state", "/tmp/state.json",
         "--session-state", "/tmp/session.json",
+        "--checkpoint-state", "/tmp/checkpoint.json",
     ])
 
     assert args.plan == "/tmp/plan.json"
     assert args.artifacts_dir == "/tmp/artifacts"
     assert args.storage_state == "/tmp/state.json"
     assert args.session_state == "/tmp/session.json"
+    assert args.checkpoint_state == "/tmp/checkpoint.json"
     assert args.headed is False
 
 
@@ -264,4 +270,97 @@ def test_browser_session_state_defaults_to_runtime_workspace(monkeypatch):
 
     assert _browser_session_state(args) == (
         "/var/lib/production-os/runtime/job-a/browser-session.json"
+    )
+
+
+
+def test_browser_plan_accepts_explicit_checkpoint_action():
+    plan = validate_browser_plan({
+        "schema_version":BROWSER_PLAN_SCHEMA,
+        "allowed_hosts":["example.com"],
+        "persist_session":True,
+        "actions":[
+            {"action":"navigate","url":"https://example.com/app"},
+            {"action":"checkpoint"},
+            {"action":"extract_text","selector":"main","name":"result"},
+        ],
+    })
+
+    assert plan.actions[1].action == "checkpoint"
+
+
+def test_browser_checkpoint_round_trips_only_matching_plan(tmp_path):
+    plan = validate_browser_plan({
+        "schema_version":BROWSER_PLAN_SCHEMA,
+        "allowed_hosts":["example.com"],
+        "persist_session":True,
+        "actions":[
+            {"action":"navigate","url":"https://example.com/app"},
+            {"action":"checkpoint"},
+            {"action":"extract_text","selector":"main","name":"result"},
+        ],
+    })
+    checkpoint = tmp_path / "browser-checkpoint.json"
+
+    written = _write_browser_checkpoint(
+        checkpoint,
+        plan=plan,
+        next_action_index=2,
+        last_url="https://example.com/app?token=secret#frag",
+    )
+    loaded = _load_browser_checkpoint(checkpoint, plan)
+
+    assert written["schema_version"] == BROWSER_CHECKPOINT_SCHEMA
+    assert written["last_url"] == "https://example.com/app"
+    assert loaded["next_action_index"] == 2
+    assert loaded["last_url"] == "https://example.com/app"
+    payload = checkpoint.read_text(encoding="utf-8")
+    assert "token=secret" not in payload
+
+    changed_plan = validate_browser_plan({
+        "schema_version":BROWSER_PLAN_SCHEMA,
+        "allowed_hosts":["example.com"],
+        "persist_session":True,
+        "actions":[
+            {"action":"navigate","url":"https://example.com/app"},
+            {"action":"checkpoint"},
+            {"action":"extract_text","selector":"aside","name":"result"},
+        ],
+    })
+    assert _load_browser_checkpoint(checkpoint, changed_plan) == {}
+
+
+def test_browser_plan_fingerprint_distinguishes_fill_values_without_storing_them():
+    first = validate_browser_plan({
+        "schema_version":BROWSER_PLAN_SCHEMA,
+        "allowed_hosts":["example.com"],
+        "persist_session":True,
+        "actions":[
+            {"action":"fill","selector":"#email","value":"alice@example.com"},
+        ],
+    })
+    second = validate_browser_plan({
+        "schema_version":BROWSER_PLAN_SCHEMA,
+        "allowed_hosts":["example.com"],
+        "persist_session":True,
+        "actions":[
+            {"action":"fill","selector":"#email","value":"other@example.com"},
+        ],
+    })
+
+    assert _browser_plan_fingerprint(first) != _browser_plan_fingerprint(second)
+
+
+def test_browser_checkpoint_state_defaults_to_runtime_workspace(monkeypatch):
+    from argparse import Namespace
+    from production_os.cli import _browser_checkpoint_state
+
+    monkeypatch.setenv(
+        "PRODUCTION_OS_RUNTIME_WORKSPACE",
+        "/var/lib/production-os/runtime/job-a",
+    )
+    args = Namespace(checkpoint_state="")
+
+    assert _browser_checkpoint_state(args) == (
+        "/var/lib/production-os/runtime/job-a/browser-checkpoint.json"
     )
