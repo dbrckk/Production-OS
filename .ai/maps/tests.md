@@ -150,6 +150,7 @@ test_project_progress.py
 test_provenance_signer.py
 test_queue_audit_checkpoint.py
 test_reconciliation_dispatch.py
+test_regression_bisect.py
 test_rekor_checkpoint_state_cli.py
 test_rekor_checkpoint_state_concurrency.py
 test_rekor_checkpoint_state_postgres.py
@@ -4564,6 +4565,41 @@ actions = reconcile_runtime_state(state)
 def test_dispatch_is_idempotent_guarded(tmp_path)
 ⋮----
 result = dispatch_handoff(
+```
+
+## File: test_regression_bisect.py
+```python
+def _git(repo: Path, *args: str) -> str
+⋮----
+result = subprocess.run(
+⋮----
+def _history(tmp_path: Path)
+⋮----
+repo = tmp_path / "repo"
+⋮----
+script = repo / "bisect_test.py"
+⋮----
+good = _git(repo, "rev-parse", "HEAD")
+⋮----
+culprit = _git(repo, "rev-parse", "HEAD")
+⋮----
+bad = _git(repo, "rev-parse", "HEAD")
+⋮----
+def test_regression_bisect_finds_first_bad_commit_and_resets_repo(tmp_path)
+⋮----
+original_head = _git(repo, "rev-parse", "HEAD")
+⋮----
+result = run_regression_bisect(
+⋮----
+def test_regression_bisect_rejects_dirty_worktree(tmp_path)
+⋮----
+def test_regression_bisect_rejects_reversed_ancestry(tmp_path)
+⋮----
+def test_regression_bisect_requires_full_shas(tmp_path)
+⋮----
+def test_regression_bisect_cli_parses_bounded_runtime_options()
+⋮----
+args = _parse_args([
 ```
 
 ## File: test_rekor_checkpoint_state_cli.py

@@ -22,16 +22,20 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-28T11:37:13Z
+Generated: 2026-09-28T11:43:44Z
 
 ### Git
 - Branch: `main`
-- Head: `63a4bddb60a4`
-- Commit date: 2026-09-28T13:37:02+02:00
-- Commit: feat(agents): learn safe fanout from repository history
-- Tracked files: 511
+- Head: `92e9cbcce28b`
+- Commit date: 2026-09-28T13:43:30+02:00
+- Commit: feat(runtime): add bounded executable regression bisect
+- Tracked files: 514
 
 ### Recently changed files
+- `docs/regression-bisect.md`
+- `src/production_os/cli.py`
+- `src/production_os/regression_bisect.py`
+- `tests/test_regression_bisect.py`
 - `src/production_os/agent_planning_policy.py`
 - `src/production_os/fanout_learning.py`
 - `tests/test_fanout_learning.py`
@@ -46,7 +50,6 @@ Generated: 2026-09-28T11:37:13Z
 - `src/production_os/workflow_engine.py`
 - `tests/test_model_router.py`
 - `tests/test_remote_worker.py`
-- `src/production_os/cli.py`
 
 ### Project signals
 - `pyproject.toml`

@@ -2,27 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat: release 40 launch readiness tracker",
-      "terms": [
-        "40",
-        "feat",
-        "launch",
-        "readiness",
-        "release",
-        "tracker"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/control_plane.py",
-        "src/production_os/dashboard_service.py",
-        "src/production_os/dashboard_ui.py",
-        "tests/test_dashboard_api.py",
-        "tests/test_dashboard_launch_readiness.py",
-        "tests/test_dashboard_ui_v3.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat: release 41 live production tracking",
       "terms": [
         "41",
@@ -1287,6 +1266,25 @@
         "src/production_os/fanout_learning.py",
         "tests/test_fanout_learning.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "feat(runtime): add bounded executable regression bisect",
+      "terms": [
+        "add",
+        "bisect",
+        "bounded",
+        "executable",
+        "feat",
+        "regression",
+        "runtime"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/cli.py",
+        "src/production_os/regression_bisect.py",
+        "tests/test_regression_bisect.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1677,13 +1675,14 @@
       "src/production_os/agent_runtime.py": 8,
       "src/production_os/asset_forge.py": 4,
       "src/production_os/browser_computer.py": 4,
-      "src/production_os/cli.py": 8,
+      "src/production_os/cli.py": 12,
       "src/production_os/dashboard_ui.py": 8,
       "src/production_os/github_change_review.py": 4,
       "src/production_os/github_client.py": 4,
       "src/production_os/github_work_state.py": 8,
       "src/production_os/managed_projects.py": 16,
       "src/production_os/model_router.py": 4,
+      "src/production_os/regression_bisect.py": 4,
       "src/production_os/remote_worker_runner.py": 12,
       "src/production_os/rollback_plan.py": 4,
       "src/production_os/sqlite_backend.py": 4,
@@ -1701,6 +1700,7 @@
       "tests/test_mobile_worker_image.py": 4,
       "tests/test_model_router.py": 4,
       "tests/test_persistent_agent_runtime.py": 8,
+      "tests/test_regression_bisect.py": 4,
       "tests/test_release51_one_tap_runner_e2e.py": 8,
       "tests/test_remote_worker_runner.py": 4,
       "tests/test_render_start.py": 4,
@@ -1963,6 +1963,11 @@
       "tests/test_agent_benchmark.py": 8,
       "tests/test_agent_planning_policy.py": 4
     },
+    "bisect": {
+      "src/production_os/cli.py": 4,
+      "src/production_os/regression_bisect.py": 4,
+      "tests/test_regression_bisect.py": 4
+    },
     "bootstrap": {
       "scripts/render-start.py": 4,
       "tests/test_render_start.py": 4
@@ -1970,10 +1975,12 @@
     "bounded": {
       "src/production_os/agent_plan.py": 4,
       "src/production_os/browser_computer.py": 4,
-      "src/production_os/cli.py": 4,
+      "src/production_os/cli.py": 8,
+      "src/production_os/regression_bisect.py": 4,
       "src/production_os/workflow_engine.py": 4,
       "tests/test_agent_plan.py": 4,
       "tests/test_browser_computer.py": 4,
+      "tests/test_regression_bisect.py": 4,
       "tests/test_worker_compose_deployment.py": 4
     },
     "branches": {
@@ -2575,6 +2582,11 @@
       "src/production_os/control_plane.py": 4,
       "src/production_os/database_maintenance_lock.py": 4,
       "tests/test_database_maintenance_lock.py": 4
+    },
+    "executable": {
+      "src/production_os/cli.py": 4,
+      "src/production_os/regression_bisect.py": 4,
+      "tests/test_regression_bisect.py": 4
     },
     "execute": {
       "src/production_os/cli.py": 4,
@@ -3661,6 +3673,11 @@
       "src/production_os/control_plane.py": 4,
       "tests/test_dashboard_launch.py": 4
     },
+    "regression": {
+      "src/production_os/cli.py": 4,
+      "src/production_os/regression_bisect.py": 4,
+      "tests/test_regression_bisect.py": 4
+    },
     "release": {
       "src/production_os/cli.py": 12,
       "src/production_os/control_plane.py": 40,
@@ -3950,12 +3967,13 @@
     "runtime": {
       "src/production_os/agent_runtime.py": 8,
       "src/production_os/browser_computer.py": 4,
-      "src/production_os/cli.py": 12,
+      "src/production_os/cli.py": 16,
       "src/production_os/controller.py": 8,
       "src/production_os/controller_leader.py": 4,
       "src/production_os/executor_worktree.py": 8,
       "src/production_os/filesystem_lock.py": 4,
       "src/production_os/postgres_backend.py": 4,
+      "src/production_os/regression_bisect.py": 4,
       "src/production_os/remote_worker_runner.py": 16,
       "src/production_os/repository_cache.py": 4,
       "src/production_os/skill_memory.py": 4,
@@ -3971,6 +3989,7 @@
       "tests/test_executor_worktree.py": 4,
       "tests/test_filesystem_lock.py": 4,
       "tests/test_persistent_agent_runtime.py": 8,
+      "tests/test_regression_bisect.py": 4,
       "tests/test_remote_worker_runner.py": 8,
       "tests/test_repository_cache.py": 4,
       "tests/test_skill_memory.py": 4,

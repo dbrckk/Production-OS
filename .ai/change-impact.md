@@ -1,20 +1,22 @@
 # Change impact
 
-Base: f663292f79887d567681292a66335d38442962ae
-Head: 63a4bddb60a4c103c129aa06888e2f2a6e6833af
+Base: cbb2e485766e9adb40f5ee61b5690d7aee5063a9
+Head: 92e9cbcce28b0508d8547feb7a4244f5bf19ff43
 
 ## Changed files
-- M src/production_os/agent_planning_policy.py
-- A src/production_os/fanout_learning.py
-- A tests/test_fanout_learning.py
+- A docs/regression-bisect.md
+- M src/production_os/cli.py
+- A src/production_os/regression_bisect.py
+- A tests/test_regression_bisect.py
 
 ## Affected areas
+- docs
 - src
 - tests
 
 ## Related test candidates
-- tests/test_agent_planning_policy.py
-- tests/test_fanout_learning.py
+- tests/test_cli.py
+- tests/test_regression_bisect.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

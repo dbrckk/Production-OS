@@ -117,6 +117,7 @@
         "tests/test_provenance_signer.py",
         "tests/test_queue_audit_checkpoint.py",
         "tests/test_reconciliation_dispatch.py",
+        "tests/test_regression_bisect.py",
         "tests/test_rekor_checkpoint_state.py",
         "tests/test_rekor_checkpoint_state_cli.py",
         "tests/test_rekor_checkpoint_state_concurrency.py",
@@ -182,7 +183,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 173,
+      "in_degree": 174,
       "out_degree": 0,
       "path": "src/production_os/__init__.py"
     },
@@ -230,6 +231,7 @@
         "src/production_os/queue_maintenance.py",
         "src/production_os/rate_limit.py",
         "src/production_os/reconciliation.py",
+        "src/production_os/regression_bisect.py",
         "src/production_os/rekor_checkpoint_state.py",
         "src/production_os/rekor_witness_quorum.py",
         "src/production_os/release_ledger.py",
@@ -265,10 +267,11 @@
         "tests/test_controller_daemon.py",
         "tests/test_executor_worktree.py",
         "tests/test_persistent_agent_runtime.py",
+        "tests/test_regression_bisect.py",
         "tests/test_release21_offline_restore_e2e.py"
       ],
-      "in_degree": 7,
-      "out_degree": 69,
+      "in_degree": 8,
+      "out_degree": 70,
       "path": "src/production_os/cli.py"
     },
     {
@@ -460,6 +463,7 @@
         "src/production_os/model_router.py",
         "src/production_os/postgres_backend.py",
         "src/production_os/project_progress.py",
+        "src/production_os/regression_bisect.py",
         "src/production_os/rekor_checkpoint_state.py",
         "src/production_os/rekor_witness_quorum.py",
         "src/production_os/release_ledger.py",
@@ -500,8 +504,7 @@
         "tests/test_release35_control_plane_restart_e2e.py",
         "tests/test_release36_worker_session_reconciliation_e2e.py",
         "tests/test_release51_one_tap_runner_e2e.py",
-        "tests/test_release_ledger.py",
-        "tests/test_remote_worker_runner.py"
+        "tests/test_release_ledger.py"
       ],
       "in_degree": 63,
       "out_degree": 3,
@@ -1031,6 +1034,32 @@
     },
     {
       "dependencies": [
+        "src/production_os/models.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/controller.py",
+        "src/production_os/managed_projects.py",
+        "src/production_os/regression_bisect.py",
+        "src/production_os/rollback_plan.py",
+        "src/production_os/task_capabilities.py",
+        "src/production_os/validation.py",
+        "tests/test_agent_plan.py",
+        "tests/test_classification_history_reuse.py",
+        "tests/test_compatibility_validation.py",
+        "tests/test_control_plane_release.py",
+        "tests/test_dynamic_agent_fanout.py",
+        "tests/test_regression_bisect.py",
+        "tests/test_release_ledger.py",
+        "tests/test_rollback_plan.py",
+        "tests/test_skill_memory.py"
+      ],
+      "in_degree": 16,
+      "out_degree": 1,
+      "path": "src/production_os/history.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/signing.py"
       ],
       "dependents": [
@@ -1130,30 +1159,6 @@
       "in_degree": 6,
       "out_degree": 10,
       "path": "src/production_os/release_ledger.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/models.py"
-      ],
-      "dependents": [
-        "src/production_os/cli.py",
-        "src/production_os/controller.py",
-        "src/production_os/managed_projects.py",
-        "src/production_os/rollback_plan.py",
-        "src/production_os/task_capabilities.py",
-        "src/production_os/validation.py",
-        "tests/test_agent_plan.py",
-        "tests/test_classification_history_reuse.py",
-        "tests/test_compatibility_validation.py",
-        "tests/test_control_plane_release.py",
-        "tests/test_dynamic_agent_fanout.py",
-        "tests/test_release_ledger.py",
-        "tests/test_rollback_plan.py",
-        "tests/test_skill_memory.py"
-      ],
-      "in_degree": 14,
-      "out_degree": 1,
-      "path": "src/production_os/history.py"
     },
     {
       "dependencies": [
@@ -1866,21 +1871,6 @@
     {
       "dependencies": [
         "src/production_os/__init__.py",
-        "src/production_os/api_auth.py",
-        "src/production_os/control_plane.py",
-        "src/production_os/remote_worker.py",
-        "src/production_os/remote_worker_runner.py",
-        "tests/test_asset_forge.py",
-        "tests/test_github_automerge.py"
-      ],
-      "dependents": [],
-      "in_degree": 0,
-      "out_degree": 7,
-      "path": "tests/test_remote_worker_runner.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/__init__.py",
         "src/production_os/approvals.py",
         "src/production_os/asymmetric_attestations.py",
         "src/production_os/release_ledger.py",
@@ -1892,10 +1882,25 @@
       "in_degree": 0,
       "out_degree": 7,
       "path": "tests/test_secure_release_e2e.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/key_registry.py"
+      ],
+      "dependents": [
+        "src/production_os/release_ledger.py",
+        "src/production_os/supply_chain.py",
+        "tests/test_builder_identity.py",
+        "tests/test_builder_identity_validation.py",
+        "tests/test_builder_trust_rotation.py"
+      ],
+      "in_degree": 5,
+      "out_degree": 1,
+      "path": "src/production_os/builder_identity.py"
     }
   ],
-  "edge_count": 1568,
+  "edge_count": 1575,
   "generated_by": "dbrckk/repo-brain-v7-graph",
-  "node_count": 305,
+  "node_count": 307,
   "schema_version": 1
 }

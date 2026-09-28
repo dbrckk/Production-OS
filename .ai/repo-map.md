@@ -145,6 +145,7 @@ src/
     rate_limit.py
     receipts.py
     reconciliation.py
+    regression_bisect.py
     rekor_checkpoint_state.py
     rekor_witness_quorum.py
     release_ledger.py
@@ -296,6 +297,7 @@ tests/
   test_provenance_signer.py
   test_queue_audit_checkpoint.py
   test_reconciliation_dispatch.py
+  test_regression_bisect.py
   test_rekor_checkpoint_state_cli.py
   test_rekor_checkpoint_state_concurrency.py
   test_rekor_checkpoint_state_postgres.py
@@ -2217,6 +2219,8 @@ browserplan = sub.add_parser(
 ⋮----
 benchmark = sub.add_parser(
 ⋮----
+bisect = sub.add_parser(
+⋮----
 workflowcreate = sub.add_parser("workflow-create", help="Create a persistent DAG workflow")
 ⋮----
 workflowstatus = sub.add_parser("workflow-status", help="Inspect a persistent workflow")
@@ -2655,6 +2659,11 @@ payload = {"benchmark":report}
 baseline_path = str(args.baseline or "").strip()
 ⋮----
 baseline = json.loads(
+⋮----
+def run_regression_bisect_command(args: argparse.Namespace) -> int
+⋮----
+command = shlex.split(str(args.test_command))
+result = run_regression_bisect(
 ⋮----
 def _workflow_engine(database: str) -> WorkflowEngine
 ⋮----
@@ -7675,6 +7684,64 @@ cooldown_expired = False
 lease_expired = not state.is_leased(record, now)
 ⋮----
 cooldown_expired = not state.in_cooldown(record, now)
+````
+
+## File: src/production_os/regression_bisect.py
+````python
+_SHA40 = re.compile(r"^[0-9a-f]{40}$")
+BISECT_SCHEMA = "production-os/regression-bisect/v1"
+⋮----
+class RegressionBisectError(RuntimeError)
+⋮----
+@dataclass(frozen=True, slots=True)
+class RegressionBisectResult
+⋮----
+repository_root: str
+good_sha: str
+bad_sha: str
+culprit_sha: str
+duration_seconds: float
+test_command: tuple[str, ...]
+output_excerpt: str
+⋮----
+def to_dict(self) -> dict[str, Any]
+⋮----
+message = (exc.stderr or exc.stdout or "git command failed").strip()
+⋮----
+def _validate_sha(value: str, *, field: str) -> str
+⋮----
+sha = str(value or "").strip().lower()
+⋮----
+def _validate_command(command: Sequence[str]) -> tuple[str, ...]
+⋮----
+parts = tuple(str(part) for part in command if str(part))
+⋮----
+root = Path(repository_root).expanduser().resolve()
+⋮----
+good = _validate_sha(good_sha, field="good_sha")
+bad = _validate_sha(bad_sha, field="bad_sha")
+⋮----
+command = _validate_command(test_command)
+⋮----
+top = _git(root, "rev-parse", "--show-toplevel").stdout.strip()
+⋮----
+verified = _git(
+⋮----
+ancestor = _git(
+⋮----
+started = time.monotonic()
+output = ""
+bisect_started = False
+⋮----
+bisect_started = True
+⋮----
+run = subprocess.run(
+⋮----
+output = ((run.stdout or "") + "\n" + (run.stderr or "")).strip()
+⋮----
+culprit = _git(
+⋮----
+duration = time.monotonic() - started
 ````
 
 ## File: src/production_os/rekor_checkpoint_state.py
@@ -14553,6 +14620,41 @@ actions = reconcile_runtime_state(state)
 def test_dispatch_is_idempotent_guarded(tmp_path)
 ⋮----
 result = dispatch_handoff(
+````
+
+## File: tests/test_regression_bisect.py
+````python
+def _git(repo: Path, *args: str) -> str
+⋮----
+result = subprocess.run(
+⋮----
+def _history(tmp_path: Path)
+⋮----
+repo = tmp_path / "repo"
+⋮----
+script = repo / "bisect_test.py"
+⋮----
+good = _git(repo, "rev-parse", "HEAD")
+⋮----
+culprit = _git(repo, "rev-parse", "HEAD")
+⋮----
+bad = _git(repo, "rev-parse", "HEAD")
+⋮----
+def test_regression_bisect_finds_first_bad_commit_and_resets_repo(tmp_path)
+⋮----
+original_head = _git(repo, "rev-parse", "HEAD")
+⋮----
+result = run_regression_bisect(
+⋮----
+def test_regression_bisect_rejects_dirty_worktree(tmp_path)
+⋮----
+def test_regression_bisect_rejects_reversed_ancestry(tmp_path)
+⋮----
+def test_regression_bisect_requires_full_shas(tmp_path)
+⋮----
+def test_regression_bisect_cli_parses_bounded_runtime_options()
+⋮----
+args = _parse_args([
 ````
 
 ## File: tests/test_rekor_checkpoint_state_cli.py
