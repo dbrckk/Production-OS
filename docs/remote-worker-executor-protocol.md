@@ -182,3 +182,54 @@ No GitHub credential is copied into the executor request. Private-repository
 authentication remains the responsibility of the worker's normal Git
 credential configuration. Explicit `--repository-root` mappings take
 precedence over the automatic cache.
+
+
+## Bounded browser/computer-use runtime
+
+Tasks that require the `browser-computer-use` capability receive a
+`tool_contracts.browser_computer` contract. The corresponding action plan uses
+schema `production-os/browser-computer-plan/v1`.
+
+Supported actions are deliberately bounded:
+
+- `navigate`
+- `click`
+- `fill`
+- `press`
+- `wait_for`
+- `extract_text`
+- `screenshot`
+- `back`
+- `forward`
+
+The plan must declare `allowed_hosts`. Every explicit navigation URL must use
+HTTP(S), must not contain credentials, and must target one of those hosts. The
+runtime also checks the current page after every action so a redirect or click
+cannot silently move the session to a disallowed host.
+
+JavaScript evaluation, arbitrary shell execution, file upload and unrestricted
+downloads are intentionally not part of this first computer-use contract.
+
+Example:
+
+```json
+{
+  "schema_version": "production-os/browser-computer-plan/v1",
+  "allowed_hosts": ["example.com"],
+  "persist_session": true,
+  "actions": [
+    {"action": "navigate", "url": "https://example.com"},
+    {"action": "fill", "selector": "#email", "value": "user@example.com"},
+    {"action": "click", "selector": "button[type=submit]"},
+    {"action": "extract_text", "selector": "main", "name": "result"},
+    {"action": "screenshot", "name": "final"}
+  ]
+}
+```
+
+Fill values are never copied into the action result representation. Extracted
+text is bounded, screenshot names are sanitized, and action timeouts are capped.
+
+The runtime can persist Playwright storage state to a durable runtime path, so a
+resumed agent can keep cookies/session state across worker attempts when the
+caller explicitly supplies that state path.
