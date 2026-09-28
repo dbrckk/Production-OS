@@ -223,3 +223,29 @@ The executor also receives
 `PRODUCTION_OS_INTEGRATION_PREFLIGHT_STATUS`. A conflict is deliberately not
 treated as a worker failure: the executor receives a clean worktree plus the
 conflict report and may perform a higher-level/manual reconciliation.
+
+
+## Learned skill memory
+
+Successful executors may optionally return a reusable procedure under
+`result.learned_skill` using schema
+`production-os/learned-skill/v1`.
+
+A learned skill contains a bounded title, trigger terms and 1-12 reusable
+procedure steps. Production OS records it only after successful task
+completion. Validated successes receive a higher confidence, and repeated
+successful observations increase that confidence.
+
+Credential-like content is rejected before persistence. Learning is optional:
+a malformed skill payload is ignored and does not turn otherwise successful
+work into a failed workflow.
+
+For future related tasks, Production OS may add a bounded `learned_skills`
+array to the handoff. These are historical hints only; the current task,
+repository state, policies, tests and validation evidence remain authoritative.
+
+The handoff advertises `tool_contracts.skill_learning` with:
+- schema `production-os/learned-skill/v1`
+- result field `learned_skill`
+- maximum 12 procedure steps
+- optional execution semantics
