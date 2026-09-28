@@ -285,3 +285,47 @@ A prior branch is deleted only when:
 Divergent, unintegrated, active, failed, cancelled, or foreign branches are
 retained. Cleanup is best-effort and happens only after job completion has been
 acknowledged, so a cleanup failure cannot invalidate a completed job.
+
+
+## Adaptive model route hint
+
+Workflow tasks may declare a bounded list of `model_candidates`. Before queueing
+the task, Production OS ranks compatible candidates using durable evidence and
+adds a non-secret routing hint to the handoff:
+
+```json
+{
+  "model_route": {
+    "schema_version": "production-os/model-route/v1",
+    "provider": "provider-a",
+    "model": "model-x",
+    "fallbacks": [
+      {"provider": "provider-b", "model": "model-y"}
+    ],
+    "ranking": [],
+    "rejected": []
+  }
+}
+```
+
+Routing is deterministic and considers:
+
+- required task capabilities;
+- preferred capability overlap;
+- explicit candidate priority;
+- whether the candidate is declared free;
+- historical execution success rate;
+- historical duration and observed cost;
+- the latest authenticated provider quota snapshot.
+
+An authenticated quota with no remaining capacity makes that provider
+ineligible. Missing or unauthenticated quota data is treated as unknown rather
+than as zero capacity.
+
+The route contains no API keys or provider credentials. The external executor
+remains responsible for invoking the selected provider using its own configured
+credentials. If the primary provider fails for a provider-specific reason, the
+executor may try the ordered fallbacks and should report every actually used
+provider/model in `result.usage.providers`.
+
+Tasks without `model_candidates` are unchanged.
