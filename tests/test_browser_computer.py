@@ -2,6 +2,10 @@ import pytest
 
 from production_os.browser_computer import (
     BROWSER_PLAN_SCHEMA,
+    BROWSER_SESSION_SCHEMA,
+    _load_browser_session,
+    _safe_resume_url,
+    _write_browser_session,
     validate_browser_plan,
 )
 from production_os.sqlite_backend import SQLiteBackend, SQLiteJobQueue
@@ -125,11 +129,13 @@ def test_browser_plan_cli_parses_runtime_paths():
         "--plan", "/tmp/plan.json",
         "--artifacts-dir", "/tmp/artifacts",
         "--storage-state", "/tmp/state.json",
+        "--session-state", "/tmp/session.json",
     ])
 
     assert args.plan == "/tmp/plan.json"
     assert args.artifacts_dir == "/tmp/artifacts"
     assert args.storage_state == "/tmp/state.json"
+    assert args.session_state == "/tmp/session.json"
     assert args.headed is False
 
 
@@ -187,3 +193,75 @@ def test_browser_plan_allows_private_network_only_with_explicit_opt_in():
     })
 
     assert plan.allow_private_network is True
+
+
+
+def test_browser_session_resume_url_strips_query_and_fragment():
+    safe = _safe_resume_url(
+        "https://example.com/app/path?token=secret#section",
+        {"example.com"},
+        allow_private_network=False,
+    )
+
+    assert safe == "https://example.com/app/path"
+
+
+def test_browser_session_metadata_round_trips_only_safe_location(tmp_path):
+    plan = validate_browser_plan({
+        "schema_version":BROWSER_PLAN_SCHEMA,
+        "allowed_hosts":["example.com"],
+        "persist_session":True,
+        "actions":[
+            {"action":"navigate","url":"https://example.com/app"},
+        ],
+    })
+    path = tmp_path / "browser-session.json"
+
+    written = _write_browser_session(
+        path,
+        last_url="https://example.com/app?access_token=secret#fragment",
+        plan=plan,
+    )
+    loaded = _load_browser_session(path, plan)
+
+    assert written is not None
+    assert written["schema_version"] == BROWSER_SESSION_SCHEMA
+    assert written["last_url"] == "https://example.com/app"
+    assert loaded["last_url"] == "https://example.com/app"
+    payload = path.read_text(encoding="utf-8")
+    assert "access_token" not in payload
+    assert "secret" not in payload
+
+
+def test_browser_session_rejects_stale_disallowed_host(tmp_path):
+    plan = validate_browser_plan({
+        "schema_version":BROWSER_PLAN_SCHEMA,
+        "allowed_hosts":["example.com"],
+        "persist_session":True,
+        "actions":[
+            {"action":"extract_text","selector":"main","name":"result"},
+        ],
+    })
+    path = tmp_path / "browser-session.json"
+    path.write_text(
+        '{"schema_version":"production-os/browser-computer-session/v1",'
+        '"last_url":"https://evil.example/private"}',
+        encoding="utf-8",
+    )
+
+    assert _load_browser_session(path, plan) == {}
+
+
+def test_browser_session_state_defaults_to_runtime_workspace(monkeypatch):
+    from argparse import Namespace
+    from production_os.cli import _browser_session_state
+
+    monkeypatch.setenv(
+        "PRODUCTION_OS_RUNTIME_WORKSPACE",
+        "/var/lib/production-os/runtime/job-a",
+    )
+    args = Namespace(session_state="")
+
+    assert _browser_session_state(args) == (
+        "/var/lib/production-os/runtime/job-a/browser-session.json"
+    )
