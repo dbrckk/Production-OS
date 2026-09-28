@@ -66,6 +66,7 @@ production_os/
   components.py
   control_plane.py
   control_surface.py
+  controller_leader.py
   controller.py
   dashboard_alerts.py
   dashboard_backups.py
@@ -2639,6 +2640,51 @@ def write_control_surface(payload: dict, path: str | Path) -> None
 destination = Path(path)
 ```
 
+## File: production_os/controller_leader.py
+```python
+except ImportError:  # pragma: no cover - production server images are POSIX.
+fcntl = None
+⋮----
+class ControllerLeaderError(RuntimeError)
+⋮----
+def _utc_now() -> str
+⋮----
+class FilesystemControllerLeaderLock
+⋮----
+def __init__(self, path: str | os.PathLike[str])
+⋮----
+def acquire(self) -> None
+⋮----
+fd = os.open(self.path, os.O_CREAT | os.O_RDWR, 0o600)
+⋮----
+payload = {
+encoded = json.dumps(
+⋮----
+def release(self) -> None
+⋮----
+fd = self._fd
+⋮----
+def __enter__(self)
+⋮----
+def __exit__(self, exc_type, exc, tb)
+⋮----
+class PostgresControllerLeaderLock
+⋮----
+_LOCK_KEY = int.from_bytes(
+⋮----
+def __init__(self, dsn: str)
+⋮----
+backend = PostgresBackend(self.dsn)
+connection = backend.connect()
+⋮----
+row = connection.execute(
+acquired = bool(
+⋮----
+connection = self._connection
+⋮----
+anchor = (
+```
+
 ## File: production_os/controller.py
 ```python
 def _rank_actions(assessments)
@@ -2774,6 +2820,8 @@ failures = 0
 consecutive_failures = 0
 recent_results: list[dict] = []
 last_error: str | None = None
+⋮----
+leader = controller_leader_lock(
 ⋮----
 wait_seconds = int(interval_seconds)
 ⋮----

@@ -81,6 +81,7 @@ src/
     components.py
     control_plane.py
     control_surface.py
+    controller_leader.py
     controller.py
     dashboard_alerts.py
     dashboard_backups.py
@@ -207,6 +208,7 @@ tests/
   test_controller_asset_capabilities.py
   test_controller_daemon_deployment.py
   test_controller_daemon.py
+  test_controller_leader.py
   test_cooperative_managed_projects.py
   test_cooperative_specialist_e2e.py
   test_dashboard_alerts.py
@@ -3209,6 +3211,51 @@ def write_control_surface(payload: dict, path: str | Path) -> None
 destination = Path(path)
 ````
 
+## File: src/production_os/controller_leader.py
+````python
+except ImportError:  # pragma: no cover - production server images are POSIX.
+fcntl = None
+⋮----
+class ControllerLeaderError(RuntimeError)
+⋮----
+def _utc_now() -> str
+⋮----
+class FilesystemControllerLeaderLock
+⋮----
+def __init__(self, path: str | os.PathLike[str])
+⋮----
+def acquire(self) -> None
+⋮----
+fd = os.open(self.path, os.O_CREAT | os.O_RDWR, 0o600)
+⋮----
+payload = {
+encoded = json.dumps(
+⋮----
+def release(self) -> None
+⋮----
+fd = self._fd
+⋮----
+def __enter__(self)
+⋮----
+def __exit__(self, exc_type, exc, tb)
+⋮----
+class PostgresControllerLeaderLock
+⋮----
+_LOCK_KEY = int.from_bytes(
+⋮----
+def __init__(self, dsn: str)
+⋮----
+backend = PostgresBackend(self.dsn)
+connection = backend.connect()
+⋮----
+row = connection.execute(
+acquired = bool(
+⋮----
+connection = self._connection
+⋮----
+anchor = (
+````
+
 ## File: src/production_os/controller.py
 ````python
 def _rank_actions(assessments)
@@ -3344,6 +3391,8 @@ failures = 0
 consecutive_failures = 0
 recent_results: list[dict] = []
 last_error: str | None = None
+⋮----
+leader = controller_leader_lock(
 ⋮----
 wait_seconds = int(interval_seconds)
 ⋮----
@@ -10507,6 +10556,58 @@ results = controller.run_controller(
 def test_controller_cli_exposes_daemon_controls()
 ⋮----
 args = _parse_args([
+````
+
+## File: tests/test_controller_leader.py
+````python
+def test_filesystem_controller_leader_lock_is_exclusive_and_releasable(tmp_path)
+⋮----
+path = tmp_path / "controller.lock"
+first = leader.FilesystemControllerLeaderLock(path)
+second = leader.FilesystemControllerLeaderLock(path)
+⋮----
+def test_controller_leader_factory_uses_durable_file_for_sqlite(tmp_path)
+⋮----
+database = tmp_path / "production.db"
+lock = leader.controller_leader_lock(
+⋮----
+def test_controller_leader_factory_falls_back_to_runtime_state(tmp_path)
+⋮----
+runtime = tmp_path / "runtime.json"
+⋮----
+def test_postgres_controller_leader_lock_holds_session_advisory_lock(monkeypatch)
+⋮----
+calls = []
+⋮----
+class Result
+⋮----
+def __init__(self, row)
+⋮----
+def fetchone(self)
+⋮----
+class Connection
+⋮----
+def __init__(self)
+⋮----
+def execute(self, sql, params)
+⋮----
+def close(self)
+⋮----
+connection = Connection()
+⋮----
+class Backend
+⋮----
+def __init__(self, dsn)
+⋮----
+def connect(self)
+⋮----
+lock = leader.PostgresControllerLeaderLock(
+⋮----
+def test_postgres_controller_leader_lock_rejects_second_leader(monkeypatch)
+⋮----
+def execute(self, _sql, _params)
+⋮----
+def __init__(self, _dsn)
 ````
 
 ## File: tests/test_cooperative_managed_projects.py
@@ -21504,4 +21605,22 @@ The daemon shares the durable Production-OS database and artifact volume, uses
 container or host restarts. Configure
 `PRODUCTION_OS_CONTROLLER_INTERVAL_SECONDS` and
 `PRODUCTION_OS_CONTROLLER_MAX_BACKOFF_SECONDS` to tune cadence and recovery.
+
+
+### Controller daemon leader fencing
+
+Only one autonomous controller daemon may own a Production-OS state backend at
+a time.
+
+Daemon startup now acquires a backend-aware leader lock before the first
+control cycle:
+
+- SQLite / file-backed state: non-blocking POSIX `flock` on a durable
+  `.controller.lock` sidecar;
+- PostgreSQL: session-scoped `pg_try_advisory_lock`.
+
+A second daemon fails immediately instead of running a competing scheduler.
+The lock is held for the complete daemon lifetime and released automatically
+when the process exits or the PostgreSQL session closes. Bounded
+`production-os controller` runs are unchanged.
 ````

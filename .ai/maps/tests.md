@@ -66,6 +66,7 @@ test_control_plane.py
 test_controller_asset_capabilities.py
 test_controller_daemon_deployment.py
 test_controller_daemon.py
+test_controller_leader.py
 test_cooperative_managed_projects.py
 test_cooperative_specialist_e2e.py
 test_dashboard_alerts.py
@@ -1029,6 +1030,58 @@ results = controller.run_controller(
 def test_controller_cli_exposes_daemon_controls()
 ⋮----
 args = _parse_args([
+```
+
+## File: test_controller_leader.py
+```python
+def test_filesystem_controller_leader_lock_is_exclusive_and_releasable(tmp_path)
+⋮----
+path = tmp_path / "controller.lock"
+first = leader.FilesystemControllerLeaderLock(path)
+second = leader.FilesystemControllerLeaderLock(path)
+⋮----
+def test_controller_leader_factory_uses_durable_file_for_sqlite(tmp_path)
+⋮----
+database = tmp_path / "production.db"
+lock = leader.controller_leader_lock(
+⋮----
+def test_controller_leader_factory_falls_back_to_runtime_state(tmp_path)
+⋮----
+runtime = tmp_path / "runtime.json"
+⋮----
+def test_postgres_controller_leader_lock_holds_session_advisory_lock(monkeypatch)
+⋮----
+calls = []
+⋮----
+class Result
+⋮----
+def __init__(self, row)
+⋮----
+def fetchone(self)
+⋮----
+class Connection
+⋮----
+def __init__(self)
+⋮----
+def execute(self, sql, params)
+⋮----
+def close(self)
+⋮----
+connection = Connection()
+⋮----
+class Backend
+⋮----
+def __init__(self, dsn)
+⋮----
+def connect(self)
+⋮----
+lock = leader.PostgresControllerLeaderLock(
+⋮----
+def test_postgres_controller_leader_lock_rejects_second_leader(monkeypatch)
+⋮----
+def execute(self, _sql, _params)
+⋮----
+def __init__(self, _dsn)
 ```
 
 ## File: test_cooperative_managed_projects.py

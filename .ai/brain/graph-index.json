@@ -34,6 +34,7 @@
         "tests/test_control_plane_webhook.py",
         "tests/test_controller_asset_capabilities.py",
         "tests/test_controller_daemon.py",
+        "tests/test_controller_leader.py",
         "tests/test_cooperative_managed_projects.py",
         "tests/test_cooperative_specialist_e2e.py",
         "tests/test_dashboard_alerts.py",
@@ -177,7 +178,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 168,
+      "in_degree": 169,
       "out_degree": 0,
       "path": "src/production_os/__init__.py"
     },
@@ -713,6 +714,7 @@
         "src/production_os/approvals.py",
         "src/production_os/budgets.py",
         "src/production_os/claims.py",
+        "src/production_os/controller_leader.py",
         "src/production_os/delivery.py",
         "src/production_os/dispatch.py",
         "src/production_os/emergency.py",
@@ -748,7 +750,7 @@
         "tests/test_controller_daemon.py"
       ],
       "in_degree": 3,
-      "out_degree": 31,
+      "out_degree": 32,
       "path": "src/production_os/controller.py"
     },
     {
@@ -1131,6 +1133,30 @@
     },
     {
       "dependencies": [
+        "src/production_os/claims.py",
+        "src/production_os/runtime_state.py",
+        "src/production_os/workers.py",
+        "tests/test_asset_forge.py",
+        "tests/test_fairness.py"
+      ],
+      "dependents": [
+        "src/production_os/controller_leader.py",
+        "src/production_os/dashboard_store.py",
+        "src/production_os/storage.py",
+        "tests/test_controller_leader.py",
+        "tests/test_dashboard_backups.py",
+        "tests/test_dashboard_store_postgres.py",
+        "tests/test_execution_optimizer_postgres.py",
+        "tests/test_postgres_backend.py",
+        "tests/test_rekor_checkpoint_state_postgres.py",
+        "tests/test_workflow_postgres.py"
+      ],
+      "in_degree": 10,
+      "out_degree": 5,
+      "path": "src/production_os/postgres_backend.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/github_client.py",
         "src/production_os/github_work_state.py",
         "src/production_os/history.py",
@@ -1264,28 +1290,6 @@
       "in_degree": 8,
       "out_degree": 5,
       "path": "src/production_os/dashboard_store.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/claims.py",
-        "src/production_os/runtime_state.py",
-        "src/production_os/workers.py",
-        "tests/test_asset_forge.py",
-        "tests/test_fairness.py"
-      ],
-      "dependents": [
-        "src/production_os/dashboard_store.py",
-        "src/production_os/storage.py",
-        "tests/test_dashboard_backups.py",
-        "tests/test_dashboard_store_postgres.py",
-        "tests/test_execution_optimizer_postgres.py",
-        "tests/test_postgres_backend.py",
-        "tests/test_rekor_checkpoint_state_postgres.py",
-        "tests/test_workflow_postgres.py"
-      ],
-      "in_degree": 8,
-      "out_degree": 5,
-      "path": "src/production_os/postgres_backend.py"
     },
     {
       "dependencies": [
@@ -1549,6 +1553,23 @@
     },
     {
       "dependencies": [
+        "src/production_os/postgres_backend.py",
+        "src/production_os/sqlite_backend.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/controller.py",
+        "src/production_os/controller_leader.py",
+        "src/production_os/database_maintenance_lock.py",
+        "src/production_os/sqlite_migration.py"
+      ],
+      "in_degree": 6,
+      "out_degree": 2,
+      "path": "src/production_os/storage.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/signers.py",
         "src/production_os/vault_auth.py",
         "src/production_os/vault_signer.py",
@@ -1660,22 +1681,6 @@
       "in_degree": 6,
       "out_degree": 1,
       "path": "src/production_os/rekor_checkpoint_state.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/postgres_backend.py",
-        "src/production_os/sqlite_backend.py"
-      ],
-      "dependents": [
-        "src/production_os/cli.py",
-        "src/production_os/control_plane.py",
-        "src/production_os/controller.py",
-        "src/production_os/database_maintenance_lock.py",
-        "src/production_os/sqlite_migration.py"
-      ],
-      "in_degree": 5,
-      "out_degree": 2,
-      "path": "src/production_os/storage.py"
     },
     {
       "dependencies": [
@@ -1860,8 +1865,8 @@
       "path": "src/production_os/builder_identity.py"
     }
   ],
-  "edge_count": 1508,
+  "edge_count": 1516,
   "generated_by": "dbrckk/repo-brain-v7-graph",
-  "node_count": 295,
+  "node_count": 297,
   "schema_version": 1
 }

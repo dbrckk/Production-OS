@@ -1,15 +1,14 @@
 # Change impact
 
-Base: 68e8435dc1579296d17454ccb8ca79264ab41c1d
-Head: f128d65b88e978e83c4c5813c0474a84994ecd65
+Base: 9fb70e88d9ff109e92417ce4519e81125257cbf7
+Head: 1c3a52abd9baae9e924f28f05fbcab206a1c685f
 
 ## Changed files
 - M README.md
-- M compose.yaml
-- M src/production_os/cli.py
 - M src/production_os/controller.py
-- A tests/test_controller_daemon.py
-- A tests/test_controller_daemon_deployment.py
+- A src/production_os/controller_leader.py
+- M tests/test_controller_daemon.py
+- A tests/test_controller_leader.py
 
 ## Affected areas
 - (root)
@@ -17,7 +16,7 @@ Head: f128d65b88e978e83c4c5813c0474a84994ecd65
 - tests
 
 ## Related test candidates
-- tests/test_cli.py
+- tests/test_controller_leader.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

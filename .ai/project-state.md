@@ -22,21 +22,23 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-28T07:10:48Z
+Generated: 2026-09-28T07:16:29Z
 
 ### Git
 - Branch: `main`
-- Head: `f128d65b88e9`
-- Commit date: 2026-09-28T09:10:36+02:00
-- Commit: feat(runtime): run the autonomous controller as a resilient 24x7 daemon
-- Tracked files: 500
+- Head: `1c3a52abd9ba`
+- Commit date: 2026-09-28T09:16:15+02:00
+- Commit: feat(runtime): fence concurrent autonomous controllers
+- Tracked files: 503
 
 ### Recently changed files
 - `README.md`
+- `src/production_os/controller.py`
+- `src/production_os/controller_leader.py`
+- `tests/test_controller_daemon.py`
+- `tests/test_controller_leader.py`
 - `compose.yaml`
 - `src/production_os/cli.py`
-- `src/production_os/controller.py`
-- `tests/test_controller_daemon.py`
 - `tests/test_controller_daemon_deployment.py`
 - `docs/remote-worker-executor-protocol.md`
 - `src/production_os/executor_worktree.py`
@@ -50,8 +52,6 @@ Generated: 2026-09-28T07:10:48Z
 - `tests/test_dashboard_control_audit.py`
 - `tests/test_dashboard_remediation_history.py`
 - `tests/test_dashboard_store_postgres.py`
-- `tests/test_skill_memory.py`
-- `compose.worker.yaml`
 
 ### Project signals
 - `pyproject.toml`

@@ -2,22 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "test: release 32 one-tap production E2E",
-      "terms": [
-        "32",
-        "e2e",
-        "one-tap",
-        "production",
-        "release",
-        "test"
-      ],
-      "tests": [],
-      "useful": [
-        "tests/test_release32_one_tap_e2e.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat: release 33 automatic worker recovery",
       "terms": [
         "33",
@@ -1274,6 +1258,25 @@
         "tests/test_controller_daemon.py",
         "tests/test_controller_daemon_deployment.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "feat(runtime): fence concurrent autonomous controllers",
+      "terms": [
+        "autonomous",
+        "concurrent",
+        "controllers",
+        "feat",
+        "fence",
+        "runtime"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/controller.py",
+        "src/production_os/controller_leader.py",
+        "tests/test_controller_daemon.py",
+        "tests/test_controller_leader.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1862,7 +1865,8 @@
     },
     "autonomous": {
       "src/production_os/cli.py": 4,
-      "src/production_os/controller.py": 4,
+      "src/production_os/controller.py": 8,
+      "src/production_os/controller_leader.py": 4,
       "src/production_os/dashboard_ui.py": 4,
       "src/production_os/github_change_review.py": 4,
       "src/production_os/github_client.py": 4,
@@ -1870,8 +1874,9 @@
       "src/production_os/managed_projects.py": 4,
       "src/production_os/rollback_plan.py": 4,
       "src/production_os/workflow_engine.py": 4,
-      "tests/test_controller_daemon.py": 4,
+      "tests/test_controller_daemon.py": 8,
       "tests/test_controller_daemon_deployment.py": 4,
+      "tests/test_controller_leader.py": 4,
       "tests/test_dashboard_ui_v3.py": 4,
       "tests/test_github_change_review.py": 4,
       "tests/test_github_work_state.py": 8,
@@ -2144,7 +2149,11 @@
       "tests/test_worker_compose_deployment.py": 4
     },
     "concurrent": {
+      "src/production_os/controller.py": 4,
+      "src/production_os/controller_leader.py": 4,
       "src/production_os/remote_worker_runner.py": 4,
+      "tests/test_controller_daemon.py": 4,
+      "tests/test_controller_leader.py": 4,
       "tests/test_remote_worker_runner.py": 4
     },
     "contextual": {
@@ -2226,6 +2235,12 @@
       "src/production_os/controller.py": 4,
       "tests/test_controller_daemon.py": 4,
       "tests/test_controller_daemon_deployment.py": 4
+    },
+    "controllers": {
+      "src/production_os/controller.py": 4,
+      "src/production_os/controller_leader.py": 4,
+      "tests/test_controller_daemon.py": 4,
+      "tests/test_controller_leader.py": 4
     },
     "cooperative": {
       "src/production_os/control_plane.py": 4,
@@ -2568,7 +2583,8 @@
       "src/production_os/browser_computer.py": 4,
       "src/production_os/cli.py": 40,
       "src/production_os/control_plane.py": 40,
-      "src/production_os/controller.py": 4,
+      "src/production_os/controller.py": 8,
+      "src/production_os/controller_leader.py": 4,
       "src/production_os/dashboard_alerts.py": 4,
       "src/production_os/dashboard_backups.py": 40,
       "src/production_os/dashboard_control.py": 4,
@@ -2599,7 +2615,6 @@
       "src/production_os/sqlite_backend.py": 40,
       "src/production_os/task_capabilities.py": 8,
       "src/production_os/workflow_engine.py": 40,
-      "src/production_os/worktree_contract.py": 4,
       "tests/test_asset_forge.py": 16,
       "tests/test_browser_worker_image.py": 8,
       "tests/test_cli.py": 12,
@@ -2625,6 +2640,12 @@
       "tests/test_managed_projects_http_v4.py": 8,
       "tests/test_managed_projects_v4.py": 12,
       "tests/test_workflow_postgres.py": 8
+    },
+    "fence": {
+      "src/production_os/controller.py": 4,
+      "src/production_os/controller_leader.py": 4,
+      "tests/test_controller_daemon.py": 4,
+      "tests/test_controller_leader.py": 4
     },
     "filesystem": {
       "src/production_os/dashboard_backups.py": 4,
@@ -3770,7 +3791,8 @@
       "src/production_os/agent_runtime.py": 8,
       "src/production_os/browser_computer.py": 4,
       "src/production_os/cli.py": 12,
-      "src/production_os/controller.py": 4,
+      "src/production_os/controller.py": 8,
+      "src/production_os/controller_leader.py": 4,
       "src/production_os/executor_worktree.py": 8,
       "src/production_os/filesystem_lock.py": 4,
       "src/production_os/postgres_backend.py": 4,
@@ -3780,8 +3802,9 @@
       "src/production_os/sqlite_backend.py": 4,
       "src/production_os/workflow_engine.py": 8,
       "tests/test_browser_computer.py": 4,
-      "tests/test_controller_daemon.py": 4,
+      "tests/test_controller_daemon.py": 8,
       "tests/test_controller_daemon_deployment.py": 4,
+      "tests/test_controller_leader.py": 4,
       "tests/test_dashboard_control_audit.py": 4,
       "tests/test_dashboard_remediation_history.py": 4,
       "tests/test_dashboard_store_postgres.py": 4,
