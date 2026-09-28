@@ -466,6 +466,11 @@ def execute_browser_plan(
             checkpoint_index = int(
                 checkpoint.get("next_action_index") or 0
             )
+            if (
+                checkpoint_index > 0
+                and (state_path is None or not state_path.is_file())
+            ):
+                checkpoint_index = 0
             checkpoint_url = str(checkpoint.get("last_url") or "")
             first_action = plan.actions[0].action if plan.actions else ""
             previous_url = str(previous_session.get("last_url") or "")
