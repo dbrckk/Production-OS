@@ -182,3 +182,48 @@ No GitHub credential is copied into the executor request. Private-repository
 authentication remains the responsibility of the worker's normal Git
 credential configuration. Explicit `--repository-root` mappings take
 precedence over the automatic cache.
+
+
+## Learned skill memory
+
+Successful executors may optionally return a reusable procedure under
+`result.learned_skill`:
+
+```json
+{
+  "status": "succeeded",
+  "result": {
+    "summary": "fixed the deployment validation",
+    "validation": {"status": "passed"},
+    "learned_skill": {
+      "schema_version": "production-os/learned-skill/v1",
+      "title": "Repair deployment validation",
+      "trigger_terms": ["deployment", "validation"],
+      "procedure": [
+        "Reproduce the failing validation with the smallest targeted command.",
+        "Apply the minimal fix and rerun the targeted validation.",
+        "Run the broader validation suite before reporting success."
+      ]
+    }
+  }
+}
+```
+
+Learning is optional. A malformed learning payload is ignored and does not turn
+an otherwise successful execution into a failed job.
+
+Production OS stores learned skills only after successful task completion.
+Validated successes receive a higher initial confidence. Repeated successful
+observations increase confidence. Skills are repository-scoped in this version.
+
+Credential-like material is rejected before persistence. Executors must never
+place bearer tokens, API keys, passwords, or other credentials in a learned
+procedure.
+
+For future related tasks, Production OS may add a bounded `learned_skills`
+array to the handoff. These are hints, not instructions that override the
+current task. The executor must still prioritize the current handoff, repository
+state, tests, policies, and validation evidence over historical skill memory.
+
+The handoff also advertises an optional `tool_contracts.skill_learning`
+contract with the expected schema and maximum procedure length.
