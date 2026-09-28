@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from contextlib import nullcontext
+
 import production_os.controller as controller
 from production_os.cli import _parse_args
 
@@ -25,6 +27,11 @@ def test_controller_daemon_runs_until_cooperative_stop(monkeypatch):
         return {"cycle":calls["count"]}
 
     monkeypatch.setattr(controller, "run_control_cycle", fake_cycle)
+    monkeypatch.setattr(
+        controller,
+        "controller_leader_lock",
+        lambda **_kwargs: nullcontext(),
+    )
     stop = FakeStopEvent(3)
 
     summary = controller.run_controller_daemon(
@@ -59,6 +66,11 @@ def test_controller_daemon_retries_failures_with_bounded_backoff(monkeypatch):
         controller,
         "_record_controller_error",
         lambda exc, kwargs: recorded.append(str(exc)),
+    )
+    monkeypatch.setattr(
+        controller,
+        "controller_leader_lock",
+        lambda **_kwargs: nullcontext(),
     )
     stop = FakeStopEvent(3)
 
