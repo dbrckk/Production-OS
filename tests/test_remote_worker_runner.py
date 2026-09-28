@@ -738,7 +738,17 @@ print(json.dumps({
         )
         assert result["workspace"]["created"] is True
         assert (repo / "agent.txt").exists() is False
-        assert pathlib.Path(result["cwd"], "agent.txt").is_file()
+        assert pathlib.Path(result["cwd"]).exists() is False
+        branch_file = subprocess.run(
+            [
+                "git", "-C", str(repo), "show",
+                f"{result['branch']}:agent.txt",
+            ],
+            check=True,
+            text=True,
+            stdout=subprocess.PIPE,
+        ).stdout
+        assert branch_file == "isolated"
         assert result["executor_git"]["clean"] is True
         assert result["executor_git"]["base_is_ancestor"] is True
         assert result["changed_files"] == ["agent.txt"]
