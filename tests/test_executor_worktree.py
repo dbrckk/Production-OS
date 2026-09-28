@@ -7,6 +7,7 @@ import pytest
 
 from production_os.executor_worktree import (
     WorktreeRuntimeError,
+    preintegrate_upstream_commits,
     prepare_isolated_worktree,
     remove_isolated_worktree,
 )
@@ -253,3 +254,166 @@ def test_remote_worker_cli_exposes_repository_cache_root():
 
     assert args.repository_cache_root == "/srv/cache"
     assert args.worktree_root == "/srv/worktrees"
+
+
+
+def _commit(repo: Path, message: str) -> str:
+    _git(repo, "add", ".")
+    _git(repo, "commit", "-m", message)
+    return _git(repo, "rev-parse", "HEAD")
+
+
+def test_preintegrate_upstream_commits_applies_clean_independent_changes(tmp_path):
+    repo = _repo(tmp_path)
+    base = _git(repo, "rev-parse", "HEAD")
+
+    _git(repo, "checkout", "-b", "agent-a")
+    (repo / "a.txt").write_text("a\n", encoding="utf-8")
+    commit_a = _commit(repo, "agent a")
+
+    _git(repo, "checkout", "master")
+    _git(repo, "checkout", "-b", "agent-b")
+    (repo / "b.txt").write_text("b\n", encoding="utf-8")
+    commit_b = _commit(repo, "agent b")
+
+    _git(repo, "checkout", "master")
+    contract = build_worktree_contract(
+        repository="owner/repo",
+        workflow_id="wf-integration",
+        task_id="integration",
+        attempt=1,
+        base_ref=base,
+        integration_target=True,
+    )
+    prepared = prepare_isolated_worktree(
+        repo,
+        contract,
+        worktree_root=tmp_path / "worktrees",
+    )
+
+    result = preintegrate_upstream_commits(
+        prepared.worktree_path,
+        [
+            {"task_id":"a", "commit_shas":[commit_a]},
+            {"task_id":"b", "commit_shas":[commit_b]},
+        ],
+    )
+
+    target = Path(prepared.worktree_path)
+    assert result.status == "integrated"
+    assert result.starting_sha == base
+    assert result.final_sha != base
+    assert result.applied_commits == (commit_a, commit_b)
+    assert result.skipped_commits == ()
+    assert (target / "a.txt").read_text(encoding="utf-8") == "a\n"
+    assert (target / "b.txt").read_text(encoding="utf-8") == "b\n"
+
+
+def test_preintegrate_conflict_rolls_back_entire_preflight(tmp_path):
+    repo = _repo(tmp_path)
+    base = _git(repo, "rev-parse", "HEAD")
+
+    _git(repo, "checkout", "-b", "agent-a")
+    (repo / "README.md").write_text("from-a\n", encoding="utf-8")
+    commit_a = _commit(repo, "agent a conflict")
+
+    _git(repo, "checkout", "master")
+    _git(repo, "checkout", "-b", "agent-b")
+    (repo / "README.md").write_text("from-b\n", encoding="utf-8")
+    commit_b = _commit(repo, "agent b conflict")
+
+    _git(repo, "checkout", "master")
+    contract = build_worktree_contract(
+        repository="owner/repo",
+        workflow_id="wf-conflict",
+        task_id="integration",
+        attempt=1,
+        base_ref=base,
+        integration_target=True,
+    )
+    prepared = prepare_isolated_worktree(
+        repo,
+        contract,
+        worktree_root=tmp_path / "worktrees",
+    )
+
+    result = preintegrate_upstream_commits(
+        prepared.worktree_path,
+        [
+            {"task_id":"a", "commit_shas":[commit_a]},
+            {"task_id":"b", "commit_shas":[commit_b]},
+        ],
+    )
+
+    target = Path(prepared.worktree_path)
+    assert result.status == "conflict"
+    assert result.conflicted_commit == commit_b
+    assert "README.md" in result.conflict_files
+    assert _git(target, "rev-parse", "HEAD") == base
+    assert _git(target, "status", "--porcelain") == ""
+    assert (target / "README.md").read_text(encoding="utf-8") == "base\n"
+
+
+def test_preintegrate_missing_commit_leaves_clean_starting_state(tmp_path):
+    repo = _repo(tmp_path)
+    base = _git(repo, "rev-parse", "HEAD")
+    contract = build_worktree_contract(
+        repository="owner/repo",
+        workflow_id="wf-missing",
+        task_id="integration",
+        attempt=1,
+        base_ref=base,
+        integration_target=True,
+    )
+    prepared = prepare_isolated_worktree(
+        repo,
+        contract,
+        worktree_root=tmp_path / "worktrees",
+    )
+    missing = "f" * 40
+
+    result = preintegrate_upstream_commits(
+        prepared.worktree_path,
+        [{"task_id":"missing", "commit_shas":[missing]}],
+    )
+
+    target = Path(prepared.worktree_path)
+    assert result.status == "missing_commit"
+    assert result.conflicted_commit == missing
+    assert _git(target, "rev-parse", "HEAD") == base
+    assert _git(target, "status", "--porcelain") == ""
+
+
+def test_preintegrate_dirty_workspace_defers_without_mutation(tmp_path):
+    repo = _repo(tmp_path)
+    _git(repo, "checkout", "-b", "agent-a")
+    (repo / "a.txt").write_text("a\n", encoding="utf-8")
+    commit_a = _commit(repo, "agent a")
+    _git(repo, "checkout", "master")
+    base = _git(repo, "rev-parse", "HEAD")
+
+    contract = build_worktree_contract(
+        repository="owner/repo",
+        workflow_id="wf-dirty",
+        task_id="integration",
+        attempt=1,
+        base_ref=base,
+        integration_target=True,
+    )
+    prepared = prepare_isolated_worktree(
+        repo,
+        contract,
+        worktree_root=tmp_path / "worktrees",
+    )
+    target = Path(prepared.worktree_path)
+    (target / "resume.tmp").write_text("in progress", encoding="utf-8")
+
+    result = preintegrate_upstream_commits(
+        target,
+        [{"task_id":"a", "commit_shas":[commit_a]}],
+    )
+
+    assert result.status == "deferred_dirty_workspace"
+    assert result.applied_commits == ()
+    assert _git(target, "rev-parse", "HEAD") == base
+    assert (target / "resume.tmp").is_file()
