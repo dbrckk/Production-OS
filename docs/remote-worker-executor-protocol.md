@@ -223,3 +223,44 @@ The executor also receives
 `PRODUCTION_OS_INTEGRATION_PREFLIGHT_STATUS`. A conflict is deliberately not
 treated as a worker failure: the executor receives a clean worktree plus the
 conflict report and may perform a higher-level/manual reconciliation.
+
+
+## Verified Git result evidence
+
+When Production OS manages a job's Git worktree, executor success is no longer
+accepted solely from the executor's JSON declaration.
+
+Immediately before launching the executor the worker records the authoritative
+Git HEAD. After a reported `succeeded` result it re-inspects the worktree and
+adds:
+
+```json
+{
+  "executor_git": {
+    "schema_version": "production-os/worktree-result/v1",
+    "base_sha": "...",
+    "executor_start_sha": "...",
+    "final_sha": "...",
+    "clean": true,
+    "base_is_ancestor": true,
+    "commits_since_base": ["..."],
+    "commits_since_start": ["..."],
+    "changed_files": ["..."]
+  }
+}
+```
+
+For managed worktrees:
+
+- a dirty worktree converts the claimed success into
+  `executor_worktree_dirty`;
+- rewritten/diverged history converts success into
+  `executor_worktree_history_diverged`;
+- `commit_shas` is replaced with Git-derived commit evidence;
+- when the task makes no new commit, the current final SHA is still reported,
+  allowing validation/review stages to propagate the exact repository state;
+- `changed_files` is derived from the committed diff from the task base.
+
+This makes the worker, rather than model-authored JSON, authoritative for Git
+state and prevents downstream tasks from silently losing the integrated branch
+when an intermediate validation stage performs no mutation.
