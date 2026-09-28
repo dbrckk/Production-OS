@@ -182,25 +182,50 @@ def test_invalid_learned_skill_does_not_corrupt_successful_result(tmp_path):
     )
     engine.dispatch_ready(workflow["id"])
 
+    current = engine.record_result(
+        workflow["id"],
+        "task",
+        succeeded=True,
+        result={
+            "summary":"work succeeded",
+            "learned_skill":{
+                "schema_version":"bad-schema",
+                "title":"Bad",
+                "procedure":["one"],
+            },
+        },
+    )
+
+    task = current["tasks"][0]
+    assert task["status"] == "succeeded"
+    assert engine.skills.select(
+        repository="owner/repo",
+        task="Do work",
+        capabilities=[],
+    ) == []
+
+
+def test_learned_skill_rejects_secret_like_material(tmp_path):
+    backend = SQLiteBackend(tmp_path / "skills.sqlite")
+    store = SkillStore(backend)
+
     try:
-        engine.record_result(
-            workflow["id"],
-            "task",
-            succeeded=True,
+        store.record_success(
+            repository="owner/repo",
+            task="Configure deployment",
+            capabilities=["code-implementation"],
             result={
-                "summary":"work succeeded",
                 "learned_skill":{
-                    "schema_version":"bad-schema",
-                    "title":"Bad",
-                    "procedure":["one"],
+                    "schema_version":SKILL_SCHEMA,
+                    "title":"Configure deployment",
+                    "trigger_terms":["deployment"],
+                    "procedure":[
+                        "Set token=abcdefghijklmnop before deployment.",
+                    ],
                 },
             },
         )
-    except ValueError:
-        pass
+    except ValueError as exc:
+        assert "credentials or secrets" in str(exc)
     else:
-        raise AssertionError("invalid learned skill must be rejected before acceptance")
-
-    current = engine.get(workflow["id"])
-    task = current["tasks"][0]
-    assert task["status"] == "queued"
+        raise AssertionError("secret-like learned procedure must be rejected")
