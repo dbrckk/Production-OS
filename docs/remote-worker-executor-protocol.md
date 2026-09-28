@@ -184,6 +184,47 @@ credential configuration. Explicit `--repository-root` mappings take
 precedence over the automatic cache.
 
 
+## Automatic integration preflight
+
+For an isolation contract with `integration_target=true`, the remote worker
+can pre-apply commit evidence from `handoff.upstream_context` before launching
+the external executor.
+
+The worker processes validated commit SHAs in dependency order:
+
+1. commits already reachable from the integration worktree are skipped;
+2. clean commits are cherry-picked automatically;
+3. if a commit is missing, the worktree is reset to its starting SHA;
+4. if a cherry-pick conflicts, the cherry-pick is aborted and the entire
+   preflight is reset to its starting SHA;
+5. if the worktree is already dirty (for example a resumed executor workspace),
+   automatic integration is deferred and no mutation occurs.
+
+The JSON executor request may then contain:
+
+```json
+{
+  "integration_preflight": {
+    "status": "integrated",
+    "starting_sha": "...",
+    "final_sha": "...",
+    "candidate_commits": ["..."],
+    "applied_commits": ["..."],
+    "skipped_commits": []
+  }
+}
+```
+
+Possible statuses are `noop`, `integrated`, `conflict`,
+`missing_commit`, and `deferred_dirty_workspace`. Conflict reports include
+the conflicting commit and unresolved file paths when Git can identify them.
+
+The executor also receives
+`PRODUCTION_OS_INTEGRATION_PREFLIGHT_STATUS`. A conflict is deliberately not
+treated as a worker failure: the executor receives a clean worktree plus the
+conflict report and may perform a higher-level/manual reconciliation.
+
+
 ## Learned skill memory
 
 Successful executors may optionally return a reusable procedure under
