@@ -490,9 +490,10 @@
         "tests/test_capabilities_graph.py",
         "tests/test_classification_history_reuse.py",
         "tests/test_controller_asset_capabilities.py",
+        "tests/test_skill_memory.py",
         "tests/test_worker_compose_deployment.py"
       ],
-      "in_degree": 14,
+      "in_degree": 15,
       "out_degree": 2
     },
     "src/production_os/change_impact.py": {
@@ -1262,9 +1263,10 @@
         "tests/test_control_plane_release.py",
         "tests/test_dynamic_agent_fanout.py",
         "tests/test_release_ledger.py",
-        "tests/test_rollback_plan.py"
+        "tests/test_rollback_plan.py",
+        "tests/test_skill_memory.py"
       ],
-      "in_degree": 13,
+      "in_degree": 14,
       "out_degree": 1
     },
     "src/production_os/journal.py": {
@@ -4060,13 +4062,15 @@
     "tests/test_skill_memory.py": {
       "dependencies": [
         "src/production_os/__init__.py",
+        "src/production_os/capabilities.py",
+        "src/production_os/history.py",
         "src/production_os/skill_memory.py",
         "src/production_os/sqlite_backend.py",
         "src/production_os/workflow_engine.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 4
+      "out_degree": 6
     },
     "tests/test_source_tree.py": {
       "dependencies": [

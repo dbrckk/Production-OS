@@ -5582,6 +5582,8 @@ executor = tmp_path / "worktree_executor.py"
 ⋮----
 result = execution["result_summary"]
 ⋮----
+branch_file = subprocess.run(
+⋮----
 def test_remote_worker_runner_preintegrates_multi_parent_commits(tmp_path)
 ⋮----
 repo = tmp_path / "integration-repo"
@@ -5933,6 +5935,42 @@ current = engine.record_result(
 task = current["tasks"][0]
 ⋮----
 def test_learned_skill_rejects_secret_like_material(tmp_path)
+⋮----
+def test_verified_skill_can_transfer_cross_repository_after_two_validations(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "skills-transfer.sqlite")
+⋮----
+def test_unverified_repetition_does_not_promote_skill_cross_repository(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "skills-unverified.sqlite")
+⋮----
+learned = None
+⋮----
+def test_cross_repo_transfer_requires_capability_match_when_requested(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "skills-capability.sqlite")
+⋮----
+def test_failed_reuse_penalizes_injected_skill_confidence(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "skill-feedback.sqlite")
+⋮----
+learned = engine.skills.record_success(
+⋮----
+jobs = engine.dispatch_ready(workflow["id"])
+injected = jobs[0]["payload"]["handoff"]["learned_skills"]
+⋮----
+row = db.execute(
+⋮----
+def test_successful_reuse_slightly_boosts_skill_confidence(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "skill-feedback-success.sqlite")
+⋮----
+def test_skill_schema_upgrade_columns_exist(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "skill-schema.sqlite")
+⋮----
+columns = {
+version = db.execute(
 ```
 
 ## File: test_source_tree.py

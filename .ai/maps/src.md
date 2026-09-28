@@ -6166,7 +6166,7 @@ def _utcnow() -> str
 ⋮----
 class PostgresBackend
 ⋮----
-SCHEMA_VERSION = 16
+SCHEMA_VERSION = 17
 ⋮----
 def __init__(self, dsn: str)
 ⋮----
@@ -7115,6 +7115,10 @@ commits = list(
 ⋮----
 commits = [str(git_result["final_sha"])]
 ⋮----
+# Completion is already authoritative. Cleanup is
+# best-effort and must not turn a completed job into
+# a failure.
+⋮----
 reason = str(
 ⋮----
 outcomes: list[dict] = []
@@ -7690,7 +7694,9 @@ trigger_terms: tuple[str, ...]
 capabilities: tuple[str, ...]
 procedure: tuple[str, ...]
 successes: int
+verified_successes: int
 uses: int
+failed_uses: int
 confidence: float
 source_task: str
 ⋮----
@@ -7718,6 +7724,9 @@ normalized_capabilities = tuple(sorted(set(
 canonical = json.dumps({
 skill_id = hashlib.sha256(canonical.encode("utf-8")).hexdigest()[:32]
 ⋮----
+@staticmethod
+    def _from_row(row) -> LearnedSkill
+⋮----
 payload = result.get("learned_skill")
 ⋮----
 validation = result.get("validation")
@@ -7727,15 +7736,33 @@ now = _now()
 row = _execute(
 ⋮----
 successes = 1
+verified_successes = 1 if verified else 0
 uses = 0
+failed_uses = 0
 confidence = 0.8 if verified else 0.6
 ⋮----
 successes = int(row["successes"]) + 1
+verified_successes = (
 uses = int(row["uses"])
+failed_uses = int(row["failed_uses"])
 previous_confidence = float(row["confidence"])
-learned_confidence = (
+⋮----
+target = (
 confidence = min(
 ⋮----
+target = 0.58 + min(successes, 8) * 0.02
+⋮----
+ids = list(dict.fromkeys(
+⋮----
+confidence = float(row["confidence"])
+⋮----
+confidence = min(0.98, round(confidence + 0.015, 3))
+last_failure_at = row["last_failure_at"]
+⋮----
+confidence = max(0.2, round(confidence - 0.12, 3))
+last_failure_at = now
+⋮----
+query_repository = str(repository)
 query_terms = set(_terms(task))
 query_caps = {
 ⋮----
@@ -7745,9 +7772,9 @@ scored: list[tuple[float, LearnedSkill]] = []
 ⋮----
 terms = tuple(json.loads(row["trigger_terms_json"]))
 caps = tuple(json.loads(row["capabilities_json"]))
-procedure = tuple(json.loads(row["procedure_json"]))
 term_overlap = len(query_terms.intersection(terms))
 cap_overlap = len(query_caps.intersection(caps))
+same_repo = str(row["repository"]) == query_repository
 ⋮----
 score = (
 ⋮----
@@ -7833,7 +7860,7 @@ def _utcnow() -> str
 ⋮----
 class SQLiteBackend
 ⋮----
-SCHEMA_VERSION = 16
+SCHEMA_VERSION = 17
 ⋮----
 def __init__(self, path: str | Path)
 ⋮----
@@ -7849,6 +7876,8 @@ connection = self.connect()
 def initialize(self) -> None
 ⋮----
 managed_columns = {
+⋮----
+skill_columns = {
 ⋮----
 remediation_columns = {
 ⋮----
@@ -8963,6 +8992,18 @@ status = "ready"
 status = "failed"
 ⋮----
 task_payload = json.loads(row["payload_json"])
+reused_skill_ids: list[str] = []
+claimed_job_key = str(row["claimed_job_key"] or "")
+⋮----
+claimed_job = self.queue.get(claimed_job_key)
+⋮----
+claimed_job = None
+⋮----
+claimed_payload = dict(claimed_job.get("payload") or {})
+claimed_handoff = dict(
+learned = claimed_handoff.get("learned_skills")
+⋮----
+reused_skill_ids = [
 ⋮----
 handoff_payload = dict(task_payload.get("handoff") or {})
 ⋮----

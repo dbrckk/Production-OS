@@ -1,24 +1,26 @@
 # Change impact
 
-Base: 9e0d6907d42aa0d33cb2b71967b453f622b313d2
-Head: c8b8a8b388502f3d4899141943492bb2e059cdce
+Base: b47306cc83adcf4fe64fc27fb25ea4cb08074803
+Head: cb565a02e867a1123b32c31bad9412c25fe09fe6
 
 ## Changed files
-- M compose.worker.yaml
-- A src/production_os/browser_computer.py
-- M src/production_os/cli.py
+- M src/production_os/postgres_backend.py
+- M src/production_os/skill_memory.py
+- M src/production_os/sqlite_backend.py
 - M src/production_os/workflow_engine.py
-- A tests/test_browser_computer.py
-- M tests/test_worker_compose_deployment.py
+- M tests/test_dashboard_control_audit.py
+- M tests/test_dashboard_remediation_history.py
+- M tests/test_dashboard_store_postgres.py
+- M tests/test_skill_memory.py
 
 ## Affected areas
-- (root)
 - src
 - tests
 
 ## Related test candidates
-- tests/test_browser_computer.py
-- tests/test_cli.py
+- tests/test_postgres_backend.py
+- tests/test_skill_memory.py
+- tests/test_sqlite_backend.py
 - tests/test_workflow_engine.py
 
 ## Agent guidance

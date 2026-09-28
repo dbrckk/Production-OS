@@ -2,7 +2,7 @@
   "area": "src-production-os",
   "files": [
     {
-      "path": "src/production_os/workflow_engine.py",
+      "path": "src/production_os/sqlite_backend.py",
       "reasons": [
         "changed",
         "changed-source",
@@ -10,17 +10,10 @@
         "impact",
         "symbol-indexed"
       ],
-      "score": 1805
+      "score": 2705
     },
     {
-      "path": "src/production_os/sqlite_backend.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 1050
-    },
-    {
-      "path": "src/production_os/cli.py",
+      "path": "src/production_os/workflow_engine.py",
       "reasons": [
         "changed",
         "changed-source",
@@ -29,14 +22,14 @@
         "reverse-dependency-neighbor",
         "symbol-indexed"
       ],
-      "score": 1035
+      "score": 1890
     },
     {
       "path": "src/production_os/__init__.py",
       "reasons": [
         "dependency-neighbor"
       ],
-      "score": 825
+      "score": 1425
     },
     {
       "path": "src/production_os/control_plane.py",
@@ -46,7 +39,53 @@
         "reverse-dependency-neighbor",
         "symbol-indexed"
       ],
-      "score": 755
+      "score": 1215
+    },
+    {
+      "path": "src/production_os/postgres_backend.py",
+      "reasons": [
+        "changed",
+        "changed-source",
+        "dependency-neighbor",
+        "impact",
+        "symbol-indexed"
+      ],
+      "score": 880
+    },
+    {
+      "path": "src/production_os/cli.py",
+      "reasons": [
+        "dependency-neighbor",
+        "impact",
+        "reverse-dependency-neighbor",
+        "symbol-indexed"
+      ],
+      "score": 875
+    },
+    {
+      "path": "src/production_os/workers.py",
+      "reasons": [
+        "dependency-neighbor"
+      ],
+      "score": 800
+    },
+    {
+      "path": "src/production_os/api_auth.py",
+      "reasons": [
+        "dependency-neighbor"
+      ],
+      "score": 725
+    },
+    {
+      "path": "src/production_os/remote_worker_runner.py",
+      "reasons": [
+        "changed",
+        "changed-source",
+        "dependency-neighbor",
+        "impact",
+        "symbol-indexed"
+      ],
+      "score": 700
     },
     {
       "path": "src/production_os/managed_projects.py",
@@ -59,7 +98,7 @@
       "score": 605
     },
     {
-      "path": "src/production_os/browser_computer.py",
+      "path": "src/production_os/skill_memory.py",
       "reasons": [
         "changed",
         "changed-source",
@@ -67,35 +106,22 @@
         "impact",
         "symbol-indexed"
       ],
+      "score": 510
+    },
+    {
+      "path": "src/production_os/remote_worker.py",
+      "reasons": [
+        "dependency-neighbor"
+      ],
       "score": 425
     },
     {
-      "path": "src/production_os/workers.py",
+      "path": "src/production_os/dashboard_store.py",
       "reasons": [
-        "dependency-neighbor"
+        "dependency-neighbor",
+        "reverse-dependency-neighbor"
       ],
-      "score": 350
-    },
-    {
-      "path": "src/production_os/api_auth.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 325
-    },
-    {
-      "path": "src/production_os/github_client.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 250
-    },
-    {
-      "path": "src/production_os/release_ledger.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 250
+      "score": 380
     }
   ],
   "generated_by": "dbrckk/repo-brain-v6",

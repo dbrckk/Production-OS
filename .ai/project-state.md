@@ -22,36 +22,36 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-28T06:07:25Z
+Generated: 2026-09-28T06:57:54Z
 
 ### Git
 - Branch: `main`
-- Head: `c8b8a8b38850`
-- Commit date: 2026-09-28T08:07:13+02:00
-- Commit: feat(browser): add bounded persistent computer-use runtime
+- Head: `f394adeef577`
+- Commit date: 2026-09-28T08:57:11+02:00
+- Commit: feat(runtime): clean successful worktrees without deleting branches
 - Tracked files: 498
 
 ### Recently changed files
-- `compose.worker.yaml`
-- `src/production_os/browser_computer.py`
-- `src/production_os/cli.py`
-- `src/production_os/workflow_engine.py`
-- `tests/test_browser_computer.py`
-- `tests/test_worker_compose_deployment.py`
+- `src/production_os/remote_worker_runner.py`
+- `tests/test_remote_worker_runner.py`
 - `src/production_os/postgres_backend.py`
 - `src/production_os/skill_memory.py`
 - `src/production_os/sqlite_backend.py`
+- `src/production_os/workflow_engine.py`
 - `tests/test_dashboard_control_audit.py`
 - `tests/test_dashboard_remediation_history.py`
 - `tests/test_dashboard_store_postgres.py`
-- `tests/test_postgres_backend.py`
 - `tests/test_skill_memory.py`
+- `compose.worker.yaml`
+- `src/production_os/browser_computer.py`
+- `src/production_os/cli.py`
+- `tests/test_browser_computer.py`
+- `tests/test_worker_compose_deployment.py`
+- `tests/test_postgres_backend.py`
 - `src/production_os/executor_worktree.py`
 - `src/production_os/filesystem_lock.py`
 - `src/production_os/repository_cache.py`
 - `tests/test_filesystem_lock.py`
-- `tests/test_repository_cache.py`
-- `docs/remote-worker-executor-protocol.md`
 
 ### Project signals
 - `pyproject.toml`
