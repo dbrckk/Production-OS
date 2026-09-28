@@ -123,3 +123,111 @@ def test_remote_worker_detects_superseded_generation(tmp_path):
         server.shutdown()
         server.server_close()
 
+
+
+
+def test_worker_heartbeat_catalog_drives_automatic_model_route(tmp_path):
+    auth=TokenAuthorizer([
+        {"name":"worker","role":"worker","sha256":token_digest("worker")},
+    ])
+    control=ControlPlane(str(tmp_path/"catalog.sqlite"),authorizer=auth)
+    control.workers.register("w1",["code-implementation"],1)
+
+    server=ThreadingHTTPServer(
+        ("127.0.0.1",0),
+        make_handler(control),
+    )
+    thread=threading.Thread(target=server.serve_forever,daemon=True)
+    thread.start()
+    try:
+        client=RemoteWorkerClient(
+            f"http://127.0.0.1:{server.server_port}",
+            "worker",
+            "w1",
+            ["code-implementation"],
+        )
+        capacity={
+            "model_candidates":[
+                {
+                    "provider":"local",
+                    "model":"qwen-code",
+                    "capabilities":["code-implementation"],
+                    "free":True,
+                    "priority":90,
+                },
+            ],
+        }
+        client.heartbeat(capacity=capacity)
+        client.heartbeat(capacity=capacity)
+
+        events=[
+            event
+            for event in control.backend.events_after(0,1000)
+            if event["event_type"]=="worker-model-catalog"
+        ]
+        assert len(events)==1
+        assert events[0]["task_key"]=="w1"
+        assert events[0]["payload"]["model_candidates"][0]["model"]=="qwen-code"
+
+        workflow=control.workflows.create(
+            name="catalog-auto-route",
+            repository="o/a",
+            tasks=[
+                control_plane.WorkflowTaskSpec(
+                    "code",
+                    "Code",
+                    {
+                        "handoff":{
+                            "repository":"o/a",
+                            "task":"Implement feature",
+                            "required_capabilities":["code-implementation"],
+                        },
+                    },
+                ),
+            ],
+        )
+        job=control.workflows.dispatch_ready(workflow["id"],limit=1)[0]
+        route=job["payload"]["handoff"]["model_route"]
+        assert route["provider"]=="local"
+        assert route["model"]=="qwen-code"
+    finally:
+        server.shutdown()
+        server.server_close()
+
+
+def test_worker_heartbeat_rejects_invalid_model_catalog(tmp_path):
+    auth=TokenAuthorizer([
+        {"name":"worker","role":"worker","sha256":token_digest("worker")},
+    ])
+    control=ControlPlane(str(tmp_path/"bad-catalog.sqlite"),authorizer=auth)
+    control.workers.register("w1",["python"],1)
+
+    server=ThreadingHTTPServer(
+        ("127.0.0.1",0),
+        make_handler(control),
+    )
+    thread=threading.Thread(target=server.serve_forever,daemon=True)
+    thread.start()
+    try:
+        client=RemoteWorkerClient(
+            f"http://127.0.0.1:{server.server_port}",
+            "worker",
+            "w1",
+            ["python"],
+        )
+        try:
+            client.heartbeat(capacity={
+                "model_candidates":[
+                    {
+                        "provider":"",
+                        "model":"bad",
+                    },
+                ],
+            })
+        except RuntimeError as exc:
+            assert "provider and model" in str(exc)
+        else:
+            raise AssertionError("invalid model catalog must be rejected")
+    finally:
+        server.shutdown()
+        server.server_close()
