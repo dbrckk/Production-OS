@@ -330,7 +330,7 @@ def compare_reports(
             and isinstance(right, (int, float))
             and not isinstance(right, bool)
         ):
-            return left - right
+            return round(float(left) - float(right), 12)
         return None
 
     return {
