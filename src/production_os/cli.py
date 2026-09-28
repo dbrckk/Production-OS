@@ -2042,13 +2042,25 @@ def run_remote_worker_run(args: argparse.Namespace) -> int:
     return 0
 
 
+def _browser_storage_state(args: argparse.Namespace) -> str | None:
+    explicit = str(args.storage_state or "").strip()
+    if explicit:
+        return explicit
+    runtime_workspace = str(
+        os.getenv("PRODUCTION_OS_RUNTIME_WORKSPACE") or ""
+    ).strip()
+    if not runtime_workspace:
+        return None
+    return str(Path(runtime_workspace) / "browser-state.json")
+
+
 def run_browser_plan(args: argparse.Namespace) -> int:
     payload = json.loads(Path(args.plan).read_text(encoding="utf-8"))
     plan = validate_browser_plan(payload)
     result = execute_browser_plan(
         plan,
         artifacts_dir=args.artifacts_dir,
-        storage_state_path=args.storage_state or None,
+        storage_state_path=_browser_storage_state(args),
         headless=not bool(args.headed),
     )
     print(json.dumps(result, indent=2, ensure_ascii=False))
