@@ -4594,3 +4594,40 @@ The overlay adds a control-plane health check and starts the worker only after `
 The executor remains external and is mounted read-only from `PRODUCTION_OS_WORKER_EXECUTOR_DIR` (default `./worker`). Concurrency, heartbeat interval, executor timeout and ACK timeout are configurable through environment variables.
 
 The worker container uses Docker init/reaping and a 15-second stop grace period so SIGTERM can flow through the Release 53 cooperative shutdown path, terminate active executor children, publish the final zero-active heartbeat and leave unfinished jobs recoverable.
+
+
+## 24/7 autonomous controller
+
+Production-OS can run the portfolio control loop continuously instead of for a
+fixed number of cycles:
+
+```bash
+production-os controller \
+  --owner dbrckk \
+  --database artifacts/production.db \
+  --queue-dir artifacts/controller-queue \
+  --snapshot-dir artifacts/snapshots \
+  --metrics artifacts/controller-metrics.json \
+  --health artifacts/controller-health.json \
+  --journal artifacts/controller-journal.jsonl \
+  --daemon
+```
+
+Daemon mode keeps the existing bounded controller behavior unchanged. It runs
+until SIGTERM or SIGINT, stops cooperatively, and retries failed control cycles
+with bounded exponential backoff instead of terminating the orchestrator.
+Health and metrics are updated on failed cycles so external supervision can
+distinguish a living-but-degraded controller from a stopped process.
+
+The Compose deployment exposes an optional profile:
+
+```bash
+PRODUCTION_OS_GITHUB_OWNER=dbrckk \
+docker compose --profile controller-daemon up -d
+```
+
+The daemon shares the durable Production-OS database and artifact volume, uses
+`restart: unless-stopped`, and therefore resumes portfolio scheduling after
+container or host restarts. Configure
+`PRODUCTION_OS_CONTROLLER_INTERVAL_SECONDS` and
+`PRODUCTION_OS_CONTROLLER_MAX_BACKOFF_SECONDS` to tune cadence and recovery.
