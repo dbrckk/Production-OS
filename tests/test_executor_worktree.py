@@ -281,7 +281,7 @@ def test_preintegrate_upstream_commits_applies_clean_independent_changes(tmp_pat
     (repo / "b.txt").write_text("b\n", encoding="utf-8")
     commit_b = _commit(repo, "agent b")
 
-    _git(repo, "checkout", "master")
+    _git(repo, "checkout", base_branch)
     contract = build_worktree_contract(
         repository="owner/repo",
         workflow_id="wf-integration",
@@ -317,17 +317,18 @@ def test_preintegrate_upstream_commits_applies_clean_independent_changes(tmp_pat
 def test_preintegrate_conflict_rolls_back_entire_preflight(tmp_path):
     repo = _repo(tmp_path)
     base = _git(repo, "rev-parse", "HEAD")
+    base_branch = _current_branch(repo)
 
     _git(repo, "checkout", "-b", "agent-a")
     (repo / "README.md").write_text("from-a\n", encoding="utf-8")
     commit_a = _commit(repo, "agent a conflict")
 
-    _git(repo, "checkout", "master")
+    _git(repo, "checkout", base_branch)
     _git(repo, "checkout", "-b", "agent-b")
     (repo / "README.md").write_text("from-b\n", encoding="utf-8")
     commit_b = _commit(repo, "agent b conflict")
 
-    _git(repo, "checkout", "master")
+    _git(repo, "checkout", base_branch)
     contract = build_worktree_contract(
         repository="owner/repo",
         workflow_id="wf-conflict",
@@ -395,7 +396,7 @@ def test_preintegrate_dirty_workspace_defers_without_mutation(tmp_path):
     _git(repo, "checkout", "-b", "agent-a")
     (repo / "a.txt").write_text("a\n", encoding="utf-8")
     commit_a = _commit(repo, "agent a")
-    _git(repo, "checkout", "master")
+    _git(repo, "checkout", base_branch)
     base = _git(repo, "rev-parse", "HEAD")
 
     contract = build_worktree_contract(
