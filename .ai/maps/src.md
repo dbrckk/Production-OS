@@ -4561,6 +4561,25 @@ common = Path(common_raw)
 common = (repo / common).resolve()
 ⋮----
 common = common.resolve()
+⋮----
+branch = str(integrated_branch or "").strip()
+parts = branch.split("/")
+⋮----
+prefix = f"production-os/{parts[1]}/"
+⋮----
+listed = _git(
+candidates = sorted({
+⋮----
+deleted: list[str] = []
+retained: list[str] = []
+⋮----
+integrated = ancestor.returncode == 0
+⋮----
+cherry = _git(
+rows = [
+integrated = (
+⋮----
+removed = _git(
 ```
 
 ## File: production_os/fairness.py

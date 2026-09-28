@@ -3242,6 +3242,18 @@ final_sha = _git(target, "rev-parse", "HEAD")
 evidence = inspect_worktree_result(
 ⋮----
 def test_inspect_worktree_result_reports_uncommitted_changes(tmp_path)
+⋮----
+def test_prune_integrated_workflow_branches_deletes_only_ancestors(tmp_path)
+⋮----
+prefix = "production-os/wf-prune"
+⋮----
+integrated = f"{prefix}/integration"
+⋮----
+result = prune_integrated_workflow_branches(repo, integrated)
+⋮----
+branches = set(_git(repo, "branch", "--format=%(refname:short)").splitlines())
+⋮----
+def test_prune_integrated_workflow_branches_rejects_foreign_branch(tmp_path)
 ```
 
 ## File: test_fairness.py
@@ -5597,6 +5609,8 @@ commit_b = subprocess.run(
 executor = tmp_path / "integration_executor.py"
 ⋮----
 preflight = execution["result_summary"]["preflight"]
+⋮----
+branches = subprocess.run(
 ⋮----
 def test_remote_worker_runner_rejects_success_with_dirty_worktree(tmp_path)
 ⋮----

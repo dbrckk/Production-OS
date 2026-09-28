@@ -22,17 +22,20 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-28T06:57:54Z
+Generated: 2026-09-28T07:04:15Z
 
 ### Git
 - Branch: `main`
-- Head: `f394adeef577`
-- Commit date: 2026-09-28T08:57:11+02:00
-- Commit: feat(runtime): clean successful worktrees without deleting branches
+- Head: `89d771cce043`
+- Commit date: 2026-09-28T09:04:02+02:00
+- Commit: feat(runtime): prune integrated workflow branches safely
 - Tracked files: 498
 
 ### Recently changed files
+- `docs/remote-worker-executor-protocol.md`
+- `src/production_os/executor_worktree.py`
 - `src/production_os/remote_worker_runner.py`
+- `tests/test_executor_worktree.py`
 - `tests/test_remote_worker_runner.py`
 - `src/production_os/postgres_backend.py`
 - `src/production_os/skill_memory.py`
@@ -48,10 +51,6 @@ Generated: 2026-09-28T06:57:54Z
 - `tests/test_browser_computer.py`
 - `tests/test_worker_compose_deployment.py`
 - `tests/test_postgres_backend.py`
-- `src/production_os/executor_worktree.py`
-- `src/production_os/filesystem_lock.py`
-- `src/production_os/repository_cache.py`
-- `tests/test_filesystem_lock.py`
 
 ### Project signals
 - `pyproject.toml`
