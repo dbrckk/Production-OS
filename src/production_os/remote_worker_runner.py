@@ -12,9 +12,11 @@ from .agent_runtime import PersistentAgentRuntime
 from .executor_worktree import (
     IntegrationPreflight,
     PreparedWorktree,
+    WorktreeRuntimeError,
     inspect_worktree_result,
     preintegrate_upstream_commits,
     prepare_isolated_worktree,
+    remove_isolated_worktree,
 )
 from .remote_worker import RemoteJob, RemoteWorkerClient
 from .repository_cache import RepositoryCache
@@ -502,6 +504,17 @@ class RemoteWorkerRunner:
                     result_payload=result,
                     duration_seconds=duration,
                 )
+                if prepared_worktree is not None:
+                    try:
+                        remove_isolated_worktree(
+                            prepared_worktree.repository_root,
+                            prepared_worktree.worktree_path,
+                        )
+                    except (WorktreeRuntimeError, OSError):
+                        # Completion is already authoritative. Cleanup is
+                        # best-effort and must not turn a completed job into
+                        # a failure.
+                        pass
                 return {
                     "job_key":key,
                     "status":"completed",
