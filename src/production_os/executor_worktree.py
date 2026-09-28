@@ -7,6 +7,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from .filesystem_lock import filesystem_lock
+
 
 @dataclass(frozen=True, slots=True)
 class IntegrationPreflight:
@@ -89,7 +91,7 @@ def validate_repository_root(path: str | os.PathLike[str]) -> Path:
     return root
 
 
-def prepare_isolated_worktree(
+def _prepare_isolated_worktree_unlocked(
     repository_root: str | os.PathLike[str],
     contract: dict[str, Any],
     *,
@@ -159,7 +161,7 @@ def prepare_isolated_worktree(
     )
 
 
-def remove_isolated_worktree(
+def _remove_isolated_worktree_unlocked(
     repository_root: str | os.PathLike[str],
     worktree_path: str | os.PathLike[str],
     *,
@@ -200,7 +202,7 @@ def _validated_commit_candidates(upstream_context: list[dict[str, Any]]) -> list
     return candidates
 
 
-def preintegrate_upstream_commits(
+def _preintegrate_upstream_commits_unlocked(
     worktree_path: str | os.PathLike[str],
     upstream_context: list[dict[str, Any]],
 ) -> IntegrationPreflight:
@@ -434,3 +436,63 @@ def inspect_worktree_result(
         "commits_since_start":list(commits_since_start),
         "changed_files":list(changed_files)[:500],
     }
+
+
+
+def _repository_lock_path(
+    repository_path: str | os.PathLike[str],
+) -> Path:
+    repo = Path(repository_path).expanduser().resolve()
+    common_raw = _git(
+        repo,
+        "rev-parse",
+        "--git-common-dir",
+    ).stdout.strip()
+    common = Path(common_raw)
+    if not common.is_absolute():
+        common = (repo / common).resolve()
+    else:
+        common = common.resolve()
+    return common / "production-os.lock"
+
+
+def prepare_isolated_worktree(
+    repository_root: str | os.PathLike[str],
+    contract: dict[str, Any],
+    *,
+    worktree_root: str | os.PathLike[str],
+) -> PreparedWorktree:
+    root = validate_repository_root(repository_root)
+    with filesystem_lock(_repository_lock_path(root)):
+        return _prepare_isolated_worktree_unlocked(
+            root,
+            contract,
+            worktree_root=worktree_root,
+        )
+
+
+def remove_isolated_worktree(
+    repository_root: str | os.PathLike[str],
+    worktree_path: str | os.PathLike[str],
+    *,
+    force: bool = False,
+) -> None:
+    root = validate_repository_root(repository_root)
+    with filesystem_lock(_repository_lock_path(root)):
+        _remove_isolated_worktree_unlocked(
+            root,
+            worktree_path,
+            force=force,
+        )
+
+
+def preintegrate_upstream_commits(
+    worktree_path: str | os.PathLike[str],
+    upstream_context: list[dict[str, Any]],
+) -> IntegrationPreflight:
+    target = Path(worktree_path).expanduser().resolve()
+    with filesystem_lock(_repository_lock_path(target)):
+        return _preintegrate_upstream_commits_unlocked(
+            target,
+            upstream_context,
+        )
