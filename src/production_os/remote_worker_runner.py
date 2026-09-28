@@ -9,7 +9,12 @@ from collections.abc import Sequence
 from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
 
 from .agent_runtime import PersistentAgentRuntime
-from .executor_worktree import PreparedWorktree, prepare_isolated_worktree
+from .executor_worktree import (
+    IntegrationPreflight,
+    PreparedWorktree,
+    preintegrate_upstream_commits,
+    prepare_isolated_worktree,
+)
 from .remote_worker import RemoteJob, RemoteWorkerClient
 from .repository_cache import RepositoryCache
 
@@ -102,6 +107,26 @@ class RemoteWorkerRunner:
         if checkpoint.get("valid") and checkpoint.get("ref"):
             return str(checkpoint["ref"])
         return f"worker-runner://{self.client.worker_id}/{key}/stale"
+
+    def _integration_preflight(
+        self,
+        job: RemoteJob,
+        prepared_worktree: PreparedWorktree | None,
+    ) -> IntegrationPreflight | None:
+        if prepared_worktree is None:
+            return None
+        payload = dict(job.payload.get("payload") or {})
+        handoff = dict(payload.get("handoff") or {})
+        isolation = dict(handoff.get("isolation") or {})
+        if not bool(isolation.get("integration_target", False)):
+            return None
+        upstream = handoff.get("upstream_context")
+        if not isinstance(upstream, list):
+            return None
+        return preintegrate_upstream_commits(
+            prepared_worktree.worktree_path,
+            upstream,
+        )
 
     def _prepare_worktree(self, job: RemoteJob) -> PreparedWorktree | None:
         payload = dict(job.payload.get("payload") or {})
@@ -213,6 +238,10 @@ class RemoteWorkerRunner:
             }
             executor_env = self.executor_env.copy()
             prepared_worktree = self._prepare_worktree(job)
+            integration_preflight = self._integration_preflight(
+                job,
+                prepared_worktree,
+            )
             executor_cwd = None
             if prepared_worktree is not None:
                 request_payload["executor_workspace"] = (
@@ -229,6 +258,13 @@ class RemoteWorkerRunner:
                     "PRODUCTION_OS_WORKTREE_BASE":
                         prepared_worktree.base_ref,
                 })
+            if integration_preflight is not None:
+                request_payload["integration_preflight"] = (
+                    integration_preflight.to_dict()
+                )
+                executor_env["PRODUCTION_OS_INTEGRATION_PREFLIGHT_STATUS"] = (
+                    integration_preflight.status
+                )
             if runtime_context is not None:
                 request_payload["runtime"] = runtime_context.to_dict()
                 executor_env.update({

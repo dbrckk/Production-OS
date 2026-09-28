@@ -9,6 +9,38 @@ from typing import Any
 
 
 @dataclass(frozen=True, slots=True)
+class IntegrationPreflight:
+    status: str
+    starting_sha: str
+    final_sha: str
+    candidate_commits: tuple[str, ...]
+    applied_commits: tuple[str, ...]
+    skipped_commits: tuple[str, ...]
+    conflicted_commit: str | None = None
+    conflict_files: tuple[str, ...] = ()
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "status":self.status,
+            "starting_sha":self.starting_sha,
+            "final_sha":self.final_sha,
+            "candidate_commits":list(self.candidate_commits),
+            "applied_commits":list(self.applied_commits),
+            "skipped_commits":list(self.skipped_commits),
+            **(
+                {"conflicted_commit":self.conflicted_commit}
+                if self.conflicted_commit
+                else {}
+            ),
+            **(
+                {"conflict_files":list(self.conflict_files)}
+                if self.conflict_files
+                else {}
+            ),
+        }
+
+
+@dataclass(frozen=True, slots=True)
 class PreparedWorktree:
     repository_root: str
     worktree_path: str
@@ -146,3 +178,141 @@ def remove_isolated_worktree(
     if target.exists():
         shutil.rmtree(target, ignore_errors=True)
     _git(root, "worktree", "prune")
+
+
+
+def _validated_commit_candidates(upstream_context: list[dict[str, Any]]) -> list[str]:
+    candidates: list[str] = []
+    for row in upstream_context:
+        if not isinstance(row, dict):
+            continue
+        commits = row.get("commit_shas")
+        if not isinstance(commits, list):
+            continue
+        for raw in commits:
+            commit = str(raw or "").strip().lower()
+            if len(commit) not in {40, 64}:
+                continue
+            if any(char not in "0123456789abcdef" for char in commit):
+                continue
+            if commit not in candidates:
+                candidates.append(commit)
+    return candidates
+
+
+def preintegrate_upstream_commits(
+    worktree_path: str | os.PathLike[str],
+    upstream_context: list[dict[str, Any]],
+) -> IntegrationPreflight:
+    target = Path(worktree_path).expanduser().resolve()
+    if not target.is_dir():
+        raise WorktreeRuntimeError("integration worktree does not exist")
+
+    top = _git(target, "rev-parse", "--show-toplevel").stdout.strip()
+    if Path(top).resolve() != target:
+        raise WorktreeRuntimeError(
+            "integration worktree path must be the git top-level directory"
+        )
+
+    starting_sha = _git(target, "rev-parse", "HEAD").stdout.strip()
+    candidates = _validated_commit_candidates(upstream_context)
+    if not candidates:
+        return IntegrationPreflight(
+            status="noop",
+            starting_sha=starting_sha,
+            final_sha=starting_sha,
+            candidate_commits=(),
+            applied_commits=(),
+            skipped_commits=(),
+        )
+
+    dirty = _git(target, "status", "--porcelain").stdout.strip()
+    if dirty:
+        return IntegrationPreflight(
+            status="deferred_dirty_workspace",
+            starting_sha=starting_sha,
+            final_sha=starting_sha,
+            candidate_commits=tuple(candidates),
+            applied_commits=(),
+            skipped_commits=(),
+        )
+
+    applied: list[str] = []
+    skipped: list[str] = []
+    for commit in candidates:
+        exists = _git(
+            target,
+            "cat-file",
+            "-e",
+            f"{commit}^{{commit}}",
+            check=False,
+        )
+        if exists.returncode != 0:
+            _git(target, "reset", "--hard", starting_sha)
+            return IntegrationPreflight(
+                status="missing_commit",
+                starting_sha=starting_sha,
+                final_sha=starting_sha,
+                candidate_commits=tuple(candidates),
+                applied_commits=(),
+                skipped_commits=tuple(skipped),
+                conflicted_commit=commit,
+            )
+
+        ancestor = _git(
+            target,
+            "merge-base",
+            "--is-ancestor",
+            commit,
+            "HEAD",
+            check=False,
+        )
+        if ancestor.returncode == 0:
+            skipped.append(commit)
+            continue
+
+        picked = _git(
+            target,
+            "-c",
+            "user.name=Production OS",
+            "-c",
+            "user.email=production-os@localhost",
+            "cherry-pick",
+            commit,
+            check=False,
+        )
+        if picked.returncode != 0:
+            conflicts = tuple(
+                item.strip()
+                for item in _git(
+                    target,
+                    "diff",
+                    "--name-only",
+                    "--diff-filter=U",
+                    check=False,
+                ).stdout.splitlines()
+                if item.strip()
+            )
+            _git(target, "cherry-pick", "--abort", check=False)
+            _git(target, "reset", "--hard", starting_sha)
+            return IntegrationPreflight(
+                status="conflict",
+                starting_sha=starting_sha,
+                final_sha=starting_sha,
+                candidate_commits=tuple(candidates),
+                applied_commits=(),
+                skipped_commits=tuple(skipped),
+                conflicted_commit=commit,
+                conflict_files=conflicts,
+            )
+        applied.append(commit)
+
+    final_sha = _git(target, "rev-parse", "HEAD").stdout.strip()
+    return IntegrationPreflight(
+        status="integrated",
+        starting_sha=starting_sha,
+        final_sha=final_sha,
+        candidate_commits=tuple(candidates),
+        applied_commits=tuple(applied),
+        skipped_commits=tuple(skipped),
+    )
