@@ -312,3 +312,90 @@ def test_agent_benchmark_cli_parses_multiple_workflows_and_baseline():
     assert args.database == "benchmark.sqlite"
     assert args.workflow_id == ["wf-a", "wf-b"]
     assert args.baseline == "baseline.json"
+
+
+
+def test_benchmark_records_dynamic_planner_policy_and_actual_fanout(tmp_path):
+    backend, _queue, engine, _store = _build(tmp_path)
+    workflow = engine.create(
+        name="adaptive",
+        repository="owner/adaptive",
+        tasks=[
+            WorkflowTaskSpec(
+                task_id="planner",
+                title="Planner",
+                payload={
+                    "dynamic_agent_planner":{
+                        "max_agents":3,
+                        "planning_policy":{
+                            "source":"historical-benchmark",
+                            "sample_size":7,
+                            "max_agents":3,
+                        },
+                    },
+                },
+            ),
+            WorkflowTaskSpec(
+                task_id="planner.agent.code",
+                title="Code",
+                payload={"dynamic_agent_child":True},
+                dependencies=("planner",),
+            ),
+            WorkflowTaskSpec(
+                task_id="planner.agent.tests",
+                title="Tests",
+                payload={"dynamic_agent_child":True},
+                dependencies=("planner",),
+            ),
+        ],
+    )
+
+    row = AutonomousBenchmark(backend).workflow(workflow["id"])
+
+    assert row.planning_policy_source == "historical-benchmark"
+    assert row.planner_max_agents == 3
+    assert row.dynamic_agent_count == 2
+    payload = row.to_dict()
+    assert payload["planning_policy_source"] == "historical-benchmark"
+    assert payload["planner_max_agents"] == 3
+    assert payload["dynamic_agent_count"] == 2
+
+
+def test_benchmark_report_aggregates_planner_policy_observability(tmp_path):
+    backend, _queue, engine, _store = _build(tmp_path)
+    ids = []
+    for index, max_agents in enumerate((3, 5), start=1):
+        workflow = engine.create(
+            name=f"adaptive-{index}",
+            repository="owner/adaptive",
+            tasks=[
+                WorkflowTaskSpec(
+                    task_id="planner",
+                    title="Planner",
+                    payload={
+                        "dynamic_agent_planner":{
+                            "max_agents":max_agents,
+                            "planning_policy":{
+                                "source":"historical-benchmark",
+                                "max_agents":max_agents,
+                            },
+                        },
+                    },
+                ),
+                WorkflowTaskSpec(
+                    task_id="planner.agent.code",
+                    title="Code",
+                    payload={"dynamic_agent_child":True},
+                    dependencies=("planner",),
+                ),
+            ],
+        )
+        ids.append(workflow["id"])
+
+    report = AutonomousBenchmark(backend).report(ids)
+
+    assert report["dynamic_agent_count"] == 2
+    assert report["average_planner_max_agents"] == 4.0
+    assert report["planning_policy_sources"] == {
+        "historical-benchmark":2,
+    }
