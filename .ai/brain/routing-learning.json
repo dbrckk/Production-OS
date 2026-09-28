@@ -2,25 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat: release 27 backup age observability",
-      "terms": [
-        "27",
-        "age",
-        "backup",
-        "feat",
-        "observability",
-        "release"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/dashboard_backups.py",
-        "src/production_os/dashboard_ui.py",
-        "tests/test_dashboard_backups.py",
-        "tests/test_dashboard_ui_v3.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat: release 28 backup retention preview",
       "terms": [
         "28",
@@ -1260,6 +1241,30 @@
         "tests/test_filesystem_lock.py",
         "tests/test_repository_cache.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "feat(skills): learn and reuse validated execution skills",
+      "terms": [
+        "execution",
+        "feat",
+        "learn",
+        "reuse",
+        "skills",
+        "validated"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/postgres_backend.py",
+        "src/production_os/skill_memory.py",
+        "src/production_os/sqlite_backend.py",
+        "src/production_os/workflow_engine.py",
+        "tests/test_dashboard_control_audit.py",
+        "tests/test_dashboard_remediation_history.py",
+        "tests/test_dashboard_store_postgres.py",
+        "tests/test_postgres_backend.py",
+        "tests/test_skill_memory.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -2404,6 +2409,17 @@
       "tests/test_executor_worktree.py": 4,
       "tests/test_remote_worker_runner.py": 4
     },
+    "execution": {
+      "src/production_os/postgres_backend.py": 4,
+      "src/production_os/skill_memory.py": 4,
+      "src/production_os/sqlite_backend.py": 4,
+      "src/production_os/workflow_engine.py": 4,
+      "tests/test_dashboard_control_audit.py": 4,
+      "tests/test_dashboard_remediation_history.py": 4,
+      "tests/test_dashboard_store_postgres.py": 4,
+      "tests/test_postgres_backend.py": 4,
+      "tests/test_skill_memory.py": 4
+    },
     "executors": {
       "src/production_os/executor_worktree.py": 4,
       "src/production_os/remote_worker_runner.py": 4,
@@ -2478,15 +2494,16 @@
       "src/production_os/github_client.py": 28,
       "src/production_os/github_work_state.py": 12,
       "src/production_os/managed_projects.py": 40,
-      "src/production_os/postgres_backend.py": 36,
+      "src/production_os/postgres_backend.py": 40,
       "src/production_os/project_progress.py": 4,
       "src/production_os/remote_worker.py": 8,
       "src/production_os/remote_worker_runner.py": 40,
       "src/production_os/repository_cache.py": 4,
       "src/production_os/rollback_plan.py": 4,
+      "src/production_os/skill_memory.py": 4,
       "src/production_os/sqlite_backend.py": 40,
       "src/production_os/task_capabilities.py": 8,
-      "src/production_os/workflow_engine.py": 36,
+      "src/production_os/workflow_engine.py": 40,
       "src/production_os/worktree_contract.py": 4,
       "tests/test_agent_plan.py": 4,
       "tests/test_asset_forge.py": 16,
@@ -2499,9 +2516,8 @@
       "tests/test_dashboard_attention.py": 16,
       "tests/test_dashboard_backup_api.py": 32,
       "tests/test_dashboard_backups.py": 40,
-      "tests/test_dashboard_control.py": 4,
       "tests/test_dashboard_control_api.py": 8,
-      "tests/test_dashboard_control_audit.py": 24,
+      "tests/test_dashboard_control_audit.py": 28,
       "tests/test_dashboard_control_e2e.py": 12,
       "tests/test_dashboard_health.py": 8,
       "tests/test_dashboard_incident_signals.py": 8,
@@ -2509,9 +2525,9 @@
       "tests/test_dashboard_production_inbox_filters_ui.py": 16,
       "tests/test_dashboard_production_status.py": 8,
       "tests/test_dashboard_remediation_api.py": 12,
-      "tests/test_dashboard_remediation_history.py": 16,
+      "tests/test_dashboard_remediation_history.py": 20,
       "tests/test_dashboard_remediation_metrics.py": 12,
-      "tests/test_dashboard_store_postgres.py": 36,
+      "tests/test_dashboard_store_postgres.py": 40,
       "tests/test_dashboard_ui_v3.py": 40,
       "tests/test_managed_projects_http_v4.py": 8,
       "tests/test_managed_projects_v4.py": 12,
@@ -2787,6 +2803,17 @@
     "layout": {
       "src/production_os/dashboard_ui.py": 4,
       "tests/test_dashboard_mobile_stability.py": 4
+    },
+    "learn": {
+      "src/production_os/postgres_backend.py": 4,
+      "src/production_os/skill_memory.py": 4,
+      "src/production_os/sqlite_backend.py": 4,
+      "src/production_os/workflow_engine.py": 4,
+      "tests/test_dashboard_control_audit.py": 4,
+      "tests/test_dashboard_remediation_history.py": 4,
+      "tests/test_dashboard_store_postgres.py": 4,
+      "tests/test_postgres_backend.py": 4,
+      "tests/test_skill_memory.py": 4
     },
     "library": {
       "src/production_os/asset_forge.py": 4,
@@ -3550,10 +3577,19 @@
     "reuse": {
       "src/production_os/asset_forge.py": 4,
       "src/production_os/controller.py": 4,
+      "src/production_os/postgres_backend.py": 4,
       "src/production_os/reuse.py": 4,
+      "src/production_os/skill_memory.py": 4,
+      "src/production_os/sqlite_backend.py": 4,
+      "src/production_os/workflow_engine.py": 4,
       "tests/test_asset_forge.py": 4,
       "tests/test_classification_history_reuse.py": 4,
-      "tests/test_controller_asset_capabilities.py": 4
+      "tests/test_controller_asset_capabilities.py": 4,
+      "tests/test_dashboard_control_audit.py": 4,
+      "tests/test_dashboard_remediation_history.py": 4,
+      "tests/test_dashboard_store_postgres.py": 4,
+      "tests/test_postgres_backend.py": 4,
+      "tests/test_skill_memory.py": 4
     },
     "revalidate": {
       "src/production_os/asset_forge.py": 4
@@ -3750,6 +3786,17 @@
     "sidecars": {
       "src/production_os/asset_forge.py": 4,
       "tests/test_asset_forge.py": 4
+    },
+    "skills": {
+      "src/production_os/postgres_backend.py": 4,
+      "src/production_os/skill_memory.py": 4,
+      "src/production_os/sqlite_backend.py": 4,
+      "src/production_os/workflow_engine.py": 4,
+      "tests/test_dashboard_control_audit.py": 4,
+      "tests/test_dashboard_remediation_history.py": 4,
+      "tests/test_dashboard_store_postgres.py": 4,
+      "tests/test_postgres_backend.py": 4,
+      "tests/test_skill_memory.py": 4
     },
     "source": {
       "src/production_os/asset_forge.py": 4,
@@ -3996,6 +4043,17 @@
       "tests/test_managed_projects_http_v4.py": 4,
       "tests/test_managed_projects_v4.py": 4,
       "tests/test_workflow_postgres.py": 4
+    },
+    "validated": {
+      "src/production_os/postgres_backend.py": 4,
+      "src/production_os/skill_memory.py": 4,
+      "src/production_os/sqlite_backend.py": 4,
+      "src/production_os/workflow_engine.py": 4,
+      "tests/test_dashboard_control_audit.py": 4,
+      "tests/test_dashboard_remediation_history.py": 4,
+      "tests/test_dashboard_store_postgres.py": 4,
+      "tests/test_postgres_backend.py": 4,
+      "tests/test_skill_memory.py": 4
     },
     "validation": {
       "src/production_os/control_plane.py": 4,

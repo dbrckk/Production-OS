@@ -156,6 +156,7 @@ src/
     signer_factory.py
     signers.py
     signing.py
+    skill_memory.py
     source_tree.py
     speculation.py
     sqlite_backend.py
@@ -321,6 +322,7 @@ tests/
   test_self_healing_heartbeat.py
   test_signer_factory.py
   test_signers.py
+  test_skill_memory.py
   test_source_tree.py
   test_specialist_job_preferences.py
   test_speculation_api.py
@@ -6611,7 +6613,7 @@ def _utcnow() -> str
 ⋮----
 class PostgresBackend
 ⋮----
-SCHEMA_VERSION = 15
+SCHEMA_VERSION = 16
 ⋮----
 def __init__(self, dsn: str)
 ⋮----
@@ -8107,6 +8109,98 @@ public_key = load_public_key(public_key_pem)
 raw = base64.b64decode(
 ````
 
+## File: src/production_os/skill_memory.py
+````python
+SKILL_SCHEMA = "production-os/learned-skill/v1"
+_TERM = re.compile(r"[a-z0-9][a-z0-9._-]{1,63}")
+_SECRET_PATTERNS = (
+⋮----
+def _now() -> str
+⋮----
+def _is_postgres(backend) -> bool
+⋮----
+def _sql(backend, statement: str) -> str
+⋮----
+def _execute(db, backend, statement: str, params: tuple = ())
+⋮----
+def _terms(value: str) -> tuple[str, ...]
+⋮----
+rows = []
+⋮----
+@dataclass(frozen=True, slots=True)
+class LearnedSkill
+⋮----
+skill_id: str
+repository: str
+title: str
+trigger_terms: tuple[str, ...]
+capabilities: tuple[str, ...]
+procedure: tuple[str, ...]
+successes: int
+uses: int
+confidence: float
+source_task: str
+⋮----
+def to_dict(self) -> dict[str, Any]
+⋮----
+class SkillStore
+⋮----
+def __init__(self, backend)
+⋮----
+title = str(payload.get("title") or "").strip()
+⋮----
+raw_procedure = payload.get("procedure")
+⋮----
+procedure = tuple(
+⋮----
+secret_scan = "\n".join((title, *procedure))
+⋮----
+raw_terms = payload.get("trigger_terms")
+⋮----
+trigger_terms = _terms(task)
+⋮----
+trigger_terms = tuple(dict.fromkeys(
+⋮----
+normalized_capabilities = tuple(sorted(set(
+canonical = json.dumps({
+skill_id = hashlib.sha256(canonical.encode("utf-8")).hexdigest()[:32]
+⋮----
+payload = result.get("learned_skill")
+⋮----
+validation = result.get("validation")
+verified = (
+now = _now()
+⋮----
+row = _execute(
+⋮----
+successes = 1
+uses = 0
+confidence = 0.8 if verified else 0.6
+⋮----
+successes = int(row["successes"]) + 1
+uses = int(row["uses"])
+previous_confidence = float(row["confidence"])
+learned_confidence = (
+confidence = min(
+⋮----
+query_terms = set(_terms(task))
+query_caps = {
+⋮----
+rows = _execute(
+⋮----
+scored: list[tuple[float, LearnedSkill]] = []
+⋮----
+terms = tuple(json.loads(row["trigger_terms_json"]))
+caps = tuple(json.loads(row["capabilities_json"]))
+procedure = tuple(json.loads(row["procedure_json"]))
+term_overlap = len(query_terms.intersection(terms))
+cap_overlap = len(query_caps.intersection(caps))
+⋮----
+score = (
+⋮----
+selected = [
+````
+
 ## File: src/production_os/source_tree.py
 ````python
 TEXT_EXTENSIONS = {
@@ -8186,7 +8280,7 @@ def _utcnow() -> str
 ⋮----
 class SQLiteBackend
 ⋮----
-SCHEMA_VERSION = 15
+SCHEMA_VERSION = 16
 ⋮----
 def __init__(self, path: str | Path)
 ⋮----
@@ -9234,9 +9328,12 @@ retry_context = _retry_context(task.get("result"))
 ⋮----
 isolation = dict(payload.get("isolation") or {})
 ⋮----
-asset_forge = asset_forge_tool_contract(handoff)
+preferred_for_learning = [
+learned = self.skills.select(
 ⋮----
 contracts = dict(handoff.get("tool_contracts") or {})
+⋮----
+asset_forge = asset_forge_tool_contract(handoff)
 ⋮----
 queue_payload = {
 job = self.queue.enqueue(queue_payload)
@@ -9311,6 +9408,8 @@ status = "ready"
 status = "failed"
 ⋮----
 task_payload = json.loads(row["payload_json"])
+⋮----
+handoff_payload = dict(task_payload.get("handoff") or {})
 ⋮----
 refreshed = self.refresh(workflow_id)
 ⋮----
@@ -10806,7 +10905,7 @@ base = f"http://127.0.0.1:{server.server_port}"
 ⋮----
 events = payload["events"]
 ⋮----
-def test_release17_schema_is_v15_and_contains_managed_project_tables(tmp_path)
+def test_release17_schema_is_v16_and_contains_managed_project_tables(tmp_path)
 ⋮----
 backend = SQLiteBackend(tmp_path / "schema.sqlite")
 ⋮----
@@ -11636,7 +11735,7 @@ reopened = store.upsert_dashboard_incident(
 ⋮----
 after = store.remediation_events(limit=1)[0]
 ⋮----
-def test_sqlite_v14_database_is_migrated_additively_to_v15(tmp_path)
+def test_sqlite_v14_database_is_migrated_additively_to_v16(tmp_path)
 ⋮----
 path = tmp_path / "migration.sqlite"
 db = sqlite3.connect(path)
@@ -11800,7 +11899,7 @@ pytestmark = pytest.mark.skipif(
 ⋮----
 REQUIRED_EXECUTION_COLUMNS = {
 ⋮----
-def test_postgres_schema_v15_has_managed_project_generation_tables()
+def test_postgres_schema_v16_has_managed_project_generation_tables()
 ⋮----
 backend = PostgresBackend(DSN)
 ⋮----
@@ -13277,6 +13376,15 @@ claimed=queue.claim_next("worker-1",capabilities=["python"])
 def test_postgres_queued_job_can_be_cancelled_without_worker()
 ⋮----
 cancelled=queue.cancel_queued(queued["key"], reason="operator cancel")
+⋮----
+def test_postgres_learned_skill_storage_round_trip()
+⋮----
+backend = PostgresBackend(DSN)
+⋮----
+store = SkillStore(backend)
+learned = store.record_success(
+⋮----
+selected = store.select(
 ````
 
 ## File: tests/test_preemption.py
@@ -15042,6 +15150,49 @@ def test_slsa_and_witness_accept_signer_interface()
 statement={
 slsa=sign_slsa_statement_with_signer(
 witness=sign_checkpoint_with_signer(
+````
+
+## File: tests/test_skill_memory.py
+````python
+def test_skill_store_records_success_and_retrieves_relevant_skill(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "skills.sqlite")
+store = SkillStore(backend)
+⋮----
+learned = store.record_success(
+⋮----
+selected = store.select(
+⋮----
+def test_repeated_verified_skill_increases_confidence(tmp_path)
+⋮----
+result = {
+⋮----
+first = store.record_success(
+second = store.record_success(
+⋮----
+def test_skill_selection_is_repository_scoped(tmp_path)
+⋮----
+def test_workflow_injects_learned_skill_into_future_handoff(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "workflow.sqlite")
+queue = SQLiteJobQueue(backend)
+engine = WorkflowEngine(backend, queue)
+⋮----
+first = engine.create(
+⋮----
+second = engine.create(
+jobs = engine.dispatch_ready(second["id"])
+handoff = jobs[0]["payload"]["handoff"]
+⋮----
+def test_invalid_learned_skill_does_not_corrupt_successful_result(tmp_path)
+⋮----
+workflow = engine.create(
+⋮----
+current = engine.record_result(
+⋮----
+task = current["tasks"][0]
+⋮----
+def test_learned_skill_rejects_secret_like_material(tmp_path)
 ````
 
 ## File: tests/test_source_tree.py

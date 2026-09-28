@@ -22,16 +22,25 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-28T05:58:08Z
+Generated: 2026-09-28T06:00:13Z
 
 ### Git
 - Branch: `main`
-- Head: `1156579d523f`
-- Commit date: 2026-09-28T07:57:56+02:00
-- Commit: fix(runtime): serialize shared git cache and worktree mutations
-- Tracked files: 494
+- Head: `0e45ba98ef7c`
+- Commit date: 2026-09-28T08:00:02+02:00
+- Commit: feat(skills): learn and reuse validated execution skills
+- Tracked files: 496
 
 ### Recently changed files
+- `src/production_os/postgres_backend.py`
+- `src/production_os/skill_memory.py`
+- `src/production_os/sqlite_backend.py`
+- `src/production_os/workflow_engine.py`
+- `tests/test_dashboard_control_audit.py`
+- `tests/test_dashboard_remediation_history.py`
+- `tests/test_dashboard_store_postgres.py`
+- `tests/test_postgres_backend.py`
+- `tests/test_skill_memory.py`
 - `src/production_os/executor_worktree.py`
 - `src/production_os/filesystem_lock.py`
 - `src/production_os/repository_cache.py`
@@ -42,11 +51,7 @@ Generated: 2026-09-28T05:58:08Z
 - `tests/test_executor_worktree.py`
 - `tests/test_remote_worker_runner.py`
 - `src/production_os/managed_projects.py`
-- `src/production_os/workflow_engine.py`
 - `tests/test_dynamic_agent_fanout.py`
-- `tests/test_managed_dynamic_plan_outcome.py`
-- `tests/test_managed_project_outcome.py`
-- `tests/test_worktree_contract.py`
 
 ### Project signals
 - `pyproject.toml`

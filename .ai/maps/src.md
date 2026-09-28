@@ -141,6 +141,7 @@ production_os/
   signer_factory.py
   signers.py
   signing.py
+  skill_memory.py
   source_tree.py
   speculation.py
   sqlite_backend.py
@@ -6045,7 +6046,7 @@ def _utcnow() -> str
 ⋮----
 class PostgresBackend
 ⋮----
-SCHEMA_VERSION = 15
+SCHEMA_VERSION = 16
 ⋮----
 def __init__(self, dsn: str)
 ⋮----
@@ -7541,6 +7542,98 @@ public_key = load_public_key(public_key_pem)
 raw = base64.b64decode(
 ```
 
+## File: production_os/skill_memory.py
+```python
+SKILL_SCHEMA = "production-os/learned-skill/v1"
+_TERM = re.compile(r"[a-z0-9][a-z0-9._-]{1,63}")
+_SECRET_PATTERNS = (
+⋮----
+def _now() -> str
+⋮----
+def _is_postgres(backend) -> bool
+⋮----
+def _sql(backend, statement: str) -> str
+⋮----
+def _execute(db, backend, statement: str, params: tuple = ())
+⋮----
+def _terms(value: str) -> tuple[str, ...]
+⋮----
+rows = []
+⋮----
+@dataclass(frozen=True, slots=True)
+class LearnedSkill
+⋮----
+skill_id: str
+repository: str
+title: str
+trigger_terms: tuple[str, ...]
+capabilities: tuple[str, ...]
+procedure: tuple[str, ...]
+successes: int
+uses: int
+confidence: float
+source_task: str
+⋮----
+def to_dict(self) -> dict[str, Any]
+⋮----
+class SkillStore
+⋮----
+def __init__(self, backend)
+⋮----
+title = str(payload.get("title") or "").strip()
+⋮----
+raw_procedure = payload.get("procedure")
+⋮----
+procedure = tuple(
+⋮----
+secret_scan = "\n".join((title, *procedure))
+⋮----
+raw_terms = payload.get("trigger_terms")
+⋮----
+trigger_terms = _terms(task)
+⋮----
+trigger_terms = tuple(dict.fromkeys(
+⋮----
+normalized_capabilities = tuple(sorted(set(
+canonical = json.dumps({
+skill_id = hashlib.sha256(canonical.encode("utf-8")).hexdigest()[:32]
+⋮----
+payload = result.get("learned_skill")
+⋮----
+validation = result.get("validation")
+verified = (
+now = _now()
+⋮----
+row = _execute(
+⋮----
+successes = 1
+uses = 0
+confidence = 0.8 if verified else 0.6
+⋮----
+successes = int(row["successes"]) + 1
+uses = int(row["uses"])
+previous_confidence = float(row["confidence"])
+learned_confidence = (
+confidence = min(
+⋮----
+query_terms = set(_terms(task))
+query_caps = {
+⋮----
+rows = _execute(
+⋮----
+scored: list[tuple[float, LearnedSkill]] = []
+⋮----
+terms = tuple(json.loads(row["trigger_terms_json"]))
+caps = tuple(json.loads(row["capabilities_json"]))
+procedure = tuple(json.loads(row["procedure_json"]))
+term_overlap = len(query_terms.intersection(terms))
+cap_overlap = len(query_caps.intersection(caps))
+⋮----
+score = (
+⋮----
+selected = [
+```
+
 ## File: production_os/source_tree.py
 ```python
 TEXT_EXTENSIONS = {
@@ -7620,7 +7713,7 @@ def _utcnow() -> str
 ⋮----
 class SQLiteBackend
 ⋮----
-SCHEMA_VERSION = 15
+SCHEMA_VERSION = 16
 ⋮----
 def __init__(self, path: str | Path)
 ⋮----
@@ -8668,9 +8761,12 @@ retry_context = _retry_context(task.get("result"))
 ⋮----
 isolation = dict(payload.get("isolation") or {})
 ⋮----
-asset_forge = asset_forge_tool_contract(handoff)
+preferred_for_learning = [
+learned = self.skills.select(
 ⋮----
 contracts = dict(handoff.get("tool_contracts") or {})
+⋮----
+asset_forge = asset_forge_tool_contract(handoff)
 ⋮----
 queue_payload = {
 job = self.queue.enqueue(queue_payload)
@@ -8745,6 +8841,8 @@ status = "ready"
 status = "failed"
 ⋮----
 task_payload = json.loads(row["payload_json"])
+⋮----
+handoff_payload = dict(task_payload.get("handoff") or {})
 ⋮----
 refreshed = self.refresh(workflow_id)
 ⋮----

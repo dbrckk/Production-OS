@@ -152,6 +152,7 @@
         "tests/test_self_healing_heartbeat.py",
         "tests/test_signer_factory.py",
         "tests/test_signers.py",
+        "tests/test_skill_memory.py",
         "tests/test_source_tree.py",
         "tests/test_specialist_job_preferences.py",
         "tests/test_speculation.py",
@@ -177,7 +178,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 165,
+      "in_degree": 166,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -1889,6 +1890,16 @@
       "in_degree": 31,
       "out_degree": 0
     },
+    "src/production_os/skill_memory.py": {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/workflow_engine.py",
+        "tests/test_postgres_backend.py",
+        "tests/test_skill_memory.py"
+      ],
+      "in_degree": 3,
+      "out_degree": 0
+    },
     "src/production_os/source_tree.py": {
       "dependencies": [],
       "dependents": [
@@ -1949,6 +1960,7 @@
         "tests/test_release_ledger.py",
         "tests/test_result_cache.py",
         "tests/test_secure_release_e2e.py",
+        "tests/test_skill_memory.py",
         "tests/test_specialist_job_preferences.py",
         "tests/test_speculation.py",
         "tests/test_sqlite_backend.py",
@@ -1961,7 +1973,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 41,
+      "in_degree": 42,
       "out_degree": 5
     },
     "src/production_os/sqlite_migration.py": {
@@ -2232,6 +2244,7 @@
         "src/production_os/change_impact.py",
         "src/production_os/result_cache.py",
         "src/production_os/runtime_state.py",
+        "src/production_os/skill_memory.py",
         "src/production_os/task_capabilities.py",
         "src/production_os/workers.py",
         "src/production_os/worktree_contract.py",
@@ -2259,6 +2272,7 @@
         "tests/test_release_ledger.py",
         "tests/test_remote_worker.py",
         "tests/test_secure_release_e2e.py",
+        "tests/test_skill_memory.py",
         "tests/test_workflow_cache.py",
         "tests/test_workflow_change_impact.py",
         "tests/test_workflow_engine.py",
@@ -2266,8 +2280,8 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 27,
-      "out_degree": 8
+      "in_degree": 28,
+      "out_degree": 9
     },
     "src/production_os/worktree_contract.py": {
       "dependencies": [],
@@ -3490,11 +3504,12 @@
     "tests/test_postgres_backend.py": {
       "dependencies": [
         "src/production_os/__init__.py",
-        "src/production_os/postgres_backend.py"
+        "src/production_os/postgres_backend.py",
+        "src/production_os/skill_memory.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 2
+      "out_degree": 3
     },
     "tests/test_preemption.py": {
       "dependencies": [
@@ -4010,6 +4025,17 @@
       "dependents": [],
       "in_degree": 0,
       "out_degree": 5
+    },
+    "tests/test_skill_memory.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/skill_memory.py",
+        "src/production_os/sqlite_backend.py",
+        "src/production_os/workflow_engine.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 4
     },
     "tests/test_source_tree.py": {
       "dependencies": [

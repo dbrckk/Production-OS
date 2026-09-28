@@ -1,23 +1,28 @@
 # Change impact
 
-Base: bdde2ce158c22355d10d828c8a2eb72e0b0e9b51
-Head: 1156579d523f8c9b842a4090105b1b55bee514a8
+Base: a29cd588ae964391ff8d435525e09f6279129c61
+Head: 0e45ba98ef7c092d88ec5f22278e91d0b8fc1566
 
 ## Changed files
-- M src/production_os/executor_worktree.py
-- A src/production_os/filesystem_lock.py
-- M src/production_os/repository_cache.py
-- A tests/test_filesystem_lock.py
-- M tests/test_repository_cache.py
+- M src/production_os/postgres_backend.py
+- A src/production_os/skill_memory.py
+- M src/production_os/sqlite_backend.py
+- M src/production_os/workflow_engine.py
+- M tests/test_dashboard_control_audit.py
+- M tests/test_dashboard_remediation_history.py
+- M tests/test_dashboard_store_postgres.py
+- M tests/test_postgres_backend.py
+- A tests/test_skill_memory.py
 
 ## Affected areas
 - src
 - tests
 
 ## Related test candidates
-- tests/test_executor_worktree.py
-- tests/test_filesystem_lock.py
-- tests/test_repository_cache.py
+- tests/test_postgres_backend.py
+- tests/test_skill_memory.py
+- tests/test_sqlite_backend.py
+- tests/test_workflow_engine.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

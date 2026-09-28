@@ -182,6 +182,7 @@ test_secure_release_e2e.py
 test_self_healing_heartbeat.py
 test_signer_factory.py
 test_signers.py
+test_skill_memory.py
 test_source_tree.py
 test_specialist_job_preferences.py
 test_speculation_api.py
@@ -1643,7 +1644,7 @@ base = f"http://127.0.0.1:{server.server_port}"
 ⋮----
 events = payload["events"]
 ⋮----
-def test_release17_schema_is_v15_and_contains_managed_project_tables(tmp_path)
+def test_release17_schema_is_v16_and_contains_managed_project_tables(tmp_path)
 ⋮----
 backend = SQLiteBackend(tmp_path / "schema.sqlite")
 ⋮----
@@ -2473,7 +2474,7 @@ reopened = store.upsert_dashboard_incident(
 ⋮----
 after = store.remediation_events(limit=1)[0]
 ⋮----
-def test_sqlite_v14_database_is_migrated_additively_to_v15(tmp_path)
+def test_sqlite_v14_database_is_migrated_additively_to_v16(tmp_path)
 ⋮----
 path = tmp_path / "migration.sqlite"
 db = sqlite3.connect(path)
@@ -2637,7 +2638,7 @@ pytestmark = pytest.mark.skipif(
 ⋮----
 REQUIRED_EXECUTION_COLUMNS = {
 ⋮----
-def test_postgres_schema_v15_has_managed_project_generation_tables()
+def test_postgres_schema_v16_has_managed_project_generation_tables()
 ⋮----
 backend = PostgresBackend(DSN)
 ⋮----
@@ -4114,6 +4115,15 @@ claimed=queue.claim_next("worker-1",capabilities=["python"])
 def test_postgres_queued_job_can_be_cancelled_without_worker()
 ⋮----
 cancelled=queue.cancel_queued(queued["key"], reason="operator cancel")
+⋮----
+def test_postgres_learned_skill_storage_round_trip()
+⋮----
+backend = PostgresBackend(DSN)
+⋮----
+store = SkillStore(backend)
+learned = store.record_success(
+⋮----
+selected = store.select(
 ```
 
 ## File: test_preemption.py
@@ -5879,6 +5889,49 @@ def test_slsa_and_witness_accept_signer_interface()
 statement={
 slsa=sign_slsa_statement_with_signer(
 witness=sign_checkpoint_with_signer(
+```
+
+## File: test_skill_memory.py
+```python
+def test_skill_store_records_success_and_retrieves_relevant_skill(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "skills.sqlite")
+store = SkillStore(backend)
+⋮----
+learned = store.record_success(
+⋮----
+selected = store.select(
+⋮----
+def test_repeated_verified_skill_increases_confidence(tmp_path)
+⋮----
+result = {
+⋮----
+first = store.record_success(
+second = store.record_success(
+⋮----
+def test_skill_selection_is_repository_scoped(tmp_path)
+⋮----
+def test_workflow_injects_learned_skill_into_future_handoff(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "workflow.sqlite")
+queue = SQLiteJobQueue(backend)
+engine = WorkflowEngine(backend, queue)
+⋮----
+first = engine.create(
+⋮----
+second = engine.create(
+jobs = engine.dispatch_ready(second["id"])
+handoff = jobs[0]["payload"]["handoff"]
+⋮----
+def test_invalid_learned_skill_does_not_corrupt_successful_result(tmp_path)
+⋮----
+workflow = engine.create(
+⋮----
+current = engine.record_result(
+⋮----
+task = current["tasks"][0]
+⋮----
+def test_learned_skill_rejects_secret_like_material(tmp_path)
 ```
 
 ## File: test_source_tree.py
