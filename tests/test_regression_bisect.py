@@ -124,3 +124,23 @@ def test_regression_bisect_requires_full_shas(tmp_path):
             bad_sha=bad,
             test_command=[sys.executable, "bisect_test.py"],
         )
+
+
+
+def test_regression_bisect_cli_parses_bounded_runtime_options():
+    from production_os.cli import _parse_args
+
+    args = _parse_args([
+        "regression-bisect",
+        "--repository-root", "/tmp/repo",
+        "--good-sha", "a" * 40,
+        "--bad-sha", "b" * 40,
+        "--test-command", "python -m pytest tests/test_target.py",
+        "--timeout-seconds", "120",
+    ])
+
+    assert args.repository_root == "/tmp/repo"
+    assert args.good_sha == "a" * 40
+    assert args.bad_sha == "b" * 40
+    assert args.test_command == "python -m pytest tests/test_target.py"
+    assert args.timeout_seconds == 120.0
