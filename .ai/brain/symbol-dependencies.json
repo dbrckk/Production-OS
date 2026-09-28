@@ -7,26 +7,26 @@
   "symbols": {
     "_is_postgres": {
       "source": {
-        "file": "src/production_os/agent_benchmark.py",
-        "start": 13,
-        "end": 14
+        "file": "src/production_os/agent_planning_policy.py",
+        "start": 10,
+        "end": 11
       },
       "symbol_dependencies": [],
       "dependency_count": 0
     },
     "_sql": {
       "source": {
-        "file": "src/production_os/agent_benchmark.py",
-        "start": 17,
-        "end": 18
+        "file": "src/production_os/agent_planning_policy.py",
+        "start": 14,
+        "end": 15
       },
       "symbol_dependencies": [
         {
           "symbol": "_is_postgres",
           "definitions": [
             {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 13,
+              "file": "src/production_os/agent_planning_policy.py",
+              "line": 10,
               "kind": "function",
               "language": "python"
             }
@@ -36,59 +36,19 @@
       ],
       "dependency_count": 1
     },
-    "_execute": {
+    "AgentPlanningPolicy": {
       "source": {
-        "file": "src/production_os/agent_benchmark.py",
-        "start": 21,
-        "end": 22
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_sql",
-          "definitions": [
-            {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 17,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "_dt": {
-      "source": {
-        "file": "src/production_os/agent_benchmark.py",
-        "start": 25,
-        "end": 36
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "_validation_status": {
-      "source": {
-        "file": "src/production_os/agent_benchmark.py",
-        "start": 39,
-        "end": 51
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "WorkflowBenchmark": {
-      "source": {
-        "file": "src/production_os/agent_benchmark.py",
-        "start": 55,
-        "end": 105
+        "file": "src/production_os/agent_planning_policy.py",
+        "start": 19,
+        "end": 41
       },
       "symbol_dependencies": [
         {
           "symbol": "to_dict",
           "definitions": [
             {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 80,
+              "file": "src/production_os/agent_planning_policy.py",
+              "line": 30,
               "kind": "function",
               "language": "python"
             }
@@ -100,11 +60,23 @@
     },
     "to_dict": {
       "source": {
-        "file": "src/production_os/agent_benchmark.py",
-        "start": 80,
-        "end": 200
+        "file": "src/production_os/agent_planning_policy.py",
+        "start": 30,
+        "end": 150
       },
       "symbol_dependencies": [
+        {
+          "symbol": "AgentPlanningPolicy",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_planning_policy.py",
+              "line": 19,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
         {
           "symbol": "AutonomousBenchmark",
           "definitions": [
@@ -115,26 +87,14 @@
               "language": "python"
             }
           ],
-          "relation": "same_file"
+          "relation": "imported_module"
         },
         {
-          "symbol": "WorkflowBenchmark",
+          "symbol": "_sql",
           "definitions": [
             {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 55,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "__init__",
-          "definitions": [
-            {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 109,
+              "file": "src/production_os/agent_planning_policy.py",
+              "line": 14,
               "kind": "function",
               "language": "python"
             }
@@ -142,93 +102,23 @@
           "relation": "same_file"
         },
         {
-          "symbol": "_execute",
+          "symbol": "learn_repository_fanout",
           "definitions": [
             {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 21,
+              "file": "src/production_os/fanout_learning.py",
+              "line": 56,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "same_file"
+          "relation": "imported_module"
         },
         {
-          "symbol": "workflow",
+          "symbol": "planning_policy_for_repository",
           "definitions": [
             {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 112,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 5
-    },
-    "AutonomousBenchmark": {
-      "source": {
-        "file": "src/production_os/agent_benchmark.py",
-        "start": 108,
-        "end": 367
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "WorkflowBenchmark",
-          "definitions": [
-            {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 55,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "__init__",
-          "definitions": [
-            {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 109,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_dt",
-          "definitions": [
-            {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 25,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 21,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_validation_status",
-          "definitions": [
-            {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 39,
+              "file": "src/production_os/agent_planning_policy.py",
+              "line": 44,
               "kind": "function",
               "language": "python"
             }
@@ -245,26 +135,84 @@
               "language": "python"
             }
           ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 6
+    },
+    "planning_policy_for_repository": {
+      "source": {
+        "file": "src/production_os/agent_planning_policy.py",
+        "start": 44,
+        "end": 179
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "AgentPlanningPolicy",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_planning_policy.py",
+              "line": 19,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
           "relation": "same_file"
+        },
+        {
+          "symbol": "AutonomousBenchmark",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_benchmark.py",
+              "line": 108,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_sql",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_planning_policy.py",
+              "line": 14,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "learn_repository_fanout",
+          "definitions": [
+            {
+              "file": "src/production_os/fanout_learning.py",
+              "line": 56,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "report",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_benchmark.py",
+              "line": 289,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
         },
         {
           "symbol": "to_dict",
           "definitions": [
             {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 80,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "workflow",
-          "definitions": [
-            {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 112,
+              "file": "src/production_os/agent_planning_policy.py",
+              "line": 30,
               "kind": "function",
               "language": "python"
             }
@@ -272,129 +220,13 @@
           "relation": "same_file"
         }
       ],
-      "dependency_count": 8
+      "dependency_count": 6
     },
-    "__init__": {
+    "FanoutBucket": {
       "source": {
-        "file": "src/production_os/agent_benchmark.py",
-        "start": 109,
-        "end": 229
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "WorkflowBenchmark",
-          "definitions": [
-            {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 55,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 21,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_validation_status",
-          "definitions": [
-            {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 39,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "workflow",
-          "definitions": [
-            {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 112,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "workflow": {
-      "source": {
-        "file": "src/production_os/agent_benchmark.py",
-        "start": 112,
-        "end": 287
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "WorkflowBenchmark",
-          "definitions": [
-            {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 55,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_dt",
-          "definitions": [
-            {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 25,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_execute",
-          "definitions": [
-            {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 21,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_validation_status",
-          "definitions": [
-            {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 39,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "report": {
-      "source": {
-        "file": "src/production_os/agent_benchmark.py",
-        "start": 289,
-        "end": 367
+        "file": "src/production_os/fanout_learning.py",
+        "start": 19,
+        "end": 37
       },
       "symbol_dependencies": [
         {
@@ -407,6 +239,110 @@
               "language": "python"
             }
           ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "LearnedFanout": {
+      "source": {
+        "file": "src/production_os/fanout_learning.py",
+        "start": 41,
+        "end": 53
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "FanoutBucket",
+          "definitions": [
+            {
+              "file": "src/production_os/fanout_learning.py",
+              "line": 19,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_benchmark.py",
+              "line": 80,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "learn_repository_fanout": {
+      "source": {
+        "file": "src/production_os/fanout_learning.py",
+        "start": 56,
+        "end": 164
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "AutonomousBenchmark",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_benchmark.py",
+              "line": 108,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "FanoutBucket",
+          "definitions": [
+            {
+              "file": "src/production_os/fanout_learning.py",
+              "line": 19,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "LearnedFanout",
+          "definitions": [
+            {
+              "file": "src/production_os/fanout_learning.py",
+              "line": 41,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_sql",
+          "definitions": [
+            {
+              "file": "src/production_os/fanout_learning.py",
+              "line": 14,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "rank",
+          "definitions": [
+            {
+              "file": "src/production_os/fanout_learning.py",
+              "line": 137,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
           "relation": "same_file"
         },
         {
@@ -416,6 +352,40 @@
               "file": "src/production_os/agent_benchmark.py",
               "line": 112,
               "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 6
+    },
+    "rank": {
+      "source": {
+        "file": "src/production_os/fanout_learning.py",
+        "start": 137,
+        "end": 257
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "FanoutBucket",
+          "definitions": [
+            {
+              "file": "src/production_os/fanout_learning.py",
+              "line": 19,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "LearnedFanout",
+          "definitions": [
+            {
+              "file": "src/production_os/fanout_learning.py",
+              "line": 41,
+              "kind": "class",
               "language": "python"
             }
           ],
@@ -424,56 +394,13 @@
       ],
       "dependency_count": 2
     },
-    "compare_reports": {
-      "source": {
-        "file": "src/production_os/agent_benchmark.py",
-        "start": 370,
-        "end": 409
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "delta",
-          "definitions": [
-            {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 379,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "delta": {
-      "source": {
-        "file": "src/production_os/agent_benchmark.py",
-        "start": 379,
-        "end": 499
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
     "_build": {
       "source": {
-        "file": "tests/test_agent_benchmark.py",
-        "start": 11,
-        "end": 14
+        "file": "tests/test_fanout_learning.py",
+        "start": 7,
+        "end": 10
       },
       "symbol_dependencies": [
-        {
-          "symbol": "DashboardStore",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 176,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
         {
           "symbol": "SQLiteBackend",
           "definitions": [
@@ -511,36 +438,15 @@
           "relation": "imported_module"
         }
       ],
-      "dependency_count": 4
+      "dependency_count": 3
     },
-    "_execution_job": {
+    "_history": {
       "source": {
-        "file": "tests/test_agent_benchmark.py",
-        "start": 17,
-        "end": 21
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "test_benchmark_reads_real_workflow_execution_history": {
-      "source": {
-        "file": "tests/test_agent_benchmark.py",
-        "start": 24,
-        "end": 116
+        "file": "tests/test_fanout_learning.py",
+        "start": 13,
+        "end": 52
       },
       "symbol_dependencies": [
-        {
-          "symbol": "AutonomousBenchmark",
-          "definitions": [
-            {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 108,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
         {
           "symbol": "WorkflowTaskSpec",
           "definitions": [
@@ -554,309 +460,11 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "_build",
-          "definitions": [
-            {
-              "file": "tests/test_agent_benchmark.py",
-              "line": 11,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_execution_job",
-          "definitions": [
-            {
-              "file": "tests/test_agent_benchmark.py",
-              "line": 17,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
           "symbol": "create",
           "definitions": [
             {
               "file": "src/production_os/workflow_engine.py",
               "line": 360,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "dispatch_ready",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 1220,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "execution_count",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 202,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "finish_execution",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 226,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 711,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1335,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 916,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "record_result",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 1763,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "start_execution",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 188,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "workflow",
-          "definitions": [
-            {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 112,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 12
-    },
-    "test_benchmark_counts_retry_failures_and_operator_controls": {
-      "source": {
-        "file": "tests/test_agent_benchmark.py",
-        "start": 119,
-        "end": 216
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "AutonomousBenchmark",
-          "definitions": [
-            {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 108,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "WorkflowTaskSpec",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 216,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_build",
-          "definitions": [
-            {
-              "file": "tests/test_agent_benchmark.py",
-              "line": 11,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_execution_job",
-          "definitions": [
-            {
-              "file": "tests/test_agent_benchmark.py",
-              "line": 17,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "control_audit_events",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 711,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "create",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 360,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "dispatch_ready",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 1220,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "execution_count",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 202,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "finish_execution",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 226,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 711,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1335,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 916,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "record_result",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 1763,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "retry_task",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 1920,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "start_execution",
-          "definitions": [
-            {
-              "file": "src/production_os/dashboard_store.py",
-              "line": 188,
               "kind": "function",
               "language": "python"
             }
@@ -874,59 +482,23 @@
             }
           ],
           "relation": "imported_module"
-        },
-        {
-          "symbol": "workflow",
-          "definitions": [
-            {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 112,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
         }
       ],
-      "dependency_count": 15
+      "dependency_count": 3
     },
-    "test_benchmark_report_aggregates_without_inventing_unknown_cost": {
+    "test_fanout_learning_selects_better_observed_bucket": {
       "source": {
-        "file": "tests/test_agent_benchmark.py",
-        "start": 219,
-        "end": 263
+        "file": "tests/test_fanout_learning.py",
+        "start": 55,
+        "end": 83
       },
       "symbol_dependencies": [
-        {
-          "symbol": "AutonomousBenchmark",
-          "definitions": [
-            {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 108,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "WorkflowTaskSpec",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 216,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
         {
           "symbol": "_build",
           "definitions": [
             {
-              "file": "tests/test_agent_benchmark.py",
-              "line": 11,
+              "file": "tests/test_fanout_learning.py",
+              "line": 7,
               "kind": "function",
               "language": "python"
             }
@@ -934,149 +506,11 @@
           "relation": "same_file"
         },
         {
-          "symbol": "create",
+          "symbol": "_history",
           "definitions": [
             {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 360,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "dispatch_ready",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 1220,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "record_result",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 1763,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "report",
-          "definitions": [
-            {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 289,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 7
-    },
-    "test_compare_reports_returns_metric_deltas_without_declaring_winner": {
-      "source": {
-        "file": "tests/test_agent_benchmark.py",
-        "start": 266,
-        "end": 297
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "compare_reports",
-          "definitions": [
-            {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 370,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "test_agent_benchmark_cli_parses_multiple_workflows_and_baseline": {
-      "source": {
-        "file": "tests/test_agent_benchmark.py",
-        "start": 301,
-        "end": 314
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_parse_args",
-          "definitions": [
-            {
-              "file": "src/production_os/cli.py",
-              "line": 102,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "workflow",
-          "definitions": [
-            {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 112,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "test_benchmark_records_dynamic_planner_policy_and_actual_fanout": {
-      "source": {
-        "file": "tests/test_agent_benchmark.py",
-        "start": 318,
-        "end": 361
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "AutonomousBenchmark",
-          "definitions": [
-            {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 108,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "WorkflowTaskSpec",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 216,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_build",
-          "definitions": [
-            {
-              "file": "tests/test_agent_benchmark.py",
-              "line": 11,
+              "file": "tests/test_fanout_learning.py",
+              "line": 13,
               "kind": "function",
               "language": "python"
             }
@@ -1084,35 +518,11 @@
           "relation": "same_file"
         },
         {
-          "symbol": "create",
+          "symbol": "learn_repository_fanout",
           "definitions": [
             {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 360,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "to_dict",
-          "definitions": [
-            {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 80,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "workflow",
-          "definitions": [
-            {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 112,
+              "file": "src/production_os/fanout_learning.py",
+              "line": 56,
               "kind": "function",
               "language": "python"
             }
@@ -1120,45 +530,21 @@
           "relation": "imported_module"
         }
       ],
-      "dependency_count": 6
+      "dependency_count": 3
     },
-    "test_benchmark_report_aggregates_planner_policy_observability": {
+    "test_fanout_learning_requires_multiple_well_sampled_buckets": {
       "source": {
-        "file": "tests/test_agent_benchmark.py",
-        "start": 364,
-        "end": 401
+        "file": "tests/test_fanout_learning.py",
+        "start": 86,
+        "end": 108
       },
       "symbol_dependencies": [
-        {
-          "symbol": "AutonomousBenchmark",
-          "definitions": [
-            {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 108,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "WorkflowTaskSpec",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 216,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
         {
           "symbol": "_build",
           "definitions": [
             {
-              "file": "tests/test_agent_benchmark.py",
-              "line": 11,
+              "file": "tests/test_fanout_learning.py",
+              "line": 7,
               "kind": "function",
               "language": "python"
             }
@@ -1166,35 +552,23 @@
           "relation": "same_file"
         },
         {
-          "symbol": "create",
+          "symbol": "_history",
           "definitions": [
             {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 360,
+              "file": "tests/test_fanout_learning.py",
+              "line": 13,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
+          "relation": "same_file"
         },
         {
-          "symbol": "report",
+          "symbol": "learn_repository_fanout",
           "definitions": [
             {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 289,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "workflow",
-          "definitions": [
-            {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 112,
+              "file": "src/production_os/fanout_learning.py",
+              "line": 56,
               "kind": "function",
               "language": "python"
             }
@@ -1202,7 +576,111 @@
           "relation": "imported_module"
         }
       ],
-      "dependency_count": 6
+      "dependency_count": 3
+    },
+    "test_planning_policy_uses_learned_lower_fanout": {
+      "source": {
+        "file": "tests/test_fanout_learning.py",
+        "start": 111,
+        "end": 137
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_build",
+          "definitions": [
+            {
+              "file": "tests/test_fanout_learning.py",
+              "line": 7,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_history",
+          "definitions": [
+            {
+              "file": "tests/test_fanout_learning.py",
+              "line": 13,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "planning_policy_for_repository",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_planning_policy.py",
+              "line": 44,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "test_global_risk_ceiling_caps_learned_high_fanout": {
+      "source": {
+        "file": "tests/test_fanout_learning.py",
+        "start": 140,
+        "end": 172
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_build",
+          "definitions": [
+            {
+              "file": "tests/test_fanout_learning.py",
+              "line": 7,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_history",
+          "definitions": [
+            {
+              "file": "tests/test_fanout_learning.py",
+              "line": 13,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "learn_repository_fanout",
+          "definitions": [
+            {
+              "file": "src/production_os/fanout_learning.py",
+              "line": 56,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "planning_policy_for_repository",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_planning_policy.py",
+              "line": 44,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 4
     }
   }
 }

@@ -84,6 +84,7 @@
         "tests/test_execution_optimizer_postgres.py",
         "tests/test_executor_worktree.py",
         "tests/test_fairness.py",
+        "tests/test_fanout_learning.py",
         "tests/test_filesystem_lock.py",
         "tests/test_github_automerge.py",
         "tests/test_github_change_review.py",
@@ -184,7 +185,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 172,
+      "in_degree": 173,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -220,9 +221,10 @@
       "dependents": [
         "src/production_os/agent_planning_policy.py",
         "src/production_os/cli.py",
+        "src/production_os/fanout_learning.py",
         "tests/test_agent_benchmark.py"
       ],
-      "in_degree": 3,
+      "in_degree": 4,
       "out_degree": 1
     },
     "src/production_os/agent_plan.py": {
@@ -240,14 +242,16 @@
     "src/production_os/agent_planning_policy.py": {
       "dependencies": [
         "src/production_os/agent_benchmark.py",
+        "src/production_os/fanout_learning.py",
         "tests/test_asset_forge.py"
       ],
       "dependents": [
         "src/production_os/managed_projects.py",
-        "tests/test_agent_planning_policy.py"
+        "tests/test_agent_planning_policy.py",
+        "tests/test_fanout_learning.py"
       ],
-      "in_degree": 2,
-      "out_degree": 2
+      "in_degree": 3,
+      "out_degree": 3
     },
     "src/production_os/agent_runtime.py": {
       "dependencies": [
@@ -1152,6 +1156,18 @@
       "in_degree": 2,
       "out_degree": 1
     },
+    "src/production_os/fanout_learning.py": {
+      "dependencies": [
+        "src/production_os/agent_benchmark.py",
+        "tests/test_asset_forge.py"
+      ],
+      "dependents": [
+        "src/production_os/agent_planning_policy.py",
+        "tests/test_fanout_learning.py"
+      ],
+      "in_degree": 2,
+      "out_degree": 2
+    },
     "src/production_os/feedback.py": {
       "dependencies": [
         "tests/test_asset_forge.py"
@@ -2034,6 +2050,7 @@
         "tests/test_dashboard_store.py",
         "tests/test_dynamic_agent_fanout.py",
         "tests/test_execution_optimizer.py",
+        "tests/test_fanout_learning.py",
         "tests/test_github_webhook.py",
         "tests/test_incident_history.py",
         "tests/test_managed_github_reconciliation.py",
@@ -2062,7 +2079,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 46,
+      "in_degree": 47,
       "out_degree": 5
     },
     "src/production_os/sqlite_migration.py": {
@@ -2358,6 +2375,7 @@
         "tests/test_dashboard_observability_e2e.py",
         "tests/test_dashboard_store_postgres.py",
         "tests/test_dynamic_agent_fanout.py",
+        "tests/test_fanout_learning.py",
         "tests/test_incident_history.py",
         "tests/test_managed_github_reconciliation.py",
         "tests/test_managed_projects_v4.py",
@@ -2375,7 +2393,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 32,
+      "in_degree": 33,
       "out_degree": 10
     },
     "src/production_os/worktree_contract.py": {
@@ -2489,6 +2507,7 @@
         "src/production_os/dashboard_store.py",
         "src/production_os/execution_feedback.py",
         "src/production_os/executor_worktree.py",
+        "src/production_os/fanout_learning.py",
         "src/production_os/feedback.py",
         "src/production_os/github_work_state.py",
         "src/production_os/health.py",
@@ -2523,6 +2542,7 @@
         "tests/test_dashboard_control_audit.py",
         "tests/test_dashboard_remediation_history.py",
         "tests/test_dashboard_store.py",
+        "tests/test_fanout_learning.py",
         "tests/test_github_work_state.py",
         "tests/test_governance.py",
         "tests/test_incident_history.py",
@@ -2536,9 +2556,7 @@
         "tests/test_release36_worker_session_reconciliation_e2e.py",
         "tests/test_release51_one_tap_runner_e2e.py",
         "tests/test_release_ledger.py",
-        "tests/test_remote_worker_runner.py",
-        "tests/test_rollback_plan.py",
-        "tests/test_sqlite_migration.py"
+        "tests/test_remote_worker_runner.py"
       ],
       "in_degree": 63,
       "out_degree": 3
@@ -3360,6 +3378,19 @@
       "in_degree": 46,
       "out_degree": 2
     },
+    "tests/test_fanout_learning.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/agent_planning_policy.py",
+        "src/production_os/fanout_learning.py",
+        "src/production_os/sqlite_backend.py",
+        "src/production_os/workflow_engine.py",
+        "tests/test_asset_forge.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 6
+    },
     "tests/test_filesystem_lock.py": {
       "dependencies": [
         "src/production_os/__init__.py",
@@ -4116,12 +4147,11 @@
       "dependencies": [
         "src/production_os/__init__.py",
         "src/production_os/history.py",
-        "src/production_os/rollback_plan.py",
-        "tests/test_asset_forge.py"
+        "src/production_os/rollback_plan.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 4
+      "out_degree": 3
     },
     "tests/test_runtime_state.py": {
       "dependencies": [
@@ -4267,12 +4297,11 @@
       "dependencies": [
         "src/production_os/__init__.py",
         "src/production_os/sqlite_backend.py",
-        "src/production_os/sqlite_migration.py",
-        "tests/test_asset_forge.py"
+        "src/production_os/sqlite_migration.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 4
+      "out_degree": 3
     },
     "tests/test_stragglers.py": {
       "dependencies": [

@@ -109,6 +109,7 @@ src/
     execution_optimizer.py
     executor_worktree.py
     fairness.py
+    fanout_learning.py
     feedback.py
     filesystem_lock.py
     github_change_review.py
@@ -258,6 +259,7 @@ tests/
   test_execution_optimizer.py
   test_executor_worktree.py
   test_fairness.py
+  test_fanout_learning.py
   test_filesystem_lock.py
   test_github_automerge.py
   test_github_change_review.py
@@ -1059,6 +1061,7 @@ execution_failure_rate: float | None
 retries_per_workflow: float | None
 interventions_per_workflow: float | None
 guidance: str
+fanout_learning: dict[str, Any] | None
 ⋮----
 def to_dict(self) -> dict[str, Any]
 ⋮----
@@ -1084,6 +1087,16 @@ guidance = (
 max_agents = 6
 ⋮----
 max_agents = 4
+⋮----
+learned = learn_repository_fanout(
+source = "historical-benchmark"
+fanout_learning = None
+⋮----
+learned_max = int(learned.recommended_max_agents)
+bounded_max = min(max_agents, learned_max)
+source = (
+max_agents = bounded_max
+fanout_learning = learned.to_dict()
 ````
 
 ## File: src/production_os/agent_runtime.py
@@ -5497,6 +5510,59 @@ ordered: list[tuple] = []
 remaining = True
 ⋮----
 remaining = False
+````
+
+## File: src/production_os/fanout_learning.py
+````python
+def _is_postgres(backend) -> bool
+⋮----
+def _sql(backend, statement: str) -> str
+⋮----
+@dataclass(frozen=True, slots=True)
+class FanoutBucket
+⋮----
+max_agents: int
+sample_size: int
+success_rate: float
+retries_per_workflow: float
+interventions_per_workflow: float
+execution_failure_rate: float | None
+median_wall_clock_seconds: float | None
+⋮----
+def to_dict(self) -> dict[str, Any]
+⋮----
+@dataclass(frozen=True, slots=True)
+class LearnedFanout
+⋮----
+recommended_max_agents: int
+⋮----
+compared_buckets: int
+evidence: tuple[FanoutBucket, ...]
+⋮----
+value = str(repository or "").strip()
+⋮----
+rows = db.execute(
+⋮----
+benchmark = AutonomousBenchmark(backend)
+groups: dict[int, list] = {}
+⋮----
+item = benchmark.workflow(str(row["id"]))
+fanout = item.planner_max_agents
+⋮----
+buckets: list[FanoutBucket] = []
+⋮----
+successes = sum(1 for item in items if item.succeeded)
+executions = sum(item.execution_count for item in items)
+failed_executions = sum(item.failed_executions for item in items)
+wall_clocks = [
+⋮----
+def rank(bucket: FanoutBucket)
+⋮----
+failure_rate = (
+wall_clock = (
+⋮----
+ordered = tuple(sorted(buckets, key=rank))
+winner = ordered[0]
 ````
 
 ## File: src/production_os/feedback.py
@@ -13393,6 +13459,31 @@ def test_round_robin_preserves_repo_internal_order()
 ⋮----
 rows=[
 result=round_robin_by_repository(rows)
+````
+
+## File: tests/test_fanout_learning.py
+````python
+def _build(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "fanout-learning.sqlite")
+queue = SQLiteJobQueue(backend)
+⋮----
+def _history(engine, repository: str, *, max_agents: int, succeeded: bool)
+⋮----
+workflow = engine.create(
+terminal = "succeeded" if succeeded else "failed"
+⋮----
+def test_fanout_learning_selects_better_observed_bucket(tmp_path)
+⋮----
+learned = learn_repository_fanout(
+⋮----
+def test_fanout_learning_requires_multiple_well_sampled_buckets(tmp_path)
+⋮----
+def test_planning_policy_uses_learned_lower_fanout(tmp_path)
+⋮----
+policy = planning_policy_for_repository(
+⋮----
+def test_global_risk_ceiling_caps_learned_high_fanout(tmp_path)
 ````
 
 ## File: tests/test_filesystem_lock.py

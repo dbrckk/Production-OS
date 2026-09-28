@@ -113,6 +113,7 @@ test_execution_optimizer_postgres.py
 test_execution_optimizer.py
 test_executor_worktree.py
 test_fairness.py
+test_fanout_learning.py
 test_filesystem_lock.py
 test_github_automerge.py
 test_github_change_review.py
@@ -3469,6 +3470,31 @@ def test_round_robin_preserves_repo_internal_order()
 ⋮----
 rows=[
 result=round_robin_by_repository(rows)
+```
+
+## File: test_fanout_learning.py
+```python
+def _build(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "fanout-learning.sqlite")
+queue = SQLiteJobQueue(backend)
+⋮----
+def _history(engine, repository: str, *, max_agents: int, succeeded: bool)
+⋮----
+workflow = engine.create(
+terminal = "succeeded" if succeeded else "failed"
+⋮----
+def test_fanout_learning_selects_better_observed_bucket(tmp_path)
+⋮----
+learned = learn_repository_fanout(
+⋮----
+def test_fanout_learning_requires_multiple_well_sampled_buckets(tmp_path)
+⋮----
+def test_planning_policy_uses_learned_lower_fanout(tmp_path)
+⋮----
+policy = planning_policy_for_repository(
+⋮----
+def test_global_risk_ceiling_caps_learned_high_fanout(tmp_path)
 ```
 
 ## File: test_filesystem_lock.py

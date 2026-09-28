@@ -22,19 +22,21 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-28T11:29:10Z
+Generated: 2026-09-28T11:37:13Z
 
 ### Git
 - Branch: `main`
-- Head: `7af508941950`
-- Commit date: 2026-09-28T13:28:56+02:00
-- Commit: feat(benchmark): expose adaptive planner policy and actual fanout
-- Tracked files: 509
+- Head: `63a4bddb60a4`
+- Commit date: 2026-09-28T13:37:02+02:00
+- Commit: feat(agents): learn safe fanout from repository history
+- Tracked files: 511
 
 ### Recently changed files
+- `src/production_os/agent_planning_policy.py`
+- `src/production_os/fanout_learning.py`
+- `tests/test_fanout_learning.py`
 - `src/production_os/agent_benchmark.py`
 - `tests/test_agent_benchmark.py`
-- `src/production_os/agent_planning_policy.py`
 - `src/production_os/managed_projects.py`
 - `tests/test_agent_planning_policy.py`
 - `docs/remote-worker-executor-protocol.md`

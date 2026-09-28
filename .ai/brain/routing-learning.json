@@ -2,28 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat: release 39 production outcome summaries",
-      "terms": [
-        "39",
-        "feat",
-        "outcome",
-        "production",
-        "release",
-        "summaries"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/dashboard_service.py",
-        "src/production_os/dashboard_ui.py",
-        "src/production_os/managed_projects.py",
-        "tests/test_dashboard_attention.py",
-        "tests/test_dashboard_ui_v3.py",
-        "tests/test_managed_project_outcome.py",
-        "tests/test_release32_one_tap_e2e.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat: release 40 launch readiness tracker",
       "terms": [
         "40",
@@ -1289,6 +1267,26 @@
         "src/production_os/agent_benchmark.py",
         "tests/test_agent_benchmark.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "feat(agents): learn safe fanout from repository history",
+      "terms": [
+        "agents",
+        "fanout",
+        "feat",
+        "from",
+        "history",
+        "learn",
+        "repository",
+        "safe"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/agent_planning_policy.py",
+        "src/production_os/fanout_learning.py",
+        "tests/test_fanout_learning.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1733,9 +1731,10 @@
     },
     "agents": {
       "src/production_os/agent_plan.py": 4,
-      "src/production_os/agent_planning_policy.py": 4,
+      "src/production_os/agent_planning_policy.py": 8,
       "src/production_os/cli.py": 8,
       "src/production_os/executor_worktree.py": 12,
+      "src/production_os/fanout_learning.py": 4,
       "src/production_os/managed_projects.py": 16,
       "src/production_os/remote_worker_runner.py": 16,
       "src/production_os/repository_cache.py": 4,
@@ -1748,6 +1747,7 @@
       "tests/test_cooperative_specialist_e2e.py": 8,
       "tests/test_dynamic_agent_fanout.py": 12,
       "tests/test_executor_worktree.py": 16,
+      "tests/test_fanout_learning.py": 4,
       "tests/test_managed_dynamic_plan_outcome.py": 4,
       "tests/test_managed_github_reconciliation.py": 8,
       "tests/test_managed_project_outcome.py": 4,
@@ -2640,12 +2640,14 @@
     },
     "fanout": {
       "src/production_os/agent_benchmark.py": 4,
-      "src/production_os/agent_planning_policy.py": 4,
+      "src/production_os/agent_planning_policy.py": 8,
+      "src/production_os/fanout_learning.py": 4,
       "src/production_os/managed_projects.py": 8,
       "src/production_os/workflow_engine.py": 4,
       "tests/test_agent_benchmark.py": 4,
       "tests/test_agent_planning_policy.py": 4,
       "tests/test_dynamic_agent_fanout.py": 4,
+      "tests/test_fanout_learning.py": 4,
       "tests/test_managed_dynamic_plan_outcome.py": 4,
       "tests/test_managed_project_outcome.py": 4
     },
@@ -2653,7 +2655,7 @@
       "scripts/render-start.py": 4,
       "src/production_os/agent_benchmark.py": 8,
       "src/production_os/agent_plan.py": 4,
-      "src/production_os/agent_planning_policy.py": 4,
+      "src/production_os/agent_planning_policy.py": 8,
       "src/production_os/agent_runtime.py": 8,
       "src/production_os/asset_forge.py": 24,
       "src/production_os/browser_computer.py": 4,
@@ -2749,9 +2751,10 @@
     },
     "from": {
       "src/production_os/agent_benchmark.py": 4,
-      "src/production_os/agent_planning_policy.py": 4,
+      "src/production_os/agent_planning_policy.py": 8,
       "src/production_os/cli.py": 4,
       "src/production_os/control_plane.py": 12,
+      "src/production_os/fanout_learning.py": 4,
       "src/production_os/managed_projects.py": 4,
       "src/production_os/model_router.py": 4,
       "src/production_os/remote_worker.py": 4,
@@ -2759,6 +2762,7 @@
       "tests/test_agent_benchmark.py": 4,
       "tests/test_agent_planning_policy.py": 4,
       "tests/test_dashboard_launch.py": 8,
+      "tests/test_fanout_learning.py": 4,
       "tests/test_model_router.py": 4,
       "tests/test_remote_worker.py": 4
     },
@@ -2858,12 +2862,14 @@
     },
     "history": {
       "src/production_os/agent_benchmark.py": 4,
+      "src/production_os/agent_planning_policy.py": 4,
       "src/production_os/cli.py": 4,
       "src/production_os/control_plane.py": 8,
       "src/production_os/dashboard_backups.py": 4,
       "src/production_os/dashboard_service.py": 8,
       "src/production_os/dashboard_store.py": 4,
       "src/production_os/dashboard_ui.py": 8,
+      "src/production_os/fanout_learning.py": 4,
       "src/production_os/postgres_backend.py": 4,
       "src/production_os/sqlite_backend.py": 4,
       "tests/test_agent_benchmark.py": 4,
@@ -2874,7 +2880,8 @@
       "tests/test_dashboard_remediation_api.py": 4,
       "tests/test_dashboard_remediation_history.py": 4,
       "tests/test_dashboard_store_postgres.py": 4,
-      "tests/test_dashboard_ui_v3.py": 8
+      "tests/test_dashboard_ui_v3.py": 8,
+      "tests/test_fanout_learning.py": 4
     },
     "html": {
       "src/production_os/asset_forge.py": 4,
@@ -3021,6 +3028,8 @@
       "tests/test_dashboard_mobile_stability.py": 4
     },
     "learn": {
+      "src/production_os/agent_planning_policy.py": 4,
+      "src/production_os/fanout_learning.py": 4,
       "src/production_os/postgres_backend.py": 4,
       "src/production_os/skill_memory.py": 4,
       "src/production_os/sqlite_backend.py": 4,
@@ -3028,6 +3037,7 @@
       "tests/test_dashboard_control_audit.py": 4,
       "tests/test_dashboard_remediation_history.py": 4,
       "tests/test_dashboard_store_postgres.py": 4,
+      "tests/test_fanout_learning.py": 4,
       "tests/test_postgres_backend.py": 4,
       "tests/test_skill_memory.py": 4
     },
@@ -3788,9 +3798,12 @@
       "tests/test_worker_compose_deployment.py": 4
     },
     "repository": {
+      "src/production_os/agent_planning_policy.py": 4,
       "src/production_os/asset_forge.py": 4,
       "src/production_os/control_plane.py": 4,
-      "tests/test_dashboard_launch.py": 4
+      "src/production_os/fanout_learning.py": 4,
+      "tests/test_dashboard_launch.py": 4,
+      "tests/test_fanout_learning.py": 4
     },
     "request": {
       "src/production_os/control_plane.py": 8,
@@ -3964,11 +3977,13 @@
       "tests/test_worker_compose_deployment.py": 4
     },
     "safe": {
+      "src/production_os/agent_planning_policy.py": 4,
       "src/production_os/asset_forge.py": 4,
       "src/production_os/control_plane.py": 12,
       "src/production_os/dashboard_maintenance.py": 4,
       "src/production_os/dashboard_service.py": 8,
       "src/production_os/dashboard_ui.py": 8,
+      "src/production_os/fanout_learning.py": 4,
       "src/production_os/github_change_review.py": 4,
       "src/production_os/github_work_state.py": 4,
       "src/production_os/postgres_backend.py": 4,
@@ -3980,6 +3995,7 @@
       "tests/test_dashboard_retention_prune.py": 4,
       "tests/test_dashboard_store_postgres.py": 4,
       "tests/test_dashboard_ui_v3.py": 8,
+      "tests/test_fanout_learning.py": 4,
       "tests/test_github_change_review.py": 4,
       "tests/test_github_work_state.py": 4,
       "tests/test_postgres_backend.py": 4,
