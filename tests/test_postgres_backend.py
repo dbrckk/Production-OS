@@ -2,6 +2,7 @@ import os
 
 import pytest
 
+from production_os.skill_memory import SKILL_SCHEMA, SkillStore
 from production_os.postgres_backend import (
     PostgresBackend,
     PostgresJobQueue,
@@ -74,3 +75,36 @@ def test_postgres_queued_job_can_be_cancelled_without_worker():
     assert cancelled["completed_at"]
     assert queue.peek_candidates()==[]
 
+
+
+
+def test_postgres_learned_skill_storage_round_trip():
+    backend = PostgresBackend(DSN)
+    with backend.connect() as db:
+        with db.cursor() as cur:
+            cur.execute("TRUNCATE learned_skills")
+    store = SkillStore(backend)
+    learned = store.record_success(
+        repository="o/skills",
+        task="Repair deployment validation",
+        capabilities=["test-debug"],
+        result={
+            "validation":{"status":"passed"},
+            "learned_skill":{
+                "schema_version":SKILL_SCHEMA,
+                "title":"Repair deployment validation",
+                "trigger_terms":["deployment", "validation"],
+                "procedure":[
+                    "Reproduce the failing validation.",
+                    "Run the targeted validation after the fix.",
+                ],
+            },
+        },
+    )
+    assert learned is not None
+    selected = store.select(
+        repository="o/skills",
+        task="Fix deployment validation",
+        capabilities=["test-debug"],
+    )
+    assert [row.skill_id for row in selected] == [learned.skill_id]
