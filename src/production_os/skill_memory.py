@@ -162,7 +162,7 @@ class SkillStore:
             row = _execute(
                 db,
                 self.backend,
-                "SELECT successes,uses FROM learned_skills WHERE skill_id=?",
+                "SELECT successes,uses,confidence FROM learned_skills WHERE skill_id=?",
                 (skill_id,),
             ).fetchone()
             if row is None:
@@ -188,9 +188,21 @@ class SkillStore:
             else:
                 successes = int(row["successes"]) + 1
                 uses = int(row["uses"])
+                previous_confidence = float(row["confidence"])
+                learned_confidence = (
+                    0.6
+                    + min(successes, 8) * 0.045
+                    + (0.08 if verified else 0)
+                )
                 confidence = min(
                     0.98,
-                    round(0.6 + min(successes, 8) * 0.045 + (0.08 if verified else 0), 3),
+                    round(
+                        max(
+                            previous_confidence + (0.04 if verified else 0.02),
+                            learned_confidence,
+                        ),
+                        3,
+                    ),
                 )
                 _execute(
                     db,
