@@ -10,6 +10,7 @@ from .runtime_state import task_key
 from .result_cache import ResultCache, fingerprint
 from .skill_memory import SKILL_SCHEMA, SkillStore
 from .model_router import ModelRouter
+from .project_memory import ProjectMemoryStore
 from .agent_plan import validate_agent_plan
 from .change_impact import analyze_change_impact
 from .task_capabilities import (
@@ -320,6 +321,7 @@ class WorkflowEngine:
         self.cache = ResultCache(backend)
         self.skills = SkillStore(backend)
         self.model_router = ModelRouter(backend)
+        self.project_memory = ProjectMemoryStore(backend)
 
     @staticmethod
     def _validate(tasks: list[WorkflowTaskSpec]) -> None:
@@ -1844,6 +1846,42 @@ class WorkflowEngine:
             )
 
         task_payload = json.loads(row["payload_json"])
+        if succeeded:
+            handoff = dict(task_payload.get("handoff") or {})
+            project_id = str(
+                task_payload.get("managed_project_id")
+                or handoff.get("managed_project_id")
+                or ""
+            ).strip()
+            if project_id:
+                generation_raw = (
+                    task_payload.get("managed_project_generation")
+                    or handoff.get("managed_project_generation")
+                    or 1
+                )
+                try:
+                    generation = max(1, int(generation_raw))
+                except (TypeError, ValueError):
+                    generation = 1
+                project_kind = str(
+                    task_payload.get("managed_project_kind")
+                    or handoff.get("managed_project_kind")
+                    or "execution"
+                )
+                repository = str(
+                    handoff.get("repository")
+                    or self.get(workflow_id)["repository"]
+                )
+                self.project_memory.record_from_result(
+                    repository=repository,
+                    project_id=project_id,
+                    generation=generation,
+                    workflow_id=workflow_id,
+                    task_id=task_id,
+                    kind=project_kind,
+                    result=dict(result or {}),
+                )
+
         reused_skill_ids: list[str] = []
         claimed_job_key = str(row["claimed_job_key"] or "")
         if claimed_job_key:
