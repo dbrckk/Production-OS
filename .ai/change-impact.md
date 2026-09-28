@@ -1,7 +1,7 @@
 # Change impact
 
-Base: 0b0e4e80ea3e7fa056fcc4ee6497ffdbe7c99c46
-Head: d19da15b417f4aa9d1595eb10e3055909ee29a8e
+Base: 864b0896acad8f7258a11c820a73601c353a40f4
+Head: a3a94f296a1f1916caedbd595474c7e49c21d6e0
 
 ## Changed files
 - M docs/remote-worker-executor-protocol.md

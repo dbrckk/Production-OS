@@ -22,13 +22,13 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-28T05:47:30Z
+Generated: 2026-09-28T05:53:07Z
 
 ### Git
 - Branch: `main`
-- Head: `d19da15b417f`
-- Commit date: 2026-09-28T07:47:19+02:00
-- Commit: feat(agents): preintegrate upstream commits before integration executors
+- Head: `a3a94f296a1f`
+- Commit date: 2026-09-28T07:52:56+02:00
+- Commit: feat(agents): verify git state before accepting worktree success
 - Tracked files: 492
 
 ### Recently changed files

@@ -4978,6 +4978,24 @@ picked = _git(
 conflicts = tuple(
 ⋮----
 final_sha = _git(target, "rev-parse", "HEAD").stdout.strip()
+⋮----
+status_lines = tuple(
+⋮----
+resolved_base = _git(
+base_is_ancestor = (
+commits_since_base: tuple[str, ...] = ()
+changed_files: tuple[str, ...] = ()
+⋮----
+commits_since_base = tuple(
+changed_files = tuple(
+⋮----
+start_sha = str(executor_start_sha or final_sha).strip()
+commits_since_start: tuple[str, ...] = ()
+⋮----
+start_exists = _git(
+start_ancestor = (
+⋮----
+commits_since_start = tuple(
 ````
 
 ## File: src/production_os/fairness.py
@@ -7461,8 +7479,11 @@ executor_env = self.executor_env.copy()
 prepared_worktree = self._prepare_worktree(job)
 integration_preflight = self._integration_preflight(
 executor_cwd = None
+executor_start_sha = None
 ⋮----
 executor_cwd = prepared_worktree.worktree_path
+before_execution = inspect_worktree_result(
+executor_start_sha = str(
 ⋮----
 request = json.dumps(
 started = time.monotonic()
@@ -7495,6 +7516,16 @@ status = str(payload.get("status") or "")
 result = payload.get("result", {})
 ⋮----
 status = ""
+⋮----
+git_result = inspect_worktree_result(
+⋮----
+reason = "executor_worktree_dirty"
+⋮----
+reason = "executor_worktree_history_diverged"
+⋮----
+commits = list(
+⋮----
+commits = [str(git_result["final_sha"])]
 ⋮----
 reason = str(
 ⋮----
@@ -12327,6 +12358,14 @@ def test_preintegrate_missing_commit_leaves_clean_starting_state(tmp_path)
 missing = "f" * 40
 ⋮----
 def test_preintegrate_dirty_workspace_defers_without_mutation(tmp_path)
+⋮----
+def test_inspect_worktree_result_reports_clean_committed_evidence(tmp_path)
+⋮----
+final_sha = _git(target, "rev-parse", "HEAD")
+⋮----
+evidence = inspect_worktree_result(
+⋮----
+def test_inspect_worktree_result_reports_uncommitted_changes(tmp_path)
 ````
 
 ## File: tests/test_fairness.py
@@ -14655,6 +14694,12 @@ commit_b = subprocess.run(
 executor = tmp_path / "integration_executor.py"
 ⋮----
 preflight = execution["result_summary"]["preflight"]
+⋮----
+def test_remote_worker_runner_rejects_success_with_dirty_worktree(tmp_path)
+⋮----
+repo = tmp_path / "dirty-repo"
+⋮----
+executor = tmp_path / "dirty_executor.py"
 ````
 
 ## File: tests/test_remote_worker.py

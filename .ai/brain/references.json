@@ -63,7 +63,7 @@
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 115,
+          "line": 116,
           "preview": ") -> IntegrationPreflight | None:",
           "definition_candidate": false
         }
@@ -680,25 +680,25 @@
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 237,
+          "line": 238,
           "preview": "\"job\":job.to_dict(),",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 248,
+          "line": 250,
           "preview": "prepared_worktree.to_dict()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 263,
+          "line": 275,
           "preview": "integration_preflight.to_dict()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 269,
+          "line": 281,
           "preview": "request_payload[\"runtime\"] = runtime_context.to_dict()",
           "definition_candidate": false
         },
@@ -841,13 +841,13 @@
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 114,
+          "line": 115,
           "preview": "prepared_worktree: PreparedWorktree | None,",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 131,
+          "line": 132,
           "preview": "def _prepare_worktree(self, job: RemoteJob) -> PreparedWorktree | None:",
           "definition_candidate": false
         }
@@ -947,6 +947,18 @@
           "definition_candidate": false
         },
         {
+          "file": "src/production_os/executor_worktree.py",
+          "line": 330,
+          "preview": "raise WorktreeRuntimeError(\"worktree does not exist\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/executor_worktree.py",
+          "line": 334,
+          "preview": "raise WorktreeRuntimeError(",
+          "definition_candidate": false
+        },
+        {
           "file": "tests/test_executor_worktree.py",
           "line": 9,
           "preview": "WorktreeRuntimeError,",
@@ -954,12 +966,12 @@
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 154,
+          "line": 155,
           "preview": "with pytest.raises(WorktreeRuntimeError):",
           "definition_candidate": false
         }
       ],
-      "occurrence_count": 16
+      "occurrence_count": 18
     },
     "_git": {
       "definition": {
@@ -1096,195 +1108,285 @@
           "definition_candidate": false
         },
         {
+          "file": "src/production_os/executor_worktree.py",
+          "line": 332,
+          "preview": "top = _git(target, \"rev-parse\", \"--show-toplevel\").stdout.strip()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/executor_worktree.py",
+          "line": 338,
+          "preview": "final_sha = _git(target, \"rev-parse\", \"HEAD\").stdout.strip()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/executor_worktree.py",
+          "line": 341,
+          "preview": "for line in _git(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/executor_worktree.py",
+          "line": 350,
+          "preview": "resolved_base = _git(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/executor_worktree.py",
+          "line": 357,
+          "preview": "_git(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/executor_worktree.py",
+          "line": 372,
+          "preview": "for line in _git(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/executor_worktree.py",
+          "line": 382,
+          "preview": "for line in _git(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/executor_worktree.py",
+          "line": 394,
+          "preview": "start_exists = _git(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/executor_worktree.py",
+          "line": 403,
+          "preview": "and _git(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/executor_worktree.py",
+          "line": 416,
+          "preview": "for line in _git(",
+          "definition_candidate": false
+        },
+        {
           "file": "tests/test_executor_worktree.py",
-          "line": 17,
+          "line": 18,
           "preview": "def _git(path: Path, *args: str) -> str:",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 32,
+          "line": 33,
           "preview": "_git(repo, \"config\", \"user.email\", \"test@example.invalid\")",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 33,
+          "line": 34,
           "preview": "_git(repo, \"config\", \"user.name\", \"Production OS Test\")",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 35,
+          "line": 36,
           "preview": "_git(repo, \"add\", \"README.md\")",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 36,
+          "line": 37,
           "preview": "_git(repo, \"commit\", \"-m\", \"base\")",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 42,
+          "line": 43,
           "preview": "base = _git(repo, \"rev-parse\", \"HEAD\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_executor_worktree.py",
-          "line": 60,
-          "preview": "assert _git(path, \"branch\", \"--show-current\") == contract[\"branch\"]",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
           "line": 61,
+          "preview": "assert _git(path, \"branch\", \"--show-current\") == contract[\"branch\"]",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 62,
           "preview": "assert _git(path, \"rev-parse\", \"HEAD\") == base",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 139,
+          "line": 140,
           "preview": "listing = _git(repo, \"worktree\", \"list\", \"--porcelain\")",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 261,
+          "line": 262,
           "preview": "_git(repo, \"add\", \".\")",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 262,
+          "line": 263,
           "preview": "_git(repo, \"commit\", \"-m\", message)",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 263,
+          "line": 264,
           "preview": "return _git(repo, \"rev-parse\", \"HEAD\")",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 267,
+          "line": 268,
           "preview": "return _git(repo, \"branch\", \"--show-current\")",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 272,
+          "line": 273,
           "preview": "base = _git(repo, \"rev-parse\", \"HEAD\")",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 275,
+          "line": 276,
           "preview": "_git(repo, \"checkout\", \"-b\", \"agent-a\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_executor_worktree.py",
-          "line": 279,
-          "preview": "_git(repo, \"checkout\", base_branch)",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
           "line": 280,
+          "preview": "_git(repo, \"checkout\", base_branch)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 281,
           "preview": "_git(repo, \"checkout\", \"-b\", \"agent-b\")",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 284,
+          "line": 285,
           "preview": "_git(repo, \"checkout\", base_branch)",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 319,
+          "line": 320,
           "preview": "base = _git(repo, \"rev-parse\", \"HEAD\")",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 322,
+          "line": 323,
           "preview": "_git(repo, \"checkout\", \"-b\", \"agent-a\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_executor_worktree.py",
-          "line": 326,
-          "preview": "_git(repo, \"checkout\", base_branch)",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
           "line": 327,
+          "preview": "_git(repo, \"checkout\", base_branch)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 328,
           "preview": "_git(repo, \"checkout\", \"-b\", \"agent-b\")",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 331,
+          "line": 332,
           "preview": "_git(repo, \"checkout\", base_branch)",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_executor_worktree.py",
-          "line": 358,
-          "preview": "assert _git(target, \"rev-parse\", \"HEAD\") == base",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
           "line": 359,
+          "preview": "assert _git(target, \"rev-parse\", \"HEAD\") == base",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 360,
           "preview": "assert _git(target, \"status\", \"--porcelain\") == \"\"",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 365,
+          "line": 366,
           "preview": "base = _git(repo, \"rev-parse\", \"HEAD\")",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_executor_worktree.py",
-          "line": 389,
-          "preview": "assert _git(target, \"rev-parse\", \"HEAD\") == base",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
           "line": 390,
+          "preview": "assert _git(target, \"rev-parse\", \"HEAD\") == base",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 391,
           "preview": "assert _git(target, \"status\", \"--porcelain\") == \"\"",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 396,
+          "line": 397,
           "preview": "_git(repo, \"checkout\", \"-b\", \"agent-a\")",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 399,
+          "line": 400,
           "preview": "_git(repo, \"checkout\", base_branch)",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 400,
+          "line": 401,
           "preview": "base = _git(repo, \"rev-parse\", \"HEAD\")",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 425,
+          "line": 426,
           "preview": "assert _git(target, \"rev-parse\", \"HEAD\") == base",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 433,
+          "preview": "base = _git(repo, \"rev-parse\", \"HEAD\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 448,
+          "preview": "_git(target, \"add\", \".\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 449,
+          "preview": "_git(target, \"commit\", \"-m\", \"feature\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 450,
+          "preview": "final_sha = _git(target, \"rev-parse\", \"HEAD\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 469,
+          "preview": "base = _git(repo, \"rev-parse\", \"HEAD\")",
           "definition_candidate": false
         },
         {
@@ -1366,7 +1468,7 @@
           "definition_candidate": false
         }
       ],
-      "occurrence_count": 66
+      "occurrence_count": 81
     },
     "validate_repository_root": {
       "definition": {
@@ -1413,90 +1515,102 @@
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 16,
+          "line": 17,
           "preview": "prepare_isolated_worktree,",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 147,
+          "line": 148,
           "preview": "return prepare_isolated_worktree(",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 11,
+          "line": 12,
           "preview": "prepare_isolated_worktree,",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 51,
+          "line": 52,
           "preview": "prepared = prepare_isolated_worktree(",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 76,
+          "line": 77,
           "preview": "first = prepare_isolated_worktree(",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 81,
+          "line": 82,
           "preview": "second = prepare_isolated_worktree(",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 107,
+          "line": 108,
           "preview": "first = prepare_isolated_worktree(",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 112,
+          "line": 113,
           "preview": "retry = prepare_isolated_worktree(",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 130,
+          "line": 131,
           "preview": "prepared = prepare_isolated_worktree(",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 155,
+          "line": 156,
           "preview": "prepare_isolated_worktree(",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 293,
+          "line": 294,
           "preview": "prepared = prepare_isolated_worktree(",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 340,
+          "line": 341,
           "preview": "prepared = prepare_isolated_worktree(",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 374,
+          "line": 375,
           "preview": "prepared = prepare_isolated_worktree(",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 410,
+          "line": 411,
+          "preview": "prepared = prepare_isolated_worktree(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 441,
+          "preview": "prepared = prepare_isolated_worktree(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 477,
           "preview": "prepared = prepare_isolated_worktree(",
           "definition_candidate": false
         }
       ],
-      "occurrence_count": 15
+      "occurrence_count": 17
     },
     "remove_isolated_worktree": {
       "definition": {
@@ -1514,13 +1628,13 @@
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 12,
+          "line": 13,
           "preview": "remove_isolated_worktree,",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 136,
+          "line": 137,
           "preview": "remove_isolated_worktree(repo, prepared.worktree_path)",
           "definition_candidate": false
         }
@@ -1566,53 +1680,106 @@
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 15,
+          "line": 16,
           "preview": "preintegrate_upstream_commits,",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 126,
+          "line": 127,
           "preview": "return preintegrate_upstream_commits(",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 10,
+          "line": 11,
           "preview": "preintegrate_upstream_commits,",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 299,
+          "line": 300,
           "preview": "result = preintegrate_upstream_commits(",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 346,
+          "line": 347,
           "preview": "result = preintegrate_upstream_commits(",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 381,
+          "line": 382,
           "preview": "result = preintegrate_upstream_commits(",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 418,
+          "line": 419,
           "preview": "result = preintegrate_upstream_commits(",
           "definition_candidate": false
         }
       ],
       "occurrence_count": 8
     },
+    "inspect_worktree_result": {
+      "definition": {
+        "file": "src/production_os/executor_worktree.py",
+        "line": 322,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/executor_worktree.py",
+          "line": 322,
+          "preview": "def inspect_worktree_result(",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/remote_worker_runner.py",
+          "line": 15,
+          "preview": "inspect_worktree_result,",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/remote_worker_runner.py",
+          "line": 253,
+          "preview": "before_execution = inspect_worktree_result(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/remote_worker_runner.py",
+          "line": 446,
+          "preview": "git_result = inspect_worktree_result(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 10,
+          "preview": "inspect_worktree_result,",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 452,
+          "preview": "evidence = inspect_worktree_result(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 485,
+          "preview": "evidence = inspect_worktree_result(",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 7
+    },
     "RemoteWorkerRunner": {
       "definition": {
         "file": "src/production_os/remote_worker_runner.py",
-        "line": 22,
+        "line": 23,
         "kind": "class",
         "language": "python"
       },
@@ -1631,7 +1798,7 @@
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 22,
+          "line": 23,
           "preview": "class RemoteWorkerRunner:",
           "definition_candidate": true
         },
@@ -1643,13 +1810,13 @@
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 200,
+          "line": 201,
           "preview": "from production_os.remote_worker_runner import RemoteWorkerRunner",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 207,
+          "line": 208,
           "preview": "runner = RemoteWorkerRunner(",
           "definition_candidate": false
         },
@@ -1763,23 +1930,29 @@
         },
         {
           "file": "tests/test_remote_worker_runner.py",
-          "line": 709,
+          "line": 716,
           "preview": "runner = RemoteWorkerRunner(",
           "definition_candidate": false
         },
         {
           "file": "tests/test_remote_worker_runner.py",
-          "line": 889,
+          "line": 900,
+          "preview": "runner = RemoteWorkerRunner(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_remote_worker_runner.py",
+          "line": 1009,
           "preview": "runner = RemoteWorkerRunner(",
           "definition_candidate": false
         }
       ],
-      "occurrence_count": 26
+      "occurrence_count": 27
     },
     "__init__": {
       "definition": {
         "file": "src/production_os/remote_worker_runner.py",
-        "line": 23,
+        "line": 24,
         "kind": "function",
         "language": "python"
       },
@@ -2044,7 +2217,7 @@
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 23,
+          "line": 24,
           "preview": "def __init__(",
           "definition_candidate": true
         },
@@ -2264,7 +2437,7 @@
     "request_stop": {
       "definition": {
         "file": "src/production_os/remote_worker_runner.py",
-        "line": 92,
+        "line": 93,
         "kind": "function",
         "language": "python"
       },
@@ -2277,7 +2450,7 @@
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 92,
+          "line": 93,
           "preview": "def request_stop(self) -> None:",
           "definition_candidate": true
         },
@@ -2299,14 +2472,14 @@
     "stop_requested": {
       "definition": {
         "file": "src/production_os/remote_worker_runner.py",
-        "line": 97,
+        "line": 98,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 97,
+          "line": 98,
           "preview": "def stop_requested(self) -> bool:",
           "definition_candidate": true
         }
@@ -2316,44 +2489,44 @@
     "_observe_checkpoint": {
       "definition": {
         "file": "src/production_os/remote_worker_runner.py",
-        "line": 100,
+        "line": 101,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 100,
+          "line": 101,
           "preview": "def _observe_checkpoint(self, key: str) -> dict:",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 106,
+          "line": 107,
           "preview": "checkpoint = self._observe_checkpoint(key)",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 303,
+          "line": 315,
           "preview": "self._observe_checkpoint(key)",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 340,
+          "line": 352,
           "preview": "self._observe_checkpoint(key)",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 350,
+          "line": 362,
           "preview": "self._observe_checkpoint(key)",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 391,
+          "line": 403,
           "preview": "self._observe_checkpoint(key)",
           "definition_candidate": false
         }
@@ -2363,26 +2536,26 @@
     "_checkpoint_ref": {
       "definition": {
         "file": "src/production_os/remote_worker_runner.py",
-        "line": 105,
+        "line": 106,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 105,
+          "line": 106,
           "preview": "def _checkpoint_ref(self, key: str) -> str:",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 227,
+          "line": 228,
           "preview": "self._checkpoint_ref(key),",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 363,
+          "line": 375,
           "preview": "self._checkpoint_ref(key),",
           "definition_candidate": false
         }
@@ -2392,20 +2565,20 @@
     "_integration_preflight": {
       "definition": {
         "file": "src/production_os/remote_worker_runner.py",
-        "line": 111,
+        "line": 112,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 111,
+          "line": 112,
           "preview": "def _integration_preflight(",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 241,
+          "line": 242,
           "preview": "integration_preflight = self._integration_preflight(",
           "definition_candidate": false
         }
@@ -2415,26 +2588,26 @@
     "_prepare_worktree": {
       "definition": {
         "file": "src/production_os/remote_worker_runner.py",
-        "line": 131,
+        "line": 132,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 131,
+          "line": 132,
           "preview": "def _prepare_worktree(self, job: RemoteJob) -> PreparedWorktree | None:",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 240,
+          "line": 241,
           "preview": "prepared_worktree = self._prepare_worktree(job)",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 236,
+          "line": 237,
           "preview": "prepared = runner._prepare_worktree(job)",
           "definition_candidate": false
         }
@@ -2444,50 +2617,50 @@
     "_terminate": {
       "definition": {
         "file": "src/production_os/remote_worker_runner.py",
-        "line": 154,
+        "line": 155,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 154,
+          "line": 155,
           "preview": "def _terminate(process: subprocess.Popen[str]) -> None:",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 304,
+          "line": 316,
           "preview": "self._terminate(process)",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 313,
+          "line": 325,
           "preview": "self._terminate(process)",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 351,
+          "line": 363,
           "preview": "self._terminate(process)",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 360,
+          "line": 372,
           "preview": "self._terminate(process)",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 379,
+          "line": 391,
           "preview": "self._terminate(process)",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 475,
+          "line": 542,
           "preview": "self._terminate(process)",
           "definition_candidate": false
         }
@@ -2497,44 +2670,44 @@
     "_heartbeat_snapshot": {
       "definition": {
         "file": "src/production_os/remote_worker_runner.py",
-        "line": 164,
+        "line": 165,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 164,
+          "line": 165,
           "preview": "def _heartbeat_snapshot(",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 180,
+          "line": 181,
           "preview": "return self._heartbeat_snapshot()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 196,
+          "line": 197,
           "preview": "self._heartbeat_snapshot(job_control_states=states)",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 204,
+          "line": 205,
           "preview": "return self._heartbeat_snapshot()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 520,
+          "line": 587,
           "preview": "self._heartbeat_snapshot()",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 556,
+          "line": 623,
           "preview": "self._heartbeat_snapshot()",
           "definition_candidate": false
         }
@@ -2544,20 +2717,20 @@
     "_activate": {
       "definition": {
         "file": "src/production_os/remote_worker_runner.py",
-        "line": 177,
+        "line": 178,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 177,
+          "line": 178,
           "preview": "def _activate(self, key: str) -> dict:",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 215,
+          "line": 216,
           "preview": "heartbeat = self._activate(key)",
           "definition_candidate": false
         }
@@ -2567,26 +2740,26 @@
     "_deactivate": {
       "definition": {
         "file": "src/production_os/remote_worker_runner.py",
-        "line": 182,
+        "line": 183,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 182,
+          "line": 183,
           "preview": "def _deactivate(",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 380,
+          "line": 392,
           "preview": "self._deactivate(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 477,
+          "line": 544,
           "preview": "self._deactivate(key)",
           "definition_candidate": false
         }
@@ -2596,20 +2769,20 @@
     "_heartbeat_active": {
       "definition": {
         "file": "src/production_os/remote_worker_runner.py",
-        "line": 200,
+        "line": 201,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 200,
+          "line": 201,
           "preview": "def _heartbeat_active(self, key: str) -> dict:",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 342,
+          "line": 354,
           "preview": "heartbeat = self._heartbeat_active(key)",
           "definition_candidate": false
         },
@@ -2631,7 +2804,7 @@
     "_execute": {
       "definition": {
         "file": "src/production_os/remote_worker_runner.py",
-        "line": 206,
+        "line": 207,
         "kind": "function",
         "language": "python"
       },
@@ -3172,13 +3345,13 @@
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 206,
+          "line": 207,
           "preview": "def _execute(self, job: RemoteJob) -> dict:",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 534,
+          "line": 601,
           "preview": "future = pool.submit(self._execute, job)",
           "definition_candidate": false
         },
@@ -3362,7 +3535,7 @@
     "run": {
       "definition": {
         "file": "src/production_os/remote_worker_runner.py",
-        "line": 479,
+        "line": 546,
         "kind": "function",
         "language": "python"
       },
@@ -3621,7 +3794,7 @@
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 479,
+          "line": 546,
           "preview": "def run(",
           "definition_candidate": true
         },
@@ -3813,25 +3986,25 @@
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 18,
+          "line": 19,
           "preview": "result = subprocess.run(",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 31,
+          "line": 32,
           "preview": "subprocess.run([\"git\", \"init\", str(repo)], check=True, stdout=subprocess.PIPE)",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 167,
+          "line": 168,
           "preview": "\"remote-worker-run\",",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 247,
+          "line": 248,
           "preview": "\"remote-worker-run\",",
           "definition_candidate": false
         },
@@ -4035,56 +4208,56 @@
         },
         {
           "file": "tests/test_remote_worker_runner.py",
-          "line": 720,
+          "line": 686,
+          "preview": "subprocess.run([\"git\", \"add\", \".\"], check=True)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_remote_worker_runner.py",
+          "line": 687,
+          "preview": "subprocess.run([",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_remote_worker_runner.py",
+          "line": 727,
           "preview": "outcomes = runner.run(cycles=1, idle_sleep_seconds=0)",
           "definition_candidate": false
         },
         {
           "file": "tests/test_remote_worker_runner.py",
-          "line": 746,
+          "line": 757,
           "preview": "subprocess.run([\"git\", \"init\", str(repo)], check=True, stdout=subprocess.PIPE)",
           "definition_candidate": false
         },
         {
           "file": "tests/test_remote_worker_runner.py",
-          "line": 747,
-          "preview": "subprocess.run(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_remote_worker_runner.py",
-          "line": 751,
-          "preview": "subprocess.run(",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_remote_worker_runner.py",
-          "line": 756,
-          "preview": "subprocess.run([\"git\", \"-C\", str(repo), \"add\", \".\"], check=True)",
-          "definition_candidate": false
-        },
-        {
-          "file": "tests/test_remote_worker_runner.py",
-          "line": 757,
+          "line": 758,
           "preview": "subprocess.run(",
           "definition_candidate": false
         },
         {
           "file": "tests/test_remote_worker_runner.py",
           "line": 762,
-          "preview": "base_branch = subprocess.run(",
+          "preview": "subprocess.run(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_remote_worker_runner.py",
+          "line": 767,
+          "preview": "subprocess.run([\"git\", \"-C\", str(repo), \"add\", \".\"], check=True)",
           "definition_candidate": false
         },
         {
           "file": "tests/test_remote_worker_runner.py",
           "line": 768,
-          "preview": "base_sha = subprocess.run(",
+          "preview": "subprocess.run(",
           "definition_candidate": false
         },
         {
           "file": "tests/test_remote_worker_runner.py",
-          "line": 775,
-          "preview": "subprocess.run(",
+          "line": 773,
+          "preview": "base_branch = subprocess.run(",
           "definition_candidate": false
         }
       ],
@@ -4093,26 +4266,26 @@
     "collect": {
       "definition": {
         "file": "src/production_os/remote_worker_runner.py",
-        "line": 499,
+        "line": 566,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 499,
+          "line": 566,
           "preview": "def collect(done) -> None:",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 543,
+          "line": 610,
           "preview": "collect(done)",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/remote_worker_runner.py",
-          "line": 553,
+          "line": 620,
           "preview": "collect(done)",
           "definition_candidate": false
         }
@@ -4122,85 +4295,97 @@
     "_repo": {
       "definition": {
         "file": "tests/test_executor_worktree.py",
-        "line": 28,
+        "line": 29,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 28,
+          "line": 29,
           "preview": "def _repo(tmp_path: Path) -> Path:",
           "definition_candidate": true
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 41,
+          "line": 42,
           "preview": "repo = _repo(tmp_path)",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 68,
+          "line": 69,
           "preview": "repo = _repo(tmp_path)",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 93,
+          "line": 94,
           "preview": "repo = _repo(tmp_path)",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 123,
+          "line": 124,
           "preview": "repo = _repo(tmp_path)",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 202,
+          "line": 203,
           "preview": "repo = _repo(tmp_path)",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 271,
+          "line": 272,
           "preview": "repo = _repo(tmp_path)",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 318,
+          "line": 319,
           "preview": "repo = _repo(tmp_path)",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 364,
+          "line": 365,
           "preview": "repo = _repo(tmp_path)",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 394,
+          "line": 395,
+          "preview": "repo = _repo(tmp_path)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 432,
+          "preview": "repo = _repo(tmp_path)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 468,
           "preview": "repo = _repo(tmp_path)",
           "definition_candidate": false
         }
       ],
-      "occurrence_count": 10
+      "occurrence_count": 12
     },
     "test_prepare_isolated_worktree_creates_attempt_scoped_branch": {
       "definition": {
         "file": "tests/test_executor_worktree.py",
-        "line": 40,
+        "line": 41,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 40,
+          "line": 41,
           "preview": "def test_prepare_isolated_worktree_creates_attempt_scoped_branch(tmp_path):",
           "definition_candidate": true
         }
@@ -4210,14 +4395,14 @@
     "test_prepare_isolated_worktree_reuses_matching_existing_workspace": {
       "definition": {
         "file": "tests/test_executor_worktree.py",
-        "line": 67,
+        "line": 68,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 67,
+          "line": 68,
           "preview": "def test_prepare_isolated_worktree_reuses_matching_existing_workspace(tmp_path):",
           "definition_candidate": true
         }
@@ -4227,14 +4412,14 @@
     "test_retry_contract_gets_distinct_worktree": {
       "definition": {
         "file": "tests/test_executor_worktree.py",
-        "line": 92,
+        "line": 93,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 92,
+          "line": 93,
           "preview": "def test_retry_contract_gets_distinct_worktree(tmp_path):",
           "definition_candidate": true
         }
@@ -4244,14 +4429,14 @@
     "test_remove_isolated_worktree_detaches_and_prunes": {
       "definition": {
         "file": "tests/test_executor_worktree.py",
-        "line": 122,
+        "line": 123,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 122,
+          "line": 123,
           "preview": "def test_remove_isolated_worktree_detaches_and_prunes(tmp_path):",
           "definition_candidate": true
         }
@@ -4261,14 +4446,14 @@
     "test_prepare_rejects_non_repository_root": {
       "definition": {
         "file": "tests/test_executor_worktree.py",
-        "line": 143,
+        "line": 144,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 143,
+          "line": 144,
           "preview": "def test_prepare_rejects_non_repository_root(tmp_path):",
           "definition_candidate": true
         }
@@ -4278,14 +4463,14 @@
     "test_remote_worker_cli_parses_repository_worktree_configuration": {
       "definition": {
         "file": "tests/test_executor_worktree.py",
-        "line": 163,
+        "line": 164,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 163,
+          "line": 164,
           "preview": "def test_remote_worker_cli_parses_repository_worktree_configuration():",
           "definition_candidate": true
         }
@@ -4295,14 +4480,14 @@
     "test_repository_root_mapping_rejects_ambiguous_values": {
       "definition": {
         "file": "tests/test_executor_worktree.py",
-        "line": 183,
+        "line": 184,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 183,
+          "line": 184,
           "preview": "def test_repository_root_mapping_rejects_ambiguous_values():",
           "definition_candidate": true
         }
@@ -4312,14 +4497,14 @@
     "test_runner_uses_repository_cache_when_no_explicit_mapping": {
       "definition": {
         "file": "tests/test_executor_worktree.py",
-        "line": 196,
+        "line": 197,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 196,
+          "line": 197,
           "preview": "def test_runner_uses_repository_cache_when_no_explicit_mapping(tmp_path, monkeypatch):",
           "definition_candidate": true
         }
@@ -4329,20 +4514,20 @@
     "DummyClient": {
       "definition": {
         "file": "tests/test_executor_worktree.py",
-        "line": 204,
+        "line": 205,
         "kind": "class",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 204,
+          "line": 205,
           "preview": "class DummyClient:",
           "definition_candidate": true
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 208,
+          "line": 209,
           "preview": "DummyClient(),",
           "definition_candidate": false
         }
@@ -4352,14 +4537,14 @@
     "test_remote_worker_cli_exposes_repository_cache_root": {
       "definition": {
         "file": "tests/test_executor_worktree.py",
-        "line": 243,
+        "line": 244,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 243,
+          "line": 244,
           "preview": "def test_remote_worker_cli_exposes_repository_cache_root():",
           "definition_candidate": true
         }
@@ -4369,44 +4554,44 @@
     "_commit": {
       "definition": {
         "file": "tests/test_executor_worktree.py",
-        "line": 260,
+        "line": 261,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 260,
+          "line": 261,
           "preview": "def _commit(repo: Path, message: str) -> str:",
           "definition_candidate": true
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 277,
+          "line": 278,
           "preview": "commit_a = _commit(repo, \"agent a\")",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 282,
+          "line": 283,
           "preview": "commit_b = _commit(repo, \"agent b\")",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 324,
+          "line": 325,
           "preview": "commit_a = _commit(repo, \"agent a conflict\")",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 329,
+          "line": 330,
           "preview": "commit_b = _commit(repo, \"agent b conflict\")",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 398,
+          "line": 399,
           "preview": "commit_a = _commit(repo, \"agent a\")",
           "definition_candidate": false
         }
@@ -4416,32 +4601,32 @@
     "_current_branch": {
       "definition": {
         "file": "tests/test_executor_worktree.py",
-        "line": 266,
+        "line": 267,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 266,
+          "line": 267,
           "preview": "def _current_branch(repo: Path) -> str:",
           "definition_candidate": true
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 273,
+          "line": 274,
           "preview": "base_branch = _current_branch(repo)",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 320,
+          "line": 321,
           "preview": "base_branch = _current_branch(repo)",
           "definition_candidate": false
         },
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 395,
+          "line": 396,
           "preview": "base_branch = _current_branch(repo)",
           "definition_candidate": false
         }
@@ -4451,14 +4636,14 @@
     "test_preintegrate_upstream_commits_applies_clean_independent_changes": {
       "definition": {
         "file": "tests/test_executor_worktree.py",
-        "line": 270,
+        "line": 271,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 270,
+          "line": 271,
           "preview": "def test_preintegrate_upstream_commits_applies_clean_independent_changes(tmp_path):",
           "definition_candidate": true
         }
@@ -4468,14 +4653,14 @@
     "test_preintegrate_conflict_rolls_back_entire_preflight": {
       "definition": {
         "file": "tests/test_executor_worktree.py",
-        "line": 317,
+        "line": 318,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 317,
+          "line": 318,
           "preview": "def test_preintegrate_conflict_rolls_back_entire_preflight(tmp_path):",
           "definition_candidate": true
         }
@@ -4485,14 +4670,14 @@
     "test_preintegrate_missing_commit_leaves_clean_starting_state": {
       "definition": {
         "file": "tests/test_executor_worktree.py",
-        "line": 363,
+        "line": 364,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 363,
+          "line": 364,
           "preview": "def test_preintegrate_missing_commit_leaves_clean_starting_state(tmp_path):",
           "definition_candidate": true
         }
@@ -4502,15 +4687,49 @@
     "test_preintegrate_dirty_workspace_defers_without_mutation": {
       "definition": {
         "file": "tests/test_executor_worktree.py",
-        "line": 393,
+        "line": 394,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "tests/test_executor_worktree.py",
-          "line": 393,
+          "line": 394,
           "preview": "def test_preintegrate_dirty_workspace_defers_without_mutation(tmp_path):",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 1
+    },
+    "test_inspect_worktree_result_reports_clean_committed_evidence": {
+      "definition": {
+        "file": "tests/test_executor_worktree.py",
+        "line": 431,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 431,
+          "preview": "def test_inspect_worktree_result_reports_clean_committed_evidence(tmp_path):",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 1
+    },
+    "test_inspect_worktree_result_reports_uncommitted_changes": {
+      "definition": {
+        "file": "tests/test_executor_worktree.py",
+        "line": 467,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "tests/test_executor_worktree.py",
+          "line": 467,
+          "preview": "def test_inspect_worktree_result_reports_uncommitted_changes(tmp_path):",
           "definition_candidate": true
         }
       ],
@@ -5102,18 +5321,24 @@
         },
         {
           "file": "tests/test_remote_worker_runner.py",
-          "line": 700,
+          "line": 707,
           "preview": "server, thread, base = _server(control)",
           "definition_candidate": false
         },
         {
           "file": "tests/test_remote_worker_runner.py",
-          "line": 880,
+          "line": 891,
+          "preview": "server, thread, base = _server(control)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_remote_worker_runner.py",
+          "line": 1000,
           "preview": "server, thread, base = _server(control)",
           "definition_candidate": false
         }
       ],
-      "occurrence_count": 98
+      "occurrence_count": 99
     },
     "_stop": {
       "definition": {
@@ -5311,18 +5536,24 @@
         },
         {
           "file": "tests/test_remote_worker_runner.py",
-          "line": 736,
+          "line": 747,
           "preview": "_stop(server, thread)",
           "definition_candidate": false
         },
         {
           "file": "tests/test_remote_worker_runner.py",
-          "line": 912,
+          "line": 923,
+          "preview": "_stop(server, thread)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_remote_worker_runner.py",
+          "line": 1032,
           "preview": "_stop(server, thread)",
           "definition_candidate": false
         }
       ],
-      "occurrence_count": 33
+      "occurrence_count": 34
     },
     "_auth": {
       "definition": {
@@ -6251,15 +6482,32 @@
     "test_remote_worker_runner_preintegrates_multi_parent_commits": {
       "definition": {
         "file": "tests/test_remote_worker_runner.py",
-        "line": 740,
+        "line": 751,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "tests/test_remote_worker_runner.py",
-          "line": 740,
+          "line": 751,
           "preview": "def test_remote_worker_runner_preintegrates_multi_parent_commits(tmp_path):",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 1
+    },
+    "test_remote_worker_runner_rejects_success_with_dirty_worktree": {
+      "definition": {
+        "file": "tests/test_remote_worker_runner.py",
+        "line": 927,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "tests/test_remote_worker_runner.py",
+          "line": 927,
+          "preview": "def test_remote_worker_runner_rejects_success_with_dirty_worktree(tmp_path):",
           "definition_candidate": true
         }
       ],

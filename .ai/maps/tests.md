@@ -3231,6 +3231,14 @@ def test_preintegrate_missing_commit_leaves_clean_starting_state(tmp_path)
 missing = "f" * 40
 ⋮----
 def test_preintegrate_dirty_workspace_defers_without_mutation(tmp_path)
+⋮----
+def test_inspect_worktree_result_reports_clean_committed_evidence(tmp_path)
+⋮----
+final_sha = _git(target, "rev-parse", "HEAD")
+⋮----
+evidence = inspect_worktree_result(
+⋮----
+def test_inspect_worktree_result_reports_uncommitted_changes(tmp_path)
 ```
 
 ## File: test_fairness.py
@@ -5559,6 +5567,12 @@ commit_b = subprocess.run(
 executor = tmp_path / "integration_executor.py"
 ⋮----
 preflight = execution["result_summary"]["preflight"]
+⋮----
+def test_remote_worker_runner_rejects_success_with_dirty_worktree(tmp_path)
+⋮----
+repo = tmp_path / "dirty-repo"
+⋮----
+executor = tmp_path / "dirty_executor.py"
 ```
 
 ## File: test_remote_worker.py
