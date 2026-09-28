@@ -265,7 +265,7 @@ def test_sqlite_v14_database_is_migrated_additively_to_v16(tmp_path):
         runs = conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table' AND name='managed_project_runs'"
         ).fetchone()
-    assert version == "16"
+    assert version == "17"
     assert {
         "verification_state",
         "verification_checks",
