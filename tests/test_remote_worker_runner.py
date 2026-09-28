@@ -734,3 +734,179 @@ print(json.dumps({
         assert pathlib.Path(result["cwd"], "agent.txt").is_file()
     finally:
         _stop(server, thread)
+
+
+
+def test_remote_worker_runner_preintegrates_multi_parent_commits(tmp_path):
+    import pathlib
+    import subprocess
+
+    repo = tmp_path / "integration-repo"
+    repo.mkdir()
+    subprocess.run(["git", "init", str(repo)], check=True, stdout=subprocess.PIPE)
+    subprocess.run(
+        ["git", "-C", str(repo), "config", "user.email", "test@example.invalid"],
+        check=True,
+    )
+    subprocess.run(
+        ["git", "-C", str(repo), "config", "user.name", "Production OS Test"],
+        check=True,
+    )
+    (repo / "README.md").write_text("base\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+    subprocess.run(
+        ["git", "-C", str(repo), "commit", "-m", "base"],
+        check=True,
+        stdout=subprocess.PIPE,
+    )
+    base_branch = subprocess.run(
+        ["git", "-C", str(repo), "branch", "--show-current"],
+        check=True,
+        text=True,
+        stdout=subprocess.PIPE,
+    ).stdout.strip()
+    base_sha = subprocess.run(
+        ["git", "-C", str(repo), "rev-parse", "HEAD"],
+        check=True,
+        text=True,
+        stdout=subprocess.PIPE,
+    ).stdout.strip()
+
+    subprocess.run(
+        ["git", "-C", str(repo), "checkout", "-b", "agent-a"],
+        check=True,
+        stdout=subprocess.PIPE,
+    )
+    (repo / "a.txt").write_text("a\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+    subprocess.run(
+        ["git", "-C", str(repo), "commit", "-m", "agent a"],
+        check=True,
+        stdout=subprocess.PIPE,
+    )
+    commit_a = subprocess.run(
+        ["git", "-C", str(repo), "rev-parse", "HEAD"],
+        check=True,
+        text=True,
+        stdout=subprocess.PIPE,
+    ).stdout.strip()
+
+    subprocess.run(
+        ["git", "-C", str(repo), "checkout", base_branch],
+        check=True,
+        stdout=subprocess.PIPE,
+    )
+    subprocess.run(
+        ["git", "-C", str(repo), "checkout", "-b", "agent-b"],
+        check=True,
+        stdout=subprocess.PIPE,
+    )
+    (repo / "b.txt").write_text("b\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+    subprocess.run(
+        ["git", "-C", str(repo), "commit", "-m", "agent b"],
+        check=True,
+        stdout=subprocess.PIPE,
+    )
+    commit_b = subprocess.run(
+        ["git", "-C", str(repo), "rev-parse", "HEAD"],
+        check=True,
+        text=True,
+        stdout=subprocess.PIPE,
+    ).stdout.strip()
+    subprocess.run(
+        ["git", "-C", str(repo), "checkout", base_branch],
+        check=True,
+        stdout=subprocess.PIPE,
+    )
+
+    control = ControlPlane(
+        str(tmp_path / "integration-preflight.sqlite"),
+        authorizer=_auth(),
+    )
+    queued = control.queue.enqueue({
+        "handoff":{
+            "repository":"dbrckk/integration-target",
+            "task":"Integrate agent branches.",
+            "upstream_context":[
+                {"task_id":"agent-a", "commit_shas":[commit_a]},
+                {"task_id":"agent-b", "commit_shas":[commit_b]},
+            ],
+            "isolation":{
+                "schema_version":"production-os/git-worktree-isolation/v1",
+                "mode":"git-worktree",
+                "repository":"dbrckk/integration-target",
+                "workflow_id":"wf-integration",
+                "task_id":"integration",
+                "attempt":1,
+                "branch":"production-os/wf-integration/integration-a1-test",
+                "workspace_key":"integration-preflight-test",
+                "base_ref":base_sha,
+                "integration_target":True,
+                "requirements":{
+                    "exclusive_workspace":True,
+                    "no_shared_working_tree_writes":True,
+                    "commit_changes_before_success":True,
+                    "report_commit_shas":True,
+                },
+            },
+        },
+        "required_capabilities":[],
+    })
+    executor = tmp_path / "integration_executor.py"
+    executor.write_text(
+        """
+import json, pathlib, sys
+request = json.load(sys.stdin)
+cwd = pathlib.Path.cwd()
+preflight = request.get("integration_preflight") or {}
+ok = (
+    preflight.get("status") == "integrated"
+    and (cwd / "a.txt").read_text(encoding="utf-8") == "a\\n"
+    and (cwd / "b.txt").read_text(encoding="utf-8") == "b\\n"
+)
+print(json.dumps({
+    "status":"succeeded" if ok else "failed",
+    "reason":None if ok else "preflight_missing",
+    "result":{
+        "summary":"preintegrated" if ok else "not preintegrated",
+        "preflight":preflight,
+    },
+}))
+""".strip(),
+        encoding="utf-8",
+    )
+
+    server, thread, base = _server(control)
+    try:
+        client = RemoteWorkerClient(
+            base,
+            "worker-secret",
+            "runner-1",
+            [],
+            timeout=5,
+        )
+        runner = RemoteWorkerRunner(
+            client,
+            [sys.executable, str(executor)],
+            repository_roots={
+                "dbrckk/integration-target":str(repo),
+            },
+            worktree_root=str(tmp_path / "worktrees"),
+            heartbeat_interval_seconds=0.1,
+            executor_timeout_seconds=5,
+        )
+
+        outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+
+        assert outcomes == [{
+            "job_key":queued["key"],
+            "status":"completed",
+        }]
+        execution = control.dashboard_store.latest_execution(queued["key"])
+        preflight = execution["result_summary"]["preflight"]
+        assert preflight["status"] == "integrated"
+        assert preflight["applied_commits"] == [commit_a, commit_b]
+        assert len(preflight["final_sha"]) == 40
+    finally:
+        _stop(server, thread)
