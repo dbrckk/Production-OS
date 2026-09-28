@@ -1363,6 +1363,25 @@ class WorkflowEngine:
                 contracts = dict(handoff.get("tool_contracts") or {})
                 contracts["asset_forge"] = asset_forge
                 handoff["tool_contracts"] = contracts
+
+            browser_capabilities = set(
+                inferred_required_capabilities(handoff)
+                + inferred_preferred_capabilities(handoff)
+            )
+            if "browser-computer-use" in browser_capabilities:
+                contracts = dict(handoff.get("tool_contracts") or {})
+                contracts.setdefault(
+                    "browser_computer",
+                    {
+                        "schema":"production-os/browser-computer-plan/v1",
+                        "result_schema":
+                            "production-os/browser-computer-result/v1",
+                        "max_actions":64,
+                        "requires_allowed_hosts":True,
+                        "persistent_session":True,
+                    },
+                )
+                handoff["tool_contracts"] = contracts
             queue_payload = {
                 **payload,
                 "schema_version":"production-os/workflow-dispatch/v1",
