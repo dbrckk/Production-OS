@@ -9,6 +9,8 @@ CODE_CAPABILITY = "code-implementation"
 TEST_CAPABILITY = "test-debug"
 REVIEW_CAPABILITY = "code-review"
 BROWSER_CAPABILITY = "browser-ui-validation"
+BROWSER_AUTOMATION_CAPABILITY = "browser-automation"
+BROWSER_AUTOMATION_SCHEMA = "production-os/browser-automation/v1"
 ASSET_FORGE_REQUEST_SCHEMA = "asset-forge/production-request/v1"
 ASSET_FORGE_REPORT_SCHEMA = "asset-forge/production-report/v1"
 
@@ -105,6 +107,13 @@ def inferred_preferred_capabilities(handoff: dict) -> list[str]:
         preferred.add(REVIEW_CAPABILITY)
     if re.search(r"\b(?:browser|playwright|selenium|ui test|visual regression|screenshot|frontend)\b", text):
         preferred.add(BROWSER_CAPABILITY)
+    if re.search(
+        r"\b(?:browser automation|web automation|navigate (?:the )?(?:site|website)|"
+        r"interact with (?:the )?(?:site|website)|fill (?:a )?form|click through|"
+        r"computer use|browse the web|website workflow|web task)\b",
+        text,
+    ):
+        preferred.add(BROWSER_AUTOMATION_CAPABILITY)
     if re.search(r"\b(?:implement|implementation|code|feature|refactor|build|develop|fix)\b", text):
         preferred.add(CODE_CAPABILITY)
     if is_visual_asset_task(handoff):
@@ -146,4 +155,25 @@ def asset_forge_tool_contract(handoff: dict) -> dict | None:
             if VISUAL_3D_CAPABILITY in required
             else VISUAL_CAPABILITY
         ),
+    }
+
+
+
+def browser_automation_tool_contract(handoff: dict) -> dict | None:
+    preferred = set(inferred_preferred_capabilities(handoff))
+    required = set(inferred_required_capabilities(handoff))
+    if (
+        BROWSER_AUTOMATION_CAPABILITY not in preferred
+        and BROWSER_AUTOMATION_CAPABILITY not in required
+    ):
+        return None
+    return {
+        "schema":BROWSER_AUTOMATION_SCHEMA,
+        "required_capability":BROWSER_AUTOMATION_CAPABILITY,
+        "runtime":"python-playwright-chromium",
+        "persistent_context":True,
+        "profile_dir_env":"PRODUCTION_OS_BROWSER_PROFILE_DIR",
+        "state_path_env":"PRODUCTION_OS_BROWSER_STATE",
+        "artifacts_dir_env":"PRODUCTION_OS_BROWSER_ARTIFACTS_DIR",
+        "resume_env":"PRODUCTION_OS_BROWSER_RESUME",
     }
