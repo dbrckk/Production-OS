@@ -130,3 +130,34 @@ def test_browser_plan_cli_parses_runtime_paths():
     assert args.artifacts_dir == "/tmp/artifacts"
     assert args.storage_state == "/tmp/state.json"
     assert args.headed is False
+
+
+
+def test_browser_plan_cli_defaults_storage_state_to_runtime_workspace(monkeypatch):
+    from argparse import Namespace
+
+    from production_os.cli import _browser_storage_state
+
+    monkeypatch.setenv(
+        "PRODUCTION_OS_RUNTIME_WORKSPACE",
+        "/var/lib/production-os/runtime/job-a",
+    )
+    args = Namespace(storage_state="")
+
+    assert _browser_storage_state(args) == (
+        "/var/lib/production-os/runtime/job-a/browser-state.json"
+    )
+
+
+def test_browser_plan_cli_explicit_storage_state_wins(monkeypatch):
+    from argparse import Namespace
+
+    from production_os.cli import _browser_storage_state
+
+    monkeypatch.setenv(
+        "PRODUCTION_OS_RUNTIME_WORKSPACE",
+        "/var/lib/production-os/runtime/job-a",
+    )
+    args = Namespace(storage_state="/tmp/custom-state.json")
+
+    assert _browser_storage_state(args) == "/tmp/custom-state.json"
