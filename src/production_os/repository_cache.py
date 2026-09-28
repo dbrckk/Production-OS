@@ -8,6 +8,8 @@ import threading
 from dataclasses import dataclass
 from pathlib import Path
 
+from .filesystem_lock import filesystem_lock
+
 
 class RepositoryCacheError(RuntimeError):
     pass
@@ -109,7 +111,10 @@ class RepositoryCache:
         target = self._path_for(value)
         remote = self.remote_url(value)
 
-        with self._lock_for(value):
+        cache_lock = self.root / ".locks" / (
+            hashlib.sha256(value.encode("utf-8")).hexdigest() + ".lock"
+        )
+        with self._lock_for(value), filesystem_lock(cache_lock):
             created = False
             fetched = False
             if not target.exists():
@@ -127,6 +132,9 @@ class RepositoryCache:
                     raise RepositoryCacheError(
                         "repository cache path exists but is not a git checkout"
                     )
+
+            git_lock = target / ".git" / "production-os.lock"
+            with filesystem_lock(git_lock):
                 actual = _run_git(
                     ["remote", "get-url", "origin"],
                     cwd=target,
@@ -136,51 +144,51 @@ class RepositoryCache:
                         "cached repository origin mismatch"
                     )
 
-            # Fetch every time before worktree preparation so a one-tap launch
-            # sees the current remote refs. Authentication, when required, is
-            # delegated to the worker's normal Git credential configuration.
-            _run_git(
-                [
-                    "fetch",
-                    "--prune",
-                    "--no-tags",
-                    "origin",
-                    "+refs/heads/*:refs/remotes/origin/*",
-                ],
-                cwd=target,
-            )
-            fetched = True
+                # Fetch every time before worktree preparation so a one-tap
+                # launch sees current remote refs. Authentication remains the
+                # worker's normal Git credential responsibility.
+                _run_git(
+                    [
+                        "fetch",
+                        "--prune",
+                        "--no-tags",
+                        "origin",
+                        "+refs/heads/*:refs/remotes/origin/*",
+                    ],
+                    cwd=target,
+                )
+                fetched = True
 
-            # Make origin's default branch addressable as HEAD in the cache.
-            remote_head_result = _run_git(
-                ["symbolic-ref", "--quiet", "refs/remotes/origin/HEAD"],
-                cwd=target,
-                check=False,
-            )
-            remote_head = remote_head_result.stdout.strip()
-            branch = ""
-            if remote_head.startswith("refs/remotes/origin/"):
-                branch = remote_head.removeprefix("refs/remotes/origin/")
-            else:
-                local_head = _run_git(
-                    ["symbolic-ref", "--quiet", "--short", "HEAD"],
+                # Make origin's default branch addressable as HEAD.
+                remote_head_result = _run_git(
+                    ["symbolic-ref", "--quiet", "refs/remotes/origin/HEAD"],
                     cwd=target,
                     check=False,
-                ).stdout.strip()
-                if local_head:
-                    branch = local_head
-            if branch:
-                remote_ref = f"refs/remotes/origin/{branch}"
-                exists = _run_git(
-                    ["show-ref", "--verify", "--quiet", remote_ref],
-                    cwd=target,
-                    check=False,
-                ).returncode == 0
-                if exists:
-                    _run_git(
-                        ["checkout", "-B", branch, remote_ref],
+                )
+                remote_head = remote_head_result.stdout.strip()
+                branch = ""
+                if remote_head.startswith("refs/remotes/origin/"):
+                    branch = remote_head.removeprefix("refs/remotes/origin/")
+                else:
+                    local_head = _run_git(
+                        ["symbolic-ref", "--quiet", "--short", "HEAD"],
                         cwd=target,
-                    )
+                        check=False,
+                    ).stdout.strip()
+                    if local_head:
+                        branch = local_head
+                if branch:
+                    remote_ref = f"refs/remotes/origin/{branch}"
+                    exists = _run_git(
+                        ["show-ref", "--verify", "--quiet", remote_ref],
+                        cwd=target,
+                        check=False,
+                    ).returncode == 0
+                    if exists:
+                        _run_git(
+                            ["checkout", "-B", branch, remote_ref],
+                            cwd=target,
+                        )
 
             return CachedRepository(
                 repository=value,
