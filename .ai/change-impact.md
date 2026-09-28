@@ -1,19 +1,18 @@
 # Change impact
 
-Base: 3c88c39aa337305c92fef554fa8e3ab750112b07
-Head: bdc539544d29b35e6f95c623875494daa97b4ee5
+Base: 434dd2f4bf7a6d520a4a5fb0a6962996517ac782
+Head: 7af508941950679be5cdfe1aad702abb14fe51ed
 
 ## Changed files
-- A src/production_os/agent_planning_policy.py
-- M src/production_os/managed_projects.py
-- A tests/test_agent_planning_policy.py
+- M src/production_os/agent_benchmark.py
+- M tests/test_agent_benchmark.py
 
 ## Affected areas
 - src
 - tests
 
 ## Related test candidates
-- tests/test_agent_planning_policy.py
+- tests/test_agent_benchmark.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

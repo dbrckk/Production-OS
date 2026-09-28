@@ -22,16 +22,18 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-28T11:23:51Z
+Generated: 2026-09-28T11:29:10Z
 
 ### Git
 - Branch: `main`
-- Head: `bdc539544d29`
-- Commit date: 2026-09-28T13:23:40+02:00
-- Commit: feat(agents): adapt planner fanout from durable benchmark evidence
+- Head: `7af508941950`
+- Commit date: 2026-09-28T13:28:56+02:00
+- Commit: feat(benchmark): expose adaptive planner policy and actual fanout
 - Tracked files: 509
 
 ### Recently changed files
+- `src/production_os/agent_benchmark.py`
+- `tests/test_agent_benchmark.py`
 - `src/production_os/agent_planning_policy.py`
 - `src/production_os/managed_projects.py`
 - `tests/test_agent_planning_policy.py`
@@ -42,11 +44,7 @@ Generated: 2026-09-28T11:23:51Z
 - `src/production_os/workflow_engine.py`
 - `tests/test_model_router.py`
 - `tests/test_remote_worker.py`
-- `src/production_os/agent_benchmark.py`
 - `src/production_os/cli.py`
-- `tests/test_agent_benchmark.py`
-- `src/production_os/dashboard_store.py`
-- `tests/test_dashboard_store.py`
 
 ### Project signals
 - `pyproject.toml`

@@ -325,6 +325,9 @@ observed_cost_usd: float
 unknown_cost_executions: int
 providers: tuple[str, ...]
 models: tuple[str, ...]
+planning_policy_source: str | None
+planner_max_agents: int | None
+dynamic_agent_count: int
 ⋮----
 def to_dict(self) -> dict[str, Any]
 ⋮----
@@ -345,8 +348,26 @@ audit_rows = _execute(
 status_counts: dict[str, int] = {}
 validation_failures = 0
 validation_passes = 0
+planning_policy_source = None
+planner_max_agents = None
+dynamic_agent_count = 0
 ⋮----
 status = str(row["status"])
+⋮----
+payload = json.loads(row["payload_json"] or "{}")
+⋮----
+payload = {}
+⋮----
+planner = payload.get("dynamic_agent_planner")
+⋮----
+policy = planner.get("planning_policy")
+⋮----
+source = str(policy.get("source") or "").strip()
+⋮----
+planning_policy_source = source
+raw_max_agents = planner.get("max_agents")
+⋮----
+planner_max_agents = raw_max_agents
 ⋮----
 result = json.loads(row["result_json"] or "{}")
 ⋮----
@@ -391,6 +412,8 @@ wall_clocks = [
 costs = [row.observed_cost_usd for row in rows]
 total_executions = sum(row.execution_count for row in rows)
 failed_executions = sum(row.failed_executions for row in rows)
+fanouts = [
+policy_sources: dict[str, int] = {}
 ⋮----
 def delta(name: str)
 ⋮----

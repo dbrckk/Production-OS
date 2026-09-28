@@ -303,6 +303,16 @@ comparison = compare_reports(candidate, baseline)
 def test_agent_benchmark_cli_parses_multiple_workflows_and_baseline()
 ⋮----
 args = _parse_args([
+⋮----
+def test_benchmark_records_dynamic_planner_policy_and_actual_fanout(tmp_path)
+⋮----
+payload = row.to_dict()
+⋮----
+def test_benchmark_report_aggregates_planner_policy_observability(tmp_path)
+⋮----
+ids = []
+⋮----
+report = AutonomousBenchmark(backend).report(ids)
 ```
 
 ## File: test_agent_plan.py

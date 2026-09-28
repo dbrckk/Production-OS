@@ -1,42 +1,108 @@
 {
   "schema_version": 1,
   "generated_by": "dbrckk/repo-brain",
-  "base": "d9dac2079d94fc1e30d49f10dc28f96bcde8601a",
-  "head": "bdc539544d29b35e6f95c623875494daa97b4ee5",
+  "base": "bdc539544d29b35e6f95c623875494daa97b4ee5",
+  "head": "7af508941950679be5cdfe1aad702abb14fe51ed",
   "index_mode": "incremental",
   "changed_files": [
     {
-      "path": "src/production_os/agent_planning_policy.py",
-      "status": "A"
-    },
-    {
-      "path": "src/production_os/managed_projects.py",
+      "path": "src/production_os/agent_benchmark.py",
       "status": "M"
     },
     {
-      "path": "tests/test_agent_planning_policy.py",
-      "status": "A"
+      "path": "tests/test_agent_benchmark.py",
+      "status": "M"
     }
   ],
   "changed_source_files": [
-    "src/production_os/agent_planning_policy.py",
-    "src/production_os/managed_projects.py",
-    "tests/test_agent_planning_policy.py"
+    "src/production_os/agent_benchmark.py",
+    "tests/test_agent_benchmark.py"
   ],
   "impacted_files": [
+    "src/production_os/agent_benchmark.py",
     "src/production_os/agent_planning_policy.py",
-    "src/production_os/control_plane.py",
-    "src/production_os/managed_projects.py",
-    "tests/test_agent_planning_policy.py",
-    "tests/test_cooperative_managed_projects.py",
-    "tests/test_cooperative_specialist_e2e.py",
-    "tests/test_managed_dynamic_plan_outcome.py",
-    "tests/test_managed_github_reconciliation.py",
-    "tests/test_managed_project_outcome.py",
-    "tests/test_managed_projects_v4.py",
-    "tests/test_workflow_postgres.py"
+    "src/production_os/cli.py",
+    "tests/test_agent_benchmark.py"
   ],
   "impacted_symbols": [
+    {
+      "name": "_is_postgres",
+      "kind": "function",
+      "file": "src/production_os/agent_benchmark.py",
+      "line": 13
+    },
+    {
+      "name": "_sql",
+      "kind": "function",
+      "file": "src/production_os/agent_benchmark.py",
+      "line": 17
+    },
+    {
+      "name": "_execute",
+      "kind": "function",
+      "file": "src/production_os/agent_benchmark.py",
+      "line": 21
+    },
+    {
+      "name": "_dt",
+      "kind": "function",
+      "file": "src/production_os/agent_benchmark.py",
+      "line": 25
+    },
+    {
+      "name": "_validation_status",
+      "kind": "function",
+      "file": "src/production_os/agent_benchmark.py",
+      "line": 39
+    },
+    {
+      "name": "WorkflowBenchmark",
+      "kind": "class",
+      "file": "src/production_os/agent_benchmark.py",
+      "line": 55
+    },
+    {
+      "name": "to_dict",
+      "kind": "function",
+      "file": "src/production_os/agent_benchmark.py",
+      "line": 80
+    },
+    {
+      "name": "AutonomousBenchmark",
+      "kind": "class",
+      "file": "src/production_os/agent_benchmark.py",
+      "line": 108
+    },
+    {
+      "name": "__init__",
+      "kind": "function",
+      "file": "src/production_os/agent_benchmark.py",
+      "line": 109
+    },
+    {
+      "name": "workflow",
+      "kind": "function",
+      "file": "src/production_os/agent_benchmark.py",
+      "line": 112
+    },
+    {
+      "name": "report",
+      "kind": "function",
+      "file": "src/production_os/agent_benchmark.py",
+      "line": 289
+    },
+    {
+      "name": "compare_reports",
+      "kind": "function",
+      "file": "src/production_os/agent_benchmark.py",
+      "line": 370
+    },
+    {
+      "name": "delta",
+      "kind": "function",
+      "file": "src/production_os/agent_benchmark.py",
+      "line": 379
+    },
     {
       "name": "_is_postgres",
       "kind": "function",
@@ -68,749 +134,589 @@
       "line": 41
     },
     {
-      "name": "ControlPlane",
-      "kind": "class",
-      "file": "src/production_os/control_plane.py",
-      "line": 40
-    },
-    {
-      "name": "__init__",
+      "name": "_parse_args",
       "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 41
+      "file": "src/production_os/cli.py",
+      "line": 102
     },
     {
-      "name": "cooperative_worker_fleet_available",
+      "name": "_rank_actions",
       "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 113
+      "file": "src/production_os/cli.py",
+      "line": 837
     },
     {
-      "name": "_parse_timestamp",
+      "name": "_external_refs_for_action",
       "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 152
+      "file": "src/production_os/cli.py",
+      "line": 842
     },
     {
-      "name": "recover_abandoned_acked_jobs",
+      "name": "_handoff",
       "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 161
+      "file": "src/production_os/cli.py",
+      "line": 859
     },
     {
-      "name": "reconcile_worker_registration",
+      "name": "_print_human",
       "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 267
+      "file": "src/production_os/cli.py",
+      "line": 944
     },
     {
-      "name": "_json_bytes",
+      "name": "run_scan",
       "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 375
+      "file": "src/production_os/cli.py",
+      "line": 994
     },
     {
-      "name": "RequestBodyTooLarge",
-      "kind": "class",
-      "file": "src/production_os/control_plane.py",
-      "line": 386
-    },
-    {
-      "name": "make_handler",
+      "name": "run_validation_results",
       "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 390
+      "file": "src/production_os/cli.py",
+      "line": 1107
     },
     {
-      "name": "Handler",
-      "kind": "class",
-      "file": "src/production_os/control_plane.py",
-      "line": 391
-    },
-    {
-      "name": "version_string",
+      "name": "run_execution_feedback",
       "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 394
+      "file": "src/production_os/cli.py",
+      "line": 1139
     },
     {
-      "name": "log_message",
+      "name": "run_trends",
       "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 397
+      "file": "src/production_os/cli.py",
+      "line": 1176
     },
     {
-      "name": "_send_html",
+      "name": "run_heartbeat",
       "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 400
+      "file": "src/production_os/cli.py",
+      "line": 1189
     },
     {
-      "name": "_send",
+      "name": "run_reconcile",
       "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 415
+      "file": "src/production_os/cli.py",
+      "line": 1204
     },
     {
-      "name": "_method_not_allowed",
+      "name": "run_dispatch",
       "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 439
+      "file": "src/production_os/cli.py",
+      "line": 1214
     },
     {
-      "name": "do_PUT",
+      "name": "_write_asset_result",
       "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 446
+      "file": "src/production_os/cli.py",
+      "line": 1293
     },
     {
-      "name": "do_PATCH",
+      "name": "_asset_failure_result",
       "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 449
+      "file": "src/production_os/cli.py",
+      "line": 1304
     },
     {
-      "name": "do_DELETE",
+      "name": "run_asset_forge_dispatch",
       "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 452
-    },
-    {
-      "name": "_read_body",
-      "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 455
-    },
-    {
-      "name": "_read_json",
-      "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 474
-    },
-    {
-      "name": "_principal",
-      "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 486
-    },
-    {
-      "name": "_require",
-      "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 492
-    },
-    {
-      "name": "do_GET",
-      "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 512
-    },
-    {
-      "name": "do_POST",
-      "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 963
-    },
-    {
-      "name": "audit_control",
-      "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 1880
-    },
-    {
-      "name": "serve_control_plane",
-      "kind": "function",
-      "file": "src/production_os/control_plane.py",
-      "line": 3194
-    },
-    {
-      "name": "_now",
-      "kind": "function",
-      "file": "src/production_os/managed_projects.py",
-      "line": 30
-    },
-    {
-      "name": "_positive_int",
-      "kind": "function",
-      "file": "src/production_os/managed_projects.py",
-      "line": 34
-    },
-    {
-      "name": "_stage_budgets",
-      "kind": "function",
-      "file": "src/production_os/managed_projects.py",
-      "line": 46
-    },
-    {
-      "name": "_usage_from_result",
-      "kind": "function",
-      "file": "src/production_os/managed_projects.py",
-      "line": 71
-    },
-    {
-      "name": "_clean_commit_shas",
-      "kind": "function",
-      "file": "src/production_os/managed_projects.py",
-      "line": 126
-    },
-    {
-      "name": "_result_tasks_by_depth",
-      "kind": "function",
-      "file": "src/production_os/managed_projects.py",
-      "line": 145
-    },
-    {
-      "name": "depth",
-      "kind": "function",
-      "file": "src/production_os/managed_projects.py",
-      "line": 158
-    },
-    {
-      "name": "_result_evidence",
-      "kind": "function",
-      "file": "src/production_os/managed_projects.py",
-      "line": 188
-    },
-    {
-      "name": "_outcome_from_workflow",
-      "kind": "function",
-      "file": "src/production_os/managed_projects.py",
-      "line": 193
-    },
-    {
-      "name": "ManagedProjectService",
-      "kind": "class",
-      "file": "src/production_os/managed_projects.py",
-      "line": 595
-    },
-    {
-      "name": "__init__",
-      "kind": "function",
-      "file": "src/production_os/managed_projects.py",
-      "line": 596
-    },
-    {
-      "name": "_validate_repository",
-      "kind": "function",
-      "file": "src/production_os/managed_projects.py",
-      "line": 607
-    },
-    {
-      "name": "_needs_browser_validation",
-      "kind": "function",
-      "file": "src/production_os/managed_projects.py",
-      "line": 618
-    },
-    {
-      "name": "_needs_mobile_ui_validation",
-      "kind": "function",
-      "file": "src/production_os/managed_projects.py",
-      "line": 628
-    },
-    {
-      "name": "_cooperative_workflow_specs",
-      "kind": "function",
-      "file": "src/production_os/managed_projects.py",
-      "line": 642
-    },
-    {
-      "name": "_workflow_spec",
-      "kind": "function",
-      "file": "src/production_os/managed_projects.py",
-      "line": 889
-    },
-    {
-      "name": "_create_workflow",
-      "kind": "function",
-      "file": "src/production_os/managed_projects.py",
-      "line": 921
-    },
-    {
-      "name": "_delete_unstarted_workflow",
-      "kind": "function",
-      "file": "src/production_os/managed_projects.py",
-      "line": 982
-    },
-    {
-      "name": "create",
-      "kind": "function",
-      "file": "src/production_os/managed_projects.py",
-      "line": 997
-    },
-    {
-      "name": "_resolve_project_id",
-      "kind": "function",
-      "file": "src/production_os/managed_projects.py",
-      "line": 1154
-    },
-    {
-      "name": "_migrate_legacy_workflow",
-      "kind": "function",
-      "file": "src/production_os/managed_projects.py",
-      "line": 1182
-    },
-    {
-      "name": "_automerge_receipt",
-      "kind": "function",
-      "file": "src/production_os/managed_projects.py",
-      "line": 1277
-    },
-    {
-      "name": "_record_automerge_receipt",
-      "kind": "function",
-      "file": "src/production_os/managed_projects.py",
+      "file": "src/production_os/cli.py",
       "line": 1315
     },
     {
-      "name": "_github_resolution_for_succeeded_workflow",
+      "name": "run_asset_forge_batch",
       "kind": "function",
-      "file": "src/production_os/managed_projects.py",
-      "line": 1342
+      "file": "src/production_os/cli.py",
+      "line": 1380
     },
     {
-      "name": "_github_target_for_succeeded_workflow",
+      "name": "run_github_reconcile",
       "kind": "function",
-      "file": "src/production_os/managed_projects.py",
-      "line": 1576
+      "file": "src/production_os/cli.py",
+      "line": 1407
     },
     {
-      "name": "_start_automatic_rollback",
+      "name": "run_controller_command",
       "kind": "function",
-      "file": "src/production_os/managed_projects.py",
-      "line": 1589
+      "file": "src/production_os/cli.py",
+      "line": 1461
     },
     {
-      "name": "reconcile",
+      "name": "_request_stop",
       "kind": "function",
-      "file": "src/production_os/managed_projects.py",
-      "line": 1693
+      "file": "src/production_os/cli.py",
+      "line": 1493
     },
     {
-      "name": "_usage",
+      "name": "run_worker_register",
       "kind": "function",
-      "file": "src/production_os/managed_projects.py",
-      "line": 1814
+      "file": "src/production_os/cli.py",
+      "line": 1527
     },
     {
-      "name": "get",
+      "name": "run_worker_heartbeat",
       "kind": "function",
-      "file": "src/production_os/managed_projects.py",
-      "line": 1842
+      "file": "src/production_os/cli.py",
+      "line": 1541
     },
     {
-      "name": "list",
+      "name": "run_worker_list",
       "kind": "function",
-      "file": "src/production_os/managed_projects.py",
-      "line": 1894
+      "file": "src/production_os/cli.py",
+      "line": 1551
     },
     {
-      "name": "_follow_up",
+      "name": "run_job_claim",
       "kind": "function",
-      "file": "src/production_os/managed_projects.py",
-      "line": 1932
+      "file": "src/production_os/cli.py",
+      "line": 1564
     },
     {
-      "name": "add_instruction",
+      "name": "run_job_ack",
       "kind": "function",
-      "file": "src/production_os/managed_projects.py",
-      "line": 2039
+      "file": "src/production_os/cli.py",
+      "line": 1591
     },
     {
-      "name": "request_verification",
+      "name": "run_job_complete",
       "kind": "function",
-      "file": "src/production_os/managed_projects.py",
-      "line": 2053
+      "file": "src/production_os/cli.py",
+      "line": 1601
     },
     {
-      "name": "mark_done",
+      "name": "run_delivery_recover",
       "kind": "function",
-      "file": "src/production_os/managed_projects.py",
-      "line": 2072
+      "file": "src/production_os/cli.py",
+      "line": 1624
+    },
+    {
+      "name": "run_preempt_request",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1643
+    },
+    {
+      "name": "run_preempt_checkpoint",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1653
+    },
+    {
+      "name": "run_emergency_stop",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1672
+    },
+    {
+      "name": "run_emergency_resume",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1678
+    },
+    {
+      "name": "run_audit_verify",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1684
+    },
+    {
+      "name": "run_backup",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1690
+    },
+    {
+      "name": "run_restore",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1696
+    },
+    {
+      "name": "run_restore_activate",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1702
+    },
+    {
+      "name": "run_approve",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1732
+    },
+    {
+      "name": "run_revoke",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1747
+    },
+    {
+      "name": "run_migrate_state",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1762
+    },
+    {
+      "name": "run_migrate_many",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1769
+    },
+    {
+      "name": "run_queue_compact",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1778
+    },
+    {
+      "name": "run_dead_letter_retry",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1792
+    },
+    {
+      "name": "run_audit_checkpoint_create",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1805
+    },
+    {
+      "name": "run_audit_checkpoint_verify",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1815
+    },
+    {
+      "name": "run_quarantine",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1825
+    },
+    {
+      "name": "run_unquarantine",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1836
+    },
+    {
+      "name": "run_budget_record",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1847
+    },
+    {
+      "name": "run_policy_validate",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1866
+    },
+    {
+      "name": "run_policy_check",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1876
+    },
+    {
+      "name": "run_db_init",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1890
+    },
+    {
+      "name": "run_db_import",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1906
+    },
+    {
+      "name": "run_token_hash",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1918
+    },
+    {
+      "name": "_trusted_validation_keys_from_env",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1926
+    },
+    {
+      "name": "run_control_plane",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 1942
+    },
+    {
+      "name": "run_remote_worker_poll",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2009
+    },
+    {
+      "name": "_repository_root_map",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2030
+    },
+    {
+      "name": "run_remote_worker_run",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2058
+    },
+    {
+      "name": "_request_stop",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2085
+    },
+    {
+      "name": "_browser_storage_state",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2111
+    },
+    {
+      "name": "run_browser_plan",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2123
+    },
+    {
+      "name": "run_agent_benchmark",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2136
+    },
+    {
+      "name": "_workflow_engine",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2152
+    },
+    {
+      "name": "run_workflow_create",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2157
+    },
+    {
+      "name": "run_workflow_status",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2181
+    },
+    {
+      "name": "run_workflow_dispatch",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2190
+    },
+    {
+      "name": "run_workflow_critical_path",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2201
+    },
+    {
+      "name": "run_workflow_eta",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2209
+    },
+    {
+      "name": "run_stragglers",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2221
+    },
+    {
+      "name": "run_speculate_stragglers",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2239
+    },
+    {
+      "name": "run_workflow_impact",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2284
+    },
+    {
+      "name": "run_workflow_impact_pr",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2298
+    },
+    {
+      "name": "run_pr_refresh",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2320
+    },
+    {
+      "name": "run_workflow_cancel",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2364
+    },
+    {
+      "name": "run_artifact_add",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2373
+    },
+    {
+      "name": "_release_ledger",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2399
+    },
+    {
+      "name": "run_signing_keygen",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2447
+    },
+    {
+      "name": "run_validation_attest_v2",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2459
+    },
+    {
+      "name": "run_transparency_checkpoint",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2496
+    },
+    {
+      "name": "run_transparency_checkpoint_verify",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2654
+    },
+    {
+      "name": "run_slsa_verify",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2702
+    },
+    {
+      "name": "run_provenance_verify_v2",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2720
+    },
+    {
+      "name": "run_validation_attest",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2737
+    },
+    {
+      "name": "run_incident_snapshot",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2785
+    },
+    {
+      "name": "run_incident_report",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2800
+    },
+    {
+      "name": "run_trust_status",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2810
+    },
+    {
+      "name": "run_release_verify",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2823
+    },
+    {
+      "name": "run_release_promote",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2835
+    },
+    {
+      "name": "run_release_rollback",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2871
+    },
+    {
+      "name": "run_health_server",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2889
+    },
+    {
+      "name": "main",
+      "kind": "function",
+      "file": "src/production_os/cli.py",
+      "line": 2894
     },
     {
       "name": "_build",
       "kind": "function",
-      "file": "tests/test_agent_planning_policy.py",
-      "line": 7
+      "file": "tests/test_agent_benchmark.py",
+      "line": 11
     },
     {
-      "name": "_completed_workflow",
+      "name": "_execution_job",
       "kind": "function",
-      "file": "tests/test_agent_planning_policy.py",
-      "line": 14
+      "file": "tests/test_agent_benchmark.py",
+      "line": 17
     },
     {
-      "name": "test_planning_policy_keeps_default_without_enough_history",
+      "name": "test_benchmark_reads_real_workflow_execution_history",
       "kind": "function",
-      "file": "tests/test_agent_planning_policy.py",
-      "line": 41
-    },
-    {
-      "name": "test_planning_policy_reduces_fanout_for_risky_history",
-      "kind": "function",
-      "file": "tests/test_agent_planning_policy.py",
-      "line": 56
-    },
-    {
-      "name": "test_planning_policy_uses_moderate_fanout_for_mixed_history",
-      "kind": "function",
-      "file": "tests/test_agent_planning_policy.py",
-      "line": 74
-    },
-    {
-      "name": "test_managed_project_embeds_evidence_policy_in_planner_contract",
-      "kind": "function",
-      "file": "tests/test_agent_planning_policy.py",
-      "line": 90
-    },
-    {
-      "name": "test_planning_policy_is_repository_scoped",
-      "kind": "function",
-      "file": "tests/test_agent_planning_policy.py",
-      "line": 122
-    },
-    {
-      "name": "service",
-      "kind": "function",
-      "file": "tests/test_cooperative_managed_projects.py",
-      "line": 8
-    },
-    {
-      "name": "_planner_config",
-      "kind": "function",
-      "file": "tests/test_cooperative_managed_projects.py",
-      "line": 15
-    },
-    {
-      "name": "test_cooperative_workflow_starts_with_bounded_adaptive_planner",
-      "kind": "function",
-      "file": "tests/test_cooperative_managed_projects.py",
-      "line": 30
-    },
-    {
-      "name": "test_cooperative_browser_goal_puts_browser_validation_after_review",
-      "kind": "function",
-      "file": "tests/test_cooperative_managed_projects.py",
-      "line": 57
-    },
-    {
-      "name": "test_native_mobile_goal_puts_emulator_validation_after_review",
-      "kind": "function",
-      "file": "tests/test_cooperative_managed_projects.py",
-      "line": 80
-    },
-    {
-      "name": "test_create_cooperative_project_queues_only_planner_initially",
-      "kind": "function",
-      "file": "tests/test_cooperative_managed_projects.py",
-      "line": 105
-    },
-    {
-      "name": "test_planner_fallback_expands_code_tests_and_delivery_chain",
-      "kind": "function",
-      "file": "tests/test_cooperative_managed_projects.py",
-      "line": 121
-    },
-    {
-      "name": "test_cooperative_outcome_uses_deepest_stage_and_aggregates_delivery_evidence",
-      "kind": "function",
-      "file": "tests/test_cooperative_managed_projects.py",
-      "line": 158
-    },
-    {
-      "name": "test_cooperative_workflow_rejects_budget_smaller_than_stage_count",
-      "kind": "function",
-      "file": "tests/test_cooperative_managed_projects.py",
-      "line": 227
-    },
-    {
-      "name": "test_retest_preserves_cooperative_dynamic_planner_mode",
-      "kind": "function",
-      "file": "tests/test_cooperative_managed_projects.py",
-      "line": 245
-    },
-    {
-      "name": "build",
-      "kind": "function",
-      "file": "tests/test_cooperative_specialist_e2e.py",
-      "line": 8
-    },
-    {
-      "name": "_task",
-      "kind": "function",
-      "file": "tests/test_cooperative_specialist_e2e.py",
-      "line": 16
-    },
-    {
-      "name": "test_cooperative_project_routes_planner_fanout_then_specialists",
-      "kind": "function",
-      "file": "tests/test_cooperative_specialist_e2e.py",
+      "file": "tests/test_agent_benchmark.py",
       "line": 24
     },
     {
-      "name": "test_managed_outcome_exposes_dynamic_model_plan_summary",
+      "name": "test_benchmark_counts_retry_failures_and_operator_controls",
       "kind": "function",
-      "file": "tests/test_managed_dynamic_plan_outcome.py",
-      "line": 4
+      "file": "tests/test_agent_benchmark.py",
+      "line": 119
     },
     {
-      "name": "test_managed_outcome_exposes_fallback_plan_summary",
+      "name": "test_benchmark_report_aggregates_without_inventing_unknown_cost",
       "kind": "function",
-      "file": "tests/test_managed_dynamic_plan_outcome.py",
-      "line": 39
+      "file": "tests/test_agent_benchmark.py",
+      "line": 219
     },
     {
-      "name": "test_managed_outcome_has_no_dynamic_plan_for_legacy_workflow",
+      "name": "test_compare_reports_returns_metric_deltas_without_declaring_winner",
       "kind": "function",
-      "file": "tests/test_managed_dynamic_plan_outcome.py",
-      "line": 68
+      "file": "tests/test_agent_benchmark.py",
+      "line": 266
     },
     {
-      "name": "FakeWorkflows",
-      "kind": "class",
-      "file": "tests/test_managed_github_reconciliation.py",
-      "line": 14
-    },
-    {
-      "name": "FakeGitHub",
-      "kind": "class",
-      "file": "tests/test_managed_github_reconciliation.py",
-      "line": 18
-    },
-    {
-      "name": "__init__",
+      "name": "test_agent_benchmark_cli_parses_multiple_workflows_and_baseline",
       "kind": "function",
-      "file": "tests/test_managed_github_reconciliation.py",
-      "line": 19
+      "file": "tests/test_agent_benchmark.py",
+      "line": 301
     },
     {
-      "name": "merge_pull_request",
+      "name": "test_benchmark_records_dynamic_planner_policy_and_actual_fanout",
       "kind": "function",
-      "file": "tests/test_managed_github_reconciliation.py",
-      "line": 28
+      "file": "tests/test_agent_benchmark.py",
+      "line": 318
     },
     {
-      "name": "state",
+      "name": "test_benchmark_report_aggregates_planner_policy_observability",
       "kind": "function",
-      "file": "tests/test_managed_github_reconciliation.py",
-      "line": 49
-    },
-    {
-      "name": "_complete_parallel_cooperative_workflow",
-      "kind": "function",
-      "file": "tests/test_managed_github_reconciliation.py",
-      "line": 76
-    },
-    {
-      "name": "workflow_with_pr",
-      "kind": "function",
-      "file": "tests/test_managed_github_reconciliation.py",
-      "line": 131
-    },
-    {
-      "name": "test_green_pull_request_is_sha_pinned_merged_then_waits_for_post_merge_ci",
-      "kind": "function",
-      "file": "tests/test_managed_github_reconciliation.py",
-      "line": 148
-    },
-    {
-      "name": "test_pending_pull_request_keeps_project_active",
-      "kind": "function",
-      "file": "tests/test_managed_github_reconciliation.py",
-      "line": 179
-    },
-    {
-      "name": "test_failed_pull_request_moves_project_to_needs_attention",
-      "kind": "function",
-      "file": "tests/test_managed_github_reconciliation.py",
-      "line": 201
-    },
-    {
-      "name": "test_sensitive_green_pull_request_requires_review",
-      "kind": "function",
-      "file": "tests/test_managed_github_reconciliation.py",
-      "line": 223
-    },
-    {
-      "name": "test_automerge_receipt_prevents_duplicate_merge_during_github_staleness",
-      "kind": "function",
-      "file": "tests/test_managed_github_reconciliation.py",
-      "line": 247
-    },
-    {
-      "name": "test_automerge_aborts_when_base_sha_changes_during_final_recheck",
-      "kind": "function",
-      "file": "tests/test_managed_github_reconciliation.py",
-      "line": 283
-    },
-    {
-      "name": "test_green_pull_request_merge_declined_requires_review",
-      "kind": "function",
-      "file": "tests/test_managed_github_reconciliation.py",
-      "line": 308
-    },
-    {
-      "name": "test_post_merge_green_resolution_completes_managed_project",
-      "kind": "function",
-      "file": "tests/test_managed_github_reconciliation.py",
-      "line": 335
-    },
-    {
-      "name": "test_succeeded_workflow_without_pull_request_keeps_legacy_path",
-      "kind": "function",
-      "file": "tests/test_managed_github_reconciliation.py",
-      "line": 362
-    },
-    {
-      "name": "test_succeeded_pull_request_without_ci_moves_to_review_instead_of_stalling",
-      "kind": "function",
-      "file": "tests/test_managed_github_reconciliation.py",
-      "line": 386
-    },
-    {
-      "name": "test_post_merge_failure_resolution_builds_compensating_rollback_plan",
-      "kind": "function",
-      "file": "tests/test_managed_github_reconciliation.py",
-      "line": 410
-    },
-    {
-      "name": "test_reconcile_marks_project_done_after_post_merge_green_ci",
-      "kind": "function",
-      "file": "tests/test_managed_github_reconciliation.py",
-      "line": 444
-    },
-    {
-      "name": "test_reconcile_launches_exactly_one_automatic_rollback_generation",
-      "kind": "function",
-      "file": "tests/test_managed_github_reconciliation.py",
-      "line": 487
-    },
-    {
-      "name": "test_outcome_normalizes_worker_result_evidence",
-      "kind": "function",
-      "file": "tests/test_managed_project_outcome.py",
-      "line": 4
-    },
-    {
-      "name": "test_outcome_uses_evidence_fallback_and_keeps_optional_shape_stable",
-      "kind": "function",
-      "file": "tests/test_managed_project_outcome.py",
-      "line": 50
-    },
-    {
-      "name": "test_outcome_accepts_compact_worker_result_fields_without_exposing_paths",
-      "kind": "function",
-      "file": "tests/test_managed_project_outcome.py",
-      "line": 92
-    },
-    {
-      "name": "test_terminal_workflow_outcome_is_visible_without_structured_evidence",
-      "kind": "function",
-      "file": "tests/test_managed_project_outcome.py",
-      "line": 118
-    },
-    {
-      "name": "test_outcome_preserves_bounded_mobile_validation_evidence",
-      "kind": "function",
-      "file": "tests/test_managed_project_outcome.py",
-      "line": 135
-    },
-    {
-      "name": "test_outcome_preserves_bounded_browser_validation_evidence",
-      "kind": "function",
-      "file": "tests/test_managed_project_outcome.py",
-      "line": 195
-    },
-    {
-      "name": "service",
-      "kind": "function",
-      "file": "tests/test_managed_projects_v4.py",
-      "line": 8
-    },
-    {
-      "name": "test_managed_project_requires_human_completion_after_execution",
-      "kind": "function",
-      "file": "tests/test_managed_projects_v4.py",
-      "line": 15
-    },
-    {
-      "name": "test_followup_instruction_creates_new_immutable_workflow_generation",
-      "kind": "function",
-      "file": "tests/test_managed_projects_v4.py",
-      "line": 53
-    },
-    {
-      "name": "test_retest_creates_new_generation_with_original_final_goal",
-      "kind": "function",
-      "file": "tests/test_managed_projects_v4.py",
-      "line": 91
-    },
-    {
-      "name": "test_failed_generation_maps_to_needs_attention_and_allows_followup",
-      "kind": "function",
-      "file": "tests/test_managed_projects_v4.py",
-      "line": 115
-    },
-    {
-      "name": "test_active_generation_rejects_followup",
-      "kind": "function",
-      "file": "tests/test_managed_projects_v4.py",
-      "line": 139
-    },
-    {
-      "name": "test_managed_project_list_excludes_normal_workflows",
-      "kind": "function",
-      "file": "tests/test_managed_projects_v4.py",
-      "line": 154
-    },
-    {
-      "name": "test_managed_project_rejects_invalid_budget_and_repository",
-      "kind": "function",
-      "file": "tests/test_managed_projects_v4.py",
-      "line": 176
-    },
-    {
-      "name": "test_legacy_v4_workflow_is_migrated_on_first_read",
-      "kind": "function",
-      "file": "tests/test_managed_projects_v4.py",
-      "line": 192
-    },
-    {
-      "name": "test_deterministic_project_id_is_idempotent_and_rejects_parameter_reuse",
-      "kind": "function",
-      "file": "tests/test_managed_projects_v4.py",
-      "line": 223
-    },
-    {
-      "name": "test_deterministic_project_id_validation_preserves_default_creation",
-      "kind": "function",
-      "file": "tests/test_managed_projects_v4.py",
-      "line": 276
-    },
-    {
-      "name": "test_postgres_workflow_engine",
-      "kind": "function",
-      "file": "tests/test_workflow_postgres.py",
-      "line": 19
-    },
-    {
-      "name": "test_postgres_managed_project_review_lifecycle",
-      "kind": "function",
-      "file": "tests/test_workflow_postgres.py",
-      "line": 50
+      "file": "tests/test_agent_benchmark.py",
+      "line": 364
     }
   ],
   "selected_tests": [
-    "tests/test_agent_plan.py",
-    "tests/test_agent_planning_policy.py",
-    "tests/test_cooperative_managed_projects.py",
-    "tests/test_cooperative_specialist_e2e.py",
-    "tests/test_managed_dynamic_plan_outcome.py",
-    "tests/test_managed_github_reconciliation.py",
-    "tests/test_managed_project_outcome.py",
-    "tests/test_managed_projects_http_v4.py",
-    "tests/test_managed_projects_v4.py",
-    "tests/test_release18_managed_projects_e2e.py",
-    "tests/test_workflow_postgres.py"
+    "tests/test_agent_benchmark.py"
   ]
 }
