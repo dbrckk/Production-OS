@@ -2,25 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat: release 28 backup retention preview",
-      "terms": [
-        "28",
-        "backup",
-        "feat",
-        "preview",
-        "release",
-        "retention"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/dashboard_backups.py",
-        "src/production_os/dashboard_ui.py",
-        "tests/test_dashboard_backups.py",
-        "tests/test_dashboard_ui_v3.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat: release 29 guarded backup retention prune",
       "terms": [
         "29",
@@ -1265,6 +1246,27 @@
         "tests/test_postgres_backend.py",
         "tests/test_skill_memory.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "feat(browser): add bounded persistent computer-use runtime",
+      "terms": [
+        "add",
+        "bounded",
+        "browser",
+        "computer-use",
+        "feat",
+        "persistent",
+        "runtime"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/browser_computer.py",
+        "src/production_os/cli.py",
+        "src/production_os/workflow_engine.py",
+        "tests/test_browser_computer.py",
+        "tests/test_worker_compose_deployment.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1637,7 +1639,8 @@
       "src/production_os/agent_plan.py": 4,
       "src/production_os/agent_runtime.py": 8,
       "src/production_os/asset_forge.py": 4,
-      "src/production_os/cli.py": 4,
+      "src/production_os/browser_computer.py": 4,
+      "src/production_os/cli.py": 8,
       "src/production_os/dashboard_ui.py": 8,
       "src/production_os/github_change_review.py": 4,
       "src/production_os/github_client.py": 4,
@@ -1647,8 +1650,9 @@
       "src/production_os/rollback_plan.py": 4,
       "src/production_os/sqlite_backend.py": 4,
       "src/production_os/task_capabilities.py": 8,
-      "src/production_os/workflow_engine.py": 16,
+      "src/production_os/workflow_engine.py": 20,
       "tests/test_agent_plan.py": 4,
+      "tests/test_browser_computer.py": 4,
       "tests/test_browser_worker_image.py": 4,
       "tests/test_cooperative_managed_projects.py": 12,
       "tests/test_dashboard_ui_v3.py": 8,
@@ -1664,7 +1668,7 @@
       "tests/test_rollback_plan.py": 4,
       "tests/test_specialist_job_preferences.py": 4,
       "tests/test_task_capabilities.py": 4,
-      "tests/test_worker_compose_deployment.py": 12,
+      "tests/test_worker_compose_deployment.py": 16,
       "tests/test_workflow_engine.py": 8
     },
     "against": {
@@ -1900,15 +1904,24 @@
     },
     "bounded": {
       "src/production_os/agent_plan.py": 4,
-      "tests/test_agent_plan.py": 4
+      "src/production_os/browser_computer.py": 4,
+      "src/production_os/cli.py": 4,
+      "src/production_os/workflow_engine.py": 4,
+      "tests/test_agent_plan.py": 4,
+      "tests/test_browser_computer.py": 4,
+      "tests/test_worker_compose_deployment.py": 4
     },
     "browser": {
+      "src/production_os/browser_computer.py": 4,
+      "src/production_os/cli.py": 4,
       "src/production_os/control_plane.py": 4,
       "src/production_os/managed_projects.py": 8,
+      "src/production_os/workflow_engine.py": 4,
+      "tests/test_browser_computer.py": 4,
       "tests/test_browser_worker_image.py": 4,
       "tests/test_cooperative_managed_projects.py": 8,
       "tests/test_release32_one_tap_e2e.py": 4,
-      "tests/test_worker_compose_deployment.py": 4
+      "tests/test_worker_compose_deployment.py": 8
     },
     "cache": {
       "src/production_os/asset_forge.py": 4,
@@ -2073,6 +2086,13 @@
     "compensating": {
       "src/production_os/managed_projects.py": 4,
       "tests/test_managed_github_reconciliation.py": 4
+    },
+    "computer-use": {
+      "src/production_os/browser_computer.py": 4,
+      "src/production_os/cli.py": 4,
+      "src/production_os/workflow_engine.py": 4,
+      "tests/test_browser_computer.py": 4,
+      "tests/test_worker_compose_deployment.py": 4
     },
     "concurrent": {
       "src/production_os/remote_worker_runner.py": 4,
@@ -2472,6 +2492,7 @@
       "src/production_os/agent_plan.py": 4,
       "src/production_os/agent_runtime.py": 8,
       "src/production_os/asset_forge.py": 24,
+      "src/production_os/browser_computer.py": 4,
       "src/production_os/cli.py": 40,
       "src/production_os/control_plane.py": 40,
       "src/production_os/dashboard_alerts.py": 4,
@@ -2511,7 +2532,6 @@
       "tests/test_cli.py": 12,
       "tests/test_cooperative_managed_projects.py": 28,
       "tests/test_cooperative_specialist_e2e.py": 8,
-      "tests/test_dashboard_alerts.py": 4,
       "tests/test_dashboard_api.py": 40,
       "tests/test_dashboard_attention.py": 16,
       "tests/test_dashboard_backup_api.py": 32,
@@ -3070,9 +3090,13 @@
     },
     "persistent": {
       "src/production_os/agent_runtime.py": 4,
-      "src/production_os/cli.py": 4,
+      "src/production_os/browser_computer.py": 4,
+      "src/production_os/cli.py": 8,
       "src/production_os/remote_worker_runner.py": 4,
-      "tests/test_persistent_agent_runtime.py": 4
+      "src/production_os/workflow_engine.py": 4,
+      "tests/test_browser_computer.py": 4,
+      "tests/test_persistent_agent_runtime.py": 4,
+      "tests/test_worker_compose_deployment.py": 4
     },
     "pipeline": {
       "src/production_os/dashboard_ui.py": 4,
@@ -3651,14 +3675,18 @@
     },
     "runtime": {
       "src/production_os/agent_runtime.py": 8,
-      "src/production_os/cli.py": 4,
+      "src/production_os/browser_computer.py": 4,
+      "src/production_os/cli.py": 8,
       "src/production_os/executor_worktree.py": 4,
       "src/production_os/filesystem_lock.py": 4,
       "src/production_os/remote_worker_runner.py": 8,
       "src/production_os/repository_cache.py": 4,
+      "src/production_os/workflow_engine.py": 4,
+      "tests/test_browser_computer.py": 4,
       "tests/test_filesystem_lock.py": 4,
       "tests/test_persistent_agent_runtime.py": 8,
-      "tests/test_repository_cache.py": 4
+      "tests/test_repository_cache.py": 4,
+      "tests/test_worker_compose_deployment.py": 4
     },
     "safe": {
       "src/production_os/asset_forge.py": 4,

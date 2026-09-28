@@ -19,6 +19,7 @@
         "tests/test_asset_forge.py",
         "tests/test_asymmetric_attestations.py",
         "tests/test_attestations.py",
+        "tests/test_browser_computer.py",
         "tests/test_builder_identity.py",
         "tests/test_builder_identity_validation.py",
         "tests/test_builder_trust_rotation.py",
@@ -178,7 +179,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 166,
+      "in_degree": 167,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -418,6 +419,18 @@
       "in_degree": 1,
       "out_degree": 1
     },
+    "src/production_os/browser_computer.py": {
+      "dependencies": [
+        "src/production_os/workers.py",
+        "tests/test_fairness.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "tests/test_browser_computer.py"
+      ],
+      "in_degree": 2,
+      "out_degree": 2
+    },
     "src/production_os/budgets.py": {
       "dependencies": [
         "src/production_os/atomic_io.py",
@@ -531,6 +544,7 @@
         "src/production_os/audit_checkpoint.py",
         "src/production_os/audit_integrity.py",
         "src/production_os/backup.py",
+        "src/production_os/browser_computer.py",
         "src/production_os/budgets.py",
         "src/production_os/capabilities.py",
         "src/production_os/claims.py",
@@ -592,13 +606,14 @@
         "tests/test_github_automerge.py"
       ],
       "dependents": [
+        "tests/test_browser_computer.py",
         "tests/test_cli.py",
         "tests/test_executor_worktree.py",
         "tests/test_persistent_agent_runtime.py",
         "tests/test_release21_offline_restore_e2e.py"
       ],
-      "in_degree": 4,
-      "out_degree": 67
+      "in_degree": 5,
+      "out_degree": 68
     },
     "src/production_os/compatibility.py": {
       "dependencies": [
@@ -1932,6 +1947,7 @@
       "dependents": [
         "src/production_os/dispatch.py",
         "src/production_os/storage.py",
+        "tests/test_browser_computer.py",
         "tests/test_cli.py",
         "tests/test_cooperative_managed_projects.py",
         "tests/test_cooperative_specialist_e2e.py",
@@ -1973,7 +1989,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 42,
+      "in_degree": 43,
       "out_degree": 5
     },
     "src/production_os/sqlite_migration.py": {
@@ -2168,6 +2184,7 @@
         "scripts/render-start.py",
         "src/production_os/agent_runtime.py",
         "src/production_os/api_auth.py",
+        "src/production_os/browser_computer.py",
         "src/production_os/capabilities.py",
         "src/production_os/cli.py",
         "src/production_os/components.py",
@@ -2230,7 +2247,6 @@
         "tests/test_executor_worktree.py",
         "tests/test_github_change_review.py",
         "tests/test_incident_history.py",
-        "tests/test_managed_project_outcome.py",
         "tests/test_preemption.py",
         "tests/test_stragglers.py",
         "tests/test_workers.py"
@@ -2254,6 +2270,7 @@
         "src/production_os/cli.py",
         "src/production_os/control_plane.py",
         "src/production_os/managed_projects.py",
+        "tests/test_browser_computer.py",
         "tests/test_control_plane_pr_impact.py",
         "tests/test_control_plane_release.py",
         "tests/test_control_plane_webhook.py",
@@ -2280,7 +2297,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 28,
+      "in_degree": 29,
       "out_degree": 9
     },
     "src/production_os/worktree_contract.py": {
@@ -2434,6 +2451,19 @@
       "dependents": [],
       "in_degree": 0,
       "out_degree": 3
+    },
+    "tests/test_browser_computer.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/browser_computer.py",
+        "src/production_os/cli.py",
+        "src/production_os/sqlite_backend.py",
+        "src/production_os/workflow_engine.py",
+        "tests/test_fairness.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 6
     },
     "tests/test_browser_worker_image.py": {
       "dependencies": [
@@ -3146,6 +3176,7 @@
         "src/production_os/fairness.py"
       ],
       "dependents": [
+        "src/production_os/browser_computer.py",
         "src/production_os/cli.py",
         "src/production_os/control_plane.py",
         "src/production_os/controller.py",
@@ -3165,6 +3196,7 @@
         "src/production_os/scoring.py",
         "src/production_os/self_healing.py",
         "src/production_os/sqlite_backend.py",
+        "tests/test_browser_computer.py",
         "tests/test_classification_history_reuse.py",
         "tests/test_control_plane_webhook.py",
         "tests/test_controller_asset_capabilities.py",
@@ -3190,7 +3222,7 @@
         "tests/test_scheduler.py",
         "tests/test_scoring.py"
       ],
-      "in_degree": 43,
+      "in_degree": 45,
       "out_degree": 2
     },
     "tests/test_filesystem_lock.py": {
@@ -3395,12 +3427,11 @@
       "dependencies": [
         "src/production_os/__init__.py",
         "src/production_os/managed_projects.py",
-        "src/production_os/workers.py",
         "tests/test_asset_forge.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 4
+      "out_degree": 3
     },
     "tests/test_managed_projects_http_v4.py": {
       "dependencies": [

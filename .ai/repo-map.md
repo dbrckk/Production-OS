@@ -68,6 +68,7 @@ src/
     audit_checkpoint.py
     audit_integrity.py
     backup.py
+    browser_computer.py
     budgets.py
     builder_identity.py
     callgraph.py
@@ -186,6 +187,7 @@ tests/
   test_asset_forge.py
   test_asymmetric_attestations.py
   test_attestations.py
+  test_browser_computer.py
   test_browser_worker_image.py
   test_builder_identity_validation.py
   test_builder_identity.py
@@ -1548,6 +1550,111 @@ actual = _sha256(backup)
 source = Path(item["source"])
 ````
 
+## File: src/production_os/browser_computer.py
+````python
+BROWSER_PLAN_SCHEMA = "production-os/browser-computer-plan/v1"
+_ALLOWED_ACTIONS = {
+_SAFE_NAME = re.compile(r"^[A-Za-z0-9._-]{1,120}$")
+⋮----
+@dataclass(frozen=True, slots=True)
+class BrowserAction
+⋮----
+action: str
+selector: str | None = None
+url: str | None = None
+value: str | None = None
+key: str | None = None
+name: str | None = None
+timeout_ms: int = 10000
+⋮----
+def to_dict(self) -> dict[str, Any]
+⋮----
+payload = {
+⋮----
+value = getattr(self, key)
+⋮----
+@dataclass(frozen=True, slots=True)
+class BrowserPlan
+⋮----
+allowed_hosts: tuple[str, ...]
+actions: tuple[BrowserAction, ...]
+persist_session: bool
+allow_private_network: bool
+⋮----
+def _normalize_host(value: str) -> str
+⋮----
+host = str(value or "").strip().lower().rstrip(".")
+⋮----
+def _is_private_host(host: str) -> bool
+⋮----
+normalized = str(host or "").lower().rstrip(".")
+⋮----
+address = ipaddress.ip_address(normalized)
+⋮----
+value = str(url or "").strip()
+parsed = urlsplit(value)
+⋮----
+host = str(parsed.hostname or "").lower().rstrip(".")
+⋮----
+raw_hosts = payload.get("allowed_hosts")
+⋮----
+allowed_hosts = tuple(dict.fromkeys(
+⋮----
+allowed_set = set(allowed_hosts)
+allow_private_network = bool(payload.get("allow_private_network", False))
+⋮----
+raw_actions = payload.get("actions")
+⋮----
+actions: list[BrowserAction] = []
+⋮----
+action = str(raw.get("action") or "").strip().lower()
+⋮----
+timeout_ms = int(raw.get("timeout_ms", 10000))
+⋮----
+selector = None
+⋮----
+selector = str(raw.get("selector") or "").strip()
+⋮----
+url = None
+⋮----
+url = _validate_url(
+⋮----
+value = None
+⋮----
+value = str(raw.get("value") or "")
+⋮----
+key = None
+⋮----
+key = str(raw.get("key") or "").strip()
+⋮----
+name = None
+⋮----
+name = str(raw.get("name") or f"step-{index + 1}").strip()
+⋮----
+artifacts = Path(artifacts_dir).expanduser().resolve()
+⋮----
+state_path = (
+allowed = set(plan.allowed_hosts)
+results: list[dict[str, Any]] = []
+⋮----
+def assert_current_host(page) -> None
+⋮----
+parsed = urlsplit(page.url)
+⋮----
+browser = playwright.chromium.launch(headless=bool(headless))
+context_kwargs: dict[str, Any] = {}
+⋮----
+context = browser.new_context(**context_kwargs)
+page = context.new_page()
+final_url: str | None = None
+⋮----
+text = page.locator(action.selector).inner_text(
+⋮----
+target = artifacts / f"{action.name}.png"
+⋮----
+final_url = page.url
+````
+
 ## File: src/production_os/budgets.py
 ````python
 @dataclass(frozen=True, slots=True)
@@ -1894,6 +2001,8 @@ controlplane = sub.add_parser("control-plane", help="Run authenticated distribut
 remotepoll = sub.add_parser("remote-worker-poll", help="Poll the P8 control plane for remote jobs")
 ⋮----
 remoterun = sub.add_parser(
+⋮----
+browserplan = sub.add_parser(
 ⋮----
 workflowcreate = sub.add_parser("workflow-create", help="Create a persistent DAG workflow")
 ⋮----
@@ -2307,6 +2416,18 @@ previous_handlers = {}
 def _request_stop(_signum, _frame)
 ⋮----
 outcomes = runner.run(
+⋮----
+def _browser_storage_state(args: argparse.Namespace) -> str | None
+⋮----
+explicit = str(args.storage_state or "").strip()
+⋮----
+runtime_workspace = str(
+⋮----
+def run_browser_plan(args: argparse.Namespace) -> int
+⋮----
+payload = json.loads(Path(args.plan).read_text(encoding="utf-8"))
+plan = validate_browser_plan(payload)
+result = execute_browser_plan(
 ⋮----
 def _workflow_engine(database: str) -> WorkflowEngine
 ⋮----
@@ -9335,6 +9456,8 @@ contracts = dict(handoff.get("tool_contracts") or {})
 ⋮----
 asset_forge = asset_forge_tool_contract(handoff)
 ⋮----
+browser_capabilities = set(
+⋮----
 queue_payload = {
 job = self.queue.enqueue(queue_payload)
 ⋮----
@@ -16359,6 +16482,8 @@ services:
       - worker-browser
       - --capability
       - browser-ui-validation
+      - --capability
+      - browser-computer-use
       - --executor-command
       - ${PRODUCTION_OS_WORKER_EXECUTOR_COMMAND:-}
       - --max-concurrency

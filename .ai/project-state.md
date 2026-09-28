@@ -22,20 +22,25 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-28T06:00:13Z
+Generated: 2026-09-28T06:07:25Z
 
 ### Git
 - Branch: `main`
-- Head: `0e45ba98ef7c`
-- Commit date: 2026-09-28T08:00:02+02:00
-- Commit: feat(skills): learn and reuse validated execution skills
-- Tracked files: 496
+- Head: `c8b8a8b38850`
+- Commit date: 2026-09-28T08:07:13+02:00
+- Commit: feat(browser): add bounded persistent computer-use runtime
+- Tracked files: 498
 
 ### Recently changed files
+- `compose.worker.yaml`
+- `src/production_os/browser_computer.py`
+- `src/production_os/cli.py`
+- `src/production_os/workflow_engine.py`
+- `tests/test_browser_computer.py`
+- `tests/test_worker_compose_deployment.py`
 - `src/production_os/postgres_backend.py`
 - `src/production_os/skill_memory.py`
 - `src/production_os/sqlite_backend.py`
-- `src/production_os/workflow_engine.py`
 - `tests/test_dashboard_control_audit.py`
 - `tests/test_dashboard_remediation_history.py`
 - `tests/test_dashboard_store_postgres.py`
@@ -47,11 +52,6 @@ Generated: 2026-09-28T06:00:13Z
 - `tests/test_filesystem_lock.py`
 - `tests/test_repository_cache.py`
 - `docs/remote-worker-executor-protocol.md`
-- `src/production_os/remote_worker_runner.py`
-- `tests/test_executor_worktree.py`
-- `tests/test_remote_worker_runner.py`
-- `src/production_os/managed_projects.py`
-- `tests/test_dynamic_agent_fanout.py`
 
 ### Project signals
 - `pyproject.toml`

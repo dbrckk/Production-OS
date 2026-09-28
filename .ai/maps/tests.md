@@ -46,6 +46,7 @@ test_approvals_migrations.py
 test_asset_forge.py
 test_asymmetric_attestations.py
 test_attestations.py
+test_browser_computer.py
 test_browser_worker_image.py
 test_builder_identity_validation.py
 test_builder_identity.py
