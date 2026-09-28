@@ -391,18 +391,22 @@ def run_controller(
     cycles: int,
     interval_seconds: int,
     stop_event=None,
+    continuous_result_limit: int = 100,
     **kwargs,
 ) -> list[dict]:
     """Run bounded cycles or continuously when cycles=0.
 
     A stop_event compatible with threading.Event may be supplied by service
     runtimes so SIGTERM/SIGINT can interrupt the sleep between cycles without
-    abandoning a cycle halfway through.
+    abandoning a cycle halfway through. Continuous mode retains only a bounded
+    tail of results in memory; durable state remains in the configured stores.
     """
     if cycles < 0:
         raise ValueError("cycles must be >= 0")
     if interval_seconds < 0:
         raise ValueError("interval_seconds must be >= 0")
+    if continuous_result_limit < 1:
+        raise ValueError("continuous_result_limit must be >= 1")
 
     continuous = cycles == 0
     results = []
@@ -412,6 +416,8 @@ def run_controller(
             break
         try:
             results.append(run_control_cycle(**kwargs))
+            if continuous and len(results) > continuous_result_limit:
+                del results[:-continuous_result_limit]
         except Exception as exc:
             metrics_path = kwargs.get("metrics_path")
             health_path = kwargs.get("health_path")
