@@ -41,7 +41,7 @@ def test_postgres_schema_v16_has_managed_project_generation_tables():
             )
             columns = {row["column_name"] for row in cur.fetchall()}
 
-    assert backend.SCHEMA_VERSION == 16
+    assert backend.SCHEMA_VERSION == 17
     assert REQUIRED_EXECUTION_COLUMNS <= columns
     with backend.connect() as db:
         with db.cursor() as cur:
