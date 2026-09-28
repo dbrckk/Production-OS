@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import ipaddress
 import json
 import os
@@ -13,6 +14,7 @@ from urllib.parse import urlsplit, urlunsplit
 
 BROWSER_PLAN_SCHEMA = "production-os/browser-computer-plan/v1"
 BROWSER_SESSION_SCHEMA = "production-os/browser-computer-session/v1"
+BROWSER_CHECKPOINT_SCHEMA = "production-os/browser-computer-checkpoint/v1"
 _ALLOWED_ACTIONS = {
     "navigate",
     "click",
@@ -23,6 +25,7 @@ _ALLOWED_ACTIONS = {
     "screenshot",
     "back",
     "forward",
+    "checkpoint",
 }
 _SAFE_NAME = re.compile(r"^[A-Za-z0-9._-]{1,120}$")
 
@@ -110,6 +113,103 @@ def _validate_url(
     if not allow_private_network and _is_private_host(host):
         raise ValueError("browser private-network navigation is disabled")
     return value
+
+
+def _browser_plan_fingerprint(plan: BrowserPlan) -> str:
+    actions = []
+    for action in plan.actions:
+        row = action.to_dict()
+        if action.action == "fill":
+            value = action.value or ""
+            row["value_sha256"] = hashlib.sha256(
+                value.encode("utf-8")
+            ).hexdigest()
+            row["value_length"] = len(value)
+        actions.append(row)
+    canonical = json.dumps(
+        {
+            "allowed_hosts":list(plan.allowed_hosts),
+            "allow_private_network":plan.allow_private_network,
+            "persist_session":plan.persist_session,
+            "actions":actions,
+        },
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def _load_browser_checkpoint(
+    path: str | Path | None,
+    plan: BrowserPlan,
+) -> dict[str, Any]:
+    if path is None:
+        return {}
+    target = Path(path).expanduser().resolve()
+    try:
+        payload = json.loads(target.read_text(encoding="utf-8"))
+    except (FileNotFoundError, OSError, json.JSONDecodeError):
+        return {}
+    if not isinstance(payload, dict):
+        return {}
+    if payload.get("schema_version") != BROWSER_CHECKPOINT_SCHEMA:
+        return {}
+    if payload.get("plan_fingerprint") != _browser_plan_fingerprint(plan):
+        return {}
+    try:
+        next_action_index = int(payload.get("next_action_index", 0))
+    except (TypeError, ValueError):
+        return {}
+    if not 0 <= next_action_index <= len(plan.actions):
+        return {}
+    last_url = _safe_resume_url(
+        str(payload.get("last_url") or ""),
+        set(plan.allowed_hosts),
+        allow_private_network=plan.allow_private_network,
+    )
+    if next_action_index and not last_url:
+        return {}
+    return {
+        "schema_version":BROWSER_CHECKPOINT_SCHEMA,
+        "plan_fingerprint":payload["plan_fingerprint"],
+        "next_action_index":next_action_index,
+        "last_url":last_url,
+    }
+
+
+def _write_browser_checkpoint(
+    path: str | Path,
+    *,
+    plan: BrowserPlan,
+    next_action_index: int,
+    last_url: str,
+) -> dict[str, Any]:
+    if not 0 <= int(next_action_index) <= len(plan.actions):
+        raise ValueError("browser checkpoint action index is invalid")
+    safe_url = _safe_resume_url(
+        last_url,
+        set(plan.allowed_hosts),
+        allow_private_network=plan.allow_private_network,
+    )
+    if int(next_action_index) and not safe_url:
+        raise ValueError("browser checkpoint requires a safe last URL")
+    target = Path(path).expanduser().resolve()
+    target.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "schema_version":BROWSER_CHECKPOINT_SCHEMA,
+        "plan_fingerprint":_browser_plan_fingerprint(plan),
+        "next_action_index":int(next_action_index),
+        "last_url":safe_url,
+        "updated_at":datetime.now(timezone.utc).isoformat(),
+    }
+    temp = target.with_suffix(target.suffix + ".tmp")
+    temp.write_text(
+        json.dumps(payload, ensure_ascii=False, sort_keys=True, indent=2),
+        encoding="utf-8",
+    )
+    os.replace(temp, target)
+    return payload
 
 
 def _safe_resume_url(
@@ -303,6 +403,7 @@ def execute_browser_plan(
     artifacts_dir: str | Path,
     storage_state_path: str | Path | None = None,
     session_state_path: str | Path | None = None,
+    checkpoint_path: str | Path | None = None,
     headless: bool = True,
 ) -> dict[str, Any]:
     try:
@@ -323,6 +424,10 @@ def execute_browser_plan(
         Path(session_state_path).expanduser().resolve()
         if session_state_path is not None
         else None
+    )
+    checkpoint = _load_browser_checkpoint(
+        checkpoint_path,
+        plan,
     )
     allowed = set(plan.allowed_hosts)
     previous_session = _load_browser_session(
@@ -356,24 +461,43 @@ def execute_browser_plan(
         page = context.new_page()
         final_url: str | None = None
         resumed_from_url: str | None = None
+        resumed_action_index = 0
         try:
+            checkpoint_index = int(
+                checkpoint.get("next_action_index") or 0
+            )
+            if (
+                checkpoint_index > 0
+                and (state_path is None or not state_path.is_file())
+            ):
+                checkpoint_index = 0
+            checkpoint_url = str(checkpoint.get("last_url") or "")
             first_action = plan.actions[0].action if plan.actions else ""
             previous_url = str(previous_session.get("last_url") or "")
-            if (
+            resume_url = checkpoint_url or previous_url
+            should_resume = bool(
                 plan.persist_session
-                and previous_url
-                and first_action != "navigate"
-            ):
+                and resume_url
+                and (
+                    checkpoint_index > 0
+                    or first_action != "navigate"
+                )
+            )
+            if should_resume:
                 page.goto(
-                    previous_url,
+                    resume_url,
                     wait_until="domcontentloaded",
                     timeout=10000,
                 )
                 assert_current_host(page)
                 final_url = page.url
-                resumed_from_url = previous_url
+                resumed_from_url = resume_url
+                resumed_action_index = checkpoint_index
 
-            for index, action in enumerate(plan.actions, start=1):
+            for index, action in enumerate(
+                plan.actions[checkpoint_index:],
+                start=checkpoint_index + 1,
+            ):
                 if action.action == "navigate":
                     page.goto(
                         action.url,
@@ -425,10 +549,42 @@ def execute_browser_plan(
                         wait_until="domcontentloaded",
                         timeout=action.timeout_ms,
                     )
+                elif action.action == "checkpoint":
+                    if not plan.persist_session:
+                        raise RuntimeError(
+                            "browser checkpoint requires persist_session"
+                        )
+                    if state_path is None or checkpoint_path is None:
+                        raise RuntimeError(
+                            "browser checkpoint requires durable state paths"
+                        )
+                    state_path.parent.mkdir(parents=True, exist_ok=True)
+                    context.storage_state(path=str(state_path))
+                    if session_path is not None and page.url:
+                        _write_browser_session(
+                            session_path,
+                            last_url=page.url,
+                            plan=plan,
+                        )
+                    _write_browser_checkpoint(
+                        checkpoint_path,
+                        plan=plan,
+                        next_action_index=index,
+                        last_url=page.url,
+                    )
+                    results.append({
+                        "step":index,
+                        "action":"checkpoint",
+                        "next_action_index":index,
+                    })
 
                 assert_current_host(page)
                 final_url = page.url
-                if action.action not in {"extract_text", "screenshot"}:
+                if action.action not in {
+                    "extract_text",
+                    "screenshot",
+                    "checkpoint",
+                }:
                     results.append({
                         "step":index,
                         "action":action.action,
@@ -448,6 +604,11 @@ def execute_browser_plan(
                     last_url=final_url,
                     plan=plan,
                 )
+            if checkpoint_path is not None:
+                try:
+                    Path(checkpoint_path).expanduser().resolve().unlink()
+                except FileNotFoundError:
+                    pass
         finally:
             context.close()
             browser.close()
@@ -457,6 +618,7 @@ def execute_browser_plan(
         "status":"passed",
         "final_url":final_url,
         "resumed_from_url":resumed_from_url,
+        "resumed_action_index":resumed_action_index,
         "results":results,
         "storage_state_path":(
             str(state_path)
@@ -466,6 +628,11 @@ def execute_browser_plan(
         "session_state_path":(
             str(session_path)
             if plan.persist_session and session_path is not None
+            else None
+        ),
+        "checkpoint_path":(
+            str(Path(checkpoint_path).expanduser().resolve())
+            if checkpoint_path is not None
             else None
         ),
     }
