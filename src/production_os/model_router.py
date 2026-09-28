@@ -114,6 +114,48 @@ class ModelRouter:
     def __init__(self, backend):
         self.backend = backend
 
+    def record_worker_catalog(
+        self,
+        worker_id: str,
+        candidates: list[dict[str, Any]],
+    ) -> bool:
+        worker = str(worker_id or "").strip()
+        if not worker:
+            raise ValueError("worker_id is required")
+        normalized = normalize_model_candidates(candidates)
+        payload = {
+            "worker_id":worker,
+            "model_candidates":normalized,
+        }
+        with self.backend.transaction() as db:
+            row = _execute(
+                db,
+                self.backend,
+                """
+                SELECT payload_json
+                FROM events
+                WHERE event_type='worker-model-catalog'
+                  AND task_key=?
+                ORDER BY id DESC
+                LIMIT 1
+                """,
+                (worker,),
+            ).fetchone()
+            if row is not None:
+                try:
+                    previous = json.loads(row["payload_json"] or "{}")
+                except (TypeError, json.JSONDecodeError):
+                    previous = None
+                if previous == payload:
+                    return False
+            self.backend.append_event(
+                db,
+                "worker-model-catalog",
+                payload,
+                task_key_value=worker,
+            )
+        return True
+
     def catalog_candidates(
         self,
         *,
@@ -125,7 +167,7 @@ class ModelRouter:
                 db,
                 self.backend,
                 """
-                SELECT payload_json, created_at
+                SELECT task_key, payload_json, created_at
                 FROM events
                 WHERE event_type='worker-model-catalog'
                 ORDER BY created_at DESC, id DESC
@@ -146,7 +188,11 @@ class ModelRouter:
                 continue
             if not isinstance(payload, dict):
                 continue
-            worker_id = str(payload.get("worker_id") or "").strip()
+            worker_id = str(
+                payload.get("worker_id")
+                or row["task_key"]
+                or ""
+            ).strip()
             if not worker_id or worker_id in latest_workers:
                 continue
             latest_workers.add(worker_id)
