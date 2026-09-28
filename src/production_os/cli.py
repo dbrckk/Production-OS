@@ -52,6 +52,7 @@ from .queue_maintenance import compact_queue, retry_dead_letters
 from .rate_limit import RateLimitStore
 from .remote_worker import RemoteWorkerClient
 from .remote_worker_runner import RemoteWorkerRunner
+from .regression_bisect import run_regression_bisect
 from .release_ledger import ReleaseLedger
 from .reconciliation import reconcile_runtime_state
 from .resources import allocate_resources
@@ -611,6 +612,24 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--baseline",
         default="",
         help="Optional JSON benchmark report used to emit metric deltas",
+    )
+
+    bisect = sub.add_parser(
+        "regression-bisect",
+        help="Locate the first bad commit with a bounded git bisect",
+    )
+    bisect.add_argument("--repository-root", required=True)
+    bisect.add_argument("--good-sha", required=True)
+    bisect.add_argument("--bad-sha", required=True)
+    bisect.add_argument(
+        "--test-command",
+        required=True,
+        help="Test command parsed without invoking a shell",
+    )
+    bisect.add_argument(
+        "--timeout-seconds",
+        type=float,
+        default=900.0,
     )
 
     workflowcreate = sub.add_parser("workflow-create", help="Create a persistent DAG workflow")
@@ -2149,6 +2168,19 @@ def run_agent_benchmark(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_regression_bisect_command(args: argparse.Namespace) -> int:
+    command = shlex.split(str(args.test_command))
+    result = run_regression_bisect(
+        args.repository_root,
+        good_sha=args.good_sha,
+        bad_sha=args.bad_sha,
+        test_command=command,
+        timeout_seconds=args.timeout_seconds,
+    )
+    print(json.dumps(result.to_dict(), indent=2, ensure_ascii=False))
+    return 0
+
+
 def _workflow_engine(database: str) -> WorkflowEngine:
     backend = open_backend(database)
     return WorkflowEngine(backend, job_queue_for(backend))
@@ -2989,6 +3021,8 @@ def main(argv: list[str] | None = None) -> int:
         return run_browser_plan(args)
     if args.command == "agent-benchmark":
         return run_agent_benchmark(args)
+    if args.command == "regression-bisect":
+        return run_regression_bisect_command(args)
     if args.command == "workflow-create":
         return run_workflow_create(args)
     if args.command == "workflow-status":
