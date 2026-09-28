@@ -2,28 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat: release 41 live production tracking",
-      "terms": [
-        "41",
-        "feat",
-        "live",
-        "production",
-        "release",
-        "tracking"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/control_plane.py",
-        "src/production_os/dashboard_service.py",
-        "src/production_os/dashboard_ui.py",
-        "tests/test_dashboard_api.py",
-        "tests/test_dashboard_production_status.py",
-        "tests/test_dashboard_ui_v3.py",
-        "tests/test_release41_live_production_tracking_e2e.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat: release 42 idempotent one-tap launch",
       "terms": [
         "42",
@@ -1285,6 +1263,25 @@
         "src/production_os/regression_bisect.py",
         "tests/test_regression_bisect.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "feat(memory): add durable cross-generation project memory",
+      "terms": [
+        "add",
+        "cross-generation",
+        "durable",
+        "feat",
+        "memory",
+        "project"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/managed_projects.py",
+        "src/production_os/project_memory.py",
+        "src/production_os/workflow_engine.py",
+        "tests/test_project_memory.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1680,14 +1677,15 @@
       "src/production_os/github_change_review.py": 4,
       "src/production_os/github_client.py": 4,
       "src/production_os/github_work_state.py": 8,
-      "src/production_os/managed_projects.py": 16,
+      "src/production_os/managed_projects.py": 20,
       "src/production_os/model_router.py": 4,
+      "src/production_os/project_memory.py": 4,
       "src/production_os/regression_bisect.py": 4,
       "src/production_os/remote_worker_runner.py": 12,
       "src/production_os/rollback_plan.py": 4,
       "src/production_os/sqlite_backend.py": 4,
       "src/production_os/task_capabilities.py": 8,
-      "src/production_os/workflow_engine.py": 24,
+      "src/production_os/workflow_engine.py": 28,
       "tests/test_agent_plan.py": 4,
       "tests/test_browser_computer.py": 4,
       "tests/test_browser_worker_image.py": 4,
@@ -1700,6 +1698,7 @@
       "tests/test_mobile_worker_image.py": 4,
       "tests/test_model_router.py": 4,
       "tests/test_persistent_agent_runtime.py": 8,
+      "tests/test_project_memory.py": 4,
       "tests/test_regression_bisect.py": 4,
       "tests/test_release51_one_tap_runner_e2e.py": 8,
       "tests/test_remote_worker_runner.py": 4,
@@ -2331,6 +2330,12 @@
       "tests/test_dashboard_launch.py": 16,
       "tests/test_github_client_put_file.py": 4
     },
+    "cross-generation": {
+      "src/production_os/managed_projects.py": 4,
+      "src/production_os/project_memory.py": 4,
+      "src/production_os/workflow_engine.py": 4,
+      "tests/test_project_memory.py": 4
+    },
     "cross-profile": {
       "src/production_os/reuse.py": 4,
       "tests/test_classification_history_reuse.py": 4
@@ -2520,11 +2525,14 @@
       "src/production_os/agent_planning_policy.py": 4,
       "src/production_os/agent_runtime.py": 4,
       "src/production_os/cli.py": 4,
-      "src/production_os/managed_projects.py": 4,
+      "src/production_os/managed_projects.py": 8,
+      "src/production_os/project_memory.py": 4,
       "src/production_os/remote_worker_runner.py": 4,
+      "src/production_os/workflow_engine.py": 4,
       "tests/test_agent_benchmark.py": 4,
       "tests/test_agent_planning_policy.py": 4,
-      "tests/test_persistent_agent_runtime.py": 4
+      "tests/test_persistent_agent_runtime.py": 4,
+      "tests/test_project_memory.py": 4
     },
     "dynamic": {
       "src/production_os/agent_plan.py": 4,
@@ -3141,6 +3149,12 @@
       "src/production_os/cli.py": 4,
       "tests/test_agent_benchmark.py": 4
     },
+    "memory": {
+      "src/production_os/managed_projects.py": 4,
+      "src/production_os/project_memory.py": 4,
+      "src/production_os/workflow_engine.py": 4,
+      "tests/test_project_memory.py": 4
+    },
     "merge": {
       "src/production_os/control_plane.py": 8,
       "tests/test_dashboard_launch.py": 8
@@ -3477,6 +3491,12 @@
     "progress": {
       "src/production_os/dashboard_ui.py": 4,
       "tests/test_dashboard_ui_v3.py": 4
+    },
+    "project": {
+      "src/production_os/managed_projects.py": 4,
+      "src/production_os/project_memory.py": 4,
+      "src/production_os/workflow_engine.py": 4,
+      "tests/test_project_memory.py": 4
     },
     "projects": {
       "src/production_os/control_plane.py": 8,

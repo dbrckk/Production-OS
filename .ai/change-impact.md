@@ -1,22 +1,21 @@
 # Change impact
 
-Base: cbb2e485766e9adb40f5ee61b5690d7aee5063a9
-Head: 92e9cbcce28b0508d8547feb7a4244f5bf19ff43
+Base: a0b7ea0e1288a779926564fab5699dabd3ddc79b
+Head: 87be5e33f21c10f6d1c941a61dc8caf20308c163
 
 ## Changed files
-- A docs/regression-bisect.md
-- M src/production_os/cli.py
-- A src/production_os/regression_bisect.py
-- A tests/test_regression_bisect.py
+- M src/production_os/managed_projects.py
+- A src/production_os/project_memory.py
+- M src/production_os/workflow_engine.py
+- A tests/test_project_memory.py
 
 ## Affected areas
-- docs
 - src
 - tests
 
 ## Related test candidates
-- tests/test_cli.py
-- tests/test_regression_bisect.py
+- tests/test_project_memory.py
+- tests/test_workflow_engine.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

@@ -139,6 +139,7 @@ src/
     portfolio_optimizer.py
     postgres_backend.py
     preemption.py
+    project_memory.py
     project_progress.py
     quarantine.py
     queue_maintenance.py
@@ -293,6 +294,7 @@ tests/
   test_postgres_backend.py
   test_preemption.py
   test_production_stack_e2e.py
+  test_project_memory.py
   test_project_progress.py
   test_provenance_signer.py
   test_queue_audit_checkpoint.py
@@ -6627,6 +6629,8 @@ class ManagedProjectService
 repository = str(repository or "").strip()
 parts = repository.split("/")
 ⋮----
+context = self.project_memory.context(
+⋮----
 @staticmethod
     def _needs_browser_validation(final_goal: str) -> bool
 ⋮----
@@ -6640,6 +6644,7 @@ mobile = self._needs_mobile_ui_validation(final_goal)
 browser = self._needs_browser_validation(final_goal) and not mobile
 specialist = browser or mobile
 planning_policy = planning_policy_for_repository(
+⋮----
 planner_max_agents = planning_policy.max_agents
 ⋮----
 weights = [8, 42, 15, 15, 10, 10] if specialist else [10, 45, 15, 15, 15]
@@ -7505,6 +7510,133 @@ gap = incoming_priority - current_priority
 victim = candidates[0][-1]
 ⋮----
 record = runtime_state.get(repository, task)
+````
+
+## File: src/production_os/project_memory.py
+````python
+MEMORY_SCHEMA = "production-os/project-memory/v1"
+_TERM = re.compile(r"[a-z0-9][a-z0-9._/-]{2,63}")
+_SHA = re.compile(r"^[0-9a-f]{7,64}$", re.I)
+_SECRET_PATTERNS = (
+⋮----
+def _is_postgres(backend) -> bool
+⋮----
+def _sql(backend, statement: str) -> str
+⋮----
+def _execute(db, backend, statement: str, params: tuple = ())
+⋮----
+def _terms(value: str) -> set[str]
+⋮----
+def _clean_text(value: Any, *, limit: int) -> str
+⋮----
+text = " ".join(str(value or "").split()).strip()
+⋮----
+def _clean_list(value: Any, *, items: int, item_limit: int) -> list[str]
+⋮----
+rows: list[str] = []
+⋮----
+text = _clean_text(raw, limit=item_limit)
+⋮----
+@dataclass(frozen=True, slots=True)
+class ProjectMemory
+⋮----
+event_id: int
+repository: str
+project_id: str
+generation: int
+workflow_id: str
+task_id: str
+kind: str
+summary: str
+validation_status: str
+commit_shas: tuple[str, ...]
+changed_files: tuple[str, ...]
+decisions: tuple[str, ...]
+constraints: tuple[str, ...]
+facts: tuple[str, ...]
+risks: tuple[str, ...]
+next_steps: tuple[str, ...]
+created_at: str
+⋮----
+def to_dict(self) -> dict[str, Any]
+⋮----
+class ProjectMemoryStore
+⋮----
+def __init__(self, backend)
+⋮----
+summary = _clean_text(result.get("summary"), limit=1200)
+validation = result.get("validation")
+validation_status = ""
+⋮----
+validation_status = _clean_text(
+⋮----
+commit_shas = [
+changed_files = _clean_list(
+⋮----
+explicit = result.get("project_memory")
+explicit = explicit if isinstance(explicit, dict) else {}
+decisions = _clean_list(
+constraints = _clean_list(
+facts = _clean_list(
+risks = _clean_list(
+next_steps = _clean_list(
+⋮----
+payload = {
+canonical = json.dumps(
+⋮----
+payload = self._payload(
+⋮----
+recent = _execute(
+fingerprint = str(payload["memory_fingerprint"])
+⋮----
+existing = json.loads(row["payload_json"])
+⋮----
+event_id = self.backend.append_event(
+⋮----
+@staticmethod
+    def _from_row(row) -> ProjectMemory | None
+⋮----
+payload = json.loads(row["payload_json"])
+⋮----
+bounded = max(1, min(int(limit), 12))
+⋮----
+rows = _execute(
+⋮----
+query_terms = _terms(query)
+scored: list[tuple[float, ProjectMemory]] = []
+seen_fingerprints: set[str] = set()
+⋮----
+raw_payload = json.loads(row["payload_json"])
+⋮----
+raw_payload = {}
+fingerprint = str(
+⋮----
+memory = self._from_row(row)
+⋮----
+same_project = bool(
+searchable = " ".join((
+overlap = len(query_terms.intersection(_terms(searchable)))
+⋮----
+score = (
+⋮----
+memories = self.recall(
+items = []
+⋮----
+item = {
+⋮----
+@staticmethod
+    def context_text(context: dict[str, Any], *, max_chars: int = 5000) -> str
+⋮----
+items = context.get("items")
+⋮----
+lines = ["Relevant durable project memory:"]
+⋮----
+prefix = (
+details = []
+⋮----
+values = item.get(label)
+⋮----
+line = prefix + " " + " | ".join(details)
 ````
 
 ## File: src/production_os/project_progress.py
@@ -10199,6 +10331,18 @@ status = "ready"
 status = "failed"
 ⋮----
 task_payload = json.loads(row["payload_json"])
+⋮----
+handoff = dict(task_payload.get("handoff") or {})
+project_id = str(
+⋮----
+generation_raw = (
+⋮----
+generation = max(1, int(generation_raw))
+⋮----
+generation = 1
+project_kind = str(
+repository = str(
+⋮----
 reused_skill_ids: list[str] = []
 claimed_job_key = str(row["claimed_job_key"] or "")
 ⋮----
@@ -14544,6 +14688,50 @@ attestation = create_validation_attestation(
 release = promoted_payload["release"]
 ⋮----
 verification = verified_payload["verification"]
+````
+
+## File: tests/test_project_memory.py
+````python
+def _engine(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "memory.sqlite")
+⋮----
+def test_project_memory_records_sanitized_structured_outcome(tmp_path)
+⋮----
+engine = _engine(tmp_path)
+store = ProjectMemoryStore(engine.backend)
+⋮----
+recorded = store.record_from_result(
+⋮----
+recalled = store.recall(
+⋮----
+def test_workflow_result_automatically_creates_managed_project_memory(tmp_path)
+⋮----
+workflow = engine.create(
+⋮----
+recalled = engine.project_memory.recall(
+⋮----
+def test_managed_project_specs_recall_prior_project_memory(tmp_path)
+⋮----
+managed = ManagedProjectService(engine)
+⋮----
+task = managed._workflow_spec(
+⋮----
+context = task.payload["handoff"]["project_memory"]
+⋮----
+def test_cooperative_planner_receives_memory_as_structured_and_text_context(tmp_path)
+⋮----
+tasks = managed._cooperative_workflow_specs(
+⋮----
+planner = tasks[0]
+handoff = planner.payload["handoff"]
+⋮----
+def test_project_memory_deduplicates_identical_repeated_outcomes(tmp_path)
+⋮----
+kwargs = {
+⋮----
+first = store.record_from_result(**kwargs)
+second = store.record_from_result(**kwargs)
 ````
 
 ## File: tests/test_project_progress.py

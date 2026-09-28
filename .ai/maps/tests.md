@@ -146,6 +146,7 @@ test_portfolio_optimizer.py
 test_postgres_backend.py
 test_preemption.py
 test_production_stack_e2e.py
+test_project_memory.py
 test_project_progress.py
 test_provenance_signer.py
 test_queue_audit_checkpoint.py
@@ -4489,6 +4490,50 @@ attestation = create_validation_attestation(
 release = promoted_payload["release"]
 ⋮----
 verification = verified_payload["verification"]
+```
+
+## File: test_project_memory.py
+```python
+def _engine(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "memory.sqlite")
+⋮----
+def test_project_memory_records_sanitized_structured_outcome(tmp_path)
+⋮----
+engine = _engine(tmp_path)
+store = ProjectMemoryStore(engine.backend)
+⋮----
+recorded = store.record_from_result(
+⋮----
+recalled = store.recall(
+⋮----
+def test_workflow_result_automatically_creates_managed_project_memory(tmp_path)
+⋮----
+workflow = engine.create(
+⋮----
+recalled = engine.project_memory.recall(
+⋮----
+def test_managed_project_specs_recall_prior_project_memory(tmp_path)
+⋮----
+managed = ManagedProjectService(engine)
+⋮----
+task = managed._workflow_spec(
+⋮----
+context = task.payload["handoff"]["project_memory"]
+⋮----
+def test_cooperative_planner_receives_memory_as_structured_and_text_context(tmp_path)
+⋮----
+tasks = managed._cooperative_workflow_specs(
+⋮----
+planner = tasks[0]
+handoff = planner.payload["handoff"]
+⋮----
+def test_project_memory_deduplicates_identical_repeated_outcomes(tmp_path)
+⋮----
+kwargs = {
+⋮----
+first = store.record_from_result(**kwargs)
+second = store.record_from_result(**kwargs)
 ```
 
 ## File: test_project_progress.py

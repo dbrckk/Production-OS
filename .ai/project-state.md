@@ -22,16 +22,20 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-28T11:43:44Z
+Generated: 2026-09-28T18:51:57Z
 
 ### Git
 - Branch: `main`
-- Head: `92e9cbcce28b`
-- Commit date: 2026-09-28T13:43:30+02:00
-- Commit: feat(runtime): add bounded executable regression bisect
-- Tracked files: 514
+- Head: `87be5e33f21c`
+- Commit date: 2026-09-28T20:51:45+02:00
+- Commit: feat(memory): add durable cross-generation project memory
+- Tracked files: 516
 
 ### Recently changed files
+- `src/production_os/managed_projects.py`
+- `src/production_os/project_memory.py`
+- `src/production_os/workflow_engine.py`
+- `tests/test_project_memory.py`
 - `docs/regression-bisect.md`
 - `src/production_os/cli.py`
 - `src/production_os/regression_bisect.py`
@@ -41,15 +45,7 @@ Generated: 2026-09-28T11:43:44Z
 - `tests/test_fanout_learning.py`
 - `src/production_os/agent_benchmark.py`
 - `tests/test_agent_benchmark.py`
-- `src/production_os/managed_projects.py`
 - `tests/test_agent_planning_policy.py`
-- `docs/remote-worker-executor-protocol.md`
-- `src/production_os/control_plane.py`
-- `src/production_os/model_router.py`
-- `src/production_os/remote_worker.py`
-- `src/production_os/workflow_engine.py`
-- `tests/test_model_router.py`
-- `tests/test_remote_worker.py`
 
 ### Project signals
 - `pyproject.toml`
