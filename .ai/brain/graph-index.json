@@ -12,6 +12,7 @@
         "tests/test_adaptation_plan.py",
         "tests/test_agent_benchmark.py",
         "tests/test_agent_plan.py",
+        "tests/test_agent_planning_policy.py",
         "tests/test_api_auth.py",
         "tests/test_approvals_migrations.py",
         "tests/test_asset_forge.py",
@@ -180,7 +181,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 171,
+      "in_degree": 172,
       "out_degree": 0,
       "path": "src/production_os/__init__.py"
     },
@@ -438,6 +439,7 @@
       ],
       "dependents": [
         "src/production_os/agent_benchmark.py",
+        "src/production_os/agent_planning_policy.py",
         "src/production_os/asset_forge.py",
         "src/production_os/cli.py",
         "src/production_os/control_plane.py",
@@ -473,6 +475,7 @@
         "src/production_os/witness.py",
         "src/production_os/workflow_engine.py",
         "tests/test_agent_benchmark.py",
+        "tests/test_agent_planning_policy.py",
         "tests/test_callgraph_versioning_feedback.py",
         "tests/test_dashboard_attention.py",
         "tests/test_dashboard_backup_api.py",
@@ -497,10 +500,9 @@
         "tests/test_release_ledger.py",
         "tests/test_remote_worker_runner.py",
         "tests/test_rollback_plan.py",
-        "tests/test_sqlite_migration.py",
-        "tests/test_workflow_engine.py"
+        "tests/test_sqlite_migration.py"
       ],
-      "in_degree": 62,
+      "in_degree": 63,
       "out_degree": 3,
       "path": "tests/test_asset_forge.py"
     },
@@ -516,6 +518,7 @@
         "src/production_os/dispatch.py",
         "src/production_os/storage.py",
         "tests/test_agent_benchmark.py",
+        "tests/test_agent_planning_policy.py",
         "tests/test_browser_computer.py",
         "tests/test_cli.py",
         "tests/test_cooperative_managed_projects.py",
@@ -559,7 +562,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 45,
+      "in_degree": 46,
       "out_degree": 5,
       "path": "src/production_os/sqlite_backend.py"
     },
@@ -691,6 +694,7 @@
         "src/production_os/control_plane.py",
         "src/production_os/managed_projects.py",
         "tests/test_agent_benchmark.py",
+        "tests/test_agent_planning_policy.py",
         "tests/test_browser_computer.py",
         "tests/test_control_plane_pr_impact.py",
         "tests/test_control_plane_release.py",
@@ -719,7 +723,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 31,
+      "in_degree": 32,
       "out_degree": 10,
       "path": "src/production_os/workflow_engine.py"
     },
@@ -1050,6 +1054,32 @@
     },
     {
       "dependencies": [
+        "src/production_os/agent_planning_policy.py",
+        "src/production_os/github_client.py",
+        "src/production_os/github_work_state.py",
+        "src/production_os/history.py",
+        "src/production_os/rollback_plan.py",
+        "src/production_os/workflow_engine.py",
+        "tests/test_asset_forge.py",
+        "tests/test_github_automerge.py"
+      ],
+      "dependents": [
+        "src/production_os/control_plane.py",
+        "tests/test_agent_planning_policy.py",
+        "tests/test_cooperative_managed_projects.py",
+        "tests/test_cooperative_specialist_e2e.py",
+        "tests/test_managed_dynamic_plan_outcome.py",
+        "tests/test_managed_github_reconciliation.py",
+        "tests/test_managed_project_outcome.py",
+        "tests/test_managed_projects_v4.py",
+        "tests/test_workflow_postgres.py"
+      ],
+      "in_degree": 9,
+      "out_degree": 8,
+      "path": "src/production_os/managed_projects.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/capabilities.py",
         "src/production_os/models.py",
         "src/production_os/workers.py"
@@ -1193,30 +1223,6 @@
       "in_degree": 10,
       "out_degree": 5,
       "path": "src/production_os/postgres_backend.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/github_client.py",
-        "src/production_os/github_work_state.py",
-        "src/production_os/history.py",
-        "src/production_os/rollback_plan.py",
-        "src/production_os/workflow_engine.py",
-        "tests/test_asset_forge.py",
-        "tests/test_github_automerge.py"
-      ],
-      "dependents": [
-        "src/production_os/control_plane.py",
-        "tests/test_cooperative_managed_projects.py",
-        "tests/test_cooperative_specialist_e2e.py",
-        "tests/test_managed_dynamic_plan_outcome.py",
-        "tests/test_managed_github_reconciliation.py",
-        "tests/test_managed_project_outcome.py",
-        "tests/test_managed_projects_v4.py",
-        "tests/test_workflow_postgres.py"
-      ],
-      "in_degree": 8,
-      "out_degree": 7,
-      "path": "src/production_os/managed_projects.py"
     },
     {
       "dependencies": [],
@@ -1885,8 +1891,8 @@
       "path": "tests/test_secure_release_e2e.py"
     }
   ],
-  "edge_count": 1546,
+  "edge_count": 1558,
   "generated_by": "dbrckk/repo-brain-v7-graph",
-  "node_count": 301,
+  "node_count": 303,
   "schema_version": 1
 }

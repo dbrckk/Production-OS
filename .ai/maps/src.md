@@ -44,6 +44,7 @@ production_os/
   adaptation.py
   agent_benchmark.py
   agent_plan.py
+  agent_planning_policy.py
   agent_runtime.py
   api_auth.py
   approvals.py
@@ -442,6 +443,50 @@ dependencies: list[str] = []
 dependency = str(value or "").strip().lower()
 ⋮----
 estimated_minutes = float(raw.get("estimated_minutes", 20))
+```
+
+## File: production_os/agent_planning_policy.py
+```python
+def _is_postgres(backend) -> bool
+⋮----
+def _sql(backend, statement: str) -> str
+⋮----
+@dataclass(frozen=True, slots=True)
+class AgentPlanningPolicy
+⋮----
+source: str
+sample_size: int
+max_agents: int
+success_rate: float | None
+execution_failure_rate: float | None
+retries_per_workflow: float | None
+interventions_per_workflow: float | None
+guidance: str
+⋮----
+def to_dict(self) -> dict[str, Any]
+⋮----
+value = str(repository or "").strip()
+⋮----
+rows = db.execute(
+workflow_ids = [str(row["id"]) for row in rows]
+⋮----
+report = AutonomousBenchmark(backend).report(workflow_ids)
+sample_size = int(report["workflow_count"])
+success_rate = float(report["success_rate"])
+failure_rate_raw = report.get("execution_failure_rate")
+failure_rate = (
+retries_per = float(report["retry_executions"]) / sample_size
+interventions_per = (
+⋮----
+risky = (
+strong = (
+⋮----
+max_agents = 3
+guidance = (
+⋮----
+max_agents = 6
+⋮----
+max_agents = 4
 ```
 
 ## File: production_os/agent_runtime.py
@@ -5922,6 +5967,8 @@ markers = (
 mobile = self._needs_mobile_ui_validation(final_goal)
 browser = self._needs_browser_validation(final_goal) and not mobile
 specialist = browser or mobile
+planning_policy = planning_policy_for_repository(
+planner_max_agents = planning_policy.max_agents
 ⋮----
 weights = [8, 42, 15, 15, 10, 10] if specialist else [10, 45, 15, 15, 15]
 budgets = _stage_budgets(int(token_budget), weights)

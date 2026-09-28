@@ -22,16 +22,19 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-28T11:17:46Z
+Generated: 2026-09-28T11:23:51Z
 
 ### Git
 - Branch: `main`
-- Head: `d9dac2079d94`
-- Commit date: 2026-09-28T13:17:36+02:00
-- Commit: feat(models): discover one-tap model candidates from worker heartbeats
-- Tracked files: 507
+- Head: `bdc539544d29`
+- Commit date: 2026-09-28T13:23:40+02:00
+- Commit: feat(agents): adapt planner fanout from durable benchmark evidence
+- Tracked files: 509
 
 ### Recently changed files
+- `src/production_os/agent_planning_policy.py`
+- `src/production_os/managed_projects.py`
+- `tests/test_agent_planning_policy.py`
 - `docs/remote-worker-executor-protocol.md`
 - `src/production_os/control_plane.py`
 - `src/production_os/model_router.py`
@@ -44,11 +47,6 @@ Generated: 2026-09-28T11:17:46Z
 - `tests/test_agent_benchmark.py`
 - `src/production_os/dashboard_store.py`
 - `tests/test_dashboard_store.py`
-- `README.md`
-- `src/production_os/controller.py`
-- `src/production_os/controller_leader.py`
-- `tests/test_controller_daemon.py`
-- `tests/test_controller_leader.py`
 
 ### Project signals
 - `pyproject.toml`

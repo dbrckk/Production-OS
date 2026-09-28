@@ -1,6 +1,7 @@
 flowchart LR
   n6e87e8c51b["src/production_os/adaptation.py"] --> n0cf77efd96["src/production_os/models.py"]
   n4f0b5be044["src/production_os/adaptation_plan.py"] --> n0cf77efd96["src/production_os/models.py"]
+  na99df63cd8["src/production_os/agent_planning_policy.py"] --> n9081b39118["src/production_os/agent_benchmark.py"]
   n53e82c5b2c["src/production_os/approvals.py"] --> n25c6a1625a["src/production_os/atomic_io.py"]
   n53e82c5b2c["src/production_os/approvals.py"] --> n05731047b6["src/production_os/locks.py"]
   nac7c3afef8["src/production_os/asset_forge.py"] --> n8da48dd644["src/production_os/github_client.py"]
@@ -183,6 +184,7 @@ flowchart LR
   n689f0047e9["src/production_os/key_domains.py"] --> n1a73c1e5c7["src/production_os/key_registry.py"]
   n689f0047e9["src/production_os/key_domains.py"] --> nf085755ea1["src/production_os/signing.py"]
   n1a73c1e5c7["src/production_os/key_registry.py"] --> nf085755ea1["src/production_os/signing.py"]
+  n90212acf82["src/production_os/managed_projects.py"] --> na99df63cd8["src/production_os/agent_planning_policy.py"]
   n90212acf82["src/production_os/managed_projects.py"] --> n8da48dd644["src/production_os/github_client.py"]
   n90212acf82["src/production_os/managed_projects.py"] --> n85c4c8a1ae["src/production_os/github_work_state.py"]
   n90212acf82["src/production_os/managed_projects.py"] --> ne5037c5f2c["src/production_os/rollback_plan.py"]
@@ -197,5 +199,3 @@ flowchart LR
   n804842b6ea["src/production_os/preemption.py"] --> n261fff3708["src/production_os/workers.py"]
   n7bff645e2c["src/production_os/quarantine.py"] --> n25c6a1625a["src/production_os/atomic_io.py"]
   n7bff645e2c["src/production_os/quarantine.py"] --> n05731047b6["src/production_os/locks.py"]
-  n09caa3cd95["src/production_os/queue_maintenance.py"] --> n25c6a1625a["src/production_os/atomic_io.py"]
-  n09caa3cd95["src/production_os/queue_maintenance.py"] --> nbd15e246a7["src/production_os/claims.py"]

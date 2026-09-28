@@ -42,6 +42,7 @@ test_adaptation_plan.py
 test_adaptation.py
 test_agent_benchmark.py
 test_agent_plan.py
+test_agent_planning_policy.py
 test_api_auth.py
 test_approvals_migrations.py
 test_asset_forge.py
@@ -315,6 +316,41 @@ def test_agent_plan_rejects_budget_overflow()
 def test_agent_plan_rejects_too_many_agents()
 ⋮----
 def test_agent_plan_rejects_unsafe_graph_shapes(payload, match)
+```
+
+## File: test_agent_planning_policy.py
+```python
+def _build(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "planning-policy.sqlite")
+queue = SQLiteJobQueue(backend)
+engine = WorkflowEngine(backend, queue)
+⋮----
+def _completed_workflow(engine, repository: str, *, succeeded: bool)
+⋮----
+workflow = engine.create(
+⋮----
+def test_planning_policy_keeps_default_without_enough_history(tmp_path)
+⋮----
+policy = planning_policy_for_repository(
+⋮----
+def test_planning_policy_reduces_fanout_for_risky_history(tmp_path)
+⋮----
+def test_planning_policy_uses_moderate_fanout_for_mixed_history(tmp_path)
+⋮----
+def test_managed_project_embeds_evidence_policy_in_planner_contract(tmp_path)
+⋮----
+managed = ManagedProjectService(engine)
+specs = managed._cooperative_workflow_specs(
+⋮----
+planner = specs[0]
+config = planner.payload["dynamic_agent_planner"]
+handoff = planner.payload["handoff"]
+⋮----
+def test_planning_policy_is_repository_scoped(tmp_path)
+⋮----
+risky = planning_policy_for_repository(backend, "owner/risky")
+strong = planning_policy_for_repository(backend, "owner/strong")
 ```
 
 ## File: test_api_auth.py

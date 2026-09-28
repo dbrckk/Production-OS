@@ -15,6 +15,7 @@
         "tests/test_adaptation_plan.py",
         "tests/test_agent_benchmark.py",
         "tests/test_agent_plan.py",
+        "tests/test_agent_planning_policy.py",
         "tests/test_api_auth.py",
         "tests/test_approvals_migrations.py",
         "tests/test_asset_forge.py",
@@ -183,7 +184,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 171,
+      "in_degree": 172,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -217,10 +218,11 @@
         "tests/test_asset_forge.py"
       ],
       "dependents": [
+        "src/production_os/agent_planning_policy.py",
         "src/production_os/cli.py",
         "tests/test_agent_benchmark.py"
       ],
-      "in_degree": 2,
+      "in_degree": 3,
       "out_degree": 1
     },
     "src/production_os/agent_plan.py": {
@@ -234,6 +236,18 @@
       ],
       "in_degree": 3,
       "out_degree": 1
+    },
+    "src/production_os/agent_planning_policy.py": {
+      "dependencies": [
+        "src/production_os/agent_benchmark.py",
+        "tests/test_asset_forge.py"
+      ],
+      "dependents": [
+        "src/production_os/managed_projects.py",
+        "tests/test_agent_planning_policy.py"
+      ],
+      "in_degree": 2,
+      "out_degree": 2
     },
     "src/production_os/agent_runtime.py": {
       "dependencies": [
@@ -1373,6 +1387,7 @@
     },
     "src/production_os/managed_projects.py": {
       "dependencies": [
+        "src/production_os/agent_planning_policy.py",
         "src/production_os/github_client.py",
         "src/production_os/github_work_state.py",
         "src/production_os/history.py",
@@ -1383,6 +1398,7 @@
       ],
       "dependents": [
         "src/production_os/control_plane.py",
+        "tests/test_agent_planning_policy.py",
         "tests/test_cooperative_managed_projects.py",
         "tests/test_cooperative_specialist_e2e.py",
         "tests/test_managed_dynamic_plan_outcome.py",
@@ -1391,8 +1407,8 @@
         "tests/test_managed_projects_v4.py",
         "tests/test_workflow_postgres.py"
       ],
-      "in_degree": 8,
-      "out_degree": 7
+      "in_degree": 9,
+      "out_degree": 8
     },
     "src/production_os/metrics.py": {
       "dependencies": [],
@@ -2002,6 +2018,7 @@
         "src/production_os/dispatch.py",
         "src/production_os/storage.py",
         "tests/test_agent_benchmark.py",
+        "tests/test_agent_planning_policy.py",
         "tests/test_browser_computer.py",
         "tests/test_cli.py",
         "tests/test_cooperative_managed_projects.py",
@@ -2045,7 +2062,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 45,
+      "in_degree": 46,
       "out_degree": 5
     },
     "src/production_os/sqlite_migration.py": {
@@ -2329,6 +2346,7 @@
         "src/production_os/control_plane.py",
         "src/production_os/managed_projects.py",
         "tests/test_agent_benchmark.py",
+        "tests/test_agent_planning_policy.py",
         "tests/test_browser_computer.py",
         "tests/test_control_plane_pr_impact.py",
         "tests/test_control_plane_release.py",
@@ -2357,7 +2375,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 31,
+      "in_degree": 32,
       "out_degree": 10
     },
     "src/production_os/worktree_contract.py": {
@@ -2418,6 +2436,19 @@
       "in_degree": 0,
       "out_degree": 3
     },
+    "tests/test_agent_planning_policy.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/agent_planning_policy.py",
+        "src/production_os/managed_projects.py",
+        "src/production_os/sqlite_backend.py",
+        "src/production_os/workflow_engine.py",
+        "tests/test_asset_forge.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 6
+    },
     "tests/test_api_auth.py": {
       "dependencies": [
         "src/production_os/__init__.py",
@@ -2446,6 +2477,7 @@
       ],
       "dependents": [
         "src/production_os/agent_benchmark.py",
+        "src/production_os/agent_planning_policy.py",
         "src/production_os/asset_forge.py",
         "src/production_os/cli.py",
         "src/production_os/control_plane.py",
@@ -2481,6 +2513,7 @@
         "src/production_os/witness.py",
         "src/production_os/workflow_engine.py",
         "tests/test_agent_benchmark.py",
+        "tests/test_agent_planning_policy.py",
         "tests/test_callgraph_versioning_feedback.py",
         "tests/test_dashboard_attention.py",
         "tests/test_dashboard_backup_api.py",
@@ -2505,10 +2538,9 @@
         "tests/test_release_ledger.py",
         "tests/test_remote_worker_runner.py",
         "tests/test_rollback_plan.py",
-        "tests/test_sqlite_migration.py",
-        "tests/test_workflow_engine.py"
+        "tests/test_sqlite_migration.py"
       ],
-      "in_degree": 62,
+      "in_degree": 63,
       "out_degree": 3
     },
     "tests/test_asymmetric_attestations.py": {
@@ -4398,12 +4430,11 @@
       "dependencies": [
         "src/production_os/__init__.py",
         "src/production_os/sqlite_backend.py",
-        "src/production_os/workflow_engine.py",
-        "tests/test_asset_forge.py"
+        "src/production_os/workflow_engine.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 4
+      "out_degree": 3
     },
     "tests/test_workflow_postgres.py": {
       "dependencies": [

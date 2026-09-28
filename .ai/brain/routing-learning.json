@@ -2,26 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat: release 37 attention center",
-      "terms": [
-        "37",
-        "attention",
-        "center",
-        "feat",
-        "release"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/control_plane.py",
-        "src/production_os/dashboard_service.py",
-        "src/production_os/dashboard_ui.py",
-        "tests/test_dashboard_api.py",
-        "tests/test_dashboard_attention.py",
-        "tests/test_dashboard_ui_v3.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat: release 38 contextual attention actions",
       "terms": [
         "38",
@@ -1289,6 +1269,27 @@
         "tests/test_model_router.py",
         "tests/test_remote_worker.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "feat(agents): adapt planner fanout from durable benchmark evidence",
+      "terms": [
+        "adapt",
+        "agents",
+        "benchmark",
+        "durable",
+        "evidence",
+        "fanout",
+        "feat",
+        "from",
+        "planner"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/agent_planning_policy.py",
+        "src/production_os/managed_projects.py",
+        "tests/test_agent_planning_policy.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1649,6 +1650,11 @@
       "src/production_os/remote_worker_runner.py": 4,
       "tests/test_persistent_agent_runtime.py": 4
     },
+    "adapt": {
+      "src/production_os/agent_planning_policy.py": 4,
+      "src/production_os/managed_projects.py": 4,
+      "tests/test_agent_planning_policy.py": 4
+    },
     "adaptive": {
       "src/production_os/managed_projects.py": 4,
       "tests/test_cooperative_managed_projects.py": 4,
@@ -1722,14 +1728,16 @@
     },
     "agents": {
       "src/production_os/agent_plan.py": 4,
+      "src/production_os/agent_planning_policy.py": 4,
       "src/production_os/cli.py": 8,
       "src/production_os/executor_worktree.py": 12,
-      "src/production_os/managed_projects.py": 12,
+      "src/production_os/managed_projects.py": 16,
       "src/production_os/remote_worker_runner.py": 16,
       "src/production_os/repository_cache.py": 4,
       "src/production_os/workflow_engine.py": 20,
       "src/production_os/worktree_contract.py": 4,
       "tests/test_agent_plan.py": 4,
+      "tests/test_agent_planning_policy.py": 4,
       "tests/test_browser_worker_image.py": 4,
       "tests/test_cooperative_managed_projects.py": 8,
       "tests/test_cooperative_specialist_e2e.py": 8,
@@ -1944,8 +1952,11 @@
     },
     "benchmark": {
       "src/production_os/agent_benchmark.py": 4,
+      "src/production_os/agent_planning_policy.py": 4,
       "src/production_os/cli.py": 4,
-      "tests/test_agent_benchmark.py": 4
+      "src/production_os/managed_projects.py": 4,
+      "tests/test_agent_benchmark.py": 4,
+      "tests/test_agent_planning_policy.py": 4
     },
     "bootstrap": {
       "scripts/render-start.py": 4,
@@ -2494,10 +2505,13 @@
     },
     "durable": {
       "src/production_os/agent_benchmark.py": 4,
+      "src/production_os/agent_planning_policy.py": 4,
       "src/production_os/agent_runtime.py": 4,
       "src/production_os/cli.py": 4,
+      "src/production_os/managed_projects.py": 4,
       "src/production_os/remote_worker_runner.py": 4,
       "tests/test_agent_benchmark.py": 4,
+      "tests/test_agent_planning_policy.py": 4,
       "tests/test_persistent_agent_runtime.py": 4
     },
     "dynamic": {
@@ -2537,9 +2551,11 @@
       "tests/test_dashboard_ui_v3.py": 4
     },
     "evidence": {
+      "src/production_os/agent_planning_policy.py": 4,
       "src/production_os/control_plane.py": 4,
       "src/production_os/dashboard_ui.py": 4,
-      "src/production_os/managed_projects.py": 8,
+      "src/production_os/managed_projects.py": 12,
+      "tests/test_agent_planning_policy.py": 4,
       "tests/test_cooperative_managed_projects.py": 4,
       "tests/test_dashboard_ui_v3.py": 4,
       "tests/test_managed_project_outcome.py": 4,
@@ -2616,8 +2632,10 @@
       "tests/test_dynamic_agent_fanout.py": 4
     },
     "fanout": {
-      "src/production_os/managed_projects.py": 4,
+      "src/production_os/agent_planning_policy.py": 4,
+      "src/production_os/managed_projects.py": 8,
       "src/production_os/workflow_engine.py": 4,
+      "tests/test_agent_planning_policy.py": 4,
       "tests/test_dynamic_agent_fanout.py": 4,
       "tests/test_managed_dynamic_plan_outcome.py": 4,
       "tests/test_managed_project_outcome.py": 4
@@ -2626,6 +2644,7 @@
       "scripts/render-start.py": 4,
       "src/production_os/agent_benchmark.py": 4,
       "src/production_os/agent_plan.py": 4,
+      "src/production_os/agent_planning_policy.py": 4,
       "src/production_os/agent_runtime.py": 8,
       "src/production_os/asset_forge.py": 24,
       "src/production_os/browser_computer.py": 4,
@@ -2655,7 +2674,6 @@
       "src/production_os/managed_projects.py": 40,
       "src/production_os/model_router.py": 8,
       "src/production_os/postgres_backend.py": 40,
-      "src/production_os/project_progress.py": 4,
       "src/production_os/remote_worker.py": 12,
       "src/production_os/remote_worker_runner.py": 40,
       "src/production_os/skill_memory.py": 8,
@@ -2722,12 +2740,15 @@
     },
     "from": {
       "src/production_os/agent_benchmark.py": 4,
+      "src/production_os/agent_planning_policy.py": 4,
       "src/production_os/cli.py": 4,
       "src/production_os/control_plane.py": 12,
+      "src/production_os/managed_projects.py": 4,
       "src/production_os/model_router.py": 4,
       "src/production_os/remote_worker.py": 4,
       "src/production_os/workflow_engine.py": 4,
       "tests/test_agent_benchmark.py": 4,
+      "tests/test_agent_planning_policy.py": 4,
       "tests/test_dashboard_launch.py": 8,
       "tests/test_model_router.py": 4,
       "tests/test_remote_worker.py": 4
@@ -3314,8 +3335,10 @@
       "tests/test_agent_plan.py": 4
     },
     "planner": {
-      "src/production_os/managed_projects.py": 8,
+      "src/production_os/agent_planning_policy.py": 4,
+      "src/production_os/managed_projects.py": 12,
       "src/production_os/workflow_engine.py": 12,
+      "tests/test_agent_planning_policy.py": 4,
       "tests/test_cooperative_managed_projects.py": 4,
       "tests/test_cooperative_specialist_e2e.py": 4,
       "tests/test_dynamic_agent_fanout.py": 12,

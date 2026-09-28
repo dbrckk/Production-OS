@@ -59,6 +59,7 @@ src/
     adaptation.py
     agent_benchmark.py
     agent_plan.py
+    agent_planning_policy.py
     agent_runtime.py
     api_auth.py
     approvals.py
@@ -186,6 +187,7 @@ tests/
   test_adaptation.py
   test_agent_benchmark.py
   test_agent_plan.py
+  test_agent_planning_policy.py
   test_api_auth.py
   test_approvals_migrations.py
   test_asset_forge.py
@@ -1015,6 +1017,50 @@ dependencies: list[str] = []
 dependency = str(value or "").strip().lower()
 ⋮----
 estimated_minutes = float(raw.get("estimated_minutes", 20))
+````
+
+## File: src/production_os/agent_planning_policy.py
+````python
+def _is_postgres(backend) -> bool
+⋮----
+def _sql(backend, statement: str) -> str
+⋮----
+@dataclass(frozen=True, slots=True)
+class AgentPlanningPolicy
+⋮----
+source: str
+sample_size: int
+max_agents: int
+success_rate: float | None
+execution_failure_rate: float | None
+retries_per_workflow: float | None
+interventions_per_workflow: float | None
+guidance: str
+⋮----
+def to_dict(self) -> dict[str, Any]
+⋮----
+value = str(repository or "").strip()
+⋮----
+rows = db.execute(
+workflow_ids = [str(row["id"]) for row in rows]
+⋮----
+report = AutonomousBenchmark(backend).report(workflow_ids)
+sample_size = int(report["workflow_count"])
+success_rate = float(report["success_rate"])
+failure_rate_raw = report.get("execution_failure_rate")
+failure_rate = (
+retries_per = float(report["retry_executions"]) / sample_size
+interventions_per = (
+⋮----
+risky = (
+strong = (
+⋮----
+max_agents = 3
+guidance = (
+⋮----
+max_agents = 6
+⋮----
+max_agents = 4
 ````
 
 ## File: src/production_os/agent_runtime.py
@@ -6495,6 +6541,8 @@ markers = (
 mobile = self._needs_mobile_ui_validation(final_goal)
 browser = self._needs_browser_validation(final_goal) and not mobile
 specialist = browser or mobile
+planning_policy = planning_policy_for_repository(
+planner_max_agents = planning_policy.max_agents
 ⋮----
 weights = [8, 42, 15, 15, 10, 10] if specialist else [10, 45, 15, 15, 15]
 budgets = _stage_budgets(int(token_budget), weights)
@@ -10169,6 +10217,41 @@ def test_agent_plan_rejects_budget_overflow()
 def test_agent_plan_rejects_too_many_agents()
 ⋮----
 def test_agent_plan_rejects_unsafe_graph_shapes(payload, match)
+````
+
+## File: tests/test_agent_planning_policy.py
+````python
+def _build(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "planning-policy.sqlite")
+queue = SQLiteJobQueue(backend)
+engine = WorkflowEngine(backend, queue)
+⋮----
+def _completed_workflow(engine, repository: str, *, succeeded: bool)
+⋮----
+workflow = engine.create(
+⋮----
+def test_planning_policy_keeps_default_without_enough_history(tmp_path)
+⋮----
+policy = planning_policy_for_repository(
+⋮----
+def test_planning_policy_reduces_fanout_for_risky_history(tmp_path)
+⋮----
+def test_planning_policy_uses_moderate_fanout_for_mixed_history(tmp_path)
+⋮----
+def test_managed_project_embeds_evidence_policy_in_planner_contract(tmp_path)
+⋮----
+managed = ManagedProjectService(engine)
+specs = managed._cooperative_workflow_specs(
+⋮----
+planner = specs[0]
+config = planner.payload["dynamic_agent_planner"]
+handoff = planner.payload["handoff"]
+⋮----
+def test_planning_policy_is_repository_scoped(tmp_path)
+⋮----
+risky = planning_policy_for_repository(backend, "owner/risky")
+strong = planning_policy_for_repository(backend, "owner/strong")
 ````
 
 ## File: tests/test_api_auth.py

@@ -1,27 +1,19 @@
 # Change impact
 
-Base: 2dd3a60f577d199bb1abcea7da049fd4eb8119f4
-Head: d9dac2079d94fc1e30d49f10dc28f96bcde8601a
+Base: 3c88c39aa337305c92fef554fa8e3ab750112b07
+Head: bdc539544d29b35e6f95c623875494daa97b4ee5
 
 ## Changed files
-- M docs/remote-worker-executor-protocol.md
-- M src/production_os/control_plane.py
-- M src/production_os/model_router.py
-- M src/production_os/remote_worker.py
-- M src/production_os/workflow_engine.py
-- M tests/test_model_router.py
-- M tests/test_remote_worker.py
+- A src/production_os/agent_planning_policy.py
+- M src/production_os/managed_projects.py
+- A tests/test_agent_planning_policy.py
 
 ## Affected areas
-- docs
 - src
 - tests
 
 ## Related test candidates
-- tests/test_control_plane.py
-- tests/test_model_router.py
-- tests/test_remote_worker.py
-- tests/test_workflow_engine.py
+- tests/test_agent_planning_policy.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.
