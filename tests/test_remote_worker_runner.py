@@ -679,10 +679,17 @@ def test_remote_worker_runner_executes_in_configured_isolated_worktree(tmp_path)
     executor = tmp_path / "worktree_executor.py"
     executor.write_text(
         """
-import json, os, pathlib, sys
+import json, os, pathlib, subprocess, sys
 request = json.load(sys.stdin)
 cwd = pathlib.Path.cwd()
 (cwd / "agent.txt").write_text("isolated", encoding="utf-8")
+subprocess.run(["git", "add", "."], check=True)
+subprocess.run([
+    "git",
+    "-c", "user.name=Executor Test",
+    "-c", "user.email=executor@example.invalid",
+    "commit", "-m", "agent change",
+], check=True, stdout=subprocess.PIPE)
 print(json.dumps({
     "status":"succeeded",
     "result":{
@@ -732,6 +739,10 @@ print(json.dumps({
         assert result["workspace"]["created"] is True
         assert (repo / "agent.txt").exists() is False
         assert pathlib.Path(result["cwd"], "agent.txt").is_file()
+        assert result["executor_git"]["clean"] is True
+        assert result["executor_git"]["base_is_ancestor"] is True
+        assert result["changed_files"] == ["agent.txt"]
+        assert result["commit_shas"][-1] == result["executor_git"]["final_sha"]
     finally:
         _stop(server, thread)
 
