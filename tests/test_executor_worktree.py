@@ -263,15 +263,20 @@ def _commit(repo: Path, message: str) -> str:
     return _git(repo, "rev-parse", "HEAD")
 
 
+def _current_branch(repo: Path) -> str:
+    return _git(repo, "branch", "--show-current")
+
+
 def test_preintegrate_upstream_commits_applies_clean_independent_changes(tmp_path):
     repo = _repo(tmp_path)
     base = _git(repo, "rev-parse", "HEAD")
+    base_branch = _current_branch(repo)
 
     _git(repo, "checkout", "-b", "agent-a")
     (repo / "a.txt").write_text("a\n", encoding="utf-8")
     commit_a = _commit(repo, "agent a")
 
-    _git(repo, "checkout", "master")
+    _git(repo, "checkout", base_branch)
     _git(repo, "checkout", "-b", "agent-b")
     (repo / "b.txt").write_text("b\n", encoding="utf-8")
     commit_b = _commit(repo, "agent b")
@@ -386,6 +391,7 @@ def test_preintegrate_missing_commit_leaves_clean_starting_state(tmp_path):
 
 def test_preintegrate_dirty_workspace_defers_without_mutation(tmp_path):
     repo = _repo(tmp_path)
+    base_branch = _current_branch(repo)
     _git(repo, "checkout", "-b", "agent-a")
     (repo / "a.txt").write_text("a\n", encoding="utf-8")
     commit_a = _commit(repo, "agent a")
