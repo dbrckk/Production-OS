@@ -42,6 +42,7 @@ def test_outcome_normalizes_worker_result_evidence():
         "ci":None,
         "browser_validation":None,
         "mobile_validation":None,
+        "dynamic_plan":None,
         "completed_at":"2026-09-25T18:40:00+00:00",
     }
 
@@ -84,6 +85,7 @@ def test_outcome_uses_evidence_fallback_and_keeps_optional_shape_stable():
         "ci":None,
         "browser_validation":None,
         "mobile_validation":None,
+        "dynamic_plan":None,
         "completed_at":None,
     }
 
