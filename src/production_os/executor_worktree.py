@@ -537,7 +537,25 @@ def prune_integrated_workflow_branches(
                 branch,
                 check=False,
             )
-            if ancestor.returncode != 0:
+            integrated = ancestor.returncode == 0
+            if not integrated:
+                cherry = _git(
+                    root,
+                    "cherry",
+                    branch,
+                    candidate,
+                    check=False,
+                )
+                rows = [
+                    line.strip()
+                    for line in cherry.stdout.splitlines()
+                    if line.strip()
+                ]
+                integrated = (
+                    cherry.returncode == 0
+                    and all(line.startswith("-") for line in rows)
+                )
+            if not integrated:
                 retained.append(candidate)
                 continue
             removed = _git(
