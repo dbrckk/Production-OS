@@ -1768,19 +1768,24 @@ class WorkflowEngine:
         task_payload = json.loads(row["payload_json"])
         if succeeded:
             handoff_payload = dict(task_payload.get("handoff") or {})
-            self.skills.record_success(
-                repository=self.get(workflow_id)["repository"],
-                task=str(handoff_payload.get("task") or row["title"]),
-                capabilities=[
-                    str(value)
-                    for value in handoff_payload.get(
-                        "preferred_capabilities",
-                        [],
-                    )
-                    if str(value)
-                ],
-                result=dict(result or {}),
-            )
+            try:
+                self.skills.record_success(
+                    repository=self.get(workflow_id)["repository"],
+                    task=str(handoff_payload.get("task") or row["title"]),
+                    capabilities=[
+                        str(value)
+                        for value in handoff_payload.get(
+                            "preferred_capabilities",
+                            [],
+                        )
+                        if str(value)
+                    ],
+                    result=dict(result or {}),
+                )
+            except ValueError:
+                # Learning is optional and must never turn a successful
+                # execution into a failed workflow result.
+                pass
             self._apply_dynamic_agent_specs(
                 workflow_id,
                 dynamic_specs,
