@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from .agent_benchmark import AutonomousBenchmark
+from .fanout_learning import learn_repository_fanout
 
 
 def _is_postgres(backend) -> bool:
@@ -24,6 +25,7 @@ class AgentPlanningPolicy:
     retries_per_workflow: float | None
     interventions_per_workflow: float | None
     guidance: str
+    fanout_learning: dict[str, Any] | None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -35,6 +37,7 @@ class AgentPlanningPolicy:
             "retries_per_workflow":self.retries_per_workflow,
             "interventions_per_workflow":self.interventions_per_workflow,
             "guidance":self.guidance,
+            "fanout_learning":self.fanout_learning,
         }
 
 
@@ -82,6 +85,7 @@ def planning_policy_for_repository(
                 "Historical evidence is insufficient. Use parallelism only "
                 "when tasks are genuinely independent and keep the plan simple."
             ),
+            fanout_learning=None,
         )
 
     report = AutonomousBenchmark(backend).report(workflow_ids)
@@ -134,8 +138,32 @@ def planning_policy_for_repository(
             "changes across agents."
         )
 
+    learned = learn_repository_fanout(
+        backend,
+        value,
+        sample_limit=max(int(sample_limit), 60),
+        min_samples_per_bucket=3,
+    )
+    source = "historical-benchmark"
+    fanout_learning = None
+    if learned is not None:
+        learned_max = int(learned.recommended_max_agents)
+        bounded_max = min(max_agents, learned_max)
+        source = (
+            "learned-fanout"
+            if bounded_max == learned_max
+            else "learned-fanout-capped"
+        )
+        max_agents = bounded_max
+        fanout_learning = learned.to_dict()
+        guidance += (
+            " Historical comparisons across prior fan-out levels recommend "
+            f"at most {learned_max} agents; the active risk ceiling is "
+            f"{max_agents}."
+        )
+
     return AgentPlanningPolicy(
-        source="historical-benchmark",
+        source=source,
         sample_size=sample_size,
         max_agents=max_agents,
         success_rate=round(success_rate, 6),
@@ -147,4 +175,5 @@ def planning_policy_for_repository(
         retries_per_workflow=round(retries_per, 6),
         interventions_per_workflow=round(interventions_per, 6),
         guidance=guidance,
+        fanout_learning=fanout_learning,
     )
