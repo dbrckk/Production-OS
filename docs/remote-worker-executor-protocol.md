@@ -329,3 +329,23 @@ executor may try the ordered fallbacks and should report every actually used
 provider/model in `result.usage.providers`.
 
 Tasks without `model_candidates` are unchanged.
+
+
+## Worker-advertised model catalog
+
+A worker heartbeat may include a credential-free model inventory inside
+`capacity.model_candidates`. Each candidate uses the same safe fields as the
+adaptive model router: provider, model, capabilities, free, and priority.
+
+Production OS stores only changed catalogs for each worker. Fresh catalogs are
+merged and used as automatic candidates for tasks that did not explicitly
+supply `model_candidates`. Explicit task candidates always take precedence.
+
+The automatic catalog is advisory and non-blocking. If no fresh candidate
+satisfies a task's required capabilities, the task is still dispatched without
+a `model_route`; the receiving executor keeps its normal local routing
+behavior. This also means stale or heterogeneous worker inventories cannot make
+the queue unavailable.
+
+Catalog heartbeats must never contain provider URLs, credentials, tokens, or
+secret environment-variable names.

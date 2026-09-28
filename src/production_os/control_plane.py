@@ -2504,6 +2504,14 @@ def make_handler(control: ControlPlane):
                     )
                     capacity = body.get("capacity")
                     if isinstance(capacity, dict):
+                        raw_model_candidates = capacity.get(
+                            "model_candidates"
+                        )
+                        if raw_model_candidates is not None:
+                            control.workflows.model_router.record_worker_catalog(
+                                str(body["worker_id"]),
+                                raw_model_candidates,
+                            )
                         source = str(capacity.get("source") or "").strip()
                         source_status = str(capacity.get("status") or "unavailable")
                         used = capacity.get("used_this_month")

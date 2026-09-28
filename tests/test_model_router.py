@@ -212,3 +212,140 @@ def test_workflow_without_candidates_keeps_existing_handoff_shape(tmp_path):
     job = engine.dispatch_ready(workflow["id"], limit=1)[0]
 
     assert "model_route" not in job["payload"]["handoff"]
+
+
+
+def test_worker_catalog_is_deduplicated_and_reused_for_one_tap_dispatch(tmp_path):
+    backend = _backend(tmp_path)
+    router = ModelRouter(backend)
+    candidates = [
+        {
+            "provider":"cloudflare",
+            "model":"qwen-code",
+            "capabilities":["code-implementation", "test-debug"],
+            "free":True,
+            "priority":20,
+        },
+        {
+            "provider":"fallback",
+            "model":"code-model",
+            "capabilities":["code-implementation"],
+            "free":False,
+            "priority":5,
+        },
+    ]
+
+    assert router.record_worker_catalog("worker-a", candidates) is True
+    assert router.record_worker_catalog("worker-a", candidates) is False
+    assert router.catalog_candidates() == candidates
+
+    engine = WorkflowEngine(backend, SQLiteJobQueue(backend))
+    workflow = engine.create(
+        name="catalog-route",
+        repository="owner/repo",
+        tasks=[
+            WorkflowTaskSpec(
+                task_id="code",
+                title="Implement",
+                payload={
+                    "handoff":{
+                        "repository":"owner/repo",
+                        "task":"Implement",
+                        "required_capabilities":["code-implementation"],
+                    },
+                },
+            ),
+        ],
+    )
+
+    job = engine.dispatch_ready(workflow["id"], limit=1)[0]
+    route = job["payload"]["handoff"]["model_route"]
+
+    assert route["provider"] == "cloudflare"
+    assert route["model"] == "qwen-code"
+    assert route["fallbacks"] == [
+        {"provider":"fallback","model":"code-model"}
+    ]
+
+
+def test_worker_catalog_never_blocks_task_when_no_candidate_fits(tmp_path):
+    backend = _backend(tmp_path)
+    router = ModelRouter(backend)
+    router.record_worker_catalog(
+        "worker-a",
+        [
+            {
+                "provider":"text-only",
+                "model":"general",
+                "capabilities":["text"],
+                "free":True,
+            },
+        ],
+    )
+    engine = WorkflowEngine(backend, SQLiteJobQueue(backend))
+    workflow = engine.create(
+        name="catalog-nonblocking",
+        repository="owner/repo",
+        tasks=[
+            WorkflowTaskSpec(
+                task_id="code",
+                title="Implement",
+                payload={
+                    "handoff":{
+                        "repository":"owner/repo",
+                        "task":"Implement",
+                        "required_capabilities":["code-implementation"],
+                    },
+                },
+            ),
+        ],
+    )
+
+    job = engine.dispatch_ready(workflow["id"], limit=1)[0]
+
+    assert "model_route" not in job["payload"]["handoff"]
+
+
+def test_explicit_model_candidates_override_worker_catalog(tmp_path):
+    backend = _backend(tmp_path)
+    ModelRouter(backend).record_worker_catalog(
+        "worker-a",
+        [
+            {
+                "provider":"catalog",
+                "model":"catalog-model",
+                "capabilities":["code-implementation"],
+                "free":True,
+            },
+        ],
+    )
+    engine = WorkflowEngine(backend, SQLiteJobQueue(backend))
+    workflow = engine.create(
+        name="explicit-route",
+        repository="owner/repo",
+        tasks=[
+            WorkflowTaskSpec(
+                task_id="code",
+                title="Implement",
+                payload={
+                    "handoff":{
+                        "repository":"owner/repo",
+                        "task":"Implement",
+                        "required_capabilities":["code-implementation"],
+                        "model_candidates":[
+                            {
+                                "provider":"explicit",
+                                "model":"explicit-model",
+                                "capabilities":["code-implementation"],
+                                "free":False,
+                            },
+                        ],
+                    },
+                },
+            ),
+        ],
+    )
+
+    job = engine.dispatch_ready(workflow["id"], limit=1)[0]
+
+    assert job["payload"]["handoff"]["model_route"]["provider"] == "explicit"

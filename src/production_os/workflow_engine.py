@@ -1338,18 +1338,28 @@ class WorkflowEngine:
                 handoff.get("model_candidates")
                 or payload.get("model_candidates")
             )
+            explicit_model_candidates = bool(
+                isinstance(model_candidates, list)
+                and model_candidates
+            )
+            if not explicit_model_candidates:
+                model_candidates = self.model_router.catalog_candidates()
             if isinstance(model_candidates, list) and model_candidates:
-                handoff["model_route"] = self.model_router.route(
-                    model_candidates,
-                    required_capabilities=required_for_route,
-                    preferred_capabilities=preferred_for_route,
-                    fallback_limit=int(
-                        handoff.get(
-                            "model_fallback_limit",
-                            payload.get("model_fallback_limit", 3),
-                        )
-                    ),
-                )
+                try:
+                    handoff["model_route"] = self.model_router.route(
+                        model_candidates,
+                        required_capabilities=required_for_route,
+                        preferred_capabilities=preferred_for_route,
+                        fallback_limit=int(
+                            handoff.get(
+                                "model_fallback_limit",
+                                payload.get("model_fallback_limit", 3),
+                            )
+                        ),
+                    )
+                except ValueError:
+                    if explicit_model_candidates:
+                        raise
 
             preferred_for_learning = [
                 str(value)
