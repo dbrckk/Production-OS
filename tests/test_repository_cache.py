@@ -50,6 +50,8 @@ def test_repository_cache_clones_fetches_and_updates_remote_refs(tmp_path, monke
     assert first.fetched is True
     checkout = Path(first.path)
     assert (checkout / ".git").is_dir()
+    assert (checkout / ".git" / "production-os.lock").is_file()
+    assert len(list((tmp_path / "cache" / ".locks").glob("*.lock"))) == 1
     first_sha = _git(checkout, "rev-parse", "refs/remotes/origin/master")
 
     (source / "README.md").write_text("two\n", encoding="utf-8")
