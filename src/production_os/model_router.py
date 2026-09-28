@@ -392,10 +392,7 @@ class ModelRouter:
     ) -> dict[str, Any]:
         if not isinstance(candidates, list) or not candidates:
             raise ValueError("model_candidates must be a non-empty list")
-        normalized = [
-            ModelCandidate.from_dict(item)
-            for item in normalize_model_candidates(candidates)
-        ]
+        normalized = [ModelCandidate.from_dict(item) for item in candidates]
         if len({item.key() for item in normalized}) != len(normalized):
             raise ValueError("duplicate provider/model candidate")
 
