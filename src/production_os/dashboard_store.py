@@ -54,6 +54,100 @@ def _valid_commit_shas(values) -> list[str]:
     return shas
 
 
+def _nonnegative_int(value) -> int:
+    if isinstance(value, bool):
+        return 0
+    try:
+        return max(0, int(value or 0))
+    except (TypeError, ValueError):
+        return 0
+
+
+def _usage_execution_summary(usage: dict) -> tuple[dict, list[dict]]:
+    usage = usage if isinstance(usage, dict) else {}
+    providers = [
+        dict(item)
+        for item in (usage.get("providers") or [])
+        if isinstance(item, dict)
+    ]
+
+    fields = (
+        "api_calls",
+        "input_tokens",
+        "cached_input_tokens",
+        "output_tokens",
+        "reasoning_tokens",
+        "total_tokens",
+    )
+    totals = {}
+    for field in fields:
+        if field in usage:
+            totals[field] = _nonnegative_int(usage.get(field))
+        else:
+            totals[field] = sum(
+                _nonnegative_int(item.get(field))
+                for item in providers
+            )
+
+    primary = None
+    if providers:
+        primary = max(
+            enumerate(providers),
+            key=lambda pair: (
+                _nonnegative_int(pair[1].get("total_tokens")),
+                _nonnegative_int(pair[1].get("api_calls")),
+                -pair[0],
+            ),
+        )[1]
+
+    provider = str(usage.get("provider") or "").strip() or None
+    model = str(usage.get("model") or "").strip() or None
+    if primary is not None:
+        provider = provider or (
+            str(primary.get("provider") or "").strip() or None
+        )
+        model = model or (
+            str(primary.get("model") or "").strip() or None
+        )
+
+    cost = usage.get("estimated_cost_usd")
+    if isinstance(cost, bool) or not isinstance(cost, (int, float)):
+        provider_costs = [
+            item.get("estimated_cost_usd")
+            for item in providers
+        ]
+        if providers and all(
+            isinstance(value, (int, float))
+            and not isinstance(value, bool)
+            for value in provider_costs
+        ):
+            cost = sum(float(value) for value in provider_costs)
+        else:
+            cost = None
+    else:
+        cost = float(cost)
+
+    catalog = str(
+        usage.get("pricing_catalog_version") or ""
+    ).strip() or None
+    if catalog is None and providers:
+        versions = {
+            str(item.get("pricing_catalog_version") or "").strip()
+            for item in providers
+            if str(item.get("pricing_catalog_version") or "").strip()
+        }
+        if len(versions) == 1:
+            catalog = next(iter(versions))
+
+    return {
+        **totals,
+        "provider":provider,
+        "model":model,
+        "estimated_cost_usd":cost,
+        "pricing_catalog_version":catalog,
+    }, providers
+
+
 def _decode(row) -> dict | None:
     if row is None:
         return None
@@ -131,15 +225,19 @@ class DashboardStore:
 
     def finish_execution(self, job_key: str, worker_id: str, *, status: str, duration_seconds: float | None, result: dict | None,
                          error_type: str | None = None, error_message: str | None = None, finished_at: str | None = None) -> dict:
-        result = result or {}; usage = result.get("usage") or {}; commits = result.get("commits") or {}; shas = _valid_commit_shas(commits.get("shas"))
+        result = result or {}
+        usage = result.get("usage") or {}
+        execution_usage, provider_rows = _usage_execution_summary(usage)
+        commits = result.get("commits") or {}
+        shas = _valid_commit_shas(commits.get("shas"))
         with self.backend.transaction() as db:
             row = self._fetchone(db, "SELECT * FROM job_executions WHERE job_key=? ORDER BY attempt DESC LIMIT 1", (job_key,))
             if row is None: raise KeyError("execution not found")
             if row["worker_id"] != worker_id: raise PermissionError("execution belongs to another worker")
             if row["status"] != "running": return row
-            _execute(db, self.backend, """UPDATE job_executions SET status=?, finished_at=?, duration_seconds=?, api_calls=?, input_tokens=?, cached_input_tokens=?, output_tokens=?, reasoning_tokens=?, total_tokens=?, commit_count=?, commit_shas_json=?, error_type=?, error_message=?, result_summary_json=? WHERE id=?""",
-                     (status, finished_at or _now(), duration_seconds, int(usage.get("api_calls") or 0), int(usage.get("input_tokens") or 0), int(usage.get("cached_input_tokens") or 0), int(usage.get("output_tokens") or 0), int(usage.get("reasoning_tokens") or 0), int(usage.get("total_tokens") or 0), len(shas), json.dumps(shas), error_type, error_message, json.dumps(result, sort_keys=True), row["id"]))
-            for index, item in enumerate(usage.get("providers") or []):
+            _execute(db, self.backend, """UPDATE job_executions SET status=?, finished_at=?, duration_seconds=?, provider=?, model=?, api_calls=?, input_tokens=?, cached_input_tokens=?, output_tokens=?, reasoning_tokens=?, total_tokens=?, estimated_cost_usd=?, pricing_catalog_version=?, commit_count=?, commit_shas_json=?, error_type=?, error_message=?, result_summary_json=? WHERE id=?""",
+                     (status, finished_at or _now(), duration_seconds, execution_usage["provider"], execution_usage["model"], execution_usage["api_calls"], execution_usage["input_tokens"], execution_usage["cached_input_tokens"], execution_usage["output_tokens"], execution_usage["reasoning_tokens"], execution_usage["total_tokens"], execution_usage["estimated_cost_usd"], execution_usage["pricing_catalog_version"], len(shas), json.dumps(shas), error_type, error_message, json.dumps(result, sort_keys=True), row["id"]))
+            for index, item in enumerate(provider_rows):
                 _execute(db, self.backend, """INSERT INTO api_usage_events(id, execution_id, worker_id, repository, provider, model, api_calls, input_tokens, cached_input_tokens, output_tokens, reasoning_tokens, total_tokens, estimated_cost_usd, pricing_catalog_version, occurred_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO NOTHING""",
                          (f"{row['id']}:{index}", row["id"], worker_id, row["repository"], item.get("provider"), item.get("model"), int(item.get("api_calls") or 0), int(item.get("input_tokens") or 0), int(item.get("cached_input_tokens") or 0), int(item.get("output_tokens") or 0), int(item.get("reasoning_tokens") or 0), int(item.get("total_tokens") or 0), item.get("estimated_cost_usd"), item.get("pricing_catalog_version"), finished_at or _now()))
             return self._fetchone(db, "SELECT * FROM job_executions WHERE id=?", (row["id"],))
