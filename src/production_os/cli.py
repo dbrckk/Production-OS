@@ -17,6 +17,7 @@ from .attestations import (
 from .audit_checkpoint import create_audit_checkpoint, verify_audit_checkpoint
 from .audit_integrity import verify_hash_chain
 from .backup import create_backup, restore_backup
+from .browser_computer import execute_browser_plan, validate_browser_plan
 from .dashboard_backups import BackupError, activate_staged_sqlite_restore
 from .database_maintenance_lock import DatabaseInUseError
 from .budgets import BudgetLedger
@@ -557,6 +558,23 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help=(
             "Automatic local checkout cache for owner/repo worktree jobs"
         ),
+    )
+
+    browserplan = sub.add_parser(
+        "browser-plan-run",
+        help="Execute a bounded Playwright browser/computer-use plan",
+    )
+    browserplan.add_argument("--plan", required=True)
+    browserplan.add_argument("--artifacts-dir", required=True)
+    browserplan.add_argument(
+        "--storage-state",
+        default="",
+        help="Optional durable Playwright storage-state path",
+    )
+    browserplan.add_argument(
+        "--headed",
+        action="store_true",
+        help="Run Chromium headed instead of headless",
     )
 
     workflowcreate = sub.add_parser("workflow-create", help="Create a persistent DAG workflow")
@@ -2024,6 +2042,19 @@ def run_remote_worker_run(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_browser_plan(args: argparse.Namespace) -> int:
+    payload = json.loads(Path(args.plan).read_text(encoding="utf-8"))
+    plan = validate_browser_plan(payload)
+    result = execute_browser_plan(
+        plan,
+        artifacts_dir=args.artifacts_dir,
+        storage_state_path=args.storage_state or None,
+        headless=not bool(args.headed),
+    )
+    print(json.dumps(result, indent=2, ensure_ascii=False))
+    return 0
+
+
 def _workflow_engine(database: str) -> WorkflowEngine:
     backend = open_backend(database)
     return WorkflowEngine(backend, job_queue_for(backend))
@@ -2860,6 +2891,8 @@ def main(argv: list[str] | None = None) -> int:
         return run_remote_worker_poll(args)
     if args.command == "remote-worker-run":
         return run_remote_worker_run(args)
+    if args.command == "browser-plan-run":
+        return run_browser_plan(args)
     if args.command == "workflow-create":
         return run_workflow_create(args)
     if args.command == "workflow-status":
