@@ -88,6 +88,7 @@ class RemoteWorkerClient:
         active_job_keys: list[str] | None = None,
         control_state: str | None = None,
         job_control_states: dict[str, str] | None = None,
+        capacity: dict | None = None,
     ) -> dict:
         payload = {"worker_id":self.worker_id}
         if active_tasks is not None:
@@ -109,6 +110,10 @@ class RemoteWorkerClient:
                 str(key):str(value)
                 for key, value in job_control_states.items()
             }
+        if capacity is not None:
+            if not isinstance(capacity, dict):
+                raise ValueError("capacity must be an object")
+            payload["capacity"] = dict(capacity)
         _, result = self._request("/v1/workers/heartbeat", payload)
         control = dict(result.get("control") or {})
         worker_control = dict(control.get("worker") or {})
