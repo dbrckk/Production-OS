@@ -13,6 +13,7 @@ def build_rollback_plan(
     merge_sha: str,
     failure_summary: str | None = None,
     ci: dict | None = None,
+    known_good_sha: str | None = None,
 ) -> dict:
     repo = str(repository or "").strip()
     parts = repo.split("/")
@@ -22,6 +23,15 @@ def build_rollback_plan(
     sha = str(merge_sha or "").strip().lower()
     if not _SHA40.fullmatch(sha):
         raise ValueError("merge_sha must be a full commit sha")
+
+    good_sha = None
+    if known_good_sha is not None:
+        candidate = str(known_good_sha or "").strip().lower()
+        if not _SHA40.fullmatch(candidate):
+            raise ValueError("known_good_sha must be a full commit sha")
+        if candidate == sha:
+            raise ValueError("known_good_sha must differ from merge_sha")
+        good_sha = candidate
 
     summary = str(failure_summary or "").strip()[:4000]
     ci = ci if isinstance(ci, dict) else {}
@@ -44,6 +54,15 @@ def build_rollback_plan(
         instruction.append("Failing CI location: " + " / ".join(ci_bits) + ".")
     if excerpt:
         instruction.append("Relevant CI evidence:\n" + excerpt + "\nEnd CI evidence.")
+    if good_sha is not None:
+        instruction.append(
+            "Diagnostic range available: known-good "
+            f"{good_sha}, known-bad {sha}. If a deterministic reproduction "
+            "command is available, use production-os regression-bisect inside "
+            "an isolated clean worktree to locate the first bad commit. "
+            "Do not delay an urgent compensating rollback solely to obtain "
+            "bisect evidence."
+        )
     instruction.extend([
         "Run the smallest relevant tests first, then the full required validation.",
         "Commit the compensating change on a dedicated rollback branch and open a pull request.",
@@ -58,5 +77,17 @@ def build_rollback_plan(
         "history_rewrite_allowed": False,
         "force_push_allowed": False,
         "requires_green_ci": True,
+        "diagnostic":(
+            {
+                "schema_version":"production-os/regression-bisect-request/v1",
+                "strategy":"regression-bisect",
+                "known_good_sha":good_sha,
+                "known_bad_sha":sha,
+                "requires_reproduction_command":True,
+                "blocking":False,
+            }
+            if good_sha is not None
+            else None
+        ),
         "instruction": "\n\n".join(instruction),
     }
