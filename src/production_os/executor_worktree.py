@@ -273,6 +273,10 @@ def preintegrate_upstream_commits(
 
         picked = _git(
             target,
+            "-c",
+            "user.name=Production OS",
+            "-c",
+            "user.email=production-os@localhost",
             "cherry-pick",
             commit,
             check=False,
