@@ -1357,10 +1357,6 @@ class WorkflowEngine:
                             )
                         ),
                     )
-                    if not explicit_model_candidates:
-                        handoff["model_route"]["source"] = (
-                            "worker-model-catalog"
-                        )
                 except ValueError:
                     if explicit_model_candidates:
                         raise
