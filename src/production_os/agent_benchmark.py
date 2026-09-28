@@ -73,6 +73,9 @@ class WorkflowBenchmark:
     unknown_cost_executions: int
     providers: tuple[str, ...]
     models: tuple[str, ...]
+    planning_policy_source: str | None
+    planner_max_agents: int | None
+    dynamic_agent_count: int
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -96,6 +99,9 @@ class WorkflowBenchmark:
             "unknown_cost_executions":self.unknown_cost_executions,
             "providers":list(self.providers),
             "models":list(self.models),
+            "planning_policy_source":self.planning_policy_source,
+            "planner_max_agents":self.planner_max_agents,
+            "dynamic_agent_count":self.dynamic_agent_count,
         }
 
 
@@ -121,7 +127,7 @@ class AutonomousBenchmark:
                 db,
                 self.backend,
                 """
-                SELECT task_id, status, result_json
+                SELECT task_id, status, payload_json, result_json
                 FROM workflow_tasks
                 WHERE workflow_id=?
                 ORDER BY task_id
@@ -160,9 +166,34 @@ class AutonomousBenchmark:
         status_counts: dict[str, int] = {}
         validation_failures = 0
         validation_passes = 0
+        planning_policy_source = None
+        planner_max_agents = None
+        dynamic_agent_count = 0
         for row in tasks:
             status = str(row["status"])
             status_counts[status] = status_counts.get(status, 0) + 1
+            try:
+                payload = json.loads(row["payload_json"] or "{}")
+            except (TypeError, json.JSONDecodeError):
+                payload = {}
+            if not isinstance(payload, dict):
+                payload = {}
+            if payload.get("dynamic_agent_child") is True:
+                dynamic_agent_count += 1
+            planner = payload.get("dynamic_agent_planner")
+            if isinstance(planner, dict):
+                policy = planner.get("planning_policy")
+                if isinstance(policy, dict):
+                    source = str(policy.get("source") or "").strip()
+                    if source:
+                        planning_policy_source = source
+                raw_max_agents = planner.get("max_agents")
+                if (
+                    isinstance(raw_max_agents, int)
+                    and not isinstance(raw_max_agents, bool)
+                    and raw_max_agents > 0
+                ):
+                    planner_max_agents = raw_max_agents
             try:
                 result = json.loads(row["result_json"] or "{}")
             except (TypeError, json.JSONDecodeError):
@@ -250,6 +281,9 @@ class AutonomousBenchmark:
             unknown_cost_executions=unknown_cost,
             providers=tuple(sorted(providers)),
             models=tuple(sorted(models)),
+            planning_policy_source=planning_policy_source,
+            planner_max_agents=planner_max_agents,
+            dynamic_agent_count=dynamic_agent_count,
         )
 
     def report(self, workflow_ids: list[str] | tuple[str, ...]) -> dict[str, Any]:
@@ -272,6 +306,17 @@ class AutonomousBenchmark:
         costs = [row.observed_cost_usd for row in rows]
         total_executions = sum(row.execution_count for row in rows)
         failed_executions = sum(row.failed_executions for row in rows)
+        fanouts = [
+            row.planner_max_agents
+            for row in rows
+            if row.planner_max_agents is not None
+        ]
+        policy_sources: dict[str, int] = {}
+        for row in rows:
+            if row.planning_policy_source:
+                policy_sources[row.planning_policy_source] = (
+                    policy_sources.get(row.planning_policy_source, 0) + 1
+                )
 
         return {
             "schema_version":BENCHMARK_SCHEMA,
@@ -308,6 +353,16 @@ class AutonomousBenchmark:
                 row.unknown_cost_executions
                 for row in rows
             ),
+            "dynamic_agent_count":sum(
+                row.dynamic_agent_count
+                for row in rows
+            ),
+            "average_planner_max_agents":(
+                round(sum(fanouts) / len(fanouts), 6)
+                if fanouts
+                else None
+            ),
+            "planning_policy_sources":dict(sorted(policy_sources.items())),
             "workflows":[row.to_dict() for row in rows],
         }
 
