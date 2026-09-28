@@ -184,42 +184,46 @@ credential configuration. Explicit `--repository-root` mappings take
 precedence over the automatic cache.
 
 
-## Automatic integration preflight
+## Learned skill memory
 
-For an isolation contract with `integration_target=true`, the remote worker
-can pre-apply commit evidence from `handoff.upstream_context` before launching
-the external executor.
-
-The worker processes validated commit SHAs in dependency order:
-
-1. commits already reachable from the integration worktree are skipped;
-2. clean commits are cherry-picked automatically;
-3. if a commit is missing, the worktree is reset to its starting SHA;
-4. if a cherry-pick conflicts, the cherry-pick is aborted and the entire
-   preflight is reset to its starting SHA;
-5. if the worktree is already dirty (for example a resumed executor workspace),
-   automatic integration is deferred and no mutation occurs.
-
-The JSON executor request may then contain:
+Successful executors may optionally return a reusable procedure under
+`result.learned_skill`:
 
 ```json
 {
-  "integration_preflight": {
-    "status": "integrated",
-    "starting_sha": "...",
-    "final_sha": "...",
-    "candidate_commits": ["..."],
-    "applied_commits": ["..."],
-    "skipped_commits": []
+  "status": "succeeded",
+  "result": {
+    "summary": "fixed the deployment validation",
+    "validation": {"status": "passed"},
+    "learned_skill": {
+      "schema_version": "production-os/learned-skill/v1",
+      "title": "Repair deployment validation",
+      "trigger_terms": ["deployment", "validation"],
+      "procedure": [
+        "Reproduce the failing validation with the smallest targeted command.",
+        "Apply the minimal fix and rerun the targeted validation.",
+        "Run the broader validation suite before reporting success."
+      ]
+    }
   }
 }
 ```
 
-Possible statuses are `noop`, `integrated`, `conflict`,
-`missing_commit`, and `deferred_dirty_workspace`. Conflict reports include
-the conflicting commit and unresolved file paths when Git can identify them.
+Learning is optional. A malformed learning payload is ignored and does not turn
+an otherwise successful execution into a failed job.
 
-The executor also receives
-`PRODUCTION_OS_INTEGRATION_PREFLIGHT_STATUS`. A conflict is deliberately not
-treated as a worker failure: the executor receives a clean worktree plus the
-conflict report and may perform a higher-level/manual reconciliation.
+Production OS stores learned skills only after successful task completion.
+Validated successes receive a higher initial confidence. Repeated successful
+observations increase confidence. Skills are repository-scoped in this version.
+
+Credential-like material is rejected before persistence. Executors must never
+place bearer tokens, API keys, passwords, or other credentials in a learned
+procedure.
+
+For future related tasks, Production OS may add a bounded `learned_skills`
+array to the handoff. These are hints, not instructions that override the
+current task. The executor must still prioritize the current handoff, repository
+state, tests, policies, and validation evidence over historical skill memory.
+
+The handoff also advertises an optional `tool_contracts.skill_learning`
+contract with the expected schema and maximum procedure length.
