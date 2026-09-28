@@ -592,6 +592,11 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Optional durable Playwright storage-state path",
     )
     browserplan.add_argument(
+        "--session-state",
+        default="",
+        help="Optional durable browser resume metadata path",
+    )
+    browserplan.add_argument(
         "--headed",
         action="store_true",
         help="Run Chromium headed instead of headless",
@@ -2139,6 +2144,18 @@ def _browser_storage_state(args: argparse.Namespace) -> str | None:
     return str(Path(runtime_workspace) / "browser-state.json")
 
 
+def _browser_session_state(args: argparse.Namespace) -> str | None:
+    explicit = str(args.session_state or "").strip()
+    if explicit:
+        return explicit
+    runtime_workspace = str(
+        os.getenv("PRODUCTION_OS_RUNTIME_WORKSPACE") or ""
+    ).strip()
+    if not runtime_workspace:
+        return None
+    return str(Path(runtime_workspace) / "browser-session.json")
+
+
 def run_browser_plan(args: argparse.Namespace) -> int:
     payload = json.loads(Path(args.plan).read_text(encoding="utf-8"))
     plan = validate_browser_plan(payload)
@@ -2146,6 +2163,7 @@ def run_browser_plan(args: argparse.Namespace) -> int:
         plan,
         artifacts_dir=args.artifacts_dir,
         storage_state_path=_browser_storage_state(args),
+        session_state_path=_browser_session_state(args),
         headless=not bool(args.headed),
     )
     print(json.dumps(result, indent=2, ensure_ascii=False))
