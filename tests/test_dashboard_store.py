@@ -88,3 +88,125 @@ def test_progress_snapshot_order_is_deterministic_when_timestamps_tie(tmp_path):
     store.save_progress_snapshot({**base,"id":"snapshot-z","project_progress":20})
     assert store.latest_progress_snapshot("dbrckk/example")["id"] == "snapshot-z"
     assert [row["id"] for row in store.progress_history("dbrckk/example")] == ["snapshot-z","snapshot-a"]
+
+
+
+def test_finish_execution_persists_primary_provider_and_aggregates_usage(tmp_path):
+    store = _store(tmp_path)
+    store.start_execution(_sample_job(), "worker-a")
+    done = store.finish_execution(
+        "job-1",
+        "worker-a",
+        status="succeeded",
+        duration_seconds=3,
+        result={
+            "usage":{
+                "providers":[
+                    {
+                        "provider":"cloudflare",
+                        "model":"qwen-code",
+                        "api_calls":1,
+                        "input_tokens":60,
+                        "output_tokens":40,
+                        "total_tokens":100,
+                        "estimated_cost_usd":0.0,
+                        "pricing_catalog_version":"free-v1",
+                    },
+                    {
+                        "provider":"pollinations",
+                        "model":"fallback-code",
+                        "api_calls":2,
+                        "input_tokens":10,
+                        "output_tokens":10,
+                        "total_tokens":20,
+                        "estimated_cost_usd":0.0,
+                        "pricing_catalog_version":"free-v1",
+                    },
+                ],
+            },
+        },
+    )
+
+    assert done["provider"] == "cloudflare"
+    assert done["model"] == "qwen-code"
+    assert done["api_calls"] == 3
+    assert done["input_tokens"] == 70
+    assert done["output_tokens"] == 50
+    assert done["total_tokens"] == 120
+    assert done["estimated_cost_usd"] == 0.0
+    assert done["pricing_catalog_version"] == "free-v1"
+
+
+def test_finish_execution_top_level_usage_overrides_provider_summary(tmp_path):
+    store = _store(tmp_path)
+    store.start_execution(_sample_job(), "worker-a")
+    done = store.finish_execution(
+        "job-1",
+        "worker-a",
+        status="succeeded",
+        duration_seconds=1,
+        result={
+            "usage":{
+                "provider":"router",
+                "model":"selected-model",
+                "api_calls":9,
+                "total_tokens":999,
+                "estimated_cost_usd":1.25,
+                "pricing_catalog_version":"catalog-v2",
+                "providers":[
+                    {
+                        "provider":"other",
+                        "model":"other-model",
+                        "api_calls":1,
+                        "total_tokens":100,
+                        "estimated_cost_usd":0.2,
+                        "pricing_catalog_version":"catalog-v1",
+                    },
+                ],
+            },
+        },
+    )
+
+    assert done["provider"] == "router"
+    assert done["model"] == "selected-model"
+    assert done["api_calls"] == 9
+    assert done["total_tokens"] == 999
+    assert done["estimated_cost_usd"] == 1.25
+    assert done["pricing_catalog_version"] == "catalog-v2"
+
+
+def test_finish_execution_does_not_invent_partial_cost_or_catalog(tmp_path):
+    store = _store(tmp_path)
+    store.start_execution(_sample_job(), "worker-a")
+    done = store.finish_execution(
+        "job-1",
+        "worker-a",
+        status="succeeded",
+        duration_seconds=1,
+        result={
+            "usage":{
+                "providers":[
+                    {
+                        "provider":"one",
+                        "model":"m1",
+                        "total_tokens":50,
+                        "estimated_cost_usd":0.1,
+                        "pricing_catalog_version":"v1",
+                    },
+                    {
+                        "provider":"two",
+                        "model":"m2",
+                        "total_tokens":50,
+                        "estimated_cost_usd":None,
+                        "pricing_catalog_version":"v2",
+                    },
+                    "malformed",
+                ],
+            },
+        },
+    )
+
+    assert done["provider"] == "one"
+    assert done["model"] == "m1"
+    assert done["estimated_cost_usd"] is None
+    assert done["pricing_catalog_version"] is None
