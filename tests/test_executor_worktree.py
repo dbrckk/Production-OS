@@ -10,6 +10,7 @@ from production_os.executor_worktree import (
     inspect_worktree_result,
     preintegrate_upstream_commits,
     prepare_isolated_worktree,
+    prune_integrated_workflow_branches,
     remove_isolated_worktree,
 )
 from production_os.worktree_contract import build_worktree_contract
@@ -492,3 +493,65 @@ def test_inspect_worktree_result_reports_uncommitted_changes(tmp_path):
     assert evidence["final_sha"] == base
     assert any("dirty.txt" in line for line in evidence["status_lines"])
     assert evidence["commits_since_base"] == []
+
+
+
+def test_prune_integrated_workflow_branches_deletes_only_ancestors(tmp_path):
+    repo = _repo(tmp_path)
+    base_branch = _current_branch(repo)
+    base = _git(repo, "rev-parse", "HEAD")
+    prefix = "production-os/wf-prune"
+
+    _git(repo, "checkout", "-b", f"{prefix}/agent-a")
+    (repo / "a.txt").write_text("a\n", encoding="utf-8")
+    commit_a = _commit(repo, "agent a")
+
+    _git(repo, "checkout", base_branch)
+    _git(repo, "checkout", "-b", f"{prefix}/agent-b")
+    (repo / "b.txt").write_text("b\n", encoding="utf-8")
+    commit_b = _commit(repo, "agent b")
+
+    _git(repo, "checkout", base_branch)
+    _git(repo, "checkout", "-b", f"{prefix}/divergent")
+    (repo / "divergent.txt").write_text("keep\n", encoding="utf-8")
+    _commit(repo, "divergent")
+
+    _git(repo, "checkout", base_branch)
+    integrated = f"{prefix}/integration"
+    _git(repo, "checkout", "-b", integrated, base)
+    _git(
+        repo,
+        "-c", "user.name=Production OS Test",
+        "-c", "user.email=test@example.invalid",
+        "cherry-pick", commit_a,
+    )
+    _git(
+        repo,
+        "-c", "user.name=Production OS Test",
+        "-c", "user.email=test@example.invalid",
+        "cherry-pick", commit_b,
+    )
+    _git(repo, "checkout", base_branch)
+
+    result = prune_integrated_workflow_branches(repo, integrated)
+
+    branches = set(_git(repo, "branch", "--format=%(refname:short)").splitlines())
+    assert f"{prefix}/agent-a" not in branches
+    assert f"{prefix}/agent-b" not in branches
+    assert f"{prefix}/divergent" in branches
+    assert integrated in branches
+    assert result["deleted"] == [
+        f"{prefix}/agent-a",
+        f"{prefix}/agent-b",
+    ]
+    assert f"{prefix}/divergent" in result["retained"]
+
+
+def test_prune_integrated_workflow_branches_rejects_foreign_branch(tmp_path):
+    repo = _repo(tmp_path)
+
+    with pytest.raises(
+        WorktreeRuntimeError,
+        match="not a Production OS workflow branch",
+    ):
+        prune_integrated_workflow_branches(repo, "feature/not-managed")
