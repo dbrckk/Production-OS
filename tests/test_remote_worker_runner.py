@@ -921,3 +921,112 @@ print(json.dumps({
         assert len(preflight["final_sha"]) == 40
     finally:
         _stop(server, thread)
+
+
+
+def test_remote_worker_runner_rejects_success_with_dirty_worktree(tmp_path):
+    import subprocess
+
+    repo = tmp_path / "dirty-repo"
+    repo.mkdir()
+    subprocess.run(["git", "init", str(repo)], check=True, stdout=subprocess.PIPE)
+    subprocess.run(
+        ["git", "-C", str(repo), "config", "user.email", "test@example.invalid"],
+        check=True,
+    )
+    subprocess.run(
+        ["git", "-C", str(repo), "config", "user.name", "Production OS Test"],
+        check=True,
+    )
+    (repo / "README.md").write_text("base\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+    subprocess.run(
+        ["git", "-C", str(repo), "commit", "-m", "base"],
+        check=True,
+        stdout=subprocess.PIPE,
+    )
+    base_sha = subprocess.run(
+        ["git", "-C", str(repo), "rev-parse", "HEAD"],
+        check=True,
+        text=True,
+        stdout=subprocess.PIPE,
+    ).stdout.strip()
+
+    control = ControlPlane(
+        str(tmp_path / "dirty-worktree.sqlite"),
+        authorizer=_auth(),
+    )
+    queued = control.queue.enqueue({
+        "handoff":{
+            "repository":"dbrckk/dirty-target",
+            "task":"Leave a dirty worktree.",
+            "isolation":{
+                "schema_version":"production-os/git-worktree-isolation/v1",
+                "mode":"git-worktree",
+                "repository":"dbrckk/dirty-target",
+                "workflow_id":"wf-dirty",
+                "task_id":"code",
+                "attempt":1,
+                "branch":"production-os/wf-dirty/code-a1-test",
+                "workspace_key":"dirty-result-test",
+                "base_ref":base_sha,
+                "integration_target":False,
+                "requirements":{
+                    "exclusive_workspace":True,
+                    "no_shared_working_tree_writes":True,
+                    "commit_changes_before_success":True,
+                    "report_commit_shas":True,
+                },
+            },
+        },
+        "required_capabilities":[],
+    })
+    executor = tmp_path / "dirty_executor.py"
+    executor.write_text(
+        """
+import json, pathlib, sys
+json.load(sys.stdin)
+(pathlib.Path.cwd() / "uncommitted.txt").write_text(
+    "dirty", encoding="utf-8"
+)
+print(json.dumps({
+    "status":"succeeded",
+    "result":{"summary":"claimed success"},
+}))
+""".strip(),
+        encoding="utf-8",
+    )
+
+    server, thread, base = _server(control)
+    try:
+        client = RemoteWorkerClient(
+            base,
+            "worker-secret",
+            "runner-1",
+            [],
+            timeout=5,
+        )
+        runner = RemoteWorkerRunner(
+            client,
+            [sys.executable, str(executor)],
+            repository_roots={
+                "dbrckk/dirty-target":str(repo),
+            },
+            worktree_root=str(tmp_path / "worktrees"),
+            heartbeat_interval_seconds=0.1,
+            executor_timeout_seconds=5,
+        )
+
+        outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+
+        assert outcomes == [{
+            "job_key":queued["key"],
+            "status":"failed",
+            "reason":"executor_worktree_dirty",
+        }]
+        assert control.queue.get(queued["key"])["status"] == "failed"
+        execution = control.dashboard_store.latest_execution(queued["key"])
+        assert execution["error_message"] == "executor_worktree_dirty"
+        assert execution["result_summary"]["executor_git"]["clean"] is False
+    finally:
+        _stop(server, thread)
