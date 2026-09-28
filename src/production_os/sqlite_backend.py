@@ -18,7 +18,7 @@ def _utcnow() -> str:
 
 
 class SQLiteBackend:
-    SCHEMA_VERSION = 15
+    SCHEMA_VERSION = 16
 
     def __init__(self, path: str | Path):
         self.path = Path(path)
@@ -263,6 +263,24 @@ class SQLiteBackend:
 
                 CREATE INDEX IF NOT EXISTS idx_execution_history_worker
                 ON execution_history(worker_id, created_at DESC);
+
+                CREATE TABLE IF NOT EXISTS learned_skills (
+                    skill_id TEXT PRIMARY KEY,
+                    repository TEXT NOT NULL,
+                    title TEXT NOT NULL,
+                    trigger_terms_json TEXT NOT NULL DEFAULT '[]',
+                    capabilities_json TEXT NOT NULL DEFAULT '[]',
+                    procedure_json TEXT NOT NULL DEFAULT '[]',
+                    successes INTEGER NOT NULL DEFAULT 1,
+                    uses INTEGER NOT NULL DEFAULT 0,
+                    confidence REAL NOT NULL DEFAULT 0.6,
+                    source_task TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                );
+
+                CREATE INDEX IF NOT EXISTS idx_learned_skills_repo_confidence
+                ON learned_skills(repository, confidence DESC, updated_at DESC);
 
                 CREATE TABLE IF NOT EXISTS result_cache (
                     fingerprint TEXT PRIMARY KEY,
