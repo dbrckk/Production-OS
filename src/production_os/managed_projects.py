@@ -6,6 +6,7 @@ from uuid import uuid4
 
 from .workflow_engine import WorkflowEngine, WorkflowTaskSpec, _execute
 from .agent_planning_policy import planning_policy_for_repository
+from .project_memory import ProjectMemoryStore
 from .github_client import GitHubAPIError, GitHubClient
 from .github_work_state import fetch_github_work_state, runtime_decision_from_github
 from .rollback_plan import build_rollback_plan
@@ -602,6 +603,7 @@ class ManagedProjectService:
         self.workflows = workflows
         self.backend = workflows.backend
         self.github_client_factory = github_client_factory
+        self.project_memory = ProjectMemoryStore(self.backend)
 
     @staticmethod
     def _validate_repository(repository: str) -> str:
@@ -613,6 +615,22 @@ class ManagedProjectService:
         ):
             raise ValueError("repository must be owner/name")
         return repository
+
+    def _project_memory_context(
+        self,
+        *,
+        repository: str,
+        project_id: str,
+        final_goal: str,
+        instruction: str,
+    ) -> tuple[dict, str]:
+        context = self.project_memory.context(
+            repository=repository,
+            project_id=project_id,
+            query=f"{final_goal}\n{instruction}",
+            limit=6,
+        )
+        return context, self.project_memory.context_text(context)
 
     @staticmethod
     def _needs_browser_validation(final_goal: str) -> bool:
@@ -657,6 +675,12 @@ class ManagedProjectService:
         planning_policy = planning_policy_for_repository(
             self.backend,
             repository,
+        )
+        memory_context, memory_text = self._project_memory_context(
+            repository=repository,
+            project_id=project_id,
+            final_goal=final_goal,
+            instruction=instruction,
         )
         planner_max_agents = planning_policy.max_agents
 
@@ -821,6 +845,7 @@ class ManagedProjectService:
             "planning stage. "
             f"Planning guidance from durable repository evidence: "
             f"{planning_policy.guidance}\n\n"
+            f"{memory_text}\n\n"
             f"Final goal: {final_goal}\n"
             f"Current instruction: {instruction}"
         )
@@ -858,6 +883,7 @@ class ManagedProjectService:
                             "final_goal":final_goal,
                             "agent_preference":agent_preference,
                             "planning_policy":planning_policy.to_dict(),
+                            "project_memory":memory_context,
                             **common,
                         },
                     },
@@ -867,6 +893,7 @@ class ManagedProjectService:
                         "final_goal":final_goal,
                         "agent_preference":agent_preference,
                         "planning_policy":planning_policy.to_dict(),
+                        "project_memory":memory_context,
                         "token_budget":planner_budget,
                         "required_capabilities":[],
                         "preferred_capabilities":["code-implementation"],
@@ -898,6 +925,12 @@ class ManagedProjectService:
         token_budget: int,
         agent_preference: str,
     ) -> WorkflowTaskSpec:
+        memory_context, _memory_text = self._project_memory_context(
+            repository=repository,
+            project_id=project_id,
+            final_goal=final_goal,
+            instruction=instruction,
+        )
         return WorkflowTaskSpec(
             task_id="implementation",
             title=instruction[:120],
@@ -910,6 +943,7 @@ class ManagedProjectService:
                     "task":instruction,
                     "final_goal":final_goal,
                     "agent_preference":agent_preference,
+                    "project_memory":memory_context,
                     "token_budget":token_budget,
                 },
             },
