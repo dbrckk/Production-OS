@@ -143,7 +143,7 @@ def test_operator_control_api_writes_success_and_failure_audit(tmp_path):
         server.server_close()
 
 
-def test_release17_schema_is_v15_and_contains_managed_project_tables(tmp_path):
+def test_release17_schema_is_v16_and_contains_managed_project_tables(tmp_path):
     backend = SQLiteBackend(tmp_path / "schema.sqlite")
     with backend.connect() as db:
         version = db.execute(
@@ -161,7 +161,7 @@ def test_release17_schema_is_v15_and_contains_managed_project_tables(tmp_path):
                 "PRAGMA table_info(dashboard_remediation_events)"
             ).fetchall()
         }
-    assert version == "15"
+    assert version == "16"
     assert table["name"] == "control_audit_events"
     assert remediation["name"] == "dashboard_remediation_events"
     assert {
