@@ -198,8 +198,12 @@ def execute_browser_plan(
         if not page.url or page.url == "about:blank":
             return
         parsed = urlsplit(page.url)
+        if parsed.scheme not in {"http", "https"}:
+            raise RuntimeError(
+                f"browser navigated to disallowed scheme: {parsed.scheme or '<none>'}"
+            )
         host = str(parsed.hostname or "").lower().rstrip(".")
-        if parsed.scheme in {"http", "https"} and host not in allowed:
+        if host not in allowed:
             raise RuntimeError(
                 f"browser navigated to disallowed host: {host or '<none>'}"
             )
@@ -211,6 +215,7 @@ def execute_browser_plan(
             context_kwargs["storage_state"] = str(state_path)
         context = browser.new_context(**context_kwargs)
         page = context.new_page()
+        final_url: str | None = None
         try:
             for index, action in enumerate(plan.actions, start=1):
                 if action.action == "navigate":
@@ -266,6 +271,7 @@ def execute_browser_plan(
                     )
 
                 assert_current_host(page)
+                final_url = page.url
                 if action.action not in {"extract_text", "screenshot"}:
                     results.append({
                         "step":index,
@@ -283,7 +289,7 @@ def execute_browser_plan(
     return {
         "schema_version":"production-os/browser-computer-result/v1",
         "status":"passed",
-        "final_url":results[-1].get("url") if results else None,
+        "final_url":final_url,
         "results":results,
         "storage_state_path":(
             str(state_path)
