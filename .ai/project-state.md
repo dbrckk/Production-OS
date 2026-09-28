@@ -22,16 +22,18 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-28T07:16:29Z
+Generated: 2026-09-28T07:21:10Z
 
 ### Git
 - Branch: `main`
-- Head: `1c3a52abd9ba`
-- Commit date: 2026-09-28T09:16:15+02:00
-- Commit: feat(runtime): fence concurrent autonomous controllers
+- Head: `c92d89a6e072`
+- Commit date: 2026-09-28T09:20:58+02:00
+- Commit: fix(usage): persist execution provider/model telemetry
 - Tracked files: 503
 
 ### Recently changed files
+- `src/production_os/dashboard_store.py`
+- `tests/test_dashboard_store.py`
 - `README.md`
 - `src/production_os/controller.py`
 - `src/production_os/controller_leader.py`
@@ -45,13 +47,6 @@ Generated: 2026-09-28T07:16:29Z
 - `src/production_os/remote_worker_runner.py`
 - `tests/test_executor_worktree.py`
 - `tests/test_remote_worker_runner.py`
-- `src/production_os/postgres_backend.py`
-- `src/production_os/skill_memory.py`
-- `src/production_os/sqlite_backend.py`
-- `src/production_os/workflow_engine.py`
-- `tests/test_dashboard_control_audit.py`
-- `tests/test_dashboard_remediation_history.py`
-- `tests/test_dashboard_store_postgres.py`
 
 ### Project signals
 - `pyproject.toml`

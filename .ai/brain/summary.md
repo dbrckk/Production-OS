@@ -2,11 +2,11 @@
 
 - Index mode: incremental
 - Files indexed: 300
-- Files reparsed this run: 4
-- Symbols: 2529
+- Files reparsed this run: 2
+- Symbols: 2534
 - Internal import edges: 843
-- Impacted files: 6
-- Selected tests: 4
+- Impacted files: 9
+- Selected tests: 7
 
 ## Languages
 - python: 300 files
@@ -18,7 +18,7 @@
 - src/production_os/sqlite_backend.py: 56 symbols
 - tests/test_asset_forge.py: 56 symbols
 - src/production_os/dashboard_service.py: 52 symbols
-- src/production_os/dashboard_store.py: 49 symbols
+- src/production_os/dashboard_store.py: 51 symbols
 - tests/test_dashboard_backups.py: 49 symbols
 - src/production_os/github_client.py: 42 symbols
 - src/production_os/workflow_engine.py: 42 symbols
@@ -42,9 +42,9 @@
 ## ast-grep enrichment
 - ast-grep outline: available
 - AST index mode: incremental
-- AST files reparsed this run: 4
+- AST files reparsed this run: 2
 - outline files retained: 300
-- top-level items retained: 3237
+- top-level items retained: 3242
 - direct members retained: 1038
 - symbol shards: 25
 - route named symbols via ast-routing.json, then fetch one ast-symbols/<initial>.json shard

@@ -4618,6 +4618,42 @@ seen = set()
 ⋮----
 sha = value.strip().lower()
 ⋮----
+def _nonnegative_int(value) -> int
+⋮----
+def _usage_execution_summary(usage: dict) -> tuple[dict, list[dict]]
+⋮----
+usage = usage if isinstance(usage, dict) else {}
+providers = [
+⋮----
+fields = (
+totals = {}
+⋮----
+primary = None
+⋮----
+primary = max(
+⋮----
+provider = str(usage.get("provider") or "").strip() or None
+model = str(usage.get("model") or "").strip() or None
+⋮----
+provider = provider or (
+model = model or (
+⋮----
+cost = usage.get("estimated_cost_usd")
+⋮----
+provider_costs = [
+⋮----
+cost = sum(float(value) for value in provider_costs)
+⋮----
+cost = None
+⋮----
+cost = float(cost)
+⋮----
+catalog = str(
+⋮----
+versions = {
+⋮----
+catalog = next(iter(versions))
+⋮----
 def _decode(row) -> dict | None
 ⋮----
 value = dict(row)
@@ -4660,7 +4696,11 @@ old = row.get("progress_percent"); stage = telemetry.get("stage", row.get("curre
 ⋮----
 live_usage = usage if usage is not None else (row.get("live_usage") or {})
 ⋮----
-result = result or {}; usage = result.get("usage") or {}; commits = result.get("commits") or {}; shas = _valid_commit_shas(commits.get("shas"))
+result = result or {}
+usage = result.get("usage") or {}
+⋮----
+commits = result.get("commits") or {}
+shas = _valid_commit_shas(commits.get("shas"))
 ⋮----
 timestamp = at or _now()
 dedupe_key = f"{code}:{target_type}:{target_id}"
@@ -12362,6 +12402,16 @@ def test_progress_snapshot_order_is_deterministic_when_timestamps_tie(tmp_path)
 ⋮----
 store=_store(tmp_path); captured="2026-09-24T04:00:00+00:00"
 base={"repository":"dbrckk/example","captured_at":captured,"calculation_version":"project-progress/v1","confidence":"low"}
+⋮----
+def test_finish_execution_persists_primary_provider_and_aggregates_usage(tmp_path)
+⋮----
+store = _store(tmp_path)
+⋮----
+done = store.finish_execution(
+⋮----
+def test_finish_execution_top_level_usage_overrides_provider_summary(tmp_path)
+⋮----
+def test_finish_execution_does_not_invent_partial_cost_or_catalog(tmp_path)
 ````
 
 ## File: tests/test_dashboard_ui_v3.py

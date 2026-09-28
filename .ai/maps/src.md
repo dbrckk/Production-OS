@@ -4047,6 +4047,42 @@ seen = set()
 ⋮----
 sha = value.strip().lower()
 ⋮----
+def _nonnegative_int(value) -> int
+⋮----
+def _usage_execution_summary(usage: dict) -> tuple[dict, list[dict]]
+⋮----
+usage = usage if isinstance(usage, dict) else {}
+providers = [
+⋮----
+fields = (
+totals = {}
+⋮----
+primary = None
+⋮----
+primary = max(
+⋮----
+provider = str(usage.get("provider") or "").strip() or None
+model = str(usage.get("model") or "").strip() or None
+⋮----
+provider = provider or (
+model = model or (
+⋮----
+cost = usage.get("estimated_cost_usd")
+⋮----
+provider_costs = [
+⋮----
+cost = sum(float(value) for value in provider_costs)
+⋮----
+cost = None
+⋮----
+cost = float(cost)
+⋮----
+catalog = str(
+⋮----
+versions = {
+⋮----
+catalog = next(iter(versions))
+⋮----
 def _decode(row) -> dict | None
 ⋮----
 value = dict(row)
@@ -4089,7 +4125,11 @@ old = row.get("progress_percent"); stage = telemetry.get("stage", row.get("curre
 ⋮----
 live_usage = usage if usage is not None else (row.get("live_usage") or {})
 ⋮----
-result = result or {}; usage = result.get("usage") or {}; commits = result.get("commits") or {}; shas = _valid_commit_shas(commits.get("shas"))
+result = result or {}
+usage = result.get("usage") or {}
+⋮----
+commits = result.get("commits") or {}
+shas = _valid_commit_shas(commits.get("shas"))
 ⋮----
 timestamp = at or _now()
 dedupe_key = f"{code}:{target_type}:{target_id}"

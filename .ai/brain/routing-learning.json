@@ -2,23 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat: release 33 automatic worker recovery",
-      "terms": [
-        "33",
-        "automatic",
-        "feat",
-        "recovery",
-        "release",
-        "worker"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/control_plane.py",
-        "tests/test_release33_auto_worker_recovery_e2e.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat: release 34 safe running recovery",
       "terms": [
         "34",
@@ -1277,6 +1260,22 @@
         "tests/test_controller_daemon.py",
         "tests/test_controller_leader.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "fix(usage): persist execution provider/model telemetry",
+      "terms": [
+        "execution",
+        "persist",
+        "provider/model",
+        "telemetry",
+        "usage"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/dashboard_store.py",
+        "tests/test_dashboard_store.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -2518,12 +2517,14 @@
       "tests/test_remote_worker_runner.py": 4
     },
     "execution": {
+      "src/production_os/dashboard_store.py": 4,
       "src/production_os/postgres_backend.py": 4,
       "src/production_os/skill_memory.py": 4,
       "src/production_os/sqlite_backend.py": 4,
       "src/production_os/workflow_engine.py": 4,
       "tests/test_dashboard_control_audit.py": 4,
       "tests/test_dashboard_remediation_history.py": 4,
+      "tests/test_dashboard_store.py": 4,
       "tests/test_dashboard_store_postgres.py": 4,
       "tests/test_postgres_backend.py": 4,
       "tests/test_skill_memory.py": 4
@@ -3183,7 +3184,9 @@
       "tests/test_asset_forge.py": 4
     },
     "persist": {
-      "src/production_os/cli.py": 4
+      "src/production_os/cli.py": 4,
+      "src/production_os/dashboard_store.py": 4,
+      "tests/test_dashboard_store.py": 4
     },
     "persisted": {
       "tests/test_cli.py": 4
@@ -3383,6 +3386,10 @@
     },
     "provided-source": {
       "src/production_os/asset_forge.py": 4
+    },
+    "provider/model": {
+      "src/production_os/dashboard_store.py": 4,
+      "tests/test_dashboard_store.py": 4
     },
     "provision": {
       "src/production_os/managed_projects.py": 4
@@ -4074,6 +4081,10 @@
     "targets": {
       "tests/test_asset_forge.py": 4
     },
+    "telemetry": {
+      "src/production_os/dashboard_store.py": 4,
+      "tests/test_dashboard_store.py": 4
+    },
     "temp": {
       "src/production_os/control_plane.py": 4,
       "src/production_os/dashboard_backups.py": 4,
@@ -4182,6 +4193,10 @@
       "tests/test_executor_worktree.py": 4,
       "tests/test_remote_worker_runner.py": 4,
       "tests/test_worktree_contract.py": 4
+    },
+    "usage": {
+      "src/production_os/dashboard_store.py": 4,
+      "tests/test_dashboard_store.py": 4
     },
     "ux": {
       "src/production_os/control_plane.py": 4,

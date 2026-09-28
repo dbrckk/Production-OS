@@ -5,446 +5,72 @@
   "semantic": false,
   "note": "Dependencies are known symbol names lexically present inside the symbol's AST/source range.",
   "symbols": {
-    "_rank_actions": {
+    "_now": {
       "source": {
-        "file": "src/production_os/controller.py",
-        "start": 46,
-        "end": 48
+        "file": "src/production_os/dashboard_store.py",
+        "start": 10,
+        "end": 11
       },
       "symbol_dependencies": [],
       "dependency_count": 0
     },
-    "_handoff_for_action": {
+    "_is_postgres": {
       "source": {
-        "file": "src/production_os/controller.py",
-        "start": 51,
-        "end": 74
+        "file": "src/production_os/dashboard_store.py",
+        "start": 14,
+        "end": 15
       },
       "symbol_dependencies": [
         {
-          "symbol": "asset_forge_tool_contract",
+          "symbol": "PostgresBackend",
           "definitions": [
             {
-              "file": "src/production_os/task_capabilities.py",
-              "line": 136,
-              "kind": "function",
+              "file": "src/production_os/postgres_backend.py",
+              "line": 24,
+              "kind": "class",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "repository",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 83,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "to_dict",
-          "definitions": [
-            {
-              "file": "src/production_os/approvals.py",
-              "line": 20,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/budgets.py",
-              "line": 19,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/claims.py",
-              "line": 23,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/dispatch.py",
-              "line": 31,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "_required_capabilities_for": {
-      "source": {
-        "file": "src/production_os/controller.py",
-        "start": 77,
-        "end": 90
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "append",
-          "definitions": [
-            {
-              "file": "src/production_os/journal.py",
-              "line": 30,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "inferred_required_capabilities",
-          "definitions": [
-            {
-              "file": "src/production_os/task_capabilities.py",
-              "line": 115,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "set",
-          "definitions": [
-            {
-              "file": "src/production_os/approvals.py",
-              "line": 54,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/quarantine.py",
-              "line": 33,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "_load_github_mappings": {
-      "source": {
-        "file": "src/production_os/controller.py",
-        "start": 93,
-        "end": 101
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/runtime_state.py",
-              "line": 70,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
+          "relation": "class_like"
         }
       ],
       "dependency_count": 1
     },
-    "_reconcile_github": {
+    "_sql": {
       "source": {
-        "file": "src/production_os/controller.py",
-        "start": 104,
-        "end": 140
+        "file": "src/production_os/dashboard_store.py",
+        "start": 18,
+        "end": 19
       },
       "symbol_dependencies": [
         {
-          "symbol": "ExecutionJournal",
+          "symbol": "_is_postgres",
           "definitions": [
             {
-              "file": "src/production_os/journal.py",
-              "line": 11,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "GitHubClient",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 21,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "RuntimeState",
-          "definitions": [
-            {
-              "file": "src/production_os/runtime_state.py",
-              "line": 41,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "append",
-          "definitions": [
-            {
-              "file": "src/production_os/journal.py",
-              "line": 30,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 14,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "fetch_github_work_state",
-          "definitions": [
-            {
-              "file": "src/production_os/github_work_state.py",
-              "line": 161,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/runtime_state.py",
-              "line": 70,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "record_outcome",
-          "definitions": [
-            {
-              "file": "src/production_os/runtime_state.py",
-              "line": 156,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "repository",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 83,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "runtime_decision_from_github",
-          "definitions": [
-            {
-              "file": "src/production_os/github_work_state.py",
-              "line": 276,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "to_dict",
-          "definitions": [
-            {
-              "file": "src/production_os/approvals.py",
-              "line": 20,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/budgets.py",
-              "line": 19,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/claims.py",
-              "line": 23,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/dispatch.py",
-              "line": 31,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
+          "relation": "same_file"
         }
       ],
-      "dependency_count": 10
+      "dependency_count": 1
     },
-    "run_control_cycle": {
+    "_execute": {
       "source": {
-        "file": "src/production_os/controller.py",
-        "start": 143,
-        "end": 388
+        "file": "src/production_os/dashboard_store.py",
+        "start": 22,
+        "end": 27
       },
       "symbol_dependencies": [
         {
-          "symbol": "ApprovalStore",
+          "symbol": "_is_postgres",
           "definitions": [
             {
-              "file": "src/production_os/approvals.py",
-              "line": 30,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "BudgetLedger",
-          "definitions": [
-            {
-              "file": "src/production_os/budgets.py",
-              "line": 28,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "ClaimStore",
-          "definitions": [
-            {
-              "file": "src/production_os/claims.py",
-              "line": 27,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "ExecutionJournal",
-          "definitions": [
-            {
-              "file": "src/production_os/journal.py",
-              "line": 11,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "GitHubClient",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 21,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "MetricsStore",
-          "definitions": [
-            {
-              "file": "src/production_os/metrics.py",
-              "line": 26,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "PolicySet",
-          "definitions": [
-            {
-              "file": "src/production_os/policy.py",
-              "line": 37,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "QuarantineStore",
-          "definitions": [
-            {
-              "file": "src/production_os/quarantine.py",
-              "line": 11,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "RateLimitStore",
-          "definitions": [
-            {
-              "file": "src/production_os/rate_limit.py",
-              "line": 52,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "RuntimeState",
-          "definitions": [
-            {
-              "file": "src/production_os/runtime_state.py",
-              "line": 41,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "WorkerRegistry",
-          "definitions": [
-            {
-              "file": "src/production_os/workers.py",
-              "line": 25,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_handoff_for_action",
-          "definitions": [
-            {
-              "file": "src/production_os/controller.py",
-              "line": 51,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 14,
               "kind": "function",
               "language": "python"
             }
@@ -452,11 +78,100 @@
           "relation": "same_file"
         },
         {
-          "symbol": "_load_github_mappings",
+          "symbol": "_sql",
           "definitions": [
             {
-              "file": "src/production_os/controller.py",
-              "line": 93,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 18,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "execution_id": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 30,
+        "end": 31
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "_bounded_progress": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 34,
+        "end": 40
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "_valid_commit_shas": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 43,
+        "end": 54
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "_nonnegative_int": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 57,
+        "end": 63
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "_usage_execution_summary": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 66,
+        "end": 148
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_nonnegative_int",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 57,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "_decode": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 151,
+        "end": 173
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "DashboardStore": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 176,
+        "end": 916
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "__init__",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 177,
               "kind": "function",
               "language": "python"
             }
@@ -464,11 +179,11 @@
           "relation": "same_file"
         },
         {
-          "symbol": "_rank_actions",
+          "symbol": "_bounded_progress",
           "definitions": [
             {
-              "file": "src/production_os/controller.py",
-              "line": 46,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 34,
               "kind": "function",
               "language": "python"
             }
@@ -476,11 +191,11 @@
           "relation": "same_file"
         },
         {
-          "symbol": "_reconcile_github",
+          "symbol": "_decode",
           "definitions": [
             {
-              "file": "src/production_os/controller.py",
-              "line": 104,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 151,
               "kind": "function",
               "language": "python"
             }
@@ -488,11 +203,11 @@
           "relation": "same_file"
         },
         {
-          "symbol": "_required_capabilities_for",
+          "symbol": "_execute",
           "definitions": [
             {
-              "file": "src/production_os/controller.py",
-              "line": 77,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 22,
               "kind": "function",
               "language": "python"
             }
@@ -500,227 +215,335 @@
           "relation": "same_file"
         },
         {
-          "symbol": "allocate_resources",
+          "symbol": "_fetchall",
           "definitions": [
             {
-              "file": "src/production_os/resources.py",
-              "line": 4,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 184,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
+          "relation": "same_file"
         },
         {
-          "symbol": "append",
+          "symbol": "_fetchone",
           "definitions": [
             {
-              "file": "src/production_os/journal.py",
-              "line": 30,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 180,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
+          "relation": "same_file"
         },
         {
-          "symbol": "apply_governance",
+          "symbol": "_now",
           "definitions": [
             {
-              "file": "src/production_os/governance.py",
-              "line": 25,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "apply_self_healing",
-          "definitions": [
-            {
-              "file": "src/production_os/self_healing.py",
-              "line": 25,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "assess_repository",
-          "definitions": [
-            {
-              "file": "src/production_os/scoring.py",
-              "line": 157,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "build_health",
-          "definitions": [
-            {
-              "file": "src/production_os/health.py",
+              "file": "src/production_os/dashboard_store.py",
               "line": 10,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
+          "relation": "same_file"
         },
         {
-          "symbol": "build_observability_payload",
+          "symbol": "_save_snapshot",
           "definitions": [
             {
-              "file": "src/production_os/observability.py",
-              "line": 8,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 893,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
+          "relation": "same_file"
         },
         {
-          "symbol": "build_schedule",
+          "symbol": "_usage_execution_summary",
           "definitions": [
             {
-              "file": "src/production_os/scheduler.py",
-              "line": 110,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 66,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
+          "relation": "same_file"
         },
         {
-          "symbol": "build_snapshot",
+          "symbol": "_valid_commit_shas",
           "definitions": [
             {
-              "file": "src/production_os/history.py",
-              "line": 20,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "claim_store_for",
-          "definitions": [
-            {
-              "file": "src/production_os/storage.py",
-              "line": 41,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "classify_risk",
-          "definitions": [
-            {
-              "file": "src/production_os/policy.py",
-              "line": 65,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "collect_evidence",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 736,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "detect_dead",
-          "definitions": [
-            {
-              "file": "src/production_os/workers.py",
-              "line": 100,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "detect_reuse",
-          "definitions": [
-            {
-              "file": "src/production_os/reuse.py",
-              "line": 81,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "dispatch_handoff",
-          "definitions": [
-            {
-              "file": "src/production_os/dispatch.py",
+              "file": "src/production_os/dashboard_store.py",
               "line": 43,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
+          "relation": "same_file"
         },
         {
-          "symbol": "emergency_stop_active",
+          "symbol": "acknowledge_dashboard_incident",
           "definitions": [
             {
-              "file": "src/production_os/emergency.py",
-              "line": 32,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/runtime_state.py",
-              "line": 70,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "get_branch_protection",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
+              "file": "src/production_os/dashboard_store.py",
               "line": 372,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
+          "relation": "same_file"
         },
         {
-          "symbol": "job_queue_for",
+          "symbol": "acknowledge_job_control",
           "definitions": [
             {
-              "file": "src/production_os/storage.py",
-              "line": 47,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 832,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "acknowledge_worker_control",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 761,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "append_control_audit",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 648,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "append_logs",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 875,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "append_remediation_event",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 406,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "control_audit_events",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 711,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "dashboard_incidents",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 313,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "execution_count",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 202,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "execution_id",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 30,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "executions_for_repository",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 864,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "executions_for_worker",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 861,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "finish_execution",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 226,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get_job_control",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 791,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get_worker_control",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 722,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "latest_execution",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 208,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "latest_progress_snapshot",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 910,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "latest_provider_quota_snapshots",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 915,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "latest_repository_snapshot",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 907,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "logs_for_worker",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 885,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "progress_history",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 912,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "redact_log_value",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_security.py",
+              "line": 21,
               "kind": "function",
               "language": "python"
             }
@@ -728,259 +551,402 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "list_repositories",
+          "symbol": "remediation_analytics_rows",
           "definitions": [
             {
-              "file": "src/production_os/github_client.py",
-              "line": 611,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 634,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
+          "relation": "same_file"
         },
         {
-          "symbol": "load",
+          "symbol": "remediation_events",
           "definitions": [
             {
-              "file": "src/production_os/approvals.py",
-              "line": 45,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/budgets.py",
-              "line": 41,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/claims.py",
-              "line": 44,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/metrics.py",
-              "line": 32,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/policy.py",
-              "line": 42,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 609,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
+          "relation": "same_file"
         },
         {
-          "symbol": "merged_for",
+          "symbol": "resolve_dashboard_incidents_except",
           "definitions": [
             {
-              "file": "src/production_os/policy.py",
-              "line": 50,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 338,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
+          "relation": "same_file"
         },
         {
-          "symbol": "open_backend",
+          "symbol": "save_progress_snapshot",
           "definitions": [
             {
-              "file": "src/production_os/storage.py",
-              "line": 23,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 909,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
+          "relation": "same_file"
         },
         {
-          "symbol": "reconcile_runtime_state",
+          "symbol": "save_provider_quota_snapshot",
           "definitions": [
             {
-              "file": "src/production_os/reconciliation.py",
-              "line": 27,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 914,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
+          "relation": "same_file"
+        },
+        {
+          "symbol": "save_repository_snapshot",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 906,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "set_job_control",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 799,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "set_worker_control",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 730,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
         }
       ],
       "dependency_count": 40
     },
-    "_record_controller_error": {
+    "__init__": {
       "source": {
-        "file": "src/production_os/controller.py",
-        "start": 391,
-        "end": 410
+        "file": "src/production_os/dashboard_store.py",
+        "start": 177,
+        "end": 178
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "_fetchone": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 180,
+        "end": 182
       },
       "symbol_dependencies": [
         {
-          "symbol": "MetricsStore",
+          "symbol": "_decode",
           "definitions": [
             {
-              "file": "src/production_os/metrics.py",
-              "line": 26,
-              "kind": "class",
+              "file": "src/production_os/dashboard_store.py",
+              "line": 151,
+              "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
+          "relation": "same_file"
         },
         {
-          "symbol": "RuntimeState",
+          "symbol": "_execute",
           "definitions": [
             {
-              "file": "src/production_os/runtime_state.py",
-              "line": 41,
-              "kind": "class",
+              "file": "src/production_os/dashboard_store.py",
+              "line": 22,
+              "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
-        },
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "_fetchall": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 184,
+        "end": 186
+      },
+      "symbol_dependencies": [
         {
-          "symbol": "build_health",
+          "symbol": "_decode",
           "definitions": [
             {
-              "file": "src/production_os/health.py",
+              "file": "src/production_os/dashboard_store.py",
+              "line": 151,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 22,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "start_execution": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 188,
+        "end": 200
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 22,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_fetchone",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 180,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_now",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
               "line": 10,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
+          "relation": "same_file"
         },
         {
-          "symbol": "get",
+          "symbol": "execution_id",
           "definitions": [
             {
-              "file": "src/production_os/runtime_state.py",
-              "line": 70,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 30,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
-        },
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "execution_count": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 202,
+        "end": 206
+      },
+      "symbol_dependencies": [
         {
-          "symbol": "open_backend",
+          "symbol": "_execute",
           "definitions": [
             {
-              "file": "src/production_os/storage.py",
-              "line": 23,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 22,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
-        },
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "latest_execution": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 208,
+        "end": 210
+      },
+      "symbol_dependencies": [
         {
-          "symbol": "runtime_state_for",
+          "symbol": "_fetchone",
           "definitions": [
             {
-              "file": "src/production_os/storage.py",
-              "line": 29,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 180,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
-        },
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "update_live_execution": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 212,
+        "end": 224
+      },
+      "symbol_dependencies": [
         {
-          "symbol": "save",
+          "symbol": "_bounded_progress",
           "definitions": [
             {
-              "file": "src/production_os/claims.py",
-              "line": 53,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 34,
               "kind": "function",
               "language": "python"
-            },
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_execute",
+          "definitions": [
             {
-              "file": "src/production_os/metrics.py",
-              "line": 42,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 22,
               "kind": "function",
               "language": "python"
-            },
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_fetchone",
+          "definitions": [
             {
-              "file": "src/production_os/runtime_state.py",
+              "file": "src/production_os/dashboard_store.py",
+              "line": 180,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_now",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 10,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "finish_execution": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 226,
+        "end": 243
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 22,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_fetchone",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 180,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_now",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 10,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_usage_execution_summary",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
               "line": 66,
               "kind": "function",
               "language": "python"
-            },
-            {
-              "file": "src/production_os/workers.py",
-              "line": 51,
-              "kind": "function",
-              "language": "python"
             }
           ],
-          "relation": "imported_module"
+          "relation": "same_file"
         },
         {
-          "symbol": "to_dict",
+          "symbol": "_valid_commit_shas",
           "definitions": [
             {
-              "file": "src/production_os/approvals.py",
-              "line": 20,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/budgets.py",
-              "line": 19,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/claims.py",
-              "line": 23,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/dispatch.py",
-              "line": 31,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "write_health",
-          "definitions": [
-            {
-              "file": "src/production_os/health.py",
-              "line": 35,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 9
-    },
-    "run_controller": {
-      "source": {
-        "file": "src/production_os/controller.py",
-        "start": 413,
-        "end": 430
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_record_controller_error",
-          "definitions": [
-            {
-              "file": "src/production_os/controller.py",
-              "line": 391,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 43,
               "kind": "function",
               "language": "python"
             }
@@ -988,234 +954,32 @@
           "relation": "same_file"
         },
         {
-          "symbol": "append",
+          "symbol": "execution_id",
           "definitions": [
             {
-              "file": "src/production_os/journal.py",
+              "file": "src/production_os/dashboard_store.py",
               "line": 30,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "run_control_cycle",
-          "definitions": [
-            {
-              "file": "src/production_os/controller.py",
-              "line": 143,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
           "relation": "same_file"
         }
       ],
-      "dependency_count": 3
+      "dependency_count": 6
     },
-    "run_controller_daemon": {
+    "upsert_dashboard_incident": {
       "source": {
-        "file": "src/production_os/controller.py",
-        "start": 433,
-        "end": 512
+        "file": "src/production_os/dashboard_store.py",
+        "start": 245,
+        "end": 311
       },
       "symbol_dependencies": [
         {
-          "symbol": "ExecutionJournal",
+          "symbol": "_execute",
           "definitions": [
             {
-              "file": "src/production_os/journal.py",
-              "line": 11,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "Failed",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 335,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "class_like"
-        },
-        {
-          "symbol": "_record_controller_error",
-          "definitions": [
-            {
-              "file": "src/production_os/controller.py",
-              "line": 391,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "append",
-          "definitions": [
-            {
-              "file": "src/production_os/journal.py",
-              "line": 30,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "controller_leader_lock",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 142,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/runtime_state.py",
-              "line": 70,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "record",
-          "definitions": [
-            {
-              "file": "src/production_os/budgets.py",
-              "line": 71,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "run_control_cycle",
-          "definitions": [
-            {
-              "file": "src/production_os/controller.py",
-              "line": 143,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 8
-    },
-    "ControllerLeaderError": {
-      "source": {
-        "file": "src/production_os/controller_leader.py",
-        "start": 18,
-        "end": 19
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "_utc_now": {
-      "source": {
-        "file": "src/production_os/controller_leader.py",
-        "start": 22,
-        "end": 23
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "FilesystemControllerLeaderLock": {
-      "source": {
-        "file": "src/production_os/controller_leader.py",
-        "start": 26,
-        "end": 82
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ControllerLeaderError",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 18,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "__enter__",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 76,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 133,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "__exit__",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 80,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 137,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "__init__",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 27,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 94,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_utc_now",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
+              "file": "src/production_os/dashboard_store.py",
               "line": 22,
               "kind": "function",
               "language": "python"
@@ -1224,17 +988,11 @@
           "relation": "same_file"
         },
         {
-          "symbol": "acquire",
+          "symbol": "_fetchone",
           "definitions": [
             {
-              "file": "src/production_os/controller_leader.py",
-              "line": 31,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 98,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 180,
               "kind": "function",
               "language": "python"
             }
@@ -1242,81 +1000,11 @@
           "relation": "same_file"
         },
         {
-          "symbol": "release",
+          "symbol": "_now",
           "definitions": [
             {
-              "file": "src/production_os/controller_leader.py",
-              "line": 65,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 120,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 7
-    },
-    "__init__": {
-      "source": {
-        "file": "src/production_os/controller_leader.py",
-        "start": 27,
-        "end": 147
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ControllerLeaderError",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 18,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "PostgresBackend",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 24,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "PostgresControllerLeaderLock",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 85,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "__enter__",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 76,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 133,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 10,
               "kind": "function",
               "language": "python"
             }
@@ -1324,483 +1012,33 @@
           "relation": "same_file"
         },
         {
-          "symbol": "__exit__",
+          "symbol": "dashboard_incidents",
           "definitions": [
             {
-              "file": "src/production_os/controller_leader.py",
-              "line": 80,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 137,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 313,
               "kind": "function",
               "language": "python"
             }
           ],
           "relation": "same_file"
-        },
-        {
-          "symbol": "_utc_now",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 22,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "acquire",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 31,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 98,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "connect",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 35,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "controller_leader_lock",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 142,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 700,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1383,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "release",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 65,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 120,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 11
-    },
-    "acquire": {
-      "source": {
-        "file": "src/production_os/controller_leader.py",
-        "start": 31,
-        "end": 63
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ControllerLeaderError",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 18,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_utc_now",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 22,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "release": {
-      "source": {
-        "file": "src/production_os/controller_leader.py",
-        "start": 65,
-        "end": 74
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "__enter__": {
-      "source": {
-        "file": "src/production_os/controller_leader.py",
-        "start": 76,
-        "end": 78
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "acquire",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 31,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 98,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "__exit__": {
-      "source": {
-        "file": "src/production_os/controller_leader.py",
-        "start": 80,
-        "end": 82
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "release",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 65,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 120,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "PostgresControllerLeaderLock": {
-      "source": {
-        "file": "src/production_os/controller_leader.py",
-        "start": 85,
-        "end": 139
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ControllerLeaderError",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 18,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "PostgresBackend",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 24,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "__enter__",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 76,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 133,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "__exit__",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 80,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 137,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "__init__",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 27,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 94,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "acquire",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 31,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 98,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "connect",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 35,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 700,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1383,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "release",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 65,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 120,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 9
-    },
-    "controller_leader_lock": {
-      "source": {
-        "file": "src/production_os/controller_leader.py",
-        "start": 142,
-        "end": 160
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ControllerLeaderError",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 18,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "FilesystemControllerLeaderLock",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 26,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "PostgresControllerLeaderLock",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 85,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "is_postgres",
-          "definitions": [
-            {
-              "file": "src/production_os/storage.py",
-              "line": 19,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
         }
       ],
       "dependency_count": 4
     },
-    "FakeStopEvent": {
+    "dashboard_incidents": {
       "source": {
-        "file": "tests/test_controller_daemon.py",
-        "start": 9,
-        "end": 19
+        "file": "src/production_os/dashboard_store.py",
+        "start": 313,
+        "end": 336
       },
       "symbol_dependencies": [
         {
-          "symbol": "is_set",
+          "symbol": "_fetchall",
           "definitions": [
             {
-              "file": "tests/test_controller_daemon.py",
-              "line": 14,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "wait",
-          "definitions": [
-            {
-              "file": "tests/test_controller_daemon.py",
-              "line": 17,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "is_set": {
-      "source": {
-        "file": "tests/test_controller_daemon.py",
-        "start": 14,
-        "end": 15
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "wait": {
-      "source": {
-        "file": "tests/test_controller_daemon.py",
-        "start": 17,
-        "end": 19
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "is_set",
-          "definitions": [
-            {
-              "file": "tests/test_controller_daemon.py",
-              "line": 14,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 184,
               "kind": "function",
               "language": "python"
             }
@@ -1810,37 +1048,19 @@
       ],
       "dependency_count": 1
     },
-    "test_controller_daemon_runs_until_cooperative_stop": {
+    "resolve_dashboard_incidents_except": {
       "source": {
-        "file": "tests/test_controller_daemon.py",
-        "start": 22,
-        "end": 51
+        "file": "src/production_os/dashboard_store.py",
+        "start": 338,
+        "end": 370
       },
       "symbol_dependencies": [
         {
-          "symbol": "FakeStopEvent",
+          "symbol": "_execute",
           "definitions": [
             {
-              "file": "tests/test_controller_daemon.py",
-              "line": 9,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "fake_cycle",
-          "definitions": [
-            {
-              "file": "tests/test_controller_daemon.py",
-              "line": 25,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_daemon.py",
-              "line": 95,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 22,
               "kind": "function",
               "language": "python"
             }
@@ -1848,81 +1068,11 @@
           "relation": "same_file"
         },
         {
-          "symbol": "run_control_cycle",
+          "symbol": "_fetchall",
           "definitions": [
             {
-              "file": "src/production_os/controller.py",
-              "line": 143,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "run_controller_daemon",
-          "definitions": [
-            {
-              "file": "src/production_os/controller.py",
-              "line": 433,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "fake_cycle": {
-      "source": {
-        "file": "tests/test_controller_daemon.py",
-        "start": 25,
-        "end": 145
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "FakeStopEvent",
-          "definitions": [
-            {
-              "file": "tests/test_controller_daemon.py",
-              "line": 9,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_parse_args",
-          "definitions": [
-            {
-              "file": "src/production_os/cli.py",
-              "line": 101,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_record_controller_error",
-          "definitions": [
-            {
-              "file": "src/production_os/controller.py",
-              "line": 391,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "flaky_cycle",
-          "definitions": [
-            {
-              "file": "tests/test_controller_daemon.py",
-              "line": 58,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 184,
               "kind": "function",
               "language": "python"
             }
@@ -1930,47 +1080,11 @@
           "relation": "same_file"
         },
         {
-          "symbol": "run_control_cycle",
+          "symbol": "_fetchone",
           "definitions": [
             {
-              "file": "src/production_os/controller.py",
-              "line": 143,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "run_controller",
-          "definitions": [
-            {
-              "file": "src/production_os/controller.py",
-              "line": 413,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "run_controller_daemon",
-          "definitions": [
-            {
-              "file": "src/production_os/controller.py",
-              "line": 433,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "test_bounded_controller_behavior_is_unchanged",
-          "definitions": [
-            {
-              "file": "tests/test_controller_daemon.py",
-              "line": 92,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 180,
               "kind": "function",
               "language": "python"
             }
@@ -1978,11 +1092,11 @@
           "relation": "same_file"
         },
         {
-          "symbol": "test_controller_cli_exposes_daemon_controls",
+          "symbol": "_now",
           "definitions": [
             {
-              "file": "tests/test_controller_daemon.py",
-              "line": 110,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 10,
               "kind": "function",
               "language": "python"
             }
@@ -1990,145 +1104,33 @@
           "relation": "same_file"
         },
         {
-          "symbol": "test_controller_daemon_retries_failures_with_bounded_backoff",
+          "symbol": "dashboard_incidents",
           "definitions": [
             {
-              "file": "tests/test_controller_daemon.py",
-              "line": 54,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 313,
               "kind": "function",
               "language": "python"
             }
           ],
           "relation": "same_file"
-        }
-      ],
-      "dependency_count": 10
-    },
-    "test_controller_daemon_retries_failures_with_bounded_backoff": {
-      "source": {
-        "file": "tests/test_controller_daemon.py",
-        "start": 54,
-        "end": 89
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "FakeStopEvent",
-          "definitions": [
-            {
-              "file": "tests/test_controller_daemon.py",
-              "line": 9,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_record_controller_error",
-          "definitions": [
-            {
-              "file": "src/production_os/controller.py",
-              "line": 391,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "flaky_cycle",
-          "definitions": [
-            {
-              "file": "tests/test_controller_daemon.py",
-              "line": 58,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "run_control_cycle",
-          "definitions": [
-            {
-              "file": "src/production_os/controller.py",
-              "line": 143,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "run_controller_daemon",
-          "definitions": [
-            {
-              "file": "src/production_os/controller.py",
-              "line": 433,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
         }
       ],
       "dependency_count": 5
     },
-    "flaky_cycle": {
+    "acknowledge_dashboard_incident": {
       "source": {
-        "file": "tests/test_controller_daemon.py",
-        "start": 58,
-        "end": 178
+        "file": "src/production_os/dashboard_store.py",
+        "start": 372,
+        "end": 404
       },
       "symbol_dependencies": [
         {
-          "symbol": "FakeStopEvent",
+          "symbol": "_execute",
           "definitions": [
             {
-              "file": "tests/test_controller_daemon.py",
-              "line": 9,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_parse_args",
-          "definitions": [
-            {
-              "file": "src/production_os/cli.py",
-              "line": 101,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_record_controller_error",
-          "definitions": [
-            {
-              "file": "src/production_os/controller.py",
-              "line": 391,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "fake_cycle",
-          "definitions": [
-            {
-              "file": "tests/test_controller_daemon.py",
-              "line": 25,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_daemon.py",
-              "line": 95,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 22,
               "kind": "function",
               "language": "python"
             }
@@ -2136,47 +1138,11 @@
           "relation": "same_file"
         },
         {
-          "symbol": "run_control_cycle",
+          "symbol": "_fetchone",
           "definitions": [
             {
-              "file": "src/production_os/controller.py",
-              "line": 143,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "run_controller",
-          "definitions": [
-            {
-              "file": "src/production_os/controller.py",
-              "line": 413,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "run_controller_daemon",
-          "definitions": [
-            {
-              "file": "src/production_os/controller.py",
-              "line": 433,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "test_bounded_controller_behavior_is_unchanged",
-          "definitions": [
-            {
-              "file": "tests/test_controller_daemon.py",
-              "line": 92,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 180,
               "kind": "function",
               "language": "python"
             }
@@ -2184,11 +1150,23 @@
           "relation": "same_file"
         },
         {
-          "symbol": "test_controller_cli_exposes_daemon_controls",
+          "symbol": "_now",
           "definitions": [
             {
-              "file": "tests/test_controller_daemon.py",
-              "line": 110,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 10,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "dashboard_incidents",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 313,
               "kind": "function",
               "language": "python"
             }
@@ -2196,27 +1174,21 @@
           "relation": "same_file"
         }
       ],
-      "dependency_count": 9
+      "dependency_count": 4
     },
-    "test_bounded_controller_behavior_is_unchanged": {
+    "append_remediation_event": {
       "source": {
-        "file": "tests/test_controller_daemon.py",
-        "start": 92,
-        "end": 107
+        "file": "src/production_os/dashboard_store.py",
+        "start": 406,
+        "end": 452
       },
       "symbol_dependencies": [
         {
-          "symbol": "fake_cycle",
+          "symbol": "_execute",
           "definitions": [
             {
-              "file": "tests/test_controller_daemon.py",
-              "line": 25,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_daemon.py",
-              "line": 95,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 22,
               "kind": "function",
               "language": "python"
             }
@@ -2224,115 +1196,755 @@
           "relation": "same_file"
         },
         {
-          "symbol": "run_control_cycle",
+          "symbol": "_fetchone",
           "definitions": [
             {
-              "file": "src/production_os/controller.py",
-              "line": 143,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 180,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
+          "relation": "same_file"
         },
         {
-          "symbol": "run_controller",
+          "symbol": "_now",
           "definitions": [
             {
-              "file": "src/production_os/controller.py",
-              "line": 413,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 10,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
+          "relation": "same_file"
+        },
+        {
+          "symbol": "dashboard_incidents",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 313,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "update_remediation_event": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 454,
+        "end": 495
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 22,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_fetchone",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 180,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_now",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 10,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
         }
       ],
       "dependency_count": 3
     },
-    "test_controller_cli_exposes_daemon_controls": {
+    "verify_remediation_events": {
       "source": {
-        "file": "tests/test_controller_daemon.py",
-        "start": 110,
-        "end": 126
+        "file": "src/production_os/dashboard_store.py",
+        "start": 497,
+        "end": 562
       },
       "symbol_dependencies": [
         {
-          "symbol": "_parse_args",
+          "symbol": "_execute",
           "definitions": [
             {
-              "file": "src/production_os/cli.py",
-              "line": 101,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 22,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_fetchall",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 184,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_fetchone",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 180,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_now",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 10,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "dashboard_incidents",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 313,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 5
+    },
+    "verify_remediation_recurrence": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 564,
+        "end": 607
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 22,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_fetchall",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 184,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_fetchone",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 180,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_now",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 10,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "dashboard_incidents",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 313,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 5
+    },
+    "remediation_events": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 609,
+        "end": 632
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_fetchall",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 184,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
         }
       ],
       "dependency_count": 1
     },
-    "test_filesystem_controller_leader_lock_is_exclusive_and_releasable": {
+    "remediation_analytics_rows": {
       "source": {
-        "file": "tests/test_controller_leader.py",
-        "start": 10,
-        "end": 26
+        "file": "src/production_os/dashboard_store.py",
+        "start": 634,
+        "end": 646
       },
       "symbol_dependencies": [
         {
-          "symbol": "ControllerLeaderError",
+          "symbol": "_fetchall",
           "definitions": [
             {
-              "file": "src/production_os/controller_leader.py",
-              "line": 18,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "FilesystemControllerLeaderLock",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 26,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "acquire",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 31,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 98,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 184,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
+          "relation": "same_file"
         },
         {
-          "symbol": "release",
+          "symbol": "dashboard_incidents",
           "definitions": [
             {
-              "file": "src/production_os/controller_leader.py",
-              "line": 65,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 313,
               "kind": "function",
               "language": "python"
-            },
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "append_control_audit": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 648,
+        "end": 684
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_execute",
+          "definitions": [
             {
-              "file": "src/production_os/controller_leader.py",
-              "line": 120,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 22,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_fetchone",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 180,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_now",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 10,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "control_audit_events",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 711,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "update_control_audit": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 686,
+        "end": 709
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 22,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_fetchone",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 180,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "control_audit_events",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 711,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "control_audit_events": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 711,
+        "end": 720
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_fetchall",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 184,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "get_worker_control": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 722,
+        "end": 728
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_fetchone",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 180,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "set_worker_control": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 730,
+        "end": 759
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 22,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_fetchone",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 180,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_now",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 10,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "acknowledge_worker_control": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 761,
+        "end": 789
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 22,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_fetchone",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 180,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_now",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 10,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "get_job_control": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 791,
+        "end": 797
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_fetchone",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 180,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "set_job_control": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 799,
+        "end": 830
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 22,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_fetchone",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 180,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_now",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 10,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "acknowledge_job_control": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 832,
+        "end": 859
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 22,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_fetchone",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 180,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_now",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 10,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "executions_for_worker": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 861,
+        "end": 862
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_fetchall",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 184,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "executions_for_repository": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 864,
+        "end": 865
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_fetchall",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 184,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "usage_events": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 867,
+        "end": 873
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_fetchall",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 184,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "append_logs": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 875,
+        "end": 883
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 22,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_fetchone",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 180,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_now",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 10,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "redact_log_value",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_security.py",
+              "line": 21,
               "kind": "function",
               "language": "python"
             }
@@ -2342,19 +1954,241 @@
       ],
       "dependency_count": 4
     },
-    "test_controller_leader_factory_uses_durable_file_for_sqlite": {
+    "logs_for_worker": {
       "source": {
-        "file": "tests/test_controller_leader.py",
-        "start": 29,
-        "end": 38
+        "file": "src/production_os/dashboard_store.py",
+        "start": 885,
+        "end": 891
       },
       "symbol_dependencies": [
         {
-          "symbol": "FilesystemControllerLeaderLock",
+          "symbol": "_fetchall",
           "definitions": [
             {
-              "file": "src/production_os/controller_leader.py",
-              "line": 26,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 184,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_fetchone",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 180,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "_save_snapshot": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 893,
+        "end": 904
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 22,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_fetchone",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 180,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "save_repository_snapshot": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 906,
+        "end": 906
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_save_snapshot",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 893,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "latest_repository_snapshot": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 907,
+        "end": 908
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_fetchone",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 180,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "save_progress_snapshot": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 909,
+        "end": 909
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_save_snapshot",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 893,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "latest_progress_snapshot": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 910,
+        "end": 911
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_fetchone",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 180,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "progress_history": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 912,
+        "end": 913
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_fetchall",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 184,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "save_provider_quota_snapshot": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 914,
+        "end": 914
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_save_snapshot",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 893,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "latest_provider_quota_snapshots": {
+      "source": {
+        "file": "src/production_os/dashboard_store.py",
+        "start": 915,
+        "end": 916
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_fetchall",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 184,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "_store": {
+      "source": {
+        "file": "tests/test_dashboard_store.py",
+        "start": 7,
+        "end": 7
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "DashboardStore",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 176,
               "kind": "class",
               "language": "python"
             }
@@ -2362,12 +2196,12 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "controller_leader_lock",
+          "symbol": "SQLiteBackend",
           "definitions": [
             {
-              "file": "src/production_os/controller_leader.py",
-              "line": 142,
-              "kind": "function",
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 20,
+              "kind": "class",
               "language": "python"
             }
           ],
@@ -2376,19 +2210,88 @@
       ],
       "dependency_count": 2
     },
-    "test_controller_leader_factory_falls_back_to_runtime_state": {
+    "_sample_job": {
       "source": {
-        "file": "tests/test_controller_leader.py",
-        "start": 41,
-        "end": 49
+        "file": "tests/test_dashboard_store.py",
+        "start": 10,
+        "end": 12
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "test_execution_lifecycle_and_attempt_identity": {
+      "source": {
+        "file": "tests/test_dashboard_store.py",
+        "start": 15,
+        "end": 28
       },
       "symbol_dependencies": [
         {
-          "symbol": "controller_leader_lock",
+          "symbol": "_sample_job",
           "definitions": [
             {
-              "file": "src/production_os/controller_leader.py",
-              "line": 142,
+              "file": "tests/test_dashboard_store.py",
+              "line": 10,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_store",
+          "definitions": [
+            {
+              "file": "tests/test_dashboard_store.py",
+              "line": 7,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "execution_count",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 202,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "finish_execution",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 226,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "start_execution",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 188,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "update_live_execution",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 212,
               "kind": "function",
               "language": "python"
             }
@@ -2396,105 +2299,45 @@
           "relation": "imported_module"
         }
       ],
-      "dependency_count": 1
+      "dependency_count": 6
     },
-    "test_postgres_controller_leader_lock_holds_session_advisory_lock": {
+    "test_live_progress_cannot_move_backward_in_same_stage": {
       "source": {
-        "file": "tests/test_controller_leader.py",
-        "start": 52,
-        "end": 98
+        "file": "tests/test_dashboard_store.py",
+        "start": 31,
+        "end": 36
       },
       "symbol_dependencies": [
         {
-          "symbol": "Backend",
+          "symbol": "_sample_job",
           "definitions": [
             {
-              "file": "tests/test_controller_leader.py",
-              "line": 77,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 118,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "Connection",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 62,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 106,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "PostgresBackend",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 24,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "class_like"
-        },
-        {
-          "symbol": "PostgresControllerLeaderLock",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 85,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "Result",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 55,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 102,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "__init__",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 27,
+              "file": "tests/test_dashboard_store.py",
+              "line": 10,
               "kind": "function",
               "language": "python"
-            },
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_store",
+          "definitions": [
             {
-              "file": "src/production_os/controller_leader.py",
-              "line": 94,
+              "file": "tests/test_dashboard_store.py",
+              "line": 7,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "start_execution",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 188,
               "kind": "function",
               "language": "python"
             }
@@ -2502,107 +2345,11 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "acquire",
+          "symbol": "update_live_execution",
           "definitions": [
             {
-              "file": "src/production_os/controller_leader.py",
-              "line": 31,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 98,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "close",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 72,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 113,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "connect",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 81,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 122,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "execute",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 66,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 110,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "fetchone",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 59,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 103,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "release",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 65,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 120,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 212,
               "kind": "function",
               "language": "python"
             }
@@ -2610,99 +2357,415 @@
           "relation": "imported_module"
         }
       ],
-      "dependency_count": 12
+      "dependency_count": 4
     },
-    "Result": {
+    "test_finish_execution_is_idempotent": {
       "source": {
-        "file": "tests/test_controller_leader.py",
-        "start": 55,
+        "file": "tests/test_dashboard_store.py",
+        "start": 39,
+        "end": 43
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_sample_job",
+          "definitions": [
+            {
+              "file": "tests/test_dashboard_store.py",
+              "line": 10,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_store",
+          "definitions": [
+            {
+              "file": "tests/test_dashboard_store.py",
+              "line": 7,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "finish_execution",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 226,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "start_execution",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 188,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "test_log_cursor_is_deterministic": {
+      "source": {
+        "file": "tests/test_dashboard_store.py",
+        "start": 46,
+        "end": 55
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_store",
+          "definitions": [
+            {
+              "file": "tests/test_dashboard_store.py",
+              "line": 7,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "append_logs",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 875,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "logs_for_worker",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 885,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "test_snapshot_roundtrip_and_usage_query": {
+      "source": {
+        "file": "tests/test_dashboard_store.py",
+        "start": 58,
+        "end": 66
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_store",
+          "definitions": [
+            {
+              "file": "tests/test_dashboard_store.py",
+              "line": 7,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "save_progress_snapshot",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 909,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "save_repository_snapshot",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 906,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "test_append_logs_generates_collision_safe_ids": {
+      "source": {
+        "file": "tests/test_dashboard_store.py",
+        "start": 69,
+        "end": 73
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_store",
+          "definitions": [
+            {
+              "file": "tests/test_dashboard_store.py",
+              "line": 7,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "append_logs",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 875,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "logs_for_worker",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 885,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "test_finish_execution_ignores_malformed_commit_shas": {
+      "source": {
+        "file": "tests/test_dashboard_store.py",
+        "start": 76,
+        "end": 81
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_sample_job",
+          "definitions": [
+            {
+              "file": "tests/test_dashboard_store.py",
+              "line": 10,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_store",
+          "definitions": [
+            {
+              "file": "tests/test_dashboard_store.py",
+              "line": 7,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "finish_execution",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 226,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "start_execution",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 188,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "test_progress_snapshot_order_is_deterministic_when_timestamps_tie": {
+      "source": {
+        "file": "tests/test_dashboard_store.py",
+        "start": 84,
+        "end": 90
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_store",
+          "definitions": [
+            {
+              "file": "tests/test_dashboard_store.py",
+              "line": 7,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "latest_progress_snapshot",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 910,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "progress_history",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 912,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "save_progress_snapshot",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 909,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "test_finish_execution_persists_primary_provider_and_aggregates_usage": {
+      "source": {
+        "file": "tests/test_dashboard_store.py",
+        "start": 94,
+        "end": 137
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_sample_job",
+          "definitions": [
+            {
+              "file": "tests/test_dashboard_store.py",
+              "line": 10,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_store",
+          "definitions": [
+            {
+              "file": "tests/test_dashboard_store.py",
+              "line": 7,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "finish_execution",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 226,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "start_execution",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 188,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "test_finish_execution_top_level_usage_overrides_provider_summary": {
+      "source": {
+        "file": "tests/test_dashboard_store.py",
+        "start": 140,
         "end": 175
       },
       "symbol_dependencies": [
         {
-          "symbol": "Backend",
+          "symbol": "_sample_job",
           "definitions": [
             {
-              "file": "tests/test_controller_leader.py",
-              "line": 77,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 118,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "Connection",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 62,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 106,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "ControllerLeaderError",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 18,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "PostgresBackend",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 24,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "class_like"
-        },
-        {
-          "symbol": "PostgresControllerLeaderLock",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 85,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "__init__",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 27,
+              "file": "tests/test_dashboard_store.py",
+              "line": 10,
               "kind": "function",
               "language": "python"
-            },
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_store",
+          "definitions": [
             {
-              "file": "src/production_os/controller_leader.py",
-              "line": 94,
+              "file": "tests/test_dashboard_store.py",
+              "line": 7,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "finish_execution",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 226,
               "kind": "function",
               "language": "python"
             }
@@ -2710,237 +2773,57 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "acquire",
+          "symbol": "start_execution",
           "definitions": [
             {
-              "file": "src/production_os/controller_leader.py",
-              "line": 31,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 98,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 188,
               "kind": "function",
               "language": "python"
             }
           ],
           "relation": "imported_module"
-        },
-        {
-          "symbol": "close",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 72,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 113,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "connect",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 81,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 122,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "execute",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 66,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 110,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "fetchone",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 59,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 103,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "release",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 65,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 120,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "test_postgres_controller_leader_lock_rejects_second_leader",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 101,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
         }
       ],
-      "dependency_count": 13
+      "dependency_count": 4
     },
-    "fetchone": {
+    "test_finish_execution_does_not_invent_partial_cost_or_catalog": {
       "source": {
-        "file": "tests/test_controller_leader.py",
-        "start": 59,
-        "end": 179
+        "file": "tests/test_dashboard_store.py",
+        "start": 178,
+        "end": 212
       },
       "symbol_dependencies": [
         {
-          "symbol": "Backend",
+          "symbol": "_sample_job",
           "definitions": [
             {
-              "file": "tests/test_controller_leader.py",
-              "line": 77,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 118,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "Connection",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 62,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 106,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "ControllerLeaderError",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 18,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "PostgresBackend",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 24,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "class_like"
-        },
-        {
-          "symbol": "PostgresControllerLeaderLock",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 85,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "Result",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 55,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 102,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "__init__",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 27,
+              "file": "tests/test_dashboard_store.py",
+              "line": 10,
               "kind": "function",
               "language": "python"
-            },
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_store",
+          "definitions": [
             {
-              "file": "src/production_os/controller_leader.py",
-              "line": 94,
+              "file": "tests/test_dashboard_store.py",
+              "line": 7,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "finish_execution",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 226,
               "kind": "function",
               "language": "python"
             }
@@ -2948,1417 +2831,19 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "acquire",
+          "symbol": "start_execution",
           "definitions": [
             {
-              "file": "src/production_os/controller_leader.py",
-              "line": 31,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 98,
+              "file": "src/production_os/dashboard_store.py",
+              "line": 188,
               "kind": "function",
               "language": "python"
             }
           ],
           "relation": "imported_module"
-        },
-        {
-          "symbol": "close",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 72,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 113,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "connect",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 81,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 122,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "execute",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 66,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 110,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "release",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 65,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 120,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "test_postgres_controller_leader_lock_rejects_second_leader",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 101,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
         }
       ],
-      "dependency_count": 13
-    },
-    "Connection": {
-      "source": {
-        "file": "tests/test_controller_leader.py",
-        "start": 62,
-        "end": 182
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "Backend",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 77,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 118,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "ControllerLeaderError",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 18,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "PostgresBackend",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 24,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "class_like"
-        },
-        {
-          "symbol": "PostgresControllerLeaderLock",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 85,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "Result",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 55,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 102,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "__init__",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 27,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 94,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "acquire",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 31,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 98,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "close",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 72,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 113,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "connect",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 81,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 122,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "execute",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 66,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 110,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "fetchone",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 59,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 103,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "release",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 65,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 120,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "test_postgres_controller_leader_lock_rejects_second_leader",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 101,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 13
-    },
-    "execute": {
-      "source": {
-        "file": "tests/test_controller_leader.py",
-        "start": 66,
-        "end": 186
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "Backend",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 77,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 118,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "Connection",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 62,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 106,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "ControllerLeaderError",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 18,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "PostgresBackend",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 24,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "class_like"
-        },
-        {
-          "symbol": "PostgresControllerLeaderLock",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 85,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "Result",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 55,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 102,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "__init__",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 27,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 94,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "acquire",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 31,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 98,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "close",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 72,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 113,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "connect",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 81,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 122,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "fetchone",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 59,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 103,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "release",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 65,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 120,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "test_postgres_controller_leader_lock_rejects_second_leader",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 101,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 13
-    },
-    "close": {
-      "source": {
-        "file": "tests/test_controller_leader.py",
-        "start": 72,
-        "end": 192
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "Backend",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 77,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 118,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "Connection",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 62,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 106,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "ControllerLeaderError",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 18,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "PostgresBackend",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 24,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "class_like"
-        },
-        {
-          "symbol": "PostgresControllerLeaderLock",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 85,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "Result",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 55,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 102,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "__init__",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 27,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 94,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "acquire",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 31,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 98,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "connect",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 81,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 122,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "execute",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 66,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 110,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "fetchone",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 59,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 103,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "release",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 65,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 120,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "test_postgres_controller_leader_lock_rejects_second_leader",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 101,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 13
-    },
-    "Backend": {
-      "source": {
-        "file": "tests/test_controller_leader.py",
-        "start": 77,
-        "end": 197
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "Connection",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 62,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 106,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "ControllerLeaderError",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 18,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "PostgresBackend",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 24,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "class_like"
-        },
-        {
-          "symbol": "PostgresControllerLeaderLock",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 85,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "Result",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 55,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 102,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "__init__",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 27,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 94,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "acquire",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 31,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 98,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "close",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 72,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 113,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "connect",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 81,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 122,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "execute",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 66,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 110,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "fetchone",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 59,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 103,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "release",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 65,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 120,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "test_postgres_controller_leader_lock_rejects_second_leader",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 101,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 13
-    },
-    "connect": {
-      "source": {
-        "file": "tests/test_controller_leader.py",
-        "start": 81,
-        "end": 201
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "Backend",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 77,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 118,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "Connection",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 62,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 106,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "ControllerLeaderError",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 18,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "PostgresBackend",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 24,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "class_like"
-        },
-        {
-          "symbol": "PostgresControllerLeaderLock",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 85,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "Result",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 55,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 102,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "__init__",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 27,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 94,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "acquire",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 31,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 98,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "close",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 72,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 113,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "execute",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 66,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 110,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "fetchone",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 59,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 103,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "release",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 65,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 120,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "test_postgres_controller_leader_lock_rejects_second_leader",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 101,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 13
-    },
-    "test_postgres_controller_leader_lock_rejects_second_leader": {
-      "source": {
-        "file": "tests/test_controller_leader.py",
-        "start": 101,
-        "end": 136
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "Backend",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 77,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 118,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "Connection",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 62,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 106,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "ControllerLeaderError",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 18,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "PostgresBackend",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 24,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "class_like"
-        },
-        {
-          "symbol": "PostgresControllerLeaderLock",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 85,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "Result",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 55,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 102,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "__init__",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 27,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 94,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "acquire",
-          "definitions": [
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 31,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/controller_leader.py",
-              "line": 98,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "close",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 72,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 113,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "connect",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 81,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 122,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "execute",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 66,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 110,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "fetchone",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 59,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 103,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 12
+      "dependency_count": 4
     }
   }
 }

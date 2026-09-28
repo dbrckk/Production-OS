@@ -2836,6 +2836,16 @@ def test_progress_snapshot_order_is_deterministic_when_timestamps_tie(tmp_path)
 ⋮----
 store=_store(tmp_path); captured="2026-09-24T04:00:00+00:00"
 base={"repository":"dbrckk/example","captured_at":captured,"calculation_version":"project-progress/v1","confidence":"low"}
+⋮----
+def test_finish_execution_persists_primary_provider_and_aggregates_usage(tmp_path)
+⋮----
+store = _store(tmp_path)
+⋮----
+done = store.finish_execution(
+⋮----
+def test_finish_execution_top_level_usage_overrides_provider_summary(tmp_path)
+⋮----
+def test_finish_execution_does_not_invent_partial_cost_or_catalog(tmp_path)
 ```
 
 ## File: test_dashboard_ui_v3.py

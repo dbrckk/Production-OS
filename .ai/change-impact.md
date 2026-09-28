@@ -1,22 +1,18 @@
 # Change impact
 
-Base: 9fb70e88d9ff109e92417ce4519e81125257cbf7
-Head: 1c3a52abd9baae9e924f28f05fbcab206a1c685f
+Base: 672b4c1ccd0d9a60defd48a8c83bdb66e79d5b55
+Head: c92d89a6e0720aac063a56734d44820839ea1e00
 
 ## Changed files
-- M README.md
-- M src/production_os/controller.py
-- A src/production_os/controller_leader.py
-- M tests/test_controller_daemon.py
-- A tests/test_controller_leader.py
+- M src/production_os/dashboard_store.py
+- M tests/test_dashboard_store.py
 
 ## Affected areas
-- (root)
 - src
 - tests
 
 ## Related test candidates
-- tests/test_controller_leader.py
+- tests/test_dashboard_store.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.
