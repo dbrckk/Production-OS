@@ -10,6 +10,7 @@ import threading
 from pathlib import Path
 from typing import Iterable
 
+from .agent_benchmark import AutonomousBenchmark, compare_reports
 from .approvals import ApprovalStore
 from .attestations import (
     create_validation_attestation,
@@ -593,6 +594,23 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "--headed",
         action="store_true",
         help="Run Chromium headed instead of headless",
+    )
+
+    benchmark = sub.add_parser(
+        "agent-benchmark",
+        help="Measure autonomous workflow outcomes from durable execution history",
+    )
+    benchmark.add_argument("--database", required=True)
+    benchmark.add_argument(
+        "--workflow-id",
+        action="append",
+        required=True,
+        help="Workflow id to include; may be supplied more than once",
+    )
+    benchmark.add_argument(
+        "--baseline",
+        default="",
+        help="Optional JSON benchmark report used to emit metric deltas",
     )
 
     workflowcreate = sub.add_parser("workflow-create", help="Create a persistent DAG workflow")
@@ -2115,6 +2133,22 @@ def run_browser_plan(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_agent_benchmark(args: argparse.Namespace) -> int:
+    backend = open_backend(args.database)
+    report = AutonomousBenchmark(backend).report(args.workflow_id)
+    payload = {"benchmark":report}
+    baseline_path = str(args.baseline or "").strip()
+    if baseline_path:
+        baseline = json.loads(
+            Path(baseline_path).read_text(encoding="utf-8")
+        )
+        if not isinstance(baseline, dict):
+            raise ValueError("baseline benchmark must be a JSON object")
+        payload["comparison"] = compare_reports(report, baseline)
+    print(json.dumps(payload, indent=2, ensure_ascii=False))
+    return 0
+
+
 def _workflow_engine(database: str) -> WorkflowEngine:
     backend = open_backend(database)
     return WorkflowEngine(backend, job_queue_for(backend))
@@ -2953,6 +2987,8 @@ def main(argv: list[str] | None = None) -> int:
         return run_remote_worker_run(args)
     if args.command == "browser-plan-run":
         return run_browser_plan(args)
+    if args.command == "agent-benchmark":
+        return run_agent_benchmark(args)
     if args.command == "workflow-create":
         return run_workflow_create(args)
     if args.command == "workflow-status":
