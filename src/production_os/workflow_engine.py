@@ -9,6 +9,7 @@ from typing import Any
 from .runtime_state import task_key
 from .result_cache import ResultCache, fingerprint
 from .skill_memory import SKILL_SCHEMA, SkillStore
+from .model_router import ModelRouter
 from .agent_plan import validate_agent_plan
 from .change_impact import analyze_change_impact
 from .task_capabilities import (
@@ -318,6 +319,7 @@ class WorkflowEngine:
         self.queue = queue
         self.cache = ResultCache(backend)
         self.skills = SkillStore(backend)
+        self.model_router = ModelRouter(backend)
 
     @staticmethod
     def _validate(tasks: list[WorkflowTaskSpec]) -> None:
@@ -1330,6 +1332,25 @@ class WorkflowEngine:
                         isolation.get("integration_target", False)
                     ),
                 )
+            required_for_route = inferred_required_capabilities(handoff)
+            preferred_for_route = inferred_preferred_capabilities(handoff)
+            model_candidates = (
+                handoff.get("model_candidates")
+                or payload.get("model_candidates")
+            )
+            if isinstance(model_candidates, list) and model_candidates:
+                handoff["model_route"] = self.model_router.route(
+                    model_candidates,
+                    required_capabilities=required_for_route,
+                    preferred_capabilities=preferred_for_route,
+                    fallback_limit=int(
+                        handoff.get(
+                            "model_fallback_limit",
+                            payload.get("model_fallback_limit", 3),
+                        )
+                    ),
+                )
+
             preferred_for_learning = [
                 str(value)
                 for value in handoff.get("preferred_capabilities", [])
