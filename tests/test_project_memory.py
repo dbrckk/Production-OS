@@ -179,3 +179,41 @@ def test_cooperative_planner_receives_memory_as_structured_and_text_context(tmp_
     assert handoff["project_memory"]["items"]
     assert "Relevant durable project memory:" in handoff["task"]
     assert "Preserve the existing REST contract." in handoff["task"]
+
+
+
+def test_project_memory_deduplicates_identical_repeated_outcomes(tmp_path):
+    engine = _engine(tmp_path)
+    store = ProjectMemoryStore(engine.backend)
+    kwargs = {
+        "repository":"owner/repo",
+        "project_id":"project-dedupe",
+        "generation":1,
+        "workflow_id":"wf-1",
+        "task_id":"review",
+        "kind":"initial",
+        "result":{
+            "summary":"Verified the migration.",
+            "validation":{"status":"passed"},
+            "project_memory":{
+                "decisions":["Keep the compatibility shim."],
+            },
+        },
+    }
+
+    first = store.record_from_result(**kwargs)
+    second = store.record_from_result(**kwargs)
+
+    assert first is not None
+    assert second is not None
+    assert first["deduplicated"] is False
+    assert second["deduplicated"] is True
+    assert second["event_id"] == first["event_id"]
+
+    recalled = store.recall(
+        repository="owner/repo",
+        project_id="project-dedupe",
+        query="migration compatibility shim",
+        limit=10,
+    )
+    assert len(recalled) == 1
