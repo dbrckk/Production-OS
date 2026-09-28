@@ -24,6 +24,7 @@ def test_browser_plan_validates_bounded_actions_and_redacts_fill_value():
 
     assert plan.allowed_hosts == ("example.com",)
     assert plan.persist_session is True
+    assert plan.allow_private_network is False
     assert plan.actions[1].value == "user@example.com"
     assert "value" not in plan.actions[1].to_dict()
 
@@ -161,3 +162,28 @@ def test_browser_plan_cli_explicit_storage_state_wins(monkeypatch):
     args = Namespace(storage_state="/tmp/custom-state.json")
 
     assert _browser_storage_state(args) == "/tmp/custom-state.json"
+
+
+
+def test_browser_plan_blocks_private_network_by_default():
+    with pytest.raises(ValueError, match="private-network"):
+        validate_browser_plan({
+            "schema_version":BROWSER_PLAN_SCHEMA,
+            "allowed_hosts":["127.0.0.1"],
+            "actions":[
+                {"action":"navigate","url":"http://127.0.0.1:8000"},
+            ],
+        })
+
+
+def test_browser_plan_allows_private_network_only_with_explicit_opt_in():
+    plan = validate_browser_plan({
+        "schema_version":BROWSER_PLAN_SCHEMA,
+        "allowed_hosts":["127.0.0.1"],
+        "allow_private_network":True,
+        "actions":[
+            {"action":"navigate","url":"http://127.0.0.1:8000"},
+        ],
+    })
+
+    assert plan.allow_private_network is True
