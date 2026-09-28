@@ -93,6 +93,7 @@
         "tests/test_key_registry_validation.py",
         "tests/test_key_rotation.py",
         "tests/test_learning_control_surface.py",
+        "tests/test_managed_dynamic_plan_outcome.py",
         "tests/test_managed_github_reconciliation.py",
         "tests/test_managed_project_outcome.py",
         "tests/test_managed_projects_http_v4.py",
@@ -175,7 +176,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 163,
+      "in_degree": 164,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -1318,12 +1319,13 @@
         "src/production_os/control_plane.py",
         "tests/test_cooperative_managed_projects.py",
         "tests/test_cooperative_specialist_e2e.py",
+        "tests/test_managed_dynamic_plan_outcome.py",
         "tests/test_managed_github_reconciliation.py",
         "tests/test_managed_project_outcome.py",
         "tests/test_managed_projects_v4.py",
         "tests/test_workflow_postgres.py"
       ],
-      "in_degree": 7,
+      "in_degree": 8,
       "out_degree": 7
     },
     "src/production_os/metrics.py": {
@@ -3330,6 +3332,15 @@
       "dependents": [],
       "in_degree": 0,
       "out_degree": 3
+    },
+    "tests/test_managed_dynamic_plan_outcome.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/managed_projects.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 2
     },
     "tests/test_managed_github_reconciliation.py": {
       "dependencies": [

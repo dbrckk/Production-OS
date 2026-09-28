@@ -12,11 +12,16 @@
       "score": 1705
     },
     {
-      "path": "src/production_os/sqlite_backend.py",
+      "path": "src/production_os/managed_projects.py",
       "reasons": [
-        "dependency-neighbor"
+        "changed",
+        "changed-source",
+        "dependency-neighbor",
+        "impact",
+        "reverse-dependency-neighbor",
+        "symbol-indexed"
       ],
-      "score": 700
+      "score": 875
     },
     {
       "path": "src/production_os/control_plane.py",
@@ -26,7 +31,21 @@
         "reverse-dependency-neighbor",
         "symbol-indexed"
       ],
-      "score": 680
+      "score": 780
+    },
+    {
+      "path": "src/production_os/sqlite_backend.py",
+      "reasons": [
+        "dependency-neighbor"
+      ],
+      "score": 700
+    },
+    {
+      "path": "src/production_os/__init__.py",
+      "reasons": [
+        "dependency-neighbor"
+      ],
+      "score": 625
     },
     {
       "path": "src/production_os/cli.py",
@@ -38,24 +57,7 @@
       "score": 620
     },
     {
-      "path": "src/production_os/managed_projects.py",
-      "reasons": [
-        "dependency-neighbor",
-        "impact",
-        "reverse-dependency-neighbor",
-        "symbol-indexed"
-      ],
-      "score": 605
-    },
-    {
-      "path": "src/production_os/__init__.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 525
-    },
-    {
-      "path": "tests/test_worktree_contract.py",
+      "path": "tests/test_dynamic_agent_fanout.py",
       "reasons": [
         "changed",
         "changed-source",
@@ -64,7 +66,38 @@
         "selected-test",
         "symbol-indexed"
       ],
-      "score": 455
+      "score": 480
+    },
+    {
+      "path": "tests/test_managed_project_outcome.py",
+      "reasons": [
+        "changed",
+        "changed-source",
+        "impact",
+        "reverse-dependency-neighbor",
+        "selected-test",
+        "symbol-indexed"
+      ],
+      "score": 430
+    },
+    {
+      "path": "src/production_os/api_auth.py",
+      "reasons": [
+        "dependency-neighbor"
+      ],
+      "score": 425
+    },
+    {
+      "path": "tests/test_managed_dynamic_plan_outcome.py",
+      "reasons": [
+        "changed",
+        "changed-source",
+        "impact",
+        "reverse-dependency-neighbor",
+        "selected-test",
+        "symbol-indexed"
+      ],
+      "score": 415
     },
     {
       "path": "tests/test_dashboard_control_api.py",
@@ -85,13 +118,6 @@
         "symbol-indexed"
       ],
       "score": 365
-    },
-    {
-      "path": "src/production_os/api_auth.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 325
     },
     {
       "path": "tests/test_dashboard_observability_e2e.py",
@@ -154,6 +180,13 @@
       "score": 315
     },
     {
+      "path": "src/production_os/workers.py",
+      "reasons": [
+        "dependency-neighbor"
+      ],
+      "score": 300
+    },
+    {
       "path": "tests/test_dashboard_store_postgres.py",
       "reasons": [
         "impact",
@@ -214,13 +247,6 @@
       "score": 280
     },
     {
-      "path": "src/production_os/workers.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 275
-    },
-    {
       "path": "src/production_os/release_ledger.py",
       "reasons": [
         "dependency-neighbor"
@@ -228,12 +254,9 @@
       "score": 250
     },
     {
-      "path": "tests/test_dynamic_agent_fanout.py",
+      "path": "tests/test_asset_forge.py",
       "reasons": [
-        "impact",
-        "reverse-dependency-neighbor",
-        "selected-test",
-        "symbol-indexed"
+        "dependency-neighbor"
       ],
       "score": 250
     },
@@ -248,11 +271,14 @@
       "score": 245
     },
     {
-      "path": "tests/test_asset_forge.py",
+      "path": "tests/test_worktree_contract.py",
       "reasons": [
-        "dependency-neighbor"
+        "impact",
+        "reverse-dependency-neighbor",
+        "selected-test",
+        "symbol-indexed"
       ],
-      "score": 225
+      "score": 235
     },
     {
       "path": "tests/test_portfolio_optimizer.py",
@@ -283,23 +309,6 @@
         "symbol-indexed"
       ],
       "score": 215
-    },
-    {
-      "path": "tests/test_workflow_splitting.py",
-      "reasons": [
-        "impact",
-        "reverse-dependency-neighbor",
-        "selected-test",
-        "symbol-indexed"
-      ],
-      "score": 215
-    },
-    {
-      "path": "src/production_os/approvals.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 150
     }
   ],
   "generated_by": "dbrckk/repo-brain-v6",

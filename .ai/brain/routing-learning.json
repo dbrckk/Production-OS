@@ -2,27 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat: release 23 restore activation history",
-      "terms": [
-        "23",
-        "activation",
-        "feat",
-        "history",
-        "release",
-        "restore"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/dashboard_backups.py",
-        "src/production_os/dashboard_service.py",
-        "src/production_os/dashboard_ui.py",
-        "tests/test_dashboard_backup_api.py",
-        "tests/test_dashboard_backups.py",
-        "tests/test_dashboard_ui_v3.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat: release 24 backup storage inventory",
       "terms": [
         "24",
@@ -1259,6 +1238,27 @@
         "src/production_os/workflow_engine.py",
         "tests/test_worktree_contract.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "feat(agents): expose dynamic planner provenance and fanout",
+      "terms": [
+        "agents",
+        "dynamic",
+        "expose",
+        "fanout",
+        "feat",
+        "planner",
+        "provenance"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/managed_projects.py",
+        "src/production_os/workflow_engine.py",
+        "tests/test_dynamic_agent_fanout.py",
+        "tests/test_managed_dynamic_plan_outcome.py",
+        "tests/test_managed_project_outcome.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1678,18 +1678,20 @@
       "src/production_os/agent_plan.py": 4,
       "src/production_os/cli.py": 8,
       "src/production_os/executor_worktree.py": 4,
-      "src/production_os/managed_projects.py": 8,
+      "src/production_os/managed_projects.py": 12,
       "src/production_os/remote_worker_runner.py": 8,
       "src/production_os/repository_cache.py": 4,
-      "src/production_os/workflow_engine.py": 16,
+      "src/production_os/workflow_engine.py": 20,
       "src/production_os/worktree_contract.py": 4,
       "tests/test_agent_plan.py": 4,
       "tests/test_browser_worker_image.py": 4,
       "tests/test_cooperative_managed_projects.py": 8,
       "tests/test_cooperative_specialist_e2e.py": 8,
-      "tests/test_dynamic_agent_fanout.py": 8,
+      "tests/test_dynamic_agent_fanout.py": 12,
       "tests/test_executor_worktree.py": 8,
+      "tests/test_managed_dynamic_plan_outcome.py": 4,
       "tests/test_managed_github_reconciliation.py": 8,
+      "tests/test_managed_project_outcome.py": 4,
       "tests/test_mobile_worker_image.py": 4,
       "tests/test_release32_one_tap_e2e.py": 8,
       "tests/test_remote_worker_runner.py": 4,
@@ -2325,9 +2327,12 @@
     },
     "dynamic": {
       "src/production_os/agent_plan.py": 4,
-      "src/production_os/workflow_engine.py": 4,
+      "src/production_os/managed_projects.py": 4,
+      "src/production_os/workflow_engine.py": 8,
       "tests/test_agent_plan.py": 4,
-      "tests/test_dynamic_agent_fanout.py": 4
+      "tests/test_dynamic_agent_fanout.py": 8,
+      "tests/test_managed_dynamic_plan_outcome.py": 4,
+      "tests/test_managed_project_outcome.py": 4
     },
     "e2e": {
       "tests/test_release16_operations_e2e.py": 4,
@@ -2394,10 +2399,13 @@
       "src/production_os/cli.py": 12,
       "src/production_os/dashboard_ui.py": 4,
       "src/production_os/github_client.py": 8,
-      "src/production_os/managed_projects.py": 4,
+      "src/production_os/managed_projects.py": 8,
+      "src/production_os/workflow_engine.py": 4,
       "tests/test_asset_forge.py": 12,
       "tests/test_dashboard_ui_v3.py": 4,
-      "tests/test_managed_project_outcome.py": 4
+      "tests/test_dynamic_agent_fanout.py": 4,
+      "tests/test_managed_dynamic_plan_outcome.py": 4,
+      "tests/test_managed_project_outcome.py": 8
     },
     "failure": {
       "src/production_os/cli.py": 4
@@ -2407,6 +2415,13 @@
       "src/production_os/workflow_engine.py": 4,
       "tests/test_asset_forge.py": 4,
       "tests/test_dynamic_agent_fanout.py": 4
+    },
+    "fanout": {
+      "src/production_os/managed_projects.py": 4,
+      "src/production_os/workflow_engine.py": 4,
+      "tests/test_dynamic_agent_fanout.py": 4,
+      "tests/test_managed_dynamic_plan_outcome.py": 4,
+      "tests/test_managed_project_outcome.py": 4
     },
     "feat": {
       "scripts/render-start.py": 4,
@@ -2443,7 +2458,7 @@
       "src/production_os/rollback_plan.py": 4,
       "src/production_os/sqlite_backend.py": 40,
       "src/production_os/task_capabilities.py": 8,
-      "src/production_os/workflow_engine.py": 32,
+      "src/production_os/workflow_engine.py": 36,
       "src/production_os/worktree_contract.py": 4,
       "tests/test_agent_plan.py": 4,
       "tests/test_asset_forge.py": 16,
@@ -2993,12 +3008,14 @@
       "tests/test_agent_plan.py": 4
     },
     "planner": {
-      "src/production_os/managed_projects.py": 4,
-      "src/production_os/workflow_engine.py": 8,
+      "src/production_os/managed_projects.py": 8,
+      "src/production_os/workflow_engine.py": 12,
       "tests/test_cooperative_managed_projects.py": 4,
       "tests/test_cooperative_specialist_e2e.py": 4,
-      "tests/test_dynamic_agent_fanout.py": 8,
+      "tests/test_dynamic_agent_fanout.py": 12,
+      "tests/test_managed_dynamic_plan_outcome.py": 4,
       "tests/test_managed_github_reconciliation.py": 4,
+      "tests/test_managed_project_outcome.py": 4,
       "tests/test_release32_one_tap_e2e.py": 4
     },
     "playbooks": {
@@ -3148,6 +3165,13 @@
       "tests/test_dashboard_launch.py": 4,
       "tests/test_task_capabilities.py": 4,
       "tests/test_workflow_engine.py": 4
+    },
+    "provenance": {
+      "src/production_os/managed_projects.py": 4,
+      "src/production_os/workflow_engine.py": 4,
+      "tests/test_dynamic_agent_fanout.py": 4,
+      "tests/test_managed_dynamic_plan_outcome.py": 4,
+      "tests/test_managed_project_outcome.py": 4
     },
     "provided-source": {
       "src/production_os/asset_forge.py": 4

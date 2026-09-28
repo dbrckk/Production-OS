@@ -5403,6 +5403,13 @@ execution = raw_mobile_validation.get("execution")
 ⋮----
 mobile_validation = clean_mobile
 ⋮----
+dynamic_children = [
+dynamic_plan = None
+⋮----
+sources = {
+source = (
+dynamic_plan = {
+⋮----
 workflow_status = str(workflow.get("status") or "").strip() or None
 terminal = workflow_status in {"succeeded", "failed", "cancelled"}
 available = terminal or any((
@@ -8566,8 +8573,11 @@ raw_plan = result.get("agent_plan")
 available_budget = int(config.get("available_token_budget") or 0)
 max_agents = int(config.get("max_agents") or 6)
 fallback_plan = config.get("fallback_plan")
+plan_source = "model"
 ⋮----
 planned = validate_agent_plan(
+⋮----
+plan_source = "fallback"
 ⋮----
 repository = workflow["repository"]
 common_handoff = dict(config.get("handoff") or {})
@@ -8605,6 +8615,10 @@ required = raw.get("required_capabilities") or []
 previous_dependency = continuation_id
 ⋮----
 existing = {
+added = []
+⋮----
+source = str(
+child_count = sum(
 ⋮----
 dynamic_specs: list[WorkflowTaskSpec] = []
 ⋮----

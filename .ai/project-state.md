@@ -22,26 +22,26 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-27T19:04:32Z
+Generated: 2026-09-28T05:46:03Z
 
 ### Git
 - Branch: `main`
-- Head: `bc5e0db95797`
-- Commit date: 2026-09-27T21:04:12+02:00
-- Commit: fix(agents): propagate upstream commit into dependent worktrees
-- Tracked files: 491
+- Head: `c04351fa8328`
+- Commit date: 2026-09-28T07:45:53+02:00
+- Commit: feat(agents): expose dynamic planner provenance and fanout
+- Tracked files: 492
 
 ### Recently changed files
-- `src/production_os/workflow_engine.py`
-- `tests/test_worktree_contract.py`
 - `src/production_os/managed_projects.py`
+- `src/production_os/workflow_engine.py`
+- `tests/test_dynamic_agent_fanout.py`
+- `tests/test_managed_dynamic_plan_outcome.py`
+- `tests/test_managed_project_outcome.py`
+- `tests/test_worktree_contract.py`
 - `tests/test_cooperative_managed_projects.py`
 - `tests/test_cooperative_specialist_e2e.py`
 - `tests/test_managed_github_reconciliation.py`
 - `tests/test_release32_one_tap_e2e.py`
-- `tests/test_dynamic_agent_fanout.py`
-- `src/production_os/agent_plan.py`
-- `tests/test_agent_plan.py`
 
 ### Project signals
 - `pyproject.toml`

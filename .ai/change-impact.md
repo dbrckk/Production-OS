@@ -1,11 +1,14 @@
 # Change impact
 
-Base: 06a4bee46d9c1da25307fc3420f1eae6e36ce8cb
-Head: bc5e0db957978e58266f1f76573347052e719de7
+Base: a39b98adbcc2952e96cfc0f9d780a262b12a9d94
+Head: c04351fa83280341de7035fa0417bf7a404c4ddc
 
 ## Changed files
+- M src/production_os/managed_projects.py
 - M src/production_os/workflow_engine.py
-- M tests/test_worktree_contract.py
+- M tests/test_dynamic_agent_fanout.py
+- A tests/test_managed_dynamic_plan_outcome.py
+- M tests/test_managed_project_outcome.py
 
 ## Affected areas
 - src

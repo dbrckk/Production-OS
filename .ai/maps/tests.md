@@ -121,6 +121,7 @@ test_key_domains.py
 test_key_registry_validation.py
 test_key_rotation.py
 test_learning_control_surface.py
+test_managed_dynamic_plan_outcome.py
 test_managed_github_reconciliation.py
 test_managed_project_outcome.py
 test_managed_projects_http_v4.py
@@ -3068,6 +3069,14 @@ def test_dynamic_planner_rejects_invalid_primary_and_invalid_fallback(tmp_path)
 def test_dynamic_planner_generates_post_integration_validation_chain(tmp_path)
 ⋮----
 progressed = engine.get(workflow["id"])
+⋮----
+def test_dynamic_plan_records_model_source_and_fanout_event(tmp_path)
+⋮----
+children = [
+⋮----
+events = [
+⋮----
+def test_dynamic_plan_records_fallback_source(tmp_path)
 ```
 
 ## File: test_emergency_key_revocation.py
@@ -3591,6 +3600,17 @@ signals = build_learning_signals(events)
 def test_control_surface_contains_schedule()
 ⋮----
 html = render_control_surface({
+```
+
+## File: test_managed_dynamic_plan_outcome.py
+```python
+def test_managed_outcome_exposes_dynamic_model_plan_summary()
+⋮----
+outcome = _outcome_from_workflow({
+⋮----
+def test_managed_outcome_exposes_fallback_plan_summary()
+⋮----
+def test_managed_outcome_has_no_dynamic_plan_for_legacy_workflow()
 ```
 
 ## File: test_managed_github_reconciliation.py

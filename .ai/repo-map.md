@@ -259,6 +259,7 @@ tests/
   test_key_registry_validation.py
   test_key_rotation.py
   test_learning_control_surface.py
+  test_managed_dynamic_plan_outcome.py
   test_managed_github_reconciliation.py
   test_managed_project_outcome.py
   test_managed_projects_http_v4.py
@@ -5967,6 +5968,13 @@ execution = raw_mobile_validation.get("execution")
 ⋮----
 mobile_validation = clean_mobile
 ⋮----
+dynamic_children = [
+dynamic_plan = None
+⋮----
+sources = {
+source = (
+dynamic_plan = {
+⋮----
 workflow_status = str(workflow.get("status") or "").strip() or None
 terminal = workflow_status in {"succeeded", "failed", "cancelled"}
 available = terminal or any((
@@ -9130,8 +9138,11 @@ raw_plan = result.get("agent_plan")
 available_budget = int(config.get("available_token_budget") or 0)
 max_agents = int(config.get("max_agents") or 6)
 fallback_plan = config.get("fallback_plan")
+plan_source = "model"
 ⋮----
 planned = validate_agent_plan(
+⋮----
+plan_source = "fallback"
 ⋮----
 repository = workflow["repository"]
 common_handoff = dict(config.get("handoff") or {})
@@ -9169,6 +9180,10 @@ required = raw.get("required_capabilities") or []
 previous_dependency = continuation_id
 ⋮----
 existing = {
+added = []
+⋮----
+source = str(
+child_count = sum(
 ⋮----
 dynamic_specs: list[WorkflowTaskSpec] = []
 ⋮----
@@ -12107,6 +12122,14 @@ def test_dynamic_planner_rejects_invalid_primary_and_invalid_fallback(tmp_path)
 def test_dynamic_planner_generates_post_integration_validation_chain(tmp_path)
 ⋮----
 progressed = engine.get(workflow["id"])
+⋮----
+def test_dynamic_plan_records_model_source_and_fanout_event(tmp_path)
+⋮----
+children = [
+⋮----
+events = [
+⋮----
+def test_dynamic_plan_records_fallback_source(tmp_path)
 ````
 
 ## File: tests/test_emergency_key_revocation.py
@@ -12630,6 +12653,17 @@ signals = build_learning_signals(events)
 def test_control_surface_contains_schedule()
 ⋮----
 html = render_control_surface({
+````
+
+## File: tests/test_managed_dynamic_plan_outcome.py
+````python
+def test_managed_outcome_exposes_dynamic_model_plan_summary()
+⋮----
+outcome = _outcome_from_workflow({
+⋮----
+def test_managed_outcome_exposes_fallback_plan_summary()
+⋮----
+def test_managed_outcome_has_no_dynamic_plan_for_legacy_workflow()
 ````
 
 ## File: tests/test_managed_github_reconciliation.py
