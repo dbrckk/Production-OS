@@ -1363,25 +1363,6 @@ class WorkflowEngine:
                 contracts = dict(handoff.get("tool_contracts") or {})
                 contracts["asset_forge"] = asset_forge
                 handoff["tool_contracts"] = contracts
-
-            browser_capabilities = set(
-                inferred_required_capabilities(handoff)
-                + inferred_preferred_capabilities(handoff)
-            )
-            if "browser-computer-use" in browser_capabilities:
-                contracts = dict(handoff.get("tool_contracts") or {})
-                contracts.setdefault(
-                    "browser_computer",
-                    {
-                        "schema":"production-os/browser-computer-plan/v1",
-                        "result_schema":
-                            "production-os/browser-computer-result/v1",
-                        "max_actions":64,
-                        "requires_allowed_hosts":True,
-                        "persistent_session":True,
-                    },
-                )
-                handoff["tool_contracts"] = contracts
             queue_payload = {
                 **payload,
                 "schema_version":"production-os/workflow-dispatch/v1",
@@ -1813,6 +1794,32 @@ class WorkflowEngine:
             )
 
         task_payload = json.loads(row["payload_json"])
+        reused_skill_ids: list[str] = []
+        claimed_job_key = str(row["claimed_job_key"] or "")
+        if claimed_job_key:
+            try:
+                claimed_job = self.queue.get(claimed_job_key)
+            except KeyError:
+                claimed_job = None
+            if isinstance(claimed_job, dict):
+                claimed_payload = dict(claimed_job.get("payload") or {})
+                claimed_handoff = dict(
+                    claimed_payload.get("handoff") or {}
+                )
+                learned = claimed_handoff.get("learned_skills")
+                if isinstance(learned, list):
+                    reused_skill_ids = [
+                        str(item.get("skill_id") or "").strip()
+                        for item in learned
+                        if isinstance(item, dict)
+                        and str(item.get("skill_id") or "").strip()
+                    ][:10]
+        if reused_skill_ids:
+            self.skills.record_use_outcome(
+                reused_skill_ids,
+                succeeded=bool(succeeded),
+            )
+
         if succeeded:
             handoff_payload = dict(task_payload.get("handoff") or {})
             try:
