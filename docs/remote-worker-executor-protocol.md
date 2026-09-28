@@ -264,3 +264,24 @@ For managed worktrees:
 This makes the worker, rather than model-authored JSON, authoritative for Git
 state and prevents downstream tasks from silently losing the integrated branch
 when an intermediate validation stage performs no mutation.
+
+
+## Successful worktree and branch cleanup
+
+After the control plane accepts a successful managed-worktree result, the worker
+removes the physical worktree while retaining its Git branch. This frees the
+working-tree disk footprint without making the committed result unreachable.
+
+For successful `integration_target` stages, the worker then performs a second
+bounded cleanup within the same `production-os/<workflow>/` branch namespace.
+A prior branch is deleted only when:
+
+- it belongs to the same Production OS workflow prefix;
+- it is not the current integrated branch;
+- Git proves the prior branch is an ancestor of the integrated branch; and
+- Git permits deletion (for example, the branch is not still checked out in
+  another worktree).
+
+Divergent, unintegrated, active, failed, cancelled, or foreign branches are
+retained. Cleanup is best-effort and happens only after job completion has been
+acknowledged, so a cleanup failure cannot invalidate a completed job.
