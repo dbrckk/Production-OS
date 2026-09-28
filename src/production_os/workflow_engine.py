@@ -13,6 +13,7 @@ from .agent_plan import validate_agent_plan
 from .change_impact import analyze_change_impact
 from .task_capabilities import (
     asset_forge_tool_contract,
+    browser_automation_tool_contract,
     inferred_preferred_capabilities,
     inferred_required_capabilities,
 )
@@ -1362,6 +1363,11 @@ class WorkflowEngine:
             if asset_forge is not None:
                 contracts = dict(handoff.get("tool_contracts") or {})
                 contracts["asset_forge"] = asset_forge
+                handoff["tool_contracts"] = contracts
+            browser_automation = browser_automation_tool_contract(handoff)
+            if browser_automation is not None:
+                contracts = dict(handoff.get("tool_contracts") or {})
+                contracts["browser_automation"] = browser_automation
                 handoff["tool_contracts"] = contracts
             queue_payload = {
                 **payload,
