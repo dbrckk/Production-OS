@@ -316,3 +316,121 @@ def preintegrate_upstream_commits(
         applied_commits=tuple(applied),
         skipped_commits=tuple(skipped),
     )
+
+
+
+def inspect_worktree_result(
+    worktree_path: str | os.PathLike[str],
+    *,
+    base_sha: str,
+    executor_start_sha: str | None = None,
+) -> dict[str, Any]:
+    target = Path(worktree_path).expanduser().resolve()
+    if not target.is_dir():
+        raise WorktreeRuntimeError("worktree does not exist")
+
+    top = _git(target, "rev-parse", "--show-toplevel").stdout.strip()
+    if Path(top).resolve() != target:
+        raise WorktreeRuntimeError(
+            "worktree path must be the git top-level directory"
+        )
+
+    final_sha = _git(target, "rev-parse", "HEAD").stdout.strip()
+    status_lines = tuple(
+        line
+        for line in _git(
+            target,
+            "status",
+            "--porcelain",
+            "--untracked-files=normal",
+        ).stdout.splitlines()
+        if line
+    )
+
+    resolved_base = _git(
+        target,
+        "rev-parse",
+        "--verify",
+        f"{base_sha}^{{commit}}",
+    ).stdout.strip()
+    base_is_ancestor = (
+        _git(
+            target,
+            "merge-base",
+            "--is-ancestor",
+            resolved_base,
+            final_sha,
+            check=False,
+        ).returncode
+        == 0
+    )
+    commits_since_base: tuple[str, ...] = ()
+    changed_files: tuple[str, ...] = ()
+    if base_is_ancestor:
+        commits_since_base = tuple(
+            line.strip()
+            for line in _git(
+                target,
+                "rev-list",
+                "--reverse",
+                f"{resolved_base}..{final_sha}",
+            ).stdout.splitlines()
+            if line.strip()
+        )
+        changed_files = tuple(
+            line.strip()
+            for line in _git(
+                target,
+                "diff",
+                "--name-only",
+                f"{resolved_base}..{final_sha}",
+            ).stdout.splitlines()
+            if line.strip()
+        )
+
+    start_sha = str(executor_start_sha or final_sha).strip()
+    commits_since_start: tuple[str, ...] = ()
+    if start_sha:
+        start_exists = _git(
+            target,
+            "cat-file",
+            "-e",
+            f"{start_sha}^{{commit}}",
+            check=False,
+        ).returncode == 0
+        start_ancestor = (
+            start_exists
+            and _git(
+                target,
+                "merge-base",
+                "--is-ancestor",
+                start_sha,
+                final_sha,
+                check=False,
+            ).returncode
+            == 0
+        )
+        if start_ancestor:
+            commits_since_start = tuple(
+                line.strip()
+                for line in _git(
+                    target,
+                    "rev-list",
+                    "--reverse",
+                    f"{start_sha}..{final_sha}",
+                ).stdout.splitlines()
+                if line.strip()
+            )
+
+    return {
+        "schema_version":"production-os/worktree-result/v1",
+        "base_sha":resolved_base,
+        "executor_start_sha":start_sha,
+        "final_sha":final_sha,
+        "clean":not bool(status_lines),
+        "status_lines":list(status_lines)[:100],
+        "base_is_ancestor":base_is_ancestor,
+        "commits_since_base":list(commits_since_base),
+        "commits_since_start":list(commits_since_start),
+        "changed_files":list(changed_files)[:500],
+    }
