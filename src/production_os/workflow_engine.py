@@ -8,8 +8,6 @@ from typing import Any
 
 from .runtime_state import task_key
 from .result_cache import ResultCache, fingerprint
-from .skill_memory import SKILL_SCHEMA, SkillStore
-from .model_router import ModelRouter
 from .agent_plan import validate_agent_plan
 from .change_impact import analyze_change_impact
 from .task_capabilities import (
@@ -100,20 +98,6 @@ def _retry_context(result: dict | None) -> dict | None:
         if clean_ci:
             context["ci"] = clean_ci
     return context or None
-
-
-def _single_upstream_commit_ref(upstream: list[dict]) -> str | None:
-    if len(upstream) != 1:
-        return None
-    commits = upstream[0].get("commit_shas")
-    if not isinstance(commits, list) or not commits:
-        return None
-    candidate = str(commits[-1] or "").strip().lower()
-    if len(candidate) not in {40, 64}:
-        return None
-    if any(char not in "0123456789abcdef" for char in candidate):
-        return None
-    return candidate
 
 
 def _upstream_context(
@@ -318,8 +302,6 @@ class WorkflowEngine:
         self.backend = backend
         self.queue = queue
         self.cache = ResultCache(backend)
-        self.skills = SkillStore(backend)
-        self.model_router = ModelRouter(backend)
 
     @staticmethod
     def _validate(tasks: list[WorkflowTaskSpec]) -> None:
@@ -1324,7 +1306,6 @@ class WorkflowEngine:
                     attempt=attempt_number,
                     base_ref=(
                         isolation.get("base_ref")
-                        or _single_upstream_commit_ref(upstream)
                         or metadata.get("github_pr_head_sha")
                         or "HEAD"
                     ),
@@ -1332,86 +1313,10 @@ class WorkflowEngine:
                         isolation.get("integration_target", False)
                     ),
                 )
-            required_for_route = inferred_required_capabilities(handoff)
-            preferred_for_route = inferred_preferred_capabilities(handoff)
-            model_candidates = (
-                handoff.get("model_candidates")
-                or payload.get("model_candidates")
-            )
-            explicit_model_candidates = bool(
-                isinstance(model_candidates, list)
-                and model_candidates
-            )
-            if not explicit_model_candidates:
-                model_candidates = self.model_router.catalog_candidates()
-            if isinstance(model_candidates, list) and model_candidates:
-                try:
-                    handoff["model_route"] = self.model_router.route(
-                        model_candidates,
-                        required_capabilities=required_for_route,
-                        preferred_capabilities=preferred_for_route,
-                        fallback_limit=int(
-                            handoff.get(
-                                "model_fallback_limit",
-                                payload.get("model_fallback_limit", 3),
-                            )
-                        ),
-                    )
-                except ValueError:
-                    if explicit_model_candidates:
-                        raise
-
-            preferred_for_learning = [
-                str(value)
-                for value in handoff.get("preferred_capabilities", [])
-                if str(value)
-            ]
-            learned = self.skills.select(
-                repository=workflow["repository"],
-                task=str(handoff.get("task") or task["title"]),
-                capabilities=preferred_for_learning,
-                limit=3,
-            )
-            if learned:
-                handoff["learned_skills"] = [
-                    skill.to_dict()
-                    for skill in learned
-                ]
-            contracts = dict(handoff.get("tool_contracts") or {})
-            contracts.setdefault(
-                "skill_learning",
-                {
-                    "schema":SKILL_SCHEMA,
-                    "result_field":"learned_skill",
-                    "max_procedure_steps":12,
-                    "optional":True,
-                },
-            )
-            handoff["tool_contracts"] = contracts
-
             asset_forge = asset_forge_tool_contract(handoff)
             if asset_forge is not None:
                 contracts = dict(handoff.get("tool_contracts") or {})
                 contracts["asset_forge"] = asset_forge
-                handoff["tool_contracts"] = contracts
-
-            browser_capabilities = set(
-                inferred_required_capabilities(handoff)
-                + inferred_preferred_capabilities(handoff)
-            )
-            if "browser-computer-use" in browser_capabilities:
-                contracts = dict(handoff.get("tool_contracts") or {})
-                contracts.setdefault(
-                    "browser_computer",
-                    {
-                        "schema":"production-os/browser-computer-plan/v1",
-                        "result_schema":
-                            "production-os/browser-computer-result/v1",
-                        "max_actions":64,
-                        "requires_allowed_hosts":True,
-                        "persistent_session":True,
-                    },
-                )
                 handoff["tool_contracts"] = contracts
             queue_payload = {
                 **payload,
@@ -1494,28 +1399,16 @@ class WorkflowEngine:
         raw_plan = result.get("agent_plan")
         if not config:
             return []
+        if not isinstance(raw_plan, dict):
+            raise ValueError("dynamic planner result requires agent_plan")
 
         available_budget = int(config.get("available_token_budget") or 0)
         max_agents = int(config.get("max_agents") or 6)
-        fallback_plan = config.get("fallback_plan")
-        plan_source = "model"
-        try:
-            if not isinstance(raw_plan, dict):
-                raise ValueError("dynamic planner result requires agent_plan")
-            planned = validate_agent_plan(
-                raw_plan,
-                available_token_budget=available_budget,
-                max_agents=max_agents,
-            )
-        except ValueError:
-            if not isinstance(fallback_plan, dict):
-                raise
-            planned = validate_agent_plan(
-                fallback_plan,
-                available_token_budget=available_budget,
-                max_agents=max_agents,
-            )
-            plan_source = "fallback"
+        planned = validate_agent_plan(
+            raw_plan,
+            available_token_budget=available_budget,
+            max_agents=max_agents,
+        )
         workflow = self.get(workflow_id)
         repository = workflow["repository"]
         common_handoff = dict(config.get("handoff") or {})
@@ -1548,7 +1441,6 @@ class WorkflowEngine:
                     title=task.title,
                     payload={
                         "dynamic_agent_child":True,
-                        "dynamic_agent_plan_source":plan_source,
                         "dynamic_agent_planner_task_id":planner_task_id,
                         "isolation":{"mode":"git-worktree"},
                         "handoff":handoff,
@@ -1610,7 +1502,6 @@ class WorkflowEngine:
                 )[:200],
                 payload={
                     "dynamic_agent_integration":True,
-                    "dynamic_agent_plan_source":plan_source,
                     "dynamic_agent_planner_task_id":planner_task_id,
                     "isolation":{
                         "mode":"git-worktree",
@@ -1630,94 +1521,6 @@ class WorkflowEngine:
                 ),
             )
         )
-
-        continuation = config.get("post_integration_tasks") or []
-        if not isinstance(continuation, list):
-            raise ValueError(
-                "dynamic planner post_integration_tasks must be a list"
-            )
-        previous_dependency = integration_task_id
-        known_ids = {
-            planner_task_id,
-            *child_ids.values(),
-            integration_task_id,
-        }
-        for index, raw in enumerate(continuation):
-            if not isinstance(raw, dict):
-                raise ValueError(
-                    "dynamic planner continuation task must be an object"
-                )
-            continuation_id = str(raw.get("task_id") or "").strip()
-            if (
-                not continuation_id
-                or continuation_id in known_ids
-                or continuation_id == planner_task_id
-            ):
-                raise ValueError(
-                    "dynamic planner continuation task_id is invalid"
-                )
-            title = str(raw.get("title") or continuation_id).strip()
-            instruction = str(raw.get("instruction") or "").strip()
-            if not title or not instruction:
-                raise ValueError(
-                    "dynamic planner continuation requires title and instruction"
-                )
-            try:
-                token_budget = int(raw.get("token_budget"))
-            except (TypeError, ValueError) as exc:
-                raise ValueError(
-                    "dynamic planner continuation token_budget is invalid"
-                ) from exc
-            if token_budget < 1:
-                raise ValueError(
-                    "dynamic planner continuation token_budget must be >= 1"
-                )
-            preferred = raw.get("preferred_capabilities") or []
-            required = raw.get("required_capabilities") or []
-            if not isinstance(preferred, list) or not isinstance(required, list):
-                raise ValueError(
-                    "dynamic planner continuation capabilities must be lists"
-                )
-            handoff = {
-                **common_handoff,
-                "repository":repository,
-                "task":instruction,
-                "token_budget":token_budget,
-                "preferred_capabilities":[str(value) for value in preferred],
-            }
-            if required:
-                handoff["required_capabilities"] = [
-                    str(value) for value in required
-                ]
-                handoff["required_capabilities_authoritative"] = True
-            if isinstance(raw.get("tool_contracts"), dict):
-                handoff["tool_contracts"] = dict(raw["tool_contracts"])
-            specs.append(
-                WorkflowTaskSpec(
-                    task_id=continuation_id,
-                    title=title[:200],
-                    payload={
-                        "dynamic_agent_continuation":True,
-                        "dynamic_agent_plan_source":plan_source,
-                        "dynamic_agent_planner_task_id":planner_task_id,
-                        "isolation":{
-                            "mode":"git-worktree",
-                            "integration_target":True,
-                        },
-                        "handoff":handoff,
-                    },
-                    dependencies=(previous_dependency,),
-                    priority=float(raw.get("priority", config.get("priority", 100))),
-                    max_attempts=max(1, int(raw.get("max_attempts", 2))),
-                    estimated_minutes=max(
-                        0.1,
-                        float(raw.get("estimated_minutes", 20)),
-                    ),
-                )
-            )
-            known_ids.add(continuation_id)
-            previous_dependency = continuation_id
-
         return specs
 
     def _apply_dynamic_agent_specs(
@@ -1731,34 +1534,11 @@ class WorkflowEngine:
             str(task.get("task_id") or "")
             for task in self.get(workflow_id).get("tasks", [])
         }
-        added = []
         for spec in specs:
             if spec.task_id in existing:
                 continue
             self.add_task(workflow_id, spec)
             existing.add(spec.task_id)
-            added.append(spec.task_id)
-        if added:
-            source = str(
-                specs[0].payload.get("dynamic_agent_plan_source")
-                or "unknown"
-            )
-            child_count = sum(
-                1
-                for spec in specs
-                if bool(spec.payload.get("dynamic_agent_child"))
-            )
-            with self.backend.transaction() as db:
-                self.backend.append_event(
-                    db,
-                    "workflow-dynamic-agent-plan-expanded",
-                    {
-                        "workflow_id":workflow_id,
-                        "plan_source":source,
-                        "child_agent_count":child_count,
-                        "task_ids":added,
-                    },
-                )
 
     def record_result(
         self,
@@ -1844,50 +1624,7 @@ class WorkflowEngine:
             )
 
         task_payload = json.loads(row["payload_json"])
-        reused_skill_ids: list[str] = []
-        claimed_job_key = str(row["claimed_job_key"] or "")
-        if claimed_job_key:
-            try:
-                claimed_job = self.queue.get(claimed_job_key)
-            except KeyError:
-                claimed_job = None
-            if isinstance(claimed_job, dict):
-                claimed_payload = dict(claimed_job.get("payload") or {})
-                claimed_handoff = dict(
-                    claimed_payload.get("handoff") or {}
-                )
-                learned = claimed_handoff.get("learned_skills")
-                if isinstance(learned, list):
-                    reused_skill_ids = [
-                        str(item.get("skill_id") or "").strip()
-                        for item in learned
-                        if isinstance(item, dict)
-                        and str(item.get("skill_id") or "").strip()
-                    ][:10]
-        if reused_skill_ids:
-            self.skills.record_use_outcome(
-                reused_skill_ids,
-                succeeded=bool(succeeded),
-            )
-
         if succeeded:
-            handoff_payload = dict(task_payload.get("handoff") or {})
-            try:
-                self.skills.record_success(
-                    repository=self.get(workflow_id)["repository"],
-                    task=str(handoff_payload.get("task") or row["title"]),
-                    capabilities=[
-                        str(value)
-                        for value in handoff_payload.get(
-                            "preferred_capabilities",
-                            [],
-                        )
-                        if str(value)
-                    ],
-                    result=dict(result or {}),
-                )
-            except ValueError:
-                pass
             self._apply_dynamic_agent_specs(
                 workflow_id,
                 dynamic_specs,
