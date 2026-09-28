@@ -18,7 +18,7 @@ def _utcnow() -> str:
 
 
 class SQLiteBackend:
-    SCHEMA_VERSION = 16
+    SCHEMA_VERSION = 17
 
     def __init__(self, path: str | Path):
         self.path = Path(path)
@@ -272,9 +272,12 @@ class SQLiteBackend:
                     capabilities_json TEXT NOT NULL DEFAULT '[]',
                     procedure_json TEXT NOT NULL DEFAULT '[]',
                     successes INTEGER NOT NULL DEFAULT 1,
+                    verified_successes INTEGER NOT NULL DEFAULT 0,
                     uses INTEGER NOT NULL DEFAULT 0,
+                    failed_uses INTEGER NOT NULL DEFAULT 0,
                     confidence REAL NOT NULL DEFAULT 0.6,
                     source_task TEXT NOT NULL,
+                    last_failure_at TEXT,
                     created_at TEXT NOT NULL,
                     updated_at TEXT NOT NULL
                 );
@@ -499,6 +502,30 @@ class SQLiteBackend:
                 db.execute(
                     """ALTER TABLE managed_projects
                        ADD COLUMN completed_by TEXT"""
+                )
+
+            skill_columns = {
+                row["name"]
+                for row in db.execute(
+                    "PRAGMA table_info(learned_skills)"
+                ).fetchall()
+            }
+            if "verified_successes" not in skill_columns:
+                db.execute(
+                    """ALTER TABLE learned_skills
+                       ADD COLUMN verified_successes INTEGER NOT NULL
+                       DEFAULT 0"""
+                )
+            if "failed_uses" not in skill_columns:
+                db.execute(
+                    """ALTER TABLE learned_skills
+                       ADD COLUMN failed_uses INTEGER NOT NULL
+                       DEFAULT 0"""
+                )
+            if "last_failure_at" not in skill_columns:
+                db.execute(
+                    """ALTER TABLE learned_skills
+                       ADD COLUMN last_failure_at TEXT"""
                 )
 
             remediation_columns = {
