@@ -31,13 +31,24 @@ def _history(engine, repository: str, *, max_agents: int, succeeded: bool):
             ),
         ],
     )
-    engine.dispatch_ready(workflow["id"], limit=1)
-    engine.record_result(
-        workflow["id"],
-        "planner",
-        succeeded=succeeded,
-        result={},
-    )
+    terminal = "succeeded" if succeeded else "failed"
+    with engine.backend.transaction() as db:
+        db.execute(
+            """
+            UPDATE workflow_tasks
+            SET status=?, result_json='{}'
+            WHERE workflow_id=? AND task_id='planner'
+            """,
+            (terminal, workflow["id"]),
+        )
+        db.execute(
+            """
+            UPDATE workflows
+            SET status=?
+            WHERE id=?
+            """,
+            (terminal, workflow["id"]),
+        )
     return workflow["id"]
 
 
