@@ -205,6 +205,8 @@ tests/
   test_control_plane_webhook.py
   test_control_plane.py
   test_controller_asset_capabilities.py
+  test_controller_daemon_deployment.py
+  test_controller_daemon.py
   test_cooperative_managed_projects.py
   test_cooperative_specialist_e2e.py
   test_dashboard_alerts.py
@@ -2242,6 +2244,15 @@ row = {
 ⋮----
 def run_controller_command(args: argparse.Namespace) -> int
 ⋮----
+controller_kwargs = {
+⋮----
+stop_event = threading.Event()
+previous_handlers = {}
+⋮----
+def _request_stop(_signum, _frame)
+⋮----
+summary = run_controller_daemon(
+⋮----
 results = run_controller(
 ⋮----
 def run_worker_register(args: argparse.Namespace) -> int
@@ -2411,9 +2422,6 @@ token = str(os.getenv(args.token_env) or "").strip()
 command = shlex.split(str(args.executor_command))
 ⋮----
 runner = RemoteWorkerRunner(
-previous_handlers = {}
-⋮----
-def _request_stop(_signum, _frame)
 ⋮----
 outcomes = runner.run(
 ⋮----
@@ -3313,12 +3321,41 @@ health = build_health(state, metrics_store.metrics.to_dict())
 ⋮----
 observability = build_observability_payload(
 ⋮----
+def _record_controller_error(exc: Exception, kwargs: dict) -> None
+⋮----
 metrics_path = kwargs.get("metrics_path")
 health_path = kwargs.get("health_path")
 runtime_state_path = kwargs.get("runtime_state_path")
 database_path = kwargs.get("database_path")
 ⋮----
 state = (
+⋮----
+"""Run autonomous control cycles until a cooperative stop is requested.
+
+    Successful cycles use the normal configured interval. Failed cycles update
+    durable health/metrics, record a daemon event, and retry with bounded
+    exponential backoff instead of terminating the orchestrator.
+    """
+⋮----
+stop = stop_event or threading.Event()
+started_at = datetime.now(timezone.utc).isoformat()
+successes = 0
+failures = 0
+consecutive_failures = 0
+recent_results: list[dict] = []
+last_error: str | None = None
+⋮----
+wait_seconds = int(interval_seconds)
+⋮----
+result = run_control_cycle(**kwargs)
+⋮----
+last_error = None
+⋮----
+last_error = str(exc)
+⋮----
+journal_path = kwargs.get("journal_path")
+⋮----
+wait_seconds = min(
 ````
 
 ## File: src/production_os/dashboard_alerts.py
@@ -10429,6 +10466,49 @@ registry = WorkerRegistry(Path(td) / "workers.json")
 worker = select_worker(registry, required)
 ````
 
+## File: tests/test_controller_daemon_deployment.py
+````python
+def test_controller_daemon_compose_service_is_resilient_and_persistent()
+⋮----
+payload = Path("compose.yaml").read_text(encoding="utf-8")
+````
+
+## File: tests/test_controller_daemon.py
+````python
+class FakeStopEvent
+⋮----
+def __init__(self, stop_after_waits: int)
+⋮----
+def is_set(self) -> bool
+⋮----
+def wait(self, seconds: int) -> bool
+⋮----
+def test_controller_daemon_runs_until_cooperative_stop(monkeypatch)
+⋮----
+calls = {"count":0}
+⋮----
+def fake_cycle(**_kwargs)
+⋮----
+stop = FakeStopEvent(3)
+⋮----
+summary = controller.run_controller_daemon(
+⋮----
+def test_controller_daemon_retries_failures_with_bounded_backoff(monkeypatch)
+⋮----
+attempts = {"count":0}
+recorded = []
+⋮----
+def flaky_cycle(**_kwargs)
+⋮----
+def test_bounded_controller_behavior_is_unchanged(monkeypatch)
+⋮----
+results = controller.run_controller(
+⋮----
+def test_controller_cli_exposes_daemon_controls()
+⋮----
+args = _parse_args([
+````
+
 ## File: tests/test_cooperative_managed_projects.py
 ````python
 def service(tmp_path)
@@ -16700,6 +16780,48 @@ services:
       - 0.0.0.0
       - --port
       - "8787"
+
+
+  production-controller:
+    profiles:
+      - controller-daemon
+    build: .
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 20s
+    depends_on:
+      - production-os
+    environment:
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+    volumes:
+      - ./artifacts:/data
+    command:
+      - controller
+      - --owner
+      - ${PRODUCTION_OS_GITHUB_OWNER:-dbrckk}
+      - --database
+      - /data/production.db
+      - --queue-dir
+      - /data/controller-queue
+      - --snapshot-dir
+      - /data/snapshots
+      - --metrics
+      - /data/controller-metrics.json
+      - --health
+      - /data/controller-health.json
+      - --journal
+      - /data/controller-journal.jsonl
+      - --observability
+      - /data/controller-observability.json
+      - --daemon
+      - --interval-seconds
+      - ${PRODUCTION_OS_CONTROLLER_INTERVAL_SECONDS:-300}
+      - --max-error-backoff-seconds
+      - ${PRODUCTION_OS_CONTROLLER_MAX_BACKOFF_SECONDS:-300}
+      - --capacity
+      - ${PRODUCTION_OS_CONTROLLER_CAPACITY:-3}
+      - --slots
+      - ${PRODUCTION_OS_CONTROLLER_SLOTS:-3}
 ````
 
 ## File: pyproject.toml
@@ -21345,4 +21467,41 @@ The overlay adds a control-plane health check and starts the worker only after `
 The executor remains external and is mounted read-only from `PRODUCTION_OS_WORKER_EXECUTOR_DIR` (default `./worker`). Concurrency, heartbeat interval, executor timeout and ACK timeout are configurable through environment variables.
 
 The worker container uses Docker init/reaping and a 15-second stop grace period so SIGTERM can flow through the Release 53 cooperative shutdown path, terminate active executor children, publish the final zero-active heartbeat and leave unfinished jobs recoverable.
+
+
+## 24/7 autonomous controller
+
+Production-OS can run the portfolio control loop continuously instead of for a
+fixed number of cycles:
+
+```bash
+production-os controller \
+  --owner dbrckk \
+  --database artifacts/production.db \
+  --queue-dir artifacts/controller-queue \
+  --snapshot-dir artifacts/snapshots \
+  --metrics artifacts/controller-metrics.json \
+  --health artifacts/controller-health.json \
+  --journal artifacts/controller-journal.jsonl \
+  --daemon
+```
+
+Daemon mode keeps the existing bounded controller behavior unchanged. It runs
+until SIGTERM or SIGINT, stops cooperatively, and retries failed control cycles
+with bounded exponential backoff instead of terminating the orchestrator.
+Health and metrics are updated on failed cycles so external supervision can
+distinguish a living-but-degraded controller from a stopped process.
+
+The Compose deployment exposes an optional profile:
+
+```bash
+PRODUCTION_OS_GITHUB_OWNER=dbrckk \
+docker compose --profile controller-daemon up -d
+```
+
+The daemon shares the durable Production-OS database and artifact volume, uses
+`restart: unless-stopped`, and therefore resumes portfolio scheduling after
+container or host restarts. Configure
+`PRODUCTION_OS_CONTROLLER_INTERVAL_SECONDS` and
+`PRODUCTION_OS_CONTROLLER_MAX_BACKOFF_SECONDS` to tune cadence and recovery.
 ````

@@ -33,6 +33,7 @@
         "tests/test_control_plane_release.py",
         "tests/test_control_plane_webhook.py",
         "tests/test_controller_asset_capabilities.py",
+        "tests/test_controller_daemon.py",
         "tests/test_cooperative_managed_projects.py",
         "tests/test_cooperative_specialist_e2e.py",
         "tests/test_dashboard_alerts.py",
@@ -176,7 +177,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 167,
+      "in_degree": 168,
       "out_degree": 0,
       "path": "src/production_os/__init__.py"
     },
@@ -254,11 +255,12 @@
       "dependents": [
         "tests/test_browser_computer.py",
         "tests/test_cli.py",
+        "tests/test_controller_daemon.py",
         "tests/test_executor_worktree.py",
         "tests/test_persistent_agent_runtime.py",
         "tests/test_release21_offline_restore_e2e.py"
       ],
-      "in_degree": 5,
+      "in_degree": 6,
       "out_degree": 68,
       "path": "src/production_os/cli.py"
     },
@@ -433,6 +435,7 @@
         "src/production_os/asset_forge.py",
         "src/production_os/cli.py",
         "src/production_os/control_plane.py",
+        "src/production_os/controller.py",
         "src/production_os/dashboard_backups.py",
         "src/production_os/dashboard_control.py",
         "src/production_os/dashboard_maintenance.py",
@@ -488,7 +491,7 @@
         "tests/test_sqlite_migration.py",
         "tests/test_workflow_engine.py"
       ],
-      "in_degree": 57,
+      "in_degree": 58,
       "out_degree": 3,
       "path": "tests/test_asset_forge.py"
     },
@@ -735,15 +738,17 @@
         "src/production_os/storage.py",
         "src/production_os/task_capabilities.py",
         "src/production_os/workers.py",
+        "tests/test_asset_forge.py",
         "tests/test_fairness.py",
         "tests/test_github_automerge.py"
       ],
       "dependents": [
         "src/production_os/cli.py",
-        "tests/test_controller_asset_capabilities.py"
+        "tests/test_controller_asset_capabilities.py",
+        "tests/test_controller_daemon.py"
       ],
-      "in_degree": 2,
-      "out_degree": 30,
+      "in_degree": 3,
+      "out_degree": 31,
       "path": "src/production_os/controller.py"
     },
     {
@@ -1855,8 +1860,8 @@
       "path": "src/production_os/builder_identity.py"
     }
   ],
-  "edge_count": 1504,
+  "edge_count": 1508,
   "generated_by": "dbrckk/repo-brain-v7-graph",
-  "node_count": 294,
+  "node_count": 295,
   "schema_version": 1
 }

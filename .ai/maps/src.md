@@ -1674,6 +1674,15 @@ row = {
 ⋮----
 def run_controller_command(args: argparse.Namespace) -> int
 ⋮----
+controller_kwargs = {
+⋮----
+stop_event = threading.Event()
+previous_handlers = {}
+⋮----
+def _request_stop(_signum, _frame)
+⋮----
+summary = run_controller_daemon(
+⋮----
 results = run_controller(
 ⋮----
 def run_worker_register(args: argparse.Namespace) -> int
@@ -1843,9 +1852,6 @@ token = str(os.getenv(args.token_env) or "").strip()
 command = shlex.split(str(args.executor_command))
 ⋮----
 runner = RemoteWorkerRunner(
-previous_handlers = {}
-⋮----
-def _request_stop(_signum, _frame)
 ⋮----
 outcomes = runner.run(
 ⋮----
@@ -2745,12 +2751,41 @@ health = build_health(state, metrics_store.metrics.to_dict())
 ⋮----
 observability = build_observability_payload(
 ⋮----
+def _record_controller_error(exc: Exception, kwargs: dict) -> None
+⋮----
 metrics_path = kwargs.get("metrics_path")
 health_path = kwargs.get("health_path")
 runtime_state_path = kwargs.get("runtime_state_path")
 database_path = kwargs.get("database_path")
 ⋮----
 state = (
+⋮----
+"""Run autonomous control cycles until a cooperative stop is requested.
+
+    Successful cycles use the normal configured interval. Failed cycles update
+    durable health/metrics, record a daemon event, and retry with bounded
+    exponential backoff instead of terminating the orchestrator.
+    """
+⋮----
+stop = stop_event or threading.Event()
+started_at = datetime.now(timezone.utc).isoformat()
+successes = 0
+failures = 0
+consecutive_failures = 0
+recent_results: list[dict] = []
+last_error: str | None = None
+⋮----
+wait_seconds = int(interval_seconds)
+⋮----
+result = run_control_cycle(**kwargs)
+⋮----
+last_error = None
+⋮----
+last_error = str(exc)
+⋮----
+journal_path = kwargs.get("journal_path")
+⋮----
+wait_seconds = min(
 ```
 
 ## File: production_os/dashboard_alerts.py

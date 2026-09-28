@@ -22,16 +22,22 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-28T07:04:15Z
+Generated: 2026-09-28T07:10:48Z
 
 ### Git
 - Branch: `main`
-- Head: `89d771cce043`
-- Commit date: 2026-09-28T09:04:02+02:00
-- Commit: feat(runtime): prune integrated workflow branches safely
-- Tracked files: 498
+- Head: `f128d65b88e9`
+- Commit date: 2026-09-28T09:10:36+02:00
+- Commit: feat(runtime): run the autonomous controller as a resilient 24x7 daemon
+- Tracked files: 500
 
 ### Recently changed files
+- `README.md`
+- `compose.yaml`
+- `src/production_os/cli.py`
+- `src/production_os/controller.py`
+- `tests/test_controller_daemon.py`
+- `tests/test_controller_daemon_deployment.py`
 - `docs/remote-worker-executor-protocol.md`
 - `src/production_os/executor_worktree.py`
 - `src/production_os/remote_worker_runner.py`
@@ -46,11 +52,6 @@ Generated: 2026-09-28T07:04:15Z
 - `tests/test_dashboard_store_postgres.py`
 - `tests/test_skill_memory.py`
 - `compose.worker.yaml`
-- `src/production_os/browser_computer.py`
-- `src/production_os/cli.py`
-- `tests/test_browser_computer.py`
-- `tests/test_worker_compose_deployment.py`
-- `tests/test_postgres_backend.py`
 
 ### Project signals
 - `pyproject.toml`

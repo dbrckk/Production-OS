@@ -64,6 +64,8 @@ test_control_plane_release.py
 test_control_plane_webhook.py
 test_control_plane.py
 test_controller_asset_capabilities.py
+test_controller_daemon_deployment.py
+test_controller_daemon.py
 test_cooperative_managed_projects.py
 test_cooperative_specialist_e2e.py
 test_dashboard_alerts.py
@@ -984,6 +986,49 @@ handoff = {"task": "Create and integrate new enemy sprites"}
 registry = WorkerRegistry(Path(td) / "workers.json")
 ⋮----
 worker = select_worker(registry, required)
+```
+
+## File: test_controller_daemon_deployment.py
+```python
+def test_controller_daemon_compose_service_is_resilient_and_persistent()
+⋮----
+payload = Path("compose.yaml").read_text(encoding="utf-8")
+```
+
+## File: test_controller_daemon.py
+```python
+class FakeStopEvent
+⋮----
+def __init__(self, stop_after_waits: int)
+⋮----
+def is_set(self) -> bool
+⋮----
+def wait(self, seconds: int) -> bool
+⋮----
+def test_controller_daemon_runs_until_cooperative_stop(monkeypatch)
+⋮----
+calls = {"count":0}
+⋮----
+def fake_cycle(**_kwargs)
+⋮----
+stop = FakeStopEvent(3)
+⋮----
+summary = controller.run_controller_daemon(
+⋮----
+def test_controller_daemon_retries_failures_with_bounded_backoff(monkeypatch)
+⋮----
+attempts = {"count":0}
+recorded = []
+⋮----
+def flaky_cycle(**_kwargs)
+⋮----
+def test_bounded_controller_behavior_is_unchanged(monkeypatch)
+⋮----
+results = controller.run_controller(
+⋮----
+def test_controller_cli_exposes_daemon_controls()
+⋮----
+args = _parse_args([
 ```
 
 ## File: test_cooperative_managed_projects.py

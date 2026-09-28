@@ -1,23 +1,23 @@
 # Change impact
 
-Base: d1bd2b69a0f2da45e0617ad9fb4eb864feb74212
-Head: 89d771cce043ebe2a4bbe9255d0aec55b8f8e2d0
+Base: 68e8435dc1579296d17454ccb8ca79264ab41c1d
+Head: f128d65b88e978e83c4c5813c0474a84994ecd65
 
 ## Changed files
-- M docs/remote-worker-executor-protocol.md
-- M src/production_os/executor_worktree.py
-- M src/production_os/remote_worker_runner.py
-- M tests/test_executor_worktree.py
-- M tests/test_remote_worker_runner.py
+- M README.md
+- M compose.yaml
+- M src/production_os/cli.py
+- M src/production_os/controller.py
+- A tests/test_controller_daemon.py
+- A tests/test_controller_daemon_deployment.py
 
 ## Affected areas
-- docs
+- (root)
 - src
 - tests
 
 ## Related test candidates
-- tests/test_executor_worktree.py
-- tests/test_remote_worker_runner.py
+- tests/test_cli.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.
