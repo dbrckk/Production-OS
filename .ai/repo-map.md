@@ -106,6 +106,7 @@ src/
     executor_worktree.py
     fairness.py
     feedback.py
+    filesystem_lock.py
     github_change_review.py
     github_client.py
     github_webhook.py
@@ -245,6 +246,7 @@ tests/
   test_execution_optimizer.py
   test_executor_worktree.py
   test_fairness.py
+  test_filesystem_lock.py
   test_github_automerge.py
   test_github_change_review.py
   test_github_client_pr_files.py
@@ -4996,6 +4998,14 @@ start_exists = _git(
 start_ancestor = (
 ⋮----
 commits_since_start = tuple(
+⋮----
+repo = Path(repository_path).expanduser().resolve()
+common_raw = _git(
+common = Path(common_raw)
+⋮----
+common = (repo / common).resolve()
+⋮----
+common = common.resolve()
 ````
 
 ## File: src/production_os/fairness.py
@@ -5044,6 +5054,29 @@ overall = "blocked"
 overall = "incomplete"
 ⋮----
 overall = "passed"
+````
+
+## File: src/production_os/filesystem_lock.py
+````python
+except ImportError:  # pragma: no cover - non-POSIX fallback
+fcntl = None
+⋮----
+_guard = threading.Lock()
+_thread_locks: dict[str, threading.Lock] = {}
+⋮----
+def _thread_lock(path: Path) -> threading.Lock
+⋮----
+key = str(path)
+⋮----
+@contextmanager
+def filesystem_lock(path: str | os.PathLike[str]) -> Iterator[None]
+⋮----
+"""Serialize a critical section across threads and POSIX processes."""
+target = Path(path).expanduser().resolve()
+⋮----
+local = _thread_lock(target)
+⋮----
+handle = target.open("a+", encoding="utf-8")
 ````
 
 ## File: src/production_os/github_change_review.py
@@ -7630,20 +7663,24 @@ def ensure(self, repository: str) -> CachedRepository
 target = self._path_for(value)
 remote = self.remote_url(value)
 ⋮----
+cache_lock = self.root / ".locks" / (
+⋮----
 created = False
 fetched = False
 ⋮----
 created = True
 ⋮----
+git_lock = target / ".git" / "production-os.lock"
+⋮----
 actual = _run_git(
 ⋮----
-# Fetch every time before worktree preparation so a one-tap launch
-# sees the current remote refs. Authentication, when required, is
-# delegated to the worker's normal Git credential configuration.
+# Fetch every time before worktree preparation so a one-tap
+# launch sees current remote refs. Authentication remains the
+# worker's normal Git credential responsibility.
 ⋮----
 fetched = True
 ⋮----
-# Make origin's default branch addressable as HEAD in the cache.
+# Make origin's default branch addressable as HEAD.
 remote_head_result = _run_git(
 remote_head = remote_head_result.stdout.strip()
 branch = ""
@@ -12378,6 +12415,22 @@ def test_round_robin_preserves_repo_internal_order()
 ⋮----
 rows=[
 result=round_robin_by_repository(rows)
+````
+
+## File: tests/test_filesystem_lock.py
+````python
+@pytest.mark.skipif(os.name != "posix", reason="cross-process flock requires POSIX")
+def test_filesystem_lock_blocks_other_processes(tmp_path)
+⋮----
+lock = tmp_path / "shared.lock"
+marker = tmp_path / "acquired.txt"
+script = (
+⋮----
+process = subprocess.Popen([sys.executable, "-c", script])
+⋮----
+def test_filesystem_lock_creates_parent_directories(tmp_path)
+⋮----
+lock = tmp_path / "nested" / "locks" / "repo.lock"
 ````
 
 ## File: tests/test_github_automerge.py

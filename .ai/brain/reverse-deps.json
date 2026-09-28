@@ -79,6 +79,7 @@
         "tests/test_execution_optimizer_postgres.py",
         "tests/test_executor_worktree.py",
         "tests/test_fairness.py",
+        "tests/test_filesystem_lock.py",
         "tests/test_github_automerge.py",
         "tests/test_github_change_review.py",
         "tests/test_github_client_pr_files.py",
@@ -176,7 +177,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 164,
+      "in_degree": 165,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -1063,6 +1064,7 @@
     },
     "src/production_os/executor_worktree.py": {
       "dependencies": [
+        "src/production_os/filesystem_lock.py",
         "tests/test_asset_forge.py"
       ],
       "dependents": [
@@ -1070,7 +1072,7 @@
         "tests/test_executor_worktree.py"
       ],
       "in_degree": 2,
-      "out_degree": 1
+      "out_degree": 2
     },
     "src/production_os/fairness.py": {
       "dependencies": [
@@ -1093,6 +1095,16 @@
       ],
       "in_degree": 2,
       "out_degree": 1
+    },
+    "src/production_os/filesystem_lock.py": {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/executor_worktree.py",
+        "src/production_os/repository_cache.py",
+        "tests/test_filesystem_lock.py"
+      ],
+      "in_degree": 3,
+      "out_degree": 0
     },
     "src/production_os/github_change_review.py": {
       "dependencies": [
@@ -1652,6 +1664,7 @@
     },
     "src/production_os/repository_cache.py": {
       "dependencies": [
+        "src/production_os/filesystem_lock.py",
         "src/production_os/workers.py",
         "tests/test_asset_forge.py"
       ],
@@ -1660,7 +1673,7 @@
         "tests/test_repository_cache.py"
       ],
       "in_degree": 2,
-      "out_degree": 2
+      "out_degree": 3
     },
     "src/production_os/resources.py": {
       "dependencies": [],
@@ -3164,6 +3177,15 @@
         "tests/test_scoring.py"
       ],
       "in_degree": 43,
+      "out_degree": 2
+    },
+    "tests/test_filesystem_lock.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/filesystem_lock.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
       "out_degree": 2
     },
     "tests/test_github_automerge.py": {

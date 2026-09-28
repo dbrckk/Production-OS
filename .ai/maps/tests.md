@@ -107,6 +107,7 @@ test_execution_optimizer_postgres.py
 test_execution_optimizer.py
 test_executor_worktree.py
 test_fairness.py
+test_filesystem_lock.py
 test_github_automerge.py
 test_github_change_review.py
 test_github_client_pr_files.py
@@ -3251,6 +3252,22 @@ def test_round_robin_preserves_repo_internal_order()
 ⋮----
 rows=[
 result=round_robin_by_repository(rows)
+```
+
+## File: test_filesystem_lock.py
+```python
+@pytest.mark.skipif(os.name != "posix", reason="cross-process flock requires POSIX")
+def test_filesystem_lock_blocks_other_processes(tmp_path)
+⋮----
+lock = tmp_path / "shared.lock"
+marker = tmp_path / "acquired.txt"
+script = (
+⋮----
+process = subprocess.Popen([sys.executable, "-c", script])
+⋮----
+def test_filesystem_lock_creates_parent_directories(tmp_path)
+⋮----
+lock = tmp_path / "nested" / "locks" / "repo.lock"
 ```
 
 ## File: test_github_automerge.py

@@ -1,623 +1,155 @@
 {
   "schema_version": 1,
   "generated_by": "dbrckk/repo-brain",
-  "base": "d19da15b417f4aa9d1595eb10e3055909ee29a8e",
-  "head": "a3a94f296a1f1916caedbd595474c7e49c21d6e0",
+  "base": "a3a94f296a1f1916caedbd595474c7e49c21d6e0",
+  "head": "1156579d523f8c9b842a4090105b1b55bee514a8",
   "index_mode": "incremental",
   "changed_files": [
-    {
-      "path": "docs/remote-worker-executor-protocol.md",
-      "status": "M"
-    },
     {
       "path": "src/production_os/executor_worktree.py",
       "status": "M"
     },
     {
-      "path": "src/production_os/remote_worker_runner.py",
+      "path": "src/production_os/filesystem_lock.py",
+      "status": "A"
+    },
+    {
+      "path": "src/production_os/repository_cache.py",
       "status": "M"
     },
     {
-      "path": "tests/test_executor_worktree.py",
-      "status": "M"
+      "path": "tests/test_filesystem_lock.py",
+      "status": "A"
     },
     {
-      "path": "tests/test_remote_worker_runner.py",
+      "path": "tests/test_repository_cache.py",
       "status": "M"
     }
   ],
   "changed_source_files": [
     "src/production_os/executor_worktree.py",
-    "src/production_os/remote_worker_runner.py",
-    "tests/test_executor_worktree.py",
-    "tests/test_remote_worker_runner.py"
+    "src/production_os/filesystem_lock.py",
+    "src/production_os/repository_cache.py",
+    "tests/test_filesystem_lock.py",
+    "tests/test_repository_cache.py"
   ],
   "impacted_files": [
-    "src/production_os/cli.py",
     "src/production_os/executor_worktree.py",
+    "src/production_os/filesystem_lock.py",
     "src/production_os/remote_worker_runner.py",
+    "src/production_os/repository_cache.py",
     "tests/test_executor_worktree.py",
-    "tests/test_persistent_agent_runtime.py",
-    "tests/test_release51_one_tap_runner_e2e.py",
-    "tests/test_release55_worker_operations.py",
-    "tests/test_remote_worker_runner.py"
+    "tests/test_filesystem_lock.py",
+    "tests/test_repository_cache.py"
   ],
   "impacted_symbols": [
-    {
-      "name": "_parse_args",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 99
-    },
-    {
-      "name": "_rank_actions",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 783
-    },
-    {
-      "name": "_external_refs_for_action",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 788
-    },
-    {
-      "name": "_handoff",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 805
-    },
-    {
-      "name": "_print_human",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 890
-    },
-    {
-      "name": "run_scan",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 940
-    },
-    {
-      "name": "run_validation_results",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1053
-    },
-    {
-      "name": "run_execution_feedback",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1085
-    },
-    {
-      "name": "run_trends",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1122
-    },
-    {
-      "name": "run_heartbeat",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1135
-    },
-    {
-      "name": "run_reconcile",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1150
-    },
-    {
-      "name": "run_dispatch",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1160
-    },
-    {
-      "name": "_write_asset_result",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1239
-    },
-    {
-      "name": "_asset_failure_result",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1250
-    },
-    {
-      "name": "run_asset_forge_dispatch",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1261
-    },
-    {
-      "name": "run_asset_forge_batch",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1326
-    },
-    {
-      "name": "run_github_reconcile",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1353
-    },
-    {
-      "name": "run_controller_command",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1407
-    },
-    {
-      "name": "run_worker_register",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1443
-    },
-    {
-      "name": "run_worker_heartbeat",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1457
-    },
-    {
-      "name": "run_worker_list",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1467
-    },
-    {
-      "name": "run_job_claim",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1480
-    },
-    {
-      "name": "run_job_ack",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1507
-    },
-    {
-      "name": "run_job_complete",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1517
-    },
-    {
-      "name": "run_delivery_recover",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1540
-    },
-    {
-      "name": "run_preempt_request",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1559
-    },
-    {
-      "name": "run_preempt_checkpoint",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1569
-    },
-    {
-      "name": "run_emergency_stop",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1588
-    },
-    {
-      "name": "run_emergency_resume",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1594
-    },
-    {
-      "name": "run_audit_verify",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1600
-    },
-    {
-      "name": "run_backup",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1606
-    },
-    {
-      "name": "run_restore",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1612
-    },
-    {
-      "name": "run_restore_activate",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1618
-    },
-    {
-      "name": "run_approve",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1648
-    },
-    {
-      "name": "run_revoke",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1663
-    },
-    {
-      "name": "run_migrate_state",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1678
-    },
-    {
-      "name": "run_migrate_many",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1685
-    },
-    {
-      "name": "run_queue_compact",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1694
-    },
-    {
-      "name": "run_dead_letter_retry",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1708
-    },
-    {
-      "name": "run_audit_checkpoint_create",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1721
-    },
-    {
-      "name": "run_audit_checkpoint_verify",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1731
-    },
-    {
-      "name": "run_quarantine",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1741
-    },
-    {
-      "name": "run_unquarantine",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1752
-    },
-    {
-      "name": "run_budget_record",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1763
-    },
-    {
-      "name": "run_policy_validate",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1782
-    },
-    {
-      "name": "run_policy_check",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1792
-    },
-    {
-      "name": "run_db_init",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1806
-    },
-    {
-      "name": "run_db_import",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1822
-    },
-    {
-      "name": "run_token_hash",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1834
-    },
-    {
-      "name": "_trusted_validation_keys_from_env",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1842
-    },
-    {
-      "name": "run_control_plane",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1858
-    },
-    {
-      "name": "run_remote_worker_poll",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1925
-    },
-    {
-      "name": "_repository_root_map",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1946
-    },
-    {
-      "name": "run_remote_worker_run",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 1974
-    },
-    {
-      "name": "_request_stop",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 2001
-    },
-    {
-      "name": "_workflow_engine",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 2027
-    },
-    {
-      "name": "run_workflow_create",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 2032
-    },
-    {
-      "name": "run_workflow_status",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 2056
-    },
-    {
-      "name": "run_workflow_dispatch",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 2065
-    },
-    {
-      "name": "run_workflow_critical_path",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 2076
-    },
-    {
-      "name": "run_workflow_eta",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 2084
-    },
-    {
-      "name": "run_stragglers",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 2096
-    },
-    {
-      "name": "run_speculate_stragglers",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 2114
-    },
-    {
-      "name": "run_workflow_impact",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 2159
-    },
-    {
-      "name": "run_workflow_impact_pr",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 2173
-    },
-    {
-      "name": "run_pr_refresh",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 2195
-    },
-    {
-      "name": "run_workflow_cancel",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 2239
-    },
-    {
-      "name": "run_artifact_add",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 2248
-    },
-    {
-      "name": "_release_ledger",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 2274
-    },
-    {
-      "name": "run_signing_keygen",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 2322
-    },
-    {
-      "name": "run_validation_attest_v2",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 2334
-    },
-    {
-      "name": "run_transparency_checkpoint",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 2371
-    },
-    {
-      "name": "run_transparency_checkpoint_verify",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 2529
-    },
-    {
-      "name": "run_slsa_verify",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 2577
-    },
-    {
-      "name": "run_provenance_verify_v2",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 2595
-    },
-    {
-      "name": "run_validation_attest",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 2612
-    },
-    {
-      "name": "run_incident_snapshot",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 2660
-    },
-    {
-      "name": "run_incident_report",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 2675
-    },
-    {
-      "name": "run_trust_status",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 2685
-    },
-    {
-      "name": "run_release_verify",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 2698
-    },
-    {
-      "name": "run_release_promote",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 2710
-    },
-    {
-      "name": "run_release_rollback",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 2746
-    },
-    {
-      "name": "run_health_server",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 2764
-    },
-    {
-      "name": "main",
-      "kind": "function",
-      "file": "src/production_os/cli.py",
-      "line": 2769
-    },
     {
       "name": "IntegrationPreflight",
       "kind": "class",
       "file": "src/production_os/executor_worktree.py",
-      "line": 12
+      "line": 14
     },
     {
       "name": "to_dict",
       "kind": "function",
       "file": "src/production_os/executor_worktree.py",
-      "line": 22
+      "line": 24
     },
     {
       "name": "PreparedWorktree",
       "kind": "class",
       "file": "src/production_os/executor_worktree.py",
-      "line": 44
+      "line": 46
     },
     {
       "name": "to_dict",
       "kind": "function",
       "file": "src/production_os/executor_worktree.py",
-      "line": 51
+      "line": 53
     },
     {
       "name": "WorktreeRuntimeError",
       "kind": "class",
       "file": "src/production_os/executor_worktree.py",
-      "line": 61
+      "line": 63
     },
     {
       "name": "_git",
       "kind": "function",
       "file": "src/production_os/executor_worktree.py",
-      "line": 65
+      "line": 67
     },
     {
       "name": "validate_repository_root",
       "kind": "function",
       "file": "src/production_os/executor_worktree.py",
-      "line": 81
+      "line": 83
     },
     {
-      "name": "prepare_isolated_worktree",
+      "name": "_prepare_isolated_worktree_unlocked",
       "kind": "function",
       "file": "src/production_os/executor_worktree.py",
-      "line": 92
+      "line": 94
     },
     {
-      "name": "remove_isolated_worktree",
+      "name": "_remove_isolated_worktree_unlocked",
       "kind": "function",
       "file": "src/production_os/executor_worktree.py",
-      "line": 162
+      "line": 164
     },
     {
       "name": "_validated_commit_candidates",
       "kind": "function",
       "file": "src/production_os/executor_worktree.py",
-      "line": 184
+      "line": 186
     },
     {
-      "name": "preintegrate_upstream_commits",
+      "name": "_preintegrate_upstream_commits_unlocked",
       "kind": "function",
       "file": "src/production_os/executor_worktree.py",
-      "line": 203
+      "line": 205
     },
     {
       "name": "inspect_worktree_result",
       "kind": "function",
       "file": "src/production_os/executor_worktree.py",
-      "line": 322
+      "line": 324
+    },
+    {
+      "name": "_repository_lock_path",
+      "kind": "function",
+      "file": "src/production_os/executor_worktree.py",
+      "line": 442
+    },
+    {
+      "name": "prepare_isolated_worktree",
+      "kind": "function",
+      "file": "src/production_os/executor_worktree.py",
+      "line": 459
+    },
+    {
+      "name": "remove_isolated_worktree",
+      "kind": "function",
+      "file": "src/production_os/executor_worktree.py",
+      "line": 474
+    },
+    {
+      "name": "preintegrate_upstream_commits",
+      "kind": "function",
+      "file": "src/production_os/executor_worktree.py",
+      "line": 489
+    },
+    {
+      "name": "_thread_lock",
+      "kind": "function",
+      "file": "src/production_os/filesystem_lock.py",
+      "line": 19
+    },
+    {
+      "name": "filesystem_lock",
+      "kind": "function",
+      "file": "src/production_os/filesystem_lock.py",
+      "line": 26
     },
     {
       "name": "RemoteWorkerRunner",
@@ -714,6 +246,72 @@
       "kind": "function",
       "file": "src/production_os/remote_worker_runner.py",
       "line": 566
+    },
+    {
+      "name": "RepositoryCacheError",
+      "kind": "class",
+      "file": "src/production_os/repository_cache.py",
+      "line": 14
+    },
+    {
+      "name": "CachedRepository",
+      "kind": "class",
+      "file": "src/production_os/repository_cache.py",
+      "line": 19
+    },
+    {
+      "name": "to_dict",
+      "kind": "function",
+      "file": "src/production_os/repository_cache.py",
+      "line": 26
+    },
+    {
+      "name": "_validate_repository",
+      "kind": "function",
+      "file": "src/production_os/repository_cache.py",
+      "line": 36
+    },
+    {
+      "name": "_run_git",
+      "kind": "function",
+      "file": "src/production_os/repository_cache.py",
+      "line": 53
+    },
+    {
+      "name": "RepositoryCache",
+      "kind": "class",
+      "file": "src/production_os/repository_cache.py",
+      "line": 75
+    },
+    {
+      "name": "__init__",
+      "kind": "function",
+      "file": "src/production_os/repository_cache.py",
+      "line": 78
+    },
+    {
+      "name": "_lock_for",
+      "kind": "function",
+      "file": "src/production_os/repository_cache.py",
+      "line": 92
+    },
+    {
+      "name": "_path_for",
+      "kind": "function",
+      "file": "src/production_os/repository_cache.py",
+      "line": 96
+    },
+    {
+      "name": "remote_url",
+      "kind": "function",
+      "file": "src/production_os/repository_cache.py",
+      "line": 105
+    },
+    {
+      "name": "ensure",
+      "kind": "function",
+      "file": "src/production_os/repository_cache.py",
+      "line": 109
     },
     {
       "name": "_git",
@@ -836,288 +434,57 @@
       "line": 467
     },
     {
-      "name": "FakeClient",
-      "kind": "class",
-      "file": "tests/test_persistent_agent_runtime.py",
-      "line": 11
-    },
-    {
-      "name": "__init__",
+      "name": "test_filesystem_lock_blocks_other_processes",
       "kind": "function",
-      "file": "tests/test_persistent_agent_runtime.py",
-      "line": 14
-    },
-    {
-      "name": "open_session",
-      "kind": "function",
-      "file": "tests/test_persistent_agent_runtime.py",
-      "line": 22
-    },
-    {
-      "name": "heartbeat",
-      "kind": "function",
-      "file": "tests/test_persistent_agent_runtime.py",
-      "line": 25
-    },
-    {
-      "name": "claim",
-      "kind": "function",
-      "file": "tests/test_persistent_agent_runtime.py",
-      "line": 33
-    },
-    {
-      "name": "ack",
-      "kind": "function",
-      "file": "tests/test_persistent_agent_runtime.py",
-      "line": 36
-    },
-    {
-      "name": "complete",
-      "kind": "function",
-      "file": "tests/test_persistent_agent_runtime.py",
-      "line": 39
-    },
-    {
-      "name": "fail",
-      "kind": "function",
-      "file": "tests/test_persistent_agent_runtime.py",
-      "line": 43
-    },
-    {
-      "name": "checkpoint_stale",
-      "kind": "function",
-      "file": "tests/test_persistent_agent_runtime.py",
-      "line": 47
-    },
-    {
-      "name": "test_persistent_runtime_reuses_session_and_marks_resume",
-      "kind": "function",
-      "file": "tests/test_persistent_agent_runtime.py",
-      "line": 52
-    },
-    {
-      "name": "test_remote_runner_passes_durable_runtime_context_to_executor",
-      "kind": "function",
-      "file": "tests/test_persistent_agent_runtime.py",
-      "line": 75
-    },
-    {
-      "name": "test_worker_compose_mounts_shared_durable_runtime",
-      "kind": "function",
-      "file": "tests/test_persistent_agent_runtime.py",
-      "line": 118
-    },
-    {
-      "name": "test_remote_worker_cli_exposes_runtime_root",
-      "kind": "function",
-      "file": "tests/test_persistent_agent_runtime.py",
-      "line": 125
-    },
-    {
-      "name": "test_active_checkpoint_protocol_is_atomic_validated_and_observed",
-      "kind": "function",
-      "file": "tests/test_persistent_agent_runtime.py",
-      "line": 139
-    },
-    {
-      "name": "test_checkpoint_with_wrong_session_is_not_resumable",
-      "kind": "function",
-      "file": "tests/test_persistent_agent_runtime.py",
-      "line": 164
-    },
-    {
-      "name": "test_stale_job_reports_real_durable_checkpoint_reference",
-      "kind": "function",
-      "file": "tests/test_persistent_agent_runtime.py",
-      "line": 181
-    },
-    {
-      "name": "test_invalid_checkpoint_does_not_replace_runtime_resume_contract",
-      "kind": "function",
-      "file": "tests/test_persistent_agent_runtime.py",
-      "line": 219
-    },
-    {
-      "name": "_auth",
-      "kind": "function",
-      "file": "tests/test_release51_one_tap_runner_e2e.py",
-      "line": 18
-    },
-    {
-      "name": "_request",
-      "kind": "function",
-      "file": "tests/test_release51_one_tap_runner_e2e.py",
-      "line": 26
-    },
-    {
-      "name": "_server",
-      "kind": "function",
-      "file": "tests/test_release51_one_tap_runner_e2e.py",
-      "line": 45
-    },
-    {
-      "name": "_stop",
-      "kind": "function",
-      "file": "tests/test_release51_one_tap_runner_e2e.py",
-      "line": 52
-    },
-    {
-      "name": "test_release51_one_tap_launch_runs_through_real_runner_to_review_required",
-      "kind": "function",
-      "file": "tests/test_release51_one_tap_runner_e2e.py",
-      "line": 59
-    },
-    {
-      "name": "test_release51_executor_failure_surfaces_as_actionable_production",
-      "kind": "function",
-      "file": "tests/test_release51_one_tap_runner_e2e.py",
-      "line": 163
-    },
-    {
-      "name": "_auth",
-      "kind": "function",
-      "file": "tests/test_release55_worker_operations.py",
+      "file": "tests/test_filesystem_lock.py",
       "line": 15
     },
     {
-      "name": "_server",
+      "name": "test_filesystem_lock_creates_parent_directories",
       "kind": "function",
-      "file": "tests/test_release55_worker_operations.py",
-      "line": 25
-    },
-    {
-      "name": "_stop",
-      "kind": "function",
-      "file": "tests/test_release55_worker_operations.py",
-      "line": 32
-    },
-    {
-      "name": "_client",
-      "kind": "function",
-      "file": "tests/test_release55_worker_operations.py",
+      "file": "tests/test_filesystem_lock.py",
       "line": 38
     },
     {
-      "name": "test_paused_runner_acknowledges_control_and_does_not_claim",
+      "name": "_git",
       "kind": "function",
-      "file": "tests/test_release55_worker_operations.py",
-      "line": 48
+      "file": "tests/test_repository_cache.py",
+      "line": 11
     },
     {
-      "name": "test_draining_runner_finishes_active_job_without_claiming_replacement",
+      "name": "_remote_repo",
       "kind": "function",
-      "file": "tests/test_release55_worker_operations.py",
-      "line": 80
+      "file": "tests/test_repository_cache.py",
+      "line": 22
     },
     {
-      "name": "test_resumed_runner_claims_after_pause_acknowledgement",
+      "name": "test_repository_cache_clones_fetches_and_updates_remote_refs",
       "kind": "function",
-      "file": "tests/test_release55_worker_operations.py",
-      "line": 140
+      "file": "tests/test_repository_cache.py",
+      "line": 42
     },
     {
-      "name": "_server",
+      "name": "test_repository_cache_uses_stable_collision_resistant_path",
       "kind": "function",
-      "file": "tests/test_remote_worker_runner.py",
-      "line": 16
+      "file": "tests/test_repository_cache.py",
+      "line": 72
     },
     {
-      "name": "_stop",
+      "name": "test_repository_cache_rejects_invalid_repository_names",
       "kind": "function",
-      "file": "tests/test_remote_worker_runner.py",
-      "line": 23
+      "file": "tests/test_repository_cache.py",
+      "line": 87
     },
     {
-      "name": "_auth",
+      "name": "test_repository_cache_rejects_origin_mismatch",
       "kind": "function",
-      "file": "tests/test_remote_worker_runner.py",
-      "line": 29
-    },
-    {
-      "name": "test_worker_session_self_registers_and_reconciles_previous_claim",
-      "kind": "function",
-      "file": "tests/test_remote_worker_runner.py",
-      "line": 44
-    },
-    {
-      "name": "test_worker_session_rejects_token_identity_mismatch",
-      "kind": "function",
-      "file": "tests/test_remote_worker_runner.py",
-      "line": 94
-    },
-    {
-      "name": "test_remote_worker_runner_executes_json_executor_and_completes_job",
-      "kind": "function",
-      "file": "tests/test_remote_worker_runner.py",
-      "line": 115
-    },
-    {
-      "name": "test_remote_worker_runner_tolerates_transient_active_heartbeat_failure",
-      "kind": "function",
-      "file": "tests/test_remote_worker_runner.py",
-      "line": 174
-    },
-    {
-      "name": "flaky_heartbeat",
-      "kind": "function",
-      "file": "tests/test_remote_worker_runner.py",
-      "line": 212
-    },
-    {
-      "name": "test_remote_worker_runner_fails_job_on_invalid_executor_output",
-      "kind": "function",
-      "file": "tests/test_remote_worker_runner.py",
-      "line": 228
-    },
-    {
-      "name": "test_remote_worker_runner_acknowledges_cancel_and_terminates_executor",
-      "kind": "function",
-      "file": "tests/test_remote_worker_runner.py",
-      "line": 273
-    },
-    {
-      "name": "test_remote_worker_runner_does_not_expose_worker_token_to_executor",
-      "kind": "function",
-      "file": "tests/test_remote_worker_runner.py",
-      "line": 343
-    },
-    {
-      "name": "test_remote_worker_runner_honors_max_concurrency_with_full_active_set",
-      "kind": "function",
-      "file": "tests/test_remote_worker_runner.py",
-      "line": 397
-    },
-    {
-      "name": "test_remote_worker_runner_graceful_stop_terminates_children_and_restart_recovers",
-      "kind": "function",
-      "file": "tests/test_remote_worker_runner.py",
-      "line": 489
-    },
-    {
-      "name": "test_remote_worker_runner_executes_in_configured_isolated_worktree",
-      "kind": "function",
-      "file": "tests/test_remote_worker_runner.py",
-      "line": 624
-    },
-    {
-      "name": "test_remote_worker_runner_preintegrates_multi_parent_commits",
-      "kind": "function",
-      "file": "tests/test_remote_worker_runner.py",
-      "line": 751
-    },
-    {
-      "name": "test_remote_worker_runner_rejects_success_with_dirty_worktree",
-      "kind": "function",
-      "file": "tests/test_remote_worker_runner.py",
-      "line": 927
+      "file": "tests/test_repository_cache.py",
+      "line": 93
     }
   ],
   "selected_tests": [
     "tests/test_executor_worktree.py",
-    "tests/test_persistent_agent_runtime.py",
-    "tests/test_release51_one_tap_runner_e2e.py",
-    "tests/test_release55_worker_operations.py",
-    "tests/test_remote_worker.py",
-    "tests/test_remote_worker_runner.py"
+    "tests/test_filesystem_lock.py",
+    "tests/test_repository_cache.py"
   ]
 }

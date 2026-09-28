@@ -2,26 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat: release 26 backup filesystem capacity",
-      "terms": [
-        "26",
-        "backup",
-        "capacity",
-        "feat",
-        "filesystem",
-        "release"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/dashboard_backups.py",
-        "src/production_os/dashboard_ui.py",
-        "tests/test_dashboard_backup_api.py",
-        "tests/test_dashboard_backups.py",
-        "tests/test_dashboard_ui_v3.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat: release 27 backup age observability",
       "terms": [
         "27",
@@ -1259,6 +1239,27 @@
         "tests/test_executor_worktree.py",
         "tests/test_remote_worker_runner.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "fix(runtime): serialize shared git cache and worktree mutations",
+      "terms": [
+        "cache",
+        "git",
+        "mutations",
+        "runtime",
+        "serialize",
+        "shared",
+        "worktree"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/executor_worktree.py",
+        "src/production_os/filesystem_lock.py",
+        "src/production_os/repository_cache.py",
+        "tests/test_filesystem_lock.py",
+        "tests/test_repository_cache.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1907,7 +1908,12 @@
     "cache": {
       "src/production_os/asset_forge.py": 4,
       "src/production_os/control_plane.py": 4,
-      "tests/test_asset_forge.py": 4
+      "src/production_os/executor_worktree.py": 4,
+      "src/production_os/filesystem_lock.py": 4,
+      "src/production_os/repository_cache.py": 4,
+      "tests/test_asset_forge.py": 4,
+      "tests/test_filesystem_lock.py": 4,
+      "tests/test_repository_cache.py": 4
     },
     "can": {
       "src/production_os/control_plane.py": 4,
@@ -2574,10 +2580,14 @@
       "tests/test_workflow_postgres.py": 4
     },
     "git": {
-      "src/production_os/executor_worktree.py": 4,
+      "src/production_os/executor_worktree.py": 8,
+      "src/production_os/filesystem_lock.py": 4,
       "src/production_os/remote_worker_runner.py": 4,
+      "src/production_os/repository_cache.py": 4,
       "tests/test_executor_worktree.py": 4,
-      "tests/test_remote_worker_runner.py": 4
+      "tests/test_filesystem_lock.py": 4,
+      "tests/test_remote_worker_runner.py": 4,
+      "tests/test_repository_cache.py": 4
     },
     "github": {
       "src/production_os/managed_projects.py": 4,
@@ -2887,6 +2897,13 @@
       "tests/test_dashboard_ui_v3.py": 4,
       "tests/test_task_capabilities.py": 4,
       "tests/test_workflow_engine.py": 4
+    },
+    "mutations": {
+      "src/production_os/executor_worktree.py": 4,
+      "src/production_os/filesystem_lock.py": 4,
+      "src/production_os/repository_cache.py": 4,
+      "tests/test_filesystem_lock.py": 4,
+      "tests/test_repository_cache.py": 4
     },
     "native": {
       "src/production_os/control_plane.py": 4,
@@ -3599,8 +3616,13 @@
     "runtime": {
       "src/production_os/agent_runtime.py": 8,
       "src/production_os/cli.py": 4,
+      "src/production_os/executor_worktree.py": 4,
+      "src/production_os/filesystem_lock.py": 4,
       "src/production_os/remote_worker_runner.py": 8,
-      "tests/test_persistent_agent_runtime.py": 8
+      "src/production_os/repository_cache.py": 4,
+      "tests/test_filesystem_lock.py": 4,
+      "tests/test_persistent_agent_runtime.py": 8,
+      "tests/test_repository_cache.py": 4
     },
     "safe": {
       "src/production_os/asset_forge.py": 4,
@@ -3675,6 +3697,13 @@
       "src/production_os/control_plane.py": 4,
       "tests/test_dashboard_launch.py": 4
     },
+    "serialize": {
+      "src/production_os/executor_worktree.py": 4,
+      "src/production_os/filesystem_lock.py": 4,
+      "src/production_os/repository_cache.py": 4,
+      "tests/test_filesystem_lock.py": 4,
+      "tests/test_repository_cache.py": 4
+    },
     "server-backed": {
       "src/production_os/control_plane.py": 4,
       "src/production_os/dashboard_service.py": 4,
@@ -3698,6 +3727,13 @@
       "src/production_os/managed_projects.py": 4,
       "src/production_os/task_capabilities.py": 4,
       "tests/test_task_capabilities.py": 4
+    },
+    "shared": {
+      "src/production_os/executor_worktree.py": 4,
+      "src/production_os/filesystem_lock.py": 4,
+      "src/production_os/repository_cache.py": 4,
+      "tests/test_filesystem_lock.py": 4,
+      "tests/test_repository_cache.py": 4
     },
     "show": {
       "src/production_os/control_plane.py": 8,
@@ -4067,10 +4103,14 @@
     },
     "worktree": {
       "src/production_os/cli.py": 4,
-      "src/production_os/executor_worktree.py": 8,
+      "src/production_os/executor_worktree.py": 12,
+      "src/production_os/filesystem_lock.py": 4,
       "src/production_os/remote_worker_runner.py": 8,
+      "src/production_os/repository_cache.py": 4,
       "tests/test_executor_worktree.py": 8,
-      "tests/test_remote_worker_runner.py": 8
+      "tests/test_filesystem_lock.py": 4,
+      "tests/test_remote_worker_runner.py": 8,
+      "tests/test_repository_cache.py": 4
     },
     "worktrees": {
       "src/production_os/cli.py": 4,

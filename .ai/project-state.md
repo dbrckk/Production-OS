@@ -22,18 +22,22 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-28T05:53:07Z
+Generated: 2026-09-28T05:58:08Z
 
 ### Git
 - Branch: `main`
-- Head: `a3a94f296a1f`
-- Commit date: 2026-09-28T07:52:56+02:00
-- Commit: feat(agents): verify git state before accepting worktree success
-- Tracked files: 492
+- Head: `1156579d523f`
+- Commit date: 2026-09-28T07:57:56+02:00
+- Commit: fix(runtime): serialize shared git cache and worktree mutations
+- Tracked files: 494
 
 ### Recently changed files
-- `docs/remote-worker-executor-protocol.md`
 - `src/production_os/executor_worktree.py`
+- `src/production_os/filesystem_lock.py`
+- `src/production_os/repository_cache.py`
+- `tests/test_filesystem_lock.py`
+- `tests/test_repository_cache.py`
+- `docs/remote-worker-executor-protocol.md`
 - `src/production_os/remote_worker_runner.py`
 - `tests/test_executor_worktree.py`
 - `tests/test_remote_worker_runner.py`
@@ -43,10 +47,6 @@ Generated: 2026-09-28T05:53:07Z
 - `tests/test_managed_dynamic_plan_outcome.py`
 - `tests/test_managed_project_outcome.py`
 - `tests/test_worktree_contract.py`
-- `tests/test_cooperative_managed_projects.py`
-- `tests/test_cooperative_specialist_e2e.py`
-- `tests/test_managed_github_reconciliation.py`
-- `tests/test_release32_one_tap_e2e.py`
 
 ### Project signals
 - `pyproject.toml`
