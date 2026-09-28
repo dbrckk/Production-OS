@@ -6,6 +6,7 @@ import os
 import shlex
 import signal
 import sys
+import threading
 from pathlib import Path
 from typing import Iterable
 
@@ -24,7 +25,7 @@ from .budgets import BudgetLedger
 from .claims import ClaimStore
 from .control_plane import serve_control_plane
 from .control_surface import write_control_surface
-from .controller import run_controller
+from .controller import run_controller, run_controller_daemon
 from .delivery import recover_unacked_jobs
 from .dispatch import dispatch_handoff
 from .emergency import clear_emergency_stop, set_emergency_stop
@@ -222,6 +223,23 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     controller.add_argument("--journal", required=True)
     controller.add_argument("--cycles", type=int, default=1)
     controller.add_argument("--interval-seconds", type=int, default=300)
+    controller.add_argument(
+        "--daemon",
+        action="store_true",
+        help="Run continuously until SIGTERM/SIGINT instead of bounded cycles",
+    )
+    controller.add_argument(
+        "--max-error-backoff-seconds",
+        type=int,
+        default=300,
+        help="Maximum retry backoff after a failed daemon cycle",
+    )
+    controller.add_argument(
+        "--result-history-limit",
+        type=int,
+        default=10,
+        help="Recent successful cycles retained in the final daemon summary",
+    )
     controller.add_argument("--capacity", type=int, default=3)
     controller.add_argument("--slots", type=int, default=3)
     controller.add_argument("--lease-owner", default="production-os-controller")
@@ -1423,33 +1441,63 @@ def run_github_reconcile(args: argparse.Namespace) -> int:
 
 
 def run_controller_command(args: argparse.Namespace) -> int:
+    controller_kwargs = {
+        "owner":args.owner,
+        "runtime_state_path":args.runtime_state,
+        "queue_dir":args.queue_dir,
+        "database_path":args.database,
+        "snapshot_dir":args.snapshot_dir,
+        "metrics_path":args.metrics,
+        "health_path":args.health,
+        "journal_path":args.journal,
+        "observability_path":args.observability,
+        "github_mapping_path":args.github_mapping,
+        "worker_registry_path":args.worker_registry,
+        "receipt_dir":args.receipt_dir,
+        "claims_path":args.claims,
+        "dead_letter_dir":args.dead_letter_dir,
+        "emergency_stop_path":args.emergency_stop,
+        "rate_limit_path":args.rate_limit_state,
+        "approval_path":args.approvals,
+        "policy_path":args.policy,
+        "budget_path":args.budgets,
+        "quarantine_path":args.quarantine,
+        "capacity":args.capacity,
+        "slots":args.slots,
+        "lease_owner":args.lease_owner,
+        "lease_minutes":args.lease_minutes,
+    }
+
+    if args.daemon:
+        stop_event = threading.Event()
+        previous_handlers = {}
+
+        def _request_stop(_signum, _frame):
+            stop_event.set()
+
+        for signum in (signal.SIGTERM, signal.SIGINT):
+            previous_handlers[signum] = signal.signal(
+                signum,
+                _request_stop,
+            )
+        try:
+            summary = run_controller_daemon(
+                interval_seconds=args.interval_seconds,
+                stop_event=stop_event,
+                max_error_backoff_seconds=args.max_error_backoff_seconds,
+                result_history_limit=args.result_history_limit,
+                **controller_kwargs,
+            )
+        finally:
+            for signum, handler in previous_handlers.items():
+                signal.signal(signum, handler)
+        print(json.dumps(summary, indent=2, ensure_ascii=False))
+        return 0
+
     results = run_controller(
         cycles=args.cycles,
         interval_seconds=args.interval_seconds,
-        owner=args.owner,
-        runtime_state_path=args.runtime_state,
-        queue_dir=args.queue_dir,
-        database_path=args.database,
-        snapshot_dir=args.snapshot_dir,
-        metrics_path=args.metrics,
-        health_path=args.health,
-        journal_path=args.journal,
-        observability_path=args.observability,
-        github_mapping_path=args.github_mapping,
-        worker_registry_path=args.worker_registry,
-        receipt_dir=args.receipt_dir,
-        claims_path=args.claims,
-        dead_letter_dir=args.dead_letter_dir,
-        emergency_stop_path=args.emergency_stop,
-        rate_limit_path=args.rate_limit_state,
-        approval_path=args.approvals,
-        policy_path=args.policy,
-        budget_path=args.budgets,
-        quarantine_path=args.quarantine,
-        capacity=args.capacity,
-        slots=args.slots,
-        lease_owner=args.lease_owner,
-        lease_minutes=args.lease_minutes,
+        **controller_kwargs,
     )
     print(json.dumps({
         "schema_version":"production-os/controller-run/v2",
