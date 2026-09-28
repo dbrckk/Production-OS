@@ -10,6 +10,12 @@ from typing import Any
 
 SKILL_SCHEMA = "production-os/learned-skill/v1"
 _TERM = re.compile(r"[a-z0-9][a-z0-9._-]{1,63}")
+_SECRET_PATTERNS = (
+    re.compile(r"(?i)\bbearer\s+[a-z0-9._~+/-]{12,}"),
+    re.compile(r"\bgh[pousr]_[A-Za-z0-9_]{20,}\b"),
+    re.compile(r"\bsk-[A-Za-z0-9_-]{16,}\b"),
+    re.compile(r"(?i)\b(password|passwd|secret|token)\s*[=:]\s*\S{8,}"),
+)
 
 
 def _now() -> str:
@@ -95,6 +101,9 @@ class SkillStore:
             raise ValueError("learned skill procedure must contain 1-12 steps")
         if any(len(step) > 1200 for step in procedure):
             raise ValueError("learned skill procedure step is too long")
+        secret_scan = "\n".join((title, *procedure))
+        if any(pattern.search(secret_scan) for pattern in _SECRET_PATTERNS):
+            raise ValueError("learned skill must not contain credentials or secrets")
 
         raw_terms = payload.get("trigger_terms")
         if raw_terms is None:
