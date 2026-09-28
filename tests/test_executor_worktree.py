@@ -7,6 +7,7 @@ import pytest
 
 from production_os.executor_worktree import (
     WorktreeRuntimeError,
+    inspect_worktree_result,
     preintegrate_upstream_commits,
     prepare_isolated_worktree,
     remove_isolated_worktree,
@@ -424,3 +425,70 @@ def test_preintegrate_dirty_workspace_defers_without_mutation(tmp_path):
     assert result.applied_commits == ()
     assert _git(target, "rev-parse", "HEAD") == base
     assert (target / "resume.tmp").is_file()
+
+
+
+def test_inspect_worktree_result_reports_clean_committed_evidence(tmp_path):
+    repo = _repo(tmp_path)
+    base = _git(repo, "rev-parse", "HEAD")
+    contract = build_worktree_contract(
+        repository="owner/repo",
+        workflow_id="wf-evidence",
+        task_id="code",
+        attempt=1,
+        base_ref=base,
+    )
+    prepared = prepare_isolated_worktree(
+        repo,
+        contract,
+        worktree_root=tmp_path / "worktrees",
+    )
+    target = Path(prepared.worktree_path)
+    (target / "feature.txt").write_text("done\n", encoding="utf-8")
+    _git(target, "add", ".")
+    _git(target, "commit", "-m", "feature")
+    final_sha = _git(target, "rev-parse", "HEAD")
+
+    evidence = inspect_worktree_result(
+        target,
+        base_sha=base,
+        executor_start_sha=base,
+    )
+
+    assert evidence["schema_version"] == "production-os/worktree-result/v1"
+    assert evidence["clean"] is True
+    assert evidence["base_is_ancestor"] is True
+    assert evidence["final_sha"] == final_sha
+    assert evidence["commits_since_base"] == [final_sha]
+    assert evidence["commits_since_start"] == [final_sha]
+    assert evidence["changed_files"] == ["feature.txt"]
+
+
+def test_inspect_worktree_result_reports_uncommitted_changes(tmp_path):
+    repo = _repo(tmp_path)
+    base = _git(repo, "rev-parse", "HEAD")
+    contract = build_worktree_contract(
+        repository="owner/repo",
+        workflow_id="wf-dirty-evidence",
+        task_id="code",
+        attempt=1,
+        base_ref=base,
+    )
+    prepared = prepare_isolated_worktree(
+        repo,
+        contract,
+        worktree_root=tmp_path / "worktrees",
+    )
+    target = Path(prepared.worktree_path)
+    (target / "dirty.txt").write_text("dirty\n", encoding="utf-8")
+
+    evidence = inspect_worktree_result(
+        target,
+        base_sha=base,
+        executor_start_sha=base,
+    )
+
+    assert evidence["clean"] is False
+    assert evidence["final_sha"] == base
+    assert any("dirty.txt" in line for line in evidence["status_lines"])
+    assert evidence["commits_since_base"] == []
