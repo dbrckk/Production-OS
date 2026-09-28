@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ipaddress
 import json
 import re
 from dataclasses import dataclass
@@ -52,12 +53,14 @@ class BrowserPlan:
     allowed_hosts: tuple[str, ...]
     actions: tuple[BrowserAction, ...]
     persist_session: bool
+    allow_private_network: bool
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "schema_version":BROWSER_PLAN_SCHEMA,
             "allowed_hosts":list(self.allowed_hosts),
             "persist_session":self.persist_session,
+            "allow_private_network":self.allow_private_network,
             "actions":[action.to_dict() for action in self.actions],
         }
 
@@ -69,7 +72,29 @@ def _normalize_host(value: str) -> str:
     return host
 
 
-def _validate_url(url: str, allowed_hosts: set[str]) -> str:
+def _is_private_host(host: str) -> bool:
+    normalized = str(host or "").lower().rstrip(".")
+    if normalized == "localhost" or normalized.endswith(".localhost"):
+        return True
+    try:
+        address = ipaddress.ip_address(normalized)
+    except ValueError:
+        return False
+    return bool(
+        address.is_private
+        or address.is_loopback
+        or address.is_link_local
+        or address.is_reserved
+        or address.is_unspecified
+    )
+
+
+def _validate_url(
+    url: str,
+    allowed_hosts: set[str],
+    *,
+    allow_private_network: bool,
+) -> str:
     value = str(url or "").strip()
     parsed = urlsplit(value)
     if parsed.scheme not in {"http", "https"}:
@@ -79,6 +104,8 @@ def _validate_url(url: str, allowed_hosts: set[str]) -> str:
     host = str(parsed.hostname or "").lower().rstrip(".")
     if not host or host not in allowed_hosts:
         raise ValueError("browser navigation host is not allowed")
+    if not allow_private_network and _is_private_host(host):
+        raise ValueError("browser private-network navigation is disabled")
     return value
 
 
@@ -104,6 +131,12 @@ def validate_browser_plan(
     if len(allowed_hosts) > 20:
         raise ValueError("browser plan has too many allowed hosts")
     allowed_set = set(allowed_hosts)
+    allow_private_network = bool(payload.get("allow_private_network", False))
+    if not allow_private_network and any(
+        _is_private_host(host)
+        for host in allowed_hosts
+    ):
+        raise ValueError("browser private-network hosts require explicit opt-in")
 
     raw_actions = payload.get("actions")
     if not isinstance(raw_actions, list) or not raw_actions:
@@ -133,7 +166,11 @@ def validate_browser_plan(
 
         url = None
         if action == "navigate":
-            url = _validate_url(str(raw.get("url") or ""), allowed_set)
+            url = _validate_url(
+                str(raw.get("url") or ""),
+                allowed_set,
+                allow_private_network=allow_private_network,
+            )
 
         value = None
         if action == "fill":
@@ -167,6 +204,7 @@ def validate_browser_plan(
         allowed_hosts=allowed_hosts,
         actions=tuple(actions),
         persist_session=bool(payload.get("persist_session", True)),
+        allow_private_network=allow_private_network,
     )
 
 
@@ -207,6 +245,8 @@ def execute_browser_plan(
             raise RuntimeError(
                 f"browser navigated to disallowed host: {host or '<none>'}"
             )
+        if not plan.allow_private_network and _is_private_host(host):
+            raise RuntimeError("browser navigated to private network host")
 
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(headless=bool(headless))
