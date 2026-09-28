@@ -4116,6 +4116,17 @@ job = engine.dispatch_ready(workflow["id"], limit=1)[0]
 handoff = job["payload"]["handoff"]
 ⋮----
 def test_workflow_without_candidates_keeps_existing_handoff_shape(tmp_path)
+⋮----
+def test_worker_catalog_is_deduplicated_and_reused_for_one_tap_dispatch(tmp_path)
+⋮----
+router = ModelRouter(backend)
+candidates = [
+⋮----
+route = job["payload"]["handoff"]["model_route"]
+⋮----
+def test_worker_catalog_never_blocks_task_when_no_candidate_fits(tmp_path)
+⋮----
+def test_explicit_model_candidates_override_worker_catalog(tmp_path)
 ```
 
 ## File: test_observability.py
@@ -5840,6 +5851,22 @@ checkpoint=client.checkpoint_stale(
 ⋮----
 events=control.backend.events_after(0,1000)
 checkpoint_events=[
+⋮----
+def test_worker_heartbeat_catalog_drives_automatic_model_route(tmp_path)
+⋮----
+control=ControlPlane(str(tmp_path/"catalog.sqlite"),authorizer=auth)
+⋮----
+capacity={
+⋮----
+events=[
+⋮----
+workflow=control.workflows.create(
+job=control.workflows.dispatch_ready(workflow["id"],limit=1)[0]
+route=job["payload"]["handoff"]["model_route"]
+⋮----
+def test_worker_heartbeat_rejects_invalid_model_catalog(tmp_path)
+⋮----
+control=ControlPlane(str(tmp_path/"bad-catalog.sqlite"),authorizer=auth)
 ```
 
 ## File: test_render_start.py

@@ -3212,6 +3212,8 @@ reconciliation = {
 ⋮----
 capacity = body.get("capacity")
 ⋮----
+raw_model_candidates = capacity.get(
+⋮----
 source = str(capacity.get("source") or "").strip()
 source_status = str(capacity.get("status") or "unavailable")
 used = capacity.get("used_this_month")
@@ -6782,6 +6784,22 @@ priority = float(payload.get("priority", 0.0))
 ⋮----
 def key(self) -> tuple[str, str]
 ⋮----
+normalized = []
+seen = set()
+⋮----
+candidate = ModelCandidate.from_dict(raw)
+key = candidate.key()
+⋮----
+def _parse_time(value: Any) -> datetime | None
+⋮----
+raw = str(value or "").strip()
+⋮----
+raw = raw[:-1] + "+00:00"
+⋮----
+parsed = datetime.fromisoformat(raw)
+⋮----
+parsed = parsed.replace(tzinfo=timezone.utc)
+⋮----
 class ModelRouter
 ⋮----
 """Deterministic provider/model routing from durable execution evidence.
@@ -6792,9 +6810,39 @@ class ModelRouter
 ⋮----
 def __init__(self, backend)
 ⋮----
-def _history(self) -> dict[tuple[str, str], dict[str, float]]
+worker = str(worker_id or "").strip()
+⋮----
+normalized = normalize_model_candidates(candidates)
+payload = {
+⋮----
+row = _execute(
+⋮----
+previous = json.loads(row["payload_json"] or "{}")
+⋮----
+previous = None
+⋮----
+age = max(30, min(int(max_age_seconds), 86400))
 ⋮----
 rows = _execute(
+⋮----
+now = datetime.now(timezone.utc)
+latest_workers: set[str] = set()
+merged: dict[tuple[str, str], dict[str, Any]] = {}
+⋮----
+created = _parse_time(row["created_at"])
+⋮----
+payload = json.loads(row["payload_json"] or "{}")
+⋮----
+worker_id = str(
+⋮----
+raw_candidates = payload.get("model_candidates")
+⋮----
+candidates = normalize_model_candidates(raw_candidates)
+⋮----
+key = (
+existing = merged.get(key)
+⋮----
+def _history(self) -> dict[tuple[str, str], dict[str, float]]
 ⋮----
 stats: dict[tuple[str, str], dict[str, float]] = {}
 ⋮----
@@ -9861,6 +9909,9 @@ isolation = dict(payload.get("isolation") or {})
 required_for_route = inferred_required_capabilities(handoff)
 preferred_for_route = inferred_preferred_capabilities(handoff)
 model_candidates = (
+explicit_model_candidates = bool(
+⋮----
+model_candidates = self.model_router.catalog_candidates()
 ⋮----
 preferred_for_learning = [
 learned = self.skills.select(
@@ -13919,6 +13970,17 @@ job = engine.dispatch_ready(workflow["id"], limit=1)[0]
 handoff = job["payload"]["handoff"]
 ⋮----
 def test_workflow_without_candidates_keeps_existing_handoff_shape(tmp_path)
+⋮----
+def test_worker_catalog_is_deduplicated_and_reused_for_one_tap_dispatch(tmp_path)
+⋮----
+router = ModelRouter(backend)
+candidates = [
+⋮----
+route = job["payload"]["handoff"]["model_route"]
+⋮----
+def test_worker_catalog_never_blocks_task_when_no_candidate_fits(tmp_path)
+⋮----
+def test_explicit_model_candidates_override_worker_catalog(tmp_path)
 ````
 
 ## File: tests/test_observability.py
@@ -15643,6 +15705,22 @@ checkpoint=client.checkpoint_stale(
 ⋮----
 events=control.backend.events_after(0,1000)
 checkpoint_events=[
+⋮----
+def test_worker_heartbeat_catalog_drives_automatic_model_route(tmp_path)
+⋮----
+control=ControlPlane(str(tmp_path/"catalog.sqlite"),authorizer=auth)
+⋮----
+capacity={
+⋮----
+events=[
+⋮----
+workflow=control.workflows.create(
+job=control.workflows.dispatch_ready(workflow["id"],limit=1)[0]
+route=job["payload"]["handoff"]["model_route"]
+⋮----
+def test_worker_heartbeat_rejects_invalid_model_catalog(tmp_path)
+⋮----
+control=ControlPlane(str(tmp_path/"bad-catalog.sqlite"),authorizer=auth)
 ````
 
 ## File: tests/test_render_start.py

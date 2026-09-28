@@ -2639,6 +2639,8 @@ reconciliation = {
 ⋮----
 capacity = body.get("capacity")
 ⋮----
+raw_model_candidates = capacity.get(
+⋮----
 source = str(capacity.get("source") or "").strip()
 source_status = str(capacity.get("status") or "unavailable")
 used = capacity.get("used_this_month")
@@ -6209,6 +6211,22 @@ priority = float(payload.get("priority", 0.0))
 ⋮----
 def key(self) -> tuple[str, str]
 ⋮----
+normalized = []
+seen = set()
+⋮----
+candidate = ModelCandidate.from_dict(raw)
+key = candidate.key()
+⋮----
+def _parse_time(value: Any) -> datetime | None
+⋮----
+raw = str(value or "").strip()
+⋮----
+raw = raw[:-1] + "+00:00"
+⋮----
+parsed = datetime.fromisoformat(raw)
+⋮----
+parsed = parsed.replace(tzinfo=timezone.utc)
+⋮----
 class ModelRouter
 ⋮----
 """Deterministic provider/model routing from durable execution evidence.
@@ -6219,9 +6237,39 @@ class ModelRouter
 ⋮----
 def __init__(self, backend)
 ⋮----
-def _history(self) -> dict[tuple[str, str], dict[str, float]]
+worker = str(worker_id or "").strip()
+⋮----
+normalized = normalize_model_candidates(candidates)
+payload = {
+⋮----
+row = _execute(
+⋮----
+previous = json.loads(row["payload_json"] or "{}")
+⋮----
+previous = None
+⋮----
+age = max(30, min(int(max_age_seconds), 86400))
 ⋮----
 rows = _execute(
+⋮----
+now = datetime.now(timezone.utc)
+latest_workers: set[str] = set()
+merged: dict[tuple[str, str], dict[str, Any]] = {}
+⋮----
+created = _parse_time(row["created_at"])
+⋮----
+payload = json.loads(row["payload_json"] or "{}")
+⋮----
+worker_id = str(
+⋮----
+raw_candidates = payload.get("model_candidates")
+⋮----
+candidates = normalize_model_candidates(raw_candidates)
+⋮----
+key = (
+existing = merged.get(key)
+⋮----
+def _history(self) -> dict[tuple[str, str], dict[str, float]]
 ⋮----
 stats: dict[tuple[str, str], dict[str, float]] = {}
 ⋮----
@@ -9288,6 +9336,9 @@ isolation = dict(payload.get("isolation") or {})
 required_for_route = inferred_required_capabilities(handoff)
 preferred_for_route = inferred_preferred_capabilities(handoff)
 model_candidates = (
+explicit_model_candidates = bool(
+⋮----
+model_candidates = self.model_router.catalog_candidates()
 ⋮----
 preferred_for_learning = [
 learned = self.skills.select(

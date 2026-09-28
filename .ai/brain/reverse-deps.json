@@ -1428,6 +1428,7 @@
     "src/production_os/model_router.py": {
       "dependencies": [
         "src/production_os/capabilities.py",
+        "src/production_os/workers.py",
         "tests/test_asset_forge.py",
         "tests/test_dashboard_backups.py"
       ],
@@ -1436,7 +1437,7 @@
         "tests/test_model_router.py"
       ],
       "in_degree": 2,
-      "out_degree": 3
+      "out_degree": 4
     },
     "src/production_os/models.py": {
       "dependencies": [
@@ -2256,6 +2257,7 @@
         "src/production_os/delivery.py",
         "src/production_os/dispatch.py",
         "src/production_os/execution_optimizer.py",
+        "src/production_os/model_router.py",
         "src/production_os/postgres_backend.py",
         "src/production_os/preemption.py",
         "src/production_os/remote_worker.py",
@@ -2302,7 +2304,6 @@
         "tests/test_execution_optimizer.py",
         "tests/test_execution_optimizer_postgres.py",
         "tests/test_executor_worktree.py",
-        "tests/test_github_change_review.py",
         "tests/test_preemption.py",
         "tests/test_stragglers.py",
         "tests/test_workers.py"
@@ -3368,12 +3369,11 @@
     "tests/test_github_change_review.py": {
       "dependencies": [
         "src/production_os/__init__.py",
-        "src/production_os/github_change_review.py",
-        "src/production_os/workers.py"
+        "src/production_os/github_change_review.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 3
+      "out_degree": 2
     },
     "tests/test_github_client_pr_files.py": {
       "dependencies": [

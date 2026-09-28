@@ -22,23 +22,26 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-28T07:36:37Z
+Generated: 2026-09-28T11:17:46Z
 
 ### Git
 - Branch: `main`
-- Head: `f3907cf699d2`
-- Commit date: 2026-09-28T09:36:26+02:00
-- Commit: feat(benchmark): measure autonomous workflow performance from durable history
+- Head: `d9dac2079d94`
+- Commit date: 2026-09-28T13:17:36+02:00
+- Commit: feat(models): discover one-tap model candidates from worker heartbeats
 - Tracked files: 507
 
 ### Recently changed files
+- `docs/remote-worker-executor-protocol.md`
+- `src/production_os/control_plane.py`
+- `src/production_os/model_router.py`
+- `src/production_os/remote_worker.py`
+- `src/production_os/workflow_engine.py`
+- `tests/test_model_router.py`
+- `tests/test_remote_worker.py`
 - `src/production_os/agent_benchmark.py`
 - `src/production_os/cli.py`
 - `tests/test_agent_benchmark.py`
-- `docs/remote-worker-executor-protocol.md`
-- `src/production_os/model_router.py`
-- `src/production_os/workflow_engine.py`
-- `tests/test_model_router.py`
 - `src/production_os/dashboard_store.py`
 - `tests/test_dashboard_store.py`
 - `README.md`
@@ -46,8 +49,6 @@ Generated: 2026-09-28T07:36:37Z
 - `src/production_os/controller_leader.py`
 - `tests/test_controller_daemon.py`
 - `tests/test_controller_leader.py`
-- `compose.yaml`
-- `tests/test_controller_daemon_deployment.py`
 
 ### Project signals
 - `pyproject.toml`
