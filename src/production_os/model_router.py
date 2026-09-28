@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from typing import Any
 
 
@@ -61,6 +62,48 @@ class ModelCandidate:
         return self.provider, self.model
 
 
+def normalize_model_candidates(
+    candidates: list[dict[str, Any]],
+    *,
+    max_candidates: int = 64,
+) -> list[dict[str, Any]]:
+    if not isinstance(candidates, list):
+        raise ValueError("model_candidates must be a list")
+    if len(candidates) > int(max_candidates):
+        raise ValueError("too many model_candidates")
+    normalized = []
+    seen = set()
+    for raw in candidates:
+        candidate = ModelCandidate.from_dict(raw)
+        key = candidate.key()
+        if key in seen:
+            continue
+        seen.add(key)
+        normalized.append({
+            "provider":candidate.provider,
+            "model":candidate.model,
+            "capabilities":list(candidate.capabilities),
+            "free":candidate.free,
+            "priority":candidate.priority,
+        })
+    return normalized
+
+
+def _parse_time(value: Any) -> datetime | None:
+    raw = str(value or "").strip()
+    if not raw:
+        return None
+    if raw.endswith("Z"):
+        raw = raw[:-1] + "+00:00"
+    try:
+        parsed = datetime.fromisoformat(raw)
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
+
+
 class ModelRouter:
     """Deterministic provider/model routing from durable execution evidence.
 
@@ -70,6 +113,74 @@ class ModelRouter:
 
     def __init__(self, backend):
         self.backend = backend
+
+    def catalog_candidates(
+        self,
+        *,
+        max_age_seconds: int = 600,
+    ) -> list[dict[str, Any]]:
+        age = max(30, min(int(max_age_seconds), 86400))
+        with self.backend.connect() as db:
+            rows = _execute(
+                db,
+                self.backend,
+                """
+                SELECT payload_json, created_at
+                FROM events
+                WHERE event_type='worker-model-catalog'
+                ORDER BY created_at DESC, id DESC
+                LIMIT 256
+                """,
+            ).fetchall()
+
+        now = datetime.now(timezone.utc)
+        latest_workers: set[str] = set()
+        merged: dict[tuple[str, str], dict[str, Any]] = {}
+        for row in rows:
+            created = _parse_time(row["created_at"])
+            if created is None or (now - created).total_seconds() > age:
+                continue
+            try:
+                payload = json.loads(row["payload_json"] or "{}")
+            except (TypeError, json.JSONDecodeError):
+                continue
+            if not isinstance(payload, dict):
+                continue
+            worker_id = str(payload.get("worker_id") or "").strip()
+            if not worker_id or worker_id in latest_workers:
+                continue
+            latest_workers.add(worker_id)
+            raw_candidates = payload.get("model_candidates")
+            if not isinstance(raw_candidates, list):
+                continue
+            try:
+                candidates = normalize_model_candidates(raw_candidates)
+            except ValueError:
+                continue
+            for candidate in candidates:
+                key = (
+                    str(candidate["provider"]),
+                    str(candidate["model"]),
+                )
+                existing = merged.get(key)
+                if existing is None:
+                    merged[key] = dict(candidate)
+                    continue
+                existing["capabilities"] = sorted(set(
+                    list(existing.get("capabilities") or [])
+                    + list(candidate.get("capabilities") or [])
+                ))
+                existing["free"] = bool(
+                    existing.get("free") or candidate.get("free")
+                )
+                existing["priority"] = max(
+                    float(existing.get("priority") or 0),
+                    float(candidate.get("priority") or 0),
+                )
+        return [
+            merged[key]
+            for key in sorted(merged)
+        ]
 
     def _history(self) -> dict[tuple[str, str], dict[str, float]]:
         with self.backend.connect() as db:
@@ -235,7 +346,10 @@ class ModelRouter:
     ) -> dict[str, Any]:
         if not isinstance(candidates, list) or not candidates:
             raise ValueError("model_candidates must be a non-empty list")
-        normalized = [ModelCandidate.from_dict(item) for item in candidates]
+        normalized = [
+            ModelCandidate.from_dict(item)
+            for item in normalize_model_candidates(candidates)
+        ]
         if len({item.key() for item in normalized}) != len(normalized):
             raise ValueError("duplicate provider/model candidate")
 
