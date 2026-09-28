@@ -39,6 +39,7 @@ from .scheduler import build_schedule
 from .scoring import assess_repository
 from .self_healing import apply_self_healing
 from .workers import WorkerRegistry
+from .controller_leader import controller_leader_lock
 from .task_capabilities import asset_forge_tool_contract, inferred_required_capabilities
 
 
@@ -458,41 +459,47 @@ def run_controller_daemon(
     recent_results: list[dict] = []
     last_error: str | None = None
 
-    while not stop.is_set():
-        wait_seconds = int(interval_seconds)
-        try:
-            result = run_control_cycle(**kwargs)
-            successes += 1
-            consecutive_failures = 0
-            last_error = None
-            recent_results.append(result)
-            if len(recent_results) > int(result_history_limit):
-                del recent_results[:-int(result_history_limit)]
-        except Exception as exc:
-            failures += 1
-            consecutive_failures += 1
-            last_error = str(exc)
-            _record_controller_error(exc, kwargs)
-            journal_path = kwargs.get("journal_path")
-            if journal_path:
-                try:
-                    ExecutionJournal(journal_path).append({
-                        "source":"controller-daemon",
-                        "event":"cycle-error",
-                        "error":last_error,
-                        "consecutive_failures":consecutive_failures,
-                    })
-                except Exception:
-                    pass
-            wait_seconds = min(
-                int(max_error_backoff_seconds),
-                max(1, int(interval_seconds))
-                * (2 ** min(consecutive_failures - 1, 8)),
-            )
+    leader = controller_leader_lock(
+        database_path=kwargs.get("database_path"),
+        runtime_state_path=kwargs.get("runtime_state_path"),
+        journal_path=kwargs.get("journal_path"),
+    )
+    with leader:
+        while not stop.is_set():
+            wait_seconds = int(interval_seconds)
+            try:
+                result = run_control_cycle(**kwargs)
+                successes += 1
+                consecutive_failures = 0
+                last_error = None
+                recent_results.append(result)
+                if len(recent_results) > int(result_history_limit):
+                    del recent_results[:-int(result_history_limit)]
+            except Exception as exc:
+                failures += 1
+                consecutive_failures += 1
+                last_error = str(exc)
+                _record_controller_error(exc, kwargs)
+                journal_path = kwargs.get("journal_path")
+                if journal_path:
+                    try:
+                        ExecutionJournal(journal_path).append({
+                            "source":"controller-daemon",
+                            "event":"cycle-error",
+                            "error":last_error,
+                            "consecutive_failures":consecutive_failures,
+                        })
+                    except Exception:
+                        pass
+                wait_seconds = min(
+                    int(max_error_backoff_seconds),
+                    max(1, int(interval_seconds))
+                    * (2 ** min(consecutive_failures - 1, 8)),
+                )
 
-        if stop.is_set():
-            break
-        stop.wait(wait_seconds)
+            if stop.is_set():
+                break
+            stop.wait(wait_seconds)
 
     return {
         "schema_version":"production-os/controller-daemon/v1",
