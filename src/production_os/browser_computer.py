@@ -26,6 +26,7 @@ _ALLOWED_ACTIONS = {
     "back",
     "forward",
     "checkpoint",
+    "observe",
 }
 _SAFE_NAME = re.compile(r"^[A-Za-z0-9._-]{1,120}$")
 
@@ -113,6 +114,132 @@ def _validate_url(
     if not allow_private_network and _is_private_host(host):
         raise ValueError("browser private-network navigation is disabled")
     return value
+
+
+def _safe_selector_value(value: str) -> str | None:
+    text = str(value or "").strip()
+    if not text or len(text) > 120:
+        return None
+    if re.fullmatch(r"[A-Za-z0-9_.:-]+", text) is None:
+        return None
+    return text
+
+
+def _safe_link_target(
+    value: str,
+    *,
+    allowed_hosts: set[str],
+    allow_private_network: bool,
+) -> str | None:
+    if not str(value or "").strip():
+        return None
+    return _safe_resume_url(
+        str(value),
+        allowed_hosts,
+        allow_private_network=allow_private_network,
+    )
+
+
+def _observe_page(page, plan: BrowserPlan, *, max_elements: int = 80) -> dict[str, Any]:
+    body_text = ""
+    try:
+        body_text = page.locator("body").inner_text(timeout=5000)
+    except Exception:
+        body_text = ""
+    body_text = str(body_text)[:12000]
+
+    rows: list[dict[str, Any]] = []
+    locator = page.locator(
+        "a,button,input,textarea,select,"
+        "[role=button],[role=link],[role=checkbox],[role=radio]"
+    )
+    try:
+        count = min(locator.count(), max(1, min(int(max_elements), 120)))
+    except Exception:
+        count = 0
+    allowed = set(plan.allowed_hosts)
+    for index in range(count):
+        item = locator.nth(index)
+        try:
+            tag = str(item.evaluate("(el) => el.tagName.toLowerCase()"))
+        except Exception:
+            tag = ""
+        try:
+            text = " ".join(str(item.inner_text(timeout=1000)).split())[:300]
+        except Exception:
+            text = ""
+        attributes = {}
+        for name in (
+            "id",
+            "name",
+            "type",
+            "role",
+            "aria-label",
+            "placeholder",
+            "data-testid",
+            "href",
+        ):
+            try:
+                value = item.get_attribute(name)
+            except Exception:
+                value = None
+            if value is not None and str(value).strip():
+                attributes[name] = str(value).strip()[:500]
+
+        selector_hint = None
+        ident = _safe_selector_value(attributes.get("id", ""))
+        testid = _safe_selector_value(attributes.get("data-testid", ""))
+        name_value = _safe_selector_value(attributes.get("name", ""))
+        if ident:
+            selector_hint = f"#{ident}"
+        elif testid:
+            selector_hint = f'[data-testid="{testid}"]'
+        elif name_value:
+            selector_hint = f'[name="{name_value}"]'
+
+        href = None
+        if "href" in attributes:
+            href = _safe_link_target(
+                attributes["href"],
+                allowed_hosts=allowed,
+                allow_private_network=plan.allow_private_network,
+            )
+
+        row = {
+            "index":index,
+            "tag":tag,
+        }
+        if text:
+            row["text"] = text
+        for source, target in (
+            ("type", "type"),
+            ("role", "role"),
+            ("aria-label", "aria_label"),
+            ("placeholder", "placeholder"),
+        ):
+            if attributes.get(source):
+                row[target] = attributes[source]
+        if selector_hint:
+            row["selector_hint"] = selector_hint
+        if href:
+            row["href"] = href
+        rows.append(row)
+
+    safe_url = _safe_resume_url(
+        str(page.url or ""),
+        allowed,
+        allow_private_network=plan.allow_private_network,
+    )
+    try:
+        title = str(page.title())[:500]
+    except Exception:
+        title = ""
+    return {
+        "url":safe_url,
+        "title":title,
+        "visible_text":body_text,
+        "interactive_elements":rows,
+    }
 
 
 def _browser_plan_fingerprint(plan: BrowserPlan) -> str:
@@ -374,7 +501,7 @@ def validate_browser_plan(
                 raise ValueError("browser press requires a valid key")
 
         name = None
-        if action in {"extract_text", "screenshot"}:
+        if action in {"extract_text", "screenshot", "observe"}:
             name = str(raw.get("name") or f"step-{index + 1}").strip()
             if _SAFE_NAME.fullmatch(name) is None:
                 raise ValueError("browser action name is invalid")
@@ -549,6 +676,13 @@ def execute_browser_plan(
                         wait_until="domcontentloaded",
                         timeout=action.timeout_ms,
                     )
+                elif action.action == "observe":
+                    results.append({
+                        "step":index,
+                        "action":"observe",
+                        "name":action.name,
+                        "observation":_observe_page(page, plan),
+                    })
                 elif action.action == "checkpoint":
                     if not plan.persist_session:
                         raise RuntimeError(
@@ -583,6 +717,7 @@ def execute_browser_plan(
                 if action.action not in {
                     "extract_text",
                     "screenshot",
+                    "observe",
                     "checkpoint",
                 }:
                     results.append({
