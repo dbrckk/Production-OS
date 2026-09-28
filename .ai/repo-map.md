@@ -57,6 +57,7 @@ src/
     __init__.py
     adaptation_plan.py
     adaptation.py
+    agent_benchmark.py
     agent_plan.py
     agent_runtime.py
     api_auth.py
@@ -183,6 +184,7 @@ src/
 tests/
   test_adaptation_plan.py
   test_adaptation.py
+  test_agent_benchmark.py
   test_agent_plan.py
   test_api_auth.py
   test_approvals_migrations.py
@@ -845,6 +847,127 @@ level = "medium"
 level = "high"
 ⋮----
 level = "very-high"
+````
+
+## File: src/production_os/agent_benchmark.py
+````python
+BENCHMARK_SCHEMA = "production-os/autonomous-benchmark/v1"
+⋮----
+def _is_postgres(backend) -> bool
+⋮----
+def _sql(backend, statement: str) -> str
+⋮----
+def _execute(db, backend, statement: str, params: tuple = ())
+⋮----
+def _dt(value: Any) -> datetime | None
+⋮----
+raw = str(value).strip()
+⋮----
+raw = raw[:-1] + "+00:00"
+⋮----
+def _validation_status(result: dict[str, Any]) -> str | None
+⋮----
+validation = result.get("validation")
+⋮----
+evidence = result.get("evidence")
+validation = (
+⋮----
+value = str(validation.get("status") or "").strip().lower()
+⋮----
+@dataclass(frozen=True, slots=True)
+class WorkflowBenchmark
+⋮----
+workflow_id: str
+repository: str
+status: str
+succeeded: bool
+task_count: int
+succeeded_tasks: int
+failed_tasks: int
+cancelled_tasks: int
+execution_count: int
+failed_executions: int
+retry_executions: int
+validation_failures: int
+validation_passes: int
+operator_interventions: int
+cumulative_execution_seconds: float
+wall_clock_seconds: float | None
+observed_cost_usd: float
+unknown_cost_executions: int
+providers: tuple[str, ...]
+models: tuple[str, ...]
+⋮----
+def to_dict(self) -> dict[str, Any]
+⋮----
+class AutonomousBenchmark
+⋮----
+def __init__(self, backend)
+⋮----
+def workflow(self, workflow_id: str) -> WorkflowBenchmark
+⋮----
+workflow = _execute(
+⋮----
+tasks = _execute(
+⋮----
+executions = _execute(
+⋮----
+audit_rows = _execute(
+⋮----
+status_counts: dict[str, int] = {}
+validation_failures = 0
+validation_passes = 0
+⋮----
+status = str(row["status"])
+⋮----
+result = json.loads(row["result_json"] or "{}")
+⋮----
+result = {}
+⋮----
+validation = _validation_status(result)
+⋮----
+execution_count = len(executions)
+task_execution_counts: dict[str, int] = {}
+failed_executions = 0
+cumulative_seconds = 0.0
+observed_cost = 0.0
+unknown_cost = 0
+providers: set[str] = set()
+models: set[str] = set()
+⋮----
+task_id = str(row["workflow_task_id"] or "")
+⋮----
+duration = row["duration_seconds"]
+⋮----
+cost = row["estimated_cost_usd"]
+⋮----
+retry_executions = sum(
+⋮----
+operator_interventions = sum(
+⋮----
+created = _dt(workflow["created_at"])
+updated = _dt(workflow["updated_at"])
+wall_clock = None
+⋮----
+wall_clock = max(0.0, (updated - created).total_seconds())
+⋮----
+def report(self, workflow_ids: list[str] | tuple[str, ...]) -> dict[str, Any]
+⋮----
+ids = list(dict.fromkeys(
+⋮----
+rows = [self.workflow(workflow_id) for workflow_id in ids]
+⋮----
+successes = sum(1 for row in rows if row.succeeded)
+total = len(rows)
+wall_clocks = [
+costs = [row.observed_cost_usd for row in rows]
+total_executions = sum(row.execution_count for row in rows)
+failed_executions = sum(row.failed_executions for row in rows)
+⋮----
+def delta(name: str)
+⋮----
+left = candidate.get(name)
+right = baseline.get(name)
 ````
 
 ## File: src/production_os/agent_plan.py
@@ -2010,6 +2133,8 @@ remoterun = sub.add_parser(
 ⋮----
 browserplan = sub.add_parser(
 ⋮----
+benchmark = sub.add_parser(
+⋮----
 workflowcreate = sub.add_parser("workflow-create", help="Create a persistent DAG workflow")
 ⋮----
 workflowstatus = sub.add_parser("workflow-status", help="Inspect a persistent workflow")
@@ -2440,6 +2565,14 @@ def run_browser_plan(args: argparse.Namespace) -> int
 payload = json.loads(Path(args.plan).read_text(encoding="utf-8"))
 plan = validate_browser_plan(payload)
 result = execute_browser_plan(
+⋮----
+def run_agent_benchmark(args: argparse.Namespace) -> int
+⋮----
+report = AutonomousBenchmark(backend).report(args.workflow_id)
+payload = {"benchmark":report}
+baseline_path = str(args.baseline or "").strip()
+⋮----
+baseline = json.loads(
 ⋮----
 def _workflow_engine(database: str) -> WorkflowEngine
 ⋮----
@@ -9925,6 +10058,53 @@ def test_tests_reduce_adaptation_risk()
 source = assessment("source", "android-app", "Kotlin", [component, test])
 target = assessment("target", "android-game", "Kotlin", [])
 scored = score_adaptation_risk(source, target, "android-play-billing", component)
+````
+
+## File: tests/test_agent_benchmark.py
+````python
+def _build(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "benchmark.sqlite")
+queue = SQLiteJobQueue(backend)
+⋮----
+def _execution_job(job, *, attempt=1)
+⋮----
+def test_benchmark_reads_real_workflow_execution_history(tmp_path)
+⋮----
+workflow = engine.create(
+code_job = engine.dispatch_ready(workflow["id"], limit=1)[0]
+⋮----
+current = engine.get(workflow["id"])
+validate_task = next(
+validate_job = engine.queue.get(validate_task["claimed_job_key"])
+⋮----
+row = AutonomousBenchmark(backend).workflow(workflow["id"])
+⋮----
+def test_benchmark_counts_retry_failures_and_operator_controls(tmp_path)
+⋮----
+first = engine.dispatch_ready(workflow["id"], limit=1)[0]
+⋮----
+retry_task = next(
+retry_job = queue.get(retry_task["claimed_job_key"])
+⋮----
+def test_benchmark_report_aggregates_without_inventing_unknown_cost(tmp_path)
+⋮----
+successful = engine.create(
+⋮----
+failed = engine.create(
+⋮----
+report = AutonomousBenchmark(backend).report([
+⋮----
+def test_compare_reports_returns_metric_deltas_without_declaring_winner()
+⋮----
+candidate = {
+baseline = {
+⋮----
+comparison = compare_reports(candidate, baseline)
+⋮----
+def test_agent_benchmark_cli_parses_multiple_workflows_and_baseline()
+⋮----
+args = _parse_args([
 ````
 
 ## File: tests/test_agent_plan.py

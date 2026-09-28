@@ -22,16 +22,19 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-28T07:28:23Z
+Generated: 2026-09-28T07:36:37Z
 
 ### Git
 - Branch: `main`
-- Head: `16a53dead2f6`
-- Commit date: 2026-09-28T09:28:12+02:00
-- Commit: feat(models): add evidence-aware multi-provider routing
-- Tracked files: 505
+- Head: `f3907cf699d2`
+- Commit date: 2026-09-28T09:36:26+02:00
+- Commit: feat(benchmark): measure autonomous workflow performance from durable history
+- Tracked files: 507
 
 ### Recently changed files
+- `src/production_os/agent_benchmark.py`
+- `src/production_os/cli.py`
+- `tests/test_agent_benchmark.py`
 - `docs/remote-worker-executor-protocol.md`
 - `src/production_os/model_router.py`
 - `src/production_os/workflow_engine.py`
@@ -44,12 +47,7 @@ Generated: 2026-09-28T07:28:23Z
 - `tests/test_controller_daemon.py`
 - `tests/test_controller_leader.py`
 - `compose.yaml`
-- `src/production_os/cli.py`
 - `tests/test_controller_daemon_deployment.py`
-- `src/production_os/executor_worktree.py`
-- `src/production_os/remote_worker_runner.py`
-- `tests/test_executor_worktree.py`
-- `tests/test_remote_worker_runner.py`
 
 ### Project signals
 - `pyproject.toml`

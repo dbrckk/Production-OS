@@ -2,22 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "test: release 35 control-plane restart reconciliation",
-      "terms": [
-        "35",
-        "control-plane",
-        "reconciliation",
-        "release",
-        "restart",
-        "test"
-      ],
-      "tests": [],
-      "useful": [
-        "tests/test_release35_control_plane_restart_e2e.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat: release 36 worker session reconciliation",
       "terms": [
         "36",
@@ -1277,6 +1261,27 @@
         "src/production_os/workflow_engine.py",
         "tests/test_model_router.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "feat(benchmark): measure autonomous workflow performance from durable history",
+      "terms": [
+        "autonomous",
+        "benchmark",
+        "durable",
+        "feat",
+        "from",
+        "history",
+        "measure",
+        "performance",
+        "workflow"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/agent_benchmark.py",
+        "src/production_os/cli.py",
+        "tests/test_agent_benchmark.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1866,7 +1871,8 @@
       "tests/test_worker_compose_deployment.py": 4
     },
     "autonomous": {
-      "src/production_os/cli.py": 4,
+      "src/production_os/agent_benchmark.py": 4,
+      "src/production_os/cli.py": 8,
       "src/production_os/controller.py": 8,
       "src/production_os/controller_leader.py": 4,
       "src/production_os/dashboard_ui.py": 4,
@@ -1876,6 +1882,7 @@
       "src/production_os/managed_projects.py": 4,
       "src/production_os/rollback_plan.py": 4,
       "src/production_os/workflow_engine.py": 4,
+      "tests/test_agent_benchmark.py": 4,
       "tests/test_controller_daemon.py": 8,
       "tests/test_controller_daemon_deployment.py": 4,
       "tests/test_controller_leader.py": 4,
@@ -1927,6 +1934,11 @@
       "src/production_os/remote_worker_runner.py": 8,
       "tests/test_executor_worktree.py": 8,
       "tests/test_remote_worker_runner.py": 8
+    },
+    "benchmark": {
+      "src/production_os/agent_benchmark.py": 4,
+      "src/production_os/cli.py": 4,
+      "tests/test_agent_benchmark.py": 4
     },
     "bootstrap": {
       "scripts/render-start.py": 4,
@@ -2458,8 +2470,11 @@
       "tests/test_dashboard_ui_v3.py": 4
     },
     "durable": {
+      "src/production_os/agent_benchmark.py": 4,
       "src/production_os/agent_runtime.py": 4,
+      "src/production_os/cli.py": 4,
       "src/production_os/remote_worker_runner.py": 4,
+      "tests/test_agent_benchmark.py": 4,
       "tests/test_persistent_agent_runtime.py": 4
     },
     "dynamic": {
@@ -2586,6 +2601,7 @@
     },
     "feat": {
       "scripts/render-start.py": 4,
+      "src/production_os/agent_benchmark.py": 4,
       "src/production_os/agent_plan.py": 4,
       "src/production_os/agent_runtime.py": 8,
       "src/production_os/asset_forge.py": 24,
@@ -2619,7 +2635,6 @@
       "src/production_os/project_progress.py": 4,
       "src/production_os/remote_worker.py": 8,
       "src/production_os/remote_worker_runner.py": 40,
-      "src/production_os/repository_cache.py": 4,
       "src/production_os/skill_memory.py": 8,
       "src/production_os/sqlite_backend.py": 40,
       "src/production_os/task_capabilities.py": 8,
@@ -2683,7 +2698,10 @@
       "tests/test_workflow_engine.py": 4
     },
     "from": {
+      "src/production_os/agent_benchmark.py": 4,
+      "src/production_os/cli.py": 4,
       "src/production_os/control_plane.py": 8,
+      "tests/test_agent_benchmark.py": 4,
       "tests/test_dashboard_launch.py": 8
     },
     "gates": {
@@ -2773,6 +2791,8 @@
       "tests/test_controller_asset_capabilities.py": 4
     },
     "history": {
+      "src/production_os/agent_benchmark.py": 4,
+      "src/production_os/cli.py": 4,
       "src/production_os/control_plane.py": 8,
       "src/production_os/dashboard_backups.py": 4,
       "src/production_os/dashboard_service.py": 8,
@@ -2780,6 +2800,7 @@
       "src/production_os/dashboard_ui.py": 8,
       "src/production_os/postgres_backend.py": 4,
       "src/production_os/sqlite_backend.py": 4,
+      "tests/test_agent_benchmark.py": 4,
       "tests/test_dashboard_backup_api.py": 4,
       "tests/test_dashboard_backups.py": 4,
       "tests/test_dashboard_control_audit.py": 4,
@@ -3027,6 +3048,11 @@
       "tests/test_repository_cache.py": 4,
       "tests/test_worker_compose_deployment.py": 4
     },
+    "measure": {
+      "src/production_os/agent_benchmark.py": 4,
+      "src/production_os/cli.py": 4,
+      "tests/test_agent_benchmark.py": 4
+    },
     "merge": {
       "src/production_os/control_plane.py": 8,
       "tests/test_dashboard_launch.py": 8
@@ -3200,6 +3226,11 @@
     "perceptual": {
       "src/production_os/asset_forge.py": 4,
       "tests/test_asset_forge.py": 4
+    },
+    "performance": {
+      "src/production_os/agent_benchmark.py": 4,
+      "src/production_os/cli.py": 4,
+      "tests/test_agent_benchmark.py": 4
     },
     "persist": {
       "src/production_os/cli.py": 4,
@@ -4367,12 +4398,15 @@
       "tests/test_remote_worker_runner.py": 4
     },
     "workflow": {
+      "src/production_os/agent_benchmark.py": 4,
+      "src/production_os/cli.py": 4,
       "src/production_os/controller.py": 4,
       "src/production_os/executor_worktree.py": 4,
       "src/production_os/github_client.py": 4,
       "src/production_os/remote_worker_runner.py": 4,
       "src/production_os/task_capabilities.py": 4,
       "src/production_os/workflow_engine.py": 4,
+      "tests/test_agent_benchmark.py": 4,
       "tests/test_executor_worktree.py": 4,
       "tests/test_remote_worker_runner.py": 4,
       "tests/test_workflow_engine.py": 4
