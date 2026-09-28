@@ -1813,6 +1813,32 @@ class WorkflowEngine:
             )
 
         task_payload = json.loads(row["payload_json"])
+        reused_skill_ids: list[str] = []
+        claimed_job_key = str(row["claimed_job_key"] or "")
+        if claimed_job_key:
+            try:
+                claimed_job = self.queue.get(claimed_job_key)
+            except KeyError:
+                claimed_job = None
+            if isinstance(claimed_job, dict):
+                claimed_payload = dict(claimed_job.get("payload") or {})
+                claimed_handoff = dict(
+                    claimed_payload.get("handoff") or {}
+                )
+                learned = claimed_handoff.get("learned_skills")
+                if isinstance(learned, list):
+                    reused_skill_ids = [
+                        str(item.get("skill_id") or "").strip()
+                        for item in learned
+                        if isinstance(item, dict)
+                        and str(item.get("skill_id") or "").strip()
+                    ][:10]
+        if reused_skill_ids:
+            self.skills.record_use_outcome(
+                reused_skill_ids,
+                succeeded=bool(succeeded),
+            )
+
         if succeeded:
             handoff_payload = dict(task_payload.get("handoff") or {})
             try:

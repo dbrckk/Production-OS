@@ -161,7 +161,7 @@ def test_release17_schema_is_v16_and_contains_managed_project_tables(tmp_path):
                 "PRAGMA table_info(dashboard_remediation_events)"
             ).fetchall()
         }
-    assert version == "16"
+    assert version == "17"
     assert table["name"] == "control_audit_events"
     assert remediation["name"] == "dashboard_remediation_events"
     assert {

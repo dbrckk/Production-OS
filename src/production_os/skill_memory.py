@@ -52,7 +52,9 @@ class LearnedSkill:
     capabilities: tuple[str, ...]
     procedure: tuple[str, ...]
     successes: int
+    verified_successes: int
     uses: int
+    failed_uses: int
     confidence: float
     source_task: str
 
@@ -66,7 +68,9 @@ class LearnedSkill:
             "capabilities":list(self.capabilities),
             "procedure":list(self.procedure),
             "successes":self.successes,
+            "verified_successes":self.verified_successes,
             "uses":self.uses,
+            "failed_uses":self.failed_uses,
             "confidence":self.confidence,
             "source_task":self.source_task,
         }
@@ -134,6 +138,23 @@ class SkillStore:
         skill_id = hashlib.sha256(canonical.encode("utf-8")).hexdigest()[:32]
         return skill_id, title, trigger_terms, normalized_capabilities, procedure
 
+    @staticmethod
+    def _from_row(row) -> LearnedSkill:
+        return LearnedSkill(
+            skill_id=str(row["skill_id"]),
+            repository=str(row["repository"]),
+            title=str(row["title"]),
+            trigger_terms=tuple(json.loads(row["trigger_terms_json"])),
+            capabilities=tuple(json.loads(row["capabilities_json"])),
+            procedure=tuple(json.loads(row["procedure_json"])),
+            successes=int(row["successes"]),
+            verified_successes=int(row["verified_successes"]),
+            uses=int(row["uses"]),
+            failed_uses=int(row["failed_uses"]),
+            confidence=float(row["confidence"]),
+            source_task=str(row["source_task"]),
+        )
+
     def record_success(
         self,
         *,
@@ -162,55 +183,69 @@ class SkillStore:
             row = _execute(
                 db,
                 self.backend,
-                "SELECT successes,uses,confidence FROM learned_skills WHERE skill_id=?",
+                """SELECT successes,verified_successes,uses,failed_uses,confidence
+                   FROM learned_skills WHERE skill_id=?""",
                 (skill_id,),
             ).fetchone()
             if row is None:
                 successes = 1
+                verified_successes = 1 if verified else 0
                 uses = 0
+                failed_uses = 0
                 confidence = 0.8 if verified else 0.6
                 _execute(
                     db,
                     self.backend,
                     """INSERT INTO learned_skills(
                         skill_id,repository,title,trigger_terms_json,
-                        capabilities_json,procedure_json,successes,uses,
-                        confidence,source_task,created_at,updated_at
-                    ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)""",
+                        capabilities_json,procedure_json,successes,
+                        verified_successes,uses,failed_uses,confidence,
+                        source_task,created_at,updated_at,last_failure_at
+                    ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,NULL)""",
                     (
                         skill_id, str(repository), title,
                         json.dumps(list(terms)),
                         json.dumps(list(caps)),
                         json.dumps(list(procedure), ensure_ascii=False),
-                        successes, uses, confidence, str(task), now, now,
+                        successes, verified_successes, uses, failed_uses,
+                        confidence, str(task), now, now,
                     ),
                 )
             else:
                 successes = int(row["successes"]) + 1
+                verified_successes = (
+                    int(row["verified_successes"]) + (1 if verified else 0)
+                )
                 uses = int(row["uses"])
+                failed_uses = int(row["failed_uses"])
                 previous_confidence = float(row["confidence"])
-                learned_confidence = (
-                    0.6
-                    + min(successes, 8) * 0.045
-                    + (0.08 if verified else 0)
-                )
-                confidence = min(
-                    0.98,
-                    round(
-                        max(
-                            previous_confidence + (0.04 if verified else 0.02),
-                            learned_confidence,
-                        ),
-                        3,
-                    ),
-                )
+                if verified:
+                    target = (
+                        0.72
+                        + min(verified_successes, 6) * 0.04
+                        + min(successes, 8) * 0.01
+                    )
+                    confidence = min(
+                        0.98,
+                        round(max(previous_confidence + 0.04, target), 3),
+                    )
+                else:
+                    target = 0.58 + min(successes, 8) * 0.02
+                    confidence = min(
+                        0.75,
+                        round(max(previous_confidence, target), 3),
+                    )
                 _execute(
                     db,
                     self.backend,
                     """UPDATE learned_skills
-                       SET successes=?,confidence=?,updated_at=?
+                       SET successes=?,verified_successes=?,
+                           confidence=?,updated_at=?
                        WHERE skill_id=?""",
-                    (successes, confidence, now, skill_id),
+                    (
+                        successes, verified_successes,
+                        confidence, now, skill_id,
+                    ),
                 )
         return LearnedSkill(
             skill_id=skill_id,
@@ -220,10 +255,69 @@ class SkillStore:
             capabilities=caps,
             procedure=procedure,
             successes=successes,
+            verified_successes=verified_successes,
             uses=uses,
+            failed_uses=failed_uses,
             confidence=confidence,
             source_task=str(task),
         )
+
+    def record_use_outcome(
+        self,
+        skill_ids: list[str] | tuple[str, ...],
+        *,
+        succeeded: bool,
+    ) -> None:
+        ids = list(dict.fromkeys(
+            str(value or "").strip()
+            for value in skill_ids
+            if str(value or "").strip()
+        ))[:10]
+        if not ids:
+            return
+        now = _now()
+        with self.backend.transaction() as db:
+            for skill_id in ids:
+                row = _execute(
+                    db,
+                    self.backend,
+                    """SELECT confidence,failed_uses,last_failure_at
+                       FROM learned_skills WHERE skill_id=?""",
+                    (skill_id,),
+                ).fetchone()
+                if row is None:
+                    continue
+                confidence = float(row["confidence"])
+                failed_uses = int(row["failed_uses"])
+                if succeeded:
+                    confidence = min(0.98, round(confidence + 0.015, 3))
+                    last_failure_at = row["last_failure_at"]
+                else:
+                    failed_uses += 1
+                    confidence = max(0.2, round(confidence - 0.12, 3))
+                    last_failure_at = now
+                _execute(
+                    db,
+                    self.backend,
+                    """UPDATE learned_skills
+                       SET failed_uses=?,confidence=?,last_failure_at=?,
+                           updated_at=?
+                       WHERE skill_id=?""",
+                    (
+                        failed_uses, confidence, last_failure_at,
+                        now, skill_id,
+                    ),
+                )
+                self.backend.append_event(
+                    db,
+                    "skill-reuse-outcome",
+                    {
+                        "skill_id":skill_id,
+                        "succeeded":bool(succeeded),
+                        "confidence":confidence,
+                        "failed_uses":failed_uses,
+                    },
+                )
 
     def select(
         self,
@@ -234,6 +328,7 @@ class SkillStore:
         limit: int = 3,
         min_confidence: float = 0.55,
     ) -> list[LearnedSkill]:
+        query_repository = str(repository)
         query_terms = set(_terms(task))
         query_caps = {
             str(value or "").strip().lower()
@@ -245,42 +340,47 @@ class SkillStore:
                 db,
                 self.backend,
                 """SELECT * FROM learned_skills
-                   WHERE repository=? AND confidence>=?
-                   ORDER BY confidence DESC,successes DESC,updated_at DESC
-                   LIMIT 100""",
-                (str(repository), float(min_confidence)),
+                   WHERE confidence>=?
+                   ORDER BY confidence DESC,verified_successes DESC,
+                            successes DESC,updated_at DESC
+                   LIMIT 300""",
+                (float(min_confidence),),
             ).fetchall()
 
         scored: list[tuple[float, LearnedSkill]] = []
         for row in rows:
             terms = tuple(json.loads(row["trigger_terms_json"]))
             caps = tuple(json.loads(row["capabilities_json"]))
-            procedure = tuple(json.loads(row["procedure_json"]))
             term_overlap = len(query_terms.intersection(terms))
             cap_overlap = len(query_caps.intersection(caps))
-            if query_terms and term_overlap == 0 and query_caps and cap_overlap == 0:
-                continue
+            same_repo = str(row["repository"]) == query_repository
+
+            if same_repo:
+                if query_terms and term_overlap == 0 and query_caps and cap_overlap == 0:
+                    continue
+            else:
+                if int(row["verified_successes"]) < 2:
+                    continue
+                if float(row["confidence"]) < 0.84:
+                    continue
+                if term_overlap < 2:
+                    continue
+                if query_caps and cap_overlap == 0:
+                    continue
+                if int(row["failed_uses"]) > int(row["verified_successes"]):
+                    continue
+
             score = (
                 float(row["confidence"]) * 10.0
                 + term_overlap * 2.5
                 + cap_overlap * 3.0
-                + min(int(row["successes"]), 8) * 0.3
+                + min(int(row["verified_successes"]), 8) * 0.45
+                + min(int(row["successes"]), 8) * 0.15
+                + (2.0 if same_repo else -1.5)
+                - min(int(row["failed_uses"]), 5) * 1.2
             )
-            scored.append((
-                score,
-                LearnedSkill(
-                    skill_id=str(row["skill_id"]),
-                    repository=str(row["repository"]),
-                    title=str(row["title"]),
-                    trigger_terms=terms,
-                    capabilities=caps,
-                    procedure=procedure,
-                    successes=int(row["successes"]),
-                    uses=int(row["uses"]),
-                    confidence=float(row["confidence"]),
-                    source_task=str(row["source_task"]),
-                ),
-            ))
+            scored.append((score, self._from_row(row)))
+
         selected = [
             skill
             for _score, skill in sorted(
