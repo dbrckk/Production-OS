@@ -794,7 +794,10 @@ def test_remote_worker_runner_preintegrates_multi_parent_commits(tmp_path):
     ).stdout.strip()
 
     subprocess.run(
-        ["git", "-C", str(repo), "checkout", "-b", "agent-a"],
+        [
+            "git", "-C", str(repo), "checkout", "-b",
+            "production-os/wf-integration/agent-a",
+        ],
         check=True,
         stdout=subprocess.PIPE,
     )
@@ -818,7 +821,10 @@ def test_remote_worker_runner_preintegrates_multi_parent_commits(tmp_path):
         stdout=subprocess.PIPE,
     )
     subprocess.run(
-        ["git", "-C", str(repo), "checkout", "-b", "agent-b"],
+        [
+            "git", "-C", str(repo), "checkout", "-b",
+            "production-os/wf-integration/agent-b",
+        ],
         check=True,
         stdout=subprocess.PIPE,
     )
@@ -929,6 +935,21 @@ print(json.dumps({
         assert preflight["status"] == "integrated"
         assert preflight["applied_commits"] == [commit_a, commit_b]
         assert len(preflight["final_sha"]) == 40
+        branches = subprocess.run(
+            [
+                "git", "-C", str(repo), "branch",
+                "--format=%(refname:short)",
+            ],
+            check=True,
+            text=True,
+            stdout=subprocess.PIPE,
+        ).stdout.splitlines()
+        assert "production-os/wf-integration/agent-a" not in branches
+        assert "production-os/wf-integration/agent-b" not in branches
+        assert (
+            "production-os/wf-integration/integration-a1-test"
+            in branches
+        )
     finally:
         _stop(server, thread)
 
