@@ -281,7 +281,7 @@ class SkillStore:
                 row = _execute(
                     db,
                     self.backend,
-                    """SELECT confidence,failed_uses
+                    """SELECT confidence,failed_uses,last_failure_at
                        FROM learned_skills WHERE skill_id=?""",
                     (skill_id,),
                 ).fetchone()
@@ -291,7 +291,7 @@ class SkillStore:
                 failed_uses = int(row["failed_uses"])
                 if succeeded:
                     confidence = min(0.98, round(confidence + 0.015, 3))
-                    last_failure_at = None
+                    last_failure_at = row["last_failure_at"]
                 else:
                     failed_uses += 1
                     confidence = max(0.2, round(confidence - 0.12, 3))
