@@ -35,6 +35,7 @@ def test_worker_compose_exposes_specialist_pool_without_replacing_generic_worker
     assert "--capability\n      - test-debug" in payload
     assert "--capability\n      - code-review" in payload
     assert "--capability\n      - browser-ui-validation" in payload
+    assert "--capability\n      - browser-computer-use" in payload
 
     assert "PRODUCTION_OS_WORKER_SPECIALTIES: code" in payload
     assert "PRODUCTION_OS_WORKER_SPECIALTIES: debug" in payload
