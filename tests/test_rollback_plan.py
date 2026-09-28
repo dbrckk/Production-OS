@@ -33,3 +33,34 @@ def test_build_rollback_plan_rejects_unpinned_merge_commit():
             repository="o/a",
             merge_sha="abc1234",
         )
+
+
+
+def test_build_rollback_plan_carries_non_blocking_bisect_range():
+    plan = build_rollback_plan(
+        repository="o/a",
+        merge_sha="b" * 40,
+        known_good_sha="a" * 40,
+        failure_summary="regression",
+    )
+
+    assert plan["strategy"] == "compensating-pr"
+    assert plan["diagnostic"] == {
+        "schema_version":"production-os/regression-bisect-request/v1",
+        "strategy":"regression-bisect",
+        "known_good_sha":"a" * 40,
+        "known_bad_sha":"b" * 40,
+        "requires_reproduction_command":True,
+        "blocking":False,
+    }
+    assert "production-os regression-bisect" in plan["instruction"]
+    assert "Do not delay an urgent compensating rollback" in plan["instruction"]
+
+
+def test_build_rollback_plan_rejects_invalid_known_good_sha():
+    with pytest.raises(ValueError, match="known_good_sha must be a full commit sha"):
+        build_rollback_plan(
+            repository="o/a",
+            merge_sha="b" * 40,
+            known_good_sha="abc123",
+        )
