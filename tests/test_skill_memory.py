@@ -229,3 +229,235 @@ def test_learned_skill_rejects_secret_like_material(tmp_path):
         assert "credentials or secrets" in str(exc)
     else:
         raise AssertionError("secret-like learned procedure must be rejected")
+
+
+
+def test_verified_skill_can_transfer_cross_repository_after_two_validations(tmp_path):
+    backend = SQLiteBackend(tmp_path / "skills-transfer.sqlite")
+    store = SkillStore(backend)
+    result = {
+        "validation":{"status":"passed"},
+        "learned_skill":{
+            "schema_version":SKILL_SCHEMA,
+            "title":"Safe cache invalidation",
+            "trigger_terms":["cache", "invalidation", "targeted"],
+            "procedure":[
+                "Identify affected cache keys.",
+                "Invalidate only the targeted keys.",
+                "Run cache regression tests.",
+            ],
+        },
+    }
+    first = store.record_success(
+        repository="owner/source",
+        task="Fix targeted cache invalidation",
+        capabilities=["code-implementation"],
+        result=result,
+    )
+    second = store.record_success(
+        repository="owner/source",
+        task="Fix targeted cache invalidation",
+        capabilities=["code-implementation"],
+        result=result,
+    )
+
+    assert first is not None and second is not None
+    assert second.verified_successes == 2
+    assert second.confidence >= 0.84
+
+    selected = store.select(
+        repository="owner/other",
+        task="Repair targeted cache invalidation",
+        capabilities=["code-implementation"],
+    )
+
+    assert [skill.skill_id for skill in selected] == [second.skill_id]
+    assert selected[0].repository == "owner/source"
+
+
+def test_unverified_repetition_does_not_promote_skill_cross_repository(tmp_path):
+    backend = SQLiteBackend(tmp_path / "skills-unverified.sqlite")
+    store = SkillStore(backend)
+    result = {
+        "learned_skill":{
+            "schema_version":SKILL_SCHEMA,
+            "title":"Cache invalidation guess",
+            "trigger_terms":["cache", "invalidation", "targeted"],
+            "procedure":["Invalidate targeted cache keys."],
+        },
+    }
+    learned = None
+    for _ in range(8):
+        learned = store.record_success(
+            repository="owner/source",
+            task="Fix targeted cache invalidation",
+            capabilities=["code-implementation"],
+            result=result,
+        )
+
+    assert learned is not None
+    assert learned.verified_successes == 0
+    assert learned.confidence <= 0.75
+    assert store.select(
+        repository="owner/other",
+        task="Repair targeted cache invalidation",
+        capabilities=["code-implementation"],
+    ) == []
+
+
+def test_cross_repo_transfer_requires_capability_match_when_requested(tmp_path):
+    backend = SQLiteBackend(tmp_path / "skills-capability.sqlite")
+    store = SkillStore(backend)
+    result = {
+        "validation":{"status":"passed"},
+        "learned_skill":{
+            "schema_version":SKILL_SCHEMA,
+            "title":"Safe cache invalidation",
+            "trigger_terms":["cache", "invalidation", "targeted"],
+            "procedure":["Invalidate targeted cache keys.", "Run tests."],
+        },
+    }
+    for _ in range(2):
+        store.record_success(
+            repository="owner/source",
+            task="Fix targeted cache invalidation",
+            capabilities=["code-implementation"],
+            result=result,
+        )
+
+    assert store.select(
+        repository="owner/other",
+        task="Repair targeted cache invalidation",
+        capabilities=["browser-ui-validation"],
+    ) == []
+
+
+def test_failed_reuse_penalizes_injected_skill_confidence(tmp_path):
+    backend = SQLiteBackend(tmp_path / "skill-feedback.sqlite")
+    queue = SQLiteJobQueue(backend)
+    engine = WorkflowEngine(backend, queue)
+    result = {
+        "validation":{"status":"passed"},
+        "learned_skill":{
+            "schema_version":SKILL_SCHEMA,
+            "title":"Stabilize auth tests",
+            "trigger_terms":["authentication", "tests", "flaky"],
+            "procedure":["Reproduce repeatedly.", "Isolate state.", "Run tests."],
+        },
+    }
+    learned = engine.skills.record_success(
+        repository="owner/repo",
+        task="Fix flaky authentication tests",
+        capabilities=["test-debug"],
+        result=result,
+    )
+    assert learned is not None
+
+    workflow = engine.create(
+        name="reuse-failure",
+        repository="owner/repo",
+        tasks=[
+            WorkflowTaskSpec(
+                task_id="repair",
+                title="Repair auth tests",
+                payload={
+                    "handoff":{
+                        "repository":"owner/repo",
+                        "task":"Repair flaky authentication tests",
+                        "preferred_capabilities":["test-debug"],
+                    },
+                },
+                max_attempts=1,
+            ),
+        ],
+    )
+    jobs = engine.dispatch_ready(workflow["id"])
+    injected = jobs[0]["payload"]["handoff"]["learned_skills"]
+    assert injected[0]["skill_id"] == learned.skill_id
+
+    engine.record_result(
+        workflow["id"],
+        "repair",
+        succeeded=False,
+        result={"reason":"regression"},
+    )
+
+    with backend.connect() as db:
+        row = db.execute(
+            """SELECT confidence,failed_uses,last_failure_at
+               FROM learned_skills WHERE skill_id=?""",
+            (learned.skill_id,),
+        ).fetchone()
+    assert int(row["failed_uses"]) == 1
+    assert float(row["confidence"]) < learned.confidence
+    assert row["last_failure_at"] is not None
+
+
+def test_successful_reuse_slightly_boosts_skill_confidence(tmp_path):
+    backend = SQLiteBackend(tmp_path / "skill-feedback-success.sqlite")
+    queue = SQLiteJobQueue(backend)
+    engine = WorkflowEngine(backend, queue)
+    learned = engine.skills.record_success(
+        repository="owner/repo",
+        task="Repair schema migration",
+        capabilities=["code-implementation"],
+        result={
+            "validation":{"status":"passed"},
+            "learned_skill":{
+                "schema_version":SKILL_SCHEMA,
+                "title":"Safe schema migration",
+                "trigger_terms":["schema", "migration", "repair"],
+                "procedure":["Apply compatible schema first.", "Run migrations."],
+            },
+        },
+    )
+    assert learned is not None
+    workflow = engine.create(
+        name="reuse-success",
+        repository="owner/repo",
+        tasks=[
+            WorkflowTaskSpec(
+                task_id="repair",
+                title="Repair migration",
+                payload={
+                    "handoff":{
+                        "repository":"owner/repo",
+                        "task":"Repair schema migration",
+                        "preferred_capabilities":["code-implementation"],
+                    },
+                },
+            ),
+        ],
+    )
+    engine.dispatch_ready(workflow["id"])
+    engine.record_result(
+        workflow["id"],
+        "repair",
+        succeeded=True,
+        result={"summary":"done"},
+    )
+
+    with backend.connect() as db:
+        row = db.execute(
+            "SELECT confidence,failed_uses FROM learned_skills WHERE skill_id=?",
+            (learned.skill_id,),
+        ).fetchone()
+    assert int(row["failed_uses"]) == 0
+    assert float(row["confidence"]) > learned.confidence
+
+
+def test_skill_schema_upgrade_columns_exist(tmp_path):
+    backend = SQLiteBackend(tmp_path / "skill-schema.sqlite")
+    with backend.connect() as db:
+        columns = {
+            row["name"]
+            for row in db.execute(
+                "PRAGMA table_info(learned_skills)"
+            ).fetchall()
+        }
+        version = db.execute(
+            "SELECT value FROM schema_meta WHERE key='schema_version'"
+        ).fetchone()["value"]
+
+    assert {"verified_successes", "failed_uses", "last_failure_at"} <= columns
+    assert int(version) >= 17
