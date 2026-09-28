@@ -113,3 +113,20 @@ def test_workflow_injects_browser_computer_contract(tmp_path):
     assert contract["max_actions"] == 64
     assert contract["requires_allowed_hosts"] is True
     assert contract["persistent_session"] is True
+
+
+
+def test_browser_plan_cli_parses_runtime_paths():
+    from production_os.cli import _parse_args
+
+    args = _parse_args([
+        "browser-plan-run",
+        "--plan", "/tmp/plan.json",
+        "--artifacts-dir", "/tmp/artifacts",
+        "--storage-state", "/tmp/state.json",
+    ])
+
+    assert args.plan == "/tmp/plan.json"
+    assert args.artifacts_dir == "/tmp/artifacts"
+    assert args.storage_state == "/tmp/state.json"
+    assert args.headed is False
