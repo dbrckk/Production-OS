@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from dataclasses import dataclass
@@ -177,7 +178,7 @@ class ProjectMemoryStore:
         )):
             return None
 
-        return {
+        payload = {
             "schema_version":MEMORY_SCHEMA,
             "project_id":str(project_id),
             "generation":max(1, int(generation)),
@@ -194,6 +195,31 @@ class ProjectMemoryStore:
             "risks":risks,
             "next_steps":next_steps,
         }
+        canonical = json.dumps(
+            {
+                key:payload[key]
+                for key in (
+                    "project_id",
+                    "task_id",
+                    "kind",
+                    "summary",
+                    "validation_status",
+                    "commit_shas",
+                    "changed_files",
+                    "decisions",
+                    "constraints",
+                    "facts",
+                    "risks",
+                    "next_steps",
+                )
+            },
+            ensure_ascii=False,
+            sort_keys=True,
+        )
+        payload["memory_fingerprint"] = hashlib.sha256(
+            canonical.encode("utf-8")
+        ).hexdigest()
+        return payload
 
     def record_from_result(
         self,
@@ -216,6 +242,36 @@ class ProjectMemoryStore:
         )
         if payload is None:
             return None
+
+        with self.backend.connect() as db:
+            recent = _execute(
+                db,
+                self.backend,
+                """
+                SELECT id,payload_json FROM events
+                WHERE event_type='project-memory'
+                  AND repository=? AND task_key=?
+                ORDER BY id DESC
+                LIMIT 100
+                """,
+                (str(repository), str(project_id)),
+            ).fetchall()
+        fingerprint = str(payload["memory_fingerprint"])
+        for row in recent:
+            try:
+                existing = json.loads(row["payload_json"])
+            except (TypeError, ValueError, json.JSONDecodeError):
+                continue
+            if (
+                isinstance(existing, dict)
+                and existing.get("memory_fingerprint") == fingerprint
+            ):
+                return {
+                    "event_id":int(row["id"]),
+                    "deduplicated":True,
+                    **existing,
+                }
+
         with self.backend.transaction() as db:
             event_id = self.backend.append_event(
                 db,
@@ -224,7 +280,11 @@ class ProjectMemoryStore:
                 repository=str(repository),
                 task_key_value=str(project_id),
             )
-        return {"event_id":event_id, **payload}
+        return {
+            "event_id":event_id,
+            "deduplicated":False,
+            **payload,
+        }
 
     @staticmethod
     def _from_row(row) -> ProjectMemory | None:
@@ -281,7 +341,19 @@ class ProjectMemoryStore:
 
         query_terms = _terms(query)
         scored: list[tuple[float, ProjectMemory]] = []
+        seen_fingerprints: set[str] = set()
         for rank, row in enumerate(rows):
+            try:
+                raw_payload = json.loads(row["payload_json"])
+            except (TypeError, ValueError, json.JSONDecodeError):
+                raw_payload = {}
+            fingerprint = str(
+                raw_payload.get("memory_fingerprint") or ""
+            )
+            if fingerprint and fingerprint in seen_fingerprints:
+                continue
+            if fingerprint:
+                seen_fingerprints.add(fingerprint)
             memory = self._from_row(row)
             if memory is None:
                 continue
