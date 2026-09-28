@@ -132,6 +132,7 @@ test_managed_project_outcome.py
 test_managed_projects_http_v4.py
 test_managed_projects_v4.py
 test_mobile_worker_image.py
+test_model_router.py
 test_observability.py
 test_p6_hardening.py
 test_persistent_agent_runtime.py
@@ -4029,6 +4030,44 @@ def test_mobile_worker_image_pins_flutter_android_runtime_and_avd()
 payload = Path("Dockerfile.mobile-worker").read_text(encoding="utf-8")
 ⋮----
 def test_mobile_worker_image_includes_git_for_repository_materialization()
+```
+
+## File: test_model_router.py
+```python
+def _backend(tmp_path)
+⋮----
+def _job(key, repository="owner/repo")
+⋮----
+def _finish(store, key, provider, model, *, status="succeeded", cost=0.0, duration=10)
+⋮----
+def test_router_prefers_capable_free_candidate_without_history(tmp_path)
+⋮----
+router = ModelRouter(_backend(tmp_path))
+⋮----
+route = router.route(
+⋮----
+def test_router_uses_success_history_between_equally_free_candidates(tmp_path)
+⋮----
+backend = _backend(tmp_path)
+store = DashboardStore(backend)
+⋮----
+route = ModelRouter(backend).route([
+⋮----
+ranking = {
+⋮----
+def test_router_rejects_exhausted_authenticated_provider_quota(tmp_path)
+⋮----
+def test_router_filters_candidates_without_required_capabilities(tmp_path)
+⋮----
+def test_workflow_dispatch_injects_model_route_without_changing_capabilities(tmp_path)
+⋮----
+engine = WorkflowEngine(backend, SQLiteJobQueue(backend))
+workflow = engine.create(
+⋮----
+job = engine.dispatch_ready(workflow["id"], limit=1)[0]
+handoff = job["payload"]["handoff"]
+⋮----
+def test_workflow_without_candidates_keeps_existing_handoff_shape(tmp_path)
 ```
 
 ## File: test_observability.py

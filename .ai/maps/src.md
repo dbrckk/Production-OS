@@ -113,6 +113,7 @@ production_os/
   metrics.py
   migration_registry.py
   migrations.py
+  model_router.py
   models.py
   observability.py
   policy_validation.py
@@ -6043,6 +6044,106 @@ payload = json.loads(source.read_text(encoding="utf-8"))
 schema = str(payload.get("schema_version", ""))
 ```
 
+## File: production_os/model_router.py
+```python
+ROUTE_SCHEMA = "production-os/model-route/v1"
+⋮----
+def _is_postgres(backend) -> bool
+⋮----
+def _sql(backend, statement: str) -> str
+⋮----
+def _execute(db, backend, statement: str, params: tuple = ())
+⋮----
+@dataclass(frozen=True, slots=True)
+class ModelCandidate
+⋮----
+provider: str
+model: str
+capabilities: tuple[str, ...]
+free: bool
+priority: float
+⋮----
+@classmethod
+    def from_dict(cls, payload: dict[str, Any]) -> "ModelCandidate"
+⋮----
+provider = str(payload.get("provider") or "").strip()
+model = str(payload.get("model") or "").strip()
+⋮----
+raw_caps = payload.get("capabilities") or []
+⋮----
+capabilities = tuple(sorted(set(
+⋮----
+priority = float(payload.get("priority", 0.0))
+⋮----
+def key(self) -> tuple[str, str]
+⋮----
+class ModelRouter
+⋮----
+"""Deterministic provider/model routing from durable execution evidence.
+
+    No provider secrets are stored or inferred here. The router only emits a
+    ranked execution hint for external executors.
+    """
+⋮----
+def __init__(self, backend)
+⋮----
+def _history(self) -> dict[tuple[str, str], dict[str, float]]
+⋮----
+rows = _execute(
+⋮----
+stats: dict[tuple[str, str], dict[str, float]] = {}
+⋮----
+key = (str(row["provider"]), str(row["model"]))
+bucket = stats.setdefault(key, {
+⋮----
+duration = row["duration_seconds"]
+⋮----
+cost = row["estimated_cost_usd"]
+⋮----
+def _quotas(self) -> dict[str, dict[str, Any]]
+⋮----
+@staticmethod
+    def _quota_available(snapshot: dict[str, Any] | None) -> bool
+⋮----
+remaining = snapshot.get("remaining_value")
+⋮----
+score = float(candidate.priority)
+reasons: list[str] = []
+⋮----
+overlap = len(preferred.intersection(candidate.capabilities))
+⋮----
+success_rate = None
+avg_duration = None
+avg_cost = None
+runs = 0
+⋮----
+runs = int(history.get("runs") or 0)
+successes = float(history.get("successes") or 0.0)
+success_rate = successes / runs if runs else None
+⋮----
+duration_count = float(history.get("duration_count") or 0.0)
+⋮----
+avg_duration = float(history["duration_total"]) / duration_count
+⋮----
+cost_count = float(history.get("cost_count") or 0.0)
+⋮----
+avg_cost = float(history["cost_total"]) / cost_count
+⋮----
+normalized = [ModelCandidate.from_dict(item) for item in candidates]
+⋮----
+required = {
+preferred = {
+history = self._history()
+quotas = self._quotas()
+⋮----
+ranked: list[tuple[float, dict[str, Any]]] = []
+rejected: list[dict[str, str]] = []
+⋮----
+limit = max(0, min(int(fallback_limit), 8))
+ordered = [detail for _score, detail in ranked]
+primary = ordered[0]
+```
+
 ## File: production_os/models.py
 ```python
 @dataclass(slots=True)
@@ -9051,6 +9152,10 @@ upstream = _upstream_context(
 retry_context = _retry_context(task.get("result"))
 ⋮----
 isolation = dict(payload.get("isolation") or {})
+⋮----
+required_for_route = inferred_required_capabilities(handoff)
+preferred_for_route = inferred_preferred_capabilities(handoff)
+model_candidates = (
 ⋮----
 preferred_for_learning = [
 learned = self.skills.select(

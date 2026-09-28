@@ -2,23 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat: release 34 safe running recovery",
-      "terms": [
-        "34",
-        "feat",
-        "recovery",
-        "release",
-        "running",
-        "safe"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/control_plane.py",
-        "tests/test_release34_safe_running_recovery_e2e.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "test: release 35 control-plane restart reconciliation",
       "terms": [
         "35",
@@ -1276,6 +1259,24 @@
         "src/production_os/dashboard_store.py",
         "tests/test_dashboard_store.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "feat(models): add evidence-aware multi-provider routing",
+      "terms": [
+        "add",
+        "evidence-aware",
+        "feat",
+        "models",
+        "multi-provider",
+        "routing"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/model_router.py",
+        "src/production_os/workflow_engine.py",
+        "tests/test_model_router.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1661,11 +1662,12 @@
       "src/production_os/github_client.py": 4,
       "src/production_os/github_work_state.py": 8,
       "src/production_os/managed_projects.py": 16,
+      "src/production_os/model_router.py": 4,
       "src/production_os/remote_worker_runner.py": 12,
       "src/production_os/rollback_plan.py": 4,
       "src/production_os/sqlite_backend.py": 4,
       "src/production_os/task_capabilities.py": 8,
-      "src/production_os/workflow_engine.py": 20,
+      "src/production_os/workflow_engine.py": 24,
       "tests/test_agent_plan.py": 4,
       "tests/test_browser_computer.py": 4,
       "tests/test_browser_worker_image.py": 4,
@@ -1676,6 +1678,7 @@
       "tests/test_github_work_state.py": 8,
       "tests/test_managed_project_outcome.py": 8,
       "tests/test_mobile_worker_image.py": 4,
+      "tests/test_model_router.py": 4,
       "tests/test_persistent_agent_runtime.py": 8,
       "tests/test_release51_one_tap_runner_e2e.py": 8,
       "tests/test_remote_worker_runner.py": 4,
@@ -2504,6 +2507,11 @@
       "tests/test_managed_project_outcome.py": 4,
       "tests/test_release32_one_tap_e2e.py": 4
     },
+    "evidence-aware": {
+      "src/production_os/model_router.py": 4,
+      "src/production_os/workflow_engine.py": 4,
+      "tests/test_model_router.py": 4
+    },
     "exclusive": {
       "src/production_os/control_plane.py": 4,
       "src/production_os/database_maintenance_lock.py": 4,
@@ -2606,12 +2614,12 @@
       "src/production_os/github_client.py": 28,
       "src/production_os/github_work_state.py": 12,
       "src/production_os/managed_projects.py": 40,
+      "src/production_os/model_router.py": 4,
       "src/production_os/postgres_backend.py": 40,
       "src/production_os/project_progress.py": 4,
       "src/production_os/remote_worker.py": 8,
       "src/production_os/remote_worker_runner.py": 40,
       "src/production_os/repository_cache.py": 4,
-      "src/production_os/rollback_plan.py": 4,
       "src/production_os/skill_memory.py": 8,
       "src/production_os/sqlite_backend.py": 40,
       "src/production_os/task_capabilities.py": 8,
@@ -3036,6 +3044,11 @@
       "tests/test_managed_project_outcome.py": 8,
       "tests/test_release32_one_tap_e2e.py": 4
     },
+    "models": {
+      "src/production_os/model_router.py": 4,
+      "src/production_os/workflow_engine.py": 4,
+      "tests/test_model_router.py": 4
+    },
     "multi-agent": {
       "src/production_os/dashboard_ui.py": 4,
       "src/production_os/managed_projects.py": 4,
@@ -3045,6 +3058,11 @@
       "tests/test_dashboard_ui_v3.py": 4,
       "tests/test_task_capabilities.py": 4,
       "tests/test_workflow_engine.py": 4
+    },
+    "multi-provider": {
+      "src/production_os/model_router.py": 4,
+      "src/production_os/workflow_engine.py": 4,
+      "tests/test_model_router.py": 4
     },
     "mutations": {
       "src/production_os/executor_worktree.py": 4,
@@ -3762,8 +3780,11 @@
     "routing": {
       "src/production_os/control_plane.py": 4,
       "src/production_os/managed_projects.py": 8,
+      "src/production_os/model_router.py": 4,
       "src/production_os/task_capabilities.py": 4,
+      "src/production_os/workflow_engine.py": 4,
       "tests/test_cooperative_managed_projects.py": 8,
+      "tests/test_model_router.py": 4,
       "tests/test_release32_one_tap_e2e.py": 4,
       "tests/test_task_capabilities.py": 4
     },

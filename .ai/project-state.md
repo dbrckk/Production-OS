@@ -22,16 +22,20 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-28T07:21:10Z
+Generated: 2026-09-28T07:28:23Z
 
 ### Git
 - Branch: `main`
-- Head: `c92d89a6e072`
-- Commit date: 2026-09-28T09:20:58+02:00
-- Commit: fix(usage): persist execution provider/model telemetry
-- Tracked files: 503
+- Head: `16a53dead2f6`
+- Commit date: 2026-09-28T09:28:12+02:00
+- Commit: feat(models): add evidence-aware multi-provider routing
+- Tracked files: 505
 
 ### Recently changed files
+- `docs/remote-worker-executor-protocol.md`
+- `src/production_os/model_router.py`
+- `src/production_os/workflow_engine.py`
+- `tests/test_model_router.py`
 - `src/production_os/dashboard_store.py`
 - `tests/test_dashboard_store.py`
 - `README.md`
@@ -42,7 +46,6 @@ Generated: 2026-09-28T07:21:10Z
 - `compose.yaml`
 - `src/production_os/cli.py`
 - `tests/test_controller_daemon_deployment.py`
-- `docs/remote-worker-executor-protocol.md`
 - `src/production_os/executor_worktree.py`
 - `src/production_os/remote_worker_runner.py`
 - `tests/test_executor_worktree.py`

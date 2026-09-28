@@ -1,18 +1,22 @@
 # Change impact
 
-Base: 672b4c1ccd0d9a60defd48a8c83bdb66e79d5b55
-Head: c92d89a6e0720aac063a56734d44820839ea1e00
+Base: 6019a6f75ee69e3a2c6a36fdc5302bcff5339ad9
+Head: 16a53dead2f60330ff67676c651b5c7aef3f4d6d
 
 ## Changed files
-- M src/production_os/dashboard_store.py
-- M tests/test_dashboard_store.py
+- M docs/remote-worker-executor-protocol.md
+- A src/production_os/model_router.py
+- M src/production_os/workflow_engine.py
+- A tests/test_model_router.py
 
 ## Affected areas
+- docs
 - src
 - tests
 
 ## Related test candidates
-- tests/test_dashboard_store.py
+- tests/test_model_router.py
+- tests/test_workflow_engine.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.
