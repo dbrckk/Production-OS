@@ -35,3 +35,45 @@ services:
       - 0.0.0.0
       - --port
       - "8787"
+
+
+  production-controller:
+    profiles:
+      - controller-daemon
+    build: .
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 20s
+    depends_on:
+      - production-os
+    environment:
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+    volumes:
+      - ./artifacts:/data
+    command:
+      - controller
+      - --owner
+      - ${PRODUCTION_OS_GITHUB_OWNER:-dbrckk}
+      - --database
+      - /data/production.db
+      - --queue-dir
+      - /data/controller-queue
+      - --snapshot-dir
+      - /data/snapshots
+      - --metrics
+      - /data/controller-metrics.json
+      - --health
+      - /data/controller-health.json
+      - --journal
+      - /data/controller-journal.jsonl
+      - --observability
+      - /data/controller-observability.json
+      - --daemon
+      - --interval-seconds
+      - ${PRODUCTION_OS_CONTROLLER_INTERVAL_SECONDS:-300}
+      - --max-error-backoff-seconds
+      - ${PRODUCTION_OS_CONTROLLER_MAX_BACKOFF_SECONDS:-300}
+      - --capacity
+      - ${PRODUCTION_OS_CONTROLLER_CAPACITY:-3}
+      - --slots
+      - ${PRODUCTION_OS_CONTROLLER_SLOTS:-3}
