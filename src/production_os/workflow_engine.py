@@ -8,6 +8,7 @@ from typing import Any
 
 from .runtime_state import task_key
 from .result_cache import ResultCache, fingerprint
+from .skill_memory import SKILL_SCHEMA, SkillStore
 from .agent_plan import validate_agent_plan
 from .change_impact import analyze_change_impact
 from .task_capabilities import (
@@ -316,6 +317,7 @@ class WorkflowEngine:
         self.backend = backend
         self.queue = queue
         self.cache = ResultCache(backend)
+        self.skills = SkillStore(backend)
 
     @staticmethod
     def _validate(tasks: list[WorkflowTaskSpec]) -> None:
@@ -1310,6 +1312,34 @@ class WorkflowEngine:
                 retry_context = _retry_context(task.get("result"))
                 if retry_context is not None:
                     handoff["retry_context"] = retry_context
+
+            preferred_for_learning = [
+                str(value)
+                for value in handoff.get("preferred_capabilities", [])
+                if str(value)
+            ]
+            learned = self.skills.select(
+                repository=workflow["repository"],
+                task=str(handoff.get("task") or task["title"]),
+                capabilities=preferred_for_learning,
+                limit=3,
+            )
+            if learned:
+                handoff["learned_skills"] = [
+                    skill.to_dict()
+                    for skill in learned
+                ]
+            tool_contracts = dict(handoff.get("tool_contracts") or {})
+            tool_contracts.setdefault(
+                "skill_learning",
+                {
+                    "schema":SKILL_SCHEMA,
+                    "result_field":"learned_skill",
+                    "max_procedure_steps":12,
+                    "optional":True,
+                },
+            )
+            handoff["tool_contracts"] = tool_contracts
             metadata = dict(workflow.get("metadata") or {})
             isolation = dict(payload.get("isolation") or {})
             if isolation.get("mode") == "git-worktree":
@@ -1737,6 +1767,20 @@ class WorkflowEngine:
 
         task_payload = json.loads(row["payload_json"])
         if succeeded:
+            handoff_payload = dict(task_payload.get("handoff") or {})
+            self.skills.record_success(
+                repository=self.get(workflow_id)["repository"],
+                task=str(handoff_payload.get("task") or row["title"]),
+                capabilities=[
+                    str(value)
+                    for value in handoff_payload.get(
+                        "preferred_capabilities",
+                        [],
+                    )
+                    if str(value)
+                ],
+                result=dict(result or {}),
+            )
             self._apply_dynamic_agent_specs(
                 workflow_id,
                 dynamic_specs,
