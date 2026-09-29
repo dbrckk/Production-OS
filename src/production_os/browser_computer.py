@@ -26,6 +26,7 @@ _ALLOWED_ACTIONS = {
     "back",
     "forward",
     "checkpoint",
+    "snapshot",
 }
 _SAFE_NAME = re.compile(r"^[A-Za-z0-9._-]{1,120}$")
 _NON_REPLAYABLE_ACTIONS = {"click", "press"}
@@ -115,6 +116,90 @@ def _evaluate_recovery_probe(page, probe: BrowserRecoveryProbe) -> bool:
             return False
         return str(probe.value or "") in str(text)
     raise ValueError("unsupported browser recovery probe")
+
+
+def _browser_page_snapshot(
+    page,
+    plan: BrowserPlan,
+    *,
+    max_elements: int = 80,
+    max_text_chars: int = 12000,
+) -> dict[str, Any]:
+    bounded_elements = max(1, min(200, int(max_elements)))
+    bounded_text = max(1000, min(50000, int(max_text_chars)))
+    safe_url = _safe_resume_url(
+        str(page.url or ""),
+        set(plan.allowed_hosts),
+        allow_private_network=plan.allow_private_network,
+    )
+
+    try:
+        title = str(page.title())[:500]
+    except Exception:
+        title = ""
+
+    try:
+        body_text = str(
+            page.locator("body").inner_text(timeout=3000)
+        )[:bounded_text]
+    except Exception:
+        body_text = ""
+
+    base_selector = (
+        "a,button,input,textarea,select,"
+        "[role=button],[role=link]"
+    )
+    collection = page.locator(base_selector)
+    try:
+        total = min(int(collection.count()), bounded_elements)
+    except Exception:
+        total = 0
+
+    elements: list[dict[str, Any]] = []
+    for index in range(total):
+        try:
+            locator = collection.nth(index)
+            if not locator.is_visible():
+                continue
+            row: dict[str, Any] = {
+                "selector":f"{base_selector} >> nth={index}",
+            }
+            text = ""
+            try:
+                text = str(locator.inner_text(timeout=750)).strip()[:500]
+            except Exception:
+                pass
+            if text:
+                row["text"] = text
+            for attribute in (
+                "id",
+                "name",
+                "role",
+                "aria-label",
+                "placeholder",
+                "type",
+            ):
+                try:
+                    value = locator.get_attribute(attribute)
+                except Exception:
+                    value = None
+                if value:
+                    row[attribute.replace("-", "_")] = str(value)[:300]
+            elements.append(row)
+        except Exception:
+            continue
+
+    return {
+        "url":safe_url,
+        "title":title,
+        "text_excerpt":body_text,
+        "elements":elements,
+        "element_count":len(elements),
+        "truncated":(
+            total >= bounded_elements
+            or len(body_text) >= bounded_text
+        ),
+    }
 
 
 def _normalize_host(value: str) -> str:
@@ -483,7 +568,7 @@ def validate_browser_plan(
                 raise ValueError("browser press requires a valid key")
 
         name = None
-        if action in {"extract_text", "screenshot"}:
+        if action in {"extract_text", "screenshot", "snapshot"}:
             name = str(raw.get("name") or f"step-{index + 1}").strip()
             if _SAFE_NAME.fullmatch(name) is None:
                 raise ValueError("browser action name is invalid")
@@ -766,6 +851,13 @@ def execute_browser_plan(
                         "name":action.name,
                         "artifact":str(target),
                     })
+                elif action.action == "snapshot":
+                    results.append({
+                        "step":index,
+                        "action":action.action,
+                        "name":action.name,
+                        "snapshot":_browser_page_snapshot(page, plan),
+                    })
                 elif action.action == "back":
                     page.go_back(
                         wait_until="domcontentloaded",
@@ -831,6 +923,7 @@ def execute_browser_plan(
                 if action.action not in {
                     "extract_text",
                     "screenshot",
+                    "snapshot",
                     "checkpoint",
                 }:
                     results.append({
