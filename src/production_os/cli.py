@@ -20,6 +20,10 @@ from .audit_checkpoint import create_audit_checkpoint, verify_audit_checkpoint
 from .audit_integrity import verify_hash_chain
 from .backup import create_backup, restore_backup
 from .browser_computer import execute_browser_plan, validate_browser_plan
+from .browser_loop import (
+    run_browser_turn_loop,
+    validate_browser_loop_config,
+)
 from .dashboard_backups import BackupError, activate_staged_sqlite_restore
 from .database_maintenance_lock import DatabaseInUseError
 from .budgets import BudgetLedger
@@ -602,6 +606,33 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Optional durable browser action-checkpoint path",
     )
     browserplan.add_argument(
+        "--headed",
+        action="store_true",
+        help="Run Chromium headed instead of headless",
+    )
+
+    browserloop = sub.add_parser(
+        "browser-loop-run",
+        help="Run a bounded multi-turn browser loop over JSONL stdin/stdout",
+    )
+    browserloop.add_argument("--config", required=True)
+    browserloop.add_argument("--artifacts-dir", required=True)
+    browserloop.add_argument(
+        "--storage-state",
+        default="",
+        help="Durable Playwright storage-state path",
+    )
+    browserloop.add_argument(
+        "--session-state",
+        default="",
+        help="Durable browser resume metadata path",
+    )
+    browserloop.add_argument(
+        "--checkpoint-state",
+        default="",
+        help="Base path for turn-scoped browser checkpoints",
+    )
+    browserloop.add_argument(
         "--headed",
         action="store_true",
         help="Run Chromium headed instead of headless",
@@ -2188,6 +2219,33 @@ def run_browser_plan(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_browser_loop_command(args: argparse.Namespace) -> int:
+    payload = json.loads(
+        Path(args.config).read_text(encoding="utf-8")
+    )
+    config = validate_browser_loop_config(payload)
+    summary = run_browser_turn_loop(
+        config,
+        sys.stdin,
+        sys.stdout,
+        artifacts_dir=args.artifacts_dir,
+        storage_state_path=_browser_storage_state(args),
+        session_state_path=_browser_session_state(args),
+        checkpoint_path=_browser_checkpoint_state(args),
+        headless=not bool(args.headed),
+    )
+    sys.stdout.write(
+        json.dumps(
+            summary,
+            ensure_ascii=False,
+            separators=(",", ":"),
+        )
+        + "\n"
+    )
+    sys.stdout.flush()
+    return 2 if int(summary.get("failed") or 0) else 0
+
+
 def run_agent_benchmark(args: argparse.Namespace) -> int:
     backend = open_backend(args.database)
     report = AutonomousBenchmark(backend).report(args.workflow_id)
@@ -3055,6 +3113,8 @@ def main(argv: list[str] | None = None) -> int:
         return run_remote_worker_run(args)
     if args.command == "browser-plan-run":
         return run_browser_plan(args)
+    if args.command == "browser-loop-run":
+        return run_browser_loop_command(args)
     if args.command == "agent-benchmark":
         return run_agent_benchmark(args)
     if args.command == "regression-bisect":
