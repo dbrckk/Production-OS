@@ -246,7 +246,24 @@ def run_browser_turn_loop(
                 checkpoint_path,
                 turn_id,
             )
+            manifest_exists = (
+                manifest_path is not None
+                and manifest_path.exists()
+            )
             manifest = _read_turn_manifest(manifest_path)
+            if manifest_exists and not manifest:
+                raise RuntimeError(
+                    "browser turn manifest is invalid or tampered"
+                )
+
+            def mark_turn_completed() -> None:
+                if manifest_path is not None:
+                    _write_turn_manifest(
+                        manifest_path,
+                        plan_fingerprint=plan_fingerprint,
+                        status="completed",
+                    )
+
             if manifest:
                 if manifest["plan_fingerprint"] != plan_fingerprint:
                     raise RuntimeError(
@@ -278,6 +295,7 @@ def run_browser_turn_loop(
                         storage_state_path=storage_state_path,
                         session_state_path=session_state_path,
                         checkpoint_path=turn_checkpoint,
+                        on_complete=mark_turn_completed,
                         headless=headless,
                     )
                     if manifest_path is not None:
@@ -299,6 +317,7 @@ def run_browser_turn_loop(
                     storage_state_path=storage_state_path,
                     session_state_path=session_state_path,
                     checkpoint_path=turn_checkpoint,
+                    on_complete=mark_turn_completed,
                     headless=headless,
                 )
                 if manifest_path is not None:
