@@ -4,8 +4,10 @@ from production_os.browser_computer import (
     BROWSER_PLAN_SCHEMA,
     BROWSER_SESSION_SCHEMA,
     BROWSER_CHECKPOINT_SCHEMA,
+    BrowserRecoveryProbe,
     _browser_action_fingerprint,
     _browser_plan_fingerprint,
+    _evaluate_recovery_probe,
     _load_browser_checkpoint,
     _load_browser_session,
     _safe_resume_url,
@@ -483,3 +485,198 @@ def test_browser_checkpoint_rejects_inflight_marker_for_replayable_action(tmp_pa
             in_flight_action=plan.actions[1],
             in_flight_index=2,
         )
+
+
+
+def test_browser_click_accepts_positive_recovery_probe():
+    plan = validate_browser_plan({
+        "schema_version":BROWSER_PLAN_SCHEMA,
+        "allowed_hosts":["example.com"],
+        "persist_session":True,
+        "actions":[
+            {"action":"navigate","url":"https://example.com/settings"},
+            {
+                "action":"click",
+                "selector":"#save",
+                "recovery_probe":{
+                    "kind":"text_contains",
+                    "selector":"#status",
+                    "value":"Saved",
+                    "timeout_ms":4000,
+                },
+            },
+        ],
+    })
+
+    probe = plan.actions[1].recovery_probe
+    assert probe == BrowserRecoveryProbe(
+        kind="text_contains",
+        selector="#status",
+        value="Saved",
+        timeout_ms=4000,
+    )
+    assert plan.actions[1].to_dict()["recovery_probe"] == {
+        "kind":"text_contains",
+        "selector":"#status",
+        "value":"Saved",
+        "timeout_ms":4000,
+    }
+
+
+def test_browser_recovery_probe_is_rejected_for_replayable_action():
+    with pytest.raises(
+        ValueError,
+        match="only valid for click or press",
+    ):
+        validate_browser_plan({
+            "schema_version":BROWSER_PLAN_SCHEMA,
+            "allowed_hosts":["example.com"],
+            "actions":[
+                {
+                    "action":"fill",
+                    "selector":"#name",
+                    "value":"Alice",
+                    "recovery_probe":{
+                        "kind":"selector_present",
+                        "selector":"#saved",
+                    },
+                },
+            ],
+        })
+
+
+@pytest.mark.parametrize(
+    "probe_payload,match",
+    [
+        (
+            {"kind":"unknown","selector":"#status"},
+            "unsupported browser recovery probe",
+        ),
+        (
+            {"kind":"selector_present","selector":""},
+            "requires selector",
+        ),
+        (
+            {
+                "kind":"text_contains",
+                "selector":"#status",
+                "value":"",
+            },
+            "requires value",
+        ),
+        (
+            {
+                "kind":"selector_present",
+                "selector":"#status",
+                "timeout_ms":99,
+            },
+            "timeout must be 100-30000",
+        ),
+    ],
+)
+def test_browser_recovery_probe_validation_rejects_malformed_probe(
+    probe_payload,
+    match,
+):
+    with pytest.raises(ValueError, match=match):
+        validate_browser_plan({
+            "schema_version":BROWSER_PLAN_SCHEMA,
+            "allowed_hosts":["example.com"],
+            "actions":[
+                {
+                    "action":"click",
+                    "selector":"#save",
+                    "recovery_probe":probe_payload,
+                },
+            ],
+        })
+
+
+class _FakeLocator:
+    def __init__(self, *, attached=True, text=""):
+        self.attached = attached
+        self.text = text
+        self.wait_calls = []
+
+    def wait_for(self, *, state, timeout):
+        self.wait_calls.append((state, timeout))
+        if state == "attached" and not self.attached:
+            raise RuntimeError("not attached")
+        if state == "detached" and self.attached:
+            raise RuntimeError("still attached")
+
+    def inner_text(self, *, timeout):
+        if not self.attached:
+            raise RuntimeError("not attached")
+        return self.text
+
+
+class _FakePage:
+    def __init__(self, locator):
+        self._locator = locator
+
+    def locator(self, selector):
+        assert selector
+        return self._locator
+
+
+def test_browser_recovery_probe_evaluates_only_positive_evidence():
+    assert _evaluate_recovery_probe(
+        _FakePage(_FakeLocator(attached=True)),
+        BrowserRecoveryProbe(
+            kind="selector_present",
+            selector="#saved",
+        ),
+    ) is True
+    assert _evaluate_recovery_probe(
+        _FakePage(_FakeLocator(attached=False)),
+        BrowserRecoveryProbe(
+            kind="selector_absent",
+            selector="#save",
+        ),
+    ) is True
+    assert _evaluate_recovery_probe(
+        _FakePage(_FakeLocator(attached=True, text="Saved successfully")),
+        BrowserRecoveryProbe(
+            kind="text_contains",
+            selector="#status",
+            value="Saved",
+        ),
+    ) is True
+
+    assert _evaluate_recovery_probe(
+        _FakePage(_FakeLocator(attached=True, text="Still saving")),
+        BrowserRecoveryProbe(
+            kind="text_contains",
+            selector="#status",
+            value="Saved",
+        ),
+    ) is False
+
+
+def test_recovery_probe_changes_browser_plan_fingerprint():
+    without_probe = validate_browser_plan({
+        "schema_version":BROWSER_PLAN_SCHEMA,
+        "allowed_hosts":["example.com"],
+        "actions":[
+            {"action":"click","selector":"#save"},
+        ],
+    })
+    with_probe = validate_browser_plan({
+        "schema_version":BROWSER_PLAN_SCHEMA,
+        "allowed_hosts":["example.com"],
+        "actions":[
+            {
+                "action":"click",
+                "selector":"#save",
+                "recovery_probe":{
+                    "kind":"selector_present",
+                    "selector":"#saved",
+                },
+            },
+        ],
+    })
+
+    assert _browser_plan_fingerprint(without_probe) != (
+        _browser_plan_fingerprint(with_probe)
+    )
