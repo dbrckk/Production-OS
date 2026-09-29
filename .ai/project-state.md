@@ -22,13 +22,13 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-29T06:01:57Z
+Generated: 2026-09-29T06:08:08Z
 
 ### Git
 - Branch: `main`
-- Head: `a2b13ce94ee2`
-- Commit date: 2026-09-29T08:01:46+02:00
-- Commit: feat(browser): fail closed on uncertain side-effect replay
+- Head: `6949317931ed`
+- Commit date: 2026-09-29T08:07:55+02:00
+- Commit: feat(browser): recover uncertain actions from positive postconditions
 - Tracked files: 516
 
 ### Recently changed files
@@ -39,9 +39,6 @@ Generated: 2026-09-29T06:01:57Z
 - `tests/test_managed_github_reconciliation.py`
 - `tests/test_rollback_plan.py`
 - `src/production_os/cli.py`
-- `src/production_os/project_memory.py`
-- `src/production_os/workflow_engine.py`
-- `tests/test_project_memory.py`
 
 ### Project signals
 - `pyproject.toml`

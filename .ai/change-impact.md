@@ -1,7 +1,7 @@
 # Change impact
 
-Base: 85c00870ba8a7ba22414f56f2677c76b3ee5bf6e
-Head: a2b13ce94ee281fd4fca9096e90c1ea0e2579e85
+Base: 3a11ac103463f1ae4c94928529c694615968a35e
+Head: 6949317931ed7b79c22079f3c0debb5d943622b0
 
 ## Changed files
 - M src/production_os/browser_computer.py

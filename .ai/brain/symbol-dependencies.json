@@ -5,11 +5,11 @@
   "semantic": false,
   "note": "Dependencies are known symbol names lexically present inside the symbol's AST/source range.",
   "symbols": {
-    "BrowserAction": {
+    "BrowserRecoveryProbe": {
       "source": {
         "file": "src/production_os/browser_computer.py",
         "start": 35,
-        "end": 55
+        "end": 49
       },
       "symbol_dependencies": [
         {
@@ -17,13 +17,19 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 44,
+              "line": 41,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 65,
+              "line": 63,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 86,
               "kind": "function",
               "language": "python"
             }
@@ -36,8 +42,8 @@
     "to_dict": {
       "source": {
         "file": "src/production_os/browser_computer.py",
-        "start": 44,
-        "end": 164
+        "start": 41,
+        "end": 161
       },
       "symbol_dependencies": [
         {
@@ -45,7 +51,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 35,
+              "line": 53,
               "kind": "class",
               "language": "python"
             }
@@ -57,7 +63,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 59,
+              "line": 80,
               "kind": "class",
               "language": "python"
             }
@@ -65,23 +71,23 @@
           "relation": "same_file"
         },
         {
-          "symbol": "_browser_action_fingerprint",
+          "symbol": "BrowserRecoveryProbe",
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 119,
-              "kind": "function",
+              "line": 35,
+              "kind": "class",
               "language": "python"
             }
           ],
           "relation": "same_file"
         },
         {
-          "symbol": "_browser_plan_fingerprint",
+          "symbol": "_evaluate_recovery_probe",
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 137,
+              "line": 96,
               "kind": "function",
               "language": "python"
             }
@@ -93,19 +99,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 82,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_load_browser_checkpoint",
-          "definitions": [
-            {
-              "file": "src/production_os/browser_computer.py",
-              "line": 162,
+              "line": 127,
               "kind": "function",
               "language": "python"
             }
@@ -117,7 +111,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 75,
+              "line": 120,
               "kind": "function",
               "language": "python"
             }
@@ -129,7 +123,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 99,
+              "line": 144,
               "kind": "function",
               "language": "python"
             }
@@ -137,17 +131,17 @@
           "relation": "same_file"
         }
       ],
-      "dependency_count": 8
+      "dependency_count": 7
     },
-    "BrowserPlan": {
+    "BrowserAction": {
       "source": {
         "file": "src/production_os/browser_computer.py",
-        "start": 59,
-        "end": 72
+        "start": 53,
+        "end": 76
       },
       "symbol_dependencies": [
         {
-          "symbol": "BrowserAction",
+          "symbol": "BrowserRecoveryProbe",
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
@@ -163,13 +157,19 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 44,
+              "line": 41,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 65,
+              "line": 63,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 86,
               "kind": "function",
               "language": "python"
             }
@@ -179,11 +179,79 @@
       ],
       "dependency_count": 2
     },
+    "BrowserPlan": {
+      "source": {
+        "file": "src/production_os/browser_computer.py",
+        "start": 80,
+        "end": 93
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "BrowserAction",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 53,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 41,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 63,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 86,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "_evaluate_recovery_probe": {
+      "source": {
+        "file": "src/production_os/browser_computer.py",
+        "start": 96,
+        "end": 117
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "BrowserRecoveryProbe",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 35,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 1
+    },
     "_normalize_host": {
       "source": {
         "file": "src/production_os/browser_computer.py",
-        "start": 75,
-        "end": 79
+        "start": 120,
+        "end": 124
       },
       "symbol_dependencies": [],
       "dependency_count": 0
@@ -191,8 +259,8 @@
     "_is_private_host": {
       "source": {
         "file": "src/production_os/browser_computer.py",
-        "start": 82,
-        "end": 96
+        "start": 127,
+        "end": 141
       },
       "symbol_dependencies": [],
       "dependency_count": 0
@@ -200,8 +268,8 @@
     "_validate_url": {
       "source": {
         "file": "src/production_os/browser_computer.py",
-        "start": 99,
-        "end": 116
+        "start": 144,
+        "end": 161
       },
       "symbol_dependencies": [
         {
@@ -209,7 +277,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 82,
+              "line": 127,
               "kind": "function",
               "language": "python"
             }
@@ -222,8 +290,8 @@
     "_browser_action_fingerprint": {
       "source": {
         "file": "src/production_os/browser_computer.py",
-        "start": 119,
-        "end": 134
+        "start": 164,
+        "end": 179
       },
       "symbol_dependencies": [
         {
@@ -231,7 +299,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 35,
+              "line": 53,
               "kind": "class",
               "language": "python"
             }
@@ -243,13 +311,19 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 44,
+              "line": 41,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 65,
+              "line": 63,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 86,
               "kind": "function",
               "language": "python"
             }
@@ -262,8 +336,8 @@
     "_browser_plan_fingerprint": {
       "source": {
         "file": "src/production_os/browser_computer.py",
-        "start": 137,
-        "end": 159
+        "start": 182,
+        "end": 204
       },
       "symbol_dependencies": [
         {
@@ -271,7 +345,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 59,
+              "line": 80,
               "kind": "class",
               "language": "python"
             }
@@ -283,13 +357,19 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 44,
+              "line": 41,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 65,
+              "line": 63,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 86,
               "kind": "function",
               "language": "python"
             }
@@ -302,8 +382,8 @@
     "_load_browser_checkpoint": {
       "source": {
         "file": "src/production_os/browser_computer.py",
-        "start": 162,
-        "end": 223
+        "start": 207,
+        "end": 268
       },
       "symbol_dependencies": [
         {
@@ -311,7 +391,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 59,
+              "line": 80,
               "kind": "class",
               "language": "python"
             }
@@ -323,7 +403,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 119,
+              "line": 164,
               "kind": "function",
               "language": "python"
             }
@@ -335,7 +415,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 137,
+              "line": 182,
               "kind": "function",
               "language": "python"
             }
@@ -347,7 +427,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 279,
+              "line": 324,
               "kind": "function",
               "language": "python"
             }
@@ -360,8 +440,8 @@
     "_write_browser_checkpoint": {
       "source": {
         "file": "src/production_os/browser_computer.py",
-        "start": 226,
-        "end": 276
+        "start": 271,
+        "end": 321
       },
       "symbol_dependencies": [
         {
@@ -369,7 +449,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 35,
+              "line": 53,
               "kind": "class",
               "language": "python"
             }
@@ -381,7 +461,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 59,
+              "line": 80,
               "kind": "class",
               "language": "python"
             }
@@ -393,7 +473,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 119,
+              "line": 164,
               "kind": "function",
               "language": "python"
             }
@@ -405,7 +485,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 137,
+              "line": 182,
               "kind": "function",
               "language": "python"
             }
@@ -417,7 +497,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 279,
+              "line": 324,
               "kind": "function",
               "language": "python"
             }
@@ -430,8 +510,8 @@
     "_safe_resume_url": {
       "source": {
         "file": "src/production_os/browser_computer.py",
-        "start": 279,
-        "end": 304
+        "start": 324,
+        "end": 349
       },
       "symbol_dependencies": [
         {
@@ -439,7 +519,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 99,
+              "line": 144,
               "kind": "function",
               "language": "python"
             }
@@ -452,8 +532,8 @@
     "_load_browser_session": {
       "source": {
         "file": "src/production_os/browser_computer.py",
-        "start": 307,
-        "end": 333
+        "start": 352,
+        "end": 378
       },
       "symbol_dependencies": [
         {
@@ -461,7 +541,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 59,
+              "line": 80,
               "kind": "class",
               "language": "python"
             }
@@ -473,7 +553,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 279,
+              "line": 324,
               "kind": "function",
               "language": "python"
             }
@@ -486,8 +566,8 @@
     "_write_browser_session": {
       "source": {
         "file": "src/production_os/browser_computer.py",
-        "start": 336,
-        "end": 362
+        "start": 381,
+        "end": 407
       },
       "symbol_dependencies": [
         {
@@ -495,7 +575,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 59,
+              "line": 80,
               "kind": "class",
               "language": "python"
             }
@@ -507,7 +587,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 279,
+              "line": 324,
               "kind": "function",
               "language": "python"
             }
@@ -520,12 +600,36 @@
     "validate_browser_plan": {
       "source": {
         "file": "src/production_os/browser_computer.py",
-        "start": 365,
-        "end": 461
+        "start": 410,
+        "end": 552
       },
       "symbol_dependencies": [
         {
           "symbol": "BrowserAction",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 53,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "BrowserPlan",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 80,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "BrowserRecoveryProbe",
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
@@ -537,23 +641,11 @@
           "relation": "same_file"
         },
         {
-          "symbol": "BrowserPlan",
-          "definitions": [
-            {
-              "file": "src/production_os/browser_computer.py",
-              "line": 59,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
           "symbol": "_is_private_host",
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 82,
+              "line": 127,
               "kind": "function",
               "language": "python"
             }
@@ -565,7 +657,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 75,
+              "line": 120,
               "kind": "function",
               "language": "python"
             }
@@ -577,7 +669,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 99,
+              "line": 144,
               "kind": "function",
               "language": "python"
             }
@@ -585,13 +677,13 @@
           "relation": "same_file"
         }
       ],
-      "dependency_count": 5
+      "dependency_count": 6
     },
     "execute_browser_plan": {
       "source": {
         "file": "src/production_os/browser_computer.py",
-        "start": 464,
-        "end": 755
+        "start": 555,
+        "end": 886
       },
       "symbol_dependencies": [
         {
@@ -599,8 +691,20 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 59,
+              "line": 80,
               "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_evaluate_recovery_probe",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 96,
+              "kind": "function",
               "language": "python"
             }
           ],
@@ -611,7 +715,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 82,
+              "line": 127,
               "kind": "function",
               "language": "python"
             }
@@ -623,7 +727,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 162,
+              "line": 207,
               "kind": "function",
               "language": "python"
             }
@@ -635,7 +739,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 307,
+              "line": 352,
               "kind": "function",
               "language": "python"
             }
@@ -647,7 +751,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 226,
+              "line": 271,
               "kind": "function",
               "language": "python"
             }
@@ -659,7 +763,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 336,
+              "line": 381,
               "kind": "function",
               "language": "python"
             }
@@ -671,7 +775,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 510,
+              "line": 609,
               "kind": "function",
               "language": "python"
             }
@@ -679,21 +783,33 @@
           "relation": "same_file"
         }
       ],
-      "dependency_count": 7
+      "dependency_count": 8
     },
     "assert_current_host": {
       "source": {
         "file": "src/production_os/browser_computer.py",
-        "start": 510,
-        "end": 630
+        "start": 609,
+        "end": 729
       },
       "symbol_dependencies": [
+        {
+          "symbol": "_evaluate_recovery_probe",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 96,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
         {
           "symbol": "_is_private_host",
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 82,
+              "line": 127,
               "kind": "function",
               "language": "python"
             }
@@ -705,7 +821,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 226,
+              "line": 271,
               "kind": "function",
               "language": "python"
             }
@@ -717,7 +833,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 336,
+              "line": 381,
               "kind": "function",
               "language": "python"
             }
@@ -725,13 +841,13 @@
           "relation": "same_file"
         }
       ],
-      "dependency_count": 3
+      "dependency_count": 4
     },
     "test_browser_plan_validates_bounded_actions_and_redacts_fill_value": {
       "source": {
         "file": "tests/test_browser_computer.py",
-        "start": 20,
-        "end": 38
+        "start": 22,
+        "end": 40
       },
       "symbol_dependencies": [
         {
@@ -751,13 +867,19 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 44,
+              "line": 41,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 65,
+              "line": 63,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 86,
               "kind": "function",
               "language": "python"
             }
@@ -769,7 +891,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 365,
+              "line": 410,
               "kind": "function",
               "language": "python"
             }
@@ -782,8 +904,8 @@
     "test_browser_plan_rejects_unsafe_navigation_and_actions": {
       "source": {
         "file": "tests/test_browser_computer.py",
-        "start": 86,
-        "end": 88
+        "start": 88,
+        "end": 90
       },
       "symbol_dependencies": [
         {
@@ -791,7 +913,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 365,
+              "line": 410,
               "kind": "function",
               "language": "python"
             }
@@ -804,8 +926,8 @@
     "test_workflow_injects_browser_computer_contract": {
       "source": {
         "file": "tests/test_browser_computer.py",
-        "start": 91,
-        "end": 125
+        "start": 93,
+        "end": 127
       },
       "symbol_dependencies": [
         {
@@ -886,8 +1008,8 @@
     "test_browser_plan_cli_parses_runtime_paths": {
       "source": {
         "file": "tests/test_browser_computer.py",
-        "start": 129,
-        "end": 146
+        "start": 131,
+        "end": 148
       },
       "symbol_dependencies": [
         {
@@ -908,8 +1030,8 @@
     "test_browser_plan_cli_defaults_storage_state_to_runtime_workspace": {
       "source": {
         "file": "tests/test_browser_computer.py",
-        "start": 150,
-        "end": 163
+        "start": 152,
+        "end": 165
       },
       "symbol_dependencies": [
         {
@@ -930,8 +1052,8 @@
     "test_browser_plan_cli_explicit_storage_state_wins": {
       "source": {
         "file": "tests/test_browser_computer.py",
-        "start": 166,
-        "end": 177
+        "start": 168,
+        "end": 179
       },
       "symbol_dependencies": [
         {
@@ -952,8 +1074,8 @@
     "test_browser_plan_blocks_private_network_by_default": {
       "source": {
         "file": "tests/test_browser_computer.py",
-        "start": 181,
-        "end": 189
+        "start": 183,
+        "end": 191
       },
       "symbol_dependencies": [
         {
@@ -961,7 +1083,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 365,
+              "line": 410,
               "kind": "function",
               "language": "python"
             }
@@ -974,8 +1096,8 @@
     "test_browser_plan_allows_private_network_only_with_explicit_opt_in": {
       "source": {
         "file": "tests/test_browser_computer.py",
-        "start": 192,
-        "end": 202
+        "start": 194,
+        "end": 204
       },
       "symbol_dependencies": [
         {
@@ -983,7 +1105,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 365,
+              "line": 410,
               "kind": "function",
               "language": "python"
             }
@@ -996,8 +1118,8 @@
     "test_browser_session_resume_url_strips_query_and_fragment": {
       "source": {
         "file": "tests/test_browser_computer.py",
-        "start": 206,
-        "end": 213
+        "start": 208,
+        "end": 215
       },
       "symbol_dependencies": [
         {
@@ -1005,7 +1127,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 279,
+              "line": 324,
               "kind": "function",
               "language": "python"
             }
@@ -1018,8 +1140,8 @@
     "test_browser_session_metadata_round_trips_only_safe_location": {
       "source": {
         "file": "tests/test_browser_computer.py",
-        "start": 216,
-        "end": 240
+        "start": 218,
+        "end": 242
       },
       "symbol_dependencies": [
         {
@@ -1027,7 +1149,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 307,
+              "line": 352,
               "kind": "function",
               "language": "python"
             }
@@ -1039,7 +1161,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 336,
+              "line": 381,
               "kind": "function",
               "language": "python"
             }
@@ -1051,7 +1173,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 365,
+              "line": 410,
               "kind": "function",
               "language": "python"
             }
@@ -1064,8 +1186,8 @@
     "test_browser_session_rejects_stale_disallowed_host": {
       "source": {
         "file": "tests/test_browser_computer.py",
-        "start": 243,
-        "end": 259
+        "start": 245,
+        "end": 261
       },
       "symbol_dependencies": [
         {
@@ -1073,7 +1195,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 307,
+              "line": 352,
               "kind": "function",
               "language": "python"
             }
@@ -1097,7 +1219,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 365,
+              "line": 410,
               "kind": "function",
               "language": "python"
             }
@@ -1110,8 +1232,8 @@
     "test_browser_session_state_defaults_to_runtime_workspace": {
       "source": {
         "file": "tests/test_browser_computer.py",
-        "start": 262,
-        "end": 274
+        "start": 264,
+        "end": 276
       },
       "symbol_dependencies": [
         {
@@ -1132,8 +1254,8 @@
     "test_browser_plan_accepts_explicit_checkpoint_action": {
       "source": {
         "file": "tests/test_browser_computer.py",
-        "start": 278,
-        "end": 290
+        "start": 280,
+        "end": 292
       },
       "symbol_dependencies": [
         {
@@ -1153,7 +1275,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 365,
+              "line": 410,
               "kind": "function",
               "language": "python"
             }
@@ -1166,8 +1288,8 @@
     "test_browser_checkpoint_round_trips_only_matching_plan": {
       "source": {
         "file": "tests/test_browser_computer.py",
-        "start": 293,
-        "end": 331
+        "start": 295,
+        "end": 333
       },
       "symbol_dependencies": [
         {
@@ -1175,7 +1297,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 162,
+              "line": 207,
               "kind": "function",
               "language": "python"
             }
@@ -1187,7 +1309,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 226,
+              "line": 271,
               "kind": "function",
               "language": "python"
             }
@@ -1211,7 +1333,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 365,
+              "line": 410,
               "kind": "function",
               "language": "python"
             }
@@ -1224,8 +1346,8 @@
     "test_browser_plan_fingerprint_distinguishes_fill_values_without_storing_them": {
       "source": {
         "file": "tests/test_browser_computer.py",
-        "start": 334,
-        "end": 352
+        "start": 336,
+        "end": 354
       },
       "symbol_dependencies": [
         {
@@ -1233,7 +1355,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 137,
+              "line": 182,
               "kind": "function",
               "language": "python"
             }
@@ -1245,7 +1367,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 365,
+              "line": 410,
               "kind": "function",
               "language": "python"
             }
@@ -1258,8 +1380,8 @@
     "test_browser_checkpoint_state_defaults_to_runtime_workspace": {
       "source": {
         "file": "tests/test_browser_computer.py",
-        "start": 355,
-        "end": 367
+        "start": 357,
+        "end": 369
       },
       "symbol_dependencies": [
         {
@@ -1280,8 +1402,8 @@
     "test_browser_checkpoint_round_trips_uncertain_non_replayable_action": {
       "source": {
         "file": "tests/test_browser_computer.py",
-        "start": 371,
-        "end": 401
+        "start": 373,
+        "end": 403
       },
       "symbol_dependencies": [
         {
@@ -1289,7 +1411,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 119,
+              "line": 164,
               "kind": "function",
               "language": "python"
             }
@@ -1301,7 +1423,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 162,
+              "line": 207,
               "kind": "function",
               "language": "python"
             }
@@ -1313,7 +1435,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 226,
+              "line": 271,
               "kind": "function",
               "language": "python"
             }
@@ -1337,7 +1459,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 365,
+              "line": 410,
               "kind": "function",
               "language": "python"
             }
@@ -1350,8 +1472,8 @@
     "test_browser_checkpoint_rejects_tampered_uncertain_action_fingerprint": {
       "source": {
         "file": "tests/test_browser_computer.py",
-        "start": 404,
-        "end": 429
+        "start": 406,
+        "end": 431
       },
       "symbol_dependencies": [
         {
@@ -1359,7 +1481,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 162,
+              "line": 207,
               "kind": "function",
               "language": "python"
             }
@@ -1371,7 +1493,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 226,
+              "line": 271,
               "kind": "function",
               "language": "python"
             }
@@ -1383,7 +1505,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 365,
+              "line": 410,
               "kind": "function",
               "language": "python"
             }
@@ -1396,8 +1518,8 @@
     "test_browser_checkpoint_completed_side_effect_clears_uncertain_marker": {
       "source": {
         "file": "tests/test_browser_computer.py",
-        "start": 432,
-        "end": 463
+        "start": 434,
+        "end": 465
       },
       "symbol_dependencies": [
         {
@@ -1405,7 +1527,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 162,
+              "line": 207,
               "kind": "function",
               "language": "python"
             }
@@ -1417,7 +1539,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 226,
+              "line": 271,
               "kind": "function",
               "language": "python"
             }
@@ -1453,7 +1575,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 365,
+              "line": 410,
               "kind": "function",
               "language": "python"
             }
@@ -1466,8 +1588,8 @@
     "test_browser_checkpoint_rejects_inflight_marker_for_replayable_action": {
       "source": {
         "file": "tests/test_browser_computer.py",
-        "start": 466,
-        "end": 485
+        "start": 468,
+        "end": 487
       },
       "symbol_dependencies": [
         {
@@ -1475,7 +1597,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 226,
+              "line": 271,
               "kind": "function",
               "language": "python"
             }
@@ -1487,7 +1609,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 365,
+              "line": 410,
               "kind": "function",
               "language": "python"
             }
@@ -1496,6 +1618,545 @@
         }
       ],
       "dependency_count": 2
+    },
+    "test_browser_click_accepts_positive_recovery_probe": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 491,
+        "end": 523
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "BrowserRecoveryProbe",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 35,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "save",
+          "definitions": [
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 661,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 977,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 1151,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 41,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 63,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 86,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "validate_browser_plan",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 410,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "test_browser_recovery_probe_is_rejected_for_replayable_action": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 526,
+        "end": 545
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "validate_browser_plan",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 410,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "test_browser_recovery_probe_validation_rejects_malformed_probe": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 577,
+        "end": 592
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "save",
+          "definitions": [
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 661,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 977,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 1151,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "validate_browser_plan",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 410,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "_FakeLocator": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 595,
+        "end": 611
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "inner_text",
+          "definitions": [
+            {
+              "file": "tests/test_browser_computer.py",
+              "line": 608,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "wait_for",
+          "definitions": [
+            {
+              "file": "tests/test_browser_computer.py",
+              "line": 601,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "__init__": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 596,
+        "end": 716
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "BrowserRecoveryProbe",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 35,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_FakeLocator",
+          "definitions": [
+            {
+              "file": "tests/test_browser_computer.py",
+              "line": 595,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_FakePage",
+          "definitions": [
+            {
+              "file": "tests/test_browser_computer.py",
+              "line": 614,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_browser_plan_fingerprint",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 182,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_evaluate_recovery_probe",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 96,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "inner_text",
+          "definitions": [
+            {
+              "file": "tests/test_browser_computer.py",
+              "line": 608,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "locator",
+          "definitions": [
+            {
+              "file": "tests/test_browser_computer.py",
+              "line": 618,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "save",
+          "definitions": [
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 661,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 977,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 1151,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "test_browser_recovery_probe_evaluates_only_positive_evidence",
+          "definitions": [
+            {
+              "file": "tests/test_browser_computer.py",
+              "line": 623,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "test_recovery_probe_changes_browser_plan_fingerprint",
+          "definitions": [
+            {
+              "file": "tests/test_browser_computer.py",
+              "line": 657,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "validate_browser_plan",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 410,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "wait_for",
+          "definitions": [
+            {
+              "file": "tests/test_browser_computer.py",
+              "line": 601,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 12
+    },
+    "wait_for": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 601,
+        "end": 606
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "inner_text": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 608,
+        "end": 611
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "_FakePage": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 614,
+        "end": 620
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "locator",
+          "definitions": [
+            {
+              "file": "tests/test_browser_computer.py",
+              "line": 618,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "locator": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 618,
+        "end": 620
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "test_browser_recovery_probe_evaluates_only_positive_evidence": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 623,
+        "end": 654
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "BrowserRecoveryProbe",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 35,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_FakeLocator",
+          "definitions": [
+            {
+              "file": "tests/test_browser_computer.py",
+              "line": 595,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_FakePage",
+          "definitions": [
+            {
+              "file": "tests/test_browser_computer.py",
+              "line": 614,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_evaluate_recovery_probe",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 96,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "save",
+          "definitions": [
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 661,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 977,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 1151,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 5
+    },
+    "test_recovery_probe_changes_browser_plan_fingerprint": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 657,
+        "end": 682
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_browser_plan_fingerprint",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 182,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "save",
+          "definitions": [
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 661,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 977,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 1151,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "validate_browser_plan",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 410,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 3
     }
   }
 }

@@ -1198,19 +1198,28 @@ _SAFE_NAME = re.compile(r"^[A-Za-z0-9._-]{1,120}$")
 _NON_REPLAYABLE_ACTIONS = {"click", "press"}
 ⋮----
 @dataclass(frozen=True, slots=True)
+class BrowserRecoveryProbe
+⋮----
+kind: str
+selector: str
+value: str | None = None
+timeout_ms: int = 5000
+⋮----
+def to_dict(self) -> dict[str, Any]
+⋮----
+payload = {
+⋮----
+@dataclass(frozen=True, slots=True)
 class BrowserAction
 ⋮----
 action: str
 selector: str | None = None
 url: str | None = None
-value: str | None = None
+⋮----
 key: str | None = None
 name: str | None = None
 timeout_ms: int = 10000
-⋮----
-def to_dict(self) -> dict[str, Any]
-⋮----
-payload = {
+recovery_probe: BrowserRecoveryProbe | None = None
 ⋮----
 value = getattr(self, key)
 ⋮----
@@ -1221,6 +1230,12 @@ allowed_hosts: tuple[str, ...]
 actions: tuple[BrowserAction, ...]
 persist_session: bool
 allow_private_network: bool
+⋮----
+def _evaluate_recovery_probe(page, probe: BrowserRecoveryProbe) -> bool
+⋮----
+locator = page.locator(probe.selector)
+⋮----
+text = locator.inner_text(timeout=probe.timeout_ms)
 ⋮----
 def _normalize_host(value: str) -> str
 ⋮----
@@ -1320,12 +1335,32 @@ name = None
 ⋮----
 name = str(raw.get("name") or f"step-{index + 1}").strip()
 ⋮----
+recovery_probe = None
+raw_probe = raw.get("recovery_probe")
+⋮----
+probe_kind = str(raw_probe.get("kind") or "").strip().lower()
+⋮----
+probe_selector = str(raw_probe.get("selector") or "").strip()
+⋮----
+probe_timeout = int(raw_probe.get("timeout_ms", 5000))
+⋮----
+probe_value = None
+⋮----
+probe_value = str(raw_probe.get("value") or "")
+⋮----
+recovery_probe = BrowserRecoveryProbe(
+⋮----
 artifacts = Path(artifacts_dir).expanduser().resolve()
 ⋮----
 state_path = (
 session_path = (
 checkpoint = _load_browser_checkpoint(
 uncertain_action = checkpoint.get("in_flight_action")
+uncertain_plan_action = None
+⋮----
+uncertain_index = int(uncertain_action.get("index") or 0)
+⋮----
+uncertain_plan_action = plan.actions[uncertain_index - 1]
 ⋮----
 allowed = set(plan.allowed_hosts)
 previous_session = _load_browser_session(
@@ -1356,6 +1391,12 @@ should_resume = bool(
 final_url = page.url
 resumed_from_url = resume_url
 resumed_action_index = checkpoint_index
+⋮----
+probe = uncertain_plan_action.recovery_probe
+⋮----
+recovered_index = int(uncertain_action["index"])
+checkpoint_index = recovered_index
+resumed_action_index = recovered_index
 ⋮----
 text = page.locator(action.selector).inner_text(
 ⋮----

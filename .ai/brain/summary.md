@@ -3,7 +3,7 @@
 - Index mode: incremental
 - Files indexed: 312
 - Files reparsed this run: 2
-- Symbols: 2675
+- Symbols: 2690
 - Internal import edges: 881
 - Impacted files: 3
 - Selected tests: 1
@@ -23,6 +23,7 @@
 - src/production_os/github_client.py: 42 symbols
 - src/production_os/workflow_engine.py: 42 symbols
 - src/production_os/managed_projects.py: 35 symbols
+- tests/test_browser_computer.py: 32 symbols
 - tests/test_dashboard_api.py: 30 symbols
 - tests/test_transparency_receipts.py: 29 symbols
 - src/production_os/control_plane.py: 26 symbols
@@ -31,7 +32,6 @@
 - src/production_os/rekor_checkpoint_state.py: 22 symbols
 - src/production_os/release_ledger.py: 22 symbols
 - tests/test_executor_worktree.py: 22 symbols
-- tests/test_release_ledger.py: 22 symbols
 
 ## Agent routing
 - Read impact.json first after project/change context.
@@ -44,8 +44,8 @@
 - AST index mode: incremental
 - AST files reparsed this run: 2
 - outline files retained: 312
-- top-level items retained: 3425
-- direct members retained: 1137
+- top-level items retained: 3434
+- direct members retained: 1148
 - symbol shards: 25
 - route named symbols via ast-routing.json, then fetch one ast-symbols/<initial>.json shard
 
