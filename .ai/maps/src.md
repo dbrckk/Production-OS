@@ -56,6 +56,7 @@ production_os/
   audit_integrity.py
   backup.py
   browser_computer.py
+  browser_loop.py
   budgets.py
   builder_identity.py
   callgraph.py
@@ -1445,6 +1446,84 @@ text = page.locator(action.selector).inner_text(
 target = artifacts / f"{action.name}.png"
 ```
 
+## File: production_os/browser_loop.py
+```python
+BROWSER_LOOP_SCHEMA = "production-os/browser-computer-loop/v1"
+BROWSER_TURN_SCHEMA = "production-os/browser-computer-turn/v1"
+BROWSER_TURN_RESULT_SCHEMA = "production-os/browser-computer-turn-result/v1"
+⋮----
+@dataclass(frozen=True, slots=True)
+class BrowserLoopConfig
+⋮----
+allowed_hosts: tuple[str, ...]
+persist_session: bool
+allow_private_network: bool
+max_turns: int
+⋮----
+def to_dict(self) -> dict[str, Any]
+⋮----
+raw_hosts = payload.get("allowed_hosts")
+⋮----
+max_turns = int(payload.get("max_turns", 32))
+⋮----
+# Reuse the browser-plan validator as the authoritative host/safety parser.
+bootstrap = validate_browser_plan({
+⋮----
+turn_id = str(turn.get("turn_id") or "").strip()
+⋮----
+actions = turn.get("actions")
+⋮----
+payload = {
+⋮----
+base = Path(checkpoint_path).expanduser().resolve()
+digest = hashlib.sha256(turn_id.encode("utf-8")).hexdigest()[:16]
+⋮----
+TURN_MANIFEST_SCHEMA = "production-os/browser-computer-turn-manifest/v1"
+⋮----
+def _turn_plan_fingerprint(plan_payload: dict[str, Any]) -> str
+⋮----
+canonical = json.dumps(
+⋮----
+turn_checkpoint = _turn_checkpoint_path(checkpoint_path, turn_id)
+⋮----
+base = Path(turn_checkpoint)
+⋮----
+def _read_turn_manifest(path: Path | None) -> dict[str, Any]
+⋮----
+payload = json.loads(path.read_text(encoding="utf-8"))
+⋮----
+fingerprint = str(payload.get("plan_fingerprint") or "")
+⋮----
+temp = path.with_suffix(path.suffix + ".tmp")
+⋮----
+turns = 0
+succeeded = 0
+rejected = 0
+failed = 0
+⋮----
+line = str(raw_line).strip()
+⋮----
+turn_id = ""
+⋮----
+raw_turn = json.loads(line)
+⋮----
+plan = validate_browser_plan(plan_payload)
+plan_fingerprint = _turn_plan_fingerprint(plan_payload)
+turn_checkpoint = _turn_checkpoint_path(
+manifest_path = _turn_manifest_path(
+manifest = _read_turn_manifest(manifest_path)
+⋮----
+result = {
+⋮----
+result = execute_fn(
+⋮----
+response = {
+⋮----
+# A failed turn may have an unresolved in-flight browser side
+# effect. Stop before accepting any different turn. Recovery must
+# retry the same turn id/plan so its durable checkpoint is reused.
+```
+
 ## File: production_os/budgets.py
 ```python
 @dataclass(frozen=True, slots=True)
@@ -1793,6 +1872,8 @@ remotepoll = sub.add_parser("remote-worker-poll", help="Poll the P8 control plan
 remoterun = sub.add_parser(
 ⋮----
 browserplan = sub.add_parser(
+⋮----
+browserloop = sub.add_parser(
 ⋮----
 benchmark = sub.add_parser(
 ⋮----
@@ -2236,6 +2317,12 @@ def run_browser_plan(args: argparse.Namespace) -> int
 payload = json.loads(Path(args.plan).read_text(encoding="utf-8"))
 plan = validate_browser_plan(payload)
 result = execute_browser_plan(
+⋮----
+def run_browser_loop_command(args: argparse.Namespace) -> int
+⋮----
+payload = json.loads(
+config = validate_browser_loop_config(payload)
+summary = run_browser_turn_loop(
 ⋮----
 def run_agent_benchmark(args: argparse.Namespace) -> int
 ⋮----

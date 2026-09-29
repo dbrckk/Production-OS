@@ -71,6 +71,7 @@ src/
     audit_integrity.py
     backup.py
     browser_computer.py
+    browser_loop.py
     budgets.py
     builder_identity.py
     callgraph.py
@@ -197,6 +198,7 @@ tests/
   test_asymmetric_attestations.py
   test_attestations.py
   test_browser_computer.py
+  test_browser_loop.py
   test_browser_worker_image.py
   test_builder_identity_validation.py
   test_builder_identity.py
@@ -2022,6 +2024,84 @@ text = page.locator(action.selector).inner_text(
 target = artifacts / f"{action.name}.png"
 ````
 
+## File: src/production_os/browser_loop.py
+````python
+BROWSER_LOOP_SCHEMA = "production-os/browser-computer-loop/v1"
+BROWSER_TURN_SCHEMA = "production-os/browser-computer-turn/v1"
+BROWSER_TURN_RESULT_SCHEMA = "production-os/browser-computer-turn-result/v1"
+⋮----
+@dataclass(frozen=True, slots=True)
+class BrowserLoopConfig
+⋮----
+allowed_hosts: tuple[str, ...]
+persist_session: bool
+allow_private_network: bool
+max_turns: int
+⋮----
+def to_dict(self) -> dict[str, Any]
+⋮----
+raw_hosts = payload.get("allowed_hosts")
+⋮----
+max_turns = int(payload.get("max_turns", 32))
+⋮----
+# Reuse the browser-plan validator as the authoritative host/safety parser.
+bootstrap = validate_browser_plan({
+⋮----
+turn_id = str(turn.get("turn_id") or "").strip()
+⋮----
+actions = turn.get("actions")
+⋮----
+payload = {
+⋮----
+base = Path(checkpoint_path).expanduser().resolve()
+digest = hashlib.sha256(turn_id.encode("utf-8")).hexdigest()[:16]
+⋮----
+TURN_MANIFEST_SCHEMA = "production-os/browser-computer-turn-manifest/v1"
+⋮----
+def _turn_plan_fingerprint(plan_payload: dict[str, Any]) -> str
+⋮----
+canonical = json.dumps(
+⋮----
+turn_checkpoint = _turn_checkpoint_path(checkpoint_path, turn_id)
+⋮----
+base = Path(turn_checkpoint)
+⋮----
+def _read_turn_manifest(path: Path | None) -> dict[str, Any]
+⋮----
+payload = json.loads(path.read_text(encoding="utf-8"))
+⋮----
+fingerprint = str(payload.get("plan_fingerprint") or "")
+⋮----
+temp = path.with_suffix(path.suffix + ".tmp")
+⋮----
+turns = 0
+succeeded = 0
+rejected = 0
+failed = 0
+⋮----
+line = str(raw_line).strip()
+⋮----
+turn_id = ""
+⋮----
+raw_turn = json.loads(line)
+⋮----
+plan = validate_browser_plan(plan_payload)
+plan_fingerprint = _turn_plan_fingerprint(plan_payload)
+turn_checkpoint = _turn_checkpoint_path(
+manifest_path = _turn_manifest_path(
+manifest = _read_turn_manifest(manifest_path)
+⋮----
+result = {
+⋮----
+result = execute_fn(
+⋮----
+response = {
+⋮----
+# A failed turn may have an unresolved in-flight browser side
+# effect. Stop before accepting any different turn. Recovery must
+# retry the same turn id/plan so its durable checkpoint is reused.
+````
+
 ## File: src/production_os/budgets.py
 ````python
 @dataclass(frozen=True, slots=True)
@@ -2370,6 +2450,8 @@ remotepoll = sub.add_parser("remote-worker-poll", help="Poll the P8 control plan
 remoterun = sub.add_parser(
 ⋮----
 browserplan = sub.add_parser(
+⋮----
+browserloop = sub.add_parser(
 ⋮----
 benchmark = sub.add_parser(
 ⋮----
@@ -2813,6 +2895,12 @@ def run_browser_plan(args: argparse.Namespace) -> int
 payload = json.loads(Path(args.plan).read_text(encoding="utf-8"))
 plan = validate_browser_plan(payload)
 result = execute_browser_plan(
+⋮----
+def run_browser_loop_command(args: argparse.Namespace) -> int
+⋮----
+payload = json.loads(
+config = validate_browser_loop_config(payload)
+summary = run_browser_turn_loop(
 ⋮----
 def run_agent_benchmark(args: argparse.Namespace) -> int
 ⋮----
@@ -10973,6 +11061,96 @@ release={
 provenance=create_release_provenance(
 ⋮----
 def test_validation_attestation_rejects_expired_signature()
+````
+
+## File: tests/test_browser_loop.py
+````python
+def _config(**overrides)
+⋮----
+payload = {
+⋮----
+def _turn(turn_id, actions)
+⋮----
+def test_browser_loop_executes_multiple_turns_with_fixed_host_policy(tmp_path)
+⋮----
+seen = []
+⋮----
+def fake_execute(plan, **kwargs)
+⋮----
+input_stream = io.StringIO(
+output_stream = io.StringIO()
+summary = run_browser_turn_loop(
+⋮----
+rows = [
+⋮----
+def test_browser_loop_rejects_turn_that_expands_navigation_host(tmp_path)
+⋮----
+calls = []
+⋮----
+def fake_execute(plan, **_kwargs)
+⋮----
+def test_browser_loop_stops_after_failed_turn_to_preserve_recovery_fence(tmp_path)
+⋮----
+def fail_execute(plan, **kwargs)
+⋮----
+def test_browser_loop_requires_durable_paths_when_persistent(tmp_path)
+⋮----
+def test_browser_loop_enforces_max_turns(tmp_path)
+⋮----
+def fake_execute(_plan, **_kwargs)
+⋮----
+def test_turn_checkpoint_path_is_stable_and_turn_scoped(tmp_path)
+⋮----
+base = tmp_path / "browser-checkpoint.json"
+first = _turn_checkpoint_path(base, "turn-a")
+again = _turn_checkpoint_path(base, "turn-a")
+other = _turn_checkpoint_path(base, "turn-b")
+⋮----
+def test_browser_loop_config_reuses_browser_safety_validation(payload, match)
+⋮----
+def test_browser_loop_cli_parses_jsonl_runtime_paths()
+⋮----
+args = _parse_args([
+⋮----
+def test_completed_turn_is_idempotently_deduplicated(tmp_path)
+⋮----
+config = _config()
+checkpoint = tmp_path / "checkpoint.json"
+turn = json.loads(
+⋮----
+manifest_path = _turn_manifest_path(checkpoint, "stable-turn")
+⋮----
+def must_not_execute(_plan, **_kwargs)
+⋮----
+output = io.StringIO()
+⋮----
+row = json.loads(output.getvalue().splitlines()[0])
+⋮----
+def test_turn_id_cannot_be_rebound_to_different_plan(tmp_path)
+⋮----
+first = json.loads(
+second = json.loads(
+⋮----
+manifest_path = _turn_manifest_path(checkpoint, "same-turn")
+⋮----
+def test_inflight_turn_with_tampered_checkpoint_fails_closed(tmp_path)
+⋮----
+manifest_path = _turn_manifest_path(checkpoint, "uncertain-turn")
+⋮----
+turn_checkpoint = _turn_checkpoint_path(checkpoint, "uncertain-turn")
+⋮----
+def test_successful_turn_persists_completed_manifest(tmp_path)
+⋮----
+turn_id = "complete-me"
+⋮----
+manifest = _read_turn_manifest(
+⋮----
+def test_turn_manifest_does_not_store_turn_id_or_fill_secret(tmp_path)
+⋮----
+turn_id = "private-turn-id"
+⋮----
+manifest_path = _turn_manifest_path(checkpoint, turn_id)
+serialized = manifest_path.read_text(encoding="utf-8")
 ````
 
 ## File: tests/test_browser_worker_image.py

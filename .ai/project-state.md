@@ -22,16 +22,19 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-29T06:24:06Z
+Generated: 2026-09-29T11:07:55Z
 
 ### Git
 - Branch: `main`
-- Head: `090f6e9ef414`
-- Commit date: 2026-09-29T08:23:56+02:00
-- Commit: feat(browser): emit verified stable snapshot selectors
-- Tracked files: 516
+- Head: `0b399bcc587c`
+- Commit date: 2026-09-29T13:07:43+02:00
+- Commit: feat(browser): add bounded idempotent multi-turn JSONL browser loop
+- Tracked files: 518
 
 ### Recently changed files
+- `src/production_os/browser_loop.py`
+- `src/production_os/cli.py`
+- `tests/test_browser_loop.py`
 - `src/production_os/browser_computer.py`
 - `tests/test_browser_computer.py`
 - `src/production_os/workflow_engine.py`

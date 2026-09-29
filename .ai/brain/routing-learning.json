@@ -2,27 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat: release 50 remote worker runner",
-      "terms": [
-        "50",
-        "feat",
-        "release",
-        "remote",
-        "runner",
-        "worker"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/cli.py",
-        "src/production_os/control_plane.py",
-        "src/production_os/remote_worker.py",
-        "src/production_os/remote_worker_runner.py",
-        "tests/test_cli.py",
-        "tests/test_remote_worker_runner.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "test: release 51 one-tap runner qualification",
       "terms": [
         "51",
@@ -1269,6 +1248,26 @@
         "src/production_os/browser_computer.py",
         "tests/test_browser_computer.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "feat(browser): add bounded idempotent multi-turn JSONL browser loop",
+      "terms": [
+        "add",
+        "bounded",
+        "browser",
+        "feat",
+        "idempotent",
+        "jsonl",
+        "loop",
+        "multi-turn"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/browser_loop.py",
+        "src/production_os/cli.py",
+        "tests/test_browser_loop.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1666,7 +1665,8 @@
       "src/production_os/agent_runtime.py": 8,
       "src/production_os/asset_forge.py": 4,
       "src/production_os/browser_computer.py": 4,
-      "src/production_os/cli.py": 12,
+      "src/production_os/browser_loop.py": 4,
+      "src/production_os/cli.py": 16,
       "src/production_os/dashboard_ui.py": 8,
       "src/production_os/github_change_review.py": 4,
       "src/production_os/github_client.py": 4,
@@ -1682,6 +1682,7 @@
       "src/production_os/workflow_engine.py": 28,
       "tests/test_agent_plan.py": 4,
       "tests/test_browser_computer.py": 4,
+      "tests/test_browser_loop.py": 4,
       "tests/test_browser_worker_image.py": 4,
       "tests/test_cooperative_managed_projects.py": 12,
       "tests/test_dashboard_ui_v3.py": 8,
@@ -1992,11 +1993,13 @@
     "bounded": {
       "src/production_os/agent_plan.py": 4,
       "src/production_os/browser_computer.py": 16,
-      "src/production_os/cli.py": 16,
+      "src/production_os/browser_loop.py": 4,
+      "src/production_os/cli.py": 20,
       "src/production_os/regression_bisect.py": 4,
       "src/production_os/workflow_engine.py": 4,
       "tests/test_agent_plan.py": 4,
       "tests/test_browser_computer.py": 16,
+      "tests/test_browser_loop.py": 4,
       "tests/test_regression_bisect.py": 4,
       "tests/test_worker_compose_deployment.py": 4
     },
@@ -2016,11 +2019,13 @@
     },
     "browser": {
       "src/production_os/browser_computer.py": 28,
-      "src/production_os/cli.py": 12,
+      "src/production_os/browser_loop.py": 4,
+      "src/production_os/cli.py": 16,
       "src/production_os/control_plane.py": 4,
       "src/production_os/managed_projects.py": 8,
       "src/production_os/workflow_engine.py": 8,
       "tests/test_browser_computer.py": 32,
+      "tests/test_browser_loop.py": 4,
       "tests/test_browser_worker_image.py": 4,
       "tests/test_cooperative_managed_projects.py": 8,
       "tests/test_release32_one_tap_e2e.py": 4,
@@ -2728,6 +2733,7 @@
       "src/production_os/agent_runtime.py": 8,
       "src/production_os/asset_forge.py": 24,
       "src/production_os/browser_computer.py": 28,
+      "src/production_os/browser_loop.py": 4,
       "src/production_os/cli.py": 40,
       "src/production_os/control_plane.py": 40,
       "src/production_os/controller.py": 8,
@@ -2746,7 +2752,6 @@
       "src/production_os/dashboard_store.py": 32,
       "src/production_os/dashboard_ui.py": 40,
       "src/production_os/dashboard_usage.py": 4,
-      "src/production_os/database_maintenance_lock.py": 4,
       "src/production_os/executor_worktree.py": 16,
       "src/production_os/github_change_review.py": 8,
       "src/production_os/github_client.py": 28,
@@ -2960,9 +2965,12 @@
       "tests/test_dashboard_launch.py": 4
     },
     "idempotent": {
+      "src/production_os/browser_loop.py": 4,
+      "src/production_os/cli.py": 4,
       "src/production_os/control_plane.py": 4,
       "src/production_os/dashboard_ui.py": 4,
       "src/production_os/managed_projects.py": 4,
+      "tests/test_browser_loop.py": 4,
       "tests/test_dashboard_api.py": 4,
       "tests/test_dashboard_ui_v3.py": 4,
       "tests/test_managed_projects_v4.py": 4,
@@ -3076,6 +3084,11 @@
       "tests/test_task_capabilities.py": 4,
       "tests/test_workflow_engine.py": 4
     },
+    "jsonl": {
+      "src/production_os/browser_loop.py": 4,
+      "src/production_os/cli.py": 4,
+      "tests/test_browser_loop.py": 4
+    },
     "keep": {
       "src/production_os/managed_projects.py": 4,
       "tests/test_cooperative_managed_projects.py": 4
@@ -3136,6 +3149,11 @@
       "src/production_os/control_plane.py": 4,
       "src/production_os/database_maintenance_lock.py": 4,
       "tests/test_database_maintenance_lock.py": 4
+    },
+    "loop": {
+      "src/production_os/browser_loop.py": 4,
+      "src/production_os/cli.py": 4,
+      "tests/test_browser_loop.py": 4
     },
     "maintenance": {
       "src/production_os/control_plane.py": 8,
@@ -3253,6 +3271,11 @@
       "src/production_os/model_router.py": 4,
       "src/production_os/workflow_engine.py": 4,
       "tests/test_model_router.py": 4
+    },
+    "multi-turn": {
+      "src/production_os/browser_loop.py": 4,
+      "src/production_os/cli.py": 4,
+      "tests/test_browser_loop.py": 4
     },
     "mutations": {
       "src/production_os/executor_worktree.py": 4,

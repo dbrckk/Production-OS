@@ -49,6 +49,7 @@ test_asset_forge.py
 test_asymmetric_attestations.py
 test_attestations.py
 test_browser_computer.py
+test_browser_loop.py
 test_browser_worker_image.py
 test_builder_identity_validation.py
 test_builder_identity.py
@@ -608,6 +609,96 @@ release={
 provenance=create_release_provenance(
 ⋮----
 def test_validation_attestation_rejects_expired_signature()
+```
+
+## File: test_browser_loop.py
+```python
+def _config(**overrides)
+⋮----
+payload = {
+⋮----
+def _turn(turn_id, actions)
+⋮----
+def test_browser_loop_executes_multiple_turns_with_fixed_host_policy(tmp_path)
+⋮----
+seen = []
+⋮----
+def fake_execute(plan, **kwargs)
+⋮----
+input_stream = io.StringIO(
+output_stream = io.StringIO()
+summary = run_browser_turn_loop(
+⋮----
+rows = [
+⋮----
+def test_browser_loop_rejects_turn_that_expands_navigation_host(tmp_path)
+⋮----
+calls = []
+⋮----
+def fake_execute(plan, **_kwargs)
+⋮----
+def test_browser_loop_stops_after_failed_turn_to_preserve_recovery_fence(tmp_path)
+⋮----
+def fail_execute(plan, **kwargs)
+⋮----
+def test_browser_loop_requires_durable_paths_when_persistent(tmp_path)
+⋮----
+def test_browser_loop_enforces_max_turns(tmp_path)
+⋮----
+def fake_execute(_plan, **_kwargs)
+⋮----
+def test_turn_checkpoint_path_is_stable_and_turn_scoped(tmp_path)
+⋮----
+base = tmp_path / "browser-checkpoint.json"
+first = _turn_checkpoint_path(base, "turn-a")
+again = _turn_checkpoint_path(base, "turn-a")
+other = _turn_checkpoint_path(base, "turn-b")
+⋮----
+def test_browser_loop_config_reuses_browser_safety_validation(payload, match)
+⋮----
+def test_browser_loop_cli_parses_jsonl_runtime_paths()
+⋮----
+args = _parse_args([
+⋮----
+def test_completed_turn_is_idempotently_deduplicated(tmp_path)
+⋮----
+config = _config()
+checkpoint = tmp_path / "checkpoint.json"
+turn = json.loads(
+⋮----
+manifest_path = _turn_manifest_path(checkpoint, "stable-turn")
+⋮----
+def must_not_execute(_plan, **_kwargs)
+⋮----
+output = io.StringIO()
+⋮----
+row = json.loads(output.getvalue().splitlines()[0])
+⋮----
+def test_turn_id_cannot_be_rebound_to_different_plan(tmp_path)
+⋮----
+first = json.loads(
+second = json.loads(
+⋮----
+manifest_path = _turn_manifest_path(checkpoint, "same-turn")
+⋮----
+def test_inflight_turn_with_tampered_checkpoint_fails_closed(tmp_path)
+⋮----
+manifest_path = _turn_manifest_path(checkpoint, "uncertain-turn")
+⋮----
+turn_checkpoint = _turn_checkpoint_path(checkpoint, "uncertain-turn")
+⋮----
+def test_successful_turn_persists_completed_manifest(tmp_path)
+⋮----
+turn_id = "complete-me"
+⋮----
+manifest = _read_turn_manifest(
+⋮----
+def test_turn_manifest_does_not_store_turn_id_or_fill_secret(tmp_path)
+⋮----
+turn_id = "private-turn-id"
+⋮----
+manifest_path = _turn_manifest_path(checkpoint, turn_id)
+serialized = manifest_path.read_text(encoding="utf-8")
 ```
 
 ## File: test_browser_worker_image.py

@@ -1,18 +1,20 @@
 # Change impact
 
-Base: 8ea4a2f8cce9d6fa1ec0984edd2485eb0bc99142
-Head: 090f6e9ef4143ff8dd12b69c1fe1d96c7ca281d0
+Base: 5567f1e5e62f479ffba643edb7f53e1aa2d609ba
+Head: 0b399bcc587caf0dfb5093710411416667ecc84a
 
 ## Changed files
-- M src/production_os/browser_computer.py
-- M tests/test_browser_computer.py
+- A src/production_os/browser_loop.py
+- M src/production_os/cli.py
+- A tests/test_browser_loop.py
 
 ## Affected areas
 - src
 - tests
 
 ## Related test candidates
-- tests/test_browser_computer.py
+- tests/test_browser_loop.py
+- tests/test_cli.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.
