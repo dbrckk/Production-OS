@@ -22,22 +22,22 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-29T11:07:55Z
+Generated: 2026-09-29T12:23:49Z
 
 ### Git
 - Branch: `main`
-- Head: `0b399bcc587c`
-- Commit date: 2026-09-29T13:07:43+02:00
-- Commit: feat(browser): add bounded idempotent multi-turn JSONL browser loop
+- Head: `85524c0e5e5b`
+- Commit date: 2026-09-29T14:23:38+02:00
+- Commit: feat(browser): advertise crash-safe multi-turn browser contract
 - Tracked files: 518
 
 ### Recently changed files
-- `src/production_os/browser_loop.py`
-- `src/production_os/cli.py`
-- `tests/test_browser_loop.py`
 - `src/production_os/browser_computer.py`
-- `tests/test_browser_computer.py`
+- `src/production_os/browser_loop.py`
 - `src/production_os/workflow_engine.py`
+- `tests/test_browser_computer.py`
+- `tests/test_browser_loop.py`
+- `src/production_os/cli.py`
 
 ### Project signals
 - `pyproject.toml`

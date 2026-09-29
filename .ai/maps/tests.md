@@ -699,6 +699,26 @@ turn_id = "private-turn-id"
 ⋮----
 manifest_path = _turn_manifest_path(checkpoint, turn_id)
 serialized = manifest_path.read_text(encoding="utf-8")
+⋮----
+def test_completed_manifest_is_committed_before_executor_returns(tmp_path)
+⋮----
+turn = _turn(
+⋮----
+def crash_after_durable_completion(_plan, **kwargs)
+⋮----
+on_complete = kwargs["on_complete"]
+⋮----
+first_output = io.StringIO()
+first = run_browser_turn_loop(
+⋮----
+second_output = io.StringIO()
+second = run_browser_turn_loop(
+⋮----
+row = json.loads(second_output.getvalue().splitlines()[0])
+⋮----
+def test_invalid_existing_turn_manifest_fails_closed_without_rebinding(tmp_path)
+⋮----
+turn_id = "bound-turn"
 ```
 
 ## File: test_browser_worker_image.py

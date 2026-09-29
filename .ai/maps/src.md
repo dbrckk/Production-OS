@@ -1511,7 +1511,10 @@ plan = validate_browser_plan(plan_payload)
 plan_fingerprint = _turn_plan_fingerprint(plan_payload)
 turn_checkpoint = _turn_checkpoint_path(
 manifest_path = _turn_manifest_path(
+manifest_exists = (
 manifest = _read_turn_manifest(manifest_path)
+⋮----
+def mark_turn_completed() -> None
 ⋮----
 result = {
 ⋮----
