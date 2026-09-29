@@ -28,6 +28,7 @@ _ALLOWED_ACTIONS = {
     "checkpoint",
 }
 _SAFE_NAME = re.compile(r"^[A-Za-z0-9._-]{1,120}$")
+_NON_REPLAYABLE_ACTIONS = {"click", "press"}
 
 
 @dataclass(frozen=True, slots=True)
@@ -115,6 +116,24 @@ def _validate_url(
     return value
 
 
+def _browser_action_fingerprint(action: BrowserAction) -> str:
+    row = action.to_dict()
+    if action.action == "fill":
+        value = action.value or ""
+        row["value_sha256"] = hashlib.sha256(
+            value.encode("utf-8")
+        ).hexdigest()
+        row["value_length"] = len(value)
+        row.pop("value", None)
+    canonical = json.dumps(
+        row,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
 def _browser_plan_fingerprint(plan: BrowserPlan) -> str:
     actions = []
     for action in plan.actions:
@@ -170,11 +189,37 @@ def _load_browser_checkpoint(
     )
     if next_action_index and not last_url:
         return {}
+    in_flight = payload.get("in_flight_action")
+    normalized_in_flight = None
+    if in_flight is not None:
+        if not isinstance(in_flight, dict):
+            return {}
+        try:
+            action_index = int(in_flight.get("index"))
+        except (TypeError, ValueError):
+            return {}
+        action_type = str(in_flight.get("action") or "")
+        fingerprint = str(in_flight.get("fingerprint") or "")
+        if not 1 <= action_index <= len(plan.actions):
+            return {}
+        expected = plan.actions[action_index - 1]
+        if (
+            action_type != expected.action
+            or action_type not in _NON_REPLAYABLE_ACTIONS
+            or fingerprint != _browser_action_fingerprint(expected)
+        ):
+            return {}
+        normalized_in_flight = {
+            "index":action_index,
+            "action":action_type,
+            "fingerprint":fingerprint,
+        }
     return {
         "schema_version":BROWSER_CHECKPOINT_SCHEMA,
         "plan_fingerprint":payload["plan_fingerprint"],
         "next_action_index":next_action_index,
         "last_url":last_url,
+        "in_flight_action":normalized_in_flight,
     }
 
 
@@ -184,6 +229,8 @@ def _write_browser_checkpoint(
     plan: BrowserPlan,
     next_action_index: int,
     last_url: str,
+    in_flight_action: BrowserAction | None = None,
+    in_flight_index: int | None = None,
 ) -> dict[str, Any]:
     if not 0 <= int(next_action_index) <= len(plan.actions):
         raise ValueError("browser checkpoint action index is invalid")
@@ -203,6 +250,23 @@ def _write_browser_checkpoint(
         "last_url":safe_url,
         "updated_at":datetime.now(timezone.utc).isoformat(),
     }
+    if in_flight_action is not None:
+        if in_flight_action.action not in _NON_REPLAYABLE_ACTIONS:
+            raise ValueError(
+                "browser in-flight checkpoint action must be non-replayable"
+            )
+        if in_flight_index is None:
+            raise ValueError("browser in-flight checkpoint requires action index")
+        action_index = int(in_flight_index)
+        if not 1 <= action_index <= len(plan.actions):
+            raise ValueError("browser in-flight action index is invalid")
+        if plan.actions[action_index - 1] != in_flight_action:
+            raise ValueError("browser in-flight action does not match plan")
+        payload["in_flight_action"] = {
+            "index":action_index,
+            "action":in_flight_action.action,
+            "fingerprint":_browser_action_fingerprint(in_flight_action),
+        }
     temp = target.with_suffix(target.suffix + ".tmp")
     temp.write_text(
         json.dumps(payload, ensure_ascii=False, sort_keys=True, indent=2),
@@ -429,6 +493,13 @@ def execute_browser_plan(
         checkpoint_path,
         plan,
     )
+    uncertain_action = checkpoint.get("in_flight_action")
+    if isinstance(uncertain_action, dict):
+        raise RuntimeError(
+            "browser recovery required before replaying uncertain "
+            f"{uncertain_action.get('action')} action at step "
+            f"{uncertain_action.get('index')}"
+        )
     allowed = set(plan.allowed_hosts)
     previous_session = _load_browser_session(
         session_path,
@@ -498,6 +569,31 @@ def execute_browser_plan(
                 plan.actions[checkpoint_index:],
                 start=checkpoint_index + 1,
             ):
+                if (
+                    action.action in _NON_REPLAYABLE_ACTIONS
+                    and plan.persist_session
+                    and checkpoint_path is not None
+                    and state_path is not None
+                    and page.url
+                    and page.url != "about:blank"
+                ):
+                    state_path.parent.mkdir(parents=True, exist_ok=True)
+                    context.storage_state(path=str(state_path))
+                    if session_path is not None:
+                        _write_browser_session(
+                            session_path,
+                            last_url=page.url,
+                            plan=plan,
+                        )
+                    _write_browser_checkpoint(
+                        checkpoint_path,
+                        plan=plan,
+                        next_action_index=index - 1,
+                        last_url=page.url,
+                        in_flight_action=action,
+                        in_flight_index=index,
+                    )
+
                 if action.action == "navigate":
                     page.goto(
                         action.url,
@@ -580,6 +676,27 @@ def execute_browser_plan(
 
                 assert_current_host(page)
                 final_url = page.url
+                if (
+                    action.action in _NON_REPLAYABLE_ACTIONS
+                    and plan.persist_session
+                    and checkpoint_path is not None
+                    and state_path is not None
+                    and final_url
+                ):
+                    state_path.parent.mkdir(parents=True, exist_ok=True)
+                    context.storage_state(path=str(state_path))
+                    if session_path is not None:
+                        _write_browser_session(
+                            session_path,
+                            last_url=final_url,
+                            plan=plan,
+                        )
+                    _write_browser_checkpoint(
+                        checkpoint_path,
+                        plan=plan,
+                        next_action_index=index,
+                        last_url=final_url,
+                    )
                 if action.action not in {
                     "extract_text",
                     "screenshot",
