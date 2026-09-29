@@ -1237,6 +1237,38 @@ locator = page.locator(probe.selector)
 ⋮----
 text = locator.inner_text(timeout=probe.timeout_ms)
 ⋮----
+bounded_elements = max(1, min(200, int(max_elements)))
+bounded_text = max(1000, min(50000, int(max_text_chars)))
+safe_url = _safe_resume_url(
+⋮----
+title = str(page.title())[:500]
+⋮----
+title = ""
+⋮----
+body_text = str(
+⋮----
+body_text = ""
+⋮----
+base_selector = (
+collection = page.locator(base_selector)
+⋮----
+total = min(int(collection.count()), bounded_elements)
+⋮----
+total = 0
+⋮----
+elements: list[dict[str, Any]] = []
+⋮----
+locator = collection.nth(index)
+⋮----
+row: dict[str, Any] = {
+text = ""
+⋮----
+text = str(locator.inner_text(timeout=750)).strip()[:500]
+⋮----
+value = locator.get_attribute(attribute)
+⋮----
+value = None
+⋮----
 def _normalize_host(value: str) -> str
 ⋮----
 host = str(value or "").strip().lower().rstrip(".")
@@ -1284,8 +1316,6 @@ expected = plan.actions[action_index - 1]
 ⋮----
 normalized_in_flight = {
 ⋮----
-safe_url = _safe_resume_url(
-⋮----
 action_index = int(in_flight_index)
 ⋮----
 temp = target.with_suffix(target.suffix + ".tmp")
@@ -1322,8 +1352,6 @@ selector = str(raw.get("selector") or "").strip()
 url = None
 ⋮----
 url = _validate_url(
-⋮----
-value = None
 ⋮----
 value = str(raw.get("value") or "")
 ⋮----

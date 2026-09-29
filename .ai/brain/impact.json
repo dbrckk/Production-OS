@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "generated_by": "dbrckk/repo-brain",
-  "base": "a2b13ce94ee281fd4fca9096e90c1ea0e2579e85",
-  "head": "6949317931ed7b79c22079f3c0debb5d943622b0",
+  "base": "6949317931ed7b79c22079f3c0debb5d943622b0",
+  "head": "6557260f67d8697e1ae707245493896dbdf967e1",
   "index_mode": "incremental",
   "changed_files": [
     {
@@ -28,121 +28,127 @@
       "name": "BrowserRecoveryProbe",
       "kind": "class",
       "file": "src/production_os/browser_computer.py",
-      "line": 35
+      "line": 36
     },
     {
       "name": "to_dict",
       "kind": "function",
       "file": "src/production_os/browser_computer.py",
-      "line": 41
+      "line": 42
     },
     {
       "name": "BrowserAction",
       "kind": "class",
       "file": "src/production_os/browser_computer.py",
-      "line": 53
+      "line": 54
     },
     {
       "name": "to_dict",
       "kind": "function",
       "file": "src/production_os/browser_computer.py",
-      "line": 63
+      "line": 64
     },
     {
       "name": "BrowserPlan",
       "kind": "class",
       "file": "src/production_os/browser_computer.py",
-      "line": 80
+      "line": 81
     },
     {
       "name": "to_dict",
       "kind": "function",
       "file": "src/production_os/browser_computer.py",
-      "line": 86
+      "line": 87
     },
     {
       "name": "_evaluate_recovery_probe",
       "kind": "function",
       "file": "src/production_os/browser_computer.py",
-      "line": 96
+      "line": 97
+    },
+    {
+      "name": "_browser_page_snapshot",
+      "kind": "function",
+      "file": "src/production_os/browser_computer.py",
+      "line": 121
     },
     {
       "name": "_normalize_host",
       "kind": "function",
       "file": "src/production_os/browser_computer.py",
-      "line": 120
+      "line": 205
     },
     {
       "name": "_is_private_host",
       "kind": "function",
       "file": "src/production_os/browser_computer.py",
-      "line": 127
+      "line": 212
     },
     {
       "name": "_validate_url",
       "kind": "function",
       "file": "src/production_os/browser_computer.py",
-      "line": 144
+      "line": 229
     },
     {
       "name": "_browser_action_fingerprint",
       "kind": "function",
       "file": "src/production_os/browser_computer.py",
-      "line": 164
+      "line": 249
     },
     {
       "name": "_browser_plan_fingerprint",
       "kind": "function",
       "file": "src/production_os/browser_computer.py",
-      "line": 182
+      "line": 267
     },
     {
       "name": "_load_browser_checkpoint",
       "kind": "function",
       "file": "src/production_os/browser_computer.py",
-      "line": 207
+      "line": 292
     },
     {
       "name": "_write_browser_checkpoint",
       "kind": "function",
       "file": "src/production_os/browser_computer.py",
-      "line": 271
+      "line": 356
     },
     {
       "name": "_safe_resume_url",
       "kind": "function",
       "file": "src/production_os/browser_computer.py",
-      "line": 324
+      "line": 409
     },
     {
       "name": "_load_browser_session",
       "kind": "function",
       "file": "src/production_os/browser_computer.py",
-      "line": 352
+      "line": 437
     },
     {
       "name": "_write_browser_session",
       "kind": "function",
       "file": "src/production_os/browser_computer.py",
-      "line": 381
+      "line": 466
     },
     {
       "name": "validate_browser_plan",
       "kind": "function",
       "file": "src/production_os/browser_computer.py",
-      "line": 410
+      "line": 495
     },
     {
       "name": "execute_browser_plan",
       "kind": "function",
       "file": "src/production_os/browser_computer.py",
-      "line": 555
+      "line": 640
     },
     {
       "name": "assert_current_host",
       "kind": "function",
       "file": "src/production_os/browser_computer.py",
-      "line": 609
+      "line": 694
     },
     {
       "name": "_parse_args",
@@ -694,193 +700,307 @@
       "name": "test_browser_plan_validates_bounded_actions_and_redacts_fill_value",
       "kind": "function",
       "file": "tests/test_browser_computer.py",
-      "line": 22
+      "line": 23
     },
     {
       "name": "test_browser_plan_rejects_unsafe_navigation_and_actions",
       "kind": "function",
       "file": "tests/test_browser_computer.py",
-      "line": 88
+      "line": 89
     },
     {
       "name": "test_workflow_injects_browser_computer_contract",
       "kind": "function",
       "file": "tests/test_browser_computer.py",
-      "line": 93
+      "line": 94
     },
     {
       "name": "test_browser_plan_cli_parses_runtime_paths",
       "kind": "function",
       "file": "tests/test_browser_computer.py",
-      "line": 131
+      "line": 132
     },
     {
       "name": "test_browser_plan_cli_defaults_storage_state_to_runtime_workspace",
       "kind": "function",
       "file": "tests/test_browser_computer.py",
-      "line": 152
+      "line": 153
     },
     {
       "name": "test_browser_plan_cli_explicit_storage_state_wins",
       "kind": "function",
       "file": "tests/test_browser_computer.py",
-      "line": 168
+      "line": 169
     },
     {
       "name": "test_browser_plan_blocks_private_network_by_default",
       "kind": "function",
       "file": "tests/test_browser_computer.py",
-      "line": 183
+      "line": 184
     },
     {
       "name": "test_browser_plan_allows_private_network_only_with_explicit_opt_in",
       "kind": "function",
       "file": "tests/test_browser_computer.py",
-      "line": 194
+      "line": 195
     },
     {
       "name": "test_browser_session_resume_url_strips_query_and_fragment",
       "kind": "function",
       "file": "tests/test_browser_computer.py",
-      "line": 208
+      "line": 209
     },
     {
       "name": "test_browser_session_metadata_round_trips_only_safe_location",
       "kind": "function",
       "file": "tests/test_browser_computer.py",
-      "line": 218
+      "line": 219
     },
     {
       "name": "test_browser_session_rejects_stale_disallowed_host",
       "kind": "function",
       "file": "tests/test_browser_computer.py",
-      "line": 245
+      "line": 246
     },
     {
       "name": "test_browser_session_state_defaults_to_runtime_workspace",
       "kind": "function",
       "file": "tests/test_browser_computer.py",
-      "line": 264
+      "line": 265
     },
     {
       "name": "test_browser_plan_accepts_explicit_checkpoint_action",
       "kind": "function",
       "file": "tests/test_browser_computer.py",
-      "line": 280
+      "line": 281
     },
     {
       "name": "test_browser_checkpoint_round_trips_only_matching_plan",
       "kind": "function",
       "file": "tests/test_browser_computer.py",
-      "line": 295
+      "line": 296
     },
     {
       "name": "test_browser_plan_fingerprint_distinguishes_fill_values_without_storing_them",
       "kind": "function",
       "file": "tests/test_browser_computer.py",
-      "line": 336
+      "line": 337
     },
     {
       "name": "test_browser_checkpoint_state_defaults_to_runtime_workspace",
       "kind": "function",
       "file": "tests/test_browser_computer.py",
-      "line": 357
+      "line": 358
     },
     {
       "name": "test_browser_checkpoint_round_trips_uncertain_non_replayable_action",
       "kind": "function",
       "file": "tests/test_browser_computer.py",
-      "line": 373
+      "line": 374
     },
     {
       "name": "test_browser_checkpoint_rejects_tampered_uncertain_action_fingerprint",
       "kind": "function",
       "file": "tests/test_browser_computer.py",
-      "line": 406
+      "line": 407
     },
     {
       "name": "test_browser_checkpoint_completed_side_effect_clears_uncertain_marker",
       "kind": "function",
       "file": "tests/test_browser_computer.py",
-      "line": 434
+      "line": 435
     },
     {
       "name": "test_browser_checkpoint_rejects_inflight_marker_for_replayable_action",
       "kind": "function",
       "file": "tests/test_browser_computer.py",
-      "line": 468
+      "line": 469
     },
     {
       "name": "test_browser_click_accepts_positive_recovery_probe",
       "kind": "function",
       "file": "tests/test_browser_computer.py",
-      "line": 491
+      "line": 492
     },
     {
       "name": "test_browser_recovery_probe_is_rejected_for_replayable_action",
       "kind": "function",
       "file": "tests/test_browser_computer.py",
-      "line": 526
+      "line": 527
     },
     {
       "name": "test_browser_recovery_probe_validation_rejects_malformed_probe",
       "kind": "function",
       "file": "tests/test_browser_computer.py",
-      "line": 577
+      "line": 578
     },
     {
       "name": "_FakeLocator",
       "kind": "class",
       "file": "tests/test_browser_computer.py",
-      "line": 595
+      "line": 596
     },
     {
       "name": "__init__",
       "kind": "function",
       "file": "tests/test_browser_computer.py",
-      "line": 596
+      "line": 597
     },
     {
       "name": "wait_for",
       "kind": "function",
       "file": "tests/test_browser_computer.py",
-      "line": 601
+      "line": 602
     },
     {
       "name": "inner_text",
       "kind": "function",
       "file": "tests/test_browser_computer.py",
-      "line": 608
+      "line": 609
     },
     {
       "name": "_FakePage",
       "kind": "class",
       "file": "tests/test_browser_computer.py",
-      "line": 614
+      "line": 615
     },
     {
       "name": "__init__",
       "kind": "function",
       "file": "tests/test_browser_computer.py",
-      "line": 615
+      "line": 616
     },
     {
       "name": "locator",
       "kind": "function",
       "file": "tests/test_browser_computer.py",
-      "line": 618
+      "line": 619
     },
     {
       "name": "test_browser_recovery_probe_evaluates_only_positive_evidence",
       "kind": "function",
       "file": "tests/test_browser_computer.py",
-      "line": 623
+      "line": 624
     },
     {
       "name": "test_recovery_probe_changes_browser_plan_fingerprint",
       "kind": "function",
       "file": "tests/test_browser_computer.py",
-      "line": 657
+      "line": 658
+    },
+    {
+      "name": "_SnapshotElement",
+      "kind": "class",
+      "file": "tests/test_browser_computer.py",
+      "line": 687
+    },
+    {
+      "name": "__init__",
+      "kind": "function",
+      "file": "tests/test_browser_computer.py",
+      "line": 688
+    },
+    {
+      "name": "is_visible",
+      "kind": "function",
+      "file": "tests/test_browser_computer.py",
+      "line": 693
+    },
+    {
+      "name": "inner_text",
+      "kind": "function",
+      "file": "tests/test_browser_computer.py",
+      "line": 696
+    },
+    {
+      "name": "get_attribute",
+      "kind": "function",
+      "file": "tests/test_browser_computer.py",
+      "line": 699
+    },
+    {
+      "name": "_SnapshotCollection",
+      "kind": "class",
+      "file": "tests/test_browser_computer.py",
+      "line": 703
+    },
+    {
+      "name": "__init__",
+      "kind": "function",
+      "file": "tests/test_browser_computer.py",
+      "line": 704
+    },
+    {
+      "name": "count",
+      "kind": "function",
+      "file": "tests/test_browser_computer.py",
+      "line": 707
+    },
+    {
+      "name": "nth",
+      "kind": "function",
+      "file": "tests/test_browser_computer.py",
+      "line": 710
+    },
+    {
+      "name": "_SnapshotBody",
+      "kind": "class",
+      "file": "tests/test_browser_computer.py",
+      "line": 714
+    },
+    {
+      "name": "__init__",
+      "kind": "function",
+      "file": "tests/test_browser_computer.py",
+      "line": 715
+    },
+    {
+      "name": "inner_text",
+      "kind": "function",
+      "file": "tests/test_browser_computer.py",
+      "line": 718
+    },
+    {
+      "name": "_SnapshotPage",
+      "kind": "class",
+      "file": "tests/test_browser_computer.py",
+      "line": 722
+    },
+    {
+      "name": "__init__",
+      "kind": "function",
+      "file": "tests/test_browser_computer.py",
+      "line": 723
+    },
+    {
+      "name": "title",
+      "kind": "function",
+      "file": "tests/test_browser_computer.py",
+      "line": 729
+    },
+    {
+      "name": "locator",
+      "kind": "function",
+      "file": "tests/test_browser_computer.py",
+      "line": 732
+    },
+    {
+      "name": "test_browser_plan_accepts_bounded_snapshot_action",
+      "kind": "function",
+      "file": "tests/test_browser_computer.py",
+      "line": 738
+    },
+    {
+      "name": "test_browser_snapshot_is_bounded_structured_and_omits_field_values",
+      "kind": "function",
+      "file": "tests/test_browser_computer.py",
+      "line": 752
+    },
+    {
+      "name": "test_browser_snapshot_caps_elements_and_text",
+      "kind": "function",
+      "file": "tests/test_browser_computer.py",
+      "line": 807
     }
   ],
   "selected_tests": [

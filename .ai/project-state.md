@@ -22,13 +22,13 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-29T06:08:08Z
+Generated: 2026-09-29T06:13:01Z
 
 ### Git
 - Branch: `main`
-- Head: `6949317931ed`
-- Commit date: 2026-09-29T08:07:55+02:00
-- Commit: feat(browser): recover uncertain actions from positive postconditions
+- Head: `6557260f67d8`
+- Commit date: 2026-09-29T08:12:51+02:00
+- Commit: feat(browser): expose bounded structured DOM snapshots
 - Tracked files: 516
 
 ### Recently changed files
