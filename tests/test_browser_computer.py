@@ -4,6 +4,7 @@ from production_os.browser_computer import (
     BROWSER_PLAN_SCHEMA,
     BROWSER_SESSION_SCHEMA,
     BROWSER_CHECKPOINT_SCHEMA,
+    _browser_action_fingerprint,
     _browser_plan_fingerprint,
     _load_browser_checkpoint,
     _load_browser_session,
@@ -364,3 +365,121 @@ def test_browser_checkpoint_state_defaults_to_runtime_workspace(monkeypatch):
     assert _browser_checkpoint_state(args) == (
         "/var/lib/production-os/runtime/job-a/browser-checkpoint.json"
     )
+
+
+
+def test_browser_checkpoint_round_trips_uncertain_non_replayable_action(tmp_path):
+    plan = validate_browser_plan({
+        "schema_version":BROWSER_PLAN_SCHEMA,
+        "allowed_hosts":["example.com"],
+        "persist_session":True,
+        "actions":[
+            {"action":"navigate","url":"https://example.com/app"},
+            {"action":"click","selector":"button[type=submit]"},
+            {"action":"extract_text","selector":"main","name":"result"},
+        ],
+    })
+    checkpoint = tmp_path / "browser-checkpoint.json"
+    action = plan.actions[1]
+
+    written = _write_browser_checkpoint(
+        checkpoint,
+        plan=plan,
+        next_action_index=1,
+        last_url="https://example.com/app",
+        in_flight_action=action,
+        in_flight_index=2,
+    )
+    loaded = _load_browser_checkpoint(checkpoint, plan)
+
+    assert written["in_flight_action"] == {
+        "index":2,
+        "action":"click",
+        "fingerprint":_browser_action_fingerprint(action),
+    }
+    assert loaded["next_action_index"] == 1
+    assert loaded["in_flight_action"] == written["in_flight_action"]
+
+
+def test_browser_checkpoint_rejects_tampered_uncertain_action_fingerprint(tmp_path):
+    import json
+
+    plan = validate_browser_plan({
+        "schema_version":BROWSER_PLAN_SCHEMA,
+        "allowed_hosts":["example.com"],
+        "persist_session":True,
+        "actions":[
+            {"action":"navigate","url":"https://example.com/app"},
+            {"action":"press","selector":"form","key":"Enter"},
+        ],
+    })
+    checkpoint = tmp_path / "browser-checkpoint.json"
+    _write_browser_checkpoint(
+        checkpoint,
+        plan=plan,
+        next_action_index=1,
+        last_url="https://example.com/app",
+        in_flight_action=plan.actions[1],
+        in_flight_index=2,
+    )
+    payload = json.loads(checkpoint.read_text(encoding="utf-8"))
+    payload["in_flight_action"]["fingerprint"] = "0" * 64
+    checkpoint.write_text(json.dumps(payload), encoding="utf-8")
+
+    assert _load_browser_checkpoint(checkpoint, plan) == {}
+
+
+def test_browser_checkpoint_completed_side_effect_clears_uncertain_marker(tmp_path):
+    plan = validate_browser_plan({
+        "schema_version":BROWSER_PLAN_SCHEMA,
+        "allowed_hosts":["example.com"],
+        "persist_session":True,
+        "actions":[
+            {"action":"navigate","url":"https://example.com/app"},
+            {"action":"click","selector":"#save"},
+            {"action":"checkpoint"},
+        ],
+    })
+    checkpoint = tmp_path / "browser-checkpoint.json"
+    _write_browser_checkpoint(
+        checkpoint,
+        plan=plan,
+        next_action_index=1,
+        last_url="https://example.com/app",
+        in_flight_action=plan.actions[1],
+        in_flight_index=2,
+    )
+
+    completed = _write_browser_checkpoint(
+        checkpoint,
+        plan=plan,
+        next_action_index=2,
+        last_url="https://example.com/app/saved",
+    )
+    loaded = _load_browser_checkpoint(checkpoint, plan)
+
+    assert "in_flight_action" not in completed
+    assert loaded["in_flight_action"] is None
+    assert loaded["next_action_index"] == 2
+
+
+def test_browser_checkpoint_rejects_inflight_marker_for_replayable_action(tmp_path):
+    plan = validate_browser_plan({
+        "schema_version":BROWSER_PLAN_SCHEMA,
+        "allowed_hosts":["example.com"],
+        "persist_session":True,
+        "actions":[
+            {"action":"navigate","url":"https://example.com/app"},
+            {"action":"fill","selector":"#name","value":"Alice"},
+        ],
+    })
+
+    with pytest.raises(ValueError, match="must be non-replayable"):
+        _write_browser_checkpoint(
+            tmp_path / "browser-checkpoint.json",
+            plan=plan,
+            next_action_index=1,
+            last_url="https://example.com/app",
+            in_flight_action=plan.actions[1],
+            in_flight_index=2,
+        )
