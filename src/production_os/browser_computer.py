@@ -118,6 +118,36 @@ def _evaluate_recovery_probe(page, probe: BrowserRecoveryProbe) -> bool:
     raise ValueError("unsupported browser recovery probe")
 
 
+def _css_attribute_selector(name: str, value: str) -> str:
+    safe = (
+        str(value)
+        .replace("\\", "\\\\")
+        .replace('"', '\\"')
+        .replace("\r", "\\D ")
+        .replace("\n", "\\A ")
+    )
+    return f'[{name}="{safe}"]'
+
+
+def _stable_snapshot_selector(
+    page,
+    *,
+    fallback: str,
+    attributes: dict[str, str],
+) -> tuple[str, str]:
+    for attribute in ("id", "aria-label", "name", "placeholder"):
+        value = str(attributes.get(attribute) or "").strip()
+        if not value:
+            continue
+        candidate = _css_attribute_selector(attribute, value)
+        try:
+            if int(page.locator(candidate).count()) == 1:
+                return candidate, "attribute"
+        except Exception:
+            continue
+    return fallback, "positional"
+
+
 def _browser_page_snapshot(
     page,
     plan: BrowserPlan,
@@ -161,9 +191,7 @@ def _browser_page_snapshot(
             locator = collection.nth(index)
             if not locator.is_visible():
                 continue
-            row: dict[str, Any] = {
-                "selector":f"{base_selector} >> nth={index}",
-            }
+            row: dict[str, Any] = {}
             text = ""
             try:
                 text = str(locator.inner_text(timeout=750)).strip()[:500]
@@ -171,6 +199,7 @@ def _browser_page_snapshot(
                 pass
             if text:
                 row["text"] = text
+            raw_attributes: dict[str, str] = {}
             for attribute in (
                 "id",
                 "name",
@@ -184,7 +213,17 @@ def _browser_page_snapshot(
                 except Exception:
                     value = None
                 if value:
-                    row[attribute.replace("-", "_")] = str(value)[:300]
+                    normalized = str(value)[:300]
+                    raw_attributes[attribute] = normalized
+                    row[attribute.replace("-", "_")] = normalized
+            fallback = f"{base_selector} >> nth={index}"
+            selector, stability = _stable_snapshot_selector(
+                page,
+                fallback=fallback,
+                attributes=raw_attributes,
+            )
+            row["selector"] = selector
+            row["selector_stability"] = stability
             elements.append(row)
         except Exception:
             continue
