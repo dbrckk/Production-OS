@@ -8,7 +8,7 @@ import re
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 from urllib.parse import urlsplit, urlunsplit
 
 
@@ -683,6 +683,7 @@ def execute_browser_plan(
     storage_state_path: str | Path | None = None,
     session_state_path: str | Path | None = None,
     checkpoint_path: str | Path | None = None,
+    on_complete: Callable[[], None] | None = None,
     headless: bool = True,
 ) -> dict[str, Any]:
     try:
@@ -984,6 +985,8 @@ def execute_browser_plan(
                     last_url=final_url,
                     plan=plan,
                 )
+            if on_complete is not None:
+                on_complete()
             if checkpoint_path is not None:
                 try:
                     Path(checkpoint_path).expanduser().resolve().unlink()
