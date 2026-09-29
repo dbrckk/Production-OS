@@ -22,23 +22,19 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-29T06:18:58Z
+Generated: 2026-09-29T06:24:06Z
 
 ### Git
 - Branch: `main`
-- Head: `3abf5a4b99fe`
-- Commit date: 2026-09-29T08:18:48+02:00
-- Commit: feat(browser): advertise resumable observation capabilities
+- Head: `090f6e9ef414`
+- Commit date: 2026-09-29T08:23:56+02:00
+- Commit: feat(browser): emit verified stable snapshot selectors
 - Tracked files: 516
 
 ### Recently changed files
-- `src/production_os/workflow_engine.py`
-- `tests/test_browser_computer.py`
 - `src/production_os/browser_computer.py`
-- `src/production_os/managed_projects.py`
-- `src/production_os/rollback_plan.py`
-- `tests/test_managed_github_reconciliation.py`
-- `tests/test_rollback_plan.py`
+- `tests/test_browser_computer.py`
+- `src/production_os/workflow_engine.py`
 
 ### Project signals
 - `pyproject.toml`

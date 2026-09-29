@@ -1237,6 +1237,14 @@ locator = page.locator(probe.selector)
 ⋮----
 text = locator.inner_text(timeout=probe.timeout_ms)
 ⋮----
+def _css_attribute_selector(name: str, value: str) -> str
+⋮----
+safe = (
+⋮----
+value = str(attributes.get(attribute) or "").strip()
+⋮----
+candidate = _css_attribute_selector(attribute, value)
+⋮----
 bounded_elements = max(1, min(200, int(max_elements)))
 bounded_text = max(1000, min(50000, int(max_text_chars)))
 safe_url = _safe_resume_url(
@@ -1260,14 +1268,20 @@ elements: list[dict[str, Any]] = []
 ⋮----
 locator = collection.nth(index)
 ⋮----
-row: dict[str, Any] = {
+row: dict[str, Any] = {}
 text = ""
 ⋮----
 text = str(locator.inner_text(timeout=750)).strip()[:500]
 ⋮----
+raw_attributes: dict[str, str] = {}
+⋮----
 value = locator.get_attribute(attribute)
 ⋮----
 value = None
+⋮----
+normalized = str(value)[:300]
+⋮----
+fallback = f"{base_selector} >> nth={index}"
 ⋮----
 def _normalize_host(value: str) -> str
 ⋮----
