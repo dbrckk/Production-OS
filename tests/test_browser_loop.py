@@ -7,7 +7,11 @@ from production_os.browser_loop import (
     BROWSER_LOOP_SCHEMA,
     BROWSER_TURN_RESULT_SCHEMA,
     BROWSER_TURN_SCHEMA,
+    _read_turn_manifest,
     _turn_checkpoint_path,
+    _turn_manifest_path,
+    _turn_plan_fingerprint,
+    _write_turn_manifest,
     run_browser_turn_loop,
     validate_browser_loop_config,
 )
@@ -280,3 +284,200 @@ def test_browser_loop_cli_parses_jsonl_runtime_paths():
     assert args.session_state == "/tmp/session.json"
     assert args.checkpoint_state == "/tmp/checkpoint.json"
     assert args.headed is False
+
+
+
+def test_completed_turn_is_idempotently_deduplicated(tmp_path):
+    config = _config()
+    checkpoint = tmp_path / "checkpoint.json"
+    turn = json.loads(
+        _turn("stable-turn", [{"action":"snapshot","name":"observe"}])
+    )
+    from production_os.browser_loop import _turn_plan_payload
+    _turn_id, plan_payload = _turn_plan_payload(config, turn)
+    manifest_path = _turn_manifest_path(checkpoint, "stable-turn")
+    _write_turn_manifest(
+        manifest_path,
+        plan_fingerprint=_turn_plan_fingerprint(plan_payload),
+        status="completed",
+    )
+
+    calls = []
+
+    def must_not_execute(_plan, **_kwargs):
+        calls.append(True)
+        raise AssertionError("completed turn must not execute again")
+
+    output = io.StringIO()
+    summary = run_browser_turn_loop(
+        config,
+        io.StringIO(json.dumps(turn) + "\n"),
+        output,
+        artifacts_dir=tmp_path / "artifacts",
+        storage_state_path=tmp_path / "storage.json",
+        session_state_path=tmp_path / "session.json",
+        checkpoint_path=checkpoint,
+        execute_fn=must_not_execute,
+    )
+
+    assert calls == []
+    assert summary["succeeded"] == 1
+    row = json.loads(output.getvalue().splitlines()[0])
+    assert row["turn_id"] == "stable-turn"
+    assert row["status"] == "succeeded"
+    assert row["result"]["status"] == "already-completed"
+    assert row["result"]["recovered"] is True
+
+
+def test_turn_id_cannot_be_rebound_to_different_plan(tmp_path):
+    config = _config()
+    checkpoint = tmp_path / "checkpoint.json"
+    first = json.loads(
+        _turn("same-turn", [{"action":"snapshot","name":"first"}])
+    )
+    second = json.loads(
+        _turn("same-turn", [{"action":"snapshot","name":"different"}])
+    )
+    from production_os.browser_loop import _turn_plan_payload
+    _id, first_payload = _turn_plan_payload(config, first)
+    manifest_path = _turn_manifest_path(checkpoint, "same-turn")
+    _write_turn_manifest(
+        manifest_path,
+        plan_fingerprint=_turn_plan_fingerprint(first_payload),
+        status="in_flight",
+    )
+
+    calls = []
+
+    def must_not_execute(_plan, **_kwargs):
+        calls.append(True)
+        raise AssertionError("different plan must not execute")
+
+    output = io.StringIO()
+    summary = run_browser_turn_loop(
+        config,
+        io.StringIO(json.dumps(second) + "\n"),
+        output,
+        artifacts_dir=tmp_path / "artifacts",
+        storage_state_path=tmp_path / "storage.json",
+        session_state_path=tmp_path / "session.json",
+        checkpoint_path=checkpoint,
+        execute_fn=must_not_execute,
+    )
+
+    assert calls == []
+    assert summary["failed"] == 1
+    row = json.loads(output.getvalue().splitlines()[0])
+    assert row["turn_id"] == "same-turn"
+    assert row["status"] == "failed"
+    assert "bound to a different plan" in row["error"]
+
+
+def test_inflight_turn_with_tampered_checkpoint_fails_closed(tmp_path):
+    config = _config()
+    checkpoint = tmp_path / "checkpoint.json"
+    turn = json.loads(
+        _turn("uncertain-turn", [{"action":"click","selector":"#submit"}])
+    )
+    from production_os.browser_loop import _turn_plan_payload
+    _id, plan_payload = _turn_plan_payload(config, turn)
+    manifest_path = _turn_manifest_path(checkpoint, "uncertain-turn")
+    _write_turn_manifest(
+        manifest_path,
+        plan_fingerprint=_turn_plan_fingerprint(plan_payload),
+        status="in_flight",
+    )
+    turn_checkpoint = _turn_checkpoint_path(checkpoint, "uncertain-turn")
+    with open(turn_checkpoint, "w", encoding="utf-8") as handle:
+        handle.write('{"schema_version":"tampered"}')
+
+    calls = []
+
+    def must_not_execute(_plan, **_kwargs):
+        calls.append(True)
+
+    output = io.StringIO()
+    summary = run_browser_turn_loop(
+        config,
+        io.StringIO(json.dumps(turn) + "\n"),
+        output,
+        artifacts_dir=tmp_path / "artifacts",
+        storage_state_path=tmp_path / "storage.json",
+        session_state_path=tmp_path / "session.json",
+        checkpoint_path=checkpoint,
+        execute_fn=must_not_execute,
+    )
+
+    assert calls == []
+    assert summary["failed"] == 1
+    row = json.loads(output.getvalue().splitlines()[0])
+    assert "invalid or tampered" in row["error"]
+
+
+def test_successful_turn_persists_completed_manifest(tmp_path):
+    config = _config()
+    checkpoint = tmp_path / "checkpoint.json"
+    turn_id = "complete-me"
+    turn = json.loads(
+        _turn(turn_id, [{"action":"snapshot","name":"observe"}])
+    )
+
+    def fake_execute(_plan, **_kwargs):
+        return {
+            "schema_version":"production-os/browser-computer-result/v1",
+            "status":"passed",
+            "results":[],
+        }
+
+    run_browser_turn_loop(
+        config,
+        io.StringIO(json.dumps(turn) + "\n"),
+        io.StringIO(),
+        artifacts_dir=tmp_path / "artifacts",
+        storage_state_path=tmp_path / "storage.json",
+        session_state_path=tmp_path / "session.json",
+        checkpoint_path=checkpoint,
+        execute_fn=fake_execute,
+    )
+
+    manifest = _read_turn_manifest(
+        _turn_manifest_path(checkpoint, turn_id)
+    )
+    assert manifest["status"] == "completed"
+    assert len(manifest["plan_fingerprint"]) == 64
+
+
+def test_turn_manifest_does_not_store_turn_id_or_fill_secret(tmp_path):
+    config = _config()
+    checkpoint = tmp_path / "checkpoint.json"
+    turn_id = "private-turn-id"
+    turn = json.loads(
+        _turn(
+            turn_id,
+            [{
+                "action":"fill",
+                "selector":"#password",
+                "value":"VERY-SECRET-VALUE",
+            }],
+        )
+    )
+
+    def fake_execute(_plan, **_kwargs):
+        return {"status":"passed"}
+
+    run_browser_turn_loop(
+        config,
+        io.StringIO(json.dumps(turn) + "\n"),
+        io.StringIO(),
+        artifacts_dir=tmp_path / "artifacts",
+        storage_state_path=tmp_path / "storage.json",
+        session_state_path=tmp_path / "session.json",
+        checkpoint_path=checkpoint,
+        execute_fn=fake_execute,
+    )
+
+    manifest_path = _turn_manifest_path(checkpoint, turn_id)
+    serialized = manifest_path.read_text(encoding="utf-8")
+    assert turn_id not in serialized
+    assert "VERY-SECRET-VALUE" not in serialized
+    assert "#password" not in serialized
