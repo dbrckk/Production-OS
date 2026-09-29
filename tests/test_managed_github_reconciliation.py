@@ -435,6 +435,9 @@ def test_post_merge_failure_resolution_builds_compensating_rollback_plan():
     plan = resolution["rollback_plan"]
     assert plan["strategy"] == "compensating-pr"
     assert plan["merge_sha"] == "b"*40
+    assert plan["diagnostic"]["known_good_sha"] == "c"*40
+    assert plan["diagnostic"]["known_bad_sha"] == "b"*40
+    assert plan["diagnostic"]["blocking"] is False
     assert plan["history_rewrite_allowed"] is False
     assert plan["force_push_allowed"] is False
     assert "Do not reset" in plan["instruction"]
@@ -530,6 +533,7 @@ def test_reconcile_launches_exactly_one_automatic_rollback_generation(tmp_path):
     assert recovered["runs"][-1]["requested_by"] == "system:github-rollback"
     assert "Do not reset" in recovered["runs"][-1]["instruction"]
     assert "open a pull request" in recovered["runs"][-1]["instruction"]
+    assert "production-os regression-bisect" in recovered["runs"][-1]["instruction"]
     assert polled_again["generation"] == 2
     assert len([
         run for run in polled_again["runs"]
