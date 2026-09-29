@@ -126,6 +126,17 @@ def test_workflow_injects_browser_computer_contract(tmp_path):
     assert contract["max_actions"] == 64
     assert contract["requires_allowed_hosts"] is True
     assert contract["persistent_session"] is True
+    assert contract["checkpoint_actions"] is True
+    assert contract["structured_snapshot"] is True
+    assert contract["snapshot_action"] == "snapshot"
+    assert contract["non_replayable_actions"] == ["click", "press"]
+    assert contract["recovery_probes"] == [
+        "selector_present",
+        "selector_absent",
+        "text_contains",
+    ]
+    assert contract["recovery_policy"] == "positive-proof-only"
+    assert contract["arbitrary_evaluate"] is False
 
 
 
