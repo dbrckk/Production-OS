@@ -731,11 +731,20 @@ class _SnapshotBody:
 
 
 class _SnapshotPage:
-    def __init__(self, *, url, title, body_text, elements):
+    def __init__(
+        self,
+        *,
+        url,
+        title,
+        body_text,
+        elements,
+        selector_counts=None,
+    ):
         self.url = url
         self._title = title
         self._body = _SnapshotBody(body_text)
         self._elements = _SnapshotCollection(elements)
+        self._selector_counts = dict(selector_counts or {})
 
     def title(self):
         return self._title
@@ -743,6 +752,11 @@ class _SnapshotPage:
     def locator(self, selector):
         if selector == "body":
             return self._body
+        if selector in self._selector_counts:
+            return _SnapshotCollection([
+                _SnapshotElement()
+                for _ in range(self._selector_counts[selector])
+            ])
         return self._elements
 
 
@@ -846,3 +860,93 @@ def test_browser_snapshot_caps_elements_and_text():
     assert snapshot["truncated"] is True
     assert snapshot["elements"][0]["selector"].endswith("nth=0")
     assert snapshot["elements"][-1]["selector"].endswith("nth=9")
+
+
+
+def test_browser_snapshot_prefers_verified_unique_attribute_selector():
+    plan = validate_browser_plan({
+        "schema_version":BROWSER_PLAN_SCHEMA,
+        "allowed_hosts":["example.com"],
+        "actions":[{"action":"snapshot","name":"observe"}],
+    })
+    page = _SnapshotPage(
+        url="https://example.com/app",
+        title="App",
+        body_text="",
+        elements=[
+            _SnapshotElement(
+                text="Save",
+                attributes={"id":"save", "name":"submit"},
+            ),
+        ],
+        selector_counts={
+            '[id="save"]':1,
+            '[name="submit"]':1,
+        },
+    )
+
+    snapshot = _browser_page_snapshot(page, plan)
+
+    element = snapshot["elements"][0]
+    assert element["selector"] == '[id="save"]'
+    assert element["selector_stability"] == "attribute"
+
+
+def test_browser_snapshot_falls_back_when_attribute_selector_is_not_unique():
+    plan = validate_browser_plan({
+        "schema_version":BROWSER_PLAN_SCHEMA,
+        "allowed_hosts":["example.com"],
+        "actions":[{"action":"snapshot","name":"observe"}],
+    })
+    page = _SnapshotPage(
+        url="https://example.com/app",
+        title="App",
+        body_text="",
+        elements=[
+            _SnapshotElement(
+                text="Save",
+                attributes={"name":"action"},
+            ),
+            _SnapshotElement(
+                text="Delete",
+                attributes={"name":"action"},
+            ),
+        ],
+        selector_counts={
+            '[name="action"]':2,
+        },
+    )
+
+    snapshot = _browser_page_snapshot(page, plan)
+
+    assert snapshot["elements"][0]["selector"].endswith("nth=0")
+    assert snapshot["elements"][0]["selector_stability"] == "positional"
+    assert snapshot["elements"][1]["selector"].endswith("nth=1")
+
+
+def test_browser_snapshot_selector_escapes_attribute_quotes():
+    plan = validate_browser_plan({
+        "schema_version":BROWSER_PLAN_SCHEMA,
+        "allowed_hosts":["example.com"],
+        "actions":[{"action":"snapshot","name":"observe"}],
+    })
+    page = _SnapshotPage(
+        url="https://example.com/app",
+        title="App",
+        body_text="",
+        elements=[
+            _SnapshotElement(
+                attributes={"aria-label":'Save "draft"'},
+            ),
+        ],
+        selector_counts={
+            '[aria-label="Save \\"draft\\""]':1,
+        },
+    )
+
+    snapshot = _browser_page_snapshot(page, plan)
+
+    assert snapshot["elements"][0]["selector"] == (
+        '[aria-label="Save \\"draft\\""]'
+    )
+    assert snapshot["elements"][0]["selector_stability"] == "attribute"
