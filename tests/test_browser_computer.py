@@ -7,6 +7,7 @@ from production_os.browser_computer import (
     BrowserRecoveryProbe,
     _browser_action_fingerprint,
     _browser_plan_fingerprint,
+    _browser_page_snapshot,
     _evaluate_recovery_probe,
     _load_browser_checkpoint,
     _load_browser_session,
@@ -680,3 +681,157 @@ def test_recovery_probe_changes_browser_plan_fingerprint():
     assert _browser_plan_fingerprint(without_probe) != (
         _browser_plan_fingerprint(with_probe)
     )
+
+
+
+class _SnapshotElement:
+    def __init__(self, *, visible=True, text="", attributes=None):
+        self.visible = visible
+        self.text = text
+        self.attributes = dict(attributes or {})
+
+    def is_visible(self):
+        return self.visible
+
+    def inner_text(self, *, timeout):
+        return self.text
+
+    def get_attribute(self, name):
+        return self.attributes.get(name)
+
+
+class _SnapshotCollection:
+    def __init__(self, elements):
+        self.elements = list(elements)
+
+    def count(self):
+        return len(self.elements)
+
+    def nth(self, index):
+        return self.elements[index]
+
+
+class _SnapshotBody:
+    def __init__(self, text):
+        self.text = text
+
+    def inner_text(self, *, timeout):
+        return self.text
+
+
+class _SnapshotPage:
+    def __init__(self, *, url, title, body_text, elements):
+        self.url = url
+        self._title = title
+        self._body = _SnapshotBody(body_text)
+        self._elements = _SnapshotCollection(elements)
+
+    def title(self):
+        return self._title
+
+    def locator(self, selector):
+        if selector == "body":
+            return self._body
+        return self._elements
+
+
+def test_browser_plan_accepts_bounded_snapshot_action():
+    plan = validate_browser_plan({
+        "schema_version":BROWSER_PLAN_SCHEMA,
+        "allowed_hosts":["example.com"],
+        "actions":[
+            {"action":"navigate","url":"https://example.com/app"},
+            {"action":"snapshot","name":"observe"},
+        ],
+    })
+
+    assert plan.actions[1].action == "snapshot"
+    assert plan.actions[1].name == "observe"
+
+
+def test_browser_snapshot_is_bounded_structured_and_omits_field_values():
+    plan = validate_browser_plan({
+        "schema_version":BROWSER_PLAN_SCHEMA,
+        "allowed_hosts":["example.com"],
+        "actions":[
+            {"action":"snapshot","name":"observe"},
+        ],
+    })
+    page = _SnapshotPage(
+        url="https://example.com/app?token=secret#frag",
+        title="Dashboard",
+        body_text="Visible page text",
+        elements=[
+            _SnapshotElement(
+                text="Save",
+                attributes={
+                    "id":"save",
+                    "role":"button",
+                    "aria-label":"Save changes",
+                    "value":"TOP-SECRET",
+                },
+            ),
+            _SnapshotElement(
+                text="",
+                attributes={
+                    "name":"email",
+                    "placeholder":"Email",
+                    "type":"email",
+                    "value":"alice@example.com",
+                },
+            ),
+            _SnapshotElement(
+                visible=False,
+                text="Hidden",
+                attributes={"id":"hidden"},
+            ),
+        ],
+    )
+
+    snapshot = _browser_page_snapshot(page, plan)
+
+    assert snapshot["url"] == "https://example.com/app"
+    assert snapshot["title"] == "Dashboard"
+    assert snapshot["text_excerpt"] == "Visible page text"
+    assert snapshot["element_count"] == 2
+    assert snapshot["elements"][0]["text"] == "Save"
+    assert snapshot["elements"][0]["aria_label"] == "Save changes"
+    assert snapshot["elements"][1]["name"] == "email"
+    assert snapshot["elements"][1]["placeholder"] == "Email"
+    serialized = str(snapshot)
+    assert "TOP-SECRET" not in serialized
+    assert "alice@example.com" not in serialized
+    assert "token=secret" not in serialized
+
+
+def test_browser_snapshot_caps_elements_and_text():
+    plan = validate_browser_plan({
+        "schema_version":BROWSER_PLAN_SCHEMA,
+        "allowed_hosts":["example.com"],
+        "actions":[
+            {"action":"snapshot","name":"observe"},
+        ],
+    })
+    page = _SnapshotPage(
+        url="https://example.com/",
+        title="x" * 1000,
+        body_text="y" * 60000,
+        elements=[
+            _SnapshotElement(text=f"item-{index}")
+            for index in range(250)
+        ],
+    )
+
+    snapshot = _browser_page_snapshot(
+        page,
+        plan,
+        max_elements=10,
+        max_text_chars=2000,
+    )
+
+    assert len(snapshot["title"]) == 500
+    assert len(snapshot["text_excerpt"]) == 2000
+    assert snapshot["element_count"] == 10
+    assert snapshot["truncated"] is True
+    assert snapshot["elements"][0]["selector"].endswith("nth=0")
+    assert snapshot["elements"][-1]["selector"].endswith("nth=9")
