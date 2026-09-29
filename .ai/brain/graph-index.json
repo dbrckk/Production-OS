@@ -1012,6 +1012,33 @@
     },
     {
       "dependencies": [
+        "src/production_os/models.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/controller.py",
+        "src/production_os/managed_projects.py",
+        "src/production_os/regression_bisect.py",
+        "src/production_os/rollback_plan.py",
+        "src/production_os/task_capabilities.py",
+        "src/production_os/validation.py",
+        "tests/test_agent_plan.py",
+        "tests/test_classification_history_reuse.py",
+        "tests/test_compatibility_validation.py",
+        "tests/test_control_plane_release.py",
+        "tests/test_dynamic_agent_fanout.py",
+        "tests/test_managed_github_reconciliation.py",
+        "tests/test_regression_bisect.py",
+        "tests/test_release_ledger.py",
+        "tests/test_rollback_plan.py",
+        "tests/test_skill_memory.py"
+      ],
+      "in_degree": 17,
+      "out_degree": 1,
+      "path": "src/production_os/history.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/models.py",
         "src/production_os/workers.py"
       ],
@@ -1063,32 +1090,6 @@
       "in_degree": 5,
       "out_degree": 13,
       "path": "src/production_os/dashboard_service.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/models.py"
-      ],
-      "dependents": [
-        "src/production_os/cli.py",
-        "src/production_os/controller.py",
-        "src/production_os/managed_projects.py",
-        "src/production_os/regression_bisect.py",
-        "src/production_os/rollback_plan.py",
-        "src/production_os/task_capabilities.py",
-        "src/production_os/validation.py",
-        "tests/test_agent_plan.py",
-        "tests/test_classification_history_reuse.py",
-        "tests/test_compatibility_validation.py",
-        "tests/test_control_plane_release.py",
-        "tests/test_dynamic_agent_fanout.py",
-        "tests/test_regression_bisect.py",
-        "tests/test_release_ledger.py",
-        "tests/test_rollback_plan.py",
-        "tests/test_skill_memory.py"
-      ],
-      "in_degree": 16,
-      "out_degree": 1,
-      "path": "src/production_os/history.py"
     },
     {
       "dependencies": [
@@ -1847,6 +1848,21 @@
     {
       "dependencies": [
         "src/production_os/__init__.py",
+        "src/production_os/github_work_state.py",
+        "src/production_os/history.py",
+        "src/production_os/managed_projects.py",
+        "src/production_os/sqlite_backend.py",
+        "src/production_os/workflow_engine.py",
+        "tests/test_asset_forge.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 7,
+      "path": "tests/test_managed_github_reconciliation.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/__init__.py",
         "src/production_os/agent_runtime.py",
         "src/production_os/cli.py",
         "src/production_os/remote_worker.py",
@@ -1888,24 +1904,9 @@
       "in_degree": 0,
       "out_degree": 7,
       "path": "tests/test_secure_release_e2e.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/key_registry.py"
-      ],
-      "dependents": [
-        "src/production_os/release_ledger.py",
-        "src/production_os/supply_chain.py",
-        "tests/test_builder_identity.py",
-        "tests/test_builder_identity_validation.py",
-        "tests/test_builder_trust_rotation.py"
-      ],
-      "in_degree": 5,
-      "out_degree": 1,
-      "path": "src/production_os/builder_identity.py"
     }
   ],
-  "edge_count": 1588,
+  "edge_count": 1589,
   "generated_by": "dbrckk/repo-brain-v7-graph",
   "node_count": 309,
   "schema_version": 1

@@ -2,24 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat: release 44 one-tap recovery actions",
-      "terms": [
-        "44",
-        "actions",
-        "feat",
-        "one-tap",
-        "recovery",
-        "release"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/dashboard_ui.py",
-        "tests/test_dashboard_ui_v3.py",
-        "tests/test_release44_one_tap_recovery_actions_e2e.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat: release 45 server-backed production inbox",
       "terms": [
         "45",
@@ -1275,6 +1257,27 @@
         "src/production_os/cli.py",
         "tests/test_browser_computer.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "feat(runtime): attach non-blocking bisect diagnostics to rollback plans",
+      "terms": [
+        "attach",
+        "bisect",
+        "diagnostics",
+        "feat",
+        "non-blocking",
+        "plans",
+        "rollback",
+        "runtime"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/managed_projects.py",
+        "src/production_os/rollback_plan.py",
+        "tests/test_managed_github_reconciliation.py",
+        "tests/test_rollback_plan.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1834,6 +1837,12 @@
       "src/production_os/cli.py": 4,
       "tests/test_browser_computer.py": 4
     },
+    "attach": {
+      "src/production_os/managed_projects.py": 4,
+      "src/production_os/rollback_plan.py": 4,
+      "tests/test_managed_github_reconciliation.py": 4,
+      "tests/test_rollback_plan.py": 4
+    },
     "attention": {
       "src/production_os/control_plane.py": 4,
       "src/production_os/dashboard_service.py": 8,
@@ -1967,8 +1976,12 @@
     },
     "bisect": {
       "src/production_os/cli.py": 4,
+      "src/production_os/managed_projects.py": 4,
       "src/production_os/regression_bisect.py": 4,
-      "tests/test_regression_bisect.py": 4
+      "src/production_os/rollback_plan.py": 4,
+      "tests/test_managed_github_reconciliation.py": 4,
+      "tests/test_regression_bisect.py": 4,
+      "tests/test_rollback_plan.py": 4
     },
     "bootstrap": {
       "scripts/render-start.py": 4,
@@ -2491,12 +2504,15 @@
       "src/production_os/dashboard_ui.py": 4,
       "src/production_os/github_client.py": 4,
       "src/production_os/github_work_state.py": 4,
-      "src/production_os/managed_projects.py": 4,
+      "src/production_os/managed_projects.py": 8,
+      "src/production_os/rollback_plan.py": 4,
       "src/production_os/workflow_engine.py": 4,
       "tests/test_dashboard_ui_v3.py": 4,
       "tests/test_github_work_state.py": 4,
+      "tests/test_managed_github_reconciliation.py": 4,
       "tests/test_managed_project_outcome.py": 4,
       "tests/test_release51_one_tap_runner_e2e.py": 4,
+      "tests/test_rollback_plan.py": 4,
       "tests/test_workflow_engine.py": 4
     },
     "diff": {
@@ -3241,6 +3257,12 @@
       "tests/test_dashboard_production_inbox.py": 4,
       "tests/test_dashboard_production_inbox_filters_ui.py": 4
     },
+    "non-blocking": {
+      "src/production_os/managed_projects.py": 4,
+      "src/production_os/rollback_plan.py": 4,
+      "tests/test_managed_github_reconciliation.py": 4,
+      "tests/test_rollback_plan.py": 4
+    },
     "nonsensitive": {
       "src/production_os/github_change_review.py": 4,
       "src/production_os/github_client.py": 4,
@@ -3411,7 +3433,11 @@
     "plans": {
       "src/production_os/browser_computer.py": 4,
       "src/production_os/cli.py": 4,
-      "tests/test_browser_computer.py": 4
+      "src/production_os/managed_projects.py": 4,
+      "src/production_os/rollback_plan.py": 4,
+      "tests/test_browser_computer.py": 4,
+      "tests/test_managed_github_reconciliation.py": 4,
+      "tests/test_rollback_plan.py": 4
     },
     "playbooks": {
       "src/production_os/dashboard_playbooks.py": 4,
@@ -3963,13 +3989,13 @@
     "rollback": {
       "src/production_os/github_change_review.py": 4,
       "src/production_os/github_work_state.py": 4,
-      "src/production_os/managed_projects.py": 4,
-      "src/production_os/rollback_plan.py": 4,
+      "src/production_os/managed_projects.py": 8,
+      "src/production_os/rollback_plan.py": 8,
       "tests/test_github_change_review.py": 4,
       "tests/test_github_work_state.py": 4,
-      "tests/test_managed_github_reconciliation.py": 4,
+      "tests/test_managed_github_reconciliation.py": 8,
       "tests/test_release51_one_tap_runner_e2e.py": 4,
-      "tests/test_rollback_plan.py": 4
+      "tests/test_rollback_plan.py": 8
     },
     "route": {
       "src/production_os/controller.py": 4,
@@ -4021,10 +4047,12 @@
       "src/production_os/controller_leader.py": 4,
       "src/production_os/executor_worktree.py": 8,
       "src/production_os/filesystem_lock.py": 4,
+      "src/production_os/managed_projects.py": 4,
       "src/production_os/postgres_backend.py": 4,
       "src/production_os/regression_bisect.py": 4,
       "src/production_os/remote_worker_runner.py": 16,
       "src/production_os/repository_cache.py": 4,
+      "src/production_os/rollback_plan.py": 4,
       "src/production_os/skill_memory.py": 4,
       "src/production_os/sqlite_backend.py": 4,
       "src/production_os/workflow_engine.py": 8,
@@ -4037,10 +4065,12 @@
       "tests/test_dashboard_store_postgres.py": 4,
       "tests/test_executor_worktree.py": 4,
       "tests/test_filesystem_lock.py": 4,
+      "tests/test_managed_github_reconciliation.py": 4,
       "tests/test_persistent_agent_runtime.py": 8,
       "tests/test_regression_bisect.py": 4,
       "tests/test_remote_worker_runner.py": 8,
       "tests/test_repository_cache.py": 4,
+      "tests/test_rollback_plan.py": 4,
       "tests/test_skill_memory.py": 4,
       "tests/test_worker_compose_deployment.py": 4
     },

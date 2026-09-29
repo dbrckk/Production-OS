@@ -6224,6 +6224,7 @@ decision = runtime_decision_from_github(state)
 ⋮----
 rollback_plan = None
 ⋮----
+known_good_sha = (
 rollback_plan = build_rollback_plan(
 ⋮----
 head_sha = str(state.head_sha or "").strip().lower()
@@ -8176,6 +8177,12 @@ repo = str(repository or "").strip()
 parts = repo.split("/")
 ⋮----
 sha = str(merge_sha or "").strip().lower()
+⋮----
+good_sha = None
+⋮----
+candidate = str(known_good_sha or "").strip().lower()
+⋮----
+good_sha = candidate
 ⋮----
 summary = str(failure_summary or "").strip()[:4000]
 ci = ci if isinstance(ci, dict) else {}

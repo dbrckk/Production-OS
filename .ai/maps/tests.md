@@ -6098,6 +6098,10 @@ def test_build_rollback_plan_is_compensating_and_preserves_history()
 plan = build_rollback_plan(
 ⋮----
 def test_build_rollback_plan_rejects_unpinned_merge_commit()
+⋮----
+def test_build_rollback_plan_carries_non_blocking_bisect_range()
+⋮----
+def test_build_rollback_plan_rejects_invalid_known_good_sha()
 ```
 
 ## File: test_runtime_state.py

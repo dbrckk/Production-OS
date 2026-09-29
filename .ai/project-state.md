@@ -22,29 +22,29 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-29T05:49:29Z
+Generated: 2026-09-29T05:56:40Z
 
 ### Git
 - Branch: `main`
-- Head: `107019a6e63a`
-- Commit date: 2026-09-29T07:49:15+02:00
-- Commit: feat(browser): checkpoint bounded browser plans at explicit safe boundaries
+- Head: `9becf51e8604`
+- Commit date: 2026-09-29T07:56:28+02:00
+- Commit: feat(runtime): attach non-blocking bisect diagnostics to rollback plans
 - Tracked files: 516
 
 ### Recently changed files
+- `src/production_os/managed_projects.py`
+- `src/production_os/rollback_plan.py`
+- `tests/test_managed_github_reconciliation.py`
+- `tests/test_rollback_plan.py`
 - `src/production_os/browser_computer.py`
 - `src/production_os/cli.py`
 - `tests/test_browser_computer.py`
-- `src/production_os/managed_projects.py`
 - `src/production_os/project_memory.py`
 - `src/production_os/workflow_engine.py`
 - `tests/test_project_memory.py`
 - `docs/regression-bisect.md`
 - `src/production_os/regression_bisect.py`
 - `tests/test_regression_bisect.py`
-- `src/production_os/agent_planning_policy.py`
-- `src/production_os/fanout_learning.py`
-- `tests/test_fanout_learning.py`
 
 ### Project signals
 - `pyproject.toml`

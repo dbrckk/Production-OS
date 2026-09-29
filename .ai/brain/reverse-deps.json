@@ -1333,12 +1333,13 @@
         "tests/test_compatibility_validation.py",
         "tests/test_control_plane_release.py",
         "tests/test_dynamic_agent_fanout.py",
+        "tests/test_managed_github_reconciliation.py",
         "tests/test_regression_bisect.py",
         "tests/test_release_ledger.py",
         "tests/test_rollback_plan.py",
         "tests/test_skill_memory.py"
       ],
-      "in_degree": 16,
+      "in_degree": 17,
       "out_degree": 1
     },
     "src/production_os/journal.py": {
@@ -3611,6 +3612,7 @@
       "dependencies": [
         "src/production_os/__init__.py",
         "src/production_os/github_work_state.py",
+        "src/production_os/history.py",
         "src/production_os/managed_projects.py",
         "src/production_os/sqlite_backend.py",
         "src/production_os/workflow_engine.py",
@@ -3618,7 +3620,7 @@
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 6
+      "out_degree": 7
     },
     "tests/test_managed_project_outcome.py": {
       "dependencies": [

@@ -6801,6 +6801,7 @@ decision = runtime_decision_from_github(state)
 ⋮----
 rollback_plan = None
 ⋮----
+known_good_sha = (
 rollback_plan = build_rollback_plan(
 ⋮----
 head_sha = str(state.head_sha or "").strip().lower()
@@ -8753,6 +8754,12 @@ repo = str(repository or "").strip()
 parts = repo.split("/")
 ⋮----
 sha = str(merge_sha or "").strip().lower()
+⋮----
+good_sha = None
+⋮----
+candidate = str(known_good_sha or "").strip().lower()
+⋮----
+good_sha = candidate
 ⋮----
 summary = str(failure_summary or "").strip()[:4000]
 ci = ci if isinstance(ci, dict) else {}
@@ -16354,6 +16361,10 @@ def test_build_rollback_plan_is_compensating_and_preserves_history()
 plan = build_rollback_plan(
 ⋮----
 def test_build_rollback_plan_rejects_unpinned_merge_commit()
+⋮----
+def test_build_rollback_plan_carries_non_blocking_bisect_range()
+⋮----
+def test_build_rollback_plan_rejects_invalid_known_good_sha()
 ````
 
 ## File: tests/test_runtime_state.py
