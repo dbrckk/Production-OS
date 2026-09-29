@@ -148,6 +148,7 @@ def test_workflow_injects_browser_computer_contract(tmp_path):
         "turn_id_idempotency":{
             "supported":True,
             "requires_checkpoint_state":True,
+            "requires_persistent_session":True,
         },
         "immutable_turn_plan_binding":{
             "supported":True,
