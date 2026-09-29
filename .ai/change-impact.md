@@ -1,20 +1,18 @@
 # Change impact
 
-Base: 140c1d335953824be303fb35a0705855088155f7
-Head: 9becf51e86047d13d427c3694e7e84c828e6b2a6
+Base: 85c00870ba8a7ba22414f56f2677c76b3ee5bf6e
+Head: a2b13ce94ee281fd4fca9096e90c1ea0e2579e85
 
 ## Changed files
-- M src/production_os/managed_projects.py
-- M src/production_os/rollback_plan.py
-- M tests/test_managed_github_reconciliation.py
-- M tests/test_rollback_plan.py
+- M src/production_os/browser_computer.py
+- M tests/test_browser_computer.py
 
 ## Affected areas
 - src
 - tests
 
 ## Related test candidates
-- tests/test_rollback_plan.py
+- tests/test_browser_computer.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

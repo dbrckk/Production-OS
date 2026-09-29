@@ -1195,6 +1195,7 @@ BROWSER_SESSION_SCHEMA = "production-os/browser-computer-session/v1"
 BROWSER_CHECKPOINT_SCHEMA = "production-os/browser-computer-checkpoint/v1"
 _ALLOWED_ACTIONS = {
 _SAFE_NAME = re.compile(r"^[A-Za-z0-9._-]{1,120}$")
+_NON_REPLAYABLE_ACTIONS = {"click", "press"}
 ⋮----
 @dataclass(frozen=True, slots=True)
 class BrowserAction
@@ -1236,15 +1237,17 @@ parsed = urlsplit(value)
 ⋮----
 host = str(parsed.hostname or "").lower().rstrip(".")
 ⋮----
-def _browser_plan_fingerprint(plan: BrowserPlan) -> str
-⋮----
-actions = []
+def _browser_action_fingerprint(action: BrowserAction) -> str
 ⋮----
 row = action.to_dict()
 ⋮----
 value = action.value or ""
 ⋮----
 canonical = json.dumps(
+⋮----
+def _browser_plan_fingerprint(plan: BrowserPlan) -> str
+⋮----
+actions = []
 ⋮----
 target = Path(path).expanduser().resolve()
 ⋮----
@@ -1254,7 +1257,21 @@ next_action_index = int(payload.get("next_action_index", 0))
 ⋮----
 last_url = _safe_resume_url(
 ⋮----
+in_flight = payload.get("in_flight_action")
+normalized_in_flight = None
+⋮----
+action_index = int(in_flight.get("index"))
+⋮----
+action_type = str(in_flight.get("action") or "")
+fingerprint = str(in_flight.get("fingerprint") or "")
+⋮----
+expected = plan.actions[action_index - 1]
+⋮----
+normalized_in_flight = {
+⋮----
 safe_url = _safe_resume_url(
+⋮----
+action_index = int(in_flight_index)
 ⋮----
 temp = target.with_suffix(target.suffix + ".tmp")
 ⋮----
@@ -1308,6 +1325,8 @@ artifacts = Path(artifacts_dir).expanduser().resolve()
 state_path = (
 session_path = (
 checkpoint = _load_browser_checkpoint(
+uncertain_action = checkpoint.get("in_flight_action")
+⋮----
 allowed = set(plan.allowed_hosts)
 previous_session = _load_browser_session(
 results: list[dict[str, Any]] = []
