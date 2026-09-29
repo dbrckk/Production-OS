@@ -536,3 +536,42 @@ def test_completed_manifest_is_committed_before_executor_returns(tmp_path):
     assert second["succeeded"] == 1
     row = json.loads(second_output.getvalue().splitlines()[0])
     assert row["result"]["status"] == "already-completed"
+
+
+
+def test_invalid_existing_turn_manifest_fails_closed_without_rebinding(tmp_path):
+    config = _config()
+    checkpoint = tmp_path / "checkpoint.json"
+    turn_id = "bound-turn"
+    turn = _turn(
+        turn_id,
+        [{"action":"snapshot","name":"observe"}],
+    )
+    manifest_path = _turn_manifest_path(checkpoint, turn_id)
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    manifest_path.write_text("{not-json", encoding="utf-8")
+    calls = []
+
+    def must_not_execute(_plan, **_kwargs):
+        calls.append(True)
+        raise AssertionError("invalid existing manifest must fail closed")
+
+    output = io.StringIO()
+    summary = run_browser_turn_loop(
+        config,
+        io.StringIO(turn + "\n"),
+        output,
+        artifacts_dir=tmp_path / "artifacts",
+        storage_state_path=tmp_path / "storage.json",
+        session_state_path=tmp_path / "session.json",
+        checkpoint_path=checkpoint,
+        execute_fn=must_not_execute,
+    )
+
+    assert calls == []
+    assert summary["failed"] == 1
+    row = json.loads(output.getvalue().splitlines()[0])
+    assert row["turn_id"] == turn_id
+    assert row["status"] == "failed"
+    assert "manifest is invalid or tampered" in row["error"]
+    assert manifest_path.read_text(encoding="utf-8") == "{not-json"
