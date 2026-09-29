@@ -140,3 +140,71 @@ def test_agent_plan_rejects_unsafe_graph_shapes(payload, match):
             payload,
             available_token_budget=20,
         )
+
+
+
+@pytest.mark.parametrize("token_budget", [True, False, 1.0, 1.9, "2"])
+def test_agent_plan_rejects_non_integer_token_budget_types(token_budget):
+    with pytest.raises(ValueError, match="invalid token_budget"):
+        validate_agent_plan(
+            {
+                "schema_version":PLAN_SCHEMA,
+                "tasks":[{
+                    "task_id":"typed-budget",
+                    "title":"Typed budget",
+                    "instruction":"Validate strict budget typing.",
+                    "token_budget":token_budget,
+                }],
+            },
+            available_token_budget=20,
+        )
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("preferred_capabilities", False),
+        ("preferred_capabilities", 0),
+        ("preferred_capabilities", ""),
+        ("dependencies", False),
+        ("dependencies", 0),
+        ("dependencies", ""),
+    ],
+)
+def test_agent_plan_rejects_supplied_non_list_collection_values(field, value):
+    task = {
+        "task_id":"strict-collections",
+        "title":"Strict collections",
+        "instruction":"Validate strict collection typing.",
+        "token_budget":1,
+        field:value,
+    }
+
+    with pytest.raises(ValueError, match=f"{field} must be a list"):
+        validate_agent_plan(
+            {
+                "schema_version":PLAN_SCHEMA,
+                "tasks":[task],
+            },
+            available_token_budget=20,
+        )
+
+
+def test_agent_plan_allows_null_optional_collections_as_empty():
+    tasks = validate_agent_plan(
+        {
+            "schema_version":PLAN_SCHEMA,
+            "tasks":[{
+                "task_id":"null-collections",
+                "title":"Null collections",
+                "instruction":"Treat explicit null optional collections as empty.",
+                "token_budget":1,
+                "preferred_capabilities":None,
+                "dependencies":None,
+            }],
+        },
+        available_token_budget=20,
+    )
+
+    assert tasks[0].preferred_capabilities == ()
+    assert tasks[0].dependencies == ()
