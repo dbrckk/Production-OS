@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from dataclasses import dataclass
 from pathlib import Path
@@ -99,6 +100,21 @@ def _turn_plan_payload(
     return turn_id, payload
 
 
+def _turn_checkpoint_path(
+    checkpoint_path: str | Path | None,
+    turn_id: str,
+) -> str | None:
+    if checkpoint_path is None:
+        return None
+    base = Path(checkpoint_path).expanduser().resolve()
+    digest = hashlib.sha256(turn_id.encode("utf-8")).hexdigest()[:16]
+    return str(
+        base.with_name(
+            f"{base.stem}-turn-{digest}{base.suffix or '.json'}"
+        )
+    )
+
+
 def run_browser_turn_loop(
     config: BrowserLoopConfig,
     input_stream: TextIO,
@@ -111,6 +127,16 @@ def run_browser_turn_loop(
     headless: bool = True,
     execute_fn: Callable[..., dict[str, Any]] = execute_browser_plan,
 ) -> dict[str, Any]:
+    if config.persist_session and (
+        storage_state_path is None
+        or session_state_path is None
+        or checkpoint_path is None
+    ):
+        raise ValueError(
+            "persistent browser loop requires durable storage, session, "
+            "and checkpoint paths"
+        )
+
     turns = 0
     succeeded = 0
     rejected = 0
@@ -140,7 +166,10 @@ def run_browser_turn_loop(
                 artifacts_dir=artifacts_dir,
                 storage_state_path=storage_state_path,
                 session_state_path=session_state_path,
-                checkpoint_path=checkpoint_path,
+                checkpoint_path=_turn_checkpoint_path(
+                    checkpoint_path,
+                    turn_id,
+                ),
                 headless=headless,
             )
         except (ValueError, json.JSONDecodeError) as exc:
@@ -171,6 +200,11 @@ def run_browser_turn_loop(
             + "\n"
         )
         output_stream.flush()
+        if response["status"] == "failed":
+            # A failed turn may have an unresolved in-flight browser side
+            # effect. Stop before accepting any different turn. Recovery must
+            # retry the same turn id/plan so its durable checkpoint is reused.
+            break
 
     return {
         "schema_version":"production-os/browser-computer-loop-result/v1",
