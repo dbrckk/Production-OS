@@ -157,6 +157,7 @@ def run_browser_turn_loop(
             break
 
         turns += 1
+        turn_id = ""
         try:
             raw_turn = json.loads(line)
             turn_id, plan_payload = _turn_plan_payload(config, raw_turn)
@@ -176,6 +177,7 @@ def run_browser_turn_loop(
             rejected += 1
             response = {
                 "schema_version":BROWSER_TURN_RESULT_SCHEMA,
+                **({"turn_id":turn_id} if turn_id else {}),
                 "status":"rejected",
                 "error":str(exc)[:1000],
             }
@@ -183,6 +185,7 @@ def run_browser_turn_loop(
             failed += 1
             response = {
                 "schema_version":BROWSER_TURN_RESULT_SCHEMA,
+                **({"turn_id":turn_id} if turn_id else {}),
                 "status":"failed",
                 "error":str(exc)[:1000],
             }
