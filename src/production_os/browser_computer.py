@@ -32,6 +32,24 @@ _NON_REPLAYABLE_ACTIONS = {"click", "press"}
 
 
 @dataclass(frozen=True, slots=True)
+class BrowserRecoveryProbe:
+    kind: str
+    selector: str
+    value: str | None = None
+    timeout_ms: int = 5000
+
+    def to_dict(self) -> dict[str, Any]:
+        payload = {
+            "kind":self.kind,
+            "selector":self.selector,
+            "timeout_ms":self.timeout_ms,
+        }
+        if self.value is not None:
+            payload["value"] = self.value
+        return payload
+
+
+@dataclass(frozen=True, slots=True)
 class BrowserAction:
     action: str
     selector: str | None = None
@@ -40,6 +58,7 @@ class BrowserAction:
     key: str | None = None
     name: str | None = None
     timeout_ms: int = 10000
+    recovery_probe: BrowserRecoveryProbe | None = None
 
     def to_dict(self) -> dict[str, Any]:
         payload = {
@@ -52,6 +71,8 @@ class BrowserAction:
                 payload[key] = value
         if self.action != "fill" and self.value is not None:
             payload["value"] = self.value
+        if self.recovery_probe is not None:
+            payload["recovery_probe"] = self.recovery_probe.to_dict()
         return payload
 
 
@@ -70,6 +91,30 @@ class BrowserPlan:
             "allow_private_network":self.allow_private_network,
             "actions":[action.to_dict() for action in self.actions],
         }
+
+
+def _evaluate_recovery_probe(page, probe: BrowserRecoveryProbe) -> bool:
+    locator = page.locator(probe.selector)
+    if probe.kind == "selector_present":
+        try:
+            locator.wait_for(state="attached", timeout=probe.timeout_ms)
+        except Exception:
+            return False
+        return True
+    if probe.kind == "selector_absent":
+        try:
+            locator.wait_for(state="detached", timeout=probe.timeout_ms)
+        except Exception:
+            return False
+        return True
+    if probe.kind == "text_contains":
+        try:
+            locator.wait_for(state="attached", timeout=probe.timeout_ms)
+            text = locator.inner_text(timeout=probe.timeout_ms)
+        except Exception:
+            return False
+        return str(probe.value or "") in str(text)
+    raise ValueError("unsupported browser recovery probe")
 
 
 def _normalize_host(value: str) -> str:
@@ -443,6 +488,51 @@ def validate_browser_plan(
             if _SAFE_NAME.fullmatch(name) is None:
                 raise ValueError("browser action name is invalid")
 
+        recovery_probe = None
+        raw_probe = raw.get("recovery_probe")
+        if raw_probe is not None:
+            if action not in _NON_REPLAYABLE_ACTIONS:
+                raise ValueError(
+                    "browser recovery_probe is only valid for click or press"
+                )
+            if not isinstance(raw_probe, dict):
+                raise ValueError("browser recovery_probe must be an object")
+            probe_kind = str(raw_probe.get("kind") or "").strip().lower()
+            if probe_kind not in {
+                "selector_present",
+                "selector_absent",
+                "text_contains",
+            }:
+                raise ValueError("unsupported browser recovery probe")
+            probe_selector = str(raw_probe.get("selector") or "").strip()
+            if not probe_selector or len(probe_selector) > 1000:
+                raise ValueError(
+                    "browser recovery_probe requires selector"
+                )
+            try:
+                probe_timeout = int(raw_probe.get("timeout_ms", 5000))
+            except (TypeError, ValueError) as exc:
+                raise ValueError(
+                    "browser recovery_probe timeout is invalid"
+                ) from exc
+            if not 100 <= probe_timeout <= 30000:
+                raise ValueError(
+                    "browser recovery_probe timeout must be 100-30000 ms"
+                )
+            probe_value = None
+            if probe_kind == "text_contains":
+                probe_value = str(raw_probe.get("value") or "")
+                if not probe_value or len(probe_value) > 2000:
+                    raise ValueError(
+                        "text_contains recovery probe requires value"
+                    )
+            recovery_probe = BrowserRecoveryProbe(
+                kind=probe_kind,
+                selector=probe_selector,
+                value=probe_value,
+                timeout_ms=probe_timeout,
+            )
+
         actions.append(BrowserAction(
             action=action,
             selector=selector,
@@ -451,6 +541,7 @@ def validate_browser_plan(
             key=key,
             name=name,
             timeout_ms=timeout_ms,
+            recovery_probe=recovery_probe,
         ))
 
     return BrowserPlan(
@@ -494,12 +585,20 @@ def execute_browser_plan(
         plan,
     )
     uncertain_action = checkpoint.get("in_flight_action")
+    uncertain_plan_action = None
     if isinstance(uncertain_action, dict):
-        raise RuntimeError(
-            "browser recovery required before replaying uncertain "
-            f"{uncertain_action.get('action')} action at step "
-            f"{uncertain_action.get('index')}"
-        )
+        uncertain_index = int(uncertain_action.get("index") or 0)
+        if 1 <= uncertain_index <= len(plan.actions):
+            uncertain_plan_action = plan.actions[uncertain_index - 1]
+        if (
+            uncertain_plan_action is None
+            or uncertain_plan_action.recovery_probe is None
+        ):
+            raise RuntimeError(
+                "browser recovery required before replaying uncertain "
+                f"{uncertain_action.get('action')} action at step "
+                f"{uncertain_action.get('index')}"
+            )
     allowed = set(plan.allowed_hosts)
     previous_session = _load_browser_session(
         session_path,
@@ -552,6 +651,7 @@ def execute_browser_plan(
                 and (
                     checkpoint_index > 0
                     or first_action != "navigate"
+                    or uncertain_plan_action is not None
                 )
             )
             if should_resume:
@@ -564,6 +664,37 @@ def execute_browser_plan(
                 final_url = page.url
                 resumed_from_url = resume_url
                 resumed_action_index = checkpoint_index
+
+            if uncertain_plan_action is not None:
+                probe = uncertain_plan_action.recovery_probe
+                if (
+                    probe is None
+                    or not _evaluate_recovery_probe(page, probe)
+                ):
+                    raise RuntimeError(
+                        "browser recovery postcondition not proven for "
+                        f"uncertain {uncertain_plan_action.action} action "
+                        f"at step {uncertain_action.get('index')}"
+                    )
+                recovered_index = int(uncertain_action["index"])
+                checkpoint_index = recovered_index
+                resumed_action_index = recovered_index
+                final_url = page.url
+                if checkpoint_path is not None:
+                    _write_browser_checkpoint(
+                        checkpoint_path,
+                        plan=plan,
+                        next_action_index=recovered_index,
+                        last_url=page.url,
+                    )
+                results.append({
+                    "step":recovered_index,
+                    "action":"recovery_probe",
+                    "recovered_action":uncertain_plan_action.action,
+                    "probe":probe.kind,
+                    "status":"proven-complete",
+                    "url":page.url,
+                })
 
             for index, action in enumerate(
                 plan.actions[checkpoint_index:],
