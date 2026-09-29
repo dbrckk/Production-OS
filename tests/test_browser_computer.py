@@ -142,10 +142,17 @@ def test_workflow_injects_browser_computer_contract(tmp_path):
         "config_schema":"production-os/browser-computer-loop/v1",
         "turn_schema":"production-os/browser-computer-turn/v1",
         "turn_result_schema":"production-os/browser-computer-turn-result/v1",
+        "loop_result_schema":"production-os/browser-computer-loop-result/v1",
         "transport":"jsonl-stdin-stdout",
         "max_turns":128,
-        "turn_id_idempotency":True,
-        "immutable_turn_plan_binding":True,
+        "turn_id_idempotency":{
+            "supported":True,
+            "requires_checkpoint_state":True,
+        },
+        "immutable_turn_plan_binding":{
+            "supported":True,
+            "requires_checkpoint_state":True,
+        },
         "stop_after_runtime_failure":True,
     }
 
