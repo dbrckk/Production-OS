@@ -1412,6 +1412,17 @@ class WorkflowEngine:
                         "max_actions":64,
                         "requires_allowed_hosts":True,
                         "persistent_session":True,
+                        "checkpoint_actions":True,
+                        "structured_snapshot":True,
+                        "snapshot_action":"snapshot",
+                        "non_replayable_actions":["click", "press"],
+                        "recovery_probes":[
+                            "selector_present",
+                            "selector_absent",
+                            "text_contains",
+                        ],
+                        "recovery_policy":"positive-proof-only",
+                        "arbitrary_evaluate":False,
                     },
                 )
                 handoff["tool_contracts"] = contracts
