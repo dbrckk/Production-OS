@@ -2,12 +2,15 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+from datetime import datetime, timezone
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, TextIO
 
 from .browser_computer import (
     BROWSER_PLAN_SCHEMA,
+    _load_browser_checkpoint,
     execute_browser_plan,
     validate_browser_plan,
 )
@@ -115,6 +118,78 @@ def _turn_checkpoint_path(
     )
 
 
+TURN_MANIFEST_SCHEMA = "production-os/browser-computer-turn-manifest/v1"
+
+
+def _turn_plan_fingerprint(plan_payload: dict[str, Any]) -> str:
+    canonical = json.dumps(
+        plan_payload,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def _turn_manifest_path(
+    checkpoint_path: str | Path | None,
+    turn_id: str,
+) -> Path | None:
+    turn_checkpoint = _turn_checkpoint_path(checkpoint_path, turn_id)
+    if turn_checkpoint is None:
+        return None
+    base = Path(turn_checkpoint)
+    return base.with_suffix(base.suffix + ".manifest.json")
+
+
+def _read_turn_manifest(path: Path | None) -> dict[str, Any]:
+    if path is None:
+        return {}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (FileNotFoundError, OSError, json.JSONDecodeError):
+        return {}
+    if not isinstance(payload, dict):
+        return {}
+    if payload.get("schema_version") != TURN_MANIFEST_SCHEMA:
+        return {}
+    if payload.get("status") not in {"in_flight", "completed"}:
+        return {}
+    fingerprint = str(payload.get("plan_fingerprint") or "")
+    if len(fingerprint) != 64:
+        return {}
+    return {
+        "schema_version":TURN_MANIFEST_SCHEMA,
+        "status":str(payload["status"]),
+        "plan_fingerprint":fingerprint,
+        "updated_at":str(payload.get("updated_at") or ""),
+    }
+
+
+def _write_turn_manifest(
+    path: Path,
+    *,
+    plan_fingerprint: str,
+    status: str,
+) -> dict[str, Any]:
+    if status not in {"in_flight", "completed"}:
+        raise ValueError("invalid browser turn manifest status")
+    payload = {
+        "schema_version":TURN_MANIFEST_SCHEMA,
+        "status":status,
+        "plan_fingerprint":plan_fingerprint,
+        "updated_at":datetime.now(timezone.utc).isoformat(),
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temp = path.with_suffix(path.suffix + ".tmp")
+    temp.write_text(
+        json.dumps(payload, ensure_ascii=False, sort_keys=True, indent=2),
+        encoding="utf-8",
+    )
+    os.replace(temp, path)
+    return payload
+
+
 def run_browser_turn_loop(
     config: BrowserLoopConfig,
     input_stream: TextIO,
@@ -162,17 +237,76 @@ def run_browser_turn_loop(
             raw_turn = json.loads(line)
             turn_id, plan_payload = _turn_plan_payload(config, raw_turn)
             plan = validate_browser_plan(plan_payload)
-            result = execute_fn(
-                plan,
-                artifacts_dir=artifacts_dir,
-                storage_state_path=storage_state_path,
-                session_state_path=session_state_path,
-                checkpoint_path=_turn_checkpoint_path(
-                    checkpoint_path,
-                    turn_id,
-                ),
-                headless=headless,
+            plan_fingerprint = _turn_plan_fingerprint(plan_payload)
+            turn_checkpoint = _turn_checkpoint_path(
+                checkpoint_path,
+                turn_id,
             )
+            manifest_path = _turn_manifest_path(
+                checkpoint_path,
+                turn_id,
+            )
+            manifest = _read_turn_manifest(manifest_path)
+            if manifest:
+                if manifest["plan_fingerprint"] != plan_fingerprint:
+                    raise RuntimeError(
+                        "browser turn id is already bound to a different plan"
+                    )
+                if manifest["status"] == "completed":
+                    result = {
+                        "schema_version":
+                            "production-os/browser-computer-result/v1",
+                        "status":"already-completed",
+                        "recovered":True,
+                        "results":[],
+                    }
+                else:
+                    if (
+                        turn_checkpoint is not None
+                        and Path(turn_checkpoint).is_file()
+                        and not _load_browser_checkpoint(
+                            turn_checkpoint,
+                            plan,
+                        )
+                    ):
+                        raise RuntimeError(
+                            "browser recovery checkpoint is invalid or tampered"
+                        )
+                    result = execute_fn(
+                        plan,
+                        artifacts_dir=artifacts_dir,
+                        storage_state_path=storage_state_path,
+                        session_state_path=session_state_path,
+                        checkpoint_path=turn_checkpoint,
+                        headless=headless,
+                    )
+                    if manifest_path is not None:
+                        _write_turn_manifest(
+                            manifest_path,
+                            plan_fingerprint=plan_fingerprint,
+                            status="completed",
+                        )
+            else:
+                if manifest_path is not None:
+                    _write_turn_manifest(
+                        manifest_path,
+                        plan_fingerprint=plan_fingerprint,
+                        status="in_flight",
+                    )
+                result = execute_fn(
+                    plan,
+                    artifacts_dir=artifacts_dir,
+                    storage_state_path=storage_state_path,
+                    session_state_path=session_state_path,
+                    checkpoint_path=turn_checkpoint,
+                    headless=headless,
+                )
+                if manifest_path is not None:
+                    _write_turn_manifest(
+                        manifest_path,
+                        plan_fingerprint=plan_fingerprint,
+                        status="completed",
+                    )
         except (ValueError, json.JSONDecodeError) as exc:
             rejected += 1
             response = {
