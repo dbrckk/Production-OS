@@ -1408,11 +1408,20 @@ class ManagedProjectService:
                 and len(state.validation_sha) == 40
             ):
                 try:
+                    known_good_sha = (
+                        str(state.base_sha).strip().lower()
+                        if isinstance(state.base_sha, str)
+                        and len(state.base_sha) == 40
+                        and str(state.base_sha).strip().lower()
+                        != str(state.validation_sha).strip().lower()
+                        else None
+                    )
                     rollback_plan = build_rollback_plan(
                         repository=repository,
                         merge_sha=state.validation_sha,
                         failure_summary=outcome.get("summary"),
                         ci=outcome.get("ci"),
+                        known_good_sha=known_good_sha,
                     )
                 except ValueError:
                     rollback_plan = None
