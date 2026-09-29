@@ -1769,6 +1769,7 @@ source = Path(item["source"])
 ````python
 BROWSER_PLAN_SCHEMA = "production-os/browser-computer-plan/v1"
 BROWSER_SESSION_SCHEMA = "production-os/browser-computer-session/v1"
+BROWSER_CHECKPOINT_SCHEMA = "production-os/browser-computer-checkpoint/v1"
 _ALLOWED_ACTIONS = {
 _SAFE_NAME = re.compile(r"^[A-Za-z0-9._-]{1,120}$")
 ⋮----
@@ -1812,6 +1813,28 @@ parsed = urlsplit(value)
 ⋮----
 host = str(parsed.hostname or "").lower().rstrip(".")
 ⋮----
+def _browser_plan_fingerprint(plan: BrowserPlan) -> str
+⋮----
+actions = []
+⋮----
+row = action.to_dict()
+⋮----
+value = action.value or ""
+⋮----
+canonical = json.dumps(
+⋮----
+target = Path(path).expanduser().resolve()
+⋮----
+payload = json.loads(target.read_text(encoding="utf-8"))
+⋮----
+next_action_index = int(payload.get("next_action_index", 0))
+⋮----
+last_url = _safe_resume_url(
+⋮----
+safe_url = _safe_resume_url(
+⋮----
+temp = target.with_suffix(target.suffix + ".tmp")
+⋮----
 validated = _validate_url(
 ⋮----
 parsed = urlsplit(validated)
@@ -1820,15 +1843,7 @@ netloc = host
 ⋮----
 netloc = f"{host}:{parsed.port}"
 ⋮----
-target = Path(path).expanduser().resolve()
-⋮----
 raw = json.loads(target.read_text(encoding="utf-8"))
-⋮----
-last_url = _safe_resume_url(
-⋮----
-safe_url = _safe_resume_url(
-⋮----
-temp = target.with_suffix(target.suffix + ".tmp")
 ⋮----
 raw_hosts = payload.get("allowed_hosts")
 ⋮----
@@ -1869,6 +1884,7 @@ artifacts = Path(artifacts_dir).expanduser().resolve()
 ⋮----
 state_path = (
 session_path = (
+checkpoint = _load_browser_checkpoint(
 allowed = set(plan.allowed_hosts)
 previous_session = _load_browser_session(
 results: list[dict[str, Any]] = []
@@ -1884,12 +1900,20 @@ context = browser.new_context(**context_kwargs)
 page = context.new_page()
 final_url: str | None = None
 resumed_from_url: str | None = None
+resumed_action_index = 0
 ⋮----
+checkpoint_index = int(
+⋮----
+checkpoint_index = 0
+checkpoint_url = str(checkpoint.get("last_url") or "")
 first_action = plan.actions[0].action if plan.actions else ""
 previous_url = str(previous_session.get("last_url") or "")
+resume_url = checkpoint_url or previous_url
+should_resume = bool(
 ⋮----
 final_url = page.url
-resumed_from_url = previous_url
+resumed_from_url = resume_url
+resumed_action_index = checkpoint_index
 ⋮----
 text = page.locator(action.selector).inner_text(
 ⋮----
@@ -2677,6 +2701,10 @@ runtime_workspace = str(
 def _browser_session_state(args: argparse.Namespace) -> str | None
 ⋮----
 explicit = str(args.session_state or "").strip()
+⋮----
+def _browser_checkpoint_state(args: argparse.Namespace) -> str | None
+⋮----
+explicit = str(args.checkpoint_state or "").strip()
 ⋮----
 def run_browser_plan(args: argparse.Namespace) -> int
 ⋮----

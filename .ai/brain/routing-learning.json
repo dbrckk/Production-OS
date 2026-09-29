@@ -2,32 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat: release 43 safe production cancellation",
-      "terms": [
-        "43",
-        "cancellation",
-        "feat",
-        "production",
-        "release",
-        "safe"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/control_plane.py",
-        "src/production_os/dashboard_service.py",
-        "src/production_os/dashboard_ui.py",
-        "src/production_os/postgres_backend.py",
-        "src/production_os/sqlite_backend.py",
-        "tests/test_dashboard_api.py",
-        "tests/test_dashboard_production_status.py",
-        "tests/test_dashboard_ui_v3.py",
-        "tests/test_postgres_backend.py",
-        "tests/test_release43_safe_production_cancel_e2e.py",
-        "tests/test_sqlite_backend.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat: release 44 one-tap recovery actions",
       "terms": [
         "44",
@@ -1280,6 +1254,27 @@
         "src/production_os/cli.py",
         "tests/test_browser_computer.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "feat(browser): checkpoint bounded browser plans at explicit safe boundaries",
+      "terms": [
+        "at",
+        "boundaries",
+        "bounded",
+        "browser",
+        "checkpoint",
+        "explicit",
+        "feat",
+        "plans",
+        "safe"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/browser_computer.py",
+        "src/production_os/cli.py",
+        "tests/test_browser_computer.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1834,6 +1829,11 @@
     "assets": {
       "src/production_os/asset_forge.py": 4
     },
+    "at": {
+      "src/production_os/browser_computer.py": 4,
+      "src/production_os/cli.py": 4,
+      "tests/test_browser_computer.py": 4
+    },
     "attention": {
       "src/production_os/control_plane.py": 4,
       "src/production_os/dashboard_service.py": 8,
@@ -1974,14 +1974,19 @@
       "scripts/render-start.py": 4,
       "tests/test_render_start.py": 4
     },
+    "boundaries": {
+      "src/production_os/browser_computer.py": 4,
+      "src/production_os/cli.py": 4,
+      "tests/test_browser_computer.py": 4
+    },
     "bounded": {
       "src/production_os/agent_plan.py": 4,
-      "src/production_os/browser_computer.py": 8,
-      "src/production_os/cli.py": 12,
+      "src/production_os/browser_computer.py": 12,
+      "src/production_os/cli.py": 16,
       "src/production_os/regression_bisect.py": 4,
       "src/production_os/workflow_engine.py": 4,
       "tests/test_agent_plan.py": 4,
-      "tests/test_browser_computer.py": 8,
+      "tests/test_browser_computer.py": 12,
       "tests/test_regression_bisect.py": 4,
       "tests/test_worker_compose_deployment.py": 4
     },
@@ -2000,12 +2005,12 @@
       "tests/test_skill_memory.py": 4
     },
     "browser": {
-      "src/production_os/browser_computer.py": 8,
-      "src/production_os/cli.py": 8,
+      "src/production_os/browser_computer.py": 12,
+      "src/production_os/cli.py": 12,
       "src/production_os/control_plane.py": 4,
       "src/production_os/managed_projects.py": 8,
       "src/production_os/workflow_engine.py": 4,
-      "tests/test_browser_computer.py": 8,
+      "tests/test_browser_computer.py": 12,
       "tests/test_browser_worker_image.py": 4,
       "tests/test_cooperative_managed_projects.py": 8,
       "tests/test_release32_one_tap_e2e.py": 4,
@@ -2117,7 +2122,10 @@
     },
     "checkpoint": {
       "src/production_os/agent_runtime.py": 4,
+      "src/production_os/browser_computer.py": 4,
+      "src/production_os/cli.py": 4,
       "src/production_os/remote_worker_runner.py": 4,
+      "tests/test_browser_computer.py": 4,
       "tests/test_persistent_agent_runtime.py": 4
     },
     "ci": {
@@ -2630,9 +2638,12 @@
       "tests/test_dynamic_agent_fanout.py": 4
     },
     "explicit": {
+      "src/production_os/browser_computer.py": 4,
+      "src/production_os/cli.py": 4,
       "src/production_os/control_plane.py": 4,
       "src/production_os/managed_projects.py": 4,
       "src/production_os/task_capabilities.py": 4,
+      "tests/test_browser_computer.py": 4,
       "tests/test_cooperative_managed_projects.py": 4,
       "tests/test_release32_one_tap_e2e.py": 4,
       "tests/test_task_capabilities.py": 4
@@ -2681,7 +2692,7 @@
       "src/production_os/agent_planning_policy.py": 8,
       "src/production_os/agent_runtime.py": 8,
       "src/production_os/asset_forge.py": 24,
-      "src/production_os/browser_computer.py": 8,
+      "src/production_os/browser_computer.py": 12,
       "src/production_os/cli.py": 40,
       "src/production_os/control_plane.py": 40,
       "src/production_os/controller.py": 8,
@@ -3397,6 +3408,11 @@
       "tests/test_managed_project_outcome.py": 4,
       "tests/test_release32_one_tap_e2e.py": 4
     },
+    "plans": {
+      "src/production_os/browser_computer.py": 4,
+      "src/production_os/cli.py": 4,
+      "tests/test_browser_computer.py": 4
+    },
     "playbooks": {
       "src/production_os/dashboard_playbooks.py": 4,
       "src/production_os/dashboard_service.py": 4,
@@ -4031,6 +4047,8 @@
     "safe": {
       "src/production_os/agent_planning_policy.py": 4,
       "src/production_os/asset_forge.py": 4,
+      "src/production_os/browser_computer.py": 4,
+      "src/production_os/cli.py": 4,
       "src/production_os/control_plane.py": 12,
       "src/production_os/dashboard_maintenance.py": 4,
       "src/production_os/dashboard_service.py": 8,
@@ -4042,6 +4060,7 @@
       "src/production_os/rollback_plan.py": 4,
       "src/production_os/sqlite_backend.py": 4,
       "tests/test_asset_forge.py": 4,
+      "tests/test_browser_computer.py": 4,
       "tests/test_dashboard_api.py": 4,
       "tests/test_dashboard_production_status.py": 4,
       "tests/test_dashboard_retention_prune.py": 4,

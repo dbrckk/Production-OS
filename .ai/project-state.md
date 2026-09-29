@@ -22,13 +22,13 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-28T18:56:27Z
+Generated: 2026-09-29T05:49:29Z
 
 ### Git
 - Branch: `main`
-- Head: `ecd2e5acfea5`
-- Commit date: 2026-09-28T20:56:14+02:00
-- Commit: feat(browser): resume bounded browser sessions across worker restarts
+- Head: `107019a6e63a`
+- Commit date: 2026-09-29T07:49:15+02:00
+- Commit: feat(browser): checkpoint bounded browser plans at explicit safe boundaries
 - Tracked files: 516
 
 ### Recently changed files
@@ -45,8 +45,6 @@ Generated: 2026-09-28T18:56:27Z
 - `src/production_os/agent_planning_policy.py`
 - `src/production_os/fanout_learning.py`
 - `tests/test_fanout_learning.py`
-- `src/production_os/agent_benchmark.py`
-- `tests/test_agent_benchmark.py`
 
 ### Project signals
 - `pyproject.toml`

@@ -8,8 +8,8 @@
     "BrowserAction": {
       "source": {
         "file": "src/production_os/browser_computer.py",
-        "start": 31,
-        "end": 51
+        "start": 34,
+        "end": 54
       },
       "symbol_dependencies": [
         {
@@ -17,13 +17,13 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 40,
+              "line": 43,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 61,
+              "line": 64,
               "kind": "function",
               "language": "python"
             }
@@ -36,8 +36,8 @@
     "to_dict": {
       "source": {
         "file": "src/production_os/browser_computer.py",
-        "start": 40,
-        "end": 160
+        "start": 43,
+        "end": 163
       },
       "symbol_dependencies": [
         {
@@ -45,7 +45,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 31,
+              "line": 34,
               "kind": "class",
               "language": "python"
             }
@@ -57,8 +57,20 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 55,
+              "line": 58,
               "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_browser_plan_fingerprint",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 118,
+              "kind": "function",
               "language": "python"
             }
           ],
@@ -69,7 +81,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 78,
+              "line": 81,
               "kind": "function",
               "language": "python"
             }
@@ -77,7 +89,7 @@
           "relation": "same_file"
         },
         {
-          "symbol": "_load_browser_session",
+          "symbol": "_load_browser_checkpoint",
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
@@ -93,19 +105,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 71,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_safe_resume_url",
-          "definitions": [
-            {
-              "file": "src/production_os/browser_computer.py",
-              "line": 115,
+              "line": 74,
               "kind": "function",
               "language": "python"
             }
@@ -117,7 +117,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 95,
+              "line": 98,
               "kind": "function",
               "language": "python"
             }
@@ -130,8 +130,8 @@
     "BrowserPlan": {
       "source": {
         "file": "src/production_os/browser_computer.py",
-        "start": 55,
-        "end": 68
+        "start": 58,
+        "end": 71
       },
       "symbol_dependencies": [
         {
@@ -139,7 +139,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 31,
+              "line": 34,
               "kind": "class",
               "language": "python"
             }
@@ -151,13 +151,13 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 40,
+              "line": 43,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 61,
+              "line": 64,
               "kind": "function",
               "language": "python"
             }
@@ -170,8 +170,8 @@
     "_normalize_host": {
       "source": {
         "file": "src/production_os/browser_computer.py",
-        "start": 71,
-        "end": 75
+        "start": 74,
+        "end": 78
       },
       "symbol_dependencies": [],
       "dependency_count": 0
@@ -179,8 +179,8 @@
     "_is_private_host": {
       "source": {
         "file": "src/production_os/browser_computer.py",
-        "start": 78,
-        "end": 92
+        "start": 81,
+        "end": 95
       },
       "symbol_dependencies": [],
       "dependency_count": 0
@@ -188,8 +188,8 @@
     "_validate_url": {
       "source": {
         "file": "src/production_os/browser_computer.py",
-        "start": 95,
-        "end": 112
+        "start": 98,
+        "end": 115
       },
       "symbol_dependencies": [
         {
@@ -197,7 +197,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 78,
+              "line": 81,
               "kind": "function",
               "language": "python"
             }
@@ -207,11 +207,143 @@
       ],
       "dependency_count": 1
     },
+    "_browser_plan_fingerprint": {
+      "source": {
+        "file": "src/production_os/browser_computer.py",
+        "start": 118,
+        "end": 140
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "BrowserPlan",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 58,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 43,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 64,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "_load_browser_checkpoint": {
+      "source": {
+        "file": "src/production_os/browser_computer.py",
+        "start": 143,
+        "end": 178
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "BrowserPlan",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 58,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_browser_plan_fingerprint",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 118,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_safe_resume_url",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 215,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "_write_browser_checkpoint": {
+      "source": {
+        "file": "src/production_os/browser_computer.py",
+        "start": 181,
+        "end": 212
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "BrowserPlan",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 58,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_browser_plan_fingerprint",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 118,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_safe_resume_url",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 215,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 3
+    },
     "_safe_resume_url": {
       "source": {
         "file": "src/production_os/browser_computer.py",
-        "start": 115,
-        "end": 140
+        "start": 215,
+        "end": 240
       },
       "symbol_dependencies": [
         {
@@ -219,7 +351,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 95,
+              "line": 98,
               "kind": "function",
               "language": "python"
             }
@@ -232,8 +364,8 @@
     "_load_browser_session": {
       "source": {
         "file": "src/production_os/browser_computer.py",
-        "start": 143,
-        "end": 169
+        "start": 243,
+        "end": 269
       },
       "symbol_dependencies": [
         {
@@ -241,7 +373,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 55,
+              "line": 58,
               "kind": "class",
               "language": "python"
             }
@@ -253,7 +385,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 115,
+              "line": 215,
               "kind": "function",
               "language": "python"
             }
@@ -266,8 +398,8 @@
     "_write_browser_session": {
       "source": {
         "file": "src/production_os/browser_computer.py",
-        "start": 172,
-        "end": 198
+        "start": 272,
+        "end": 298
       },
       "symbol_dependencies": [
         {
@@ -275,7 +407,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 55,
+              "line": 58,
               "kind": "class",
               "language": "python"
             }
@@ -287,7 +419,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 115,
+              "line": 215,
               "kind": "function",
               "language": "python"
             }
@@ -300,8 +432,8 @@
     "validate_browser_plan": {
       "source": {
         "file": "src/production_os/browser_computer.py",
-        "start": 201,
-        "end": 297
+        "start": 301,
+        "end": 397
       },
       "symbol_dependencies": [
         {
@@ -309,7 +441,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 31,
+              "line": 34,
               "kind": "class",
               "language": "python"
             }
@@ -321,7 +453,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 55,
+              "line": 58,
               "kind": "class",
               "language": "python"
             }
@@ -333,7 +465,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 78,
+              "line": 81,
               "kind": "function",
               "language": "python"
             }
@@ -345,7 +477,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 71,
+              "line": 74,
               "kind": "function",
               "language": "python"
             }
@@ -357,7 +489,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 95,
+              "line": 98,
               "kind": "function",
               "language": "python"
             }
@@ -370,8 +502,8 @@
     "execute_browser_plan": {
       "source": {
         "file": "src/production_os/browser_computer.py",
-        "start": 300,
-        "end": 471
+        "start": 400,
+        "end": 638
       },
       "symbol_dependencies": [
         {
@@ -379,7 +511,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 55,
+              "line": 58,
               "kind": "class",
               "language": "python"
             }
@@ -391,7 +523,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 78,
+              "line": 81,
               "kind": "function",
               "language": "python"
             }
@@ -399,7 +531,7 @@
           "relation": "same_file"
         },
         {
-          "symbol": "_load_browser_session",
+          "symbol": "_load_browser_checkpoint",
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
@@ -411,11 +543,35 @@
           "relation": "same_file"
         },
         {
+          "symbol": "_load_browser_session",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 243,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_write_browser_checkpoint",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 181,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
           "symbol": "_write_browser_session",
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 172,
+              "line": 272,
               "kind": "function",
               "language": "python"
             }
@@ -427,7 +583,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 334,
+              "line": 439,
               "kind": "function",
               "language": "python"
             }
@@ -435,13 +591,13 @@
           "relation": "same_file"
         }
       ],
-      "dependency_count": 5
+      "dependency_count": 7
     },
     "assert_current_host": {
       "source": {
         "file": "src/production_os/browser_computer.py",
-        "start": 334,
-        "end": 454
+        "start": 439,
+        "end": 559
       },
       "symbol_dependencies": [
         {
@@ -449,19 +605,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 78,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_write_browser_session",
-          "definitions": [
-            {
-              "file": "src/production_os/browser_computer.py",
-              "line": 172,
+              "line": 81,
               "kind": "function",
               "language": "python"
             }
@@ -469,13 +613,13 @@
           "relation": "same_file"
         }
       ],
-      "dependency_count": 2
+      "dependency_count": 1
     },
     "_parse_args": {
       "source": {
         "file": "src/production_os/cli.py",
         "start": 103,
-        "end": 858
+        "end": 863
       },
       "symbol_dependencies": [
         {
@@ -645,7 +789,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 2944,
+              "line": 2962,
               "kind": "function",
               "language": "python"
             }
@@ -850,8 +994,8 @@
     "_rank_actions": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 861,
-        "end": 863
+        "start": 866,
+        "end": 868
       },
       "symbol_dependencies": [
         {
@@ -884,8 +1028,8 @@
     "_external_refs_for_action": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 866,
-        "end": 880
+        "start": 871,
+        "end": 885
       },
       "symbol_dependencies": [
         {
@@ -989,13 +1133,13 @@
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 40,
+              "line": 43,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 61,
+              "line": 64,
               "kind": "function",
               "language": "python"
             }
@@ -1008,8 +1152,8 @@
     "_handoff": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 883,
-        "end": 965
+        "start": 888,
+        "end": 970
       },
       "symbol_dependencies": [
         {
@@ -1029,7 +1173,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 866,
+              "line": 871,
               "kind": "function",
               "language": "python"
             }
@@ -1113,13 +1257,13 @@
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 40,
+              "line": 43,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 61,
+              "line": 64,
               "kind": "function",
               "language": "python"
             }
@@ -1132,8 +1276,8 @@
     "_print_human": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 968,
-        "end": 1015
+        "start": 973,
+        "end": 1020
       },
       "symbol_dependencies": [
         {
@@ -1196,8 +1340,8 @@
     "run_scan": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1018,
-        "end": 1128
+        "start": 1023,
+        "end": 1133
       },
       "symbol_dependencies": [
         {
@@ -1253,7 +1397,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 883,
+              "line": 888,
               "kind": "function",
               "language": "python"
             }
@@ -1265,7 +1409,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 968,
+              "line": 973,
               "kind": "function",
               "language": "python"
             }
@@ -1277,7 +1421,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 861,
+              "line": 866,
               "kind": "function",
               "language": "python"
             }
@@ -1547,13 +1691,13 @@
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 40,
+              "line": 43,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 61,
+              "line": 64,
               "kind": "function",
               "language": "python"
             }
@@ -1578,8 +1722,8 @@
     "run_validation_results": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1131,
-        "end": 1160
+        "start": 1136,
+        "end": 1165
       },
       "symbol_dependencies": [
         {
@@ -1647,13 +1791,13 @@
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 40,
+              "line": 43,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 61,
+              "line": 64,
               "kind": "function",
               "language": "python"
             }
@@ -1666,8 +1810,8 @@
     "run_execution_feedback": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1163,
-        "end": 1197
+        "start": 1168,
+        "end": 1202
       },
       "symbol_dependencies": [
         {
@@ -1825,13 +1969,13 @@
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 40,
+              "line": 43,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 61,
+              "line": 64,
               "kind": "function",
               "language": "python"
             }
@@ -1844,8 +1988,8 @@
     "run_trends": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1200,
-        "end": 1210
+        "start": 1205,
+        "end": 1215
       },
       "symbol_dependencies": [
         {
@@ -1883,13 +2027,13 @@
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 40,
+              "line": 43,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 61,
+              "line": 64,
               "kind": "function",
               "language": "python"
             }
@@ -1902,8 +2046,8 @@
     "run_heartbeat": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1213,
-        "end": 1225
+        "start": 1218,
+        "end": 1230
       },
       "symbol_dependencies": [
         {
@@ -2001,13 +2145,13 @@
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 40,
+              "line": 43,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 61,
+              "line": 64,
               "kind": "function",
               "language": "python"
             }
@@ -2020,8 +2164,8 @@
     "run_reconcile": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1228,
-        "end": 1235
+        "start": 1233,
+        "end": 1240
       },
       "symbol_dependencies": [
         {
@@ -2071,13 +2215,13 @@
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 40,
+              "line": 43,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 61,
+              "line": 64,
               "kind": "function",
               "language": "python"
             }
@@ -2090,8 +2234,8 @@
     "run_dispatch": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1238,
-        "end": 1315
+        "start": 1243,
+        "end": 1320
       },
       "symbol_dependencies": [
         {
@@ -2273,13 +2417,13 @@
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 40,
+              "line": 43,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 61,
+              "line": 64,
               "kind": "function",
               "language": "python"
             }
@@ -2292,8 +2436,8 @@
     "_write_asset_result": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1317,
-        "end": 1325
+        "start": 1322,
+        "end": 1330
       },
       "symbol_dependencies": [],
       "dependency_count": 0
@@ -2301,8 +2445,8 @@
     "_asset_failure_result": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1328,
-        "end": 1336
+        "start": 1333,
+        "end": 1341
       },
       "symbol_dependencies": [],
       "dependency_count": 0
@@ -2310,8 +2454,8 @@
     "run_asset_forge_dispatch": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1339,
-        "end": 1401
+        "start": 1344,
+        "end": 1406
       },
       "symbol_dependencies": [
         {
@@ -2319,7 +2463,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1328,
+              "line": 1333,
               "kind": "function",
               "language": "python"
             }
@@ -2331,7 +2475,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1317,
+              "line": 1322,
               "kind": "function",
               "language": "python"
             }
@@ -2427,13 +2571,13 @@
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 40,
+              "line": 43,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 61,
+              "line": 64,
               "kind": "function",
               "language": "python"
             }
@@ -2446,8 +2590,8 @@
     "run_asset_forge_batch": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1404,
-        "end": 1428
+        "start": 1409,
+        "end": 1433
       },
       "symbol_dependencies": [
         {
@@ -2455,7 +2599,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1328,
+              "line": 1333,
               "kind": "function",
               "language": "python"
             }
@@ -2467,7 +2611,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1317,
+              "line": 1322,
               "kind": "function",
               "language": "python"
             }
@@ -2522,8 +2666,8 @@
     "run_github_reconcile": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1431,
-        "end": 1482
+        "start": 1436,
+        "end": 1487
       },
       "symbol_dependencies": [
         {
@@ -2687,13 +2831,13 @@
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 40,
+              "line": 43,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 61,
+              "line": 64,
               "kind": "function",
               "language": "python"
             }
@@ -2706,8 +2850,8 @@
     "run_controller_command": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1485,
-        "end": 1549
+        "start": 1490,
+        "end": 1554
       },
       "symbol_dependencies": [
         {
@@ -2715,13 +2859,13 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1517,
+              "line": 1522,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/cli.py",
-              "line": 2109,
+              "line": 2114,
               "kind": "function",
               "language": "python"
             }
@@ -2788,8 +2932,8 @@
     "_request_stop": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1517,
-        "end": 1637
+        "start": 1522,
+        "end": 1642
       },
       "symbol_dependencies": [
         {
@@ -3049,7 +3193,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1615,
+              "line": 1620,
               "kind": "function",
               "language": "python"
             }
@@ -3061,7 +3205,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1588,
+              "line": 1593,
               "kind": "function",
               "language": "python"
             }
@@ -3073,7 +3217,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1625,
+              "line": 1630,
               "kind": "function",
               "language": "python"
             }
@@ -3085,7 +3229,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1565,
+              "line": 1570,
               "kind": "function",
               "language": "python"
             }
@@ -3097,7 +3241,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1575,
+              "line": 1580,
               "kind": "function",
               "language": "python"
             }
@@ -3109,7 +3253,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1551,
+              "line": 1556,
               "kind": "function",
               "language": "python"
             }
@@ -3157,13 +3301,13 @@
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 40,
+              "line": 43,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 61,
+              "line": 64,
               "kind": "function",
               "language": "python"
             }
@@ -3176,8 +3320,8 @@
     "run_worker_register": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1551,
-        "end": 1562
+        "start": 1556,
+        "end": 1567
       },
       "symbol_dependencies": [
         {
@@ -3227,13 +3371,13 @@
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 40,
+              "line": 43,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 61,
+              "line": 64,
               "kind": "function",
               "language": "python"
             }
@@ -3246,8 +3390,8 @@
     "run_worker_heartbeat": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1565,
-        "end": 1572
+        "start": 1570,
+        "end": 1577
       },
       "symbol_dependencies": [
         {
@@ -3303,13 +3447,13 @@
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 40,
+              "line": 43,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 61,
+              "line": 64,
               "kind": "function",
               "language": "python"
             }
@@ -3322,8 +3466,8 @@
     "run_worker_list": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1575,
-        "end": 1583
+        "start": 1580,
+        "end": 1588
       },
       "symbol_dependencies": [
         {
@@ -3373,13 +3517,13 @@
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 40,
+              "line": 43,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 61,
+              "line": 64,
               "kind": "function",
               "language": "python"
             }
@@ -3392,8 +3536,8 @@
     "run_job_claim": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1588,
-        "end": 1612
+        "start": 1593,
+        "end": 1617
       },
       "symbol_dependencies": [
         {
@@ -3491,13 +3635,13 @@
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 40,
+              "line": 43,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 61,
+              "line": 64,
               "kind": "function",
               "language": "python"
             }
@@ -3510,8 +3654,8 @@
     "run_job_ack": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1615,
-        "end": 1622
+        "start": 1620,
+        "end": 1627
       },
       "symbol_dependencies": [
         {
@@ -3585,13 +3729,13 @@
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 40,
+              "line": 43,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 61,
+              "line": 64,
               "kind": "function",
               "language": "python"
             }
@@ -3604,8 +3748,8 @@
     "run_job_complete": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1625,
-        "end": 1645
+        "start": 1630,
+        "end": 1650
       },
       "symbol_dependencies": [
         {
@@ -3787,13 +3931,13 @@
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 40,
+              "line": 43,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 61,
+              "line": 64,
               "kind": "function",
               "language": "python"
             }
@@ -3806,8 +3950,8 @@
     "run_delivery_recover": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1648,
-        "end": 1663
+        "start": 1653,
+        "end": 1668
       },
       "symbol_dependencies": [
         {
@@ -3864,8 +4008,8 @@
     "run_preempt_request": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1667,
-        "end": 1674
+        "start": 1672,
+        "end": 1679
       },
       "symbol_dependencies": [
         {
@@ -3928,8 +4072,8 @@
     "run_preempt_checkpoint": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1677,
-        "end": 1692
+        "start": 1682,
+        "end": 1697
       },
       "symbol_dependencies": [
         {
@@ -4004,8 +4148,8 @@
     "run_emergency_stop": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1696,
-        "end": 1699
+        "start": 1701,
+        "end": 1704
       },
       "symbol_dependencies": [
         {
@@ -4026,8 +4170,8 @@
     "run_emergency_resume": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1702,
-        "end": 1705
+        "start": 1707,
+        "end": 1710
       },
       "symbol_dependencies": [
         {
@@ -4048,8 +4192,8 @@
     "run_audit_verify": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1708,
-        "end": 1711
+        "start": 1713,
+        "end": 1716
       },
       "symbol_dependencies": [
         {
@@ -4100,8 +4244,8 @@
     "run_backup": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1714,
-        "end": 1717
+        "start": 1719,
+        "end": 1722
       },
       "symbol_dependencies": [
         {
@@ -4122,8 +4266,8 @@
     "run_restore": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1720,
-        "end": 1723
+        "start": 1725,
+        "end": 1728
       },
       "symbol_dependencies": [
         {
@@ -4144,8 +4288,8 @@
     "run_restore_activate": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1726,
-        "end": 1752
+        "start": 1731,
+        "end": 1757
       },
       "symbol_dependencies": [
         {
@@ -4202,8 +4346,8 @@
     "run_approve": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1756,
-        "end": 1768
+        "start": 1761,
+        "end": 1773
       },
       "symbol_dependencies": [
         {
@@ -4259,13 +4403,13 @@
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 40,
+              "line": 43,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 61,
+              "line": 64,
               "kind": "function",
               "language": "python"
             }
@@ -4278,8 +4422,8 @@
     "run_revoke": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1771,
-        "end": 1783
+        "start": 1776,
+        "end": 1788
       },
       "symbol_dependencies": [
         {
@@ -4335,13 +4479,13 @@
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 40,
+              "line": 43,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 61,
+              "line": 64,
               "kind": "function",
               "language": "python"
             }
@@ -4354,8 +4498,8 @@
     "run_migrate_state": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1786,
-        "end": 1789
+        "start": 1791,
+        "end": 1794
       },
       "symbol_dependencies": [
         {
@@ -4376,8 +4520,8 @@
     "run_migrate_many": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1793,
-        "end": 1799
+        "start": 1798,
+        "end": 1804
       },
       "symbol_dependencies": [
         {
@@ -4415,13 +4559,13 @@
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 40,
+              "line": 43,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 61,
+              "line": 64,
               "kind": "function",
               "language": "python"
             }
@@ -4434,8 +4578,8 @@
     "run_queue_compact": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1802,
-        "end": 1813
+        "start": 1807,
+        "end": 1818
       },
       "symbol_dependencies": [
         {
@@ -4468,8 +4612,8 @@
     "run_dead_letter_retry": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1816,
-        "end": 1826
+        "start": 1821,
+        "end": 1831
       },
       "symbol_dependencies": [
         {
@@ -4490,8 +4634,8 @@
     "run_audit_checkpoint_create": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1829,
-        "end": 1836
+        "start": 1834,
+        "end": 1841
       },
       "symbol_dependencies": [
         {
@@ -4512,8 +4656,8 @@
     "run_audit_checkpoint_verify": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1839,
-        "end": 1845
+        "start": 1844,
+        "end": 1850
       },
       "symbol_dependencies": [
         {
@@ -4564,8 +4708,8 @@
     "run_quarantine": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1849,
-        "end": 1857
+        "start": 1854,
+        "end": 1862
       },
       "symbol_dependencies": [
         {
@@ -4628,8 +4772,8 @@
     "run_unquarantine": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1860,
-        "end": 1868
+        "start": 1865,
+        "end": 1873
       },
       "symbol_dependencies": [
         {
@@ -4704,8 +4848,8 @@
     "run_budget_record": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1871,
-        "end": 1886
+        "start": 1876,
+        "end": 1891
       },
       "symbol_dependencies": [
         {
@@ -4756,8 +4900,8 @@
     "run_policy_validate": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1890,
-        "end": 1897
+        "start": 1895,
+        "end": 1902
       },
       "symbol_dependencies": [
         {
@@ -4783,13 +4927,13 @@
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 40,
+              "line": 43,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 61,
+              "line": 64,
               "kind": "function",
               "language": "python"
             }
@@ -4814,8 +4958,8 @@
     "run_policy_check": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1900,
-        "end": 1910
+        "start": 1905,
+        "end": 1915
       },
       "symbol_dependencies": [
         {
@@ -4943,13 +5087,13 @@
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 40,
+              "line": 43,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 61,
+              "line": 64,
               "kind": "function",
               "language": "python"
             }
@@ -4962,8 +5106,8 @@
     "run_db_init": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1914,
-        "end": 1927
+        "start": 1919,
+        "end": 1932
       },
       "symbol_dependencies": [
         {
@@ -4984,8 +5128,8 @@
     "run_db_import": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1930,
-        "end": 1939
+        "start": 1935,
+        "end": 1944
       },
       "symbol_dependencies": [
         {
@@ -5018,8 +5162,8 @@
     "run_token_hash": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1942,
-        "end": 1947
+        "start": 1947,
+        "end": 1952
       },
       "symbol_dependencies": [
         {
@@ -5040,8 +5184,8 @@
     "_trusted_validation_keys_from_env": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1950,
-        "end": 1963
+        "start": 1955,
+        "end": 1968
       },
       "symbol_dependencies": [],
       "dependency_count": 0
@@ -5049,8 +5193,8 @@
     "run_control_plane": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 1966,
-        "end": 2029
+        "start": 1971,
+        "end": 2034
       },
       "symbol_dependencies": [
         {
@@ -5058,7 +5202,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1950,
+              "line": 1955,
               "kind": "function",
               "language": "python"
             }
@@ -5113,8 +5257,8 @@
     "run_remote_worker_poll": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 2033,
-        "end": 2050
+        "start": 2038,
+        "end": 2055
       },
       "symbol_dependencies": [
         {
@@ -5164,13 +5308,13 @@
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 40,
+              "line": 43,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 61,
+              "line": 64,
               "kind": "function",
               "language": "python"
             }
@@ -5183,8 +5327,8 @@
     "_repository_root_map": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 2054,
-        "end": 2079
+        "start": 2059,
+        "end": 2084
       },
       "symbol_dependencies": [
         {
@@ -5205,8 +5349,8 @@
     "run_remote_worker_run": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 2082,
-        "end": 2132
+        "start": 2087,
+        "end": 2137
       },
       "symbol_dependencies": [
         {
@@ -5238,7 +5382,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 2054,
+              "line": 2059,
               "kind": "function",
               "language": "python"
             }
@@ -5250,13 +5394,13 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 1517,
+              "line": 1522,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/cli.py",
-              "line": 2109,
+              "line": 2114,
               "kind": "function",
               "language": "python"
             }
@@ -5293,8 +5437,8 @@
     "_browser_storage_state": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 2135,
-        "end": 2144
+        "start": 2140,
+        "end": 2149
       },
       "symbol_dependencies": [],
       "dependency_count": 0
@@ -5302,8 +5446,17 @@
     "_browser_session_state": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 2147,
-        "end": 2156
+        "start": 2152,
+        "end": 2161
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "_browser_checkpoint_state": {
+      "source": {
+        "file": "src/production_os/cli.py",
+        "start": 2164,
+        "end": 2173
       },
       "symbol_dependencies": [],
       "dependency_count": 0
@@ -5311,16 +5464,28 @@
     "run_browser_plan": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 2159,
-        "end": 2170
+        "start": 2176,
+        "end": 2188
       },
       "symbol_dependencies": [
+        {
+          "symbol": "_browser_checkpoint_state",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 2164,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
         {
           "symbol": "_browser_session_state",
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 2147,
+              "line": 2152,
               "kind": "function",
               "language": "python"
             }
@@ -5332,7 +5497,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 2135,
+              "line": 2140,
               "kind": "function",
               "language": "python"
             }
@@ -5344,7 +5509,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 300,
+              "line": 400,
               "kind": "function",
               "language": "python"
             }
@@ -5356,7 +5521,7 @@
           "definitions": [
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 201,
+              "line": 301,
               "kind": "function",
               "language": "python"
             }
@@ -5364,13 +5529,13 @@
           "relation": "imported_module"
         }
       ],
-      "dependency_count": 4
+      "dependency_count": 5
     },
     "run_agent_benchmark": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 2173,
-        "end": 2186
+        "start": 2191,
+        "end": 2204
       },
       "symbol_dependencies": [
         {
@@ -5427,8 +5592,8 @@
     "run_regression_bisect_command": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 2189,
-        "end": 2199
+        "start": 2207,
+        "end": 2217
       },
       "symbol_dependencies": [
         {
@@ -5466,13 +5631,13 @@
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 40,
+              "line": 43,
               "kind": "function",
               "language": "python"
             },
             {
               "file": "src/production_os/browser_computer.py",
-              "line": 61,
+              "line": 64,
               "kind": "function",
               "language": "python"
             }
@@ -5485,8 +5650,8 @@
     "_workflow_engine": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 2202,
-        "end": 2204
+        "start": 2220,
+        "end": 2222
       },
       "symbol_dependencies": [
         {
@@ -5531,8 +5696,8 @@
     "run_workflow_create": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 2207,
-        "end": 2228
+        "start": 2225,
+        "end": 2246
       },
       "symbol_dependencies": [
         {
@@ -5552,7 +5717,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 2202,
+              "line": 2220,
               "kind": "function",
               "language": "python"
             }
@@ -5649,8 +5814,8 @@
     "run_workflow_status": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 2231,
-        "end": 2237
+        "start": 2249,
+        "end": 2255
       },
       "symbol_dependencies": [
         {
@@ -5658,7 +5823,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 2202,
+              "line": 2220,
               "kind": "function",
               "language": "python"
             }
@@ -5713,8 +5878,8 @@
     "run_workflow_dispatch": {
       "source": {
         "file": "src/production_os/cli.py",
-        "start": 2240,
-        "end": 2248
+        "start": 2258,
+        "end": 2266
       },
       "symbol_dependencies": [
         {
@@ -5722,7 +5887,7 @@
           "definitions": [
             {
               "file": "src/production_os/cli.py",
-              "line": 2202,
+              "line": 2220,
               "kind": "function",
               "language": "python"
             }
@@ -5785,394 +5950,6 @@
         }
       ],
       "dependency_count": 4
-    },
-    "run_workflow_critical_path": {
-      "source": {
-        "file": "src/production_os/cli.py",
-        "start": 2251,
-        "end": 2256
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_workflow_engine",
-          "definitions": [
-            {
-              "file": "src/production_os/cli.py",
-              "line": 2202,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "critical_path",
-          "definitions": [
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 2247,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "run_workflow_eta": {
-      "source": {
-        "file": "src/production_os/cli.py",
-        "start": 2259,
-        "end": 2268
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ExecutionOptimizer",
-          "definitions": [
-            {
-              "file": "src/production_os/execution_optimizer.py",
-              "line": 33,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_workflow_engine",
-          "definitions": [
-            {
-              "file": "src/production_os/cli.py",
-              "line": 2202,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/rekor_checkpoint_state.py",
-              "line": 230,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/release_ledger.py",
-              "line": 192,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/runtime_state.py",
-              "line": 70,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 918,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "workflow",
-          "definitions": [
-            {
-              "file": "src/production_os/agent_benchmark.py",
-              "line": 112,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "workflow_eta",
-          "definitions": [
-            {
-              "file": "src/production_os/execution_optimizer.py",
-              "line": 299,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 5
-    },
-    "run_stragglers": {
-      "source": {
-        "file": "src/production_os/cli.py",
-        "start": 2271,
-        "end": 2286
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ExecutionOptimizer",
-          "definitions": [
-            {
-              "file": "src/production_os/execution_optimizer.py",
-              "line": 33,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "load",
-          "definitions": [
-            {
-              "file": "src/production_os/api_auth.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/approvals.py",
-              "line": 45,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/budgets.py",
-              "line": 41,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/claims.py",
-              "line": 44,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/policy.py",
-              "line": 42,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "open_backend",
-          "definitions": [
-            {
-              "file": "src/production_os/storage.py",
-              "line": 23,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "stragglers",
-          "definitions": [
-            {
-              "file": "src/production_os/execution_optimizer.py",
-              "line": 201,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "worker_registry_for",
-          "definitions": [
-            {
-              "file": "src/production_os/storage.py",
-              "line": 35,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 5
-    },
-    "run_speculate_stragglers": {
-      "source": {
-        "file": "src/production_os/cli.py",
-        "start": 2289,
-        "end": 2331
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ExecutionOptimizer",
-          "definitions": [
-            {
-              "file": "src/production_os/execution_optimizer.py",
-              "line": 33,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "SpeculationManager",
-          "definitions": [
-            {
-              "file": "src/production_os/speculation.py",
-              "line": 25,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "append",
-          "definitions": [
-            {
-              "file": "src/production_os/journal.py",
-              "line": 30,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/rekor_checkpoint_state.py",
-              "line": 230,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/release_ledger.py",
-              "line": 192,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/runtime_state.py",
-              "line": 70,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/workflow_engine.py",
-              "line": 918,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "job_queue_for",
-          "definitions": [
-            {
-              "file": "src/production_os/storage.py",
-              "line": 47,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "load",
-          "definitions": [
-            {
-              "file": "src/production_os/api_auth.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/approvals.py",
-              "line": 45,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/budgets.py",
-              "line": 41,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/claims.py",
-              "line": 44,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/policy.py",
-              "line": 42,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "open_backend",
-          "definitions": [
-            {
-              "file": "src/production_os/storage.py",
-              "line": 23,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "spawn",
-          "definitions": [
-            {
-              "file": "src/production_os/speculation.py",
-              "line": 40,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "stragglers",
-          "definitions": [
-            {
-              "file": "src/production_os/execution_optimizer.py",
-              "line": 201,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "worker_registry_for",
-          "definitions": [
-            {
-              "file": "src/production_os/storage.py",
-              "line": 35,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 10
     }
   }
 }
