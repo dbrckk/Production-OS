@@ -259,3 +259,24 @@ def test_turn_checkpoint_path_is_stable_and_turn_scoped(tmp_path):
 def test_browser_loop_config_reuses_browser_safety_validation(payload, match):
     with pytest.raises(ValueError, match=match):
         validate_browser_loop_config(payload)
+
+
+
+def test_browser_loop_cli_parses_jsonl_runtime_paths():
+    from production_os.cli import _parse_args
+
+    args = _parse_args([
+        "browser-loop-run",
+        "--config", "/tmp/browser-loop.json",
+        "--artifacts-dir", "/tmp/artifacts",
+        "--storage-state", "/tmp/storage.json",
+        "--session-state", "/tmp/session.json",
+        "--checkpoint-state", "/tmp/checkpoint.json",
+    ])
+
+    assert args.config == "/tmp/browser-loop.json"
+    assert args.artifacts_dir == "/tmp/artifacts"
+    assert args.storage_state == "/tmp/storage.json"
+    assert args.session_state == "/tmp/session.json"
+    assert args.checkpoint_state == "/tmp/checkpoint.json"
+    assert args.headed is False
