@@ -14,6 +14,7 @@ from .browser_loop import (
 
 
 _BROWSER_HANDLER = "browser_computer"
+_BROWSER_TOOL_SCHEMA = "production-os/browser-computer-tool/v1"
 _NATIVE_UNSUPPORTED = "native_executor_unsupported"
 
 
@@ -45,7 +46,12 @@ def select_native_handler(
     contracts = handoff.get("tool_contracts")
     if not isinstance(contracts, dict):
         contracts = {}
-    if _BROWSER_HANDLER in contracts:
+    browser_contract = contracts.get(_BROWSER_HANDLER)
+    if (
+        isinstance(browser_contract, dict)
+        and str(browser_contract.get("schema_version") or "")
+        == _BROWSER_TOOL_SCHEMA
+    ):
         return NativeExecutionDecision(
             supported=True,
             handler_name=_BROWSER_HANDLER,
@@ -99,6 +105,15 @@ def execute_browser_native(
             str(exc)[:1000],
         )
 
+    if len(turns) > config.max_turns:
+        return _failure(
+            "native_executor_invalid_request",
+            (
+                "native browser submitted turns exceed "
+                f"max_turns ({len(turns)} > {config.max_turns})"
+            ),
+        )
+
     runtime_workspace = (
         Path(context.runtime_workspace).expanduser().resolve()
         if context.runtime_workspace
@@ -148,7 +163,7 @@ def execute_browser_native(
             checkpoint_path=checkpoint_path,
             cancelled=context.cancellation_event.is_set,
         )
-    except (ValueError, OSError) as exc:
+    except ValueError as exc:
         return _failure(
             "native_executor_invalid_request",
             str(exc)[:1000],
