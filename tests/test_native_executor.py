@@ -23,7 +23,7 @@ def _browser_handoff():
 
 
 def test_select_native_handler_supports_browser_computer_contract():
-    decision = select_native_handler(_browser_handoff())
+    decision = select_native_handler(_browser_request())
 
     assert decision.supported is True
     assert decision.handler_name == "browser_computer"
@@ -43,7 +43,7 @@ def test_select_native_handler_rejects_unknown_contracts():
 
 
 def test_select_native_handler_is_deterministic_when_multiple_contracts_exist():
-    handoff = _browser_handoff()
+    handoff = _browser_request()
     handoff["tool_contracts"]["zzz_unknown"] = {
         "schema_version":"example/unknown/v1",
     }
