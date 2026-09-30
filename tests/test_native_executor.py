@@ -301,3 +301,66 @@ def test_native_browser_handler_classifies_runtime_oserror_as_execution_failure(
 
     assert result["status"] == "failed"
     assert result["reason"] == "native_executor_failed"
+
+
+
+def test_select_native_handler_accepts_workflow_contract_with_native_request():
+    handoff = _browser_request()
+    handoff["tool_contracts"]["browser_computer"] = {
+        "schema":"production-os/browser-computer-plan/v1",
+        "result_schema":"production-os/browser-computer-result/v1",
+    }
+
+    decision = select_native_handler(handoff)
+
+    assert decision.supported is True
+    assert decision.handler_name == "browser_computer"
+
+
+def test_select_native_handler_rejects_contract_only_browser_job():
+    decision = select_native_handler({
+        "tool_contracts":{
+            "browser_computer":{
+                "schema":"production-os/browser-computer-plan/v1",
+                "result_schema":"production-os/browser-computer-result/v1",
+            },
+        },
+    })
+
+    assert decision.supported is False
+    assert decision.reason == "native_executor_unsupported"
+
+
+def test_native_browser_nonpersistent_request_gets_ephemeral_artifacts(
+    monkeypatch,
+):
+    seen = {}
+
+    def fake_loop(_config, _input, _output, **kwargs):
+        path = Path(kwargs["artifacts_dir"])
+        seen["path"] = path
+        seen["exists_during_execution"] = path.is_dir()
+        return {
+            "schema_version":"production-os/browser-computer-loop-result/v1",
+            "turns":1,
+            "succeeded":1,
+            "rejected":0,
+            "failed":0,
+        }
+
+    monkeypatch.setattr(
+        "production_os.native_executor.run_browser_turn_loop",
+        fake_loop,
+    )
+    context = NativeExecutionContext(
+        job_key="browser-ephemeral",
+        handoff=_browser_request(persist_session=False),
+        runtime_workspace=None,
+        cancellation_event=threading.Event(),
+        artifacts_dir=None,
+    )
+
+    result = execute_native(context)
+
+    assert result["status"] == "succeeded"
+    assert seen["exists_during_execution"] is True
