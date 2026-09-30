@@ -1130,3 +1130,242 @@ def test_remote_worker_run_accepts_native_without_executor_command():
 
     assert runner.executor_mode == "native"
     assert runner.executor_command == []
+
+
+
+def _native_browser_handoff_for_runner():
+    return {
+        "repository":"dbrckk/native-browser",
+        "task":"Inspect the frontend in the browser.",
+        "tool_contracts":{
+            "browser_computer":{
+                "schema_version":"production-os/browser-computer-tool/v1",
+            },
+        },
+        "browser":{
+            "config":{
+                "schema_version":"production-os/browser-computer-loop/v1",
+                "allowed_hosts":["example.com"],
+                "persist_session":False,
+                "allow_private_network":False,
+                "max_turns":1,
+            },
+            "turns":[{
+                "schema_version":"production-os/browser-computer-turn/v1",
+                "turn_id":"observe",
+                "actions":[{"action":"snapshot","name":"page"}],
+            }],
+        },
+    }
+
+
+def test_auto_mode_prefers_native_browser_over_external_executor(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "native-preferred.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":_native_browser_handoff_for_runner(),
+        "required_capabilities":[],
+    })
+    marker = tmp_path / "external-ran"
+    executor = tmp_path / "external.py"
+    executor.write_text(
+        f"""
+import json, pathlib, sys
+json.load(sys.stdin)
+pathlib.Path({str(marker)!r}).write_text("ran", encoding="utf-8")
+print(json.dumps({{"status":"succeeded","result":{{"summary":"external"}}}}))
+""".strip(),
+        encoding="utf-8",
+    )
+    calls = []
+
+    def fake_native(context):
+        calls.append(context.job_key)
+        return {"status":"succeeded","result":{"summary":"native"}}
+
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.execute_native",
+        fake_native,
+    )
+
+    server, thread, base = _server(control)
+    try:
+        client = RemoteWorkerClient(base, "worker-secret", "runner-1", [], timeout=5)
+        runner = RemoteWorkerRunner(
+            client,
+            [sys.executable, str(executor)],
+            executor_mode="auto",
+            heartbeat_interval_seconds=0.05,
+            executor_timeout_seconds=5,
+        )
+
+        outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+
+        assert outcomes == [{"job_key":queued["key"], "status":"completed"}]
+        assert calls == [queued["key"]]
+        assert marker.exists() is False
+    finally:
+        _stop(server, thread)
+
+
+def test_auto_mode_falls_back_to_external_when_native_is_unsupported(tmp_path):
+    control = ControlPlane(str(tmp_path / "native-fallback.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":{
+            "repository":"dbrckk/external-only",
+            "task":"Run an unsupported native task.",
+        },
+        "required_capabilities":[],
+    })
+    marker = tmp_path / "external-ran"
+    executor = tmp_path / "external.py"
+    executor.write_text(
+        f"""
+import json, pathlib, sys
+json.load(sys.stdin)
+pathlib.Path({str(marker)!r}).write_text("ran", encoding="utf-8")
+print(json.dumps({{"status":"succeeded","result":{{"summary":"external"}}}}))
+""".strip(),
+        encoding="utf-8",
+    )
+
+    server, thread, base = _server(control)
+    try:
+        client = RemoteWorkerClient(base, "worker-secret", "runner-1", [], timeout=5)
+        runner = RemoteWorkerRunner(
+            client,
+            [sys.executable, str(executor)],
+            executor_mode="auto",
+            heartbeat_interval_seconds=0.05,
+            executor_timeout_seconds=5,
+        )
+
+        outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+
+        assert outcomes == [{"job_key":queued["key"], "status":"completed"}]
+        assert marker.is_file()
+    finally:
+        _stop(server, thread)
+
+
+def test_native_mode_rejects_unsupported_job(tmp_path):
+    control = ControlPlane(str(tmp_path / "native-unsupported.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":{
+            "repository":"dbrckk/native-unsupported",
+            "task":"Unsupported native task.",
+        },
+        "required_capabilities":[],
+    })
+
+    server, thread, base = _server(control)
+    try:
+        client = RemoteWorkerClient(base, "worker-secret", "runner-1", [], timeout=5)
+        runner = RemoteWorkerRunner(
+            client,
+            [],
+            executor_mode="native",
+            heartbeat_interval_seconds=0.05,
+            executor_timeout_seconds=5,
+        )
+
+        outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+
+        assert outcomes == [{
+            "job_key":queued["key"],
+            "status":"failed",
+            "reason":"native_executor_unsupported",
+        }]
+        assert control.queue.get(queued["key"])["status"] == "failed"
+    finally:
+        _stop(server, thread)
+
+
+def test_auto_mode_without_any_executor_fails_executor_unavailable(tmp_path):
+    control = ControlPlane(str(tmp_path / "executor-unavailable.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":{
+            "repository":"dbrckk/no-executor",
+            "task":"Unsupported task without fallback.",
+        },
+        "required_capabilities":[],
+    })
+
+    server, thread, base = _server(control)
+    try:
+        client = RemoteWorkerClient(base, "worker-secret", "runner-1", [], timeout=5)
+        runner = RemoteWorkerRunner(
+            client,
+            [],
+            executor_mode="auto",
+            heartbeat_interval_seconds=0.05,
+            executor_timeout_seconds=5,
+        )
+
+        outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+
+        assert outcomes == [{
+            "job_key":queued["key"],
+            "status":"failed",
+            "reason":"executor_unavailable",
+        }]
+    finally:
+        _stop(server, thread)
+
+
+def test_native_runtime_failure_never_falls_back_external(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "native-no-fallback.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":_native_browser_handoff_for_runner(),
+        "required_capabilities":[],
+    })
+    marker = tmp_path / "external-ran"
+    executor = tmp_path / "external.py"
+    executor.write_text(
+        f"""
+import json, pathlib, sys
+json.load(sys.stdin)
+pathlib.Path({str(marker)!r}).write_text("ran", encoding="utf-8")
+print(json.dumps({{"status":"succeeded","result":{{"summary":"external"}}}}))
+""".strip(),
+        encoding="utf-8",
+    )
+
+    def fail_native(_context):
+        return {
+            "status":"failed",
+            "reason":"native_executor_failed",
+            "result":{"summary":"native failed after starting"},
+        }
+
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.execute_native",
+        fail_native,
+    )
+
+    server, thread, base = _server(control)
+    try:
+        client = RemoteWorkerClient(base, "worker-secret", "runner-1", [], timeout=5)
+        runner = RemoteWorkerRunner(
+            client,
+            [sys.executable, str(executor)],
+            executor_mode="auto",
+            heartbeat_interval_seconds=0.05,
+            executor_timeout_seconds=5,
+        )
+
+        outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+
+        assert outcomes == [{
+            "job_key":queued["key"],
+            "status":"failed",
+            "reason":"native_executor_failed",
+        }]
+        assert marker.exists() is False
+    finally:
+        _stop(server, thread)
