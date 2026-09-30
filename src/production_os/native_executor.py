@@ -1,8 +1,16 @@
 from __future__ import annotations
 
+import io
+import json
 import threading
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
+
+from .browser_loop import (
+    run_browser_turn_loop,
+    validate_browser_loop_config,
+)
 
 
 _BROWSER_HANDLER = "browser_computer"
@@ -50,26 +58,151 @@ def select_native_handler(
     )
 
 
+def _failure(reason: str, summary: str, **result: Any) -> dict[str, Any]:
+    return {
+        "status":"failed",
+        "reason":reason,
+        "result":{
+            "summary":summary,
+            **result,
+        },
+    }
+
+
+def execute_browser_native(
+    context: NativeExecutionContext,
+) -> dict[str, Any]:
+    browser = context.handoff.get("browser")
+    if not isinstance(browser, dict):
+        return _failure(
+            "native_executor_invalid_request",
+            "native browser request is missing",
+        )
+    config_payload = browser.get("config")
+    turns = browser.get("turns")
+    if not isinstance(config_payload, dict) or not isinstance(turns, list):
+        return _failure(
+            "native_executor_invalid_request",
+            "native browser request is invalid",
+        )
+    if not turns or any(not isinstance(turn, dict) for turn in turns):
+        return _failure(
+            "native_executor_invalid_request",
+            "native browser request requires submitted turns",
+        )
+
+    try:
+        config = validate_browser_loop_config(config_payload)
+    except ValueError as exc:
+        return _failure(
+            "native_executor_invalid_request",
+            str(exc)[:1000],
+        )
+
+    runtime_workspace = (
+        Path(context.runtime_workspace).expanduser().resolve()
+        if context.runtime_workspace
+        else None
+    )
+    if config.persist_session and runtime_workspace is None:
+        return _failure(
+            "native_executor_runtime_unavailable",
+            "persistent native browser execution requires runtime workspace",
+        )
+
+    if runtime_workspace is not None:
+        artifacts_dir = runtime_workspace / "browser-artifacts"
+        storage_state_path = runtime_workspace / "browser-state.json"
+        session_state_path = runtime_workspace / "browser-session.json"
+        checkpoint_path = runtime_workspace / "browser-checkpoint.json"
+    else:
+        if not context.artifacts_dir:
+            return _failure(
+                "native_executor_runtime_unavailable",
+                "native browser execution requires an artifacts directory",
+            )
+        artifacts_dir = Path(context.artifacts_dir).expanduser().resolve()
+        storage_state_path = None
+        session_state_path = None
+        checkpoint_path = None
+
+    input_stream = io.StringIO(
+        "".join(
+            json.dumps(
+                turn,
+                ensure_ascii=False,
+                separators=(",", ":"),
+            ) + "\n"
+            for turn in turns
+        )
+    )
+    output_stream = io.StringIO()
+    try:
+        summary = run_browser_turn_loop(
+            config,
+            input_stream,
+            output_stream,
+            artifacts_dir=artifacts_dir,
+            storage_state_path=storage_state_path,
+            session_state_path=session_state_path,
+            checkpoint_path=checkpoint_path,
+            cancelled=context.cancellation_event.is_set,
+        )
+    except (ValueError, OSError) as exc:
+        return _failure(
+            "native_executor_invalid_request",
+            str(exc)[:1000],
+        )
+    except Exception as exc:
+        return _failure(
+            "native_executor_failed",
+            str(exc)[:1000],
+        )
+
+    turn_results = []
+    for line in output_stream.getvalue().splitlines():
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(row, dict):
+            turn_results.append(row)
+
+    result = {
+        "summary":"native browser loop completed",
+        "browser_loop":summary,
+        "browser_turn_results":turn_results,
+    }
+    if int(summary.get("failed") or 0) > 0:
+        return {
+            "status":"failed",
+            "reason":"native_executor_failed",
+            "result":result,
+        }
+    if int(summary.get("rejected") or 0) > 0:
+        return {
+            "status":"failed",
+            "reason":"native_executor_invalid_request",
+            "result":result,
+        }
+    return {
+        "status":"succeeded",
+        "result":result,
+    }
+
+
 def execute_native(
     context: NativeExecutionContext,
 ) -> dict[str, Any]:
     decision = select_native_handler(context.handoff)
     if not decision.supported:
-        return {
-            "status":"failed",
-            "reason":_NATIVE_UNSUPPORTED,
-            "result":{
-                "summary":"native executor does not support this job",
-            },
-        }
-
-    # The browser handler is wired in the next implementation task. Keeping
-    # this deterministic failure here avoids inventing a second execution
-    # path before its request validation and durable runtime semantics exist.
-    return {
-        "status":"failed",
-        "reason":"native_executor_runtime_unavailable",
-        "result":{
-            "summary":"native browser handler is not available yet",
-        },
-    }
+        return _failure(
+            _NATIVE_UNSUPPORTED,
+            "native executor does not support this job",
+        )
+    if decision.handler_name == _BROWSER_HANDLER:
+        return execute_browser_native(context)
+    return _failure(
+        _NATIVE_UNSUPPORTED,
+        "native executor does not support this job",
+    )
