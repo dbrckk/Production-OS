@@ -53,10 +53,12 @@ class RateLimitStore:
     def __init__(self, path: str | Path):
         self.path = Path(path)
         self.events: dict[str, list[str]] = {}
+        self.idempotency: dict[str, dict[str, str]] = {}
         self.load()
 
     def _load_unlocked(self) -> None:
         self.events = {}
+        self.idempotency = {}
         if not self.path.exists():
             return
         payload = json.loads(self.path.read_text(encoding="utf-8"))
@@ -67,15 +69,73 @@ class RateLimitStore:
                 for key, value in raw.items()
                 if isinstance(value, list)
             }
+        raw_idempotency = payload.get("idempotency", {})
+        if isinstance(raw_idempotency, dict):
+            self.idempotency = {
+                str(key): {
+                    str(item_key):str(timestamp)
+                    for item_key, timestamp in value.items()
+                    if isinstance(timestamp, str)
+                }
+                for key, value in raw_idempotency.items()
+                if isinstance(value, dict)
+            }
 
     def load(self) -> None:
         self._load_unlocked()
 
     def _save_unlocked(self) -> None:
         atomic_write_json(self.path, {
-            "schema_version": "production-os/rate-limit/v1",
+            "schema_version": "production-os/rate-limit/v2",
             "events": self.events,
+            "idempotency": self.idempotency,
         })
+
+    def check(
+        self,
+        key: str,
+        *,
+        limit: int,
+        window_seconds: int,
+    ) -> RateLimitDecision:
+        self.load()
+        return check_rate_limit(
+            list(self.events.get(str(key), [])),
+            limit=int(limit),
+            window_seconds=int(window_seconds),
+        )
+
+    def record_once(
+        self,
+        key: str,
+        idempotency_key: str,
+        *,
+        window_seconds: int,
+    ) -> None:
+        key = str(key)
+        idempotency_key = str(idempotency_key or "").strip()
+        if not idempotency_key:
+            raise ValueError("idempotency_key is required")
+        with sidecar_lock(self.path):
+            self._load_unlocked()
+            existing = self.idempotency.setdefault(key, {})
+            if idempotency_key in existing:
+                return
+            now = datetime.now(timezone.utc)
+            cutoff = now - timedelta(seconds=int(window_seconds))
+            timestamps = []
+            for raw in self.events.get(key, []):
+                try:
+                    ts = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+                except ValueError:
+                    continue
+                if ts >= cutoff:
+                    timestamps.append(ts.isoformat())
+            stamp = now.isoformat()
+            timestamps.append(stamp)
+            self.events[key] = timestamps
+            existing[idempotency_key] = stamp
+            self._save_unlocked()
 
     def check_and_record(
         self,
