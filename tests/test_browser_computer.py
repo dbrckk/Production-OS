@@ -159,6 +159,33 @@ def test_workflow_injects_browser_computer_contract(tmp_path):
 
 
 
+def test_workflow_infers_browser_contract_from_browser_task_text(tmp_path):
+    backend = SQLiteBackend(tmp_path / "browser-inferred.sqlite")
+    queue = SQLiteJobQueue(backend)
+    engine = WorkflowEngine(backend, queue)
+    workflow = engine.create(
+        name="inferred browser task",
+        repository="owner/repo",
+        tasks=[
+            WorkflowTaskSpec(
+                task_id="browse",
+                title="Inspect frontend",
+                payload={
+                    "handoff":{
+                        "repository":"owner/repo",
+                        "task":"Inspect the frontend in the browser and capture a screenshot.",
+                    },
+                },
+            ),
+        ],
+    )
+
+    job = engine.dispatch_ready(workflow["id"])[0]
+
+    assert "browser-ui-validation" in job["payload"]["preferred_capabilities"]
+    assert "browser_computer" in job["payload"]["handoff"]["tool_contracts"]
+
+
 def test_browser_plan_cli_parses_runtime_paths():
     from production_os.cli import _parse_args
 

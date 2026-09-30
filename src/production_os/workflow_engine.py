@@ -14,6 +14,7 @@ from .project_memory import ProjectMemoryStore
 from .agent_plan import validate_agent_plan
 from .change_impact import analyze_change_impact
 from .task_capabilities import (
+    BROWSER_CAPABILITY,
     asset_forge_tool_contract,
     inferred_preferred_capabilities,
     inferred_required_capabilities,
@@ -1401,7 +1402,10 @@ class WorkflowEngine:
                 inferred_required_capabilities(handoff)
                 + inferred_preferred_capabilities(handoff)
             )
-            if "browser-computer-use" in browser_capabilities:
+            if {
+                "browser-computer-use",
+                BROWSER_CAPABILITY,
+            } & browser_capabilities:
                 contracts = dict(handoff.get("tool_contracts") or {})
                 contracts.setdefault(
                     "browser_computer",
