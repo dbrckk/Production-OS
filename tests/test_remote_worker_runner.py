@@ -9,6 +9,7 @@ from http.server import ThreadingHTTPServer
 
 from production_os.api_auth import TokenAuthorizer, token_digest
 from production_os.control_plane import ControlPlane, make_handler
+from production_os.cli import _parse_args
 from production_os.remote_worker import RemoteWorkerClient
 from production_os.remote_worker_runner import RemoteWorkerRunner
 
@@ -1061,3 +1062,71 @@ print(json.dumps({
         assert execution["result_summary"]["executor_git"]["clean"] is False
     finally:
         _stop(server, thread)
+
+
+
+def test_remote_worker_run_defaults_executor_mode_to_auto():
+    args = _parse_args([
+        "remote-worker-run",
+        "--url", "http://example.invalid",
+        "--worker-id", "worker-a",
+    ])
+
+    assert args.executor_mode == "auto"
+    assert args.executor_command == ""
+
+
+def test_remote_worker_run_allows_auto_without_executor_command():
+    args = _parse_args([
+        "remote-worker-run",
+        "--url", "http://example.invalid",
+        "--worker-id", "worker-a",
+        "--executor-mode", "auto",
+    ])
+
+    runner = RemoteWorkerRunner(
+        object(),
+        [],
+        executor_mode=args.executor_mode,
+    )
+
+    assert runner.executor_mode == "auto"
+    assert runner.executor_command == []
+
+
+def test_remote_worker_run_rejects_external_mode_without_executor_command():
+    args = _parse_args([
+        "remote-worker-run",
+        "--url", "http://example.invalid",
+        "--worker-id", "worker-a",
+        "--executor-mode", "external",
+    ])
+
+    try:
+        RemoteWorkerRunner(
+            object(),
+            [],
+            executor_mode=args.executor_mode,
+        )
+    except ValueError as exc:
+        assert "executor command is required" in str(exc)
+    else:
+        raise AssertionError("external mode must require an executor command")
+
+
+def test_remote_worker_run_accepts_native_without_executor_command():
+    args = _parse_args([
+        "remote-worker-run",
+        "--url", "http://example.invalid",
+        "--worker-id", "worker-a",
+        "--executor-mode", "native",
+    ])
+
+    runner = RemoteWorkerRunner(
+        object(),
+        None,
+        executor_mode=args.executor_mode,
+    )
+
+    assert runner.executor_mode == "native"
+    assert runner.executor_command == []
