@@ -119,6 +119,7 @@ production_os/
   migrations.py
   model_router.py
   models.py
+  native_executor.py
   observability.py
   policy_validation.py
   policy.py
@@ -1506,8 +1507,11 @@ turns = 0
 succeeded = 0
 rejected = 0
 failed = 0
+was_cancelled = False
 ⋮----
 line = str(raw_line).strip()
+⋮----
+was_cancelled = True
 ⋮----
 turn_id = ""
 ⋮----
@@ -1531,6 +1535,8 @@ response = {
 # A failed turn may have an unresolved in-flight browser side
 # effect. Stop before accepting any different turn. Recovery must
 # retry the same turn id/plan so its durable checkpoint is reused.
+⋮----
+summary = {
 ```
 
 ## File: production_os/budgets.py
@@ -2301,7 +2307,7 @@ def run_remote_worker_run(args: argparse.Namespace) -> int
 ⋮----
 token = str(os.getenv(args.token_env) or "").strip()
 ⋮----
-command = shlex.split(str(args.executor_command))
+command = shlex.split(str(args.executor_command or ""))
 ⋮----
 runner = RemoteWorkerRunner(
 ⋮----
@@ -6812,6 +6818,76 @@ source_signals: list[Any] = field(default_factory=list)
 components: list[Any] = field(default_factory=list)
 ```
 
+## File: production_os/native_executor.py
+```python
+_BROWSER_HANDLER = "browser_computer"
+_BROWSER_TOOL_SCHEMA = "production-os/browser-computer-tool/v1"
+_NATIVE_UNSUPPORTED = "native_executor_unsupported"
+⋮----
+@dataclass(frozen=True, slots=True)
+class NativeExecutionContext
+⋮----
+job_key: str
+handoff: dict[str, Any]
+runtime_workspace: str | None
+cancellation_event: threading.Event
+artifacts_dir: str | None
+⋮----
+@dataclass(frozen=True, slots=True)
+class NativeExecutionDecision
+⋮----
+supported: bool
+handler_name: str | None
+reason: str | None
+⋮----
+contracts = handoff.get("tool_contracts")
+⋮----
+contracts = {}
+browser_contract = contracts.get(_BROWSER_HANDLER)
+browser_request = handoff.get("browser")
+contract_supported = (
+request_supported = (
+⋮----
+def _failure(reason: str, summary: str, **result: Any) -> dict[str, Any]
+⋮----
+browser = context.handoff.get("browser")
+⋮----
+config_payload = browser.get("config")
+turns = browser.get("turns")
+⋮----
+config = validate_browser_loop_config(config_payload)
+⋮----
+runtime_workspace = (
+⋮----
+ephemeral_artifacts: tempfile.TemporaryDirectory[str] | None = None
+⋮----
+artifacts_dir = runtime_workspace / "browser-artifacts"
+storage_state_path = runtime_workspace / "browser-state.json"
+session_state_path = runtime_workspace / "browser-session.json"
+checkpoint_path = runtime_workspace / "browser-checkpoint.json"
+⋮----
+artifacts_dir = Path(
+⋮----
+ephemeral_artifacts = tempfile.TemporaryDirectory(
+artifacts_dir = Path(ephemeral_artifacts.name).resolve()
+storage_state_path = None
+session_state_path = None
+checkpoint_path = None
+⋮----
+input_stream = io.StringIO(
+output_stream = io.StringIO()
+⋮----
+summary = run_browser_turn_loop(
+⋮----
+turn_results = []
+⋮----
+row = json.loads(line)
+⋮----
+result = {
+⋮----
+decision = select_native_handler(context.handoff)
+```
+
 ## File: production_os/observability.py
 ```python
 def write_observability(payload: dict, path: str | Path) -> None
@@ -8017,7 +8093,8 @@ rollback_id = uuid.uuid4().hex
 ```python
 class RemoteWorkerRunner
 ⋮----
-command = [str(part) for part in executor_command if str(part)]
+command = [
+mode = str(executor_mode or "").strip().lower()
 ⋮----
 configured_repository_cache_root = (
 ⋮----
@@ -8065,6 +8142,41 @@ states = (
 ⋮----
 def _heartbeat_active(self, key: str) -> dict
 ⋮----
+@staticmethod
+    def _job_handoff(job: RemoteJob) -> dict
+⋮----
+def _select_execution_path(self, job: RemoteJob) -> str
+⋮----
+supported = select_native_handler(
+⋮----
+def _native_cancel_grace_seconds(self) -> float
+⋮----
+# Native browser actions are bounded by their own action timeout, but
+# Python threads are not safely terminable. Keep this worker slot and
+# lease fenced until the handler actually stops so a replacement job
+# cannot overlap with in-flight side effects.
+⋮----
+result = execute_native(context)
+⋮----
+future: Future = Future()
+thread = threading.Thread(
+⋮----
+heartbeat_failures = 0
+⋮----
+payload = future.result()
+⋮----
+payload = {
+⋮----
+elapsed = time.monotonic() - started
+remaining = self.executor_timeout_seconds - elapsed
+⋮----
+duration = time.monotonic() - started
+⋮----
+heartbeat = self._heartbeat_active(key)
+⋮----
+controls = (
+desired = str(
+⋮----
 def _execute(self, job: RemoteJob) -> dict
 ⋮----
 key = job.key
@@ -8073,6 +8185,10 @@ runtime_context = (
 active_registered = True
 heartbeat = self._activate(key)
 process: subprocess.Popen[str] | None = None
+⋮----
+execution_path = self._select_execution_path(job)
+⋮----
+reason = (
 ⋮----
 request_payload = {
 executor_env = self.executor_env.copy()
@@ -8085,26 +8201,19 @@ executor_cwd = prepared_worktree.worktree_path
 before_execution = inspect_worktree_result(
 executor_start_sha = str(
 ⋮----
-request = json.dumps(
 started = time.monotonic()
+⋮----
+cancellation_event = threading.Event()
+native_context = NativeExecutionContext(
+⋮----
+active_registered = False
+⋮----
+request = json.dumps(
 process = subprocess.Popen(
 first_communicate = True
 stdout = ""
-heartbeat_failures = 0
-⋮----
-elapsed = time.monotonic() - started
-remaining = self.executor_timeout_seconds - elapsed
-⋮----
-duration = time.monotonic() - started
 ⋮----
 first_communicate = False
-⋮----
-heartbeat = self._heartbeat_active(key)
-⋮----
-controls = (
-desired = str(
-⋮----
-active_registered = False
 ⋮----
 reason = f"executor_exit_{process.returncode}"
 ⋮----

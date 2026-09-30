@@ -710,6 +710,17 @@
       "dataclasses",
       "typing"
     ],
+    "src/production_os/native_executor.py": [
+      "__future__",
+      "browser_loop",
+      "dataclasses",
+      "io",
+      "json",
+      "pathlib",
+      "tempfile",
+      "threading",
+      "typing"
+    ],
     "src/production_os/observability.py": [
       "__future__",
       "datetime",
@@ -864,6 +875,7 @@
       "concurrent.futures",
       "executor_worktree",
       "json",
+      "native_executor",
       "os",
       "remote_worker",
       "repository_cache",
@@ -1203,7 +1215,8 @@
       "json",
       "production_os.browser_loop",
       "production_os.cli",
-      "pytest"
+      "pytest",
+      "threading"
     ],
     "tests/test_browser_worker_image.py": [
       "pathlib"
@@ -1760,6 +1773,25 @@
       "production_os.sqlite_backend",
       "production_os.workflow_engine"
     ],
+    "tests/test_native_browser_worker_e2e.py": [
+      "__future__",
+      "http.server",
+      "json",
+      "production_os.api_auth",
+      "production_os.browser_loop",
+      "production_os.control_plane",
+      "production_os.remote_worker",
+      "production_os.remote_worker_runner",
+      "threading",
+      "time"
+    ],
+    "tests/test_native_executor.py": [
+      "__future__",
+      "pathlib",
+      "production_os.native_executor",
+      "pytest",
+      "threading"
+    ],
     "tests/test_observability.py": [
       "production_os.observability"
     ],
@@ -2150,7 +2182,9 @@
       "os",
       "pathlib",
       "production_os.api_auth",
+      "production_os.cli",
       "production_os.control_plane",
+      "production_os.executor_worktree",
       "production_os.remote_worker",
       "production_os.remote_worker_runner",
       "subprocess",

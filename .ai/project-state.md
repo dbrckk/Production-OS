@@ -22,24 +22,34 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-30T08:26:29Z
+Generated: 2026-09-30T14:55:46Z
 
 ### Git
 - Branch: `main`
-- Head: `3f184b833281`
-- Commit date: 2026-09-30T10:26:17+02:00
-- Commit: fix(browser): inject tool contract for inferred browser tasks
-- Tracked files: 518
+- Head: `45a8be3f9540`
+- Commit date: 2026-09-30T16:55:31+02:00
+- Commit: feat(agents): add native browser executor runtime
+- Tracked files: 523
 
 ### Recently changed files
+- `compose.worker.yaml`
+- `docs/remote-worker-executor-protocol.md`
+- `docs/superpowers/plans/2026-09-30-native-executor.md`
+- `docs/superpowers/specs/2026-09-30-native-executor-design.md`
+- `src/production_os/browser_loop.py`
+- `src/production_os/cli.py`
+- `src/production_os/native_executor.py`
+- `src/production_os/remote_worker_runner.py`
+- `tests/test_browser_loop.py`
+- `tests/test_native_browser_worker_e2e.py`
+- `tests/test_native_executor.py`
+- `tests/test_remote_worker_runner.py`
+- `tests/test_worker_compose_deployment.py`
 - `src/production_os/workflow_engine.py`
 - `tests/test_browser_computer.py`
 - `src/production_os/agent_plan.py`
 - `tests/test_agent_plan.py`
 - `src/production_os/browser_computer.py`
-- `src/production_os/browser_loop.py`
-- `tests/test_browser_loop.py`
-- `src/production_os/cli.py`
 
 ### Project signals
 - `pyproject.toml`

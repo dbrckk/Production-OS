@@ -104,6 +104,8 @@
         "tests/test_managed_projects_http_v4.py",
         "tests/test_managed_projects_v4.py",
         "tests/test_model_router.py",
+        "tests/test_native_browser_worker_e2e.py",
+        "tests/test_native_executor.py",
         "tests/test_observability.py",
         "tests/test_p6_hardening.py",
         "tests/test_persistent_agent_runtime.py",
@@ -185,7 +187,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 176,
+      "in_degree": 178,
       "out_degree": 0,
       "path": "src/production_os/__init__.py"
     },
@@ -272,9 +274,10 @@
         "tests/test_executor_worktree.py",
         "tests/test_persistent_agent_runtime.py",
         "tests/test_regression_bisect.py",
-        "tests/test_release21_offline_restore_e2e.py"
+        "tests/test_release21_offline_restore_e2e.py",
+        "tests/test_remote_worker_runner.py"
       ],
-      "in_degree": 9,
+      "in_degree": 10,
       "out_degree": 71,
       "path": "src/production_os/cli.py"
     },
@@ -307,6 +310,7 @@
       "dependents": [
         "src/production_os/cli.py",
         "src/production_os/health_server.py",
+        "src/production_os/remote_worker_runner.py",
         "tests/test_cli.py",
         "tests/test_control_plane.py",
         "tests/test_control_plane_pr_impact.py",
@@ -332,6 +336,7 @@
         "tests/test_database_maintenance_lock.py",
         "tests/test_http_security_headers.py",
         "tests/test_managed_projects_http_v4.py",
+        "tests/test_native_browser_worker_e2e.py",
         "tests/test_portfolio_claim_api.py",
         "tests/test_production_stack_e2e.py",
         "tests/test_release16_operations_e2e.py",
@@ -355,7 +360,7 @@
         "tests/test_speculation_api.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 49,
+      "in_degree": 51,
       "out_degree": 23,
       "path": "src/production_os/control_plane.py"
     },
@@ -466,6 +471,7 @@
         "src/production_os/health.py",
         "src/production_os/managed_projects.py",
         "src/production_os/model_router.py",
+        "src/production_os/native_executor.py",
         "src/production_os/postgres_backend.py",
         "src/production_os/project_progress.py",
         "src/production_os/regression_bisect.py",
@@ -504,15 +510,77 @@
         "tests/test_managed_github_reconciliation.py",
         "tests/test_managed_project_outcome.py",
         "tests/test_model_router.py",
+        "tests/test_native_browser_worker_e2e.py",
+        "tests/test_native_executor.py",
         "tests/test_persistent_agent_runtime.py",
-        "tests/test_project_progress.py",
-        "tests/test_release34_safe_running_recovery_e2e.py",
-        "tests/test_release35_control_plane_restart_e2e.py",
-        "tests/test_release36_worker_session_reconciliation_e2e.py"
+        "tests/test_project_progress.py"
       ],
       "in_degree": 63,
       "out_degree": 3,
       "path": "tests/test_asset_forge.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/fairness.py"
+      ],
+      "dependents": [
+        "src/production_os/browser_computer.py",
+        "src/production_os/browser_loop.py",
+        "src/production_os/cli.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/controller.py",
+        "src/production_os/dashboard_playbooks.py",
+        "src/production_os/dashboard_remediation_metrics.py",
+        "src/production_os/dashboard_service.py",
+        "src/production_os/dashboard_store.py",
+        "src/production_os/delivery.py",
+        "src/production_os/fairness.py",
+        "src/production_os/github_webhook.py",
+        "src/production_os/governance.py",
+        "src/production_os/models.py",
+        "src/production_os/postgres_backend.py",
+        "src/production_os/queue_maintenance.py",
+        "src/production_os/reconciliation.py",
+        "src/production_os/remote_worker_runner.py",
+        "src/production_os/scheduler.py",
+        "src/production_os/scoring.py",
+        "src/production_os/self_healing.py",
+        "src/production_os/sqlite_backend.py",
+        "tests/test_agent_benchmark.py",
+        "tests/test_browser_computer.py",
+        "tests/test_browser_loop.py",
+        "tests/test_classification_history_reuse.py",
+        "tests/test_control_plane_webhook.py",
+        "tests/test_controller_asset_capabilities.py",
+        "tests/test_dashboard_api.py",
+        "tests/test_dashboard_attention.py",
+        "tests/test_dashboard_backup_api.py",
+        "tests/test_dashboard_control_api.py",
+        "tests/test_dashboard_control_audit.py",
+        "tests/test_dashboard_control_e2e.py",
+        "tests/test_dashboard_playbook_api.py",
+        "tests/test_dashboard_playbooks.py",
+        "tests/test_dashboard_remediation_api.py",
+        "tests/test_dashboard_remediation_history.py",
+        "tests/test_dashboard_remediation_metrics.py",
+        "tests/test_dashboard_retention_prune.py",
+        "tests/test_dashboard_ui_v3.py",
+        "tests/test_github_webhook.py",
+        "tests/test_native_browser_worker_e2e.py",
+        "tests/test_native_executor.py",
+        "tests/test_queue_audit_checkpoint.py",
+        "tests/test_release16_operations_e2e.py",
+        "tests/test_release19_restore_staging_e2e.py",
+        "tests/test_release33_auto_worker_recovery_e2e.py",
+        "tests/test_release51_one_tap_runner_e2e.py",
+        "tests/test_remote_worker_runner.py",
+        "tests/test_scheduler.py",
+        "tests/test_scoring.py"
+      ],
+      "in_degree": 52,
+      "out_degree": 2,
+      "path": "tests/test_fairness.py"
     },
     {
       "dependencies": [
@@ -578,62 +646,57 @@
     },
     {
       "dependencies": [
-        "src/production_os/__init__.py",
-        "src/production_os/fairness.py"
+        "src/production_os/workers.py"
       ],
       "dependents": [
-        "src/production_os/browser_computer.py",
-        "src/production_os/browser_loop.py",
         "src/production_os/cli.py",
         "src/production_os/control_plane.py",
-        "src/production_os/controller.py",
-        "src/production_os/dashboard_playbooks.py",
-        "src/production_os/dashboard_remediation_metrics.py",
-        "src/production_os/dashboard_service.py",
-        "src/production_os/dashboard_store.py",
-        "src/production_os/delivery.py",
-        "src/production_os/fairness.py",
-        "src/production_os/github_webhook.py",
-        "src/production_os/governance.py",
-        "src/production_os/models.py",
-        "src/production_os/postgres_backend.py",
-        "src/production_os/queue_maintenance.py",
-        "src/production_os/reconciliation.py",
-        "src/production_os/scheduler.py",
-        "src/production_os/scoring.py",
-        "src/production_os/self_healing.py",
-        "src/production_os/sqlite_backend.py",
-        "tests/test_agent_benchmark.py",
-        "tests/test_browser_computer.py",
-        "tests/test_browser_loop.py",
-        "tests/test_classification_history_reuse.py",
+        "tests/test_api_auth.py",
+        "tests/test_control_plane.py",
+        "tests/test_control_plane_pr_impact.py",
+        "tests/test_control_plane_release.py",
         "tests/test_control_plane_webhook.py",
-        "tests/test_controller_asset_capabilities.py",
         "tests/test_dashboard_api.py",
-        "tests/test_dashboard_attention.py",
         "tests/test_dashboard_backup_api.py",
         "tests/test_dashboard_control_api.py",
         "tests/test_dashboard_control_audit.py",
         "tests/test_dashboard_control_e2e.py",
+        "tests/test_dashboard_incidents.py",
+        "tests/test_dashboard_launch_ux.py",
+        "tests/test_dashboard_maintenance.py",
+        "tests/test_dashboard_observability_e2e.py",
         "tests/test_dashboard_playbook_api.py",
-        "tests/test_dashboard_playbooks.py",
         "tests/test_dashboard_remediation_api.py",
-        "tests/test_dashboard_remediation_history.py",
-        "tests/test_dashboard_remediation_metrics.py",
         "tests/test_dashboard_retention_prune.py",
-        "tests/test_dashboard_ui_v3.py",
-        "tests/test_github_webhook.py",
-        "tests/test_queue_audit_checkpoint.py",
+        "tests/test_database_maintenance_lock.py",
+        "tests/test_http_security_headers.py",
+        "tests/test_managed_projects_http_v4.py",
+        "tests/test_native_browser_worker_e2e.py",
+        "tests/test_portfolio_claim_api.py",
+        "tests/test_production_stack_e2e.py",
         "tests/test_release16_operations_e2e.py",
+        "tests/test_release18_managed_projects_e2e.py",
         "tests/test_release19_restore_staging_e2e.py",
+        "tests/test_release32_one_tap_e2e.py",
         "tests/test_release33_auto_worker_recovery_e2e.py",
+        "tests/test_release34_safe_running_recovery_e2e.py",
+        "tests/test_release35_control_plane_restart_e2e.py",
+        "tests/test_release36_worker_session_reconciliation_e2e.py",
+        "tests/test_release41_live_production_tracking_e2e.py",
+        "tests/test_release42_idempotent_launch_e2e.py",
+        "tests/test_release43_safe_production_cancel_e2e.py",
+        "tests/test_release44_one_tap_recovery_actions_e2e.py",
+        "tests/test_release45_production_inbox_e2e.py",
         "tests/test_release51_one_tap_runner_e2e.py",
-        "tests/test_scheduler.py",
-        "tests/test_scoring.py"
+        "tests/test_release55_worker_operations.py",
+        "tests/test_remote_worker.py",
+        "tests/test_remote_worker_runner.py",
+        "tests/test_speculation_api.py",
+        "tests/test_workflow_api.py"
       ],
-      "in_degree": 48,
-      "out_degree": 2,
-      "path": "tests/test_fairness.py"
+      "in_degree": 44,
+      "out_degree": 1,
+      "path": "src/production_os/api_auth.py"
     },
     {
       "dependencies": [
@@ -688,59 +751,6 @@
       "in_degree": 34,
       "out_degree": 11,
       "path": "src/production_os/workflow_engine.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/workers.py"
-      ],
-      "dependents": [
-        "src/production_os/cli.py",
-        "src/production_os/control_plane.py",
-        "tests/test_api_auth.py",
-        "tests/test_control_plane.py",
-        "tests/test_control_plane_pr_impact.py",
-        "tests/test_control_plane_release.py",
-        "tests/test_control_plane_webhook.py",
-        "tests/test_dashboard_api.py",
-        "tests/test_dashboard_backup_api.py",
-        "tests/test_dashboard_control_api.py",
-        "tests/test_dashboard_control_audit.py",
-        "tests/test_dashboard_control_e2e.py",
-        "tests/test_dashboard_incidents.py",
-        "tests/test_dashboard_launch_ux.py",
-        "tests/test_dashboard_maintenance.py",
-        "tests/test_dashboard_observability_e2e.py",
-        "tests/test_dashboard_playbook_api.py",
-        "tests/test_dashboard_remediation_api.py",
-        "tests/test_dashboard_retention_prune.py",
-        "tests/test_database_maintenance_lock.py",
-        "tests/test_http_security_headers.py",
-        "tests/test_managed_projects_http_v4.py",
-        "tests/test_portfolio_claim_api.py",
-        "tests/test_production_stack_e2e.py",
-        "tests/test_release16_operations_e2e.py",
-        "tests/test_release18_managed_projects_e2e.py",
-        "tests/test_release19_restore_staging_e2e.py",
-        "tests/test_release32_one_tap_e2e.py",
-        "tests/test_release33_auto_worker_recovery_e2e.py",
-        "tests/test_release34_safe_running_recovery_e2e.py",
-        "tests/test_release35_control_plane_restart_e2e.py",
-        "tests/test_release36_worker_session_reconciliation_e2e.py",
-        "tests/test_release41_live_production_tracking_e2e.py",
-        "tests/test_release42_idempotent_launch_e2e.py",
-        "tests/test_release43_safe_production_cancel_e2e.py",
-        "tests/test_release44_one_tap_recovery_actions_e2e.py",
-        "tests/test_release45_production_inbox_e2e.py",
-        "tests/test_release51_one_tap_runner_e2e.py",
-        "tests/test_release55_worker_operations.py",
-        "tests/test_remote_worker.py",
-        "tests/test_remote_worker_runner.py",
-        "tests/test_speculation_api.py",
-        "tests/test_workflow_api.py"
-      ],
-      "in_degree": 43,
-      "out_degree": 1,
-      "path": "src/production_os/api_auth.py"
     },
     {
       "dependencies": [
@@ -900,6 +910,67 @@
     },
     {
       "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/github_client.py"
+      ],
+      "dependents": [
+        "src/production_os/asset_forge.py",
+        "src/production_os/cli.py",
+        "src/production_os/controller.py",
+        "src/production_os/github_change_review.py",
+        "src/production_os/github_work_state.py",
+        "src/production_os/managed_projects.py",
+        "src/production_os/remote_worker_runner.py",
+        "src/production_os/vault_auth.py",
+        "tests/test_asset_forge.py",
+        "tests/test_components.py",
+        "tests/test_dynamic_agent_fanout.py",
+        "tests/test_github_client_pr_files.py",
+        "tests/test_github_client_put_file.py",
+        "tests/test_native_browser_worker_e2e.py",
+        "tests/test_persistent_agent_runtime.py",
+        "tests/test_rekor_consistency_client.py",
+        "tests/test_release42_idempotent_launch_e2e.py",
+        "tests/test_release51_one_tap_runner_e2e.py",
+        "tests/test_remote_worker.py",
+        "tests/test_remote_worker_runner.py"
+      ],
+      "in_degree": 20,
+      "out_degree": 2,
+      "path": "tests/test_github_automerge.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/workers.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/remote_worker_runner.py",
+        "tests/test_cli.py",
+        "tests/test_executor_worktree.py",
+        "tests/test_native_browser_worker_e2e.py",
+        "tests/test_persistent_agent_runtime.py",
+        "tests/test_production_stack_e2e.py",
+        "tests/test_release32_one_tap_e2e.py",
+        "tests/test_release33_auto_worker_recovery_e2e.py",
+        "tests/test_release34_safe_running_recovery_e2e.py",
+        "tests/test_release35_control_plane_restart_e2e.py",
+        "tests/test_release36_worker_session_reconciliation_e2e.py",
+        "tests/test_release41_live_production_tracking_e2e.py",
+        "tests/test_release43_safe_production_cancel_e2e.py",
+        "tests/test_release44_one_tap_recovery_actions_e2e.py",
+        "tests/test_release45_production_inbox_e2e.py",
+        "tests/test_release51_one_tap_runner_e2e.py",
+        "tests/test_release55_worker_operations.py",
+        "tests/test_remote_worker.py",
+        "tests/test_remote_worker_runner.py"
+      ],
+      "in_degree": 20,
+      "out_degree": 1,
+      "path": "src/production_os/remote_worker.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/atomic_io.py",
         "src/production_os/locks.py"
       ],
@@ -927,65 +998,6 @@
       "in_degree": 19,
       "out_degree": 2,
       "path": "src/production_os/approvals.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/__init__.py",
-        "src/production_os/github_client.py"
-      ],
-      "dependents": [
-        "src/production_os/asset_forge.py",
-        "src/production_os/cli.py",
-        "src/production_os/controller.py",
-        "src/production_os/github_change_review.py",
-        "src/production_os/github_work_state.py",
-        "src/production_os/managed_projects.py",
-        "src/production_os/remote_worker_runner.py",
-        "src/production_os/vault_auth.py",
-        "tests/test_asset_forge.py",
-        "tests/test_components.py",
-        "tests/test_dynamic_agent_fanout.py",
-        "tests/test_github_client_pr_files.py",
-        "tests/test_github_client_put_file.py",
-        "tests/test_persistent_agent_runtime.py",
-        "tests/test_rekor_consistency_client.py",
-        "tests/test_release42_idempotent_launch_e2e.py",
-        "tests/test_release51_one_tap_runner_e2e.py",
-        "tests/test_remote_worker.py",
-        "tests/test_remote_worker_runner.py"
-      ],
-      "in_degree": 19,
-      "out_degree": 2,
-      "path": "tests/test_github_automerge.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/workers.py"
-      ],
-      "dependents": [
-        "src/production_os/cli.py",
-        "src/production_os/remote_worker_runner.py",
-        "tests/test_cli.py",
-        "tests/test_executor_worktree.py",
-        "tests/test_persistent_agent_runtime.py",
-        "tests/test_production_stack_e2e.py",
-        "tests/test_release32_one_tap_e2e.py",
-        "tests/test_release33_auto_worker_recovery_e2e.py",
-        "tests/test_release34_safe_running_recovery_e2e.py",
-        "tests/test_release35_control_plane_restart_e2e.py",
-        "tests/test_release36_worker_session_reconciliation_e2e.py",
-        "tests/test_release41_live_production_tracking_e2e.py",
-        "tests/test_release43_safe_production_cancel_e2e.py",
-        "tests/test_release44_one_tap_recovery_actions_e2e.py",
-        "tests/test_release45_production_inbox_e2e.py",
-        "tests/test_release51_one_tap_runner_e2e.py",
-        "tests/test_release55_worker_operations.py",
-        "tests/test_remote_worker.py",
-        "tests/test_remote_worker_runner.py"
-      ],
-      "in_degree": 19,
-      "out_degree": 1,
-      "path": "src/production_os/remote_worker.py"
     },
     {
       "dependencies": [
@@ -1068,6 +1080,33 @@
       "in_degree": 16,
       "out_degree": 2,
       "path": "src/production_os/capabilities.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/agent_runtime.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/executor_worktree.py",
+        "src/production_os/native_executor.py",
+        "src/production_os/remote_worker.py",
+        "src/production_os/repository_cache.py",
+        "src/production_os/workers.py",
+        "tests/test_asset_forge.py",
+        "tests/test_fairness.py",
+        "tests/test_github_automerge.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "tests/test_cli.py",
+        "tests/test_executor_worktree.py",
+        "tests/test_native_browser_worker_e2e.py",
+        "tests/test_persistent_agent_runtime.py",
+        "tests/test_release51_one_tap_runner_e2e.py",
+        "tests/test_release55_worker_operations.py",
+        "tests/test_remote_worker_runner.py"
+      ],
+      "in_degree": 8,
+      "out_degree": 10,
+      "path": "src/production_os/remote_worker_runner.py"
     },
     {
       "dependencies": [
@@ -1265,29 +1304,6 @@
       "in_degree": 14,
       "out_degree": 0,
       "path": "src/production_os/atomic_io.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/agent_runtime.py",
-        "src/production_os/executor_worktree.py",
-        "src/production_os/remote_worker.py",
-        "src/production_os/repository_cache.py",
-        "src/production_os/workers.py",
-        "tests/test_asset_forge.py",
-        "tests/test_github_automerge.py"
-      ],
-      "dependents": [
-        "src/production_os/cli.py",
-        "tests/test_cli.py",
-        "tests/test_executor_worktree.py",
-        "tests/test_persistent_agent_runtime.py",
-        "tests/test_release51_one_tap_runner_e2e.py",
-        "tests/test_release55_worker_operations.py",
-        "tests/test_remote_worker_runner.py"
-      ],
-      "in_degree": 7,
-      "out_degree": 7,
-      "path": "src/production_os/remote_worker_runner.py"
     },
     {
       "dependencies": [
@@ -1596,6 +1612,40 @@
       "path": "tests/test_agent_benchmark.py"
     },
     {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/api_auth.py",
+        "src/production_os/browser_loop.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/remote_worker.py",
+        "src/production_os/remote_worker_runner.py",
+        "tests/test_asset_forge.py",
+        "tests/test_fairness.py",
+        "tests/test_github_automerge.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 9,
+      "path": "tests/test_native_browser_worker_e2e.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/api_auth.py",
+        "src/production_os/cli.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/executor_worktree.py",
+        "src/production_os/remote_worker.py",
+        "src/production_os/remote_worker_runner.py",
+        "tests/test_fairness.py",
+        "tests/test_github_automerge.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 9,
+      "path": "tests/test_remote_worker_runner.py"
+    },
+    {
       "dependencies": [],
       "dependents": [
         "src/production_os/cli.py",
@@ -1725,6 +1775,22 @@
       "in_degree": 6,
       "out_degree": 1,
       "path": "src/production_os/rekor_checkpoint_state.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/browser_computer.py",
+        "tests/test_asset_forge.py",
+        "tests/test_fairness.py"
+      ],
+      "dependents": [
+        "src/production_os/cli.py",
+        "src/production_os/native_executor.py",
+        "tests/test_browser_loop.py",
+        "tests/test_native_browser_worker_e2e.py"
+      ],
+      "in_degree": 4,
+      "out_degree": 3,
+      "path": "src/production_os/browser_loop.py"
     },
     {
       "dependencies": [
@@ -1862,55 +1928,10 @@
       "in_degree": 0,
       "out_degree": 7,
       "path": "tests/test_persistent_agent_runtime.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/__init__.py",
-        "src/production_os/api_auth.py",
-        "src/production_os/approvals.py",
-        "src/production_os/attestations.py",
-        "src/production_os/control_plane.py",
-        "src/production_os/remote_worker.py",
-        "tests/test_dashboard_backups.py"
-      ],
-      "dependents": [],
-      "in_degree": 0,
-      "out_degree": 7,
-      "path": "tests/test_production_stack_e2e.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/__init__.py",
-        "src/production_os/api_auth.py",
-        "src/production_os/control_plane.py",
-        "src/production_os/remote_worker.py",
-        "src/production_os/remote_worker_runner.py",
-        "tests/test_fairness.py",
-        "tests/test_github_automerge.py"
-      ],
-      "dependents": [],
-      "in_degree": 0,
-      "out_degree": 7,
-      "path": "tests/test_release51_one_tap_runner_e2e.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/__init__.py",
-        "src/production_os/approvals.py",
-        "src/production_os/asymmetric_attestations.py",
-        "src/production_os/release_ledger.py",
-        "src/production_os/signing.py",
-        "src/production_os/sqlite_backend.py",
-        "src/production_os/workflow_engine.py"
-      ],
-      "dependents": [],
-      "in_degree": 0,
-      "out_degree": 7,
-      "path": "tests/test_secure_release_e2e.py"
     }
   ],
-  "edge_count": 1597,
+  "edge_count": 1622,
   "generated_by": "dbrckk/repo-brain-v7-graph",
-  "node_count": 311,
+  "node_count": 314,
   "schema_version": 1
 }

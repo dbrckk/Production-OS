@@ -4,15 +4,15 @@
     "expand_to": 12,
     "max_files": 3,
     "requested_max_files": 12,
-    "score_margin": 16,
+    "score_margin": 9,
     "tier": "narrow",
-    "top_score": 45
+    "top_score": 39
   },
   "cache": {
-    "fingerprint": "6e8b1c587b3981e3f08813a110cf9133cb47053fb396c85f029e8c23972bc080",
+    "fingerprint": "5a6d3b3d3f42e8aea63e0500786ab55a238d10ddfb548f17b2595db220557bc8",
     "hit": false
   },
-  "candidate_count": 46,
+  "candidate_count": 50,
   "fallback": "If bounded context is insufficient, expand only to budget.expand_to, then use architecture/segmented maps and targeted source search.",
   "files": [
     {
@@ -23,10 +23,9 @@
       ],
       "path": "tests/test_workflow_engine.py",
       "reasons": [
-        "impact",
         "search-index"
       ],
-      "score": 45,
+      "score": 39,
       "symbols": [
         "engine",
         "test_change_impact_can_be_recomputed_before_execution",
@@ -48,6 +47,41 @@
         "test_workflow_fanout_fanin",
         "test_workflow_metadata_can_be_updated_without_recreating_workflow",
         "test_workflow_rejects_cycle"
+      ]
+    },
+    {
+      "learning_score": 0,
+      "matched_terms": [
+        "engine"
+      ],
+      "path": "src/production_os/cli.py",
+      "reasons": [
+        "impact",
+        "recently-changed",
+        "search-index"
+      ],
+      "score": 30,
+      "symbols": [
+        "_asset_failure_result",
+        "_browser_checkpoint_state",
+        "_browser_session_state",
+        "_browser_storage_state",
+        "_external_refs_for_action",
+        "_handoff",
+        "_parse_args",
+        "_print_human",
+        "_rank_actions",
+        "_release_ledger",
+        "_repository_root_map",
+        "_request_stop",
+        "_trusted_validation_keys_from_env",
+        "_workflow_engine",
+        "_write_asset_result",
+        "main",
+        "run_agent_benchmark",
+        "run_approve",
+        "run_artifact_add",
+        "run_asset_forge_batch"
       ]
     },
     {
@@ -82,40 +116,6 @@
         "test_dependent_raster_asset_receives_validated_parent_reference",
         "test_dispatch_asset_forge_uses_existing_workflow_contract",
         "test_execute_asset_forge_auto_falls_back_to_github"
-      ]
-    },
-    {
-      "learning_score": 0,
-      "matched_terms": [
-        "engine"
-      ],
-      "path": "src/production_os/cli.py",
-      "reasons": [
-        "impact",
-        "search-index"
-      ],
-      "score": 27,
-      "symbols": [
-        "_asset_failure_result",
-        "_browser_checkpoint_state",
-        "_browser_session_state",
-        "_browser_storage_state",
-        "_external_refs_for_action",
-        "_handoff",
-        "_parse_args",
-        "_print_human",
-        "_rank_actions",
-        "_release_ledger",
-        "_repository_root_map",
-        "_request_stop",
-        "_trusted_validation_keys_from_env",
-        "_workflow_engine",
-        "_write_asset_result",
-        "main",
-        "run_agent_benchmark",
-        "run_approve",
-        "run_artifact_add",
-        "run_asset_forge_batch"
       ]
     }
   ],

@@ -137,6 +137,8 @@ test_managed_projects_http_v4.py
 test_managed_projects_v4.py
 test_mobile_worker_image.py
 test_model_router.py
+test_native_browser_worker_e2e.py
+test_native_executor.py
 test_observability.py
 test_p6_hardening.py
 test_persistent_agent_runtime.py
@@ -728,6 +730,10 @@ row = json.loads(second_output.getvalue().splitlines()[0])
 def test_invalid_existing_turn_manifest_fails_closed_without_rebinding(tmp_path)
 ⋮----
 turn_id = "bound-turn"
+⋮----
+def test_browser_loop_stops_before_next_turn_when_cancelled(tmp_path)
+⋮----
+cancel = threading.Event()
 ```
 
 ## File: test_browser_worker_image.py
@@ -4323,6 +4329,118 @@ def test_worker_catalog_never_blocks_task_when_no_candidate_fits(tmp_path)
 def test_explicit_model_candidates_override_worker_catalog(tmp_path)
 ```
 
+## File: test_native_browser_worker_e2e.py
+```python
+def _auth()
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+def _stop(server, thread)
+⋮----
+def _browser_handoff()
+⋮----
+control = ControlPlane(
+queued = control.queue.enqueue({
+calls = []
+⋮----
+def fake_loop(config, input_stream, output_stream, **kwargs)
+⋮----
+def external_must_not_start(*_args, **_kwargs)
+⋮----
+client = RemoteWorkerClient(
+runner = RemoteWorkerRunner(
+⋮----
+outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+⋮----
+runtime_root = tmp_path / "runtime"
+side_effects = []
+durable_completion = threading.Event()
+⋮----
+def durable_loop(config, input_stream, output_stream, **kwargs)
+⋮----
+cancelled = kwargs.get("cancelled")
+⋮----
+def fake_execute(_plan, **execute_kwargs)
+⋮----
+deadline = time.time() + 2
+⋮----
+first_outcomes = []
+⋮----
+first_client = RemoteWorkerClient(
+first_runner = RemoteWorkerRunner(
+first_thread = threading.Thread(
+⋮----
+second_client = RemoteWorkerClient(
+second_runner = RemoteWorkerRunner(
+⋮----
+second_outcomes = second_runner.run(
+```
+
+## File: test_native_executor.py
+```python
+def _browser_handoff()
+⋮----
+def test_select_native_handler_supports_browser_computer_contract()
+⋮----
+decision = select_native_handler(_browser_request())
+⋮----
+def test_select_native_handler_rejects_unknown_contracts()
+⋮----
+decision = select_native_handler({
+⋮----
+def test_select_native_handler_is_deterministic_when_multiple_contracts_exist()
+⋮----
+handoff = _browser_request()
+⋮----
+first = select_native_handler(handoff)
+second = select_native_handler(handoff)
+⋮----
+def test_execute_native_rejects_unsupported_context_without_side_effects()
+⋮----
+context = NativeExecutionContext(
+⋮----
+result = execute_native(context)
+⋮----
+def _browser_request(*, persist_session=True)
+⋮----
+handoff = _browser_handoff()
+⋮----
+def test_native_browser_handler_executes_submitted_turns(tmp_path, monkeypatch)
+⋮----
+seen = {}
+⋮----
+def fake_loop(config, input_stream, output_stream, **kwargs)
+⋮----
+def fake_loop(_config, _input, _output, **kwargs)
+⋮----
+def test_native_browser_handler_rejects_persistent_session_without_runtime()
+⋮----
+def test_native_browser_handler_rejects_missing_browser_request()
+⋮----
+result = execute_browser_native(context)
+⋮----
+def fake_loop(_config, _input, _output, **_kwargs)
+⋮----
+def test_select_native_handler_rejects_unknown_browser_contract_version()
+⋮----
+called = []
+⋮----
+def must_not_run(*_args, **_kwargs)
+⋮----
+def fail_runtime(*_args, **_kwargs)
+⋮----
+def test_select_native_handler_accepts_workflow_contract_with_native_request()
+⋮----
+decision = select_native_handler(handoff)
+⋮----
+def test_select_native_handler_rejects_contract_only_browser_job()
+⋮----
+path = Path(kwargs["artifacts_dir"])
+```
+
 ## File: test_observability.py
 ```python
 def test_observability_payload_contains_all_sections()
@@ -6096,6 +6214,113 @@ def test_remote_worker_runner_rejects_success_with_dirty_worktree(tmp_path)
 repo = tmp_path / "dirty-repo"
 ⋮----
 executor = tmp_path / "dirty_executor.py"
+⋮----
+def test_remote_worker_run_defaults_executor_mode_to_auto()
+⋮----
+args = _parse_args([
+⋮----
+def test_remote_worker_run_allows_auto_without_executor_command()
+⋮----
+def test_remote_worker_run_rejects_external_mode_without_executor_command()
+⋮----
+def test_remote_worker_run_accepts_native_without_executor_command()
+⋮----
+def _native_browser_handoff_for_runner()
+⋮----
+control = ControlPlane(str(tmp_path / "native-preferred.sqlite"), authorizer=_auth())
+⋮----
+marker = tmp_path / "external-ran"
+executor = tmp_path / "external.py"
+⋮----
+calls = []
+⋮----
+def fake_native(context)
+⋮----
+client = RemoteWorkerClient(base, "worker-secret", "runner-1", [], timeout=5)
+⋮----
+def test_auto_mode_falls_back_to_external_when_native_is_unsupported(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "native-fallback.sqlite"), authorizer=_auth())
+⋮----
+def test_native_mode_rejects_unsupported_job(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "native-unsupported.sqlite"), authorizer=_auth())
+⋮----
+def test_auto_mode_without_any_executor_fails_executor_unavailable(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "executor-unavailable.sqlite"), authorizer=_auth())
+⋮----
+control = ControlPlane(str(tmp_path / "native-no-fallback.sqlite"), authorizer=_auth())
+⋮----
+def fail_native(_context)
+⋮----
+control = ControlPlane(str(tmp_path / "native-heartbeat.sqlite"), authorizer=_auth())
+⋮----
+def slow_native(_context)
+⋮----
+def counted(key)
+⋮----
+control = ControlPlane(str(tmp_path / "native-timeout.sqlite"), authorizer=_auth())
+⋮----
+seen = {}
+⋮----
+def slow_native(context)
+⋮----
+fail_calls = []
+real_fail = client.fail
+⋮----
+def counted_fail(*args, **kwargs)
+⋮----
+control = ControlPlane(str(tmp_path / "native-cancel.sqlite"), authorizer=_auth())
+⋮----
+def cancellable_native(context)
+⋮----
+deadline = time.time() + 0.5
+⋮----
+deadline = time.time() + 2
+⋮----
+control = ControlPlane(str(tmp_path / "native-stale.sqlite"), authorizer=_auth())
+⋮----
+deadline = time.time() + 0.3
+⋮----
+beats = {"count":0}
+⋮----
+def stale_after_start(key)
+⋮----
+snapshot = real_heartbeat(key)
+⋮----
+checkpoint_calls = []
+⋮----
+control = ControlPlane(str(tmp_path / "native-shutdown.sqlite"), authorizer=_auth())
+⋮----
+control = ControlPlane(str(tmp_path / "native-outage.sqlite"), authorizer=_auth())
+⋮----
+deadline = time.time() + 0.4
+⋮----
+def unavailable(_key)
+⋮----
+def _prepared_native_worktree(tmp_path)
+⋮----
+root = tmp_path / "repo"
+worktree = tmp_path / "worktree"
+⋮----
+control = ControlPlane(str(tmp_path / "native-dirty.sqlite"), authorizer=_auth())
+⋮----
+prepared = _prepared_native_worktree(tmp_path)
+inspections = [
+⋮----
+control = ControlPlane(str(tmp_path / "native-diverged.sqlite"), authorizer=_auth())
+⋮----
+control = ControlPlane(str(tmp_path / "native-git-evidence.sqlite"), authorizer=_auth())
+⋮----
+final_sha = "c" * 40
+⋮----
+control = ControlPlane(str(tmp_path / "native-failure-path.sqlite"), authorizer=_auth())
+⋮----
+entered = threading.Event()
+release = threading.Event()
+⋮----
+def slow_to_stop(context)
 ```
 
 ## File: test_remote_worker.py
@@ -6935,6 +7160,27 @@ def test_worker_compose_exposes_specialist_pool_without_replacing_generic_worker
 def test_worker_compose_exposes_kvm_mobile_specialist()
 ⋮----
 def test_worker_compose_persists_repository_cache_and_worktrees()
+⋮----
+def _service_block(payload: str, service: str) -> str
+⋮----
+marker = f"  {service}:"
+lines = payload.splitlines()
+start = lines.index(marker)
+end = len(lines)
+⋮----
+line = lines[index]
+⋮----
+end = index
+⋮----
+def test_browser_worker_uses_auto_executor_mode()
+⋮----
+browser = _service_block(payload, "production-worker-browser")
+⋮----
+def test_browser_worker_does_not_require_external_executor_command()
+⋮----
+def test_non_browser_specialists_keep_external_executor_configuration()
+⋮----
+block = _service_block(payload, service)
 ```
 
 ## File: test_workers.py
