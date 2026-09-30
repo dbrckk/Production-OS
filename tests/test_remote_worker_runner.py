@@ -9,6 +9,7 @@ from http.server import ThreadingHTTPServer
 
 from production_os.api_auth import TokenAuthorizer, token_digest
 from production_os.control_plane import ControlPlane, make_handler
+from production_os.executor_worktree import PreparedWorktree
 from production_os.cli import _parse_args
 from production_os.remote_worker import RemoteWorkerClient
 from production_os.remote_worker_runner import RemoteWorkerRunner
@@ -1695,5 +1696,262 @@ def test_native_execution_control_plane_outage_abandons_after_existing_failure_t
         }]
         assert calls["count"] == 2
         assert seen["event"].is_set()
+    finally:
+        _stop(server, thread)
+
+
+
+def _prepared_native_worktree(tmp_path):
+    root = tmp_path / "repo"
+    worktree = tmp_path / "worktree"
+    root.mkdir(exist_ok=True)
+    worktree.mkdir(exist_ok=True)
+    return PreparedWorktree(
+        repository_root=str(root),
+        worktree_path=str(worktree),
+        branch="production-os/native/test-a1",
+        base_ref="a" * 40,
+        created=True,
+    )
+
+
+def test_native_success_still_rejects_dirty_managed_worktree(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "native-dirty.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":_native_browser_handoff_for_runner(),
+        "required_capabilities":[],
+    })
+    prepared = _prepared_native_worktree(tmp_path)
+    inspections = [
+        {
+            "final_sha":"b" * 40,
+            "clean":True,
+            "base_is_ancestor":True,
+            "commits_since_base":[],
+            "commits_since_start":[],
+            "changed_files":[],
+        },
+        {
+            "final_sha":"c" * 40,
+            "clean":False,
+            "base_is_ancestor":True,
+            "commits_since_base":["c" * 40],
+            "commits_since_start":["c" * 40],
+            "changed_files":["dirty.txt"],
+        },
+    ]
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.execute_native",
+        lambda _context: {"status":"succeeded","result":{"summary":"native"}},
+    )
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.inspect_worktree_result",
+        lambda *args, **kwargs: inspections.pop(0),
+    )
+
+    server, thread, base = _server(control)
+    try:
+        client = RemoteWorkerClient(base, "worker-secret", "runner-1", [], timeout=5)
+        runner = RemoteWorkerRunner(
+            client,
+            [],
+            executor_mode="native",
+            heartbeat_interval_seconds=0.02,
+            executor_timeout_seconds=2,
+        )
+        runner._prepare_worktree = lambda _job: prepared
+
+        outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+
+        assert outcomes == [{
+            "job_key":queued["key"],
+            "status":"failed",
+            "reason":"executor_worktree_dirty",
+        }]
+    finally:
+        _stop(server, thread)
+
+
+def test_native_success_still_rejects_diverged_history(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "native-diverged.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":_native_browser_handoff_for_runner(),
+        "required_capabilities":[],
+    })
+    prepared = _prepared_native_worktree(tmp_path)
+    inspections = [
+        {
+            "final_sha":"b" * 40,
+            "clean":True,
+            "base_is_ancestor":True,
+            "commits_since_base":[],
+            "commits_since_start":[],
+            "changed_files":[],
+        },
+        {
+            "final_sha":"c" * 40,
+            "clean":True,
+            "base_is_ancestor":False,
+            "commits_since_base":[],
+            "commits_since_start":[],
+            "changed_files":["rewritten.txt"],
+        },
+    ]
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.execute_native",
+        lambda _context: {"status":"succeeded","result":{"summary":"native"}},
+    )
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.inspect_worktree_result",
+        lambda *args, **kwargs: inspections.pop(0),
+    )
+
+    server, thread, base = _server(control)
+    try:
+        client = RemoteWorkerClient(base, "worker-secret", "runner-1", [], timeout=5)
+        runner = RemoteWorkerRunner(
+            client,
+            [],
+            executor_mode="native",
+            heartbeat_interval_seconds=0.02,
+            executor_timeout_seconds=2,
+        )
+        runner._prepare_worktree = lambda _job: prepared
+
+        outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+
+        assert outcomes == [{
+            "job_key":queued["key"],
+            "status":"failed",
+            "reason":"executor_worktree_history_diverged",
+        }]
+    finally:
+        _stop(server, thread)
+
+
+def test_native_success_reports_git_derived_commit_evidence(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "native-git-evidence.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":_native_browser_handoff_for_runner(),
+        "required_capabilities":[],
+    })
+    prepared = _prepared_native_worktree(tmp_path)
+    final_sha = "c" * 40
+    inspections = [
+        {
+            "final_sha":"b" * 40,
+            "clean":True,
+            "base_is_ancestor":True,
+            "commits_since_base":[],
+            "commits_since_start":[],
+            "changed_files":[],
+        },
+        {
+            "final_sha":final_sha,
+            "clean":True,
+            "base_is_ancestor":True,
+            "commits_since_base":[final_sha],
+            "commits_since_start":[final_sha],
+            "changed_files":["browser-proof.txt"],
+        },
+    ]
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.execute_native",
+        lambda _context: {
+            "status":"succeeded",
+            "result":{
+                "summary":"native",
+                "commit_shas":["model-authored"],
+            },
+        },
+    )
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.inspect_worktree_result",
+        lambda *args, **kwargs: inspections.pop(0),
+    )
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.remove_isolated_worktree",
+        lambda *args, **kwargs: None,
+    )
+
+    server, thread, base = _server(control)
+    try:
+        client = RemoteWorkerClient(base, "worker-secret", "runner-1", [], timeout=5)
+        runner = RemoteWorkerRunner(
+            client,
+            [],
+            executor_mode="native",
+            heartbeat_interval_seconds=0.02,
+            executor_timeout_seconds=2,
+        )
+        runner._prepare_worktree = lambda _job: prepared
+
+        outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+
+        assert outcomes == [{"job_key":queued["key"], "status":"completed"}]
+        execution = control.dashboard_store.latest_execution(queued["key"])
+        result = execution["result_summary"]
+        assert result["commit_shas"] == [final_sha]
+        assert result["changed_files"] == ["browser-proof.txt"]
+        assert result["executor_git"]["final_sha"] == final_sha
+    finally:
+        _stop(server, thread)
+
+
+def test_native_failure_uses_existing_control_plane_failure_path(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "native-failure-path.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":_native_browser_handoff_for_runner(),
+        "required_capabilities":[],
+    })
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.execute_native",
+        lambda _context: {
+            "status":"failed",
+            "reason":"native_executor_failed",
+            "result":{"summary":"native failure"},
+        },
+    )
+
+    server, thread, base = _server(control)
+    try:
+        client = RemoteWorkerClient(base, "worker-secret", "runner-1", [], timeout=5)
+        calls = []
+        real_fail = client.fail
+
+        def counted_fail(*args, **kwargs):
+            calls.append((args, kwargs))
+            return real_fail(*args, **kwargs)
+
+        client.fail = counted_fail
+        runner = RemoteWorkerRunner(
+            client,
+            [],
+            executor_mode="native",
+            heartbeat_interval_seconds=0.02,
+            executor_timeout_seconds=2,
+        )
+
+        outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+
+        assert outcomes == [{
+            "job_key":queued["key"],
+            "status":"failed",
+            "reason":"native_executor_failed",
+        }]
+        assert len(calls) == 1
+        assert control.queue.get(queued["key"])["status"] == "failed"
     finally:
         _stop(server, thread)
