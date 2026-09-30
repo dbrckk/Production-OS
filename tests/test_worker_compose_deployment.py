@@ -69,3 +69,47 @@ def test_worker_compose_persists_repository_cache_and_worktrees():
     assert "production-worker-worktrees:/var/lib/production-os/worktrees" in payload
     assert "production-worker-repositories:" in payload
     assert "production-worker-worktrees:" in payload
+
+
+
+def _service_block(payload: str, service: str) -> str:
+    marker = f"  {service}:\n"
+    start = payload.index(marker)
+    next_service = payload.find("\n  ", start + len(marker))
+    if next_service < 0:
+        next_service = len(payload)
+    return payload[start:next_service]
+
+
+def test_browser_worker_uses_auto_executor_mode():
+    payload = Path("compose.worker.yaml").read_text(encoding="utf-8")
+    browser = _service_block(payload, "production-worker-browser")
+
+    assert "--executor-mode\n      - auto" in browser
+    assert "--executor-command" in browser
+    assert "${PRODUCTION_OS_WORKER_EXECUTOR_COMMAND:-}" in browser
+
+
+def test_browser_worker_does_not_require_external_executor_command():
+    payload = Path("compose.worker.yaml").read_text(encoding="utf-8")
+    browser = _service_block(payload, "production-worker-browser")
+
+    assert "--executor-mode\n      - auto" in browser
+    assert (
+        "--executor-command\n"
+        "      - ${PRODUCTION_OS_WORKER_EXECUTOR_COMMAND:-}"
+    ) in browser
+
+
+def test_non_browser_specialists_keep_external_executor_configuration():
+    payload = Path("compose.worker.yaml").read_text(encoding="utf-8")
+
+    for service in (
+        "production-worker-code",
+        "production-worker-debug",
+        "production-worker-review",
+        "production-worker-mobile",
+    ):
+        block = _service_block(payload, service)
+        assert "--executor-mode\n      - external" in block
+        assert "--executor-command" in block
