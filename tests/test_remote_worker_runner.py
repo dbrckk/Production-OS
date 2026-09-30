@@ -1369,3 +1369,327 @@ print(json.dumps({{"status":"succeeded","result":{{"summary":"external"}}}}))
         assert marker.exists() is False
     finally:
         _stop(server, thread)
+
+
+
+def test_native_execution_heartbeats_while_future_is_running(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "native-heartbeat.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":_native_browser_handoff_for_runner(),
+        "required_capabilities":[],
+    })
+
+    def slow_native(_context):
+        time.sleep(0.14)
+        return {"status":"succeeded","result":{"summary":"native ok"}}
+
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.execute_native",
+        slow_native,
+    )
+    server, thread, base = _server(control)
+    try:
+        client = RemoteWorkerClient(base, "worker-secret", "runner-1", [], timeout=5)
+        runner = RemoteWorkerRunner(
+            client,
+            [],
+            executor_mode="native",
+            heartbeat_interval_seconds=0.02,
+            executor_timeout_seconds=2,
+        )
+        real_heartbeat = runner._heartbeat_active
+        calls = {"count":0}
+
+        def counted(key):
+            calls["count"] += 1
+            return real_heartbeat(key)
+
+        runner._heartbeat_active = counted
+        outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+
+        assert outcomes == [{"job_key":queued["key"], "status":"completed"}]
+        assert calls["count"] >= 2
+    finally:
+        _stop(server, thread)
+
+
+def test_native_execution_timeout_sets_cancel_event_and_fails_once(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "native-timeout.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":_native_browser_handoff_for_runner(),
+        "required_capabilities":[],
+    })
+    seen = {}
+
+    def slow_native(context):
+        seen["event"] = context.cancellation_event
+        time.sleep(0.16)
+        return {"status":"succeeded","result":{"summary":"too late"}}
+
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.execute_native",
+        slow_native,
+    )
+    server, thread, base = _server(control)
+    try:
+        client = RemoteWorkerClient(base, "worker-secret", "runner-1", [], timeout=5)
+        fail_calls = []
+        real_fail = client.fail
+
+        def counted_fail(*args, **kwargs):
+            fail_calls.append((args, kwargs))
+            return real_fail(*args, **kwargs)
+
+        client.fail = counted_fail
+        runner = RemoteWorkerRunner(
+            client,
+            [],
+            executor_mode="native",
+            heartbeat_interval_seconds=0.02,
+            executor_timeout_seconds=0.05,
+        )
+
+        outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+
+        assert outcomes == [{
+            "job_key":queued["key"],
+            "status":"failed",
+            "reason":"executor_timeout",
+        }]
+        assert seen["event"].is_set()
+        assert len(fail_calls) == 1
+    finally:
+        _stop(server, thread)
+
+
+def test_native_execution_cancel_request_sets_event_and_does_not_complete(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "native-cancel.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":_native_browser_handoff_for_runner(),
+        "required_capabilities":[],
+    })
+    seen = {}
+
+    def cancellable_native(context):
+        seen["event"] = context.cancellation_event
+        deadline = time.time() + 0.5
+        while not context.cancellation_event.is_set() and time.time() < deadline:
+            time.sleep(0.01)
+        return {"status":"succeeded","result":{"summary":"stopped"}}
+
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.execute_native",
+        cancellable_native,
+    )
+    server, server_thread, base = _server(control)
+    outcomes = []
+    try:
+        client = RemoteWorkerClient(base, "worker-secret", "runner-1", [], timeout=5)
+        runner = RemoteWorkerRunner(
+            client,
+            [],
+            executor_mode="native",
+            heartbeat_interval_seconds=0.02,
+            executor_timeout_seconds=2,
+        )
+        worker_thread = threading.Thread(
+            target=lambda: outcomes.extend(
+                runner.run(cycles=1, idle_sleep_seconds=0)
+            ),
+            daemon=True,
+        )
+        worker_thread.start()
+        deadline = time.time() + 2
+        while time.time() < deadline:
+            if control.queue.get(queued["key"])["status"] == "acked":
+                break
+            time.sleep(0.01)
+        control.dashboard_control.request_job_cancel(
+            queued["key"],
+            requested_by="operator:test",
+        )
+        worker_thread.join(timeout=2)
+
+        assert outcomes == [{
+            "job_key":queued["key"],
+            "status":"cancelled",
+        }]
+        assert seen["event"].is_set()
+        assert control.queue.get(queued["key"])["status"] == "cancelled"
+    finally:
+        _stop(server, server_thread)
+
+
+def test_native_execution_stale_generation_sets_event_and_checkpoints_stale(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "native-stale.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":_native_browser_handoff_for_runner(),
+        "required_capabilities":[],
+    })
+    seen = {}
+
+    def cancellable_native(context):
+        seen["event"] = context.cancellation_event
+        deadline = time.time() + 0.3
+        while not context.cancellation_event.is_set() and time.time() < deadline:
+            time.sleep(0.01)
+        return {"status":"succeeded","result":{"summary":"stopped"}}
+
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.execute_native",
+        cancellable_native,
+    )
+    server, thread, base = _server(control)
+    try:
+        client = RemoteWorkerClient(base, "worker-secret", "runner-1", [], timeout=5)
+        runner = RemoteWorkerRunner(
+            client,
+            [],
+            executor_mode="native",
+            heartbeat_interval_seconds=0.02,
+            executor_timeout_seconds=2,
+        )
+        real_heartbeat = runner._heartbeat_active
+        beats = {"count":0}
+
+        def stale_after_start(key):
+            beats["count"] += 1
+            snapshot = real_heartbeat(key)
+            if beats["count"] >= 1:
+                snapshot["stale_job_keys"] = [key]
+            return snapshot
+
+        checkpoint_calls = []
+        client.checkpoint_stale = lambda key, ref: checkpoint_calls.append((key, ref))
+        runner._heartbeat_active = stale_after_start
+
+        outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+
+        assert outcomes == [{"job_key":queued["key"], "status":"stale"}]
+        assert seen["event"].is_set()
+        assert checkpoint_calls and checkpoint_calls[0][0] == queued["key"]
+    finally:
+        _stop(server, thread)
+
+
+def test_native_execution_worker_shutdown_sets_event_and_abandons(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "native-shutdown.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":_native_browser_handoff_for_runner(),
+        "required_capabilities":[],
+    })
+    seen = {}
+
+    def cancellable_native(context):
+        seen["event"] = context.cancellation_event
+        deadline = time.time() + 0.5
+        while not context.cancellation_event.is_set() and time.time() < deadline:
+            time.sleep(0.01)
+        return {"status":"succeeded","result":{"summary":"stopped"}}
+
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.execute_native",
+        cancellable_native,
+    )
+    server, server_thread, base = _server(control)
+    outcomes = []
+    try:
+        client = RemoteWorkerClient(base, "worker-secret", "runner-1", [], timeout=5)
+        runner = RemoteWorkerRunner(
+            client,
+            [],
+            executor_mode="native",
+            heartbeat_interval_seconds=0.02,
+            executor_timeout_seconds=2,
+        )
+        worker_thread = threading.Thread(
+            target=lambda: outcomes.extend(
+                runner.run(cycles=1, idle_sleep_seconds=0)
+            ),
+            daemon=True,
+        )
+        worker_thread.start()
+        deadline = time.time() + 2
+        while time.time() < deadline:
+            if control.queue.get(queued["key"])["status"] == "acked":
+                break
+            time.sleep(0.01)
+        runner.request_stop()
+        worker_thread.join(timeout=2)
+
+        assert outcomes == [{
+            "job_key":queued["key"],
+            "status":"abandoned",
+            "reason":"worker_shutdown",
+        }]
+        assert seen["event"].is_set()
+    finally:
+        _stop(server, server_thread)
+
+
+def test_native_execution_control_plane_outage_abandons_after_existing_failure_threshold(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "native-outage.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":_native_browser_handoff_for_runner(),
+        "required_capabilities":[],
+    })
+    seen = {}
+
+    def cancellable_native(context):
+        seen["event"] = context.cancellation_event
+        deadline = time.time() + 0.4
+        while not context.cancellation_event.is_set() and time.time() < deadline:
+            time.sleep(0.01)
+        return {"status":"succeeded","result":{"summary":"stopped"}}
+
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.execute_native",
+        cancellable_native,
+    )
+    server, thread, base = _server(control)
+    try:
+        client = RemoteWorkerClient(base, "worker-secret", "runner-1", [], timeout=5)
+        runner = RemoteWorkerRunner(
+            client,
+            [],
+            executor_mode="native",
+            heartbeat_interval_seconds=0.02,
+            executor_timeout_seconds=2,
+        )
+        runner.max_consecutive_heartbeat_failures = 2
+        calls = {"count":0}
+
+        def unavailable(_key):
+            calls["count"] += 1
+            raise RuntimeError("control plane unavailable")
+
+        runner._heartbeat_active = unavailable
+        outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+
+        assert outcomes == [{
+            "job_key":queued["key"],
+            "status":"abandoned",
+            "reason":"control_plane_unavailable",
+        }]
+        assert calls["count"] == 2
+        assert seen["event"].is_set()
+    finally:
+        _stop(server, thread)
