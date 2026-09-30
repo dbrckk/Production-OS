@@ -27,8 +27,9 @@ class RemoteWorkerRunner:
     def __init__(
         self,
         client: RemoteWorkerClient,
-        executor_command: Sequence[str],
+        executor_command: Sequence[str] | None,
         *,
+        executor_mode: str = "auto",
         max_concurrency: int = 1,
         heartbeat_interval_seconds: float = 5.0,
         executor_timeout_seconds: float = 3600.0,
@@ -38,9 +39,18 @@ class RemoteWorkerRunner:
         worktree_root: str | None = None,
         repository_cache_root: str | None = None,
     ):
-        command = [str(part) for part in executor_command if str(part)]
-        if not command:
-            raise ValueError("executor command is required")
+        command = [
+            str(part)
+            for part in (executor_command or [])
+            if str(part)
+        ]
+        mode = str(executor_mode or "").strip().lower()
+        if mode not in {"auto", "native", "external"}:
+            raise ValueError(
+                "executor_mode must be auto, native, or external"
+            )
+        if mode == "external" and not command:
+            raise ValueError("executor command is required in external mode")
         if int(max_concurrency) < 1:
             raise ValueError("max_concurrency must be >= 1")
         if float(heartbeat_interval_seconds) <= 0:
@@ -48,6 +58,7 @@ class RemoteWorkerRunner:
         if float(executor_timeout_seconds) <= 0:
             raise ValueError("executor_timeout_seconds must be > 0")
         self.client = client
+        self.executor_mode = mode
         self.executor_command = command
         self.max_concurrency = int(max_concurrency)
         self.heartbeat_interval_seconds = float(heartbeat_interval_seconds)
