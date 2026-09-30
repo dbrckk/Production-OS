@@ -201,6 +201,7 @@ def run_browser_turn_loop(
     checkpoint_path: str | Path | None = None,
     headless: bool = True,
     execute_fn: Callable[..., dict[str, Any]] = execute_browser_plan,
+    cancelled: Callable[[], bool] | None = None,
 ) -> dict[str, Any]:
     if config.persist_session and (
         storage_state_path is None
@@ -216,11 +217,15 @@ def run_browser_turn_loop(
     succeeded = 0
     rejected = 0
     failed = 0
+    was_cancelled = False
 
     for raw_line in input_stream:
         line = str(raw_line).strip()
         if not line:
             continue
+        if cancelled is not None and cancelled():
+            was_cancelled = True
+            break
         if turns >= config.max_turns:
             payload = {
                 "schema_version":BROWSER_TURN_RESULT_SCHEMA,
@@ -362,10 +367,13 @@ def run_browser_turn_loop(
             # retry the same turn id/plan so its durable checkpoint is reused.
             break
 
-    return {
+    summary = {
         "schema_version":"production-os/browser-computer-loop-result/v1",
         "turns":turns,
         "succeeded":succeeded,
         "rejected":rejected,
         "failed":failed,
     }
+    if cancelled is not None:
+        summary["cancelled"] = was_cancelled
+    return summary
