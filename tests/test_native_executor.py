@@ -7,6 +7,7 @@ import pytest
 
 from production_os.native_executor import (
     NativeExecutionContext,
+    execute_browser_native,
     execute_native,
     select_native_handler,
 )
@@ -189,7 +190,7 @@ def test_native_browser_handler_rejects_missing_browser_request():
         artifacts_dir="/tmp/browser-artifacts",
     )
 
-    result = execute_native(context)
+    result = execute_browser_native(context)
 
     assert result["status"] == "failed"
     assert result["reason"] == "native_executor_invalid_request"
