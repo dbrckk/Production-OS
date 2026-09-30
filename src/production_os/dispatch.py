@@ -1,21 +1,24 @@
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 
 from .approvals import ApprovalStore
-from .budgets import BudgetLedger
 from .atomic_io import atomic_write_json
-from .emergency import emergency_stop_active
-from .policy import PolicySet, evaluate_policy
+from .autonomous_admission import (
+    AutonomousAdmissionRequest,
+    commit_autonomous_admission,
+    evaluate_autonomous_admission,
+)
+from .budgets import BudgetLedger
+from .policy import PolicySet
 from .quarantine import QuarantineStore
 from .rate_limit import RateLimitStore
 from .receipts import write_dispatch_receipt
 from .runtime_state import RuntimeState
 from .sqlite_backend import SQLiteJobQueue
-from .workers import WorkerRegistry, select_worker
+from .workers import WorkerRegistry
 
 
 @dataclass(frozen=True, slots=True)
@@ -61,108 +64,32 @@ def dispatch_handoff(
     worker_rate_limit: int = 60,
     rate_window_seconds: int = 3600,
 ) -> DispatchResult:
-    repository = str(handoff.get("repository", ""))
-    task = str(handoff.get("task", ""))
-    if not repository or not task:
-        raise ValueError("handoff requires repository and task")
-    if emergency_stop_active(emergency_stop_path):
-        raise RuntimeError("emergency stop active")
-
-    policy_decision = evaluate_policy(policy_set or PolicySet({}), handoff)
-    if quarantine_store is not None:
-        quarantined, quarantine_reason = quarantine_store.active(repository)
-        if quarantined:
-            raise RuntimeError(f"repository quarantined: {quarantine_reason or 'policy'}")
-    if not policy_decision.allowed:
-        raise RuntimeError(
-            "policy blocked dispatch: " + "; ".join(policy_decision.reasons)
-        )
-
-    constraints = dict(handoff.get("constraints", {}) or {})
-    if policy_decision.requires_approval:
-        constraints["requires_human_approval"] = True
-    handoff = {**handoff, "risk_class": policy_decision.risk_class, "constraints": constraints}
-
-    resource_request = handoff.get("resource_request", {}) or {}
-    normalized_request = {
-        str(k): float(v)
-        for k, v in resource_request.items()
-        if isinstance(v, (int, float))
-    }
-    if budget_ledger is not None and policy_decision.budgets:
-        budget_decision = budget_ledger.check(
-            repository,
-            policy_decision.budgets,
-            normalized_request,
-        )
-        if not budget_decision.allowed:
-            raise RuntimeError(
-                "budget blocked dispatch: " + "; ".join(budget_decision.reasons)
-            )
-
-    portfolio_budgets = {
-        str(k): float(v)
-        for k, v in (
-            (policy_set or PolicySet({})).payload.get("portfolio_budgets", {})
-            or {}
-        ).items()
-        if isinstance(v, (int, float))
-    }
-    if budget_ledger is not None and portfolio_budgets:
-        portfolio_budget_decision = budget_ledger.check(
-            "__portfolio__",
-            portfolio_budgets,
-            normalized_request,
-        )
-        if not portfolio_budget_decision.allowed:
-            raise RuntimeError(
-                "portfolio budget blocked dispatch: "
-                + "; ".join(portfolio_budget_decision.reasons)
-            )
+    admission = evaluate_autonomous_admission(
+        AutonomousAdmissionRequest(
+            handoff=dict(handoff or {}),
+            required_capabilities=tuple(required_capabilities or ()),
+            repo_rate_limit=int(repo_rate_limit),
+            worker_rate_limit=int(worker_rate_limit),
+            rate_window_seconds=int(rate_window_seconds),
+        ),
+        runtime_state,
+        worker_registry=worker_registry,
+        emergency_stop_path=emergency_stop_path,
+        rate_limit_store=rate_limit_store,
+        approval_store=approval_store,
+        policy_set=policy_set,
+        budget_ledger=budget_ledger,
+        quarantine_store=quarantine_store,
+    )
+    repository = admission.repository
+    task = admission.task
+    handoff = admission.handoff
 
     worker = None
-    if worker_registry is not None:
-        worker_registry.detect_dead()
-        worker = select_worker(
-            worker_registry,
-            required_capabilities,
-            policy_decision.allowed_worker_classes,
-        )
+    if worker_registry is not None and admission.worker_id is not None:
+        worker = worker_registry.workers.get(admission.worker_id)
         if worker is None:
-            if policy_decision.allowed_worker_classes:
-                raise RuntimeError("backpressure: no allowed capable worker available")
-            raise RuntimeError("backpressure: no capable worker available")
-
-    if rate_limit_store is not None:
-        repo_decision = rate_limit_store.check_and_record(
-            f"repo:{repository}",
-            limit=repo_rate_limit,
-            window_seconds=rate_window_seconds,
-        )
-        if not repo_decision.allowed:
-            raise RuntimeError("rate limit exceeded for repository")
-        if worker is not None:
-            worker_decision = rate_limit_store.check_and_record(
-                f"worker:{worker.worker_id}",
-                limit=worker_rate_limit,
-                window_seconds=rate_window_seconds,
-            )
-            if not worker_decision.allowed:
-                raise RuntimeError("rate limit exceeded for worker")
-
-    record = runtime_state.get(repository, task)
-    requires_approval = bool(
-        handoff.get("constraints", {}).get("requires_human_approval", False)
-    )
-    if requires_approval:
-        if approval_store is None or not approval_store.is_approved(record.key):
-            raise RuntimeError("human approval required")
-    if runtime_state.is_leased(record):
-        raise RuntimeError("task already leased")
-    if runtime_state.in_cooldown(record):
-        raise RuntimeError("task is in cooldown")
-    if record.status in {"circuit-open", "succeeded"}:
-        raise RuntimeError(f"task not dispatchable: {record.status}")
+            raise RuntimeError("selected worker disappeared before dispatch")
 
     owner = worker.worker_id if worker is not None else lease_owner
     runtime_state.acquire_lease(
@@ -198,7 +125,9 @@ def dispatch_handoff(
         else:
             queue = Path(queue_dir)
             queue.mkdir(parents=True, exist_ok=True)
-            worker_suffix = f".{worker.worker_id}" if worker is not None else ""
+            worker_suffix = (
+                f".{worker.worker_id}" if worker is not None else ""
+            )
             destination = queue / f"{record.key}{worker_suffix}.json"
             atomic_write_json(destination, payload)
 
@@ -212,9 +141,12 @@ def dispatch_handoff(
                 task=task,
             )
 
-        if budget_ledger is not None and normalized_request:
-            budget_ledger.record(repository, normalized_request)
-            budget_ledger.record("__portfolio__", normalized_request)
+        commit_autonomous_admission(
+            admission,
+            rate_limit_store=rate_limit_store,
+            budget_ledger=budget_ledger,
+            include_worker_rate_limit=True,
+        )
 
         return DispatchResult(
             repository=repository,
