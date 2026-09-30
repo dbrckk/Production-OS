@@ -72,19 +72,24 @@ def validate_agent_plan(
         if not instruction or len(instruction) > 8000:
             raise ValueError(f"agent task {task_id} has invalid instruction")
 
-        try:
-            token_budget = int(raw.get("token_budget"))
-        except (TypeError, ValueError) as exc:
+        raw_token_budget = raw.get("token_budget")
+        if isinstance(raw_token_budget, bool) or not isinstance(
+            raw_token_budget,
+            int,
+        ):
             raise ValueError(
                 f"agent task {task_id} has invalid token_budget"
-            ) from exc
+            )
+        token_budget = raw_token_budget
         if token_budget < 1:
             raise ValueError(f"agent task {task_id} token_budget must be >= 1")
         total_budget += token_budget
         if total_budget > int(available_token_budget):
             raise ValueError("agent plan exceeds available token budget")
 
-        raw_capabilities = raw.get("preferred_capabilities") or []
+        raw_capabilities = raw.get("preferred_capabilities")
+        if raw_capabilities is None:
+            raw_capabilities = []
         if not isinstance(raw_capabilities, list):
             raise ValueError(
                 f"agent task {task_id} preferred_capabilities must be a list"
@@ -103,7 +108,9 @@ def validate_agent_plan(
                 f"agent task {task_id} has too many capabilities"
             )
 
-        raw_dependencies = raw.get("dependencies") or []
+        raw_dependencies = raw.get("dependencies")
+        if raw_dependencies is None:
+            raw_dependencies = []
         if not isinstance(raw_dependencies, list):
             raise ValueError(
                 f"agent task {task_id} dependencies must be a list"
