@@ -242,6 +242,170 @@ class RemoteWorkerRunner:
             return "external"
         return "unavailable"
 
+    def _native_cancel_grace_seconds(self) -> float:
+        return max(
+            0.05,
+            min(0.25, self.heartbeat_interval_seconds * 2),
+        )
+
+    def _wait_native_cancel(
+        self,
+        future: Future,
+    ) -> None:
+        wait(
+            [future],
+            timeout=self._native_cancel_grace_seconds(),
+            return_when=FIRST_COMPLETED,
+        )
+
+    @staticmethod
+    def _complete_native_future(
+        future: Future,
+        context: NativeExecutionContext,
+    ) -> None:
+        try:
+            result = execute_native(context)
+        except BaseException as exc:
+            try:
+                future.set_exception(exc)
+            except Exception:
+                pass
+        else:
+            try:
+                future.set_result(result)
+            except Exception:
+                pass
+
+    def _run_native_supervised(
+        self,
+        key: str,
+        context: NativeExecutionContext,
+        *,
+        started: float,
+    ) -> tuple[dict | None, dict | None, bool]:
+        future: Future = Future()
+        thread = threading.Thread(
+            target=self._complete_native_future,
+            args=(future, context),
+            name=f"production-os-native-{key[:12]}",
+            daemon=True,
+        )
+        thread.start()
+        heartbeat_failures = 0
+
+        while True:
+            if future.done():
+                try:
+                    payload = future.result()
+                except BaseException as exc:
+                    payload = {
+                        "status":"failed",
+                        "reason":"native_executor_failed",
+                        "result":{
+                            "summary":str(exc)[:1000],
+                        },
+                    }
+                if not isinstance(payload, dict):
+                    payload = {
+                        "status":"failed",
+                        "reason":"native_executor_failed",
+                        "result":{
+                            "summary":"native executor returned invalid output",
+                        },
+                    }
+                return payload, None, False
+
+            if self._stop_event.is_set():
+                context.cancellation_event.set()
+                self._wait_native_cancel(future)
+                return None, {
+                    "job_key":key,
+                    "status":"abandoned",
+                    "reason":"worker_shutdown",
+                }, False
+
+            elapsed = time.monotonic() - started
+            remaining = self.executor_timeout_seconds - elapsed
+            if remaining <= 0:
+                context.cancellation_event.set()
+                self._wait_native_cancel(future)
+                duration = time.monotonic() - started
+                self.client.fail(
+                    key,
+                    "executor_timeout",
+                    result_payload={
+                        "summary":"native executor exceeded its timeout",
+                    },
+                    duration_seconds=duration,
+                )
+                return None, {
+                    "job_key":key,
+                    "status":"failed",
+                    "reason":"executor_timeout",
+                }, False
+
+            done, _pending = wait(
+                [future],
+                timeout=min(
+                    self.heartbeat_interval_seconds,
+                    remaining,
+                ),
+                return_when=FIRST_COMPLETED,
+            )
+            if done:
+                continue
+
+            self._observe_checkpoint(key)
+            try:
+                heartbeat = self._heartbeat_active(key)
+                heartbeat_failures = 0
+            except RuntimeError:
+                heartbeat_failures += 1
+                if (
+                    heartbeat_failures
+                    >= self.max_consecutive_heartbeat_failures
+                ):
+                    context.cancellation_event.set()
+                    self._wait_native_cancel(future)
+                    return None, {
+                        "job_key":key,
+                        "status":"abandoned",
+                        "reason":"control_plane_unavailable",
+                    }, False
+                continue
+
+            if key in heartbeat.get("stale_job_keys", []):
+                context.cancellation_event.set()
+                self._wait_native_cancel(future)
+                self.client.checkpoint_stale(
+                    key,
+                    self._checkpoint_ref(key),
+                )
+                return None, {
+                    "job_key":key,
+                    "status":"stale",
+                }, False
+
+            controls = (
+                heartbeat.get("control", {})
+                .get("jobs", {})
+            )
+            desired = str(
+                (controls.get(key) or {}).get("desired_state")
+                or ""
+            )
+            if desired == "cancel_requested":
+                context.cancellation_event.set()
+                self._wait_native_cancel(future)
+                self._deactivate(
+                    key,
+                    job_control_state="cancel_requested",
+                )
+                return None, {
+                    "job_key":key,
+                    "status":"cancelled",
+                }, True
+
     def _execute(self, job: RemoteJob) -> dict:
         key = job.key
         runtime_context = (
@@ -377,16 +541,17 @@ class RemoteWorkerRunner:
                         else None
                     ),
                 )
-                try:
-                    payload = execute_native(native_context)
-                except Exception as exc:
-                    payload = {
-                        "status":"failed",
-                        "reason":"native_executor_failed",
-                        "result":{
-                            "summary":str(exc)[:1000],
-                        },
-                    }
+                payload, terminal, native_deactivated = (
+                    self._run_native_supervised(
+                        key,
+                        native_context,
+                        started=started,
+                    )
+                )
+                if native_deactivated:
+                    active_registered = False
+                if terminal is not None:
+                    return terminal
                 duration = time.monotonic() - started
                 self._observe_checkpoint(key)
             else:
