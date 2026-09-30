@@ -73,12 +73,20 @@ def test_worker_compose_persists_repository_cache_and_worktrees():
 
 
 def _service_block(payload: str, service: str) -> str:
-    marker = f"  {service}:\n"
-    start = payload.index(marker)
-    next_service = payload.find("\n  ", start + len(marker))
-    if next_service < 0:
-        next_service = len(payload)
-    return payload[start:next_service]
+    marker = f"  {service}:"
+    lines = payload.splitlines()
+    start = lines.index(marker)
+    end = len(lines)
+    for index in range(start + 1, len(lines)):
+        line = lines[index]
+        if (
+            line.startswith("  ")
+            and not line.startswith("    ")
+            and line.endswith(":")
+        ):
+            end = index
+            break
+    return "\n".join(lines[start:end])
 
 
 def test_browser_worker_uses_auto_executor_mode():
