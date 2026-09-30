@@ -6,6 +6,8 @@ import re
 from dataclasses import dataclass
 from typing import Any
 
+from .managed_projects import ManagedProjectService
+
 
 _FINGERPRINT_SCHEMA = "production-os/autonomous-action-fingerprint/v1"
 _PROJECT_ID_RE = re.compile(r"^controller-[0-9a-f]{32}$")
@@ -118,3 +120,46 @@ def autonomous_project_id(
     if _PROJECT_ID_RE.fullmatch(project_id) is None:
         raise RuntimeError("autonomous project id generation failed")
     return project_id
+
+
+
+def autonomous_project_status(
+    service: ManagedProjectService,
+    project_id: str,
+) -> dict[str, Any] | None:
+    try:
+        return service.get(str(project_id))
+    except KeyError:
+        return None
+
+
+def launch_autonomous_project(
+    service: ManagedProjectService,
+    request: AutonomousProjectRequest,
+) -> AutonomousProjectLaunch:
+    project_id = autonomous_project_id(
+        repository=request.repository,
+        action_fingerprint=request.action_fingerprint,
+    )
+    existing = autonomous_project_status(service, project_id)
+    if existing is not None:
+        return AutonomousProjectLaunch(
+            project_id=project_id,
+            created=False,
+            project=existing,
+        )
+
+    project = service.create(
+        repository=request.repository,
+        final_goal=request.task,
+        token_budget=request.token_budget,
+        agent_preference="auto",
+        requested_by="controller",
+        project_id=project_id,
+        cooperative=bool(request.cooperative),
+    )
+    return AutonomousProjectLaunch(
+        project_id=project_id,
+        created=True,
+        project=project,
+    )
