@@ -225,3 +225,79 @@ def test_native_browser_handler_preserves_loop_failure_reason(
     assert result["status"] == "failed"
     assert result["reason"] == "native_executor_failed"
     assert result["result"]["browser_loop"]["failed"] == 1
+
+
+
+def test_select_native_handler_rejects_unknown_browser_contract_version():
+    decision = select_native_handler({
+        "tool_contracts":{
+            "browser_computer":{
+                "schema_version":"production-os/browser-computer-tool/v999",
+            },
+        },
+    })
+
+    assert decision.supported is False
+    assert decision.reason == "native_executor_unsupported"
+
+
+def test_native_browser_handler_rejects_more_submitted_turns_than_max(
+    tmp_path,
+    monkeypatch,
+):
+    handoff = _browser_request()
+    handoff["browser"]["config"]["max_turns"] = 1
+    handoff["browser"]["turns"].append({
+        "schema_version":"production-os/browser-computer-turn/v1",
+        "turn_id":"observe-2",
+        "actions":[{"action":"snapshot","name":"second"}],
+    })
+    called = []
+
+    def must_not_run(*_args, **_kwargs):
+        called.append(True)
+        raise AssertionError("over-limit request must fail before execution")
+
+    monkeypatch.setattr(
+        "production_os.native_executor.run_browser_turn_loop",
+        must_not_run,
+    )
+    context = NativeExecutionContext(
+        job_key="browser-too-many-turns",
+        handoff=handoff,
+        runtime_workspace=str(tmp_path),
+        cancellation_event=threading.Event(),
+        artifacts_dir=None,
+    )
+
+    result = execute_native(context)
+
+    assert called == []
+    assert result["status"] == "failed"
+    assert result["reason"] == "native_executor_invalid_request"
+    assert "max_turns" in result["result"]["summary"]
+
+
+def test_native_browser_handler_classifies_runtime_oserror_as_execution_failure(
+    tmp_path,
+    monkeypatch,
+):
+    def fail_runtime(*_args, **_kwargs):
+        raise OSError("disk full")
+
+    monkeypatch.setattr(
+        "production_os.native_executor.run_browser_turn_loop",
+        fail_runtime,
+    )
+    context = NativeExecutionContext(
+        job_key="browser-runtime-io",
+        handoff=_browser_request(),
+        runtime_workspace=str(tmp_path),
+        cancellation_event=threading.Event(),
+        artifacts_dir=None,
+    )
+
+    result = execute_native(context)
+
+    assert result["status"] == "failed"
+    assert result["reason"] == "native_executor_failed"
