@@ -33,10 +33,14 @@ class BudgetLedger:
 
     def _load_unlocked(self) -> None:
         if not self.path.exists():
-            self.payload = {"usage": {}}
+            self.payload = {
+                "usage": {},
+                "recorded_idempotency_keys": [],
+            }
             return
         self.payload = json.loads(self.path.read_text(encoding="utf-8"))
         self.payload.setdefault("usage", {})
+        self.payload.setdefault("recorded_idempotency_keys", [])
 
     def load(self) -> None:
         self._load_unlocked()
@@ -67,6 +71,35 @@ class BudgetLedger:
             usage={k:float(v) for k,v in usage.items()},
             limits={k:float(v) for k,v in limits.items()},
         )
+
+    def record_once(
+        self,
+        repository: str,
+        delta: dict[str, float],
+        *,
+        idempotency_key: str,
+    ) -> dict[str, float]:
+        idempotency_key = str(idempotency_key or "").strip()
+        if not idempotency_key:
+            raise ValueError("idempotency_key is required")
+        with sidecar_lock(self.path):
+            self._load_unlocked()
+            recorded = self.payload.setdefault(
+                "recorded_idempotency_keys",
+                [],
+            )
+            usage = self.payload.setdefault("usage", {}).setdefault(
+                repository,
+                {},
+            )
+            if idempotency_key in recorded:
+                return {k:float(v) for k, v in usage.items()}
+            for key, value in delta.items():
+                usage[key] = float(usage.get(key, 0.0)) + float(value)
+            recorded.append(idempotency_key)
+            self.payload["updated_at"] = datetime.now(timezone.utc).isoformat()
+            self._save_unlocked()
+            return {k:float(v) for k, v in usage.items()}
 
     def record(self, repository: str, delta: dict[str, float]) -> dict[str, float]:
         with sidecar_lock(self.path):
