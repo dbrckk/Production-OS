@@ -1626,9 +1626,13 @@ def test_native_execution_worker_shutdown_sets_event_and_abandons(
         worker_thread.start()
         deadline = time.time() + 2
         while time.time() < deadline:
-            if control.queue.get(queued["key"])["status"] == "acked":
+            if (
+                control.queue.get(queued["key"])["status"] == "acked"
+                and "event" in seen
+            ):
                 break
             time.sleep(0.01)
+        assert "event" in seen
         runner.request_stop()
         worker_thread.join(timeout=2)
 
