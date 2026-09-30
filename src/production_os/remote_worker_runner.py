@@ -250,13 +250,26 @@ class RemoteWorkerRunner:
 
     def _wait_native_cancel(
         self,
+        key: str,
         future: Future,
     ) -> None:
-        wait(
-            [future],
-            timeout=self._native_cancel_grace_seconds(),
-            return_when=FIRST_COMPLETED,
-        )
+        # Native browser actions are bounded by their own action timeout, but
+        # Python threads are not safely terminable. Keep this worker slot and
+        # lease fenced until the handler actually stops so a replacement job
+        # cannot overlap with in-flight side effects.
+        while not future.done():
+            wait(
+                [future],
+                timeout=self.heartbeat_interval_seconds,
+                return_when=FIRST_COMPLETED,
+            )
+            if future.done():
+                break
+            self._observe_checkpoint(key)
+            try:
+                self._heartbeat_active(key)
+            except RuntimeError:
+                pass
 
     @staticmethod
     def _complete_native_future(
@@ -317,7 +330,7 @@ class RemoteWorkerRunner:
 
             if self._stop_event.is_set():
                 context.cancellation_event.set()
-                self._wait_native_cancel(future)
+                self._wait_native_cancel(key, future)
                 return None, {
                     "job_key":key,
                     "status":"abandoned",
@@ -328,7 +341,7 @@ class RemoteWorkerRunner:
             remaining = self.executor_timeout_seconds - elapsed
             if remaining <= 0:
                 context.cancellation_event.set()
-                self._wait_native_cancel(future)
+                self._wait_native_cancel(key, future)
                 duration = time.monotonic() - started
                 self.client.fail(
                     key,
@@ -366,7 +379,7 @@ class RemoteWorkerRunner:
                     >= self.max_consecutive_heartbeat_failures
                 ):
                     context.cancellation_event.set()
-                    self._wait_native_cancel(future)
+                    self._wait_native_cancel(key, future)
                     return None, {
                         "job_key":key,
                         "status":"abandoned",
@@ -376,7 +389,7 @@ class RemoteWorkerRunner:
 
             if key in heartbeat.get("stale_job_keys", []):
                 context.cancellation_event.set()
-                self._wait_native_cancel(future)
+                self._wait_native_cancel(key, future)
                 self.client.checkpoint_stale(
                     key,
                     self._checkpoint_ref(key),
@@ -396,7 +409,7 @@ class RemoteWorkerRunner:
             )
             if desired == "cancel_requested":
                 context.cancellation_event.set()
-                self._wait_native_cancel(future)
+                self._wait_native_cancel(key, future)
                 self._deactivate(
                     key,
                     job_control_state="cancel_requested",
