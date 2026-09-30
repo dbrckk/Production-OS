@@ -43,7 +43,7 @@
 
 **Interfaces:**
 - Consumes: existing `run_remote_worker_run(args: argparse.Namespace) -> int`.
-- Produces: `executor_mode: Literal["auto", "native", "external"]` semantics passed into `RemoteWorkerRunner`; `executor_command` may be empty except in explicit `external` mode.
+- Produces: `executor_mode: Literal["auto", "native", "external"]` semantics passed into `RemoteWorkerRunner`; `executor_command: Sequence[str] | None` may be empty/`None` except in explicit `external` mode.
 
 - [ ] **Step 1: Write failing parser/validation tests**
 
@@ -336,13 +336,17 @@ Expected: FAIL because native execution has no supervision loop.
 
 - [ ] **Step 3: Implement supervised native execution**
 
-Implement a runner helper using `ThreadPoolExecutor`/`Future`:
-- submit `execute_native(context)`;
-- wait at most `heartbeat_interval_seconds` per supervision tick;
+Implement a runner helper around a `concurrent.futures.Future` completed by one dedicated daemon `threading.Thread` per native job:
+- create the `Future` before starting the thread;
+- the thread calls `execute_native(context)` and sets the future result/exception exactly once;
+- the runner waits at most `heartbeat_interval_seconds` per supervision tick;
 - on each tick call existing checkpoint/heartbeat/control inspection;
 - set the cancellation event on timeout, cancellation, stale state, shutdown, or control-plane abandonment;
 - use a bounded cancellation grace period before returning abandoned/fenced state;
+- never join an uncooperative native thread indefinitely;
 - do not start the external fallback.
+
+Do not use a short-lived `ThreadPoolExecutor` context manager for this helper: its shutdown semantics may wait for a running handler and defeat the bounded cancellation requirement.
 
 Reuse existing deterministic reasons where applicable; use `native_executor_failed` only for native handler failures that are not a more specific validation/runtime reason.
 
@@ -472,8 +476,8 @@ Expected: FAIL against current Compose.
 
 In `compose.worker.yaml`:
 - configure browser worker `--executor-mode auto`;
-- keep `PRODUCTION_OS_WORKER_EXECUTOR_COMMAND` available as optional fallback;
-- avoid emitting a syntactically present empty `--executor-command` argument if that would be interpreted as configured.
+- keep the existing `--executor-command ${PRODUCTION_OS_WORKER_EXECUTOR_COMMAND:-}` pair as the optional fallback;
+- rely on Task 1 startup validation to treat the empty-string command as “no external executor configured” in `auto` mode.
 
 In `docs/remote-worker-executor-protocol.md`, document:
 - native/auto/external modes;
@@ -516,9 +520,11 @@ The test must:
 1. start/use the existing test control plane;
 2. queue a job whose handoff contains `tool_contracts.browser_computer` and a finite `handoff.browser` request;
 3. construct `RemoteWorkerRunner(..., executor_mode="auto", executor_command=[])`;
-4. use a deterministic local page or mocked browser-loop boundary;
+4. use a mocked `run_browser_turn_loop` boundary for this runner-level E2E so the test proves dispatch/lifecycle selection without requiring Chromium;
 5. run one worker cycle;
 6. assert job completion and no external subprocess invocation.
+
+Add a separate browser-image smoke assertion in Task 7 to retain real Chromium/Playwright provisioning coverage.
 
 Name: `test_native_browser_worker_completes_without_external_executor`.
 
