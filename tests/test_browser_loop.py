@@ -1,5 +1,6 @@
 import io
 import json
+import threading
 
 import pytest
 
@@ -575,3 +576,43 @@ def test_invalid_existing_turn_manifest_fails_closed_without_rebinding(tmp_path)
     assert row["status"] == "failed"
     assert "manifest is invalid or tampered" in row["error"]
     assert manifest_path.read_text(encoding="utf-8") == "{not-json"
+
+
+
+def test_browser_loop_stops_before_next_turn_when_cancelled(tmp_path):
+    cancel = threading.Event()
+    calls = []
+
+    def fake_execute(_plan, **_kwargs):
+        calls.append("executed")
+        cancel.set()
+        return {
+            "schema_version":"production-os/browser-computer-result/v1",
+            "status":"passed",
+            "results":[],
+        }
+
+    input_stream = io.StringIO(
+        _turn("first", [{"action":"snapshot","name":"one"}])
+        + "\n"
+        + _turn("second", [{"action":"snapshot","name":"two"}])
+        + "\n"
+    )
+    output_stream = io.StringIO()
+
+    summary = run_browser_turn_loop(
+        _config(),
+        input_stream,
+        output_stream,
+        artifacts_dir=tmp_path / "artifacts",
+        storage_state_path=tmp_path / "storage.json",
+        session_state_path=tmp_path / "session.json",
+        checkpoint_path=tmp_path / "checkpoint.json",
+        execute_fn=fake_execute,
+        cancelled=cancel.is_set,
+    )
+
+    assert calls == ["executed"]
+    assert summary["turns"] == 1
+    assert summary["succeeded"] == 1
+    assert summary["cancelled"] is True

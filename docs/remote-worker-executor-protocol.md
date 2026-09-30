@@ -1,5 +1,64 @@
 # Remote worker executor protocol
 
+## Executor modes
+
+`remote-worker-run` supports three execution modes:
+
+- `external`: require `--executor-command` and use the existing JSON subprocess protocol.
+- `native`: execute only Production OS-native handlers; unsupported jobs fail with `native_executor_unsupported`.
+- `auto` (CLI default): prefer a compatible native handler, otherwise use the configured external executor. If neither path is available the job fails with `executor_unavailable`.
+
+External fallback is selected only before native execution starts. A native runtime failure never falls back to the external executor, preventing duplicate side effects.
+
+The browser specialist in `compose.worker.yaml` runs in `auto` mode. Its `PRODUCTION_OS_WORKER_EXECUTOR_COMMAND` may be empty for browser-native jobs and remains available as an optional fallback. The generic, code, debug, review, and mobile workers remain explicitly configured in `external` mode during this migration phase.
+
+## Native browser request
+
+A job carrying the `browser_computer` tool contract may also provide a finite native browser request:
+
+```json
+{
+  "handoff": {
+    "tool_contracts": {
+      "browser_computer": {
+        "schema_version": "production-os/browser-computer-tool/v1"
+      }
+    },
+    "browser": {
+      "config": {
+        "schema_version": "production-os/browser-computer-loop/v1",
+        "allowed_hosts": ["example.com"],
+        "persist_session": true,
+        "allow_private_network": false,
+        "max_turns": 32
+      },
+      "turns": [
+        {
+          "schema_version": "production-os/browser-computer-turn/v1",
+          "turn_id": "observe-1",
+          "actions": [
+            {"action": "navigate", "url": "https://example.com"},
+            {"action": "snapshot", "name": "page"}
+          ]
+        }
+      ]
+    }
+  }
+}
+```
+
+Native browser execution reuses the existing validated browser loop. With persistent runtime state enabled it derives `browser-state.json`, `browser-session.json`, `browser-checkpoint.json`, and `browser-artifacts/` inside the job runtime workspace. Persistent browser execution without a durable runtime workspace fails closed.
+
+Native execution uses the same worker lifecycle and finalization path as external execution: heartbeat, timeout, cancellation, stale-generation fencing, managed-worktree Git verification, and control-plane completion/failure all remain authoritative.
+
+Additional deterministic native reasons include:
+
+- `native_executor_unsupported`
+- `native_executor_invalid_request`
+- `native_executor_runtime_unavailable`
+- `native_executor_failed`
+- `executor_unavailable`
+
 ## Request
 
 Production-OS starts the configured executor directly, without a shell, and writes one UTF-8 JSON object to stdin.

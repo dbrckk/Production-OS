@@ -37,6 +37,8 @@ services:
       - http://production-os:8787
       - --worker-id
       - ${PRODUCTION_OS_WORKER_ID:-worker-one}
+      - --executor-mode
+      - external
       - --executor-command
       - ${PRODUCTION_OS_WORKER_EXECUTOR_COMMAND:-}
       - --max-concurrency
@@ -77,6 +79,8 @@ services:
       - worker-code
       - --capability
       - code-implementation
+      - --executor-mode
+      - external
       - --executor-command
       - ${PRODUCTION_OS_WORKER_EXECUTOR_COMMAND:-}
       - --max-concurrency
@@ -117,6 +121,8 @@ services:
       - worker-debug
       - --capability
       - test-debug
+      - --executor-mode
+      - external
       - --executor-command
       - ${PRODUCTION_OS_WORKER_EXECUTOR_COMMAND:-}
       - --max-concurrency
@@ -157,6 +163,8 @@ services:
       - worker-review
       - --capability
       - code-review
+      - --executor-mode
+      - external
       - --executor-command
       - ${PRODUCTION_OS_WORKER_EXECUTOR_COMMAND:-}
       - --max-concurrency
@@ -201,6 +209,8 @@ services:
       - browser-ui-validation
       - --capability
       - browser-computer-use
+      - --executor-mode
+      - auto
       - --executor-command
       - ${PRODUCTION_OS_WORKER_EXECUTOR_COMMAND:-}
       - --max-concurrency
@@ -248,6 +258,8 @@ services:
       - worker-mobile
       - --capability
       - mobile-ui-validation
+      - --executor-mode
+      - external
       - --executor-command
       - ${PRODUCTION_OS_WORKER_EXECUTOR_COMMAND:-}
       - --max-concurrency

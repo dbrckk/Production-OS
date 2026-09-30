@@ -19,6 +19,11 @@ from .executor_worktree import (
     prune_integrated_workflow_branches,
     remove_isolated_worktree,
 )
+from .native_executor import (
+    NativeExecutionContext,
+    execute_native,
+    select_native_handler,
+)
 from .remote_worker import RemoteJob, RemoteWorkerClient
 from .repository_cache import RepositoryCache
 
@@ -27,8 +32,9 @@ class RemoteWorkerRunner:
     def __init__(
         self,
         client: RemoteWorkerClient,
-        executor_command: Sequence[str],
+        executor_command: Sequence[str] | None,
         *,
+        executor_mode: str = "auto",
         max_concurrency: int = 1,
         heartbeat_interval_seconds: float = 5.0,
         executor_timeout_seconds: float = 3600.0,
@@ -38,9 +44,18 @@ class RemoteWorkerRunner:
         worktree_root: str | None = None,
         repository_cache_root: str | None = None,
     ):
-        command = [str(part) for part in executor_command if str(part)]
-        if not command:
-            raise ValueError("executor command is required")
+        command = [
+            str(part)
+            for part in (executor_command or [])
+            if str(part)
+        ]
+        mode = str(executor_mode or "").strip().lower()
+        if mode not in {"auto", "native", "external"}:
+            raise ValueError(
+                "executor_mode must be auto, native, or external"
+            )
+        if mode == "external" and not command:
+            raise ValueError("executor command is required in external mode")
         if int(max_concurrency) < 1:
             raise ValueError("max_concurrency must be >= 1")
         if float(heartbeat_interval_seconds) <= 0:
@@ -48,6 +63,7 @@ class RemoteWorkerRunner:
         if float(executor_timeout_seconds) <= 0:
             raise ValueError("executor_timeout_seconds must be > 0")
         self.client = client
+        self.executor_mode = mode
         self.executor_command = command
         self.max_concurrency = int(max_concurrency)
         self.heartbeat_interval_seconds = float(heartbeat_interval_seconds)
@@ -207,6 +223,202 @@ class RemoteWorkerRunner:
                 self._active_job_keys.add(key)
             return self._heartbeat_snapshot()
 
+    @staticmethod
+    def _job_handoff(job: RemoteJob) -> dict:
+        payload = dict(job.payload.get("payload") or {})
+        return dict(payload.get("handoff") or {})
+
+    def _select_execution_path(self, job: RemoteJob) -> str:
+        supported = select_native_handler(
+            self._job_handoff(job)
+        ).supported
+        if self.executor_mode == "external":
+            return "external"
+        if self.executor_mode == "native":
+            return "native" if supported else "unavailable"
+        if supported:
+            return "native"
+        if self.executor_command:
+            return "external"
+        return "unavailable"
+
+    def _native_cancel_grace_seconds(self) -> float:
+        return max(
+            0.05,
+            min(0.25, self.heartbeat_interval_seconds * 2),
+        )
+
+    def _wait_native_cancel(
+        self,
+        key: str,
+        future: Future,
+    ) -> None:
+        # Native browser actions are bounded by their own action timeout, but
+        # Python threads are not safely terminable. Keep this worker slot and
+        # lease fenced until the handler actually stops so a replacement job
+        # cannot overlap with in-flight side effects.
+        while not future.done():
+            wait(
+                [future],
+                timeout=self.heartbeat_interval_seconds,
+                return_when=FIRST_COMPLETED,
+            )
+            if future.done():
+                break
+            self._observe_checkpoint(key)
+            try:
+                self._heartbeat_active(key)
+            except RuntimeError:
+                pass
+
+    @staticmethod
+    def _complete_native_future(
+        future: Future,
+        context: NativeExecutionContext,
+    ) -> None:
+        try:
+            result = execute_native(context)
+        except BaseException as exc:
+            try:
+                future.set_exception(exc)
+            except Exception:
+                pass
+        else:
+            try:
+                future.set_result(result)
+            except Exception:
+                pass
+
+    def _run_native_supervised(
+        self,
+        key: str,
+        context: NativeExecutionContext,
+        *,
+        started: float,
+    ) -> tuple[dict | None, dict | None, bool]:
+        future: Future = Future()
+        thread = threading.Thread(
+            target=self._complete_native_future,
+            args=(future, context),
+            name=f"production-os-native-{key[:12]}",
+            daemon=True,
+        )
+        thread.start()
+        heartbeat_failures = 0
+
+        while True:
+            if future.done():
+                try:
+                    payload = future.result()
+                except BaseException as exc:
+                    payload = {
+                        "status":"failed",
+                        "reason":"native_executor_failed",
+                        "result":{
+                            "summary":str(exc)[:1000],
+                        },
+                    }
+                if not isinstance(payload, dict):
+                    payload = {
+                        "status":"failed",
+                        "reason":"native_executor_failed",
+                        "result":{
+                            "summary":"native executor returned invalid output",
+                        },
+                    }
+                return payload, None, False
+
+            if self._stop_event.is_set():
+                context.cancellation_event.set()
+                self._wait_native_cancel(key, future)
+                return None, {
+                    "job_key":key,
+                    "status":"abandoned",
+                    "reason":"worker_shutdown",
+                }, False
+
+            elapsed = time.monotonic() - started
+            remaining = self.executor_timeout_seconds - elapsed
+            if remaining <= 0:
+                context.cancellation_event.set()
+                self._wait_native_cancel(key, future)
+                duration = time.monotonic() - started
+                self.client.fail(
+                    key,
+                    "executor_timeout",
+                    result_payload={
+                        "summary":"native executor exceeded its timeout",
+                    },
+                    duration_seconds=duration,
+                )
+                return None, {
+                    "job_key":key,
+                    "status":"failed",
+                    "reason":"executor_timeout",
+                }, False
+
+            done, _pending = wait(
+                [future],
+                timeout=min(
+                    self.heartbeat_interval_seconds,
+                    remaining,
+                ),
+                return_when=FIRST_COMPLETED,
+            )
+            if done:
+                continue
+
+            self._observe_checkpoint(key)
+            try:
+                heartbeat = self._heartbeat_active(key)
+                heartbeat_failures = 0
+            except RuntimeError:
+                heartbeat_failures += 1
+                if (
+                    heartbeat_failures
+                    >= self.max_consecutive_heartbeat_failures
+                ):
+                    context.cancellation_event.set()
+                    self._wait_native_cancel(key, future)
+                    return None, {
+                        "job_key":key,
+                        "status":"abandoned",
+                        "reason":"control_plane_unavailable",
+                    }, False
+                continue
+
+            if key in heartbeat.get("stale_job_keys", []):
+                context.cancellation_event.set()
+                self._wait_native_cancel(key, future)
+                self.client.checkpoint_stale(
+                    key,
+                    self._checkpoint_ref(key),
+                )
+                return None, {
+                    "job_key":key,
+                    "status":"stale",
+                }, False
+
+            controls = (
+                heartbeat.get("control", {})
+                .get("jobs", {})
+            )
+            desired = str(
+                (controls.get(key) or {}).get("desired_state")
+                or ""
+            )
+            if desired == "cancel_requested":
+                context.cancellation_event.set()
+                self._wait_native_cancel(key, future)
+                self._deactivate(
+                    key,
+                    job_control_state="cancel_requested",
+                )
+                return None, {
+                    "job_key":key,
+                    "status":"cancelled",
+                }, True
+
     def _execute(self, job: RemoteJob) -> dict:
         key = job.key
         runtime_context = (
@@ -233,6 +445,31 @@ class RemoteWorkerRunner:
                 return {
                     "job_key":key,
                     "status":"stale",
+                }
+
+            execution_path = self._select_execution_path(job)
+            if execution_path == "unavailable":
+                reason = (
+                    "native_executor_unsupported"
+                    if self.executor_mode == "native"
+                    else "executor_unavailable"
+                )
+                self.client.fail(
+                    key,
+                    reason,
+                    result_payload={
+                        "summary":(
+                            "native executor does not support this job"
+                            if reason == "native_executor_unsupported"
+                            else "no compatible executor is available"
+                        ),
+                    },
+                    duration_seconds=0.0,
+                )
+                return {
+                    "job_key":key,
+                    "status":"failed",
+                    "reason":reason,
                 }
 
             request_payload = {
@@ -296,148 +533,182 @@ class RemoteWorkerRunner:
                     "PRODUCTION_OS_RUNTIME_ATTEMPT":
                         str(runtime_context.attempt),
                 })
-            request = json.dumps(
-                request_payload,
-                ensure_ascii=False,
-            )
             started = time.monotonic()
-            process = subprocess.Popen(
-                self.executor_command,
-                stdin=subprocess.PIPE,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                env=executor_env,
-                cwd=executor_cwd,
-            )
-            first_communicate = True
-            stdout = ""
-            heartbeat_failures = 0
-            while True:
-                if self._stop_event.is_set():
-                    self._observe_checkpoint(key)
-                    self._terminate(process)
-                    return {
-                        "job_key":key,
-                        "status":"abandoned",
-                        "reason":"worker_shutdown",
-                    }
-                elapsed = time.monotonic() - started
-                remaining = self.executor_timeout_seconds - elapsed
-                if remaining <= 0:
-                    self._terminate(process)
-                    duration = time.monotonic() - started
+            if execution_path == "native":
+                cancellation_event = threading.Event()
+                native_context = NativeExecutionContext(
+                    job_key=key,
+                    handoff=self._job_handoff(job),
+                    runtime_workspace=(
+                        runtime_context.workspace
+                        if runtime_context is not None
+                        else None
+                    ),
+                    cancellation_event=cancellation_event,
+                    artifacts_dir=(
+                        os.path.join(
+                            runtime_context.workspace,
+                            "browser-artifacts",
+                        )
+                        if runtime_context is not None
+                        else None
+                    ),
+                )
+                payload, terminal, native_deactivated = (
+                    self._run_native_supervised(
+                        key,
+                        native_context,
+                        started=started,
+                    )
+                )
+                if native_deactivated:
+                    active_registered = False
+                if terminal is not None:
+                    return terminal
+                duration = time.monotonic() - started
+                self._observe_checkpoint(key)
+            else:
+                request = json.dumps(
+                    request_payload,
+                    ensure_ascii=False,
+                )
+                process = subprocess.Popen(
+                    self.executor_command,
+                    stdin=subprocess.PIPE,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                    env=executor_env,
+                    cwd=executor_cwd,
+                )
+                first_communicate = True
+                stdout = ""
+                heartbeat_failures = 0
+                while True:
+                    if self._stop_event.is_set():
+                        self._observe_checkpoint(key)
+                        self._terminate(process)
+                        return {
+                            "job_key":key,
+                            "status":"abandoned",
+                            "reason":"worker_shutdown",
+                        }
+                    elapsed = time.monotonic() - started
+                    remaining = self.executor_timeout_seconds - elapsed
+                    if remaining <= 0:
+                        self._terminate(process)
+                        duration = time.monotonic() - started
+                        self.client.fail(
+                            key,
+                            "executor_timeout",
+                            result_payload={
+                                "summary":"executor exceeded its timeout",
+                            },
+                            duration_seconds=duration,
+                        )
+                        return {
+                            "job_key":key,
+                            "status":"failed",
+                            "reason":"executor_timeout",
+                        }
+
+                    try:
+                        stdout, _stderr = process.communicate(
+                            input=request if first_communicate else None,
+                            timeout=min(
+                                self.heartbeat_interval_seconds,
+                                remaining,
+                            ),
+                        )
+                        break
+                    except subprocess.TimeoutExpired:
+                        first_communicate = False
+                        self._observe_checkpoint(key)
+                        try:
+                            heartbeat = self._heartbeat_active(key)
+                            heartbeat_failures = 0
+                        except RuntimeError:
+                            heartbeat_failures += 1
+                            if (
+                                heartbeat_failures
+                                >= self.max_consecutive_heartbeat_failures
+                            ):
+                                self._observe_checkpoint(key)
+                                self._terminate(process)
+                                return {
+                                    "job_key":key,
+                                    "status":"abandoned",
+                                    "reason":"control_plane_unavailable",
+                                }
+                            continue
+
+                        if key in heartbeat.get("stale_job_keys", []):
+                            self._terminate(process)
+                            self.client.checkpoint_stale(
+                                key,
+                                self._checkpoint_ref(key),
+                            )
+                            return {
+                                "job_key":key,
+                                "status":"stale",
+                            }
+
+                        controls = (
+                            heartbeat.get("control", {})
+                            .get("jobs", {})
+                        )
+                        desired = str(
+                            (controls.get(key) or {}).get("desired_state")
+                            or ""
+                        )
+                        if desired == "cancel_requested":
+                            self._terminate(process)
+                            self._deactivate(
+                                key,
+                                job_control_state="cancel_requested",
+                            )
+                            active_registered = False
+                            return {
+                                "job_key":key,
+                                "status":"cancelled",
+                            }
+
+                duration = time.monotonic() - started
+                self._observe_checkpoint(key)
+                if process.returncode != 0:
+                    reason = f"executor_exit_{process.returncode}"
                     self.client.fail(
                         key,
-                        "executor_timeout",
+                        reason,
                         result_payload={
-                            "summary":"executor exceeded its timeout",
+                            "summary":"executor process failed",
                         },
                         duration_seconds=duration,
                     )
                     return {
                         "job_key":key,
                         "status":"failed",
-                        "reason":"executor_timeout",
+                        "reason":reason,
                     }
 
                 try:
-                    stdout, _stderr = process.communicate(
-                        input=request if first_communicate else None,
-                        timeout=min(
-                            self.heartbeat_interval_seconds,
-                            remaining,
-                        ),
+                    payload = json.loads(stdout)
+                except (TypeError, json.JSONDecodeError):
+                    payload = None
+                if not isinstance(payload, dict):
+                    self.client.fail(
+                        key,
+                        "executor_invalid_output",
+                        result_payload={
+                            "summary":"executor returned invalid JSON output",
+                        },
+                        duration_seconds=duration,
                     )
-                    break
-                except subprocess.TimeoutExpired:
-                    first_communicate = False
-                    self._observe_checkpoint(key)
-                    try:
-                        heartbeat = self._heartbeat_active(key)
-                        heartbeat_failures = 0
-                    except RuntimeError:
-                        heartbeat_failures += 1
-                        if (
-                            heartbeat_failures
-                            >= self.max_consecutive_heartbeat_failures
-                        ):
-                            self._observe_checkpoint(key)
-                            self._terminate(process)
-                            return {
-                                "job_key":key,
-                                "status":"abandoned",
-                                "reason":"control_plane_unavailable",
-                            }
-                        continue
-
-                    if key in heartbeat.get("stale_job_keys", []):
-                        self._terminate(process)
-                        self.client.checkpoint_stale(
-                            key,
-                            self._checkpoint_ref(key),
-                        )
-                        return {
-                            "job_key":key,
-                            "status":"stale",
-                        }
-
-                    controls = (
-                        heartbeat.get("control", {})
-                        .get("jobs", {})
-                    )
-                    desired = str(
-                        (controls.get(key) or {}).get("desired_state")
-                        or ""
-                    )
-                    if desired == "cancel_requested":
-                        self._terminate(process)
-                        self._deactivate(
-                            key,
-                            job_control_state="cancel_requested",
-                        )
-                        active_registered = False
-                        return {
-                            "job_key":key,
-                            "status":"cancelled",
-                        }
-
-            duration = time.monotonic() - started
-            self._observe_checkpoint(key)
-            if process.returncode != 0:
-                reason = f"executor_exit_{process.returncode}"
-                self.client.fail(
-                    key,
-                    reason,
-                    result_payload={
-                        "summary":"executor process failed",
-                    },
-                    duration_seconds=duration,
-                )
-                return {
-                    "job_key":key,
-                    "status":"failed",
-                    "reason":reason,
-                }
-
-            try:
-                payload = json.loads(stdout)
-            except (TypeError, json.JSONDecodeError):
-                payload = None
-            if not isinstance(payload, dict):
-                self.client.fail(
-                    key,
-                    "executor_invalid_output",
-                    result_payload={
-                        "summary":"executor returned invalid JSON output",
-                    },
-                    duration_seconds=duration,
-                )
-                return {
-                    "job_key":key,
-                    "status":"failed",
-                    "reason":"executor_invalid_output",
-                }
+                    return {
+                        "job_key":key,
+                        "status":"failed",
+                        "reason":"executor_invalid_output",
+                    }
 
             status = str(payload.get("status") or "")
             result = payload.get("result", {})

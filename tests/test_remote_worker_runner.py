@@ -9,6 +9,8 @@ from http.server import ThreadingHTTPServer
 
 from production_os.api_auth import TokenAuthorizer, token_digest
 from production_os.control_plane import ControlPlane, make_handler
+from production_os.executor_worktree import PreparedWorktree
+from production_os.cli import _parse_args
 from production_os.remote_worker import RemoteWorkerClient
 from production_os.remote_worker_runner import RemoteWorkerRunner
 
@@ -1061,3 +1063,969 @@ print(json.dumps({
         assert execution["result_summary"]["executor_git"]["clean"] is False
     finally:
         _stop(server, thread)
+
+
+
+def test_remote_worker_run_defaults_executor_mode_to_auto():
+    args = _parse_args([
+        "remote-worker-run",
+        "--url", "http://example.invalid",
+        "--worker-id", "worker-a",
+    ])
+
+    assert args.executor_mode == "auto"
+    assert args.executor_command == ""
+
+
+def test_remote_worker_run_allows_auto_without_executor_command():
+    args = _parse_args([
+        "remote-worker-run",
+        "--url", "http://example.invalid",
+        "--worker-id", "worker-a",
+        "--executor-mode", "auto",
+    ])
+
+    runner = RemoteWorkerRunner(
+        object(),
+        [],
+        executor_mode=args.executor_mode,
+    )
+
+    assert runner.executor_mode == "auto"
+    assert runner.executor_command == []
+
+
+def test_remote_worker_run_rejects_external_mode_without_executor_command():
+    args = _parse_args([
+        "remote-worker-run",
+        "--url", "http://example.invalid",
+        "--worker-id", "worker-a",
+        "--executor-mode", "external",
+    ])
+
+    try:
+        RemoteWorkerRunner(
+            object(),
+            [],
+            executor_mode=args.executor_mode,
+        )
+    except ValueError as exc:
+        assert "executor command is required" in str(exc)
+    else:
+        raise AssertionError("external mode must require an executor command")
+
+
+def test_remote_worker_run_accepts_native_without_executor_command():
+    args = _parse_args([
+        "remote-worker-run",
+        "--url", "http://example.invalid",
+        "--worker-id", "worker-a",
+        "--executor-mode", "native",
+    ])
+
+    runner = RemoteWorkerRunner(
+        object(),
+        None,
+        executor_mode=args.executor_mode,
+    )
+
+    assert runner.executor_mode == "native"
+    assert runner.executor_command == []
+
+
+
+def _native_browser_handoff_for_runner():
+    return {
+        "repository":"dbrckk/native-browser",
+        "task":"Inspect the frontend in the browser.",
+        "tool_contracts":{
+            "browser_computer":{
+                "schema_version":"production-os/browser-computer-tool/v1",
+            },
+        },
+        "browser":{
+            "config":{
+                "schema_version":"production-os/browser-computer-loop/v1",
+                "allowed_hosts":["example.com"],
+                "persist_session":False,
+                "allow_private_network":False,
+                "max_turns":1,
+            },
+            "turns":[{
+                "schema_version":"production-os/browser-computer-turn/v1",
+                "turn_id":"observe",
+                "actions":[{"action":"snapshot","name":"page"}],
+            }],
+        },
+    }
+
+
+def test_auto_mode_prefers_native_browser_over_external_executor(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "native-preferred.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":_native_browser_handoff_for_runner(),
+        "required_capabilities":[],
+    })
+    marker = tmp_path / "external-ran"
+    executor = tmp_path / "external.py"
+    executor.write_text(
+        f"""
+import json, pathlib, sys
+json.load(sys.stdin)
+pathlib.Path({str(marker)!r}).write_text("ran", encoding="utf-8")
+print(json.dumps({{"status":"succeeded","result":{{"summary":"external"}}}}))
+""".strip(),
+        encoding="utf-8",
+    )
+    calls = []
+
+    def fake_native(context):
+        calls.append(context.job_key)
+        return {"status":"succeeded","result":{"summary":"native"}}
+
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.execute_native",
+        fake_native,
+    )
+
+    server, thread, base = _server(control)
+    try:
+        client = RemoteWorkerClient(base, "worker-secret", "runner-1", [], timeout=5)
+        runner = RemoteWorkerRunner(
+            client,
+            [sys.executable, str(executor)],
+            executor_mode="auto",
+            heartbeat_interval_seconds=0.05,
+            executor_timeout_seconds=5,
+        )
+
+        outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+
+        assert outcomes == [{"job_key":queued["key"], "status":"completed"}]
+        assert calls == [queued["key"]]
+        assert marker.exists() is False
+    finally:
+        _stop(server, thread)
+
+
+def test_auto_mode_falls_back_to_external_when_native_is_unsupported(tmp_path):
+    control = ControlPlane(str(tmp_path / "native-fallback.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":{
+            "repository":"dbrckk/external-only",
+            "task":"Run an unsupported native task.",
+        },
+        "required_capabilities":[],
+    })
+    marker = tmp_path / "external-ran"
+    executor = tmp_path / "external.py"
+    executor.write_text(
+        f"""
+import json, pathlib, sys
+json.load(sys.stdin)
+pathlib.Path({str(marker)!r}).write_text("ran", encoding="utf-8")
+print(json.dumps({{"status":"succeeded","result":{{"summary":"external"}}}}))
+""".strip(),
+        encoding="utf-8",
+    )
+
+    server, thread, base = _server(control)
+    try:
+        client = RemoteWorkerClient(base, "worker-secret", "runner-1", [], timeout=5)
+        runner = RemoteWorkerRunner(
+            client,
+            [sys.executable, str(executor)],
+            executor_mode="auto",
+            heartbeat_interval_seconds=0.05,
+            executor_timeout_seconds=5,
+        )
+
+        outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+
+        assert outcomes == [{"job_key":queued["key"], "status":"completed"}]
+        assert marker.is_file()
+    finally:
+        _stop(server, thread)
+
+
+def test_native_mode_rejects_unsupported_job(tmp_path):
+    control = ControlPlane(str(tmp_path / "native-unsupported.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":{
+            "repository":"dbrckk/native-unsupported",
+            "task":"Unsupported native task.",
+        },
+        "required_capabilities":[],
+    })
+
+    server, thread, base = _server(control)
+    try:
+        client = RemoteWorkerClient(base, "worker-secret", "runner-1", [], timeout=5)
+        runner = RemoteWorkerRunner(
+            client,
+            [],
+            executor_mode="native",
+            heartbeat_interval_seconds=0.05,
+            executor_timeout_seconds=5,
+        )
+
+        outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+
+        assert outcomes == [{
+            "job_key":queued["key"],
+            "status":"failed",
+            "reason":"native_executor_unsupported",
+        }]
+        assert control.queue.get(queued["key"])["status"] == "failed"
+    finally:
+        _stop(server, thread)
+
+
+def test_auto_mode_without_any_executor_fails_executor_unavailable(tmp_path):
+    control = ControlPlane(str(tmp_path / "executor-unavailable.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":{
+            "repository":"dbrckk/no-executor",
+            "task":"Unsupported task without fallback.",
+        },
+        "required_capabilities":[],
+    })
+
+    server, thread, base = _server(control)
+    try:
+        client = RemoteWorkerClient(base, "worker-secret", "runner-1", [], timeout=5)
+        runner = RemoteWorkerRunner(
+            client,
+            [],
+            executor_mode="auto",
+            heartbeat_interval_seconds=0.05,
+            executor_timeout_seconds=5,
+        )
+
+        outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+
+        assert outcomes == [{
+            "job_key":queued["key"],
+            "status":"failed",
+            "reason":"executor_unavailable",
+        }]
+    finally:
+        _stop(server, thread)
+
+
+def test_native_runtime_failure_never_falls_back_external(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "native-no-fallback.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":_native_browser_handoff_for_runner(),
+        "required_capabilities":[],
+    })
+    marker = tmp_path / "external-ran"
+    executor = tmp_path / "external.py"
+    executor.write_text(
+        f"""
+import json, pathlib, sys
+json.load(sys.stdin)
+pathlib.Path({str(marker)!r}).write_text("ran", encoding="utf-8")
+print(json.dumps({{"status":"succeeded","result":{{"summary":"external"}}}}))
+""".strip(),
+        encoding="utf-8",
+    )
+
+    def fail_native(_context):
+        return {
+            "status":"failed",
+            "reason":"native_executor_failed",
+            "result":{"summary":"native failed after starting"},
+        }
+
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.execute_native",
+        fail_native,
+    )
+
+    server, thread, base = _server(control)
+    try:
+        client = RemoteWorkerClient(base, "worker-secret", "runner-1", [], timeout=5)
+        runner = RemoteWorkerRunner(
+            client,
+            [sys.executable, str(executor)],
+            executor_mode="auto",
+            heartbeat_interval_seconds=0.05,
+            executor_timeout_seconds=5,
+        )
+
+        outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+
+        assert outcomes == [{
+            "job_key":queued["key"],
+            "status":"failed",
+            "reason":"native_executor_failed",
+        }]
+        assert marker.exists() is False
+    finally:
+        _stop(server, thread)
+
+
+
+def test_native_execution_heartbeats_while_future_is_running(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "native-heartbeat.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":_native_browser_handoff_for_runner(),
+        "required_capabilities":[],
+    })
+
+    def slow_native(_context):
+        time.sleep(0.14)
+        return {"status":"succeeded","result":{"summary":"native ok"}}
+
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.execute_native",
+        slow_native,
+    )
+    server, thread, base = _server(control)
+    try:
+        client = RemoteWorkerClient(base, "worker-secret", "runner-1", [], timeout=5)
+        runner = RemoteWorkerRunner(
+            client,
+            [],
+            executor_mode="native",
+            heartbeat_interval_seconds=0.02,
+            executor_timeout_seconds=2,
+        )
+        real_heartbeat = runner._heartbeat_active
+        calls = {"count":0}
+
+        def counted(key):
+            calls["count"] += 1
+            return real_heartbeat(key)
+
+        runner._heartbeat_active = counted
+        outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+
+        assert outcomes == [{"job_key":queued["key"], "status":"completed"}]
+        assert calls["count"] >= 2
+    finally:
+        _stop(server, thread)
+
+
+def test_native_execution_timeout_sets_cancel_event_and_fails_once(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "native-timeout.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":_native_browser_handoff_for_runner(),
+        "required_capabilities":[],
+    })
+    seen = {}
+
+    def slow_native(context):
+        seen["event"] = context.cancellation_event
+        time.sleep(0.16)
+        return {"status":"succeeded","result":{"summary":"too late"}}
+
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.execute_native",
+        slow_native,
+    )
+    server, thread, base = _server(control)
+    try:
+        client = RemoteWorkerClient(base, "worker-secret", "runner-1", [], timeout=5)
+        fail_calls = []
+        real_fail = client.fail
+
+        def counted_fail(*args, **kwargs):
+            fail_calls.append((args, kwargs))
+            return real_fail(*args, **kwargs)
+
+        client.fail = counted_fail
+        runner = RemoteWorkerRunner(
+            client,
+            [],
+            executor_mode="native",
+            heartbeat_interval_seconds=0.02,
+            executor_timeout_seconds=0.05,
+        )
+
+        outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+
+        assert outcomes == [{
+            "job_key":queued["key"],
+            "status":"failed",
+            "reason":"executor_timeout",
+        }]
+        assert seen["event"].is_set()
+        assert len(fail_calls) == 1
+    finally:
+        _stop(server, thread)
+
+
+def test_native_execution_cancel_request_sets_event_and_does_not_complete(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "native-cancel.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":_native_browser_handoff_for_runner(),
+        "required_capabilities":[],
+    })
+    seen = {}
+
+    def cancellable_native(context):
+        seen["event"] = context.cancellation_event
+        deadline = time.time() + 0.5
+        while not context.cancellation_event.is_set() and time.time() < deadline:
+            time.sleep(0.01)
+        return {"status":"succeeded","result":{"summary":"stopped"}}
+
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.execute_native",
+        cancellable_native,
+    )
+    server, server_thread, base = _server(control)
+    outcomes = []
+    try:
+        client = RemoteWorkerClient(base, "worker-secret", "runner-1", [], timeout=5)
+        runner = RemoteWorkerRunner(
+            client,
+            [],
+            executor_mode="native",
+            heartbeat_interval_seconds=0.02,
+            executor_timeout_seconds=2,
+        )
+        worker_thread = threading.Thread(
+            target=lambda: outcomes.extend(
+                runner.run(cycles=1, idle_sleep_seconds=0)
+            ),
+            daemon=True,
+        )
+        worker_thread.start()
+        deadline = time.time() + 2
+        while time.time() < deadline:
+            if control.queue.get(queued["key"])["status"] == "acked":
+                break
+            time.sleep(0.01)
+        control.dashboard_control.request_job_cancel(
+            queued["key"],
+            requested_by="operator:test",
+        )
+        worker_thread.join(timeout=2)
+
+        assert outcomes == [{
+            "job_key":queued["key"],
+            "status":"cancelled",
+        }]
+        assert seen["event"].is_set()
+        assert control.queue.get(queued["key"])["status"] == "cancelled"
+    finally:
+        _stop(server, server_thread)
+
+
+def test_native_execution_stale_generation_sets_event_and_checkpoints_stale(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "native-stale.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":_native_browser_handoff_for_runner(),
+        "required_capabilities":[],
+    })
+    seen = {}
+
+    def cancellable_native(context):
+        seen["event"] = context.cancellation_event
+        deadline = time.time() + 0.3
+        while not context.cancellation_event.is_set() and time.time() < deadline:
+            time.sleep(0.01)
+        return {"status":"succeeded","result":{"summary":"stopped"}}
+
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.execute_native",
+        cancellable_native,
+    )
+    server, thread, base = _server(control)
+    try:
+        client = RemoteWorkerClient(base, "worker-secret", "runner-1", [], timeout=5)
+        runner = RemoteWorkerRunner(
+            client,
+            [],
+            executor_mode="native",
+            heartbeat_interval_seconds=0.02,
+            executor_timeout_seconds=2,
+        )
+        real_heartbeat = runner._heartbeat_active
+        beats = {"count":0}
+
+        def stale_after_start(key):
+            beats["count"] += 1
+            snapshot = real_heartbeat(key)
+            if beats["count"] >= 1:
+                snapshot["stale_job_keys"] = [key]
+            return snapshot
+
+        checkpoint_calls = []
+        client.checkpoint_stale = lambda key, ref: checkpoint_calls.append((key, ref))
+        runner._heartbeat_active = stale_after_start
+
+        outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+
+        assert outcomes == [{"job_key":queued["key"], "status":"stale"}]
+        assert seen["event"].is_set()
+        assert checkpoint_calls and checkpoint_calls[0][0] == queued["key"]
+    finally:
+        _stop(server, thread)
+
+
+def test_native_execution_worker_shutdown_sets_event_and_abandons(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "native-shutdown.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":_native_browser_handoff_for_runner(),
+        "required_capabilities":[],
+    })
+    seen = {}
+
+    def cancellable_native(context):
+        seen["event"] = context.cancellation_event
+        deadline = time.time() + 0.5
+        while not context.cancellation_event.is_set() and time.time() < deadline:
+            time.sleep(0.01)
+        return {"status":"succeeded","result":{"summary":"stopped"}}
+
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.execute_native",
+        cancellable_native,
+    )
+    server, server_thread, base = _server(control)
+    outcomes = []
+    try:
+        client = RemoteWorkerClient(base, "worker-secret", "runner-1", [], timeout=5)
+        runner = RemoteWorkerRunner(
+            client,
+            [],
+            executor_mode="native",
+            heartbeat_interval_seconds=0.02,
+            executor_timeout_seconds=2,
+        )
+        worker_thread = threading.Thread(
+            target=lambda: outcomes.extend(
+                runner.run(cycles=1, idle_sleep_seconds=0)
+            ),
+            daemon=True,
+        )
+        worker_thread.start()
+        deadline = time.time() + 2
+        while time.time() < deadline:
+            if (
+                control.queue.get(queued["key"])["status"] == "acked"
+                and "event" in seen
+            ):
+                break
+            time.sleep(0.01)
+        assert "event" in seen
+        runner.request_stop()
+        worker_thread.join(timeout=2)
+
+        assert outcomes == [{
+            "job_key":queued["key"],
+            "status":"abandoned",
+            "reason":"worker_shutdown",
+        }]
+        assert seen["event"].is_set()
+    finally:
+        _stop(server, server_thread)
+
+
+def test_native_execution_control_plane_outage_abandons_after_existing_failure_threshold(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "native-outage.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":_native_browser_handoff_for_runner(),
+        "required_capabilities":[],
+    })
+    seen = {}
+
+    def cancellable_native(context):
+        seen["event"] = context.cancellation_event
+        deadline = time.time() + 0.4
+        while not context.cancellation_event.is_set() and time.time() < deadline:
+            time.sleep(0.01)
+        return {"status":"succeeded","result":{"summary":"stopped"}}
+
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.execute_native",
+        cancellable_native,
+    )
+    server, thread, base = _server(control)
+    try:
+        client = RemoteWorkerClient(base, "worker-secret", "runner-1", [], timeout=5)
+        runner = RemoteWorkerRunner(
+            client,
+            [],
+            executor_mode="native",
+            heartbeat_interval_seconds=0.02,
+            executor_timeout_seconds=2,
+        )
+        runner.max_consecutive_heartbeat_failures = 2
+        calls = {"count":0}
+
+        def unavailable(_key):
+            calls["count"] += 1
+            raise RuntimeError("control plane unavailable")
+
+        runner._heartbeat_active = unavailable
+        outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+
+        assert outcomes == [{
+            "job_key":queued["key"],
+            "status":"abandoned",
+            "reason":"control_plane_unavailable",
+        }]
+        assert calls["count"] == 2
+        assert seen["event"].is_set()
+    finally:
+        _stop(server, thread)
+
+
+
+def _prepared_native_worktree(tmp_path):
+    root = tmp_path / "repo"
+    worktree = tmp_path / "worktree"
+    root.mkdir(exist_ok=True)
+    worktree.mkdir(exist_ok=True)
+    return PreparedWorktree(
+        repository_root=str(root),
+        worktree_path=str(worktree),
+        branch="production-os/native/test-a1",
+        base_ref="a" * 40,
+        created=True,
+    )
+
+
+def test_native_success_still_rejects_dirty_managed_worktree(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "native-dirty.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":_native_browser_handoff_for_runner(),
+        "required_capabilities":[],
+    })
+    prepared = _prepared_native_worktree(tmp_path)
+    inspections = [
+        {
+            "final_sha":"b" * 40,
+            "clean":True,
+            "base_is_ancestor":True,
+            "commits_since_base":[],
+            "commits_since_start":[],
+            "changed_files":[],
+        },
+        {
+            "final_sha":"c" * 40,
+            "clean":False,
+            "base_is_ancestor":True,
+            "commits_since_base":["c" * 40],
+            "commits_since_start":["c" * 40],
+            "changed_files":["dirty.txt"],
+        },
+    ]
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.execute_native",
+        lambda _context: {"status":"succeeded","result":{"summary":"native"}},
+    )
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.inspect_worktree_result",
+        lambda *args, **kwargs: inspections.pop(0),
+    )
+
+    server, thread, base = _server(control)
+    try:
+        client = RemoteWorkerClient(base, "worker-secret", "runner-1", [], timeout=5)
+        runner = RemoteWorkerRunner(
+            client,
+            [],
+            executor_mode="native",
+            heartbeat_interval_seconds=0.02,
+            executor_timeout_seconds=2,
+        )
+        runner._prepare_worktree = lambda _job: prepared
+
+        outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+
+        assert outcomes == [{
+            "job_key":queued["key"],
+            "status":"failed",
+            "reason":"executor_worktree_dirty",
+        }]
+    finally:
+        _stop(server, thread)
+
+
+def test_native_success_still_rejects_diverged_history(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "native-diverged.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":_native_browser_handoff_for_runner(),
+        "required_capabilities":[],
+    })
+    prepared = _prepared_native_worktree(tmp_path)
+    inspections = [
+        {
+            "final_sha":"b" * 40,
+            "clean":True,
+            "base_is_ancestor":True,
+            "commits_since_base":[],
+            "commits_since_start":[],
+            "changed_files":[],
+        },
+        {
+            "final_sha":"c" * 40,
+            "clean":True,
+            "base_is_ancestor":False,
+            "commits_since_base":[],
+            "commits_since_start":[],
+            "changed_files":["rewritten.txt"],
+        },
+    ]
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.execute_native",
+        lambda _context: {"status":"succeeded","result":{"summary":"native"}},
+    )
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.inspect_worktree_result",
+        lambda *args, **kwargs: inspections.pop(0),
+    )
+
+    server, thread, base = _server(control)
+    try:
+        client = RemoteWorkerClient(base, "worker-secret", "runner-1", [], timeout=5)
+        runner = RemoteWorkerRunner(
+            client,
+            [],
+            executor_mode="native",
+            heartbeat_interval_seconds=0.02,
+            executor_timeout_seconds=2,
+        )
+        runner._prepare_worktree = lambda _job: prepared
+
+        outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+
+        assert outcomes == [{
+            "job_key":queued["key"],
+            "status":"failed",
+            "reason":"executor_worktree_history_diverged",
+        }]
+    finally:
+        _stop(server, thread)
+
+
+def test_native_success_reports_git_derived_commit_evidence(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "native-git-evidence.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":_native_browser_handoff_for_runner(),
+        "required_capabilities":[],
+    })
+    prepared = _prepared_native_worktree(tmp_path)
+    final_sha = "c" * 40
+    inspections = [
+        {
+            "final_sha":"b" * 40,
+            "clean":True,
+            "base_is_ancestor":True,
+            "commits_since_base":[],
+            "commits_since_start":[],
+            "changed_files":[],
+        },
+        {
+            "final_sha":final_sha,
+            "clean":True,
+            "base_is_ancestor":True,
+            "commits_since_base":[final_sha],
+            "commits_since_start":[final_sha],
+            "changed_files":["browser-proof.txt"],
+        },
+    ]
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.execute_native",
+        lambda _context: {
+            "status":"succeeded",
+            "result":{
+                "summary":"native",
+                "commit_shas":["model-authored"],
+            },
+        },
+    )
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.inspect_worktree_result",
+        lambda *args, **kwargs: inspections.pop(0),
+    )
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.remove_isolated_worktree",
+        lambda *args, **kwargs: None,
+    )
+
+    server, thread, base = _server(control)
+    try:
+        client = RemoteWorkerClient(base, "worker-secret", "runner-1", [], timeout=5)
+        runner = RemoteWorkerRunner(
+            client,
+            [],
+            executor_mode="native",
+            heartbeat_interval_seconds=0.02,
+            executor_timeout_seconds=2,
+        )
+        runner._prepare_worktree = lambda _job: prepared
+
+        outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+
+        assert outcomes == [{"job_key":queued["key"], "status":"completed"}]
+        execution = control.dashboard_store.latest_execution(queued["key"])
+        result = execution["result_summary"]
+        assert result["commit_shas"] == [final_sha]
+        assert result["changed_files"] == ["browser-proof.txt"]
+        assert result["executor_git"]["final_sha"] == final_sha
+    finally:
+        _stop(server, thread)
+
+
+def test_native_failure_uses_existing_control_plane_failure_path(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "native-failure-path.sqlite"), authorizer=_auth())
+    queued = control.queue.enqueue({
+        "handoff":_native_browser_handoff_for_runner(),
+        "required_capabilities":[],
+    })
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.execute_native",
+        lambda _context: {
+            "status":"failed",
+            "reason":"native_executor_failed",
+            "result":{"summary":"native failure"},
+        },
+    )
+
+    server, thread, base = _server(control)
+    try:
+        client = RemoteWorkerClient(base, "worker-secret", "runner-1", [], timeout=5)
+        calls = []
+        real_fail = client.fail
+
+        def counted_fail(*args, **kwargs):
+            calls.append((args, kwargs))
+            return real_fail(*args, **kwargs)
+
+        client.fail = counted_fail
+        runner = RemoteWorkerRunner(
+            client,
+            [],
+            executor_mode="native",
+            heartbeat_interval_seconds=0.02,
+            executor_timeout_seconds=2,
+        )
+
+        outcomes = runner.run(cycles=1, idle_sleep_seconds=0)
+
+        assert outcomes == [{
+            "job_key":queued["key"],
+            "status":"failed",
+            "reason":"native_executor_failed",
+        }]
+        assert len(calls) == 1
+        assert control.queue.get(queued["key"])["status"] == "failed"
+    finally:
+        _stop(server, thread)
+
+
+
+def test_native_cancel_keeps_worker_slot_until_handler_actually_stops(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(
+        str(tmp_path / "native-cancel-fence.sqlite"),
+        authorizer=_auth(),
+    )
+    queued = control.queue.enqueue({
+        "handoff":_native_browser_handoff_for_runner(),
+        "required_capabilities":[],
+    })
+    entered = threading.Event()
+    release = threading.Event()
+
+    def slow_to_stop(context):
+        entered.set()
+        while not context.cancellation_event.is_set():
+            time.sleep(0.005)
+        release.wait(timeout=2)
+        return {"status":"succeeded","result":{"summary":"stopped"}}
+
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.execute_native",
+        slow_to_stop,
+    )
+    server, server_thread, base = _server(control)
+    outcomes = []
+    try:
+        client = RemoteWorkerClient(
+            base,
+            "worker-secret",
+            "runner-1",
+            [],
+            timeout=5,
+        )
+        runner = RemoteWorkerRunner(
+            client,
+            [],
+            executor_mode="native",
+            heartbeat_interval_seconds=0.02,
+            executor_timeout_seconds=2,
+        )
+        worker_thread = threading.Thread(
+            target=lambda: outcomes.extend(
+                runner.run(cycles=1, idle_sleep_seconds=0)
+            ),
+            daemon=True,
+        )
+        worker_thread.start()
+        assert entered.wait(timeout=2)
+
+        control.dashboard_control.request_job_cancel(
+            queued["key"],
+            requested_by="operator:test",
+        )
+        time.sleep(0.12)
+
+        assert worker_thread.is_alive()
+        assert outcomes == []
+
+        release.set()
+        worker_thread.join(timeout=2)
+
+        assert outcomes == [{
+            "job_key":queued["key"],
+            "status":"cancelled",
+        }]
+    finally:
+        release.set()
+        _stop(server, server_thread)
