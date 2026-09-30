@@ -527,7 +527,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
     remoterun = sub.add_parser(
         "remote-worker-run",
-        help="Run a persistent remote worker with an external JSON executor",
+        help="Run a persistent remote worker with native/external execution",
     )
     remoterun.add_argument("--url", required=True)
     remoterun.add_argument("--worker-id", required=True)
@@ -538,9 +538,15 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Environment variable containing the worker bearer token",
     )
     remoterun.add_argument(
+        "--executor-mode",
+        choices=("auto", "native", "external"),
+        default="auto",
+        help="Select native execution, external execution, or automatic routing",
+    )
+    remoterun.add_argument(
         "--executor-command",
-        required=True,
-        help="Executor command parsed without invoking a shell",
+        default="",
+        help="Optional external executor command parsed without invoking a shell",
     )
     remoterun.add_argument("--cycles", type=int, default=0)
     remoterun.add_argument("--idle-sleep-seconds", type=float, default=5.0)
@@ -2119,9 +2125,9 @@ def run_remote_worker_run(args: argparse.Namespace) -> int:
     token = str(os.getenv(args.token_env) or "").strip()
     if not token:
         raise ValueError(f"{args.token_env} is required")
-    command = shlex.split(str(args.executor_command))
-    if not command:
-        raise ValueError("executor command is required")
+    command = shlex.split(str(args.executor_command or ""))
+    if args.executor_mode == "external" and not command:
+        raise ValueError("executor command is required in external mode")
     client = RemoteWorkerClient(
         args.url,
         token,
@@ -2131,6 +2137,7 @@ def run_remote_worker_run(args: argparse.Namespace) -> int:
     runner = RemoteWorkerRunner(
         client,
         command,
+        executor_mode=args.executor_mode,
         max_concurrency=args.max_concurrency,
         heartbeat_interval_seconds=args.heartbeat_interval_seconds,
         executor_timeout_seconds=args.executor_timeout_seconds,
