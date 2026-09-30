@@ -1,23 +1,18 @@
 # Change impact
 
-Base: f6f8addcb9efd242c8a8475e358b1956f5f16161
-Head: 85524c0e5e5b445fd0372c5a34e661aa4cf37c8e
+Base: a128144e87e32a526d9d80624ff3b1e336245663
+Head: 646411ca029c82a2ab47126243e3d3704e5e4dfd
 
 ## Changed files
-- M src/production_os/browser_computer.py
-- M src/production_os/browser_loop.py
-- M src/production_os/workflow_engine.py
-- M tests/test_browser_computer.py
-- M tests/test_browser_loop.py
+- M src/production_os/agent_plan.py
+- M tests/test_agent_plan.py
 
 ## Affected areas
 - src
 - tests
 
 ## Related test candidates
-- tests/test_browser_computer.py
-- tests/test_browser_loop.py
-- tests/test_workflow_engine.py
+- tests/test_agent_plan.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

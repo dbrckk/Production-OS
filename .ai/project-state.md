@@ -22,16 +22,18 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-29T12:23:49Z
+Generated: 2026-09-30T08:17:57Z
 
 ### Git
 - Branch: `main`
-- Head: `85524c0e5e5b`
-- Commit date: 2026-09-29T14:23:38+02:00
-- Commit: feat(browser): advertise crash-safe multi-turn browser contract
+- Head: `646411ca029c`
+- Commit date: 2026-09-30T10:17:44+02:00
+- Commit: fix(agents): enforce strict dynamic-plan input types
 - Tracked files: 518
 
 ### Recently changed files
+- `src/production_os/agent_plan.py`
+- `tests/test_agent_plan.py`
 - `src/production_os/browser_computer.py`
 - `src/production_os/browser_loop.py`
 - `src/production_os/workflow_engine.py`

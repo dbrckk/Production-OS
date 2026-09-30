@@ -455,15 +455,21 @@ task_id = str(raw.get("task_id") or "").strip().lower()
 title = str(raw.get("title") or "").strip()
 instruction = str(raw.get("instruction") or "").strip()
 ⋮----
-token_budget = int(raw.get("token_budget"))
+raw_token_budget = raw.get("token_budget")
 ⋮----
-raw_capabilities = raw.get("preferred_capabilities") or []
+token_budget = raw_token_budget
+⋮----
+raw_capabilities = raw.get("preferred_capabilities")
+⋮----
+raw_capabilities = []
 ⋮----
 capabilities: list[str] = []
 ⋮----
 capability = str(value or "").strip().lower()
 ⋮----
-raw_dependencies = raw.get("dependencies") or []
+raw_dependencies = raw.get("dependencies")
+⋮----
+raw_dependencies = []
 ⋮----
 dependencies: list[str] = []
 ⋮----

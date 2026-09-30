@@ -1033,15 +1033,21 @@ task_id = str(raw.get("task_id") or "").strip().lower()
 title = str(raw.get("title") or "").strip()
 instruction = str(raw.get("instruction") or "").strip()
 ⋮----
-token_budget = int(raw.get("token_budget"))
+raw_token_budget = raw.get("token_budget")
 ⋮----
-raw_capabilities = raw.get("preferred_capabilities") or []
+token_budget = raw_token_budget
+⋮----
+raw_capabilities = raw.get("preferred_capabilities")
+⋮----
+raw_capabilities = []
 ⋮----
 capabilities: list[str] = []
 ⋮----
 capability = str(value or "").strip().lower()
 ⋮----
-raw_dependencies = raw.get("dependencies") or []
+raw_dependencies = raw.get("dependencies")
+⋮----
+raw_dependencies = []
 ⋮----
 dependencies: list[str] = []
 ⋮----
@@ -10785,6 +10791,15 @@ def test_agent_plan_rejects_budget_overflow()
 def test_agent_plan_rejects_too_many_agents()
 ⋮----
 def test_agent_plan_rejects_unsafe_graph_shapes(payload, match)
+⋮----
+@pytest.mark.parametrize("token_budget", [True, False, 1.0, 1.9, "2"])
+def test_agent_plan_rejects_non_integer_token_budget_types(token_budget)
+⋮----
+def test_agent_plan_rejects_supplied_non_list_collection_values(field, value)
+⋮----
+task = {
+⋮----
+def test_agent_plan_allows_null_optional_collections_as_empty()
 ````
 
 ## File: tests/test_agent_planning_policy.py

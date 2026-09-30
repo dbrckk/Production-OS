@@ -330,6 +330,15 @@ def test_agent_plan_rejects_budget_overflow()
 def test_agent_plan_rejects_too_many_agents()
 ⋮----
 def test_agent_plan_rejects_unsafe_graph_shapes(payload, match)
+⋮----
+@pytest.mark.parametrize("token_budget", [True, False, 1.0, 1.9, "2"])
+def test_agent_plan_rejects_non_integer_token_budget_types(token_budget)
+⋮----
+def test_agent_plan_rejects_supplied_non_list_collection_values(field, value)
+⋮----
+task = {
+⋮----
+def test_agent_plan_allows_null_optional_collections_as_empty()
 ```
 
 ## File: test_agent_planning_policy.py

@@ -4,15 +4,15 @@
     "expand_to": 12,
     "max_files": 3,
     "requested_max_files": 12,
-    "score_margin": 16,
+    "score_margin": 10,
     "tier": "narrow",
-    "top_score": 45
+    "top_score": 39
   },
   "cache": {
-    "fingerprint": "9f9cbe887a59efa73a5f8ed138dafad0b5026b8499f99085ef930bedea53e8a2",
+    "fingerprint": "caf2a8192f7a5e62912c225c8e90b41f8d6f9388f36485f74638a6743abc158a",
     "hit": false
   },
-  "candidate_count": 49,
+  "candidate_count": 32,
   "fallback": "If bounded context is insufficient, expand only to budget.expand_to, then use architecture/segmented maps and targeted source search.",
   "files": [
     {
@@ -23,10 +23,9 @@
       ],
       "path": "tests/test_workflow_engine.py",
       "reasons": [
-        "impact",
         "search-index"
       ],
-      "score": 45,
+      "score": 39,
       "symbols": [
         "engine",
         "test_change_impact_can_be_recomputed_before_execution",
@@ -89,33 +88,23 @@
       "matched_terms": [
         "engine"
       ],
-      "path": "src/production_os/cli.py",
+      "path": "tests/test_dynamic_agent_fanout.py",
       "reasons": [
         "impact",
         "search-index"
       ],
-      "score": 27,
+      "score": 23,
       "symbols": [
-        "_asset_failure_result",
-        "_browser_checkpoint_state",
-        "_browser_session_state",
-        "_browser_storage_state",
-        "_external_refs_for_action",
-        "_handoff",
-        "_parse_args",
-        "_print_human",
-        "_rank_actions",
-        "_release_ledger",
-        "_repository_root_map",
-        "_request_stop",
-        "_trusted_validation_keys_from_env",
-        "_workflow_engine",
-        "_write_asset_result",
-        "main",
-        "run_agent_benchmark",
-        "run_approve",
-        "run_artifact_add",
-        "run_asset_forge_batch"
+        "_build",
+        "_planner_spec",
+        "test_dynamic_plan_records_fallback_source",
+        "test_dynamic_plan_records_model_source_and_fanout_event",
+        "test_dynamic_planner_generates_post_integration_validation_chain",
+        "test_dynamic_planner_rejects_invalid_primary_and_invalid_fallback",
+        "test_dynamic_planner_uses_validated_fallback_when_model_plan_missing",
+        "test_invalid_planner_plan_is_rejected_before_child_dispatch",
+        "test_planner_child_dependencies_preserve_ordered_dag",
+        "test_planner_result_expands_parallel_agents_and_integration"
       ]
     }
   ],
