@@ -174,13 +174,14 @@ git commit -m "feat(controller): add idempotent autonomous accounting"
 **Files:**
 - Create: `src/production_os/autonomous_admission.py`
 - Modify: `src/production_os/dispatch.py`
+- Reuse: `src/production_os/runtime_state.py::task_key(repository, task)`
 - Test: `tests/test_reconciliation_dispatch.py`
 - Create: `tests/test_autonomous_admission.py`
 
 **Interfaces:**
 - Produces:
   - `AutonomousAdmissionRequest` frozen dataclass containing handoff, repository, task, required capabilities and rate-limit settings.
-  - `AutonomousAdmissionDecision` frozen dataclass containing normalized handoff, risk class, constraints, resource request, runtime action key and selected worker metadata.
+  - `AutonomousAdmissionDecision` frozen dataclass containing normalized handoff, risk class, constraints, resource request, runtime action key from `task_key(repository, task)`, and selected worker metadata.
   - `evaluate_autonomous_admission(...) -> AutonomousAdmissionDecision`
   - `commit_autonomous_admission(...) -> None`
 - Consumes existing:
@@ -233,9 +234,11 @@ Move pre-queue validation/normalization from `dispatch_handoff()` into `evaluate
 
 - [ ] **Step 4: Separate accounting commit**
 
-Legacy `dispatch_handoff()` calls `commit_autonomous_admission(...)` after successful queue reservation, preserving current effective semantics.
+Legacy `dispatch_handoff()` calls `commit_autonomous_admission(...)` after successful queue reservation, preserving current repository/portfolio budget accounting and repository rate-limit semantics.
 
-Managed callers will later use the same function with stable project-id idempotency.
+Worker-scoped rate limiting remains inside the legacy worker-selection/dispatch path because Managed Project creation does not yet select the worker that will eventually claim each WorkflowEngine job.
+
+Managed callers later use `commit_autonomous_admission(..., idempotency_key=project_id)` only for controller-level repository/portfolio accounting.
 
 - [ ] **Step 5: Run parity tests for GREEN**
 
@@ -334,7 +337,7 @@ git commit -m "feat(controller): launch idempotent managed projects"
 
 **Files:**
 - Modify: `src/production_os/workers.py`
-- Modify: control-plane module that currently owns `cooperative_worker_fleet_available()`
+- Modify: `src/production_os/control_plane.py`
 - Test: `tests/test_workers.py`
 - Test: `tests/test_cooperative_managed_projects.py`
 
@@ -345,12 +348,14 @@ git commit -m "feat(controller): launch idempotent managed projects"
 
 - [ ] **Step 1: Write RED capability tests**
 
-Cover:
-- code + test/debug + review-capable fleet;
-- missing one core role;
-- browser-required action with/without browser specialist;
-- mobile-required action with/without mobile specialist;
-- dead/full workers excluded.
+Cover the exact current `ControlPlane.cooperative_worker_fleet_available(final_goal)` semantics:
+- non-specialist goal returns true when any online worker exposes one of `code-implementation`, `test-debug`, `code-review`, `browser-ui-validation`, or `mobile-ui-validation`;
+- browser-required goal returns true only with an online `browser-ui-validation` worker;
+- mobile-required goal returns true only with an online `mobile-ui-validation` worker;
+- dead workers are excluded;
+- keep current behavior for full-but-online workers unless a separate existing test already treats capacity as unavailable.
+
+This task is an extraction, not a stricter fleet-policy redesign.
 
 - [ ] **Step 2: Run RED**
 
@@ -555,10 +560,12 @@ For managed mode prove each block occurs before project creation:
 - quarantine;
 - repository budget;
 - portfolio budget;
-- approval required;
+- approval required using the same `task_key(repository, task)` as legacy dispatch;
 - repository rate limit;
 - runtime lease/cooldown/circuit/succeeded;
 - no capable worker/backpressure where required.
+
+Do not assert worker-scoped rate-limit charging at project creation; it remains a worker/job execution concern.
 
 For each case assert:
 - zero new Managed Project rows;
@@ -612,7 +619,7 @@ git commit -m "test(controller): prove managed execution safety parity"
 **Files:**
 - Modify: `src/production_os/controller.py`
 - Modify: `src/production_os/cli.py`
-- Modify: controller deployment/Compose file used by `tests/test_controller_daemon_deployment.py`
+- Modify: `compose.yaml`
 - Modify: `README.md`
 - Modify: relevant controller operations documentation
 - Test: `tests/test_controller_daemon.py`
