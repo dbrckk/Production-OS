@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import io
 import json
+import tempfile
 import threading
 from dataclasses import dataclass
 from pathlib import Path
@@ -47,11 +48,22 @@ def select_native_handler(
     if not isinstance(contracts, dict):
         contracts = {}
     browser_contract = contracts.get(_BROWSER_HANDLER)
-    if (
+    browser_request = handoff.get("browser")
+    contract_supported = (
         isinstance(browser_contract, dict)
-        and str(browser_contract.get("schema_version") or "")
-        == _BROWSER_TOOL_SCHEMA
-    ):
+        and (
+            str(browser_contract.get("schema") or "")
+            == "production-os/browser-computer-plan/v1"
+            or str(browser_contract.get("schema_version") or "")
+            == _BROWSER_TOOL_SCHEMA
+        )
+    )
+    request_supported = (
+        isinstance(browser_request, dict)
+        and isinstance(browser_request.get("config"), dict)
+        and isinstance(browser_request.get("turns"), list)
+    )
+    if contract_supported and request_supported:
         return NativeExecutionDecision(
             supported=True,
             handler_name=_BROWSER_HANDLER,
@@ -125,18 +137,22 @@ def execute_browser_native(
             "persistent native browser execution requires runtime workspace",
         )
 
+    ephemeral_artifacts: tempfile.TemporaryDirectory[str] | None = None
     if runtime_workspace is not None:
         artifacts_dir = runtime_workspace / "browser-artifacts"
         storage_state_path = runtime_workspace / "browser-state.json"
         session_state_path = runtime_workspace / "browser-session.json"
         checkpoint_path = runtime_workspace / "browser-checkpoint.json"
     else:
-        if not context.artifacts_dir:
-            return _failure(
-                "native_executor_runtime_unavailable",
-                "native browser execution requires an artifacts directory",
+        if context.artifacts_dir:
+            artifacts_dir = Path(
+                context.artifacts_dir
+            ).expanduser().resolve()
+        else:
+            ephemeral_artifacts = tempfile.TemporaryDirectory(
+                prefix="production-os-browser-",
             )
-        artifacts_dir = Path(context.artifacts_dir).expanduser().resolve()
+            artifacts_dir = Path(ephemeral_artifacts.name).resolve()
         storage_state_path = None
         session_state_path = None
         checkpoint_path = None
@@ -153,26 +169,30 @@ def execute_browser_native(
     )
     output_stream = io.StringIO()
     try:
-        summary = run_browser_turn_loop(
-            config,
-            input_stream,
-            output_stream,
-            artifacts_dir=artifacts_dir,
-            storage_state_path=storage_state_path,
-            session_state_path=session_state_path,
-            checkpoint_path=checkpoint_path,
-            cancelled=context.cancellation_event.is_set,
-        )
-    except ValueError as exc:
-        return _failure(
-            "native_executor_invalid_request",
-            str(exc)[:1000],
-        )
-    except Exception as exc:
-        return _failure(
-            "native_executor_failed",
-            str(exc)[:1000],
-        )
+        try:
+            summary = run_browser_turn_loop(
+                config,
+                input_stream,
+                output_stream,
+                artifacts_dir=artifacts_dir,
+                storage_state_path=storage_state_path,
+                session_state_path=session_state_path,
+                checkpoint_path=checkpoint_path,
+                cancelled=context.cancellation_event.is_set,
+            )
+        except ValueError as exc:
+            return _failure(
+                "native_executor_invalid_request",
+                str(exc)[:1000],
+            )
+        except Exception as exc:
+            return _failure(
+                "native_executor_failed",
+                str(exc)[:1000],
+            )
+    finally:
+        if ephemeral_artifacts is not None:
+            ephemeral_artifacts.cleanup()
 
     turn_results = []
     for line in output_stream.getvalue().splitlines():
