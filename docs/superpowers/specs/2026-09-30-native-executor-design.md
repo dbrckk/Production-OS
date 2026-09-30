@@ -76,7 +76,7 @@ In `auto` mode, absence of `--executor-command` is valid as long as a claimed jo
 
 ### 2. Native executor boundary
 
-Add a dedicated module, tentatively:
+Add a dedicated module:
 
 `src/production_os/native_executor.py`
 
@@ -230,17 +230,19 @@ External execution is currently cancellable because the runner owns a child proc
 
 Native execution must therefore run in a cancellable execution unit rather than block the polling thread indefinitely.
 
-Preferred implementation:
+Required implementation:
 
-- execute the native handler in the runner's existing job thread;
-- pass a cancellation callback / event into native handlers;
-- browser loop checks cancellation between turns and before each new browser plan;
+- start the native handler in a dedicated `Future` owned by the job execution path;
+- keep the runner thread in a bounded supervision loop using the existing heartbeat interval;
+- on each supervision tick, observe runtime checkpoints, heartbeat the control plane, enforce timeout, inspect stale-generation state, and inspect cancellation state;
+- pass a per-job `threading.Event` cancellation signal into the native handler;
+- browser execution checks that event before every turn and before starting each new browser plan;
 - action-level execution remains bounded by existing browser action timeouts;
-- the runner continues heartbeats while the native handler is active.
+- if cancellation, stale-generation fencing, worker shutdown, or timeout occurs, set the cancellation event and stop accepting new native work.
 
-A native browser handler must stop accepting new turns after cancellation or stale-generation fencing.
+The runner must not call job completion/failure until the native future has reached a terminal state or the cooperative cancellation grace period has expired.
 
-This phase does not require hard thread termination. Native handlers must cooperate with cancellation at defined safe boundaries.
+This phase does not attempt unsafe Python thread termination. Native handlers must cooperate with cancellation at defined safe boundaries. If a handler does not stop within the bounded grace period, the job is abandoned/fenced rather than re-executed through the external fallback.
 
 ### 8. External fallback
 
