@@ -5,19 +5,37 @@
   "semantic": false,
   "note": "Dependencies are known symbol names lexically present inside the symbol's AST/source range.",
   "symbols": {
-    "PlannedAgentTask": {
+    "_now": {
       "source": {
-        "file": "src/production_os/agent_plan.py",
-        "start": 14,
-        "end": 32
+        "file": "src/production_os/workflow_engine.py",
+        "start": 28,
+        "end": 29
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "_is_postgres": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 32,
+        "end": 33
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "_sql": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 36,
+        "end": 37
       },
       "symbol_dependencies": [
         {
-          "symbol": "to_dict",
+          "symbol": "_is_postgres",
           "definitions": [
             {
-              "file": "src/production_os/agent_plan.py",
-              "line": 23,
+              "file": "src/production_os/workflow_engine.py",
+              "line": 32,
               "kind": "function",
               "language": "python"
             }
@@ -27,20 +45,2074 @@
       ],
       "dependency_count": 1
     },
-    "to_dict": {
+    "_execute": {
       "source": {
-        "file": "src/production_os/agent_plan.py",
-        "start": 23,
-        "end": 143
+        "file": "src/production_os/workflow_engine.py",
+        "start": 40,
+        "end": 41
       },
       "symbol_dependencies": [
         {
-          "symbol": "PlannedAgentTask",
+          "symbol": "_sql",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 36,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "_retry_context": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 44,
+        "end": 104
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "context",
+          "definitions": [
+            {
+              "file": "src/production_os/project_memory.py",
+              "line": 394,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "key",
+          "definitions": [
+            {
+              "file": "src/production_os/model_router.py",
+              "line": 61,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "_single_upstream_commit_ref": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 107,
+        "end": 118
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "_upstream_context": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 121,
+        "end": 214
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "key",
+          "definitions": [
+            {
+              "file": "src/production_os/model_router.py",
+              "line": 61,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "WorkflowTaskSpec": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 218,
+        "end": 242
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "from_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 228,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "from_dict": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 228,
+        "end": 242
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "WorkflowTaskSpec",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 218,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "WorkflowEngine": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 245,
+        "end": 2315
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ModelRouter",
+          "definitions": [
+            {
+              "file": "src/production_os/model_router.py",
+              "line": 107,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "ProjectMemoryStore",
+          "definitions": [
+            {
+              "file": "src/production_os/project_memory.py",
+              "line": 106,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "ResultCache",
+          "definitions": [
+            {
+              "file": "src/production_os/result_cache.py",
+              "line": 43,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "SkillStore",
+          "definitions": [
+            {
+              "file": "src/production_os/skill_memory.py",
+              "line": 79,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "WorkflowTaskSpec",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 218,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_apply_dynamic_agent_specs",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 1763,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_artifact_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 986,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_dynamic_agent_specs",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 1526,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 40,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_expand_splittable_tasks",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 247,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_now",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 28,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_retry_context",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 44,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_single_upstream_commit_ref",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 107,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_spec_from_task",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 583,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_task_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 963,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_upstream_context",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 121,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_validate",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 328,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "add_artifact",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 2217,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "add_task",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 1032,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "analyze_change_impact",
+          "definitions": [
+            {
+              "file": "src/production_os/change_impact.py",
+              "line": 52,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "apply_change_impact",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 454,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "assert_generation_current",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 2161,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "asset_forge_tool_contract",
+          "definitions": [
+            {
+              "file": "src/production_os/task_capabilities.py",
+              "line": 136,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "build_worktree_contract",
+          "definitions": [
+            {
+              "file": "src/production_os/worktree_contract.py",
+              "line": 16,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "cancel",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 2122,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "catalog_candidates",
+          "definitions": [
+            {
+              "file": "src/production_os/model_router.py",
+              "line": 159,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "create",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 363,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "create_from_pr_template",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 756,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "create_pr_generation",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 603,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "critical_path",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 2285,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "dispatch_ready",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 1223,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "ensure_pr_generation",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 802,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "find_by_github_pr",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 886,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "find_pr_template",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 733,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "fingerprint",
+          "definitions": [
+            {
+              "file": "src/production_os/result_cache.py",
+              "line": 24,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "generation_refreshable",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 787,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "inferred_preferred_capabilities",
+          "definitions": [
+            {
+              "file": "src/production_os/task_capabilities.py",
+              "line": 88,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "inferred_required_capabilities",
+          "definitions": [
+            {
+              "file": "src/production_os/task_capabilities.py",
+              "line": 115,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "job_generation_current",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 2200,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 40
+    },
+    "_expand_splittable_tasks": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 247,
+        "end": 317
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "WorkflowTaskSpec",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 218,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "key",
+          "definitions": [
+            {
+              "file": "src/production_os/model_router.py",
+              "line": 61,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "__init__": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 319,
+        "end": 439
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ModelRouter",
+          "definitions": [
+            {
+              "file": "src/production_os/model_router.py",
+              "line": 107,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "ProjectMemoryStore",
+          "definitions": [
+            {
+              "file": "src/production_os/project_memory.py",
+              "line": 106,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "ResultCache",
+          "definitions": [
+            {
+              "file": "src/production_os/result_cache.py",
+              "line": 43,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "SkillStore",
+          "definitions": [
+            {
+              "file": "src/production_os/skill_memory.py",
+              "line": 79,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "WorkflowTaskSpec",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 218,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 40,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_expand_splittable_tasks",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 247,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_now",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 28,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_validate",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 328,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "create",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 363,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "visit",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 349,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 11
+    },
+    "_validate": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 328,
+        "end": 361
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "WorkflowTaskSpec",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 218,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "visit",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 349,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "visit": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 349,
+        "end": 469
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "WorkflowTaskSpec",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 218,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 40,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_expand_splittable_tasks",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 247,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_now",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 28,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_validate",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 328,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "apply_change_impact",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 454,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "create",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 363,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "refresh",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 1114,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 9
+    },
+    "create": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 363,
+        "end": 452
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "WorkflowTaskSpec",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 218,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 40,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_expand_splittable_tasks",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 247,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_now",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 28,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_validate",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 328,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "apply_change_impact",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 454,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "refresh",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 1114,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 8
+    },
+    "apply_change_impact": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 454,
+        "end": 580
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 40,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_now",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 28,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "analyze_change_impact",
+          "definitions": [
+            {
+              "file": "src/production_os/change_impact.py",
+              "line": 52,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "refresh",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 1114,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "to_dict",
           "definitions": [
             {
               "file": "src/production_os/agent_plan.py",
-              "line": 14,
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/change_impact.py",
+              "line": 13,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 6
+    },
+    "_spec_from_task": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 583,
+        "end": 601
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "WorkflowTaskSpec",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 218,
               "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "create_pr_generation": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 603,
+        "end": 629
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_spec_from_task",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 583,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "create",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 363,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "supersede": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 631,
+        "end": 731
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 40,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_now",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 28,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "key",
+          "definitions": [
+            {
+              "file": "src/production_os/model_router.py",
+              "line": 61,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "find_pr_template": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 733,
+        "end": 754
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 40,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "create_from_pr_template": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 756,
+        "end": 784
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_spec_from_task",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 583,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "create",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 363,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "find_pr_template",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 733,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "generation_refreshable": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 787,
+        "end": 800
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "ensure_pr_generation": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 802,
+        "end": 884
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 40,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_now",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 28,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "create_pr_generation",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 603,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "find_by_github_pr",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 886,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "supersede",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 631,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 6
+    },
+    "find_by_github_pr": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 886,
+        "end": 917
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 40,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "get": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 919,
+        "end": 960
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_artifact_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 986,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 40,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_task_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 963,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "_task_dict": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 963,
+        "end": 983
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "_artifact_dict": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 986,
+        "end": 996
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "update_metadata": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 998,
+        "end": 1030
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 40,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_now",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 28,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "add_task": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 1032,
+        "end": 1112
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "WorkflowTaskSpec",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 218,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 40,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_now",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 28,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "refresh",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 1114,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 5
+    },
+    "refresh": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 1114,
+        "end": 1221
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 40,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_now",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 28,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "dispatch_ready": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 1223,
+        "end": 1524
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 40,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_now",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 28,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_retry_context",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 44,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_single_upstream_commit_ref",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 107,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_upstream_context",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 121,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "asset_forge_tool_contract",
+          "definitions": [
+            {
+              "file": "src/production_os/task_capabilities.py",
+              "line": 136,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "build_worktree_contract",
+          "definitions": [
+            {
+              "file": "src/production_os/worktree_contract.py",
+              "line": 16,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "catalog_candidates",
+          "definitions": [
+            {
+              "file": "src/production_os/model_router.py",
+              "line": 159,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "fingerprint",
+          "definitions": [
+            {
+              "file": "src/production_os/result_cache.py",
+              "line": 24,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "inferred_preferred_capabilities",
+          "definitions": [
+            {
+              "file": "src/production_os/task_capabilities.py",
+              "line": 88,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "inferred_required_capabilities",
+          "definitions": [
+            {
+              "file": "src/production_os/task_capabilities.py",
+              "line": 115,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "key",
+          "definitions": [
+            {
+              "file": "src/production_os/model_router.py",
+              "line": 61,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "refresh",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 1114,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "route",
+          "definitions": [
+            {
+              "file": "src/production_os/model_router.py",
+              "line": 385,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "select",
+          "definitions": [
+            {
+              "file": "src/production_os/skill_memory.py",
+              "line": 322,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "task_key",
+          "definitions": [
+            {
+              "file": "src/production_os/runtime_state.py",
+              "line": 36,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/agent_plan.py",
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/change_impact.py",
+              "line": 13,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 18
+    },
+    "_dynamic_agent_specs": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 1526,
+        "end": 1761
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "WorkflowTaskSpec",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 218,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
               "language": "python"
             }
           ],
@@ -56,46 +2128,606 @@
               "language": "python"
             }
           ],
-          "relation": "same_file"
+          "relation": "imported_module"
         }
       ],
-      "dependency_count": 2
+      "dependency_count": 3
     },
-    "validate_agent_plan": {
+    "_apply_dynamic_agent_specs": {
       "source": {
-        "file": "src/production_os/agent_plan.py",
-        "start": 35,
-        "end": 155
+        "file": "src/production_os/workflow_engine.py",
+        "start": 1763,
+        "end": 1801
       },
       "symbol_dependencies": [
         {
-          "symbol": "PlannedAgentTask",
+          "symbol": "WorkflowTaskSpec",
           "definitions": [
             {
-              "file": "src/production_os/agent_plan.py",
-              "line": 14,
+              "file": "src/production_os/workflow_engine.py",
+              "line": 218,
               "kind": "class",
               "language": "python"
             }
           ],
           "relation": "same_file"
+        },
+        {
+          "symbol": "add_task",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 1032,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "record_result": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 1803,
+        "end": 1994
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "WorkflowTaskSpec",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 218,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_apply_dynamic_agent_specs",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 1763,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_dynamic_agent_specs",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 1526,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 40,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_now",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 28,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "dispatch_ready",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 1223,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "fingerprint",
+          "definitions": [
+            {
+              "file": "src/production_os/result_cache.py",
+              "line": 24,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "key",
+          "definitions": [
+            {
+              "file": "src/production_os/model_router.py",
+              "line": 61,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "put",
+          "definitions": [
+            {
+              "file": "src/production_os/result_cache.py",
+              "line": 77,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "record_from_result",
+          "definitions": [
+            {
+              "file": "src/production_os/project_memory.py",
+              "line": 224,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "record_success",
+          "definitions": [
+            {
+              "file": "src/production_os/skill_memory.py",
+              "line": 158,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "record_use_outcome",
+          "definitions": [
+            {
+              "file": "src/production_os/skill_memory.py",
+              "line": 265,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "refresh",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 1114,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 14
+    },
+    "retry_task": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 1996,
+        "end": 2070
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 40,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_now",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 28,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "assert_generation_current",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 2161,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "dispatch_ready",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 1223,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "key",
+          "definitions": [
+            {
+              "file": "src/production_os/model_router.py",
+              "line": 61,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "refresh",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 1114,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 7
+    },
+    "record_cancelled": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 2072,
+        "end": 2120
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 40,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_now",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 28,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "refresh",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 1114,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "cancel": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 2122,
+        "end": 2159
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 40,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_now",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 28,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "assert_generation_current": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 2161,
+        "end": 2198
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
         }
       ],
       "dependency_count": 1
     },
-    "test_agent_plan_accepts_bounded_ordered_dependency_graph": {
+    "job_generation_current": {
       "source": {
-        "file": "tests/test_agent_plan.py",
-        "start": 6,
-        "end": 36
+        "file": "src/production_os/workflow_engine.py",
+        "start": 2200,
+        "end": 2215
       },
       "symbol_dependencies": [
         {
-          "symbol": "validate_agent_plan",
+          "symbol": "assert_generation_current",
           "definitions": [
             {
-              "file": "src/production_os/agent_plan.py",
-              "line": 35,
+              "file": "src/production_os/workflow_engine.py",
+              "line": 2161,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "add_artifact": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 2217,
+        "end": 2283
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_artifact_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 986,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_execute",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 40,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_now",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 28,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "assert_generation_current",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 2161,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 5
+    },
+    "critical_path": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 2285,
+        "end": 2315
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "key",
+          "definitions": [
+            {
+              "file": "src/production_os/model_router.py",
+              "line": 61,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "longest",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 2290,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "longest": {
+      "source": {
+        "file": "src/production_os/workflow_engine.py",
+        "start": 2290,
+        "end": 2410
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "key",
+          "definitions": [
+            {
+              "file": "src/production_os/model_router.py",
+              "line": 61,
               "kind": "function",
               "language": "python"
             }
@@ -105,19 +2737,77 @@
       ],
       "dependency_count": 1
     },
-    "test_agent_plan_rejects_budget_overflow": {
+    "test_browser_plan_validates_bounded_actions_and_redacts_fill_value": {
       "source": {
-        "file": "tests/test_agent_plan.py",
-        "start": 39,
-        "end": 60
+        "file": "tests/test_browser_computer.py",
+        "start": 23,
+        "end": 41
       },
       "symbol_dependencies": [
         {
-          "symbol": "validate_agent_plan",
+          "symbol": "main",
           "definitions": [
             {
-              "file": "src/production_os/agent_plan.py",
-              "line": 35,
+              "file": "src/production_os/cli.py",
+              "line": 3020,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 42,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 64,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 87,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "validate_browser_plan",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 534,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "test_browser_plan_rejects_unsafe_navigation_and_actions": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 89,
+        "end": 91
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "validate_browser_plan",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 534,
               "kind": "function",
               "language": "python"
             }
@@ -127,19 +2817,207 @@
       ],
       "dependency_count": 1
     },
-    "test_agent_plan_rejects_too_many_agents": {
+    "test_workflow_injects_browser_computer_contract": {
       "source": {
-        "file": "tests/test_agent_plan.py",
-        "start": 63,
-        "end": 80
+        "file": "tests/test_browser_computer.py",
+        "start": 94,
+        "end": 158
       },
       "symbol_dependencies": [
         {
-          "symbol": "validate_agent_plan",
+          "symbol": "SQLiteBackend",
           "definitions": [
             {
-              "file": "src/production_os/agent_plan.py",
-              "line": 35,
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 20,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "SQLiteJobQueue",
+          "definitions": [
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 1271,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "WorkflowEngine",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 245,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "WorkflowTaskSpec",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 218,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "create",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 363,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "dispatch_ready",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 1223,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "title",
+          "definitions": [
+            {
+              "file": "tests/test_browser_computer.py",
+              "line": 795,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 7
+    },
+    "test_workflow_infers_browser_contract_from_browser_task_text": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 162,
+        "end": 186
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "SQLiteBackend",
+          "definitions": [
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 20,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "SQLiteJobQueue",
+          "definitions": [
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 1271,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "WorkflowEngine",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 245,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "WorkflowTaskSpec",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 218,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "create",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 363,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "dispatch_ready",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 1223,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "title",
+          "definitions": [
+            {
+              "file": "tests/test_browser_computer.py",
+              "line": 795,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 7
+    },
+    "test_browser_plan_cli_parses_runtime_paths": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 189,
+        "end": 206
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_parse_args",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 107,
               "kind": "function",
               "language": "python"
             }
@@ -149,19 +3027,19 @@
       ],
       "dependency_count": 1
     },
-    "test_agent_plan_rejects_unsafe_graph_shapes": {
+    "test_browser_plan_cli_defaults_storage_state_to_runtime_workspace": {
       "source": {
-        "file": "tests/test_agent_plan.py",
-        "start": 137,
-        "end": 142
+        "file": "tests/test_browser_computer.py",
+        "start": 210,
+        "end": 223
       },
       "symbol_dependencies": [
         {
-          "symbol": "validate_agent_plan",
+          "symbol": "_browser_storage_state",
           "definitions": [
             {
-              "file": "src/production_os/agent_plan.py",
-              "line": 35,
+              "file": "src/production_os/cli.py",
+              "line": 2171,
               "kind": "function",
               "language": "python"
             }
@@ -171,19 +3049,19 @@
       ],
       "dependency_count": 1
     },
-    "test_agent_plan_rejects_non_integer_token_budget_types": {
+    "test_browser_plan_cli_explicit_storage_state_wins": {
       "source": {
-        "file": "tests/test_agent_plan.py",
-        "start": 147,
-        "end": 160
+        "file": "tests/test_browser_computer.py",
+        "start": 226,
+        "end": 237
       },
       "symbol_dependencies": [
         {
-          "symbol": "validate_agent_plan",
+          "symbol": "_browser_storage_state",
           "definitions": [
             {
-              "file": "src/production_os/agent_plan.py",
-              "line": 35,
+              "file": "src/production_os/cli.py",
+              "line": 2171,
               "kind": "function",
               "language": "python"
             }
@@ -193,19 +3071,19 @@
       ],
       "dependency_count": 1
     },
-    "test_agent_plan_rejects_supplied_non_list_collection_values": {
+    "test_browser_plan_blocks_private_network_by_default": {
       "source": {
-        "file": "tests/test_agent_plan.py",
-        "start": 174,
-        "end": 190
+        "file": "tests/test_browser_computer.py",
+        "start": 241,
+        "end": 249
       },
       "symbol_dependencies": [
         {
-          "symbol": "validate_agent_plan",
+          "symbol": "validate_browser_plan",
           "definitions": [
             {
-              "file": "src/production_os/agent_plan.py",
-              "line": 35,
+              "file": "src/production_os/browser_computer.py",
+              "line": 534,
               "kind": "function",
               "language": "python"
             }
@@ -215,24 +3093,1130 @@
       ],
       "dependency_count": 1
     },
-    "test_agent_plan_allows_null_optional_collections_as_empty": {
+    "test_browser_plan_allows_private_network_only_with_explicit_opt_in": {
       "source": {
-        "file": "tests/test_agent_plan.py",
-        "start": 193,
-        "end": 210
+        "file": "tests/test_browser_computer.py",
+        "start": 252,
+        "end": 262
       },
       "symbol_dependencies": [
         {
-          "symbol": "validate_agent_plan",
+          "symbol": "validate_browser_plan",
           "definitions": [
             {
-              "file": "src/production_os/agent_plan.py",
-              "line": 35,
+              "file": "src/production_os/browser_computer.py",
+              "line": 534,
               "kind": "function",
               "language": "python"
             }
           ],
           "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "test_browser_session_resume_url_strips_query_and_fragment": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 266,
+        "end": 273
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_safe_resume_url",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 448,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "test_browser_session_metadata_round_trips_only_safe_location": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 276,
+        "end": 300
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_load_browser_session",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 476,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_write_browser_session",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 505,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "validate_browser_plan",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 534,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "test_browser_session_rejects_stale_disallowed_host": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 303,
+        "end": 319
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_load_browser_session",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 476,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "main",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 3020,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "validate_browser_plan",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 534,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "test_browser_session_state_defaults_to_runtime_workspace": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 322,
+        "end": 334
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_browser_session_state",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 2183,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "test_browser_plan_accepts_explicit_checkpoint_action": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 338,
+        "end": 350
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "main",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 3020,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "validate_browser_plan",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 534,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "test_browser_checkpoint_round_trips_only_matching_plan": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 353,
+        "end": 391
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_load_browser_checkpoint",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 331,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_write_browser_checkpoint",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 395,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "main",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 3020,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "validate_browser_plan",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 534,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "test_browser_plan_fingerprint_distinguishes_fill_values_without_storing_them": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 394,
+        "end": 412
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_browser_plan_fingerprint",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 306,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "validate_browser_plan",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 534,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "test_browser_checkpoint_state_defaults_to_runtime_workspace": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 415,
+        "end": 427
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_browser_checkpoint_state",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 2195,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "test_browser_checkpoint_round_trips_uncertain_non_replayable_action": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 431,
+        "end": 461
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_browser_action_fingerprint",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 288,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_load_browser_checkpoint",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 331,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_write_browser_checkpoint",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 395,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "main",
+          "definitions": [
+            {
+              "file": "src/production_os/cli.py",
+              "line": 3020,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "validate_browser_plan",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 534,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 5
+    },
+    "test_browser_checkpoint_rejects_tampered_uncertain_action_fingerprint": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 464,
+        "end": 489
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_load_browser_checkpoint",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 331,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_write_browser_checkpoint",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 395,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "validate_browser_plan",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 534,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "test_browser_checkpoint_completed_side_effect_clears_uncertain_marker": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 492,
+        "end": 523
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_load_browser_checkpoint",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 331,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_write_browser_checkpoint",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 395,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "save",
+          "definitions": [
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 661,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 977,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 1151,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "validate_browser_plan",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 534,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "test_browser_checkpoint_rejects_inflight_marker_for_replayable_action": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 526,
+        "end": 545
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_write_browser_checkpoint",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 395,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "validate_browser_plan",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 534,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "test_browser_click_accepts_positive_recovery_probe": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 549,
+        "end": 581
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "BrowserRecoveryProbe",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 36,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "save",
+          "definitions": [
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 661,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 977,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 1151,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "to_dict",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 42,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 64,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 87,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "validate_browser_plan",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 534,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "test_browser_recovery_probe_is_rejected_for_replayable_action": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 584,
+        "end": 603
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "validate_browser_plan",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 534,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "test_browser_recovery_probe_validation_rejects_malformed_probe": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 635,
+        "end": 650
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "save",
+          "definitions": [
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 661,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 977,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 1151,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "validate_browser_plan",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 534,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "_FakeLocator": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 653,
+        "end": 669
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "inner_text",
+          "definitions": [
+            {
+              "file": "tests/test_browser_computer.py",
+              "line": 666,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_browser_computer.py",
+              "line": 753,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_browser_computer.py",
+              "line": 775,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "wait_for",
+          "definitions": [
+            {
+              "file": "tests/test_browser_computer.py",
+              "line": 659,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "wait_for": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 659,
+        "end": 664
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "inner_text": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 666,
+        "end": 669
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "_FakePage": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 672,
+        "end": 678
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "locator",
+          "definitions": [
+            {
+              "file": "tests/test_browser_computer.py",
+              "line": 676,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_browser_computer.py",
+              "line": 798,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "locator": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 676,
+        "end": 678
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "test_browser_recovery_probe_evaluates_only_positive_evidence": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 681,
+        "end": 712
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "BrowserRecoveryProbe",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 36,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_FakeLocator",
+          "definitions": [
+            {
+              "file": "tests/test_browser_computer.py",
+              "line": 653,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_FakePage",
+          "definitions": [
+            {
+              "file": "tests/test_browser_computer.py",
+              "line": 672,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_evaluate_recovery_probe",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 97,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "save",
+          "definitions": [
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 661,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 977,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 1151,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 5
+    },
+    "test_recovery_probe_changes_browser_plan_fingerprint": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 715,
+        "end": 740
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_browser_plan_fingerprint",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 306,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "save",
+          "definitions": [
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 661,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 977,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 1151,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "validate_browser_plan",
+          "definitions": [
+            {
+              "file": "src/production_os/browser_computer.py",
+              "line": 534,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "_SnapshotElement": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 744,
+        "end": 757
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 711,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 1335,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "get_attribute",
+          "definitions": [
+            {
+              "file": "tests/test_browser_computer.py",
+              "line": 756,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "inner_text",
+          "definitions": [
+            {
+              "file": "tests/test_browser_computer.py",
+              "line": 666,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_browser_computer.py",
+              "line": 753,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_browser_computer.py",
+              "line": 775,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "is_visible",
+          "definitions": [
+            {
+              "file": "tests/test_browser_computer.py",
+              "line": 750,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 4
+    },
+    "is_visible": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 750,
+        "end": 751
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "get_attribute": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 756,
+        "end": 757
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 711,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/sqlite_backend.py",
+              "line": 1335,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "_SnapshotCollection": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 760,
+        "end": 768
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "count",
+          "definitions": [
+            {
+              "file": "tests/test_browser_computer.py",
+              "line": 764,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "nth",
+          "definitions": [
+            {
+              "file": "tests/test_browser_computer.py",
+              "line": 767,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "count": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 764,
+        "end": 765
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "nth": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 767,
+        "end": 768
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "_SnapshotBody": {
+      "source": {
+        "file": "tests/test_browser_computer.py",
+        "start": 771,
+        "end": 776
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "inner_text",
+          "definitions": [
+            {
+              "file": "tests/test_browser_computer.py",
+              "line": 666,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_browser_computer.py",
+              "line": 753,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_browser_computer.py",
+              "line": 775,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
         }
       ],
       "dependency_count": 1

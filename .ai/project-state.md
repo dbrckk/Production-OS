@@ -22,22 +22,22 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-30T08:17:57Z
+Generated: 2026-09-30T08:26:29Z
 
 ### Git
 - Branch: `main`
-- Head: `646411ca029c`
-- Commit date: 2026-09-30T10:17:44+02:00
-- Commit: fix(agents): enforce strict dynamic-plan input types
+- Head: `3f184b833281`
+- Commit date: 2026-09-30T10:26:17+02:00
+- Commit: fix(browser): inject tool contract for inferred browser tasks
 - Tracked files: 518
 
 ### Recently changed files
+- `src/production_os/workflow_engine.py`
+- `tests/test_browser_computer.py`
 - `src/production_os/agent_plan.py`
 - `tests/test_agent_plan.py`
 - `src/production_os/browser_computer.py`
 - `src/production_os/browser_loop.py`
-- `src/production_os/workflow_engine.py`
-- `tests/test_browser_computer.py`
 - `tests/test_browser_loop.py`
 - `src/production_os/cli.py`
 

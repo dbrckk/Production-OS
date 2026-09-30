@@ -3,10 +3,10 @@
 - Index mode: incremental
 - Files indexed: 314
 - Files reparsed this run: 2
-- Symbols: 2759
+- Symbols: 2760
 - Internal import edges: 886
-- Impacted files: 4
-- Selected tests: 3
+- Impacted files: 32
+- Selected tests: 28
 
 ## Languages
 - python: 314 files
@@ -17,7 +17,7 @@
 - src/production_os/postgres_backend.py: 56 symbols
 - src/production_os/sqlite_backend.py: 56 symbols
 - tests/test_asset_forge.py: 56 symbols
-- tests/test_browser_computer.py: 54 symbols
+- tests/test_browser_computer.py: 55 symbols
 - src/production_os/dashboard_service.py: 52 symbols
 - src/production_os/dashboard_store.py: 51 symbols
 - tests/test_dashboard_backups.py: 49 symbols
@@ -44,7 +44,7 @@
 - AST index mode: incremental
 - AST files reparsed this run: 2
 - outline files retained: 314
-- top-level items retained: 3491
+- top-level items retained: 3492
 - direct members retained: 1165
 - symbol shards: 25
 - route named symbols via ast-routing.json, then fetch one ast-symbols/<initial>.json shard
