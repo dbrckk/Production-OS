@@ -1955,3 +1955,77 @@ def test_native_failure_uses_existing_control_plane_failure_path(
         assert control.queue.get(queued["key"])["status"] == "failed"
     finally:
         _stop(server, thread)
+
+
+
+def test_native_cancel_keeps_worker_slot_until_handler_actually_stops(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(
+        str(tmp_path / "native-cancel-fence.sqlite"),
+        authorizer=_auth(),
+    )
+    queued = control.queue.enqueue({
+        "handoff":_native_browser_handoff_for_runner(),
+        "required_capabilities":[],
+    })
+    entered = threading.Event()
+    release = threading.Event()
+
+    def slow_to_stop(context):
+        entered.set()
+        while not context.cancellation_event.is_set():
+            time.sleep(0.005)
+        release.wait(timeout=2)
+        return {"status":"succeeded","result":{"summary":"stopped"}}
+
+    monkeypatch.setattr(
+        "production_os.remote_worker_runner.execute_native",
+        slow_to_stop,
+    )
+    server, server_thread, base = _server(control)
+    outcomes = []
+    try:
+        client = RemoteWorkerClient(
+            base,
+            "worker-secret",
+            "runner-1",
+            [],
+            timeout=5,
+        )
+        runner = RemoteWorkerRunner(
+            client,
+            [],
+            executor_mode="native",
+            heartbeat_interval_seconds=0.02,
+            executor_timeout_seconds=2,
+        )
+        worker_thread = threading.Thread(
+            target=lambda: outcomes.extend(
+                runner.run(cycles=1, idle_sleep_seconds=0)
+            ),
+            daemon=True,
+        )
+        worker_thread.start()
+        assert entered.wait(timeout=2)
+
+        control.dashboard_control.request_job_cancel(
+            queued["key"],
+            requested_by="operator:test",
+        )
+        time.sleep(0.12)
+
+        assert worker_thread.is_alive()
+        assert outcomes == []
+
+        release.set()
+        worker_thread.join(timeout=2)
+
+        assert outcomes == [{
+            "job_key":queued["key"],
+            "status":"cancelled",
+        }]
+    finally:
+        release.set()
+        _stop(server, server_thread)
