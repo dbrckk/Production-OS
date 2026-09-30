@@ -120,7 +120,12 @@ Add a controller execution mode:
 PRODUCTION_OS_CONTROLLER_EXECUTION_MODE=managed|legacy
 ```
 
-Default: `managed`.
+Target steady-state default: `managed`.
+
+Migration behavior:
+- while safety-parity tests are incomplete, deployment/config defaults remain `legacy`;
+- the default switches to `managed` only in the same change that proves safety/economic parity green;
+- after that switch, `legacy` remains an explicit rollback mode.
 
 Semantics:
 
@@ -324,17 +329,40 @@ Where a legacy gate currently exists only inside `dispatch_handoff()`, that gate
 
 This requirement is a hard migration gate: managed mode cannot become default until parity is proven for all pre-dispatch safety checks.
 
-## Legacy Dispatch Safety-Parity Audit
+## Shared Autonomous Admission Gate
 
-Before changing the default, implementation must inventory every safety/economic check performed by `dispatch_handoff()`.
+Before changing the default, extract the safety/economic admission logic that currently lives inside `dispatch_handoff()` into a reusable controller-facing admission boundary.
 
-For each check, classify it as:
+The shared admission gate must cover, before a new Managed Project is created:
 
-- already enforced before the call in `run_control_cycle()`;
-- enforced by ManagedProjectService/WorkflowEngine;
-- needs to be moved or duplicated into a controller pre-launch gate.
+- emergency stop;
+- policy evaluation and risk class;
+- quarantine;
+- repository and portfolio budget checks;
+- repository rate limit;
+- human approval when policy requires it;
+- runtime-state lease/cooldown/circuit/succeeded checks for the canonical controller action;
+- capable-worker/backpressure checks where the controller currently refuses work before queueing.
 
-The implementation must include a regression test for any migrated gate.
+Legacy `dispatch_handoff()` must call the same extracted admission logic rather than retain a divergent copy.
+
+Managed mode calls the gate first, then creates/reuses the Managed Project only when admission succeeds.
+
+The gate produces a normalized admission result containing at least:
+
+- risk class;
+- normalized constraints;
+- normalized resource request;
+- selected/eligible worker information where applicable;
+- the canonical runtime-state action key;
+- whether accounting must be committed after launch.
+
+Budget/rate-limit mutation must follow commit-style semantics:
+- budget checks occur before launch;
+- repository rate-limit admission is recorded once per new stable project id;
+- budget usage is recorded only after the new Managed Project reservation succeeds;
+- reusing an existing project does not charge or rate-limit again;
+- partial launch failure must not leave a second charge on retry.
 
 No safety check may disappear just because the execution backend changes.
 
@@ -537,16 +565,21 @@ This phase does not add a new Managed Project-wide kill switch.
 
 ## Budget and Rate-Limit Accounting
 
-Controller-level budget/rate-limit gates must remain effective in managed mode.
+Controller-level budget/rate-limit gates remain effective through the shared autonomous admission gate.
 
-The implementation must explicitly decide where accounting occurs:
+Exact ordering:
 
-- admission charge before Managed Project creation;
-- or equivalent Managed Project-aware ledger entry.
+1. derive the stable project id;
+2. detect whether that project already exists;
+3. if it exists, reuse/skip without a new budget or rate-limit charge;
+4. for a new project, evaluate policy/quarantine/budget/rate-limit/approval/runtime-state admission;
+5. reserve/create the Managed Project;
+6. only after successful new reservation, commit budget usage and the repository rate-limit admission using the stable project id as the idempotency key;
+7. if initialization fails, retries reuse the same stable id and must not double-charge.
 
-It must not charge again every daemon cycle when the same project is reused.
+Worker-scoped rate limiting is not charged at project creation because no worker has yet claimed a WorkflowEngine job. Worker-level admission remains the responsibility of the worker/queue execution path.
 
-A stable project id should be used as the idempotency key for controller-side admission accounting where supported.
+This phase must add idempotent controller-side accounting keyed by stable project id where the current stores do not already provide it.
 
 ## Migration Strategy
 
