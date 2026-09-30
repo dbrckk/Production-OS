@@ -148,3 +148,45 @@ def select_worker(
     if best[0] > 0 and required:
         return None
     return best[-1]
+
+
+
+def cooperative_worker_fleet_available(
+    registry: WorkerRegistry,
+    *,
+    needs_browser: bool = False,
+    needs_mobile: bool = False,
+) -> bool:
+    specialist = {
+        "code-implementation",
+        "test-debug",
+        "code-review",
+        "browser-ui-validation",
+        "mobile-ui-validation",
+    }
+    if needs_mobile:
+        required = {"mobile-ui-validation"}
+    elif needs_browser:
+        required = {"browser-ui-validation"}
+    else:
+        required = set()
+    try:
+        registry.load()
+    except Exception:
+        return False
+    for worker in registry.workers.values():
+        status = str(getattr(worker, "status", "") or "").lower()
+        if status != "online":
+            continue
+        capabilities = {
+            str(item).strip()
+            for item in getattr(worker, "capabilities", [])
+            if str(item).strip()
+        }
+        if required:
+            if required.issubset(capabilities):
+                return True
+            continue
+        if capabilities.intersection(specialist):
+            return True
+    return False
