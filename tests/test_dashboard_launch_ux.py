@@ -200,7 +200,7 @@ def test_repository_picker_falls_back_to_observed_projects_on_github_failure(
         thread.join(timeout=2)
 
 
-def test_dashboard_launch_auto_wakes_worker_when_capacity_is_unavailable(
+def test_dashboard_launch_auto_wakes_worker_when_wake_is_needed(
     tmp_path,
     monkeypatch,
 ):
@@ -208,7 +208,7 @@ def test_dashboard_launch_auto_wakes_worker_when_capacity_is_unavailable(
     monkeypatch.setattr(
         control,
         "automatic_worker_wake_needed",
-        lambda: False,
+        lambda: True,
     )
     wakes = []
     monkeypatch.setattr(
@@ -241,7 +241,7 @@ def test_dashboard_launch_auto_wakes_worker_when_capacity_is_unavailable(
         thread.join(timeout=2)
 
 
-def test_dashboard_launch_does_not_wake_worker_when_capacity_exists(
+def test_dashboard_launch_does_not_wake_worker_when_wake_is_not_needed(
     tmp_path,
     monkeypatch,
 ):
@@ -249,7 +249,7 @@ def test_dashboard_launch_does_not_wake_worker_when_capacity_exists(
     monkeypatch.setattr(
         control,
         "automatic_worker_wake_needed",
-        lambda: True,
+        lambda: False,
     )
     wakes = []
     monkeypatch.setattr(
@@ -279,3 +279,42 @@ def test_dashboard_launch_does_not_wake_worker_when_capacity_exists(
         server.shutdown()
         server.server_close()
         thread.join(timeout=2)
+
+
+def test_automatic_worker_wake_policy_ignores_saturated_online_worker(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "wake-saturated.sqlite"), authorizer=_auth())
+    worker = control.workers.register("worker-a", ["python"], 1)
+    control.workers.heartbeat(worker.worker_id, active_tasks=1)
+    monkeypatch.setattr(control.workers, "detect_dead", lambda *args, **kwargs: [])
+    assert control.automatic_worker_wake_needed() is False
+
+
+def test_automatic_worker_wake_policy_respects_operator_pause(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "wake-paused.sqlite"), authorizer=_auth())
+    worker = control.workers.register("worker-a", ["python"], 1)
+    control.dashboard_control.set_worker_state(
+        worker.worker_id,
+        "paused",
+        requested_by="operator:test",
+    )
+    monkeypatch.setattr(control.workers, "detect_dead", lambda *args, **kwargs: [])
+    assert control.automatic_worker_wake_needed() is False
+
+
+def test_automatic_worker_wake_policy_wakes_offline_active_worker(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "wake-offline.sqlite"), authorizer=_auth())
+    worker = control.workers.register("worker-a", ["python"], 1)
+    control.workers.load()
+    control.workers.workers[worker.worker_id].status = "dead"
+    control.workers.save()
+    monkeypatch.setattr(control.workers, "detect_dead", lambda *args, **kwargs: [])
+    assert control.automatic_worker_wake_needed() is True
