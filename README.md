@@ -271,13 +271,15 @@ Worker controls:
 
 All dashboard control endpoints require the `operator` role.
 
-For single-device operation, the dashboard can bootstrap the existing operator credential from a URL fragment:
+For mobile or additional-device operation, an already authenticated operator device creates a one-time pairing link from dashboard settings:
 
 ```text
-https://<production-os-host>/dashboard#pair=<operator-token>
+https://<production-os-host>/dashboard#pair-code=<one-time-code>
 ```
 
-The fragment is processed only by the browser, copied into local storage, and immediately removed from the visible URL with `history.replaceState`. Production-OS never accepts `?pair=` query-string credentials, so the bootstrap secret is not sent in the HTTP request, server logs, or referrer URL. After the first successful bootstrap, normal launches remain the two-field flow: choose a repository, enter the instruction, and launch.
+The pairing code is random, valid for 10 minutes, stored server-side only as a SHA-256 digest, and atomically consumable once. The browser removes the fragment immediately, exchanges the one-time code for a distinct revocable device-session token, and stores only that device token locally. The long-lived operator bearer token is never embedded in the link.
+
+Device sessions expire after 90 days and can be revoked. “Oublier cet appareil” revokes the current device session when applicable and clears local storage even if the server is temporarily unreachable. Manual operator-token entry remains available only as a recovery path. Production-OS still refuses query-string pairing credentials.
 
 Cancellation is job-scoped rather than worker-wide. A cancellation request is not considered acknowledged until the worker reports the matching `cancel_requested` state. Terminal job transitions are exclusive: once cancellation wins, a late completion is rejected; once completion wins, a later cancel-current request is rejected.
 
