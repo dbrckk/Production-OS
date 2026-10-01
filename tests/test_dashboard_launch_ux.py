@@ -87,6 +87,14 @@ def test_root_redirects_to_dashboard_and_health_stays_json(tmp_path):
         status, payload, _ = _get(base + "/health")
         assert status == 200
         assert payload["status"] == "healthy"
+
+        status, payload, _ = _get(base + "/readyz")
+        assert status == 200
+        assert payload == {
+            "status":"ready",
+            "database":"reachable",
+            "schema_version":"production-os/readiness/v1",
+        }
     finally:
         server.shutdown()
         server.server_close()
@@ -386,3 +394,29 @@ def test_automatic_worker_wake_cooldown_allows_retry_after_failure(tmp_path):
         error_code="github_dispatch_failed",
     )
     assert control.automatic_worker_wake_allowed(cooldown_seconds=60) is True
+
+
+def test_readiness_returns_503_without_exposing_backend_error(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "readiness-http.sqlite"), authorizer=_auth())
+
+    def unavailable():
+        raise RuntimeError("postgresql://secret-user:secret-password@private-host/db")
+
+    monkeypatch.setattr(control.backend, "connect", unavailable)
+    server, thread, base = _server(control)
+    try:
+        status, payload, _ = _get(base + "/readyz")
+        assert status == 503
+        assert payload == {
+            "status":"not_ready",
+            "database":"unavailable",
+            "schema_version":"production-os/readiness/v1",
+        }
+        assert "secret" not in json.dumps(payload)
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
