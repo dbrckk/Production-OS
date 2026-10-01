@@ -122,3 +122,14 @@ def test_dashboard_v2_has_mobile_primary_launch_action():
     assert 'id="launch-button"' in DASHBOARD_HTML
     assert "Lancer la production" in DASHBOARD_HTML
     assert "@media(max-width:560px)" in DASHBOARD_HTML
+
+
+def test_dashboard_launch_surfaces_automatic_worker_wake_state():
+    launch_start = DASHBOARD_HTML.index("async function launchWorkflow")
+    launch_end = DASHBOARD_HTML.index("async function refreshDashboard", launch_start)
+    launch_body = DASHBOARD_HTML[launch_start:launch_end]
+    assert "created.launch&&created.launch.worker_wake" in launch_body
+    assert "wakeStatus==='dispatched'" in launch_body
+    assert "réveil automatique du worker demandé" in launch_body
+    assert "wakeStatus==='scheduled_fallback'" in launch_body
+    assert "prochain réveil automatique" in launch_body
