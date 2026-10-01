@@ -48,6 +48,8 @@ services:
       - production-os
     environment:
       GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      PRODUCTION_OS_CONTROLLER_EXECUTION_MODE: ${PRODUCTION_OS_CONTROLLER_EXECUTION_MODE:-managed}
+      PRODUCTION_OS_CONTROLLER_PROJECT_TOKEN_BUDGET: ${PRODUCTION_OS_CONTROLLER_PROJECT_TOKEN_BUDGET:-12000}
     volumes:
       - ./artifacts:/data
     command:
@@ -77,3 +79,7 @@ services:
       - ${PRODUCTION_OS_CONTROLLER_CAPACITY:-3}
       - --slots
       - ${PRODUCTION_OS_CONTROLLER_SLOTS:-3}
+      - --execution-mode
+      - ${PRODUCTION_OS_CONTROLLER_EXECUTION_MODE:-managed}
+      - --project-token-budget
+      - ${PRODUCTION_OS_CONTROLLER_PROJECT_TOKEN_BUDGET:-12000}
