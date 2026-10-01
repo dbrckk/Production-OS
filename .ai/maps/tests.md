@@ -3544,6 +3544,8 @@ body = DASHBOARD_HTML[start:end]
 def test_dashboard_has_server_backed_multi_production_view()
 ⋮----
 def test_production_inbox_renders_live_runtime_and_server_actions()
+⋮----
+def test_dashboard_supports_secure_fragment_pairing_without_query_leak()
 ```
 
 ## File: test_dashboard_usage.py

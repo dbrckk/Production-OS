@@ -14255,6 +14255,8 @@ body = DASHBOARD_HTML[start:end]
 def test_dashboard_has_server_backed_multi_production_view()
 ⋮----
 def test_production_inbox_renders_live_runtime_and_server_actions()
+⋮----
+def test_dashboard_supports_secure_fragment_pairing_without_query_leak()
 ````
 
 ## File: tests/test_dashboard_usage.py
@@ -19405,6 +19407,14 @@ Worker controls:
 - `kick`: requests an immediate GitHub Actions worker run only when server-side GitHub dispatch credentials are configured.
 
 All dashboard control endpoints require the `operator` role.
+
+For single-device operation, the dashboard can bootstrap the existing operator credential from a URL fragment:
+
+```text
+https://<production-os-host>/dashboard#pair=<operator-token>
+```
+
+The fragment is processed only by the browser, copied into local storage, and immediately removed from the visible URL with `history.replaceState`. Production-OS never accepts `?pair=` query-string credentials, so the bootstrap secret is not sent in the HTTP request, server logs, or referrer URL. After the first successful bootstrap, normal launches remain the two-field flow: choose a repository, enter the instruction, and launch.
 
 Cancellation is job-scoped rather than worker-wide. A cancellation request is not considered acknowledged until the worker reports the matching `cancel_requested` state. Terminal job transitions are exclusive: once cancellation wins, a late completion is rejected; once completion wins, a later cancel-current request is rejected.
 

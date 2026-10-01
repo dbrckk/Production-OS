@@ -22,17 +22,19 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-01T15:09:21Z
+Generated: 2026-10-01T15:24:19Z
 
 ### Git
 - Branch: `main`
-- Head: `3d0644a14904`
-- Commit date: 2026-10-01T17:09:08+02:00
-- Commit: feat(controller): route autonomous work through managed projects
+- Head: `0ef2708c084f`
+- Commit date: 2026-10-01T17:24:04+02:00
+- Commit: feat(dashboard): support secure one-link device pairing
 - Tracked files: 530
 
 ### Recently changed files
 - `README.md`
+- `src/production_os/dashboard_ui.py`
+- `tests/test_dashboard_ui_v3.py`
 - `compose.yaml`
 - `docs/superpowers/plans/2026-09-30-controller-managed-projects.md`
 - `docs/superpowers/specs/2026-09-30-controller-managed-projects-design.md`
@@ -50,8 +52,6 @@ Generated: 2026-10-01T15:09:21Z
 - `tests/test_controller_managed_projects.py`
 - `tests/test_policy_budgets.py`
 - `tests/test_workers.py`
-- `compose.worker.yaml`
-- `docs/remote-worker-executor-protocol.md`
 
 ### Project signals
 - `pyproject.toml`
