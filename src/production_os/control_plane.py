@@ -17,6 +17,7 @@ from .portfolio_optimizer import PortfolioOptimizer
 from .github_client import GitHubClient
 from .release_ledger import ReleaseLedger
 from .dashboard_store import DashboardStore
+from .device_pairing import DevicePairingManager
 from .dashboard_control import DashboardControl
 from .dashboard_service import DashboardService, DashboardNotFound
 from .dashboard_ui import DASHBOARD_HTML
@@ -60,6 +61,7 @@ class ControlPlane:
     ):
         self.backend = open_backend(database)
         self.dashboard_store = DashboardStore(self.backend)
+        self.device_pairing = DevicePairingManager(self.dashboard_store)
         self.queue = job_queue_for(self.backend)
         self.workers = worker_registry_for(self.backend)
         self.workflows = WorkflowEngine(self.backend, self.queue)
@@ -525,11 +527,20 @@ def make_handler(control: ControlPlane):
                 raise ValueError("JSON object body required")
             return payload
 
-        def _principal(self) -> Principal | None:
+        def _bearer_token(self) -> str | None:
             header = self.headers.get("Authorization", "")
             prefix = "Bearer "
-            token = header[len(prefix):] if header.startswith(prefix) else None
-            return control.authorizer.authenticate(token)
+            if not header.startswith(prefix):
+                return None
+            token = header[len(prefix):].strip()
+            return token or None
+
+        def _principal(self) -> Principal | None:
+            token = self._bearer_token()
+            principal = control.authorizer.authenticate(token)
+            if principal is not None:
+                return principal
+            return control.device_pairing.authenticate(token)
 
         def _require(self, role: str) -> Principal | None:
             principal = self._principal()
@@ -622,7 +633,22 @@ def make_handler(control: ControlPlane):
                     window = query.get("window", ["7d"])[0]
                     parts = [part for part in parsed.path.split("/") if part]
                     service = control.dashboard
-                    if parsed.path == "/v1/dashboard/overview":
+                    if parsed.path == "/v1/dashboard/device-sessions":
+                        if not principal.allows("operator"):
+                            self._send(
+                                HTTPStatus.FORBIDDEN,
+                                {
+                                    "error":"forbidden",
+                                    "required_role":"operator",
+                                    "role":principal.role,
+                                },
+                            )
+                            return
+                        payload = {
+                            "schema_version":"production-os/device-sessions/v1",
+                            "sessions":control.device_pairing.sessions(),
+                        }
+                    elif parsed.path == "/v1/dashboard/overview":
                         payload = service.overview(window)
                     elif parsed.path == "/v1/dashboard/launch-readiness":
                         payload = service.launch_readiness(
@@ -1035,6 +1061,79 @@ def make_handler(control: ControlPlane):
 
         def do_POST(self) -> None:
             parsed = urlparse(self.path)
+
+            if parsed.path == "/v1/dashboard/pair":
+                try:
+                    body = self._read_json()
+                    unknown = sorted(
+                        set(body).difference({"code", "device_name"})
+                    )
+                    if unknown:
+                        raise ValueError("unknown pairing fields")
+                    pairing = control.device_pairing.exchange(
+                        str(body.get("code") or ""),
+                        device_name=(
+                            str(body.get("device_name"))
+                            if body.get("device_name") is not None
+                            else None
+                        ),
+                    )
+                except ValueError as exc:
+                    self._send(
+                        HTTPStatus.BAD_REQUEST,
+                        {"error":str(exc)},
+                    )
+                    return
+                self._send(
+                    HTTPStatus.CREATED,
+                    {
+                        "schema_version":"production-os/device-session/v1",
+                        **pairing,
+                    },
+                )
+                return
+
+            if parsed.path == "/v1/dashboard/pairing-codes":
+                principal = self._require("operator")
+                if principal is None:
+                    return
+                try:
+                    body = self._read_json()
+                    if body:
+                        raise ValueError("pairing code request body must be empty")
+                    pairing = control.device_pairing.issue_pairing_code(
+                        requested_by=f"{principal.role}:{principal.name}",
+                    )
+                except ValueError as exc:
+                    self._send(
+                        HTTPStatus.BAD_REQUEST,
+                        {"error":str(exc)},
+                    )
+                    return
+                self._send(
+                    HTTPStatus.CREATED,
+                    {
+                        "schema_version":"production-os/pairing-code/v1",
+                        **pairing,
+                    },
+                )
+                return
+
+            if parsed.path == "/v1/dashboard/session/revoke":
+                principal = self._require("operator")
+                if principal is None:
+                    return
+                revoked = control.device_pairing.revoke(
+                    self._bearer_token(),
+                )
+                self._send(
+                    HTTPStatus.OK,
+                    {
+                        "schema_version":"production-os/device-session-revoke/v1",
+                        "revoked":bool(revoked),
+                    },
+                )
+                return
 
             if parsed.path == "/v1/dashboard/launch":
                 principal = self._require("operator")
