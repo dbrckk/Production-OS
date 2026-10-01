@@ -23,6 +23,7 @@ def _utcnow() -> str:
 
 class PostgresBackend:
     SCHEMA_VERSION = 17
+    CONNECT_TIMEOUT_SECONDS = 10
 
     def __init__(self, dsn: str):
         if psycopg is None:
@@ -37,6 +38,7 @@ class PostgresBackend:
             self.dsn,
             autocommit=True,
             row_factory=dict_row,
+            connect_timeout=self.CONNECT_TIMEOUT_SECONDS,
         )
 
     @contextmanager
@@ -45,6 +47,7 @@ class PostgresBackend:
             self.dsn,
             autocommit=False,
             row_factory=dict_row,
+            connect_timeout=self.CONNECT_TIMEOUT_SECONDS,
         )
         try:
             yield connection
