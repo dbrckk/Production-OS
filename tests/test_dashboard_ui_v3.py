@@ -826,12 +826,19 @@ def test_production_inbox_renders_live_runtime_and_server_actions():
 
 
 
-def test_dashboard_supports_secure_fragment_pairing_without_query_leak():
-    assert "function bootstrapPairingFromFragment" in DASHBOARD_HTML
+def test_dashboard_supports_one_time_fragment_pairing_without_operator_token_link():
+    assert "async function bootstrapPairingFromFragment" in DASHBOARD_HTML
     assert "window.location.hash" in DASHBOARD_HTML
-    assert "raw.startsWith('#pair=')" in DASHBOARD_HTML
-    assert "decodeURIComponent(raw.slice(6))" in DASHBOARD_HTML
-    assert "localStorage.setItem(TOKEN_KEY,value)" in DASHBOARD_HTML
+    assert "raw.startsWith('#pair-code=')" in DASHBOARD_HTML
+    assert "decodeURIComponent(raw.slice(11))" in DASHBOARD_HTML
+    assert "fetch('/v1/dashboard/pair'" in DASHBOARD_HTML
+    assert "payload.session_token" in DASHBOARD_HTML
+    assert "localStorage.setItem(TOKEN_KEY,String(payload.session_token))" in DASHBOARD_HTML
     assert "history.replaceState(null,'',window.location.pathname+window.location.search)" in DASHBOARD_HTML
-    assert "bootstrapPairingFromFragment();" in DASHBOARD_HTML
+    assert "bootstrapPairingFromFragment().finally" in DASHBOARD_HTML
+    assert "raw.startsWith('#pair=')" in DASHBOARD_HTML
+    assert "localStorage.setItem(TOKEN_KEY,value)" not in DASHBOARD_HTML
     assert "?pair=" not in DASHBOARD_HTML
+    assert "Créer un lien 10 min" in DASHBOARD_HTML
+    assert "/v1/dashboard/pairing-codes" in DASHBOARD_HTML
+    assert "/v1/dashboard/session/revoke" in DASHBOARD_HTML
