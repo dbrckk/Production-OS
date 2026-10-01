@@ -104,6 +104,42 @@ def _required_capabilities_for(assessment, handoff: dict) -> list[str]:
     return sorted(set(required))
 
 
+def _recover_managed_project_accounting(
+    *,
+    project_id: str,
+    handoff: dict,
+    rate_limit_store: RateLimitStore | None,
+    budget_ledger: BudgetLedger | None,
+    rate_window_seconds: int = 3600,
+) -> None:
+    repository = str(handoff.get("repository") or "")
+    if rate_limit_store is not None and repository:
+        rate_limit_store.record_once(
+            f"repo:{repository}",
+            project_id,
+            window_seconds=int(rate_window_seconds),
+        )
+
+    raw_request = handoff.get("resource_request", {}) or {}
+    resource_request = {
+        str(key):float(value)
+        for key, value in raw_request.items()
+        if isinstance(value, (int, float))
+        and not isinstance(value, bool)
+    }
+    if budget_ledger is not None and resource_request:
+        budget_ledger.record_once(
+            repository,
+            resource_request,
+            idempotency_key=f"{project_id}:repository",
+        )
+        budget_ledger.record_once(
+            "__portfolio__",
+            resource_request,
+            idempotency_key=f"{project_id}:portfolio",
+        )
+
+
 def _load_github_mappings(path: str | None) -> list[dict]:
     if not path:
         return []
@@ -362,6 +398,12 @@ def run_control_cycle(
                 project_id,
             )
             if existing is not None:
+                _recover_managed_project_accounting(
+                    project_id=project_id,
+                    handoff=handoff,
+                    rate_limit_store=rate_limit_store,
+                    budget_ledger=budget_ledger,
+                )
                 event = (
                     "managed-project-skipped-terminal"
                     if str(existing.get("status") or "") == "DONE"
