@@ -719,6 +719,22 @@ class DashboardStore:
                 (bounded,),
             )
 
+    def latest_control_audit(
+        self,
+        *,
+        action: str,
+        worker_id: str,
+    ) -> dict | None:
+        with self.backend.connect() as db:
+            return self._fetchone(
+                db,
+                """SELECT * FROM control_audit_events
+                   WHERE action=? AND worker_id=?
+                   ORDER BY requested_at DESC, id DESC
+                   LIMIT 1""",
+                (action, worker_id),
+            )
+
     def get_worker_control(self, worker_id: str) -> dict | None:
         with self.backend.connect() as db:
             return self._fetchone(
