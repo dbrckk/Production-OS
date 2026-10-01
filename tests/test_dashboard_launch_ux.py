@@ -234,6 +234,11 @@ def test_dashboard_launch_auto_wakes_worker_when_wake_is_needed(
         assert status == 201
         assert payload["launch"]["worker_wake"]["status"] == "dispatched"
         assert wakes == ["automatic-launch"]
+        audit = control.dashboard_store.control_audit_events(limit=10)
+        assert audit[0]["action"] == "kick"
+        assert audit[0]["worker_id"] == "automatic-launch"
+        assert audit[0]["requested_by"] == "operator:operator"
+        assert audit[0]["outcome"] == "dispatched"
         assert payload["project"]["repository"] == "dbrckk/example"
     finally:
         server.shutdown()
