@@ -2871,6 +2871,10 @@ def do_GET(self) -> None
 ⋮----
 parsed = urlparse(self.path)
 ⋮----
+row = db.execute("SELECT 1").fetchone()
+⋮----
+row = cursor.fetchone()
+⋮----
 principal = self._require("viewer")
 ⋮----
 query = parse_qs(parsed.query)

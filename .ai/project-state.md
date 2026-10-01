@@ -22,16 +22,19 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-01T16:05:22Z
+Generated: 2026-10-01T20:42:45Z
 
 ### Git
 - Branch: `main`
-- Head: `26be7a52851f`
-- Commit date: 2026-10-01T18:05:10+02:00
-- Commit: feat(dashboard): expose worker wake readiness before launch
+- Head: `d18679a8bb1a`
+- Commit date: 2026-10-01T22:42:31+02:00
+- Commit: feat(control-plane): add backend readiness endpoint
 - Tracked files: 534
 
 ### Recently changed files
+- `README.md`
+- `src/production_os/control_plane.py`
+- `tests/test_dashboard_launch_ux.py`
 - `src/production_os/dashboard_control.py`
 - `src/production_os/dashboard_service.py`
 - `src/production_os/dashboard_ui.py`
@@ -42,16 +45,10 @@ Generated: 2026-10-01T16:05:22Z
 - `.python-version`
 - `pyproject.toml`
 - `tests/test_runtime_contract.py`
-- `src/production_os/control_plane.py`
 - `src/production_os/dashboard_store.py`
 - `tests/test_dashboard_api.py`
-- `tests/test_dashboard_launch_ux.py`
 - `tests/test_release32_one_tap_e2e.py`
-- `README.md`
 - `tests/test_dashboard_ui_v3.py`
-- `compose.yaml`
-- `docs/superpowers/plans/2026-09-30-controller-managed-projects.md`
-- `docs/superpowers/specs/2026-09-30-controller-managed-projects-design.md`
 
 ### Project signals
 - `pyproject.toml`

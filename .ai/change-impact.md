@@ -1,22 +1,20 @@
 # Change impact
 
-Base: ae9234cb96e86ed040b56863ae59185a398b6702
-Head: 26be7a52851ff64f6b4b050021318fb2aeb1d6b1
+Base: 51901771ea03acc1587a0b05d0255a93b4817496
+Head: d18679a8bb1ad881d2178e7411bbda7bcb3ecfa9
 
 ## Changed files
-- M src/production_os/dashboard_control.py
-- M src/production_os/dashboard_service.py
-- M src/production_os/dashboard_ui.py
-- M tests/test_dashboard_control.py
-- M tests/test_dashboard_launch.py
-- M tests/test_dashboard_launch_readiness.py
+- M README.md
+- M src/production_os/control_plane.py
+- M tests/test_dashboard_launch_ux.py
 
 ## Affected areas
+- (root)
 - src
 - tests
 
 ## Related test candidates
-- tests/test_dashboard_control.py
+- tests/test_control_plane.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

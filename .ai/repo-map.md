@@ -3459,6 +3459,10 @@ def do_GET(self) -> None
 ⋮----
 parsed = urlparse(self.path)
 ⋮----
+row = db.execute("SELECT 1").fetchone()
+⋮----
+row = cursor.fetchone()
+⋮----
 principal = self._require("viewer")
 ⋮----
 query = parse_qs(parsed.query)
@@ -13289,74 +13293,6 @@ def test_launch_readiness_reports_immediate_worker_wake_configuration(tmp_path)
 control = ControlPlane(str(tmp_path / "readiness-wake.sqlite"))
 ````
 
-## File: tests/test_dashboard_launch_ux.py
-````python
-def _auth()
-⋮----
-def _server(control)
-⋮----
-server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
-thread = threading.Thread(target=server.serve_forever, daemon=True)
-⋮----
-def _get(url, token=None, *, follow_redirects=True)
-⋮----
-request = urllib.request.Request(
-opener = urllib.request.build_opener()
-⋮----
-class NoRedirect(urllib.request.HTTPRedirectHandler)
-⋮----
-def redirect_request(self, req, fp, code, msg, headers, newurl)
-opener = urllib.request.build_opener(NoRedirect())
-⋮----
-raw = response.read()
-content_type = response.headers.get("Content-Type", "")
-⋮----
-raw = exc.read()
-⋮----
-payload = json.loads(raw or b"{}")
-⋮----
-payload = raw.decode("utf-8", errors="replace")
-⋮----
-def _post(url, token, payload)
-⋮----
-def test_root_redirects_to_dashboard_and_health_stays_json(tmp_path)
-⋮----
-control = ControlPlane(str(tmp_path / "launch-ux.sqlite"), authorizer=_auth())
-⋮----
-control = ControlPlane(str(tmp_path / "repos.sqlite"), authorizer=_auth())
-⋮----
-def fake_repos(self, owner)
-⋮----
-control = ControlPlane(
-⋮----
-def fail_repos(self, owner)
-⋮----
-control = ControlPlane(str(tmp_path / "auto-wake.sqlite"), authorizer=_auth())
-⋮----
-wakes = []
-⋮----
-audit = control.dashboard_store.control_audit_events(limit=10)
-⋮----
-control = ControlPlane(str(tmp_path / "no-auto-wake.sqlite"), authorizer=_auth())
-⋮----
-control = ControlPlane(str(tmp_path / "wake-saturated.sqlite"), authorizer=_auth())
-worker = control.workers.register("worker-a", ["python"], 1)
-⋮----
-control = ControlPlane(str(tmp_path / "wake-paused.sqlite"), authorizer=_auth())
-⋮----
-control = ControlPlane(str(tmp_path / "wake-offline.sqlite"), authorizer=_auth())
-⋮----
-def test_automatic_worker_wake_cooldown_blocks_duplicate_kick(tmp_path)
-⋮----
-control = ControlPlane(str(tmp_path / "wake-cooldown.sqlite"), authorizer=_auth())
-⋮----
-control = ControlPlane(str(tmp_path / "wake-dedupe.sqlite"), authorizer=_auth())
-⋮----
-def test_automatic_worker_wake_cooldown_allows_retry_after_failure(tmp_path)
-⋮----
-control = ControlPlane(str(tmp_path / "wake-failed-retry.sqlite"), authorizer=_auth())
-````
-
 ## File: tests/test_dashboard_launch.py
 ````python
 def test_dashboard_daily_surface_is_repo_instruction_only()
@@ -19568,6 +19504,14 @@ Worker credentials cannot read dashboard audit history.
 ### Operational health
 
 The liveness endpoint `/health` only answers whether the HTTP service is alive.
+
+Deployment readiness is separate:
+
+```text
+GET /readyz
+```
+
+It performs a bounded backend connectivity query. A reachable backend returns HTTP 200 with `status=ready`; an unavailable backend returns HTTP 503 with a redacted `database=unavailable` result. It never returns connection strings or backend exception text. Use `/readyz` for load-balancer or platform readiness checks when database access is required for useful traffic.
 
 Operational health is separate:
 
