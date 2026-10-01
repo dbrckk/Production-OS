@@ -374,3 +374,15 @@ def test_dashboard_launch_skips_duplicate_wake_during_cooldown(
         server.shutdown()
         server.server_close()
         thread.join(timeout=2)
+
+
+def test_automatic_worker_wake_cooldown_allows_retry_after_failure(tmp_path):
+    control = ControlPlane(str(tmp_path / "wake-failed-retry.sqlite"), authorizer=_auth())
+    control.dashboard_store.append_control_audit(
+        action="kick",
+        worker_id="automatic-launch",
+        requested_by="operator:test",
+        outcome="failed",
+        error_code="github_dispatch_failed",
+    )
+    assert control.automatic_worker_wake_allowed(cooldown_seconds=60) is True
