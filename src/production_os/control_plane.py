@@ -574,6 +574,37 @@ def make_handler(control: ControlPlane):
                 )
                 return
 
+            if parsed.path == "/readyz":
+                try:
+                    with control.backend.connect() as db:
+                        if hasattr(db, "execute"):
+                            row = db.execute("SELECT 1").fetchone()
+                        else:
+                            cursor = db.cursor()
+                            cursor.execute("SELECT 1")
+                            row = cursor.fetchone()
+                        if row is None:
+                            raise RuntimeError("database readiness query returned no row")
+                except Exception:
+                    self._send(
+                        HTTPStatus.SERVICE_UNAVAILABLE,
+                        {
+                            "status":"not_ready",
+                            "database":"unavailable",
+                            "schema_version":"production-os/readiness/v1",
+                        },
+                    )
+                    return
+                self._send(
+                    HTTPStatus.OK,
+                    {
+                        "status":"ready",
+                        "database":"reachable",
+                        "schema_version":"production-os/readiness/v1",
+                    },
+                )
+                return
+
             principal = self._require("viewer")
             if principal is None:
                 return
