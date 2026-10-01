@@ -240,6 +240,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   <p class="small">Secours uniquement : saisir manuellement le token opérateur sur cet appareil.</p>
   <input id="pair-token" type="password" placeholder="Token opérateur (secours)" autocomplete="off">
   <div id="pair-feedback" class="pair-feedback"></div>
+  <div id="device-sessions" class="small"></div>
   <div class="settings-actions">
    <button class="secondary-btn" type="button" onclick="savePairing()">Enregistrer le token de secours</button>
    <button class="secondary-btn" type="button" onclick="clearPairing()">Oublier cet appareil</button>
@@ -295,7 +296,10 @@ function setState(id,state,text){document.getElementById(id).innerHTML=dot(state
 function setSettingsOpen(open){
  const el=document.getElementById('settings');
  el.classList.toggle('open',Boolean(open));
- if(open){setTimeout(function(){document.getElementById('pair-token').focus()},0)}
+ if(open){
+  loadDeviceSessions();
+  setTimeout(function(){document.getElementById('pair-token').focus()},0);
+ }
 }
 function toggleSettings(){const el=document.getElementById('settings');setSettingsOpen(!el.classList.contains('open'))}
 
@@ -334,6 +338,53 @@ async function checkServer(){
  }catch(_e){
   setState('server-state','bad','Indisponible');
   return false;
+ }
+}
+
+async function loadDeviceSessions(){
+ const el=document.getElementById('device-sessions');
+ if(!el)return;
+ if(!token()){
+  el.innerHTML='<div class="small">Aucun appareil authentifié.</div>';
+  return;
+ }
+ try{
+  const data=await api('/v1/dashboard/device-sessions');
+  const sessions=data.sessions||[];
+  if(!sessions.length){
+   el.innerHTML='<div class="small">Aucune session appareil active.</div>';
+   return;
+  }
+  el.innerHTML='<div class="small"><strong>Appareils appairés</strong></div>'+
+   sessions.map(function(item){
+    const id=String(item.id||'');
+    const name=String(item.name||'appareil');
+    const expiry=String(item.expires_at||'').replace('T',' ').replace('Z','');
+    return '<div class="history-row"><span>'+esc(name)+
+     (expiry?' · expire '+esc(expiry):'')+
+     '</span><button class="secondary-btn" type="button" data-session-id="'+
+     esc(id)+'" onclick="revokeDeviceSession(this.dataset.sessionId)">Révoquer</button></div>';
+   }).join('');
+ }catch(e){
+  el.textContent='Sessions indisponibles : '+String(e).replace(/^Error:\\s*/,'');
+ }
+}
+
+async function revokeDeviceSession(sessionId){
+ const id=String(sessionId||'').trim();
+ if(!id)return;
+ const feedback=document.getElementById('pair-feedback');
+ try{
+  const r=await api(
+   '/v1/dashboard/device-sessions/'+encodeURIComponent(id)+'/revoke',
+   {method:'POST'}
+  );
+  feedback.textContent=r.revoked
+   ?'Session appareil révoquée.'
+   :'Session déjà absente.';
+  await loadDeviceSessions();
+ }catch(e){
+  feedback.textContent=String(e).replace(/^Error:\\s*/,'');
  }
 }
 
