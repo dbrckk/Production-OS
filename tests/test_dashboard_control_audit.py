@@ -143,7 +143,7 @@ def test_operator_control_api_writes_success_and_failure_audit(tmp_path):
         server.server_close()
 
 
-def test_release17_schema_is_v16_and_contains_managed_project_tables(tmp_path):
+def test_release18_schema_contains_managed_project_and_pairing_tables(tmp_path):
     backend = SQLiteBackend(tmp_path / "schema.sqlite")
     with backend.connect() as db:
         version = db.execute(
@@ -161,7 +161,7 @@ def test_release17_schema_is_v16_and_contains_managed_project_tables(tmp_path):
                 "PRAGMA table_info(dashboard_remediation_events)"
             ).fetchall()
         }
-    assert version == "17"
+    assert version == "18"
     assert table["name"] == "control_audit_events"
     assert remediation["name"] == "dashboard_remediation_events"
     assert {
@@ -178,6 +178,15 @@ def test_release17_schema_is_v16_and_contains_managed_project_tables(tmp_path):
         ).fetchone()
     assert managed["name"] == "managed_projects"
     assert runs["name"] == "managed_project_runs"
+    with backend.connect() as db:
+        pairing = db.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='device_pairing_codes'"
+        ).fetchone()
+        sessions = db.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='device_sessions'"
+        ).fetchone()
+    assert pairing["name"] == "device_pairing_codes"
+    assert sessions["name"] == "device_sessions"
 
 
 def test_control_action_remains_traced_if_audit_finalization_fails(tmp_path):
