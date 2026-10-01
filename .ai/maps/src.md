@@ -171,6 +171,7 @@ production_os/
   vault_signer.py
   versioning.py
   witness.py
+  worker_wake.py
   workers.py
   workflow_engine.py
   worktree_contract.py
@@ -2739,23 +2740,9 @@ actions_repository = str(
 actions_workflow = str(
 actions_ref = str(
 ⋮----
-latest = self.dashboard_store.latest_control_audit(
-⋮----
-requested_at = self._parse_timestamp(latest.get("requested_at"))
-⋮----
-age = (datetime.now(timezone.utc) - requested_at).total_seconds()
-⋮----
 def automatic_worker_wake_needed(self) -> bool
 ⋮----
-has_active_worker = False
-⋮----
-worker_id = str(getattr(worker, "worker_id", "") or "").strip()
-desired = self.dashboard_control.worker_state(worker_id)
-⋮----
-has_active_worker = True
-⋮----
-# Do not override an intentional fleet-wide pause/drain. Wake only
-# when there is no registered fleet yet or an active worker is offline.
+queued = self.queue.peek_candidates(limit=1)
 ⋮----
 specialist = {
 ⋮----
@@ -2983,12 +2970,7 @@ project_id = None
 actor = f"{principal.role}:{principal.name}"
 project_id = hashlib.sha256(
 project = control.managed_projects.create(
-wake = {"status":"not_needed"}
-wake_needed = control.automatic_worker_wake_needed()
-⋮----
-wake = {
-⋮----
-wake = control.dashboard_control.kick_worker(
+wake = control.ensure_worker_for_queued_work(
 ⋮----
 action = parts[3]
 ⋮----
@@ -3359,11 +3341,13 @@ row = {
 mode = str(execution_mode or "").strip().lower()
 ⋮----
 backend = open_backend(database_path) if database_path else None
+workflow_engine = None
 ⋮----
 state = runtime_state_for(backend)
 worker_registry = worker_registry_for(backend)
 durable_queue = job_queue_for(backend)
 claim_store = claim_store_for(backend)
+workflow_engine = WorkflowEngine(backend, durable_queue)
 managed_projects = (
 ⋮----
 state = RuntimeState(runtime_state_path)
@@ -3396,6 +3380,11 @@ governance_actions = apply_governance(
 heartbeat_results = renew_active_leases(
 ⋮----
 client = GitHubClient()
+automatic_wake_store = None
+automatic_wake_control = None
+⋮----
+automatic_wake_store = DashboardStore(backend)
+automatic_wake_control = DashboardControl(
 github_results = _reconcile_github(
 ⋮----
 repos = client.list_repositories(owner)
@@ -3439,6 +3428,10 @@ request = AutonomousProjectRequest(
 launch = launch_autonomous_project(
 ⋮----
 result = dispatch_handoff(
+⋮----
+automatic_worker_wake = {
+⋮----
+automatic_worker_wake = request_automatic_worker_wake(
 ⋮----
 snapshot = build_snapshot(owner, assessments)
 stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
@@ -9879,6 +9872,38 @@ raw = response.read()
 status = int(response.status)
 ⋮----
 payload = json.loads(raw)
+```
+
+## File: production_os/worker_wake.py
+```python
+AUTOMATIC_WAKE_WORKER_ID = "automatic-launch"
+DEFAULT_WAKE_COOLDOWN_SECONDS = 60
+⋮----
+def _parse_timestamp(value)
+⋮----
+parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+⋮----
+latest = store.latest_control_audit(
+⋮----
+requested_at = _parse_timestamp(latest.get("requested_at"))
+⋮----
+age = (datetime.now(timezone.utc) - requested_at).total_seconds()
+⋮----
+has_active_worker = False
+⋮----
+worker_id = str(getattr(worker, "worker_id", "") or "").strip()
+desired = dashboard_control.worker_state(worker_id)
+⋮----
+has_active_worker = True
+⋮----
+# Respect an intentional fleet-wide pause/drain. Wake only when there is
+# no registered fleet yet or at least one desired-active worker is offline.
+⋮----
+wake = dashboard_control.kick_worker(worker_id)
+⋮----
+# Waking a worker is a best-effort recovery path. Never turn an
+# already-created durable production into an HTTP/controller failure
+# merely because the auxiliary audit write could not be persisted.
 ```
 
 ## File: production_os/workers.py

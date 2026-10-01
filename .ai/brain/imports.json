@@ -342,6 +342,7 @@
       "speculation",
       "storage",
       "urllib.parse",
+      "worker_wake",
       "workflow_engine"
     ],
     "src/production_os/control_surface.py": [
@@ -358,6 +359,8 @@
       "budgets",
       "claims",
       "controller_leader",
+      "dashboard_control",
+      "dashboard_store",
       "datetime",
       "delivery",
       "dispatch",
@@ -373,6 +376,7 @@
       "managed_projects",
       "metrics",
       "observability",
+      "os",
       "pathlib",
       "policy",
       "quarantine",
@@ -388,6 +392,7 @@
       "task_capabilities",
       "threading",
       "time",
+      "worker_wake",
       "workers",
       "workflow_engine"
     ],
@@ -1143,6 +1148,10 @@
       "urllib.error",
       "urllib.request"
     ],
+    "src/production_os/worker_wake.py": [
+      "__future__",
+      "datetime"
+    ],
     "src/production_os/workers.py": [
       "__future__",
       "atomic_io",
@@ -1403,6 +1412,8 @@
       "production_os.budgets",
       "production_os.cli",
       "production_os.controller",
+      "production_os.dashboard_control",
+      "production_os.dashboard_store",
       "production_os.emergency",
       "production_os.managed_projects",
       "production_os.quarantine",
@@ -2423,6 +2434,10 @@
     ],
     "tests/test_worker_compose_deployment.py": [
       "pathlib"
+    ],
+    "tests/test_worker_wake.py": [
+      "production_os.control_plane",
+      "production_os.worker_wake"
     ],
     "tests/test_workers.py": [
       "production_os.workers"

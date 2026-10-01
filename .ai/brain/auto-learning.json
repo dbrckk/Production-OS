@@ -5,22 +5,29 @@
     "example_count": 64,
     "rejected_count": 0,
     "terms": [
-      "attempts",
-      "bound",
-      "connection",
-      "database",
-      "postgres"
+      "across",
+      "automatic",
+      "feat",
+      "make",
+      "production-os",
+      "queue-driven",
+      "wake",
+      "worker"
     ],
     "test_count": 0,
-    "useful_count": 2
+    "useful_count": 6
   },
   "note": "Selected tests are routing hints; this artifact does not claim they executed successfully.",
   "rejected": [],
   "schema_version": 1,
-  "task": "fix(postgres): bound database connection attempts",
+  "task": "feat(worker): make automatic wake queue-driven across Production-OS",
   "tests_selected": [],
   "useful": [
-    "src/production_os/postgres_backend.py",
-    "tests/test_postgres_connect_timeout_unit.py"
+    "src/production_os/control_plane.py",
+    "src/production_os/controller.py",
+    "src/production_os/worker_wake.py",
+    "tests/test_controller_managed_projects.py",
+    "tests/test_dashboard_launch_ux.py",
+    "tests/test_worker_wake.py"
   ]
 }

@@ -182,6 +182,7 @@
         "tests/test_vault_auth.py",
         "tests/test_vault_signer.py",
         "tests/test_witness.py",
+        "tests/test_worker_wake.py",
         "tests/test_workers.py",
         "tests/test_workflow_api.py",
         "tests/test_workflow_cache.py",
@@ -191,7 +192,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 182,
+      "in_degree": 183,
       "out_degree": 0,
       "path": "src/production_os/__init__.py"
     },
@@ -306,6 +307,7 @@
         "src/production_os/release_ledger.py",
         "src/production_os/speculation.py",
         "src/production_os/storage.py",
+        "src/production_os/worker_wake.py",
         "src/production_os/workers.py",
         "src/production_os/workflow_engine.py",
         "tests/test_asset_forge.py",
@@ -363,10 +365,11 @@
         "tests/test_remote_worker.py",
         "tests/test_remote_worker_runner.py",
         "tests/test_speculation_api.py",
+        "tests/test_worker_wake.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 51,
-      "out_degree": 23,
+      "in_degree": 52,
+      "out_degree": 24,
       "path": "src/production_os/control_plane.py"
     },
     {
@@ -404,6 +407,7 @@
         "src/production_os/sqlite_backend.py",
         "src/production_os/sqlite_migration.py",
         "src/production_os/starlist.py",
+        "src/production_os/worker_wake.py",
         "src/production_os/workflow_engine.py",
         "tests/test_agent_benchmark.py",
         "tests/test_api_auth.py",
@@ -439,15 +443,13 @@
         "tests/test_dashboard_retention_prune.py",
         "tests/test_dashboard_store.py",
         "tests/test_dashboard_store_postgres.py",
-        "tests/test_dashboard_ui_v3.py",
-        "tests/test_dynamic_agent_fanout.py",
         "tests/test_execution_optimizer.py",
         "tests/test_execution_optimizer_postgres.py",
         "tests/test_preemption.py",
         "tests/test_stragglers.py",
         "tests/test_workers.py"
       ],
-      "in_degree": 71,
+      "in_degree": 70,
       "out_degree": 2,
       "path": "src/production_os/workers.py"
     },
@@ -498,6 +500,7 @@
         "src/production_os/vault_auth.py",
         "src/production_os/vault_signer.py",
         "src/production_os/witness.py",
+        "src/production_os/worker_wake.py",
         "src/production_os/workflow_engine.py",
         "tests/test_agent_benchmark.py",
         "tests/test_agent_planning_policy.py",
@@ -519,8 +522,7 @@
         "tests/test_governance.py",
         "tests/test_incident_history.py",
         "tests/test_managed_github_reconciliation.py",
-        "tests/test_managed_project_outcome.py",
-        "tests/test_model_router.py"
+        "tests/test_managed_project_outcome.py"
       ],
       "in_degree": 63,
       "out_degree": 3,
@@ -555,6 +557,7 @@
         "src/production_os/scoring.py",
         "src/production_os/self_healing.py",
         "src/production_os/sqlite_backend.py",
+        "src/production_os/worker_wake.py",
         "tests/test_agent_benchmark.py",
         "tests/test_browser_computer.py",
         "tests/test_browser_loop.py",
@@ -586,9 +589,10 @@
         "tests/test_release51_one_tap_runner_e2e.py",
         "tests/test_remote_worker_runner.py",
         "tests/test_scheduler.py",
-        "tests/test_scoring.py"
+        "tests/test_scoring.py",
+        "tests/test_worker_wake.py"
       ],
-      "in_degree": 55,
+      "in_degree": 57,
       "out_degree": 2,
       "path": "tests/test_fairness.py"
     },
@@ -774,6 +778,8 @@
         "src/production_os/budgets.py",
         "src/production_os/claims.py",
         "src/production_os/controller_leader.py",
+        "src/production_os/dashboard_control.py",
+        "src/production_os/dashboard_store.py",
         "src/production_os/delivery.py",
         "src/production_os/dispatch.py",
         "src/production_os/emergency.py",
@@ -799,6 +805,7 @@
         "src/production_os/self_healing.py",
         "src/production_os/storage.py",
         "src/production_os/task_capabilities.py",
+        "src/production_os/worker_wake.py",
         "src/production_os/workers.py",
         "src/production_os/workflow_engine.py",
         "tests/test_asset_forge.py",
@@ -812,7 +819,7 @@
         "tests/test_controller_managed_projects.py"
       ],
       "in_degree": 4,
-      "out_degree": 36,
+      "out_degree": 39,
       "path": "src/production_os/controller.py"
     },
     {
@@ -1167,6 +1174,32 @@
     },
     {
       "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/approvals.py",
+        "src/production_os/budgets.py",
+        "src/production_os/cli.py",
+        "src/production_os/controller.py",
+        "src/production_os/dashboard_control.py",
+        "src/production_os/dashboard_store.py",
+        "src/production_os/emergency.py",
+        "src/production_os/github_client.py",
+        "src/production_os/history.py",
+        "src/production_os/managed_projects.py",
+        "src/production_os/quarantine.py",
+        "src/production_os/rate_limit.py",
+        "src/production_os/storage.py",
+        "src/production_os/workers.py",
+        "src/production_os/workflow_engine.py",
+        "tests/test_asset_forge.py",
+        "tests/test_fairness.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 18,
+      "path": "tests/test_controller_managed_projects.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/signing.py"
       ],
       "dependents": [
@@ -1190,6 +1223,32 @@
       "in_degree": 16,
       "out_degree": 1,
       "path": "src/production_os/signers.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/dashboard_security.py",
+        "src/production_os/postgres_backend.py",
+        "src/production_os/workers.py",
+        "tests/test_asset_forge.py",
+        "tests/test_fairness.py"
+      ],
+      "dependents": [
+        "src/production_os/control_plane.py",
+        "src/production_os/controller.py",
+        "src/production_os/dashboard_control.py",
+        "tests/test_agent_benchmark.py",
+        "tests/test_controller_managed_projects.py",
+        "tests/test_dashboard_control.py",
+        "tests/test_dashboard_control_audit.py",
+        "tests/test_dashboard_github.py",
+        "tests/test_dashboard_incidents.py",
+        "tests/test_dashboard_remediation_history.py",
+        "tests/test_dashboard_store.py",
+        "tests/test_model_router.py"
+      ],
+      "in_degree": 12,
+      "out_degree": 5,
+      "path": "src/production_os/dashboard_store.py"
     },
     {
       "dependencies": [
@@ -1290,54 +1349,6 @@
       "in_degree": 6,
       "out_degree": 10,
       "path": "src/production_os/release_ledger.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/__init__.py",
-        "src/production_os/approvals.py",
-        "src/production_os/budgets.py",
-        "src/production_os/cli.py",
-        "src/production_os/controller.py",
-        "src/production_os/emergency.py",
-        "src/production_os/github_client.py",
-        "src/production_os/history.py",
-        "src/production_os/managed_projects.py",
-        "src/production_os/quarantine.py",
-        "src/production_os/rate_limit.py",
-        "src/production_os/storage.py",
-        "src/production_os/workers.py",
-        "src/production_os/workflow_engine.py",
-        "tests/test_asset_forge.py",
-        "tests/test_fairness.py"
-      ],
-      "dependents": [],
-      "in_degree": 0,
-      "out_degree": 16,
-      "path": "tests/test_controller_managed_projects.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/dashboard_security.py",
-        "src/production_os/postgres_backend.py",
-        "src/production_os/workers.py",
-        "tests/test_asset_forge.py",
-        "tests/test_fairness.py"
-      ],
-      "dependents": [
-        "src/production_os/control_plane.py",
-        "src/production_os/dashboard_control.py",
-        "tests/test_agent_benchmark.py",
-        "tests/test_dashboard_control.py",
-        "tests/test_dashboard_control_audit.py",
-        "tests/test_dashboard_github.py",
-        "tests/test_dashboard_incidents.py",
-        "tests/test_dashboard_remediation_history.py",
-        "tests/test_dashboard_store.py",
-        "tests/test_model_router.py"
-      ],
-      "in_degree": 10,
-      "out_degree": 5,
-      "path": "src/production_os/dashboard_store.py"
     },
     {
       "dependencies": [],
@@ -1962,6 +1973,22 @@
     },
     {
       "dependencies": [
+        "src/production_os/dashboard_store.py",
+        "src/production_os/workers.py",
+        "tests/test_asset_forge.py"
+      ],
+      "dependents": [
+        "src/production_os/control_plane.py",
+        "src/production_os/controller.py",
+        "tests/test_controller_managed_projects.py",
+        "tests/test_dashboard_control.py"
+      ],
+      "in_degree": 4,
+      "out_degree": 3,
+      "path": "src/production_os/dashboard_control.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/signers.py",
         "src/production_os/signing.py",
         "tests/test_asset_forge.py"
@@ -1975,26 +2002,10 @@
       "in_degree": 4,
       "out_degree": 3,
       "path": "src/production_os/witness.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/claims.py",
-        "src/production_os/runtime_state.py",
-        "src/production_os/workers.py",
-        "tests/test_fairness.py"
-      ],
-      "dependents": [
-        "src/production_os/cli.py",
-        "src/production_os/controller.py",
-        "tests/test_claims_delivery.py"
-      ],
-      "in_degree": 3,
-      "out_degree": 4,
-      "path": "src/production_os/delivery.py"
     }
   ],
-  "edge_count": 1700,
+  "edge_count": 1715,
   "generated_by": "dbrckk/repo-brain-v7-graph",
-  "node_count": 320,
+  "node_count": 322,
   "schema_version": 1
 }

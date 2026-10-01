@@ -185,6 +185,7 @@
         "tests/test_vault_auth.py",
         "tests/test_vault_signer.py",
         "tests/test_witness.py",
+        "tests/test_worker_wake.py",
         "tests/test_workers.py",
         "tests/test_workflow_api.py",
         "tests/test_workflow_cache.py",
@@ -194,7 +195,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 182,
+      "in_degree": 183,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -779,6 +780,7 @@
         "src/production_os/release_ledger.py",
         "src/production_os/speculation.py",
         "src/production_os/storage.py",
+        "src/production_os/worker_wake.py",
         "src/production_os/workers.py",
         "src/production_os/workflow_engine.py",
         "tests/test_asset_forge.py",
@@ -836,10 +838,11 @@
         "tests/test_remote_worker.py",
         "tests/test_remote_worker_runner.py",
         "tests/test_speculation_api.py",
+        "tests/test_worker_wake.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 51,
-      "out_degree": 23
+      "in_degree": 52,
+      "out_degree": 24
     },
     "src/production_os/control_surface.py": {
       "dependencies": [],
@@ -858,6 +861,8 @@
         "src/production_os/budgets.py",
         "src/production_os/claims.py",
         "src/production_os/controller_leader.py",
+        "src/production_os/dashboard_control.py",
+        "src/production_os/dashboard_store.py",
         "src/production_os/delivery.py",
         "src/production_os/dispatch.py",
         "src/production_os/emergency.py",
@@ -883,6 +888,7 @@
         "src/production_os/self_healing.py",
         "src/production_os/storage.py",
         "src/production_os/task_capabilities.py",
+        "src/production_os/worker_wake.py",
         "src/production_os/workers.py",
         "src/production_os/workflow_engine.py",
         "tests/test_asset_forge.py",
@@ -896,7 +902,7 @@
         "tests/test_controller_managed_projects.py"
       ],
       "in_degree": 4,
-      "out_degree": 36
+      "out_degree": 39
     },
     "src/production_os/controller_leader.py": {
       "dependencies": [
@@ -946,9 +952,11 @@
       ],
       "dependents": [
         "src/production_os/control_plane.py",
+        "src/production_os/controller.py",
+        "tests/test_controller_managed_projects.py",
         "tests/test_dashboard_control.py"
       ],
-      "in_degree": 2,
+      "in_degree": 4,
       "out_degree": 3
     },
     "src/production_os/dashboard_github.py": {
@@ -1064,8 +1072,10 @@
       ],
       "dependents": [
         "src/production_os/control_plane.py",
+        "src/production_os/controller.py",
         "src/production_os/dashboard_control.py",
         "tests/test_agent_benchmark.py",
+        "tests/test_controller_managed_projects.py",
         "tests/test_dashboard_control.py",
         "tests/test_dashboard_control_audit.py",
         "tests/test_dashboard_github.py",
@@ -1074,7 +1084,7 @@
         "tests/test_dashboard_store.py",
         "tests/test_model_router.py"
       ],
-      "in_degree": 10,
+      "in_degree": 12,
       "out_degree": 5
     },
     "src/production_os/dashboard_ui.py": {
@@ -2412,6 +2422,20 @@
       "in_degree": 4,
       "out_degree": 3
     },
+    "src/production_os/worker_wake.py": {
+      "dependencies": [
+        "src/production_os/workers.py",
+        "tests/test_asset_forge.py",
+        "tests/test_fairness.py"
+      ],
+      "dependents": [
+        "src/production_os/control_plane.py",
+        "src/production_os/controller.py",
+        "tests/test_worker_wake.py"
+      ],
+      "in_degree": 3,
+      "out_degree": 3
+    },
     "src/production_os/workers.py": {
       "dependencies": [
         "src/production_os/atomic_io.py",
@@ -2447,6 +2471,7 @@
         "src/production_os/sqlite_backend.py",
         "src/production_os/sqlite_migration.py",
         "src/production_os/starlist.py",
+        "src/production_os/worker_wake.py",
         "src/production_os/workflow_engine.py",
         "tests/test_agent_benchmark.py",
         "tests/test_api_auth.py",
@@ -2482,15 +2507,13 @@
         "tests/test_dashboard_retention_prune.py",
         "tests/test_dashboard_store.py",
         "tests/test_dashboard_store_postgres.py",
-        "tests/test_dashboard_ui_v3.py",
-        "tests/test_dynamic_agent_fanout.py",
         "tests/test_execution_optimizer.py",
         "tests/test_execution_optimizer_postgres.py",
         "tests/test_preemption.py",
         "tests/test_stragglers.py",
         "tests/test_workers.py"
       ],
-      "in_degree": 71,
+      "in_degree": 70,
       "out_degree": 2
     },
     "src/production_os/workflow_engine.py": {
@@ -2687,6 +2710,7 @@
         "src/production_os/vault_auth.py",
         "src/production_os/vault_signer.py",
         "src/production_os/witness.py",
+        "src/production_os/worker_wake.py",
         "src/production_os/workflow_engine.py",
         "tests/test_agent_benchmark.py",
         "tests/test_agent_planning_policy.py",
@@ -2708,8 +2732,7 @@
         "tests/test_governance.py",
         "tests/test_incident_history.py",
         "tests/test_managed_github_reconciliation.py",
-        "tests/test_managed_project_outcome.py",
-        "tests/test_model_router.py"
+        "tests/test_managed_project_outcome.py"
       ],
       "in_degree": 63,
       "out_degree": 3
@@ -3024,6 +3047,8 @@
         "src/production_os/budgets.py",
         "src/production_os/cli.py",
         "src/production_os/controller.py",
+        "src/production_os/dashboard_control.py",
+        "src/production_os/dashboard_store.py",
         "src/production_os/emergency.py",
         "src/production_os/github_client.py",
         "src/production_os/history.py",
@@ -3038,7 +3063,7 @@
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 16
+      "out_degree": 18
     },
     "tests/test_cooperative_managed_projects.py": {
       "dependencies": [
@@ -3435,12 +3460,11 @@
       "dependencies": [
         "src/production_os/__init__.py",
         "src/production_os/dashboard_ui.py",
-        "src/production_os/workers.py",
         "tests/test_fairness.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 4
+      "out_degree": 3
     },
     "tests/test_dashboard_usage.py": {
       "dependencies": [
@@ -3479,13 +3503,12 @@
         "src/production_os/agent_plan.py",
         "src/production_os/history.py",
         "src/production_os/sqlite_backend.py",
-        "src/production_os/workers.py",
         "src/production_os/workflow_engine.py",
         "tests/test_github_automerge.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 7
+      "out_degree": 6
     },
     "tests/test_emergency_key_revocation.py": {
       "dependencies": [
@@ -3571,6 +3594,7 @@
         "src/production_os/scoring.py",
         "src/production_os/self_healing.py",
         "src/production_os/sqlite_backend.py",
+        "src/production_os/worker_wake.py",
         "tests/test_agent_benchmark.py",
         "tests/test_browser_computer.py",
         "tests/test_browser_loop.py",
@@ -3602,9 +3626,10 @@
         "tests/test_release51_one_tap_runner_e2e.py",
         "tests/test_remote_worker_runner.py",
         "tests/test_scheduler.py",
-        "tests/test_scoring.py"
+        "tests/test_scoring.py",
+        "tests/test_worker_wake.py"
       ],
-      "in_degree": 55,
+      "in_degree": 57,
       "out_degree": 2
     },
     "tests/test_fanout_learning.py": {
@@ -3855,12 +3880,11 @@
         "src/production_os/dashboard_store.py",
         "src/production_os/model_router.py",
         "src/production_os/sqlite_backend.py",
-        "src/production_os/workflow_engine.py",
-        "tests/test_asset_forge.py"
+        "src/production_os/workflow_engine.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 6
+      "out_degree": 5
     },
     "tests/test_native_browser_worker_e2e.py": {
       "dependencies": [
@@ -4699,6 +4723,17 @@
       "dependents": [],
       "in_degree": 0,
       "out_degree": 1
+    },
+    "tests/test_worker_wake.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/worker_wake.py",
+        "tests/test_fairness.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 4
     },
     "tests/test_workers.py": {
       "dependencies": [

@@ -22,21 +22,25 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-01T20:50:37Z
+Generated: 2026-10-01T21:02:31Z
 
 ### Git
 - Branch: `main`
-- Head: `b56058e4069f`
-- Commit date: 2026-10-01T22:50:25+02:00
-- Commit: fix(postgres): bound database connection attempts
-- Tracked files: 535
+- Head: `188bfe1cad72`
+- Commit date: 2026-10-01T23:02:19+02:00
+- Commit: feat(worker): make automatic wake queue-driven across Production-OS
+- Tracked files: 537
 
 ### Recently changed files
-- `src/production_os/postgres_backend.py`
-- `tests/test_postgres_connect_timeout_unit.py`
 - `README.md`
 - `src/production_os/control_plane.py`
+- `src/production_os/controller.py`
+- `src/production_os/worker_wake.py`
+- `tests/test_controller_managed_projects.py`
 - `tests/test_dashboard_launch_ux.py`
+- `tests/test_worker_wake.py`
+- `src/production_os/postgres_backend.py`
+- `tests/test_postgres_connect_timeout_unit.py`
 - `src/production_os/dashboard_control.py`
 - `src/production_os/dashboard_service.py`
 - `src/production_os/dashboard_ui.py`
@@ -47,9 +51,6 @@ Generated: 2026-10-01T20:50:37Z
 - `.python-version`
 - `pyproject.toml`
 - `tests/test_runtime_contract.py`
-- `src/production_os/dashboard_store.py`
-- `tests/test_dashboard_api.py`
-- `tests/test_release32_one_tap_e2e.py`
 
 ### Project signals
 - `pyproject.toml`

@@ -218,6 +218,7 @@ test_vault_auth.py
 test_vault_signer.py
 test_witness.py
 test_worker_compose_deployment.py
+test_worker_wake.py
 test_workers.py
 test_workflow_api.py
 test_workflow_cache.py
@@ -1573,6 +1574,19 @@ same = run_control_cycle(**kwargs)
 changed = run_control_cycle(**kwargs2)
 ⋮----
 ids = {row["id"] for row in _project_service(backend2).list()}
+⋮----
+queue = job_queue_for(backend)
+⋮----
+class WakeGitHub(_FakeGitHub)
+⋮----
+token = "configured-token"
+⋮----
+audit = DashboardStore(backend).control_audit_events(limit=10)
+automatic = [
+⋮----
+workflows = WorkflowEngine(backend, queue)
+store = DashboardStore(backend)
+control_surface = DashboardControl(store, queue, workflows)
 ```
 
 ## File: test_cooperative_managed_projects.py
@@ -7483,6 +7497,25 @@ def test_browser_worker_does_not_require_external_executor_command()
 def test_non_browser_specialists_keep_external_executor_configuration()
 ⋮----
 block = _service_block(payload, service)
+```
+
+## File: test_worker_wake.py
+```python
+control = ControlPlane(str(tmp_path / "wake.sqlite"))
+calls = []
+⋮----
+result = request_automatic_worker_wake(
+⋮----
+audit = control.dashboard_store.control_audit_events(limit=5)
+⋮----
+control = ControlPlane(str(tmp_path / "wake-policy.sqlite"))
+worker = control.workers.register("worker-a", ["python"], 1)
+⋮----
+def test_shared_wake_uses_durable_cooldown(tmp_path, monkeypatch)
+⋮----
+control = ControlPlane(str(tmp_path / "wake-cooldown.sqlite"))
+⋮----
+control = ControlPlane(str(tmp_path / "wake-audit.sqlite"))
 ```
 
 ## File: test_workers.py

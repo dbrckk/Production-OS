@@ -2,26 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "fix: make explicit specialist routing authoritative",
-      "terms": [
-        "authoritative",
-        "explicit",
-        "make",
-        "routing",
-        "specialist"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/control_plane.py",
-        "src/production_os/managed_projects.py",
-        "src/production_os/task_capabilities.py",
-        "tests/test_cooperative_managed_projects.py",
-        "tests/test_release32_one_tap_e2e.py",
-        "tests/test_task_capabilities.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat: reconcile managed projects against GitHub PR gates",
       "terms": [
         "against",
@@ -1281,6 +1261,29 @@
         "src/production_os/postgres_backend.py",
         "tests/test_postgres_connect_timeout_unit.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "feat(worker): make automatic wake queue-driven across Production-OS",
+      "terms": [
+        "across",
+        "automatic",
+        "feat",
+        "make",
+        "production-os",
+        "queue-driven",
+        "wake",
+        "worker"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/control_plane.py",
+        "src/production_os/controller.py",
+        "src/production_os/worker_wake.py",
+        "tests/test_controller_managed_projects.py",
+        "tests/test_dashboard_launch_ux.py",
+        "tests/test_worker_wake.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1612,7 +1615,13 @@
     "across": {
       "src/production_os/browser_computer.py": 4,
       "src/production_os/cli.py": 4,
-      "tests/test_browser_computer.py": 4
+      "src/production_os/control_plane.py": 4,
+      "src/production_os/controller.py": 4,
+      "src/production_os/worker_wake.py": 4,
+      "tests/test_browser_computer.py": 4,
+      "tests/test_controller_managed_projects.py": 4,
+      "tests/test_dashboard_launch_ux.py": 4,
+      "tests/test_worker_wake.py": 4
     },
     "actions": {
       "src/production_os/browser_computer.py": 4,
@@ -1930,12 +1939,17 @@
     "automatic": {
       "src/production_os/asset_forge.py": 4,
       "src/production_os/cli.py": 4,
-      "src/production_os/control_plane.py": 4,
+      "src/production_os/control_plane.py": 8,
+      "src/production_os/controller.py": 4,
       "src/production_os/github_client.py": 4,
       "src/production_os/managed_projects.py": 4,
+      "src/production_os/worker_wake.py": 4,
       "tests/test_asset_forge.py": 4,
+      "tests/test_controller_managed_projects.py": 4,
+      "tests/test_dashboard_launch_ux.py": 4,
       "tests/test_managed_github_reconciliation.py": 4,
-      "tests/test_release33_auto_worker_recovery_e2e.py": 4
+      "tests/test_release33_auto_worker_recovery_e2e.py": 4,
+      "tests/test_worker_wake.py": 4
     },
     "automatically": {
       "src/production_os/cli.py": 4,
@@ -2888,7 +2902,7 @@
       "src/production_os/budgets.py": 4,
       "src/production_os/cli.py": 40,
       "src/production_os/control_plane.py": 40,
-      "src/production_os/controller.py": 12,
+      "src/production_os/controller.py": 16,
       "src/production_os/controller_leader.py": 4,
       "src/production_os/dashboard_alerts.py": 4,
       "src/production_os/dashboard_backups.py": 40,
@@ -3333,12 +3347,17 @@
       "tests/test_database_maintenance_lock.py": 4
     },
     "make": {
-      "src/production_os/control_plane.py": 4,
+      "src/production_os/control_plane.py": 8,
+      "src/production_os/controller.py": 4,
       "src/production_os/managed_projects.py": 4,
       "src/production_os/task_capabilities.py": 4,
+      "src/production_os/worker_wake.py": 4,
+      "tests/test_controller_managed_projects.py": 4,
       "tests/test_cooperative_managed_projects.py": 4,
+      "tests/test_dashboard_launch_ux.py": 4,
       "tests/test_release32_one_tap_e2e.py": 4,
-      "tests/test_task_capabilities.py": 4
+      "tests/test_task_capabilities.py": 4,
+      "tests/test_worker_wake.py": 4
     },
     "managed": {
       "src/production_os/autonomous_admission.py": 4,
@@ -3800,6 +3819,14 @@
       "tests/test_release45_production_inbox_e2e.py": 4,
       "tests/test_sqlite_backend.py": 4
     },
+    "production-os": {
+      "src/production_os/control_plane.py": 4,
+      "src/production_os/controller.py": 4,
+      "src/production_os/worker_wake.py": 4,
+      "tests/test_controller_managed_projects.py": 4,
+      "tests/test_dashboard_launch_ux.py": 4,
+      "tests/test_worker_wake.py": 4
+    },
     "progress": {
       "src/production_os/dashboard_ui.py": 4,
       "tests/test_dashboard_ui_v3.py": 4
@@ -3949,6 +3976,14 @@
       "src/production_os/dashboard_ui.py": 4,
       "tests/test_dashboard_api.py": 4,
       "tests/test_dashboard_ui_v3.py": 4
+    },
+    "queue-driven": {
+      "src/production_os/control_plane.py": 4,
+      "src/production_os/controller.py": 4,
+      "src/production_os/worker_wake.py": 4,
+      "tests/test_controller_managed_projects.py": 4,
+      "tests/test_dashboard_launch_ux.py": 4,
+      "tests/test_worker_wake.py": 4
     },
     "raster": {
       "src/production_os/asset_forge.py": 4,
@@ -4937,12 +4972,18 @@
       "tests/test_workflow_engine.py": 4
     },
     "wake": {
+      "src/production_os/control_plane.py": 4,
+      "src/production_os/controller.py": 4,
       "src/production_os/dashboard_control.py": 4,
       "src/production_os/dashboard_service.py": 4,
       "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/worker_wake.py": 4,
+      "tests/test_controller_managed_projects.py": 4,
       "tests/test_dashboard_control.py": 4,
       "tests/test_dashboard_launch.py": 4,
-      "tests/test_dashboard_launch_readiness.py": 4
+      "tests/test_dashboard_launch_readiness.py": 4,
+      "tests/test_dashboard_launch_ux.py": 4,
+      "tests/test_worker_wake.py": 4
     },
     "warning": {
       "src/production_os/control_plane.py": 4,
@@ -4979,8 +5020,8 @@
     "worker": {
       "src/production_os/browser_computer.py": 4,
       "src/production_os/cli.py": 8,
-      "src/production_os/control_plane.py": 20,
-      "src/production_os/controller.py": 4,
+      "src/production_os/control_plane.py": 24,
+      "src/production_os/controller.py": 8,
       "src/production_os/dashboard_control.py": 4,
       "src/production_os/dashboard_service.py": 4,
       "src/production_os/dashboard_ui.py": 4,
@@ -4990,15 +5031,18 @@
       "src/production_os/remote_worker_runner.py": 8,
       "src/production_os/sqlite_backend.py": 4,
       "src/production_os/task_capabilities.py": 8,
+      "src/production_os/worker_wake.py": 4,
       "src/production_os/workflow_engine.py": 12,
       "tests/test_browser_computer.py": 4,
       "tests/test_browser_worker_image.py": 4,
       "tests/test_cli.py": 4,
       "tests/test_controller_asset_capabilities.py": 4,
+      "tests/test_controller_managed_projects.py": 4,
       "tests/test_cooperative_managed_projects.py": 4,
       "tests/test_dashboard_control.py": 4,
       "tests/test_dashboard_launch.py": 8,
       "tests/test_dashboard_launch_readiness.py": 4,
+      "tests/test_dashboard_launch_ux.py": 4,
       "tests/test_model_router.py": 4,
       "tests/test_release33_auto_worker_recovery_e2e.py": 4,
       "tests/test_release36_worker_session_reconciliation_e2e.py": 4,
@@ -5008,6 +5052,7 @@
       "tests/test_specialist_job_preferences.py": 4,
       "tests/test_task_capabilities.py": 4,
       "tests/test_worker_compose_deployment.py": 12,
+      "tests/test_worker_wake.py": 4,
       "tests/test_workflow_engine.py": 4
     },
     "workers": {
