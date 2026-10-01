@@ -148,6 +148,42 @@ def test_http_pairing_exchange_authenticates_device_and_revokes_current_session(
         assert sessions["sessions"][0]["name"] == "android-phone"
         assert "token_sha256" not in sessions["sessions"][0]
 
+        session_id = exchanged["session_id"]
+
+        status, remotely_revoked = _request(
+            base,
+            f"/v1/dashboard/device-sessions/{session_id}/revoke",
+            token="operator",
+            method="POST",
+        )
+        assert status == 200
+        assert remotely_revoked["revoked"] is True
+        assert remotely_revoked["session_id"] == session_id
+
+        status, denied_after_remote_revoke = _request(
+            base,
+            "/v1/dashboard/device-sessions",
+            token=device_token,
+        )
+        assert status == 401
+        assert denied_after_remote_revoke["error"] == "unauthorized"
+
+        status, replacement_issued = _request(
+            base,
+            "/v1/dashboard/pairing-codes",
+            token="operator",
+            method="POST",
+        )
+        assert status == 201
+        status, replacement = _request(
+            base,
+            "/v1/dashboard/pair",
+            method="POST",
+            body={"code":replacement_issued["code"], "device_name":"replacement"},
+        )
+        assert status == 201
+        device_token = replacement["session_token"]
+
         status, reused = _request(
             base,
             "/v1/dashboard/pair",
@@ -223,3 +259,40 @@ def test_pairing_schema_is_persisted_at_version_18(tmp_path):
     assert version == "18"
     assert "device_pairing_codes" in tables
     assert "device_sessions" in tables
+
+
+
+def test_pairing_maintenance_prunes_expired_and_revoked_rows(tmp_path):
+    control = ControlPlane(str(tmp_path / "pairing-prune.sqlite"), authorizer=_auth())
+    now = datetime(2026, 10, 1, 12, 0, tzinfo=timezone.utc)
+    expired = control.device_pairing.issue_pairing_code(
+        requested_by="operator:test",
+        now=now,
+    )
+    active = control.device_pairing.issue_pairing_code(
+        requested_by="operator:test",
+        now=now + timedelta(seconds=601),
+    )
+    session = control.device_pairing.exchange(
+        active["code"],
+        now=now + timedelta(seconds=602),
+    )
+    assert control.device_pairing.revoke(session["session_token"]) is True
+
+    removed = control.dashboard_store.prune_expired_device_auth(
+        at=(now + timedelta(seconds=603)).isoformat(),
+    )
+
+    assert removed["pairing_codes"] >= 1
+    assert removed["device_sessions"] == 1
+    with control.backend.connect() as db:
+        expired_count = db.execute(
+            "SELECT COUNT(*) AS n FROM device_pairing_codes WHERE code_sha256=?",
+            (token_digest(expired["code"]),),
+        ).fetchone()["n"]
+        revoked_count = db.execute(
+            "SELECT COUNT(*) AS n FROM device_sessions WHERE id=?",
+            (session["session_id"],),
+        ).fetchone()["n"]
+    assert expired_count == 0
+    assert revoked_count == 0
