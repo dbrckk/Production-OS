@@ -22,34 +22,36 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-09-30T14:55:46Z
+Generated: 2026-10-01T15:09:21Z
 
 ### Git
 - Branch: `main`
-- Head: `45a8be3f9540`
-- Commit date: 2026-09-30T16:55:31+02:00
-- Commit: feat(agents): add native browser executor runtime
-- Tracked files: 523
+- Head: `3d0644a14904`
+- Commit date: 2026-10-01T17:09:08+02:00
+- Commit: feat(controller): route autonomous work through managed projects
+- Tracked files: 530
 
 ### Recently changed files
+- `README.md`
+- `compose.yaml`
+- `docs/superpowers/plans/2026-09-30-controller-managed-projects.md`
+- `docs/superpowers/specs/2026-09-30-controller-managed-projects-design.md`
+- `src/production_os/autonomous_admission.py`
+- `src/production_os/autonomous_projects.py`
+- `src/production_os/budgets.py`
+- `src/production_os/cli.py`
+- `src/production_os/controller.py`
+- `src/production_os/dispatch.py`
+- `src/production_os/rate_limit.py`
+- `src/production_os/workers.py`
+- `tests/test_autonomous_admission.py`
+- `tests/test_autonomous_projects.py`
+- `tests/test_controller_daemon_deployment.py`
+- `tests/test_controller_managed_projects.py`
+- `tests/test_policy_budgets.py`
+- `tests/test_workers.py`
 - `compose.worker.yaml`
 - `docs/remote-worker-executor-protocol.md`
-- `docs/superpowers/plans/2026-09-30-native-executor.md`
-- `docs/superpowers/specs/2026-09-30-native-executor-design.md`
-- `src/production_os/browser_loop.py`
-- `src/production_os/cli.py`
-- `src/production_os/native_executor.py`
-- `src/production_os/remote_worker_runner.py`
-- `tests/test_browser_loop.py`
-- `tests/test_native_browser_worker_e2e.py`
-- `tests/test_native_executor.py`
-- `tests/test_remote_worker_runner.py`
-- `tests/test_worker_compose_deployment.py`
-- `src/production_os/workflow_engine.py`
-- `tests/test_browser_computer.py`
-- `src/production_os/agent_plan.py`
-- `tests/test_agent_plan.py`
-- `src/production_os/browser_computer.py`
 
 ### Project signals
 - `pyproject.toml`

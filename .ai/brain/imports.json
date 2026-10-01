@@ -123,6 +123,29 @@
       "json",
       "pathlib"
     ],
+    "src/production_os/autonomous_admission.py": [
+      "__future__",
+      "approvals",
+      "budgets",
+      "dataclasses",
+      "emergency",
+      "pathlib",
+      "policy",
+      "quarantine",
+      "rate_limit",
+      "runtime_state",
+      "typing",
+      "workers"
+    ],
+    "src/production_os/autonomous_projects.py": [
+      "__future__",
+      "dataclasses",
+      "hashlib",
+      "json",
+      "managed_projects",
+      "re",
+      "typing"
+    ],
     "src/production_os/backup.py": [
       "__future__",
       "atomic_io",
@@ -330,6 +353,8 @@
     "src/production_os/controller.py": [
       "__future__",
       "approvals",
+      "autonomous_admission",
+      "autonomous_projects",
       "budgets",
       "claims",
       "controller_leader",
@@ -345,6 +370,7 @@
       "history",
       "journal",
       "json",
+      "managed_projects",
       "metrics",
       "observability",
       "pathlib",
@@ -362,7 +388,8 @@
       "task_capabilities",
       "threading",
       "time",
-      "workers"
+      "workers",
+      "workflow_engine"
     ],
     "src/production_os/controller_leader.py": [
       "__future__",
@@ -487,11 +514,10 @@
       "__future__",
       "approvals",
       "atomic_io",
+      "autonomous_admission",
       "budgets",
       "dataclasses",
       "datetime",
-      "emergency",
-      "json",
       "pathlib",
       "policy",
       "quarantine",
@@ -1201,6 +1227,29 @@
       "production_os.attestations",
       "pytest"
     ],
+    "tests/test_autonomous_admission.py": [
+      "__future__",
+      "datetime",
+      "production_os.approvals",
+      "production_os.autonomous_admission",
+      "production_os.budgets",
+      "production_os.emergency",
+      "production_os.policy",
+      "production_os.quarantine",
+      "production_os.rate_limit",
+      "production_os.runtime_state",
+      "production_os.workers",
+      "pytest"
+    ],
+    "tests/test_autonomous_projects.py": [
+      "__future__",
+      "production_os.autonomous_projects",
+      "production_os.managed_projects",
+      "production_os.sqlite_backend",
+      "production_os.workflow_engine",
+      "pytest",
+      "re"
+    ],
     "tests/test_browser_computer.py": [
       "argparse",
       "json",
@@ -1346,6 +1395,22 @@
       "pathlib",
       "production_os.controller_leader",
       "pytest"
+    ],
+    "tests/test_controller_managed_projects.py": [
+      "__future__",
+      "inspect",
+      "json",
+      "production_os.budgets",
+      "production_os.cli",
+      "production_os.controller",
+      "production_os.emergency",
+      "production_os.managed_projects",
+      "production_os.quarantine",
+      "production_os.rate_limit",
+      "production_os.storage",
+      "production_os.workflow_engine",
+      "pytest",
+      "types"
     ],
     "tests/test_cooperative_managed_projects.py": [
       "production_os.managed_projects",
@@ -1814,7 +1879,8 @@
     "tests/test_policy_budgets.py": [
       "datetime",
       "production_os.budgets",
-      "production_os.policy"
+      "production_os.policy",
+      "production_os.rate_limit"
     ],
     "tests/test_policy_validation.py": [
       "production_os.policy_validation"

@@ -1,22 +1,27 @@
 # Change impact
 
-Base: f996ee0b1b2e7005bcd271343802aa5f01f132a9
-Head: 45a8be3f9540ff6fd07ac975b18e82d3815fcc8d
+Base: b1c3c1f2837d5a3411e7c9f6ede702d0aa9ba5ee
+Head: 3d0644a149047817e44404c39bee6f9972663f6a
 
 ## Changed files
-- M compose.worker.yaml
-- M docs/remote-worker-executor-protocol.md
-- A docs/superpowers/plans/2026-09-30-native-executor.md
-- A docs/superpowers/specs/2026-09-30-native-executor-design.md
-- M src/production_os/browser_loop.py
+- M README.md
+- M compose.yaml
+- A docs/superpowers/plans/2026-09-30-controller-managed-projects.md
+- A docs/superpowers/specs/2026-09-30-controller-managed-projects-design.md
+- A src/production_os/autonomous_admission.py
+- A src/production_os/autonomous_projects.py
+- M src/production_os/budgets.py
 - M src/production_os/cli.py
-- A src/production_os/native_executor.py
-- M src/production_os/remote_worker_runner.py
-- M tests/test_browser_loop.py
-- A tests/test_native_browser_worker_e2e.py
-- A tests/test_native_executor.py
-- M tests/test_remote_worker_runner.py
-- M tests/test_worker_compose_deployment.py
+- M src/production_os/controller.py
+- M src/production_os/dispatch.py
+- M src/production_os/rate_limit.py
+- M src/production_os/workers.py
+- A tests/test_autonomous_admission.py
+- A tests/test_autonomous_projects.py
+- M tests/test_controller_daemon_deployment.py
+- A tests/test_controller_managed_projects.py
+- M tests/test_policy_budgets.py
+- M tests/test_workers.py
 
 ## Affected areas
 - (root)
@@ -25,10 +30,10 @@ Head: 45a8be3f9540ff6fd07ac975b18e82d3815fcc8d
 - tests
 
 ## Related test candidates
-- tests/test_browser_loop.py
+- tests/test_autonomous_admission.py
+- tests/test_autonomous_projects.py
 - tests/test_cli.py
-- tests/test_native_executor.py
-- tests/test_remote_worker_runner.py
+- tests/test_workers.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

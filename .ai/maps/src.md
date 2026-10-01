@@ -54,6 +54,8 @@ production_os/
   attestations.py
   audit_checkpoint.py
   audit_integrity.py
+  autonomous_admission.py
+  autonomous_projects.py
   backup.py
   browser_computer.py
   browser_loop.py
@@ -1162,6 +1164,113 @@ calculated = hash_event(previous, event)
 previous = calculated
 ```
 
+## File: production_os/autonomous_admission.py
+```python
+@dataclass(frozen=True, slots=True)
+class AutonomousAdmissionRequest
+⋮----
+handoff: dict[str, Any]
+required_capabilities: tuple[str, ...] = ()
+repo_rate_limit: int = 20
+worker_rate_limit: int = 60
+rate_window_seconds: int = 3600
+⋮----
+@dataclass(frozen=True, slots=True)
+class AutonomousAdmissionDecision
+⋮----
+repository: str
+task: str
+⋮----
+risk_class: str
+constraints: dict[str, Any]
+resource_request: dict[str, float]
+runtime_action_key: str
+worker_id: str | None
+repo_rate_limit: int
+worker_rate_limit: int
+rate_window_seconds: int
+⋮----
+handoff = dict(request.handoff or {})
+repository = str(handoff.get("repository", ""))
+task = str(handoff.get("task", ""))
+⋮----
+policies = policy_set or PolicySet({})
+policy_decision = evaluate_policy(policies, handoff)
+⋮----
+constraints = dict(handoff.get("constraints", {}) or {})
+⋮----
+normalized_handoff = {
+⋮----
+raw_request = normalized_handoff.get("resource_request", {}) or {}
+normalized_request = {
+⋮----
+decision = budget_ledger.check(
+⋮----
+portfolio_budgets = {
+⋮----
+worker = None
+⋮----
+worker = select_worker(
+⋮----
+repo_decision = rate_limit_store.check(
+⋮----
+worker_decision = rate_limit_store.check(
+⋮----
+record = runtime_state.get(repository, task)
+⋮----
+repo_key = f"repo:{decision.repository}"
+⋮----
+result = rate_limit_store.check_and_record(
+⋮----
+worker_key = f"worker:{decision.worker_id}"
+```
+
+## File: production_os/autonomous_projects.py
+```python
+_FINGERPRINT_SCHEMA = "production-os/autonomous-action-fingerprint/v1"
+_PROJECT_ID_RE = re.compile(r"^controller-[0-9a-f]{32}$")
+⋮----
+@dataclass(frozen=True, slots=True)
+class AutonomousProjectRequest
+⋮----
+repository: str
+task: str
+rationale: str
+acceptance_criteria: tuple[str, ...]
+priority: float
+token_budget: int
+agent_preference: str
+cooperative: bool
+action_fingerprint: str
+⋮----
+@dataclass(frozen=True, slots=True)
+class AutonomousProjectLaunch
+⋮----
+project_id: str
+created: bool
+project: dict[str, Any]
+⋮----
+def _validate_repository(repository: str) -> str
+⋮----
+value = str(repository or "").strip()
+parts = value.split("/")
+⋮----
+def _normalized_items(values) -> list[str]
+⋮----
+payload = canonical_action_fingerprint_payload(
+raw = json.dumps(
+⋮----
+repository = _validate_repository(repository)
+fingerprint = str(action_fingerprint or "").strip()
+raw = (
+project_id = "controller-" + hashlib.sha256(raw).hexdigest()[:32]
+⋮----
+project_id = autonomous_project_id(
+existing = autonomous_project_status(service, project_id)
+⋮----
+project = service.create(
+```
+
 ## File: production_os/backup.py
 ```python
 def _sha256(path: Path) -> str
@@ -1566,6 +1675,11 @@ request = request or {}
 reasons=[]
 ⋮----
 projected = float(usage.get(key, 0.0)) + float(request.get(key, 0.0))
+⋮----
+idempotency_key = str(idempotency_key or "").strip()
+⋮----
+recorded = self.payload.setdefault(
+usage = self.payload.setdefault("usage", {}).setdefault(
 ⋮----
 def record(self, repository: str, delta: dict[str, float]) -> dict[str, float]
 ⋮----
@@ -3189,6 +3303,11 @@ required: list[str] = []
 ⋮----
 lang = assessment.evidence.language.lower()
 ⋮----
+repository = str(handoff.get("repository") or "")
+⋮----
+raw_request = handoff.get("resource_request", {}) or {}
+resource_request = {
+⋮----
 def _load_github_mappings(path: str | None) -> list[dict]
 ⋮----
 source = Path(path)
@@ -3209,17 +3328,21 @@ updated = state.record_outcome(repository, task, decision).to_dict()
 ⋮----
 row = {
 ⋮----
+mode = str(execution_mode or "").strip().lower()
+⋮----
 backend = open_backend(database_path) if database_path else None
 ⋮----
 state = runtime_state_for(backend)
 worker_registry = worker_registry_for(backend)
 durable_queue = job_queue_for(backend)
 claim_store = claim_store_for(backend)
+managed_projects = (
 ⋮----
 state = RuntimeState(runtime_state_path)
 worker_registry = WorkerRegistry(worker_registry_path) if worker_registry_path else None
 durable_queue = None
 claim_store = ClaimStore(claims_path) if claims_path else None
+managed_projects = None
 ⋮----
 metrics_store = MetricsStore(metrics_path)
 journal = ExecutionJournal(journal_path)
@@ -3258,6 +3381,7 @@ allocation = allocate_resources(schedule, total_slots=slots)
 action_lookup = {(a.repository, a.task): a for a in actions}
 assessment_lookup = {a.evidence.full_name: a for a in assessments}
 dispatches = []
+managed_project_results = []
 emergency_stopped = emergency_stop_active(emergency_stop_path)
 ⋮----
 action = action_lookup.get((item["repository"], item["task"]))
@@ -3272,6 +3396,19 @@ protected_for = set(
 branch_protected = client.get_branch_protection(
 handoff = _handoff_for_action(
 required_capabilities = _required_capabilities_for(
+⋮----
+fingerprint = autonomous_action_fingerprint(
+project_id = autonomous_project_id(
+existing = autonomous_project_status(
+⋮----
+event = (
+⋮----
+admission = evaluate_autonomous_admission(
+needs_mobile = (
+needs_browser = (
+cooperative = (
+request = AutonomousProjectRequest(
+launch = launch_autonomous_project(
 ⋮----
 result = dispatch_handoff(
 ⋮----
@@ -4849,36 +4986,18 @@ receipt_file: str | None = None
 ⋮----
 def to_dict(self) -> dict
 ⋮----
-repository = str(handoff.get("repository", ""))
-task = str(handoff.get("task", ""))
-⋮----
-policy_decision = evaluate_policy(policy_set or PolicySet({}), handoff)
-⋮----
-constraints = dict(handoff.get("constraints", {}) or {})
-⋮----
-handoff = {**handoff, "risk_class": policy_decision.risk_class, "constraints": constraints}
-⋮----
-resource_request = handoff.get("resource_request", {}) or {}
-normalized_request = {
-⋮----
-budget_decision = budget_ledger.check(
-⋮----
-portfolio_budgets = {
-⋮----
-portfolio_budget_decision = budget_ledger.check(
+admission = evaluate_autonomous_admission(
+repository = admission.repository
+task = admission.task
+handoff = admission.handoff
 ⋮----
 worker = None
 ⋮----
-worker = select_worker(
-⋮----
-repo_decision = rate_limit_store.check_and_record(
-⋮----
-worker_decision = rate_limit_store.check_and_record(
-⋮----
-record = runtime_state.get(repository, task)
-requires_approval = bool(
+worker = worker_registry.workers.get(admission.worker_id)
 ⋮----
 owner = worker.worker_id if worker is not None else lease_owner
+⋮----
+record = runtime_state.get(repository, task)
 ⋮----
 worker_incremented = False
 destination: Path | None = None
@@ -4891,7 +5010,7 @@ destination = Path(f"sqlite-{record.key}")
 ⋮----
 queue = Path(queue_dir)
 ⋮----
-worker_suffix = f".{worker.worker_id}" if worker is not None else ""
+worker_suffix = (
 destination = queue / f"{record.key}{worker_suffix}.json"
 ⋮----
 receipt_file = None
@@ -7531,11 +7650,21 @@ def _load_unlocked(self) -> None
 payload = json.loads(self.path.read_text(encoding="utf-8"))
 raw = payload.get("events", {})
 ⋮----
+raw_idempotency = payload.get("idempotency", {})
+⋮----
 def load(self) -> None
 ⋮----
 def _save_unlocked(self) -> None
 ⋮----
+key = str(key)
+idempotency_key = str(idempotency_key or "").strip()
+⋮----
+existing = self.idempotency.setdefault(key, {})
+⋮----
+cutoff = now - timedelta(seconds=int(window_seconds))
 timestamps = []
+⋮----
+stamp = now.isoformat()
 ⋮----
 decision = RateLimitDecision(
 ```
@@ -9781,6 +9910,18 @@ missing = len(required - caps)
 load = worker.active_tasks / max(worker.max_concurrency, 1)
 ⋮----
 best = candidates[0]
+⋮----
+specialist = {
+⋮----
+required = {"mobile-ui-validation"}
+⋮----
+required = {"browser-ui-validation"}
+⋮----
+required = set()
+⋮----
+status = str(getattr(worker, "status", "") or "").lower()
+⋮----
+capabilities = {
 ```
 
 ## File: production_os/workflow_engine.py

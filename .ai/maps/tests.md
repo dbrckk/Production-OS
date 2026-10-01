@@ -48,6 +48,8 @@ test_approvals_migrations.py
 test_asset_forge.py
 test_asymmetric_attestations.py
 test_attestations.py
+test_autonomous_admission.py
+test_autonomous_projects.py
 test_browser_computer.py
 test_browser_loop.py
 test_browser_worker_image.py
@@ -70,6 +72,7 @@ test_controller_asset_capabilities.py
 test_controller_daemon_deployment.py
 test_controller_daemon.py
 test_controller_leader.py
+test_controller_managed_projects.py
 test_cooperative_managed_projects.py
 test_cooperative_specialist_e2e.py
 test_dashboard_alerts.py
@@ -620,6 +623,152 @@ release={
 provenance=create_release_provenance(
 ⋮----
 def test_validation_attestation_rejects_expired_signature()
+```
+
+## File: test_autonomous_admission.py
+```python
+def _request(**overrides)
+⋮----
+values = {
+⋮----
+state = state or RuntimeState(tmp_path / "runtime.json")
+⋮----
+def test_managed_admission_uses_same_runtime_key_as_legacy_dispatch(tmp_path)
+⋮----
+decision = _evaluate(tmp_path)
+⋮----
+def test_managed_admission_rate_limit_check_is_read_only_until_commit(tmp_path)
+⋮----
+path = tmp_path / "rate.json"
+store = RateLimitStore(path)
+⋮----
+decision = _evaluate(tmp_path, rate_limits=store)
+⋮----
+def test_autonomous_admission_blocks_emergency_stop(tmp_path)
+⋮----
+stop = tmp_path / "stop.json"
+⋮----
+def test_autonomous_admission_blocks_policy(tmp_path)
+⋮----
+policies = PolicySet({
+⋮----
+def test_autonomous_admission_blocks_quarantine(tmp_path)
+⋮----
+store = QuarantineStore(tmp_path / "quarantine.json")
+⋮----
+def test_autonomous_admission_blocks_repository_budget(tmp_path)
+⋮----
+ledger = BudgetLedger(tmp_path / "budget.json")
+⋮----
+def test_autonomous_admission_blocks_portfolio_budget(tmp_path)
+⋮----
+def test_autonomous_admission_requires_human_approval(tmp_path)
+⋮----
+def test_autonomous_admission_accepts_same_canonical_approval_key(tmp_path)
+⋮----
+approvals = ApprovalStore(tmp_path / "approvals.json")
+⋮----
+decision = _evaluate(
+⋮----
+def test_autonomous_admission_blocks_repository_rate_limit(tmp_path)
+⋮----
+store = RateLimitStore(tmp_path / "rate.json")
+⋮----
+request = _request(repo_rate_limit=1)
+⋮----
+def test_autonomous_admission_blocks_no_capable_worker(tmp_path)
+⋮----
+workers = WorkerRegistry(tmp_path / "workers.json")
+⋮----
+request = _request(required_capabilities=("android",))
+⋮----
+def test_autonomous_admission_blocks_active_lease(tmp_path)
+⋮----
+state = RuntimeState(tmp_path / "runtime.json")
+⋮----
+def test_autonomous_admission_blocks_cooldown(tmp_path)
+⋮----
+record = state.get("owner/repo", "Improve login tests")
+⋮----
+@pytest.mark.parametrize("status", ["circuit-open", "succeeded"])
+def test_autonomous_admission_blocks_terminal_runtime_state(tmp_path, status)
+```
+
+## File: test_autonomous_projects.py
+```python
+def _fingerprint(**overrides)
+⋮----
+payload = {
+⋮----
+def test_autonomous_project_id_is_deterministic()
+⋮----
+first = autonomous_project_id(
+second = autonomous_project_id(
+⋮----
+def test_action_fingerprint_normalizes_evidence_order()
+⋮----
+first = _fingerprint(
+second = _fingerprint(
+⋮----
+def test_action_fingerprint_changes_on_task_change()
+⋮----
+def test_action_fingerprint_changes_on_acceptance_change()
+⋮----
+def test_action_fingerprint_changes_on_trigger_evidence_change()
+⋮----
+def test_action_fingerprint_excludes_score_and_lane_metadata()
+⋮----
+baseline = _fingerprint()
+⋮----
+first = autonomous_action_fingerprint(
+second = autonomous_action_fingerprint(
+⋮----
+def test_autonomous_project_id_rejects_invalid_repository(repository)
+⋮----
+def _service(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "autonomous.sqlite")
+⋮----
+def _request(**overrides)
+⋮----
+fingerprint = _fingerprint(
+values = {
+⋮----
+def test_launch_creates_managed_project_once(tmp_path)
+⋮----
+managed = _service(tmp_path)
+⋮----
+launch = launch_autonomous_project(managed, _request())
+⋮----
+def test_repeated_identical_launch_reuses_existing_project(tmp_path)
+⋮----
+first = launch_autonomous_project(managed, _request())
+⋮----
+second = launch_autonomous_project(managed, _request())
+⋮----
+def test_reuse_does_not_create_second_workflow(tmp_path)
+⋮----
+first_workflow = first.project["current_workflow_id"]
+⋮----
+workflow_count = db.execute(
+⋮----
+def test_successful_terminal_identical_project_is_skipped(tmp_path)
+⋮----
+def test_changed_trigger_evidence_creates_new_project(tmp_path)
+⋮----
+first = launch_autonomous_project(
+⋮----
+second = launch_autonomous_project(
+⋮----
+def test_partial_initialization_retry_uses_same_project_id(tmp_path, monkeypatch)
+⋮----
+request = _request()
+seen = []
+real_create = managed.create
+⋮----
+def flaky_create(**kwargs)
+⋮----
+second = launch_autonomous_project(managed, request)
 ```
 
 ## File: test_browser_loop.py
@@ -1218,6 +1367,8 @@ worker = select_worker(registry, required)
 def test_controller_daemon_compose_service_is_resilient_and_persistent()
 ⋮----
 payload = Path("compose.yaml").read_text(encoding="utf-8")
+⋮----
+def test_controller_deployment_defaults_to_managed_execution()
 ```
 
 ## File: test_controller_daemon.py
@@ -1306,6 +1457,120 @@ def test_postgres_controller_leader_lock_rejects_second_leader(monkeypatch)
 def execute(self, _sql, _params)
 ⋮----
 def __init__(self, _dsn)
+```
+
+## File: test_controller_managed_projects.py
+```python
+def _cycle_kwargs(tmp_path)
+⋮----
+def test_controller_defaults_execution_mode_to_managed_after_parity()
+⋮----
+signature = inspect.signature(run_control_cycle)
+⋮----
+def test_controller_cli_defaults_to_managed_execution()
+⋮----
+args = _parse_args([
+⋮----
+def test_explicit_legacy_mode_remains_supported()
+⋮----
+def test_controller_cli_accepts_managed_execution_mode()
+⋮----
+def test_controller_managed_mode_requires_database_path(tmp_path)
+⋮----
+def test_controller_rejects_unknown_execution_mode(tmp_path)
+⋮----
+def test_controller_rejects_nonpositive_project_token_budget(tmp_path)
+⋮----
+class _FakeGitHub
+⋮----
+def list_repositories(self, _owner)
+⋮----
+def collect_evidence(self, _repo)
+⋮----
+action = SimpleNamespace(
+assessment = SimpleNamespace(
+⋮----
+database = tmp_path / "production.sqlite"
+backend = open_backend(str(database))
+registry = worker_registry_for(backend)
+⋮----
+kwargs = {
+⋮----
+result = run_control_cycle(**kwargs)
+⋮----
+service = ManagedProjectService(
+projects = service.list()
+⋮----
+first = run_control_cycle(**kwargs)
+second = run_control_cycle(**kwargs)
+⋮----
+def test_managed_mode_never_calls_dispatch_handoff(tmp_path, monkeypatch)
+⋮----
+calls = []
+⋮----
+def forbidden(*_args, **_kwargs)
+⋮----
+legacy_calls = []
+⋮----
+def test_legacy_mode_still_calls_dispatch_handoff(tmp_path, monkeypatch)
+⋮----
+class _Dispatch
+⋮----
+def to_dict(self)
+⋮----
+def fake_dispatch(*_args, **_kwargs)
+⋮----
+def _project_service(backend)
+⋮----
+def _with_resource_request(monkeypatch, *, tokens=25)
+⋮----
+original = controller._handoff_for_action
+⋮----
+def wrapped(*args, **kwargs)
+⋮----
+handoff = original(*args, **kwargs)
+⋮----
+path = tmp_path / "emergency.json"
+⋮----
+path = tmp_path / "policy.json"
+⋮----
+policy = tmp_path / "policy.json"
+⋮----
+path = tmp_path / "rate.json"
+store = RateLimitStore(path)
+⋮----
+decision = store.check_and_record(
+⋮----
+state = runtime_state_for(backend)
+⋮----
+budget_path = tmp_path / "budget.json"
+rate_path = tmp_path / "rate.json"
+⋮----
+project_id = first["managed_projects"][0]["project_id"]
+⋮----
+ledger = BudgetLedger(budget_path)
+⋮----
+rate = RateLimitStore(rate_path)
+⋮----
+real_commit = controller.commit_autonomous_admission
+calls = {"count":0}
+⋮----
+def crash_once(*args, **kwargs)
+⋮----
+projects = _project_service(backend).list()
+⋮----
+first_project = first["managed_projects"][0]
+first_workflow = first_project["current_workflow_id"]
+⋮----
+backend = open_backend(kwargs["database_path"])
+⋮----
+first_id = first["managed_projects"][0]["project_id"]
+⋮----
+same = run_control_cycle(**kwargs)
+⋮----
+changed = run_control_cycle(**kwargs2)
+⋮----
+ids = {row["id"] for row in _project_service(backend2).list()}
 ```
 
 ## File: test_cooperative_managed_projects.py
@@ -4564,6 +4829,36 @@ def test_budget_blocks_projected_usage(tmp_path)
 ledger=BudgetLedger(tmp_path/"budget.json")
 ⋮----
 decision=ledger.check("o/a",{"tokens":100},{"tokens":20})
+⋮----
+def test_rate_limit_check_does_not_mutate_store(tmp_path)
+⋮----
+path = tmp_path / "rate.json"
+store = RateLimitStore(path)
+⋮----
+first = store.check("repo:o/a", limit=2, window_seconds=3600)
+second = store.check("repo:o/a", limit=2, window_seconds=3600)
+⋮----
+reloaded = RateLimitStore(path)
+⋮----
+def test_rate_limit_record_once_is_idempotent(tmp_path)
+⋮----
+final = RateLimitStore(path)
+⋮----
+def test_budget_record_once_is_idempotent(tmp_path)
+⋮----
+path = tmp_path / "budget.json"
+ledger = BudgetLedger(path)
+⋮----
+first = ledger.record_once(
+reloaded = BudgetLedger(path)
+second = reloaded.record_once(
+⋮----
+def test_different_project_ids_charge_independently(tmp_path)
+⋮----
+def test_legacy_rate_limit_check_and_record_still_records_each_call(tmp_path)
+⋮----
+first = store.check_and_record("repo:o/a", limit=3, window_seconds=3600)
+second = store.check_and_record("repo:o/a", limit=3, window_seconds=3600)
 ```
 
 ## File: test_policy_validation.py
@@ -7194,6 +7489,22 @@ b=registry.register("b",["python"],2)
 selected=select_worker(registry,["python"])
 ⋮----
 def test_rejects_worker_without_required_capability(tmp_path)
+⋮----
+def test_cooperative_worker_fleet_accepts_any_online_specialist(tmp_path)
+⋮----
+registry = WorkerRegistry(tmp_path / "workers.json")
+⋮----
+def test_cooperative_worker_fleet_rejects_missing_specialist(tmp_path)
+⋮----
+def test_cooperative_worker_fleet_requires_browser_specialist(tmp_path)
+⋮----
+def test_cooperative_worker_fleet_requires_mobile_specialist(tmp_path)
+⋮----
+def test_cooperative_worker_fleet_excludes_dead_workers(tmp_path)
+⋮----
+worker = registry.register("browser", ["browser-ui-validation"], 1)
+⋮----
+def test_cooperative_worker_fleet_preserves_full_online_worker_semantics(tmp_path)
 ```
 
 ## File: test_workflow_api.py

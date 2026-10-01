@@ -69,6 +69,8 @@ src/
     attestations.py
     audit_checkpoint.py
     audit_integrity.py
+    autonomous_admission.py
+    autonomous_projects.py
     backup.py
     browser_computer.py
     browser_loop.py
@@ -198,6 +200,8 @@ tests/
   test_asset_forge.py
   test_asymmetric_attestations.py
   test_attestations.py
+  test_autonomous_admission.py
+  test_autonomous_projects.py
   test_browser_computer.py
   test_browser_loop.py
   test_browser_worker_image.py
@@ -220,6 +224,7 @@ tests/
   test_controller_daemon_deployment.py
   test_controller_daemon.py
   test_controller_leader.py
+  test_controller_managed_projects.py
   test_cooperative_managed_projects.py
   test_cooperative_specialist_e2e.py
   test_dashboard_alerts.py
@@ -1742,6 +1747,113 @@ calculated = hash_event(previous, event)
 previous = calculated
 ````
 
+## File: src/production_os/autonomous_admission.py
+````python
+@dataclass(frozen=True, slots=True)
+class AutonomousAdmissionRequest
+⋮----
+handoff: dict[str, Any]
+required_capabilities: tuple[str, ...] = ()
+repo_rate_limit: int = 20
+worker_rate_limit: int = 60
+rate_window_seconds: int = 3600
+⋮----
+@dataclass(frozen=True, slots=True)
+class AutonomousAdmissionDecision
+⋮----
+repository: str
+task: str
+⋮----
+risk_class: str
+constraints: dict[str, Any]
+resource_request: dict[str, float]
+runtime_action_key: str
+worker_id: str | None
+repo_rate_limit: int
+worker_rate_limit: int
+rate_window_seconds: int
+⋮----
+handoff = dict(request.handoff or {})
+repository = str(handoff.get("repository", ""))
+task = str(handoff.get("task", ""))
+⋮----
+policies = policy_set or PolicySet({})
+policy_decision = evaluate_policy(policies, handoff)
+⋮----
+constraints = dict(handoff.get("constraints", {}) or {})
+⋮----
+normalized_handoff = {
+⋮----
+raw_request = normalized_handoff.get("resource_request", {}) or {}
+normalized_request = {
+⋮----
+decision = budget_ledger.check(
+⋮----
+portfolio_budgets = {
+⋮----
+worker = None
+⋮----
+worker = select_worker(
+⋮----
+repo_decision = rate_limit_store.check(
+⋮----
+worker_decision = rate_limit_store.check(
+⋮----
+record = runtime_state.get(repository, task)
+⋮----
+repo_key = f"repo:{decision.repository}"
+⋮----
+result = rate_limit_store.check_and_record(
+⋮----
+worker_key = f"worker:{decision.worker_id}"
+````
+
+## File: src/production_os/autonomous_projects.py
+````python
+_FINGERPRINT_SCHEMA = "production-os/autonomous-action-fingerprint/v1"
+_PROJECT_ID_RE = re.compile(r"^controller-[0-9a-f]{32}$")
+⋮----
+@dataclass(frozen=True, slots=True)
+class AutonomousProjectRequest
+⋮----
+repository: str
+task: str
+rationale: str
+acceptance_criteria: tuple[str, ...]
+priority: float
+token_budget: int
+agent_preference: str
+cooperative: bool
+action_fingerprint: str
+⋮----
+@dataclass(frozen=True, slots=True)
+class AutonomousProjectLaunch
+⋮----
+project_id: str
+created: bool
+project: dict[str, Any]
+⋮----
+def _validate_repository(repository: str) -> str
+⋮----
+value = str(repository or "").strip()
+parts = value.split("/")
+⋮----
+def _normalized_items(values) -> list[str]
+⋮----
+payload = canonical_action_fingerprint_payload(
+raw = json.dumps(
+⋮----
+repository = _validate_repository(repository)
+fingerprint = str(action_fingerprint or "").strip()
+raw = (
+project_id = "controller-" + hashlib.sha256(raw).hexdigest()[:32]
+⋮----
+project_id = autonomous_project_id(
+existing = autonomous_project_status(service, project_id)
+⋮----
+project = service.create(
+````
+
 ## File: src/production_os/backup.py
 ````python
 def _sha256(path: Path) -> str
@@ -2146,6 +2258,11 @@ request = request or {}
 reasons=[]
 ⋮----
 projected = float(usage.get(key, 0.0)) + float(request.get(key, 0.0))
+⋮----
+idempotency_key = str(idempotency_key or "").strip()
+⋮----
+recorded = self.payload.setdefault(
+usage = self.payload.setdefault("usage", {}).setdefault(
 ⋮----
 def record(self, repository: str, delta: dict[str, float]) -> dict[str, float]
 ⋮----
@@ -3769,6 +3886,11 @@ required: list[str] = []
 ⋮----
 lang = assessment.evidence.language.lower()
 ⋮----
+repository = str(handoff.get("repository") or "")
+⋮----
+raw_request = handoff.get("resource_request", {}) or {}
+resource_request = {
+⋮----
 def _load_github_mappings(path: str | None) -> list[dict]
 ⋮----
 source = Path(path)
@@ -3789,17 +3911,21 @@ updated = state.record_outcome(repository, task, decision).to_dict()
 ⋮----
 row = {
 ⋮----
+mode = str(execution_mode or "").strip().lower()
+⋮----
 backend = open_backend(database_path) if database_path else None
 ⋮----
 state = runtime_state_for(backend)
 worker_registry = worker_registry_for(backend)
 durable_queue = job_queue_for(backend)
 claim_store = claim_store_for(backend)
+managed_projects = (
 ⋮----
 state = RuntimeState(runtime_state_path)
 worker_registry = WorkerRegistry(worker_registry_path) if worker_registry_path else None
 durable_queue = None
 claim_store = ClaimStore(claims_path) if claims_path else None
+managed_projects = None
 ⋮----
 metrics_store = MetricsStore(metrics_path)
 journal = ExecutionJournal(journal_path)
@@ -3838,6 +3964,7 @@ allocation = allocate_resources(schedule, total_slots=slots)
 action_lookup = {(a.repository, a.task): a for a in actions}
 assessment_lookup = {a.evidence.full_name: a for a in assessments}
 dispatches = []
+managed_project_results = []
 emergency_stopped = emergency_stop_active(emergency_stop_path)
 ⋮----
 action = action_lookup.get((item["repository"], item["task"]))
@@ -3852,6 +3979,19 @@ protected_for = set(
 branch_protected = client.get_branch_protection(
 handoff = _handoff_for_action(
 required_capabilities = _required_capabilities_for(
+⋮----
+fingerprint = autonomous_action_fingerprint(
+project_id = autonomous_project_id(
+existing = autonomous_project_status(
+⋮----
+event = (
+⋮----
+admission = evaluate_autonomous_admission(
+needs_mobile = (
+needs_browser = (
+cooperative = (
+request = AutonomousProjectRequest(
+launch = launch_autonomous_project(
 ⋮----
 result = dispatch_handoff(
 ⋮----
@@ -5429,36 +5569,18 @@ receipt_file: str | None = None
 ⋮----
 def to_dict(self) -> dict
 ⋮----
-repository = str(handoff.get("repository", ""))
-task = str(handoff.get("task", ""))
-⋮----
-policy_decision = evaluate_policy(policy_set or PolicySet({}), handoff)
-⋮----
-constraints = dict(handoff.get("constraints", {}) or {})
-⋮----
-handoff = {**handoff, "risk_class": policy_decision.risk_class, "constraints": constraints}
-⋮----
-resource_request = handoff.get("resource_request", {}) or {}
-normalized_request = {
-⋮----
-budget_decision = budget_ledger.check(
-⋮----
-portfolio_budgets = {
-⋮----
-portfolio_budget_decision = budget_ledger.check(
+admission = evaluate_autonomous_admission(
+repository = admission.repository
+task = admission.task
+handoff = admission.handoff
 ⋮----
 worker = None
 ⋮----
-worker = select_worker(
-⋮----
-repo_decision = rate_limit_store.check_and_record(
-⋮----
-worker_decision = rate_limit_store.check_and_record(
-⋮----
-record = runtime_state.get(repository, task)
-requires_approval = bool(
+worker = worker_registry.workers.get(admission.worker_id)
 ⋮----
 owner = worker.worker_id if worker is not None else lease_owner
+⋮----
+record = runtime_state.get(repository, task)
 ⋮----
 worker_incremented = False
 destination: Path | None = None
@@ -5471,7 +5593,7 @@ destination = Path(f"sqlite-{record.key}")
 ⋮----
 queue = Path(queue_dir)
 ⋮----
-worker_suffix = f".{worker.worker_id}" if worker is not None else ""
+worker_suffix = (
 destination = queue / f"{record.key}{worker_suffix}.json"
 ⋮----
 receipt_file = None
@@ -8111,11 +8233,21 @@ def _load_unlocked(self) -> None
 payload = json.loads(self.path.read_text(encoding="utf-8"))
 raw = payload.get("events", {})
 ⋮----
+raw_idempotency = payload.get("idempotency", {})
+⋮----
 def load(self) -> None
 ⋮----
 def _save_unlocked(self) -> None
 ⋮----
+key = str(key)
+idempotency_key = str(idempotency_key or "").strip()
+⋮----
+existing = self.idempotency.setdefault(key, {})
+⋮----
+cutoff = now - timedelta(seconds=int(window_seconds))
 timestamps = []
+⋮----
+stamp = now.isoformat()
 ⋮----
 decision = RateLimitDecision(
 ````
@@ -10361,6 +10493,18 @@ missing = len(required - caps)
 load = worker.active_tasks / max(worker.max_concurrency, 1)
 ⋮----
 best = candidates[0]
+⋮----
+specialist = {
+⋮----
+required = {"mobile-ui-validation"}
+⋮----
+required = {"browser-ui-validation"}
+⋮----
+required = set()
+⋮----
+status = str(getattr(worker, "status", "") or "").lower()
+⋮----
+capabilities = {
 ````
 
 ## File: src/production_os/workflow_engine.py
@@ -11192,6 +11336,152 @@ provenance=create_release_provenance(
 def test_validation_attestation_rejects_expired_signature()
 ````
 
+## File: tests/test_autonomous_admission.py
+````python
+def _request(**overrides)
+⋮----
+values = {
+⋮----
+state = state or RuntimeState(tmp_path / "runtime.json")
+⋮----
+def test_managed_admission_uses_same_runtime_key_as_legacy_dispatch(tmp_path)
+⋮----
+decision = _evaluate(tmp_path)
+⋮----
+def test_managed_admission_rate_limit_check_is_read_only_until_commit(tmp_path)
+⋮----
+path = tmp_path / "rate.json"
+store = RateLimitStore(path)
+⋮----
+decision = _evaluate(tmp_path, rate_limits=store)
+⋮----
+def test_autonomous_admission_blocks_emergency_stop(tmp_path)
+⋮----
+stop = tmp_path / "stop.json"
+⋮----
+def test_autonomous_admission_blocks_policy(tmp_path)
+⋮----
+policies = PolicySet({
+⋮----
+def test_autonomous_admission_blocks_quarantine(tmp_path)
+⋮----
+store = QuarantineStore(tmp_path / "quarantine.json")
+⋮----
+def test_autonomous_admission_blocks_repository_budget(tmp_path)
+⋮----
+ledger = BudgetLedger(tmp_path / "budget.json")
+⋮----
+def test_autonomous_admission_blocks_portfolio_budget(tmp_path)
+⋮----
+def test_autonomous_admission_requires_human_approval(tmp_path)
+⋮----
+def test_autonomous_admission_accepts_same_canonical_approval_key(tmp_path)
+⋮----
+approvals = ApprovalStore(tmp_path / "approvals.json")
+⋮----
+decision = _evaluate(
+⋮----
+def test_autonomous_admission_blocks_repository_rate_limit(tmp_path)
+⋮----
+store = RateLimitStore(tmp_path / "rate.json")
+⋮----
+request = _request(repo_rate_limit=1)
+⋮----
+def test_autonomous_admission_blocks_no_capable_worker(tmp_path)
+⋮----
+workers = WorkerRegistry(tmp_path / "workers.json")
+⋮----
+request = _request(required_capabilities=("android",))
+⋮----
+def test_autonomous_admission_blocks_active_lease(tmp_path)
+⋮----
+state = RuntimeState(tmp_path / "runtime.json")
+⋮----
+def test_autonomous_admission_blocks_cooldown(tmp_path)
+⋮----
+record = state.get("owner/repo", "Improve login tests")
+⋮----
+@pytest.mark.parametrize("status", ["circuit-open", "succeeded"])
+def test_autonomous_admission_blocks_terminal_runtime_state(tmp_path, status)
+````
+
+## File: tests/test_autonomous_projects.py
+````python
+def _fingerprint(**overrides)
+⋮----
+payload = {
+⋮----
+def test_autonomous_project_id_is_deterministic()
+⋮----
+first = autonomous_project_id(
+second = autonomous_project_id(
+⋮----
+def test_action_fingerprint_normalizes_evidence_order()
+⋮----
+first = _fingerprint(
+second = _fingerprint(
+⋮----
+def test_action_fingerprint_changes_on_task_change()
+⋮----
+def test_action_fingerprint_changes_on_acceptance_change()
+⋮----
+def test_action_fingerprint_changes_on_trigger_evidence_change()
+⋮----
+def test_action_fingerprint_excludes_score_and_lane_metadata()
+⋮----
+baseline = _fingerprint()
+⋮----
+first = autonomous_action_fingerprint(
+second = autonomous_action_fingerprint(
+⋮----
+def test_autonomous_project_id_rejects_invalid_repository(repository)
+⋮----
+def _service(tmp_path)
+⋮----
+backend = SQLiteBackend(tmp_path / "autonomous.sqlite")
+⋮----
+def _request(**overrides)
+⋮----
+fingerprint = _fingerprint(
+values = {
+⋮----
+def test_launch_creates_managed_project_once(tmp_path)
+⋮----
+managed = _service(tmp_path)
+⋮----
+launch = launch_autonomous_project(managed, _request())
+⋮----
+def test_repeated_identical_launch_reuses_existing_project(tmp_path)
+⋮----
+first = launch_autonomous_project(managed, _request())
+⋮----
+second = launch_autonomous_project(managed, _request())
+⋮----
+def test_reuse_does_not_create_second_workflow(tmp_path)
+⋮----
+first_workflow = first.project["current_workflow_id"]
+⋮----
+workflow_count = db.execute(
+⋮----
+def test_successful_terminal_identical_project_is_skipped(tmp_path)
+⋮----
+def test_changed_trigger_evidence_creates_new_project(tmp_path)
+⋮----
+first = launch_autonomous_project(
+⋮----
+second = launch_autonomous_project(
+⋮----
+def test_partial_initialization_retry_uses_same_project_id(tmp_path, monkeypatch)
+⋮----
+request = _request()
+seen = []
+real_create = managed.create
+⋮----
+def flaky_create(**kwargs)
+⋮----
+second = launch_autonomous_project(managed, request)
+````
+
 ## File: tests/test_browser_loop.py
 ````python
 def _config(**overrides)
@@ -11788,6 +12078,8 @@ worker = select_worker(registry, required)
 def test_controller_daemon_compose_service_is_resilient_and_persistent()
 ⋮----
 payload = Path("compose.yaml").read_text(encoding="utf-8")
+⋮----
+def test_controller_deployment_defaults_to_managed_execution()
 ````
 
 ## File: tests/test_controller_daemon.py
@@ -11876,6 +12168,120 @@ def test_postgres_controller_leader_lock_rejects_second_leader(monkeypatch)
 def execute(self, _sql, _params)
 ⋮----
 def __init__(self, _dsn)
+````
+
+## File: tests/test_controller_managed_projects.py
+````python
+def _cycle_kwargs(tmp_path)
+⋮----
+def test_controller_defaults_execution_mode_to_managed_after_parity()
+⋮----
+signature = inspect.signature(run_control_cycle)
+⋮----
+def test_controller_cli_defaults_to_managed_execution()
+⋮----
+args = _parse_args([
+⋮----
+def test_explicit_legacy_mode_remains_supported()
+⋮----
+def test_controller_cli_accepts_managed_execution_mode()
+⋮----
+def test_controller_managed_mode_requires_database_path(tmp_path)
+⋮----
+def test_controller_rejects_unknown_execution_mode(tmp_path)
+⋮----
+def test_controller_rejects_nonpositive_project_token_budget(tmp_path)
+⋮----
+class _FakeGitHub
+⋮----
+def list_repositories(self, _owner)
+⋮----
+def collect_evidence(self, _repo)
+⋮----
+action = SimpleNamespace(
+assessment = SimpleNamespace(
+⋮----
+database = tmp_path / "production.sqlite"
+backend = open_backend(str(database))
+registry = worker_registry_for(backend)
+⋮----
+kwargs = {
+⋮----
+result = run_control_cycle(**kwargs)
+⋮----
+service = ManagedProjectService(
+projects = service.list()
+⋮----
+first = run_control_cycle(**kwargs)
+second = run_control_cycle(**kwargs)
+⋮----
+def test_managed_mode_never_calls_dispatch_handoff(tmp_path, monkeypatch)
+⋮----
+calls = []
+⋮----
+def forbidden(*_args, **_kwargs)
+⋮----
+legacy_calls = []
+⋮----
+def test_legacy_mode_still_calls_dispatch_handoff(tmp_path, monkeypatch)
+⋮----
+class _Dispatch
+⋮----
+def to_dict(self)
+⋮----
+def fake_dispatch(*_args, **_kwargs)
+⋮----
+def _project_service(backend)
+⋮----
+def _with_resource_request(monkeypatch, *, tokens=25)
+⋮----
+original = controller._handoff_for_action
+⋮----
+def wrapped(*args, **kwargs)
+⋮----
+handoff = original(*args, **kwargs)
+⋮----
+path = tmp_path / "emergency.json"
+⋮----
+path = tmp_path / "policy.json"
+⋮----
+policy = tmp_path / "policy.json"
+⋮----
+path = tmp_path / "rate.json"
+store = RateLimitStore(path)
+⋮----
+decision = store.check_and_record(
+⋮----
+state = runtime_state_for(backend)
+⋮----
+budget_path = tmp_path / "budget.json"
+rate_path = tmp_path / "rate.json"
+⋮----
+project_id = first["managed_projects"][0]["project_id"]
+⋮----
+ledger = BudgetLedger(budget_path)
+⋮----
+rate = RateLimitStore(rate_path)
+⋮----
+real_commit = controller.commit_autonomous_admission
+calls = {"count":0}
+⋮----
+def crash_once(*args, **kwargs)
+⋮----
+projects = _project_service(backend).list()
+⋮----
+first_project = first["managed_projects"][0]
+first_workflow = first_project["current_workflow_id"]
+⋮----
+backend = open_backend(kwargs["database_path"])
+⋮----
+first_id = first["managed_projects"][0]["project_id"]
+⋮----
+same = run_control_cycle(**kwargs)
+⋮----
+changed = run_control_cycle(**kwargs2)
+⋮----
+ids = {row["id"] for row in _project_service(backend2).list()}
 ````
 
 ## File: tests/test_cooperative_managed_projects.py
@@ -15134,6 +15540,36 @@ def test_budget_blocks_projected_usage(tmp_path)
 ledger=BudgetLedger(tmp_path/"budget.json")
 ⋮----
 decision=ledger.check("o/a",{"tokens":100},{"tokens":20})
+⋮----
+def test_rate_limit_check_does_not_mutate_store(tmp_path)
+⋮----
+path = tmp_path / "rate.json"
+store = RateLimitStore(path)
+⋮----
+first = store.check("repo:o/a", limit=2, window_seconds=3600)
+second = store.check("repo:o/a", limit=2, window_seconds=3600)
+⋮----
+reloaded = RateLimitStore(path)
+⋮----
+def test_rate_limit_record_once_is_idempotent(tmp_path)
+⋮----
+final = RateLimitStore(path)
+⋮----
+def test_budget_record_once_is_idempotent(tmp_path)
+⋮----
+path = tmp_path / "budget.json"
+ledger = BudgetLedger(path)
+⋮----
+first = ledger.record_once(
+reloaded = BudgetLedger(path)
+second = reloaded.record_once(
+⋮----
+def test_different_project_ids_charge_independently(tmp_path)
+⋮----
+def test_legacy_rate_limit_check_and_record_still_records_each_call(tmp_path)
+⋮----
+first = store.check_and_record("repo:o/a", limit=3, window_seconds=3600)
+second = store.check_and_record("repo:o/a", limit=3, window_seconds=3600)
 ````
 
 ## File: tests/test_policy_validation.py
@@ -17764,6 +18200,22 @@ b=registry.register("b",["python"],2)
 selected=select_worker(registry,["python"])
 ⋮----
 def test_rejects_worker_without_required_capability(tmp_path)
+⋮----
+def test_cooperative_worker_fleet_accepts_any_online_specialist(tmp_path)
+⋮----
+registry = WorkerRegistry(tmp_path / "workers.json")
+⋮----
+def test_cooperative_worker_fleet_rejects_missing_specialist(tmp_path)
+⋮----
+def test_cooperative_worker_fleet_requires_browser_specialist(tmp_path)
+⋮----
+def test_cooperative_worker_fleet_requires_mobile_specialist(tmp_path)
+⋮----
+def test_cooperative_worker_fleet_excludes_dead_workers(tmp_path)
+⋮----
+worker = registry.register("browser", ["browser-ui-validation"], 1)
+⋮----
+def test_cooperative_worker_fleet_preserves_full_online_worker_semantics(tmp_path)
 ````
 
 ## File: tests/test_workflow_api.py
@@ -18597,6 +19049,8 @@ services:
       - production-os
     environment:
       GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      PRODUCTION_OS_CONTROLLER_EXECUTION_MODE: ${PRODUCTION_OS_CONTROLLER_EXECUTION_MODE:-managed}
+      PRODUCTION_OS_CONTROLLER_PROJECT_TOKEN_BUDGET: ${PRODUCTION_OS_CONTROLLER_PROJECT_TOKEN_BUDGET:-12000}
     volumes:
       - ./artifacts:/data
     command:
@@ -18626,6 +19080,10 @@ services:
       - ${PRODUCTION_OS_CONTROLLER_CAPACITY:-3}
       - --slots
       - ${PRODUCTION_OS_CONTROLLER_SLOTS:-3}
+      - --execution-mode
+      - ${PRODUCTION_OS_CONTROLLER_EXECUTION_MODE:-managed}
+      - --project-token-budget
+      - ${PRODUCTION_OS_CONTROLLER_PROJECT_TOKEN_BUDGET:-12000}
 ````
 
 ## File: pyproject.toml
@@ -23326,4 +23784,40 @@ A second daemon fails immediately instead of running a competing scheduler.
 The lock is held for the complete daemon lifetime and released automatically
 when the process exits or the PostgreSQL session closes. Bounded
 `production-os controller` runs are unchanged.
+
+
+## 24/7 controller managed execution
+
+The persistent controller daemon now routes admitted `NOW` and `PARALLEL` work through Managed Projects by default. Autonomous work therefore uses the same durable workflow engine, dynamic planner, cooperative agents, isolated worktrees, integration, validation, project memory, learned skills, and specialist browser/mobile stages as interactive Managed Projects.
+
+The managed controller requires the durable SQLite backend:
+
+```bash
+production-os controller \
+  --owner dbrckk \
+  --database artifacts/production.db \
+  --queue-dir artifacts/controller-queue \
+  --snapshot-dir artifacts/snapshots \
+  --metrics artifacts/controller-metrics.json \
+  --health artifacts/controller-health.json \
+  --journal artifacts/controller-journal.jsonl \
+  --execution-mode managed \
+  --project-token-budget 12000 \
+  --daemon
+```
+
+Deployment defaults can be changed with:
+
+```text
+PRODUCTION_OS_CONTROLLER_EXECUTION_MODE=managed
+PRODUCTION_OS_CONTROLLER_PROJECT_TOKEN_BUDGET=12000
+```
+
+For rollback only, the legacy direct handoff path remains available explicitly:
+
+```text
+PRODUCTION_OS_CONTROLLER_EXECUTION_MODE=legacy
+```
+
+Managed and legacy execution are mutually exclusive. A managed launch failure never falls back to legacy dispatch in the same cycle. Stable autonomous project ids prevent duplicate projects, workflows, budget charges, and repository rate-limit charges across daemon cycles and controller restarts.
 ````
