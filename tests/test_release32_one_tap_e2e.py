@@ -88,6 +88,7 @@ def test_release32_one_tap_launch_worker_completion_survives_restart(tmp_path):
             "persistent":True,
             "token_budget":30000,
             "agent_preference":"auto",
+            "worker_wake":{"status":"not_needed"},
         }
         project = launched["project"]
         project_id = project["project_id"]
