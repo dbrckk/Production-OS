@@ -621,7 +621,7 @@ async function cancelLastProduction(projectId){
   ]);
  }catch(e){
   const status=document.getElementById("launch-status");
-  if(status)status.textContent=String(e).replace(/^Error:\s*/,"");
+  if(status)status.textContent=String(e).replace(/^Error:\\s*/,"");
  }
 }
 async function lastProductionManagedAction(projectId,action){
@@ -651,7 +651,7 @@ async function lastProductionManagedAction(projectId,action){
   ]);
  }catch(e){
   const status=document.getElementById("launch-status");
-  if(status)status.textContent=String(e).replace(/^Error:\s*/,"");
+  if(status)status.textContent=String(e).replace(/^Error:\\s*/,"");
  }
 }
 async function loadLastProduction(){
