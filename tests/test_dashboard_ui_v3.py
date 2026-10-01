@@ -837,7 +837,11 @@ def test_dashboard_supports_one_time_fragment_pairing_without_operator_token_lin
     assert "history.replaceState(null,'',window.location.pathname+window.location.search)" in DASHBOARD_HTML
     assert "bootstrapPairingFromFragment().finally" in DASHBOARD_HTML
     assert "raw.startsWith('#pair=')" in DASHBOARD_HTML
-    assert "localStorage.setItem(TOKEN_KEY,value)" not in DASHBOARD_HTML
+    bootstrap = DASHBOARD_HTML.split(
+        "async function bootstrapPairingFromFragment(){", 1
+    )[1].split("function esc(value)", 1)[0]
+    assert "localStorage.setItem(TOKEN_KEY,value)" not in bootstrap
+    assert "localStorage.setItem(TOKEN_KEY,String(payload.session_token))" in bootstrap
     assert "?pair=" not in DASHBOARD_HTML
     assert "Créer un lien 10 min" in DASHBOARD_HTML
     assert "/v1/dashboard/pairing-codes" in DASHBOARD_HTML
