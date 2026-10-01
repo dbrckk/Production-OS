@@ -20,6 +20,7 @@ from .heartbeat_manager import renew_active_leases
 from .history import build_snapshot, save_snapshot
 from .journal import ExecutionJournal
 from .metrics import MetricsStore
+from .managed_projects import ManagedProjectService
 from .observability import build_observability_payload, write_observability
 from .policy import PolicySet, classify_risk
 from .quarantine import QuarantineStore
@@ -39,6 +40,7 @@ from .scheduler import build_schedule
 from .scoring import assess_repository
 from .self_healing import apply_self_healing
 from .workers import WorkerRegistry
+from .workflow_engine import WorkflowEngine
 from .controller_leader import controller_leader_lock
 from .task_capabilities import asset_forge_tool_contract, inferred_required_capabilities
 
@@ -166,13 +168,28 @@ def run_control_cycle(
     slots: int = 3,
     lease_owner: str = "production-os-controller",
     lease_minutes: int = 30,
+    execution_mode: str = "legacy",
+    project_token_budget: int = 12000,
 ) -> dict:
+    mode = str(execution_mode or "").strip().lower()
+    if mode not in {"legacy", "managed"}:
+        raise ValueError("execution_mode must be legacy or managed")
+    if int(project_token_budget) <= 0:
+        raise ValueError("project_token_budget must be > 0")
+    if mode == "managed" and not database_path:
+        raise ValueError("managed execution mode requires database_path")
+
     backend = open_backend(database_path) if database_path else None
     if backend is not None:
         state = runtime_state_for(backend)
         worker_registry = worker_registry_for(backend)
         durable_queue = job_queue_for(backend)
         claim_store = claim_store_for(backend)
+        managed_projects = (
+            ManagedProjectService(WorkflowEngine(backend, durable_queue))
+            if mode == "managed"
+            else None
+        )
     else:
         if not runtime_state_path:
             raise ValueError("runtime_state_path is required without database_path")
@@ -180,6 +197,7 @@ def run_control_cycle(
         worker_registry = WorkerRegistry(worker_registry_path) if worker_registry_path else None
         durable_queue = None
         claim_store = ClaimStore(claims_path) if claims_path else None
+        managed_projects = None
 
     metrics_store = MetricsStore(metrics_path)
     journal = ExecutionJournal(journal_path)
