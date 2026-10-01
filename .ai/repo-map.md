@@ -343,6 +343,7 @@ tests/
   test_repository_cache.py
   test_result_cache.py
   test_rollback_plan.py
+  test_runtime_contract.py
   test_runtime_state.py
   test_scheduler.py
   test_scoring.py
@@ -452,7 +453,7 @@ jobs:
         run: python -m pip install -e ".[dev,postgres]"
 
       - name: Compile
-        run: python -m compileall -q src
+        run: python -W error::SyntaxWarning -m compileall -q src scripts
 
       - name: Compatibility tests
         run: pytest -q -m "not e2e"
@@ -491,7 +492,7 @@ jobs:
         run: python -m pip install -e ".[dev,postgres]"
 
       - name: Compile
-        run: python -m compileall -q src
+        run: python -W error::SyntaxWarning -m compileall -q src scripts
 
       - name: Unit tests
         run: pytest -q -m "not e2e"
@@ -17518,6 +17519,17 @@ def test_build_rollback_plan_carries_non_blocking_bisect_range()
 def test_build_rollback_plan_rejects_invalid_known_good_sha()
 ````
 
+## File: tests/test_runtime_contract.py
+````python
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+⋮----
+def test_supported_python_range_matches_ci_contract()
+⋮----
+payload = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+⋮----
+def test_default_runtime_is_pinned_to_ci_python()
+````
+
 ## File: tests/test_runtime_state.py
 ````python
 def test_lease_and_release(tmp_path)
@@ -19160,7 +19172,7 @@ name = "production-os"
 version = "1.0.0"
 description = "Portfolio control plane for autonomous software production"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.11,<3.13"
 license = { text = "MIT" }
 authors = [{ name = "dbrckk" }]
 dependencies = ["cryptography>=43.0"]

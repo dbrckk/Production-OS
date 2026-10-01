@@ -191,6 +191,7 @@ test_render_start.py
 test_repository_cache.py
 test_result_cache.py
 test_rollback_plan.py
+test_runtime_contract.py
 test_runtime_state.py
 test_scheduler.py
 test_scoring.py
@@ -6777,6 +6778,17 @@ def test_build_rollback_plan_rejects_unpinned_merge_commit()
 def test_build_rollback_plan_carries_non_blocking_bisect_range()
 ⋮----
 def test_build_rollback_plan_rejects_invalid_known_good_sha()
+```
+
+## File: test_runtime_contract.py
+```python
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+⋮----
+def test_supported_python_range_matches_ci_contract()
+⋮----
+payload = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+⋮----
+def test_default_runtime_is_pinned_to_ci_python()
 ```
 
 ## File: test_runtime_state.py

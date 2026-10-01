@@ -22,17 +22,20 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-01T15:52:31Z
+Generated: 2026-10-01T15:59:38Z
 
 ### Git
 - Branch: `main`
-- Head: `10c8ee417f6c`
-- Commit date: 2026-10-01T17:52:17+02:00
-- Commit: feat(dashboard): auto-wake workers after mobile launch
-- Tracked files: 530
+- Head: `12f99b632401`
+- Commit date: 2026-10-01T17:59:23+02:00
+- Commit: chore(runtime): pin and enforce supported Python versions
+- Tracked files: 532
 
 ### Recently changed files
 - `.github/workflows/ci.yml`
+- `.python-version`
+- `pyproject.toml`
+- `tests/test_runtime_contract.py`
 - `src/production_os/control_plane.py`
 - `src/production_os/dashboard_store.py`
 - `src/production_os/dashboard_ui.py`
@@ -49,9 +52,6 @@ Generated: 2026-10-01T15:52:31Z
 - `src/production_os/autonomous_projects.py`
 - `src/production_os/budgets.py`
 - `src/production_os/cli.py`
-- `src/production_os/controller.py`
-- `src/production_os/dispatch.py`
-- `src/production_os/rate_limit.py`
 
 ### Project signals
 - `pyproject.toml`

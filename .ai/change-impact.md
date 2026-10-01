@@ -1,26 +1,21 @@
 # Change impact
 
-Base: 8a3be70735d71bcda65e83d02ac1e5a133eec5db
-Head: 10c8ee417f6c863a94141fbac259a12fd09dce6d
+Base: 67f93998e5a1fddb69c5454800f43caa4adad0c2
+Head: 12f99b632401dfee93200368fe27e3f6a667c911
 
 ## Changed files
 - M .github/workflows/ci.yml
-- M src/production_os/control_plane.py
-- M src/production_os/dashboard_store.py
-- M src/production_os/dashboard_ui.py
-- M tests/test_dashboard_api.py
-- M tests/test_dashboard_launch.py
-- M tests/test_dashboard_launch_ux.py
-- M tests/test_release32_one_tap_e2e.py
+- A .python-version
+- M pyproject.toml
+- A tests/test_runtime_contract.py
 
 ## Affected areas
 - .github
-- src
+- (root)
 - tests
 
 ## Related test candidates
-- tests/test_control_plane.py
-- tests/test_dashboard_store.py
+- No direct filename-based test match detected.
 
 ## Agent guidance
 - Read this file before broad repository exploration.
