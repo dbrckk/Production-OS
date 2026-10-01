@@ -772,7 +772,7 @@ class DashboardStore:
                 db,
                 self.backend,
                 """DELETE FROM device_sessions
-                   WHERE expires_at<=? OR revoked_at IS NOT NULL""",
+                   WHERE expires_at<=?""",
                 (timestamp,),
             )
             return {
