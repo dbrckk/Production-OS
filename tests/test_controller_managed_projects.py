@@ -35,11 +35,40 @@ def _cycle_kwargs(tmp_path):
     }
 
 
-def test_controller_defaults_execution_mode_to_legacy_during_migration():
+def test_controller_defaults_execution_mode_to_managed_after_parity():
     signature = inspect.signature(run_control_cycle)
 
-    assert signature.parameters["execution_mode"].default == "legacy"
+    assert signature.parameters["execution_mode"].default == "managed"
     assert signature.parameters["project_token_budget"].default == 12000
+
+
+def test_controller_cli_defaults_to_managed_execution():
+    args = _parse_args([
+        "controller",
+        "--owner", "owner",
+        "--queue-dir", "/tmp/queue",
+        "--snapshot-dir", "/tmp/snapshots",
+        "--metrics", "/tmp/metrics.json",
+        "--health", "/tmp/health.json",
+        "--journal", "/tmp/journal.jsonl",
+    ])
+
+    assert args.execution_mode == "managed"
+
+
+def test_explicit_legacy_mode_remains_supported():
+    args = _parse_args([
+        "controller",
+        "--owner", "owner",
+        "--queue-dir", "/tmp/queue",
+        "--snapshot-dir", "/tmp/snapshots",
+        "--metrics", "/tmp/metrics.json",
+        "--health", "/tmp/health.json",
+        "--journal", "/tmp/journal.jsonl",
+        "--execution-mode", "legacy",
+    ])
+
+    assert args.execution_mode == "legacy"
 
 
 def test_controller_cli_accepts_managed_execution_mode():
