@@ -25,6 +25,10 @@ def test_launch_readiness_distinguishes_immediate_execution_from_safe_queue(tmp_
     assert queued["available_workers"] == 0
     assert queued["online_workers"] == 0
     assert queued["queued_jobs"] == 0
+    assert queued["worker_wake"] == {
+        "mode":"scheduled_fallback",
+        "poll_interval_seconds":300,
+    }
 
     service.workers = lambda: {
         "workers":[{
@@ -89,3 +93,29 @@ def test_launch_readiness_validates_repository_shape(tmp_path):
         assert str(exc) == "repository must be owner/name"
     else:
         raise AssertionError("invalid repository should fail")
+
+
+def test_launch_readiness_reports_immediate_worker_wake_configuration(tmp_path):
+    control = ControlPlane(str(tmp_path / "readiness-wake.sqlite"))
+    service = control.dashboard
+    service.repositories = lambda: {
+        "owner":"dbrckk",
+        "source":"test",
+        "repositories":[{"full_name":"dbrckk/example"}],
+        "generated_at":"2026-10-01T16:00:00+00:00",
+    }
+    service.workers = lambda: {
+        "workers":[],
+        "generated_at":"2026-10-01T16:00:00+00:00",
+    }
+    control.dashboard_control.github = object()
+    control.dashboard_control.actions_repository = "dbrckk/ai-dev-server"
+    control.dashboard_control.actions_workflow = "production-os-actions-worker.yml"
+
+    result = service.launch_readiness("dbrckk/example")
+
+    assert result["execution"] == "queued"
+    assert result["worker_wake"] == {
+        "mode":"immediate",
+        "poll_interval_seconds":None,
+    }
