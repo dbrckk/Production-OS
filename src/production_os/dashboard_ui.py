@@ -257,6 +257,17 @@ let productionSort="priority";
 let productionSearchTimer=null;
 
 function token(){return localStorage.getItem(TOKEN_KEY)||''}
+function bootstrapPairingFromFragment(){
+ const raw=String(window.location.hash||'');
+ if(!raw.startsWith('#pair=')) return false;
+ let value='';
+ try{value=decodeURIComponent(raw.slice(6)).trim()}catch(_e){value=''}
+ history.replaceState(null,'',window.location.pathname+window.location.search);
+ if(!value) return false;
+ localStorage.setItem(TOKEN_KEY,value);
+ setState('pair-state','ok','Appairé');
+ return true;
+}
 function esc(value){return String(value).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})}
 function dot(state){return '<span class="dot '+state+'"></span>'}
 function setState(id,state,text){document.getElementById(id).innerHTML=dot(state)+esc(text)}
@@ -825,6 +836,7 @@ async function refreshDashboard(){
  }finally{refreshBusy=false}
 }
 
+bootstrapPairingFromFragment();
 loadRepositories().then(function(){return refreshDashboard()});
 document.getElementById('repository').addEventListener('change',loadVisualQuality);
 document.getElementById('repository').addEventListener('change',loadRecentRuns);

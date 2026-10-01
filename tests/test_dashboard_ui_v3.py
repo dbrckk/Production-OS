@@ -824,3 +824,14 @@ def test_production_inbox_renders_live_runtime_and_server_actions():
     assert "Valider DONE" in DASHBOARD_HTML
     assert "cancelLastProduction(this.dataset.projectId)" in DASHBOARD_HTML
 
+
+
+def test_dashboard_supports_secure_fragment_pairing_without_query_leak():
+    assert "function bootstrapPairingFromFragment" in DASHBOARD_HTML
+    assert "window.location.hash" in DASHBOARD_HTML
+    assert "raw.startsWith('#pair=')" in DASHBOARD_HTML
+    assert "decodeURIComponent(raw.slice(6))" in DASHBOARD_HTML
+    assert "localStorage.setItem(TOKEN_KEY,value)" in DASHBOARD_HTML
+    assert "history.replaceState(null,'',window.location.pathname+window.location.search)" in DASHBOARD_HTML
+    assert "bootstrapPairingFromFragment();" in DASHBOARD_HTML
+    assert "?pair=" not in DASHBOARD_HTML

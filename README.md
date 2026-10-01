@@ -271,6 +271,14 @@ Worker controls:
 
 All dashboard control endpoints require the `operator` role.
 
+For single-device operation, the dashboard can bootstrap the existing operator credential from a URL fragment:
+
+```text
+https://<production-os-host>/dashboard#pair=<operator-token>
+```
+
+The fragment is processed only by the browser, copied into local storage, and immediately removed from the visible URL with `history.replaceState`. Production-OS never accepts `?pair=` query-string credentials, so the bootstrap secret is not sent in the HTTP request, server logs, or referrer URL. After the first successful bootstrap, normal launches remain the two-field flow: choose a repository, enter the instruction, and launch.
+
 Cancellation is job-scoped rather than worker-wide. A cancellation request is not considered acknowledged until the worker reports the matching `cancel_requested` state. Terminal job transitions are exclusive: once cancellation wins, a late completion is rejected; once completion wins, a later cancel-current request is rejected.
 
 Retries preserve lineage. The previous failed or cancelled execution remains immutable, the replacement receives a new idempotency/job key, workflow generation checks still apply, and `max_attempts` cannot be bypassed by repeated control requests.
