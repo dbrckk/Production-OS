@@ -4649,3 +4649,39 @@ A second daemon fails immediately instead of running a competing scheduler.
 The lock is held for the complete daemon lifetime and released automatically
 when the process exits or the PostgreSQL session closes. Bounded
 `production-os controller` runs are unchanged.
+
+
+## 24/7 controller managed execution
+
+The persistent controller daemon now routes admitted `NOW` and `PARALLEL` work through Managed Projects by default. Autonomous work therefore uses the same durable workflow engine, dynamic planner, cooperative agents, isolated worktrees, integration, validation, project memory, learned skills, and specialist browser/mobile stages as interactive Managed Projects.
+
+The managed controller requires the durable SQLite backend:
+
+```bash
+production-os controller \
+  --owner dbrckk \
+  --database artifacts/production.db \
+  --queue-dir artifacts/controller-queue \
+  --snapshot-dir artifacts/snapshots \
+  --metrics artifacts/controller-metrics.json \
+  --health artifacts/controller-health.json \
+  --journal artifacts/controller-journal.jsonl \
+  --execution-mode managed \
+  --project-token-budget 12000 \
+  --daemon
+```
+
+Deployment defaults can be changed with:
+
+```text
+PRODUCTION_OS_CONTROLLER_EXECUTION_MODE=managed
+PRODUCTION_OS_CONTROLLER_PROJECT_TOKEN_BUDGET=12000
+```
+
+For rollback only, the legacy direct handoff path remains available explicitly:
+
+```text
+PRODUCTION_OS_CONTROLLER_EXECUTION_MODE=legacy
+```
+
+Managed and legacy execution are mutually exclusive. A managed launch failure never falls back to legacy dispatch in the same cycle. Stable autonomous project ids prevent duplicate projects, workflows, budget charges, and repository rate-limit charges across daemon cycles and controller restarts.

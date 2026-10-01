@@ -7,6 +7,18 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from .approvals import ApprovalStore
+from .autonomous_admission import (
+    AutonomousAdmissionRequest,
+    commit_autonomous_admission,
+    evaluate_autonomous_admission,
+)
+from .autonomous_projects import (
+    AutonomousProjectRequest,
+    autonomous_action_fingerprint,
+    autonomous_project_id,
+    autonomous_project_status,
+    launch_autonomous_project,
+)
 from .budgets import BudgetLedger
 from .claims import ClaimStore
 from .delivery import recover_unacked_jobs
@@ -20,6 +32,7 @@ from .heartbeat_manager import renew_active_leases
 from .history import build_snapshot, save_snapshot
 from .journal import ExecutionJournal
 from .metrics import MetricsStore
+from .managed_projects import ManagedProjectService
 from .observability import build_observability_payload, write_observability
 from .policy import PolicySet, classify_risk
 from .quarantine import QuarantineStore
@@ -38,7 +51,8 @@ from .storage import (
 from .scheduler import build_schedule
 from .scoring import assess_repository
 from .self_healing import apply_self_healing
-from .workers import WorkerRegistry
+from .workers import WorkerRegistry, cooperative_worker_fleet_available
+from .workflow_engine import WorkflowEngine
 from .controller_leader import controller_leader_lock
 from .task_capabilities import asset_forge_tool_contract, inferred_required_capabilities
 
@@ -88,6 +102,42 @@ def _required_capabilities_for(assessment, handoff: dict) -> list[str]:
 
     required.extend(inferred_required_capabilities(handoff))
     return sorted(set(required))
+
+
+def _recover_managed_project_accounting(
+    *,
+    project_id: str,
+    handoff: dict,
+    rate_limit_store: RateLimitStore | None,
+    budget_ledger: BudgetLedger | None,
+    rate_window_seconds: int = 3600,
+) -> None:
+    repository = str(handoff.get("repository") or "")
+    if rate_limit_store is not None and repository:
+        rate_limit_store.record_once(
+            f"repo:{repository}",
+            project_id,
+            window_seconds=int(rate_window_seconds),
+        )
+
+    raw_request = handoff.get("resource_request", {}) or {}
+    resource_request = {
+        str(key):float(value)
+        for key, value in raw_request.items()
+        if isinstance(value, (int, float))
+        and not isinstance(value, bool)
+    }
+    if budget_ledger is not None and resource_request:
+        budget_ledger.record_once(
+            repository,
+            resource_request,
+            idempotency_key=f"{project_id}:repository",
+        )
+        budget_ledger.record_once(
+            "__portfolio__",
+            resource_request,
+            idempotency_key=f"{project_id}:portfolio",
+        )
 
 
 def _load_github_mappings(path: str | None) -> list[dict]:
@@ -166,13 +216,28 @@ def run_control_cycle(
     slots: int = 3,
     lease_owner: str = "production-os-controller",
     lease_minutes: int = 30,
+    execution_mode: str = "managed",
+    project_token_budget: int = 12000,
 ) -> dict:
+    mode = str(execution_mode or "").strip().lower()
+    if mode not in {"legacy", "managed"}:
+        raise ValueError("execution_mode must be legacy or managed")
+    if int(project_token_budget) <= 0:
+        raise ValueError("project_token_budget must be > 0")
+    if mode == "managed" and not database_path:
+        raise ValueError("managed execution mode requires database_path")
+
     backend = open_backend(database_path) if database_path else None
     if backend is not None:
         state = runtime_state_for(backend)
         worker_registry = worker_registry_for(backend)
         durable_queue = job_queue_for(backend)
         claim_store = claim_store_for(backend)
+        managed_projects = (
+            ManagedProjectService(WorkflowEngine(backend, durable_queue))
+            if mode == "managed"
+            else None
+        )
     else:
         if not runtime_state_path:
             raise ValueError("runtime_state_path is required without database_path")
@@ -180,6 +245,7 @@ def run_control_cycle(
         worker_registry = WorkerRegistry(worker_registry_path) if worker_registry_path else None
         durable_queue = None
         claim_store = ClaimStore(claims_path) if claims_path else None
+        managed_projects = None
 
     metrics_store = MetricsStore(metrics_path)
     journal = ExecutionJournal(journal_path)
@@ -282,6 +348,7 @@ def run_control_cycle(
     action_lookup = {(a.repository, a.task): a for a in actions}
     assessment_lookup = {a.evidence.full_name: a for a in assessments}
     dispatches = []
+    managed_project_results = []
     emergency_stopped = emergency_stop_active(emergency_stop_path)
     for item in schedule.get("work", []):
         if item.get("lane") not in {"NOW","PARALLEL"}:
@@ -314,6 +381,147 @@ def run_control_cycle(
             assessment,
             handoff,
         )
+        if mode == "managed":
+            fingerprint = autonomous_action_fingerprint(
+                repository=action.repository,
+                task=action.task,
+                acceptance_criteria=action.acceptance_criteria,
+                trigger_evidence=action.evidence,
+                risk_class=risk,
+            )
+            project_id = autonomous_project_id(
+                repository=action.repository,
+                action_fingerprint=fingerprint,
+            )
+            existing = autonomous_project_status(
+                managed_projects,
+                project_id,
+            )
+            if existing is not None:
+                _recover_managed_project_accounting(
+                    project_id=project_id,
+                    handoff=handoff,
+                    rate_limit_store=rate_limit_store,
+                    budget_ledger=budget_ledger,
+                )
+                event = (
+                    "managed-project-skipped-terminal"
+                    if str(existing.get("status") or "") == "DONE"
+                    else "managed-project-reused"
+                )
+                row = {
+                    "project_id":project_id,
+                    "created":False,
+                    "action_fingerprint":fingerprint,
+                    **existing,
+                }
+                managed_project_results.append(row)
+                journal.append({
+                    "source":"controller",
+                    "event":event,
+                    "repository":action.repository,
+                    "task":action.task,
+                    "project_id":project_id,
+                    "action_fingerprint":fingerprint,
+                    "status":existing.get("status"),
+                })
+                continue
+
+            try:
+                admission = evaluate_autonomous_admission(
+                    AutonomousAdmissionRequest(
+                        handoff=handoff,
+                        required_capabilities=tuple(required_capabilities),
+                    ),
+                    state,
+                    worker_registry=worker_registry,
+                    emergency_stop_path=emergency_stop_path,
+                    rate_limit_store=rate_limit_store,
+                    approval_store=approval_store,
+                    policy_set=policy_set,
+                    budget_ledger=budget_ledger,
+                    quarantine_store=quarantine_store,
+                )
+                needs_mobile = (
+                    ManagedProjectService._needs_mobile_ui_validation(
+                        action.task
+                    )
+                )
+                needs_browser = (
+                    not needs_mobile
+                    and ManagedProjectService._needs_browser_validation(
+                        action.task
+                    )
+                )
+                cooperative = (
+                    worker_registry is not None
+                    and cooperative_worker_fleet_available(
+                        worker_registry,
+                        needs_browser=needs_browser,
+                        needs_mobile=needs_mobile,
+                    )
+                )
+                request = AutonomousProjectRequest(
+                    repository=action.repository,
+                    task=action.task,
+                    rationale=action.rationale,
+                    acceptance_criteria=tuple(
+                        str(value)
+                        for value in action.acceptance_criteria
+                    ),
+                    priority=float(action.priority),
+                    token_budget=int(project_token_budget),
+                    agent_preference="auto",
+                    cooperative=cooperative,
+                    action_fingerprint=fingerprint,
+                )
+                launch = launch_autonomous_project(
+                    managed_projects,
+                    request,
+                )
+                if launch.created:
+                    commit_autonomous_admission(
+                        admission,
+                        rate_limit_store=rate_limit_store,
+                        budget_ledger=budget_ledger,
+                        idempotency_key=launch.project_id,
+                        include_worker_rate_limit=False,
+                    )
+                row = {
+                    "project_id":launch.project_id,
+                    "created":launch.created,
+                    "action_fingerprint":fingerprint,
+                    **launch.project,
+                }
+                managed_project_results.append(row)
+                if launch.created:
+                    metrics_store.metrics.dispatched += 1
+                journal.append({
+                    "source":"controller",
+                    "event":(
+                        "managed-project-created"
+                        if launch.created
+                        else "managed-project-reused"
+                    ),
+                    "repository":action.repository,
+                    "task":action.task,
+                    "project_id":launch.project_id,
+                    "action_fingerprint":fingerprint,
+                    "status":launch.project.get("status"),
+                })
+            except (RuntimeError, ValueError) as exc:
+                metrics_store.metrics.dispatch_failures += 1
+                journal.append({
+                    "source":"controller",
+                    "event":"managed-project-launch-error",
+                    "repository":item["repository"],
+                    "task":item["task"],
+                    "project_id":project_id,
+                    "action_fingerprint":fingerprint,
+                    "error":str(exc),
+                })
+            continue
+
         try:
             result = dispatch_handoff(
                 handoff,
@@ -374,6 +582,7 @@ def run_control_cycle(
         "schedule":schedule,
         "resource_allocation":allocation,
         "dispatches":dispatches,
+        "managed_projects":managed_project_results,
         "reconciliation":[a.to_dict() for a in reconcile_actions],
         "self_healing":[a.to_dict() for a in healing_actions],
         "governance":[a.to_dict() for a in governance_actions],
