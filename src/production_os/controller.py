@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import time
 import threading
 from datetime import datetime, timezone
@@ -33,6 +34,9 @@ from .history import build_snapshot, save_snapshot
 from .journal import ExecutionJournal
 from .metrics import MetricsStore
 from .managed_projects import ManagedProjectService
+from .dashboard_store import DashboardStore
+from .dashboard_control import DashboardControl
+from .worker_wake import request_automatic_worker_wake
 from .observability import build_observability_payload, write_observability
 from .policy import PolicySet, classify_risk
 from .quarantine import QuarantineStore
@@ -228,14 +232,20 @@ def run_control_cycle(
         raise ValueError("managed execution mode requires database_path")
 
     backend = open_backend(database_path) if database_path else None
+    workflow_engine = None
     if backend is not None:
         state = runtime_state_for(backend)
         worker_registry = worker_registry_for(backend)
         durable_queue = job_queue_for(backend)
         claim_store = claim_store_for(backend)
-        managed_projects = (
-            ManagedProjectService(WorkflowEngine(backend, durable_queue))
+        workflow_engine = (
+            WorkflowEngine(backend, durable_queue)
             if mode == "managed"
+            else None
+        )
+        managed_projects = (
+            ManagedProjectService(workflow_engine)
+            if workflow_engine is not None
             else None
         )
     else:
@@ -309,6 +319,32 @@ def run_control_cycle(
     )
 
     client = GitHubClient()
+    automatic_wake_store = None
+    automatic_wake_control = None
+    if (
+        backend is not None
+        and durable_queue is not None
+        and workflow_engine is not None
+    ):
+        automatic_wake_store = DashboardStore(backend)
+        automatic_wake_control = DashboardControl(
+            automatic_wake_store,
+            durable_queue,
+            workflow_engine,
+            github=(client if client.token else None),
+            actions_repository=(
+                str(os.getenv("PRODUCTION_OS_ACTIONS_REPOSITORY") or "").strip()
+                or None
+            ),
+            actions_workflow=(
+                str(os.getenv("PRODUCTION_OS_ACTIONS_WORKFLOW") or "").strip()
+                or None
+            ),
+            actions_ref=(
+                str(os.getenv("PRODUCTION_OS_ACTIONS_REF") or "main").strip()
+                or "main"
+            ),
+        )
     github_results = _reconcile_github(
         client,
         state,
@@ -557,6 +593,28 @@ def run_control_cycle(
                 "error":str(exc),
             })
 
+    automatic_worker_wake = {
+        "status":"not_needed",
+        "reason":"queue_empty",
+    }
+    if (
+        durable_queue is not None
+        and automatic_wake_store is not None
+        and automatic_wake_control is not None
+        and durable_queue.peek_candidates(limit=1)
+    ):
+        automatic_worker_wake = request_automatic_worker_wake(
+            workers=worker_registry,
+            dashboard_control=automatic_wake_control,
+            store=automatic_wake_store,
+            requested_by="controller:auto",
+        )
+        journal.append({
+            "source":"controller",
+            "event":"automatic-worker-wake",
+            **automatic_worker_wake,
+        })
+
     snapshot = build_snapshot(owner, assessments)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     snapshot_path = str(Path(snapshot_dir) / f"{stamp}.json")
@@ -590,6 +648,7 @@ def run_control_cycle(
         "github_reconciliation":github_results,
         "workers":[w.to_dict() for w in worker_registry.workers.values()] if worker_registry else [],
         "delivery_recovery":delivery_recovery,
+        "automatic_worker_wake":automatic_worker_wake,
         "emergency_stop":emergency_stopped,
         "backend":"sqlite" if backend is not None else "json-files",
         "health":health,
