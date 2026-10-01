@@ -1138,6 +1138,36 @@ def make_handler(control: ControlPlane):
                 )
                 return
 
+            if (
+                parsed.path.startswith("/v1/dashboard/device-sessions/")
+                and parsed.path.endswith("/revoke")
+            ):
+                principal = self._require("operator")
+                if principal is None:
+                    return
+                parts = [part for part in parsed.path.split("/") if part]
+                if (
+                    len(parts) != 5
+                    or parts[:3] != ["v1", "dashboard", "device-sessions"]
+                    or parts[4] != "revoke"
+                ):
+                    self._send(
+                        HTTPStatus.NOT_FOUND,
+                        {"error":"not found"},
+                    )
+                    return
+                session_id = str(parts[3]).strip()
+                revoked = control.device_pairing.revoke_session(session_id)
+                self._send(
+                    HTTPStatus.OK if revoked else HTTPStatus.NOT_FOUND,
+                    {
+                        "schema_version":"production-os/device-session-revoke/v1",
+                        "revoked":bool(revoked),
+                        "session_id":session_id,
+                    },
+                )
+                return
+
             if parsed.path == "/v1/dashboard/launch":
                 principal = self._require("operator")
                 if principal is None:
