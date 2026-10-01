@@ -216,7 +216,7 @@ def run_control_cycle(
     slots: int = 3,
     lease_owner: str = "production-os-controller",
     lease_minutes: int = 30,
-    execution_mode: str = "legacy",
+    execution_mode: str = "managed",
     project_token_budget: int = 12000,
 ) -> dict:
     mode = str(execution_mode or "").strip().lower()
