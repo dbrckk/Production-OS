@@ -22,18 +22,25 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-01T15:24:19Z
+Generated: 2026-10-01T15:52:31Z
 
 ### Git
 - Branch: `main`
-- Head: `0ef2708c084f`
-- Commit date: 2026-10-01T17:24:04+02:00
-- Commit: feat(dashboard): support secure one-link device pairing
+- Head: `10c8ee417f6c`
+- Commit date: 2026-10-01T17:52:17+02:00
+- Commit: feat(dashboard): auto-wake workers after mobile launch
 - Tracked files: 530
 
 ### Recently changed files
-- `README.md`
+- `.github/workflows/ci.yml`
+- `src/production_os/control_plane.py`
+- `src/production_os/dashboard_store.py`
 - `src/production_os/dashboard_ui.py`
+- `tests/test_dashboard_api.py`
+- `tests/test_dashboard_launch.py`
+- `tests/test_dashboard_launch_ux.py`
+- `tests/test_release32_one_tap_e2e.py`
+- `README.md`
 - `tests/test_dashboard_ui_v3.py`
 - `compose.yaml`
 - `docs/superpowers/plans/2026-09-30-controller-managed-projects.md`
@@ -45,13 +52,6 @@ Generated: 2026-10-01T15:24:19Z
 - `src/production_os/controller.py`
 - `src/production_os/dispatch.py`
 - `src/production_os/rate_limit.py`
-- `src/production_os/workers.py`
-- `tests/test_autonomous_admission.py`
-- `tests/test_autonomous_projects.py`
-- `tests/test_controller_daemon_deployment.py`
-- `tests/test_controller_managed_projects.py`
-- `tests/test_policy_budgets.py`
-- `tests/test_workers.py`
 
 ### Project signals
 - `pyproject.toml`

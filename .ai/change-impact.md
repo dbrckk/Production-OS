@@ -1,20 +1,26 @@
 # Change impact
 
-Base: c4596f49bc13d2a8fe81f7dea7f14dec87f60df6
-Head: 0ef2708c084f0628791b72425912063fb7b55014
+Base: 8a3be70735d71bcda65e83d02ac1e5a133eec5db
+Head: 10c8ee417f6c863a94141fbac259a12fd09dce6d
 
 ## Changed files
-- M README.md
+- M .github/workflows/ci.yml
+- M src/production_os/control_plane.py
+- M src/production_os/dashboard_store.py
 - M src/production_os/dashboard_ui.py
-- M tests/test_dashboard_ui_v3.py
+- M tests/test_dashboard_api.py
+- M tests/test_dashboard_launch.py
+- M tests/test_dashboard_launch_ux.py
+- M tests/test_release32_one_tap_e2e.py
 
 ## Affected areas
-- (root)
+- .github
 - src
 - tests
 
 ## Related test candidates
-- No direct filename-based test match detected.
+- tests/test_control_plane.py
+- tests/test_dashboard_store.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

@@ -2739,6 +2739,24 @@ actions_repository = str(
 actions_workflow = str(
 actions_ref = str(
 ⋮----
+latest = self.dashboard_store.latest_control_audit(
+⋮----
+requested_at = self._parse_timestamp(latest.get("requested_at"))
+⋮----
+age = (datetime.now(timezone.utc) - requested_at).total_seconds()
+⋮----
+def automatic_worker_wake_needed(self) -> bool
+⋮----
+has_active_worker = False
+⋮----
+worker_id = str(getattr(worker, "worker_id", "") or "").strip()
+desired = self.dashboard_control.worker_state(worker_id)
+⋮----
+has_active_worker = True
+⋮----
+# Do not override an intentional fleet-wide pause/drain. Wake only
+# when there is no registered fleet yet or an active worker is offline.
+⋮----
 specialist = {
 ⋮----
 required = {"mobile-ui-validation"}
@@ -2961,6 +2979,12 @@ project_id = None
 actor = f"{principal.role}:{principal.name}"
 project_id = hashlib.sha256(
 project = control.managed_projects.create(
+wake = {"status":"not_needed"}
+wake_needed = control.automatic_worker_wake_needed()
+⋮----
+wake = {
+⋮----
+wake = control.dashboard_control.kick_worker(
 ⋮----
 action = parts[3]
 ⋮----

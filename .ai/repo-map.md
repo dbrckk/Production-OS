@@ -426,6 +426,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   python-compat:
     runs-on: ubuntu-latest
@@ -3322,6 +3326,24 @@ actions_repository = str(
 actions_workflow = str(
 actions_ref = str(
 ⋮----
+latest = self.dashboard_store.latest_control_audit(
+⋮----
+requested_at = self._parse_timestamp(latest.get("requested_at"))
+⋮----
+age = (datetime.now(timezone.utc) - requested_at).total_seconds()
+⋮----
+def automatic_worker_wake_needed(self) -> bool
+⋮----
+has_active_worker = False
+⋮----
+worker_id = str(getattr(worker, "worker_id", "") or "").strip()
+desired = self.dashboard_control.worker_state(worker_id)
+⋮----
+has_active_worker = True
+⋮----
+# Do not override an intentional fleet-wide pause/drain. Wake only
+# when there is no registered fleet yet or an active worker is offline.
+⋮----
 specialist = {
 ⋮----
 required = {"mobile-ui-validation"}
@@ -3544,6 +3566,12 @@ project_id = None
 actor = f"{principal.role}:{principal.name}"
 project_id = hashlib.sha256(
 project = control.managed_projects.create(
+wake = {"status":"not_needed"}
+wake_needed = control.automatic_worker_wake_needed()
+⋮----
+wake = {
+⋮----
+wake = control.dashboard_control.kick_worker(
 ⋮----
 action = parts[3]
 ⋮----
@@ -13275,6 +13303,8 @@ payload = json.loads(raw or b"{}")
 ⋮----
 payload = raw.decode("utf-8", errors="replace")
 ⋮----
+def _post(url, token, payload)
+⋮----
 def test_root_redirects_to_dashboard_and_health_stays_json(tmp_path)
 ⋮----
 control = ControlPlane(str(tmp_path / "launch-ux.sqlite"), authorizer=_auth())
@@ -13286,6 +13316,31 @@ def fake_repos(self, owner)
 control = ControlPlane(
 ⋮----
 def fail_repos(self, owner)
+⋮----
+control = ControlPlane(str(tmp_path / "auto-wake.sqlite"), authorizer=_auth())
+⋮----
+wakes = []
+⋮----
+audit = control.dashboard_store.control_audit_events(limit=10)
+⋮----
+control = ControlPlane(str(tmp_path / "no-auto-wake.sqlite"), authorizer=_auth())
+⋮----
+control = ControlPlane(str(tmp_path / "wake-saturated.sqlite"), authorizer=_auth())
+worker = control.workers.register("worker-a", ["python"], 1)
+⋮----
+control = ControlPlane(str(tmp_path / "wake-paused.sqlite"), authorizer=_auth())
+⋮----
+control = ControlPlane(str(tmp_path / "wake-offline.sqlite"), authorizer=_auth())
+⋮----
+def test_automatic_worker_wake_cooldown_blocks_duplicate_kick(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "wake-cooldown.sqlite"), authorizer=_auth())
+⋮----
+control = ControlPlane(str(tmp_path / "wake-dedupe.sqlite"), authorizer=_auth())
+⋮----
+def test_automatic_worker_wake_cooldown_allows_retry_after_failure(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "wake-failed-retry.sqlite"), authorizer=_auth())
 ````
 
 ## File: tests/test_dashboard_launch.py
@@ -13321,6 +13376,12 @@ def test_dashboard_v2_explains_offline_worker_and_queued_launch()
 def test_dashboard_v2_has_readable_auth_errors()
 ⋮----
 def test_dashboard_v2_has_mobile_primary_launch_action()
+⋮----
+def test_dashboard_launch_surfaces_automatic_worker_wake_state()
+⋮----
+launch_start = DASHBOARD_HTML.index("async function launchWorkflow")
+launch_end = DASHBOARD_HTML.index("async function refreshDashboard", launch_start)
+launch_body = DASHBOARD_HTML[launch_start:launch_end]
 ````
 
 ## File: tests/test_dashboard_maintenance.py

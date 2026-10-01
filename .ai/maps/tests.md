@@ -2564,6 +2564,8 @@ payload = json.loads(raw or b"{}")
 ⋮----
 payload = raw.decode("utf-8", errors="replace")
 ⋮----
+def _post(url, token, payload)
+⋮----
 def test_root_redirects_to_dashboard_and_health_stays_json(tmp_path)
 ⋮----
 control = ControlPlane(str(tmp_path / "launch-ux.sqlite"), authorizer=_auth())
@@ -2575,6 +2577,31 @@ def fake_repos(self, owner)
 control = ControlPlane(
 ⋮----
 def fail_repos(self, owner)
+⋮----
+control = ControlPlane(str(tmp_path / "auto-wake.sqlite"), authorizer=_auth())
+⋮----
+wakes = []
+⋮----
+audit = control.dashboard_store.control_audit_events(limit=10)
+⋮----
+control = ControlPlane(str(tmp_path / "no-auto-wake.sqlite"), authorizer=_auth())
+⋮----
+control = ControlPlane(str(tmp_path / "wake-saturated.sqlite"), authorizer=_auth())
+worker = control.workers.register("worker-a", ["python"], 1)
+⋮----
+control = ControlPlane(str(tmp_path / "wake-paused.sqlite"), authorizer=_auth())
+⋮----
+control = ControlPlane(str(tmp_path / "wake-offline.sqlite"), authorizer=_auth())
+⋮----
+def test_automatic_worker_wake_cooldown_blocks_duplicate_kick(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "wake-cooldown.sqlite"), authorizer=_auth())
+⋮----
+control = ControlPlane(str(tmp_path / "wake-dedupe.sqlite"), authorizer=_auth())
+⋮----
+def test_automatic_worker_wake_cooldown_allows_retry_after_failure(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "wake-failed-retry.sqlite"), authorizer=_auth())
 ```
 
 ## File: test_dashboard_launch.py
@@ -2610,6 +2637,12 @@ def test_dashboard_v2_explains_offline_worker_and_queued_launch()
 def test_dashboard_v2_has_readable_auth_errors()
 ⋮----
 def test_dashboard_v2_has_mobile_primary_launch_action()
+⋮----
+def test_dashboard_launch_surfaces_automatic_worker_wake_state()
+⋮----
+launch_start = DASHBOARD_HTML.index("async function launchWorkflow")
+launch_end = DASHBOARD_HTML.index("async function refreshDashboard", launch_start)
+launch_body = DASHBOARD_HTML[launch_start:launch_end]
 ```
 
 ## File: test_dashboard_maintenance.py

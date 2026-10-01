@@ -2698,6 +2698,7 @@
         "tests/test_dashboard_control.py",
         "tests/test_dashboard_control_api.py",
         "tests/test_dashboard_control_audit.py",
+        "tests/test_dashboard_launch_ux.py",
         "tests/test_dashboard_remediation_history.py",
         "tests/test_dashboard_store.py",
         "tests/test_fanout_learning.py",
@@ -2706,8 +2707,7 @@
         "tests/test_incident_history.py",
         "tests/test_managed_github_reconciliation.py",
         "tests/test_managed_project_outcome.py",
-        "tests/test_model_router.py",
-        "tests/test_native_browser_worker_e2e.py"
+        "tests/test_model_router.py"
       ],
       "in_degree": 63,
       "out_degree": 3
@@ -3252,11 +3252,13 @@
         "src/production_os/control_plane.py",
         "src/production_os/dashboard_service.py",
         "src/production_os/github_client.py",
-        "src/production_os/workers.py"
+        "src/production_os/workers.py",
+        "tests/test_asset_forge.py",
+        "tests/test_fairness.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 6
+      "out_degree": 8
     },
     "tests/test_dashboard_maintenance.py": {
       "dependencies": [
@@ -3580,6 +3582,7 @@
         "tests/test_dashboard_control_api.py",
         "tests/test_dashboard_control_audit.py",
         "tests/test_dashboard_control_e2e.py",
+        "tests/test_dashboard_launch_ux.py",
         "tests/test_dashboard_playbook_api.py",
         "tests/test_dashboard_playbooks.py",
         "tests/test_dashboard_remediation_api.py",
@@ -3599,7 +3602,7 @@
         "tests/test_scheduler.py",
         "tests/test_scoring.py"
       ],
-      "in_degree": 54,
+      "in_degree": 55,
       "out_degree": 2
     },
     "tests/test_fanout_learning.py": {
@@ -3865,13 +3868,12 @@
         "src/production_os/control_plane.py",
         "src/production_os/remote_worker.py",
         "src/production_os/remote_worker_runner.py",
-        "tests/test_asset_forge.py",
         "tests/test_fairness.py",
         "tests/test_github_automerge.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 9
+      "out_degree": 8
     },
     "tests/test_native_executor.py": {
       "dependencies": [

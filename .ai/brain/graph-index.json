@@ -510,6 +510,7 @@
         "tests/test_dashboard_control.py",
         "tests/test_dashboard_control_api.py",
         "tests/test_dashboard_control_audit.py",
+        "tests/test_dashboard_launch_ux.py",
         "tests/test_dashboard_remediation_history.py",
         "tests/test_dashboard_store.py",
         "tests/test_fanout_learning.py",
@@ -518,8 +519,7 @@
         "tests/test_incident_history.py",
         "tests/test_managed_github_reconciliation.py",
         "tests/test_managed_project_outcome.py",
-        "tests/test_model_router.py",
-        "tests/test_native_browser_worker_e2e.py"
+        "tests/test_model_router.py"
       ],
       "in_degree": 63,
       "out_degree": 3,
@@ -567,6 +567,7 @@
         "tests/test_dashboard_control_api.py",
         "tests/test_dashboard_control_audit.py",
         "tests/test_dashboard_control_e2e.py",
+        "tests/test_dashboard_launch_ux.py",
         "tests/test_dashboard_playbook_api.py",
         "tests/test_dashboard_playbooks.py",
         "tests/test_dashboard_remediation_api.py",
@@ -586,7 +587,7 @@
         "tests/test_scheduler.py",
         "tests/test_scoring.py"
       ],
-      "in_degree": 54,
+      "in_degree": 55,
       "out_degree": 2,
       "path": "tests/test_fairness.py"
     },
@@ -1799,23 +1800,6 @@
       "dependencies": [
         "src/production_os/__init__.py",
         "src/production_os/api_auth.py",
-        "src/production_os/browser_loop.py",
-        "src/production_os/control_plane.py",
-        "src/production_os/remote_worker.py",
-        "src/production_os/remote_worker_runner.py",
-        "tests/test_asset_forge.py",
-        "tests/test_fairness.py",
-        "tests/test_github_automerge.py"
-      ],
-      "dependents": [],
-      "in_degree": 0,
-      "out_degree": 9,
-      "path": "tests/test_native_browser_worker_e2e.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/__init__.py",
-        "src/production_os/api_auth.py",
         "src/production_os/cli.py",
         "src/production_os/control_plane.py",
         "src/production_os/executor_worktree.py",
@@ -1877,6 +1861,38 @@
       "in_degree": 0,
       "out_degree": 8,
       "path": "tests/test_dashboard_control_audit.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/api_auth.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/dashboard_service.py",
+        "src/production_os/github_client.py",
+        "src/production_os/workers.py",
+        "tests/test_asset_forge.py",
+        "tests/test_fairness.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 8,
+      "path": "tests/test_dashboard_launch_ux.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/api_auth.py",
+        "src/production_os/browser_loop.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/remote_worker.py",
+        "src/production_os/remote_worker_runner.py",
+        "tests/test_fairness.py",
+        "tests/test_github_automerge.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 8,
+      "path": "tests/test_native_browser_worker_e2e.py"
     },
     {
       "dependencies": [
@@ -1973,24 +1989,9 @@
       "in_degree": 3,
       "out_degree": 4,
       "path": "src/production_os/delivery.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/__init__.py",
-        "src/production_os/autonomous_projects.py",
-        "src/production_os/history.py",
-        "src/production_os/managed_projects.py",
-        "src/production_os/sqlite_backend.py",
-        "src/production_os/workflow_engine.py",
-        "tests/test_asset_forge.py"
-      ],
-      "dependents": [],
-      "in_degree": 0,
-      "out_degree": 7,
-      "path": "tests/test_autonomous_projects.py"
     }
   ],
-  "edge_count": 1696,
+  "edge_count": 1697,
   "generated_by": "dbrckk/repo-brain-v7-graph",
   "node_count": 319,
   "schema_version": 1

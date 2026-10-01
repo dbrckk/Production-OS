@@ -5,24 +5,29 @@
     "example_count": 64,
     "rejected_count": 0,
     "terms": [
+      "after",
+      "auto-wake",
       "dashboard",
-      "device",
       "feat",
-      "one-link",
-      "pairing",
-      "secure",
-      "support"
+      "launch",
+      "mobile",
+      "workers"
     ],
     "test_count": 0,
-    "useful_count": 2
+    "useful_count": 7
   },
   "note": "Selected tests are routing hints; this artifact does not claim they executed successfully.",
   "rejected": [],
   "schema_version": 1,
-  "task": "feat(dashboard): support secure one-link device pairing",
+  "task": "feat(dashboard): auto-wake workers after mobile launch",
   "tests_selected": [],
   "useful": [
+    "src/production_os/control_plane.py",
+    "src/production_os/dashboard_store.py",
     "src/production_os/dashboard_ui.py",
-    "tests/test_dashboard_ui_v3.py"
+    "tests/test_dashboard_api.py",
+    "tests/test_dashboard_launch.py",
+    "tests/test_dashboard_launch_ux.py",
+    "tests/test_release32_one_tap_e2e.py"
   ]
 }
