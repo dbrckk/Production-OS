@@ -279,7 +279,7 @@ https://<production-os-host>/dashboard#pair-code=<one-time-code>
 
 The pairing code is random, valid for 10 minutes, stored server-side only as a SHA-256 digest, and atomically consumable once. The browser removes the fragment immediately, exchanges the one-time code for a distinct revocable device-session token, and stores only that device token locally. The long-lived operator bearer token is never embedded in the link.
 
-Device sessions expire after 90 days and can be revoked. “Oublier cet appareil” revokes the current device session when applicable and clears local storage even if the server is temporarily unreachable. Manual operator-token entry remains available only as a recovery path. Production-OS still refuses query-string pairing credentials.
+Device sessions expire after 90 days and can be revoked. Dashboard settings list active paired devices so an operator can revoke a lost device remotely. “Oublier cet appareil” revokes the current device session when applicable and clears local storage even if the server is temporarily unreachable. Consumed/expired pairing codes and expired/revoked sessions are pruned opportunistically to keep authentication state bounded. Manual operator-token entry remains available only as a recovery path. Production-OS still refuses query-string pairing credentials.
 
 Cancellation is job-scoped rather than worker-wide. A cancellation request is not considered acknowledged until the worker reports the matching `cancel_requested` state. Terminal job transitions are exclusive: once cancellation wins, a late completion is rejected; once completion wins, a later cancel-current request is rejected.
 
