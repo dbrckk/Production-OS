@@ -754,6 +754,51 @@ class DashboardStore:
                 (token_sha256, timestamp),
             )
 
+    def prune_expired_device_auth(
+        self,
+        *,
+        at: str | None = None,
+    ) -> dict:
+        timestamp = at or _now()
+        with self.backend.transaction() as db:
+            codes = _execute(
+                db,
+                self.backend,
+                """DELETE FROM device_pairing_codes
+                   WHERE expires_at<=? OR consumed_at IS NOT NULL""",
+                (timestamp,),
+            )
+            sessions = _execute(
+                db,
+                self.backend,
+                """DELETE FROM device_sessions
+                   WHERE expires_at<=? OR revoked_at IS NOT NULL""",
+                (timestamp,),
+            )
+            return {
+                "pairing_codes":int(codes.rowcount or 0),
+                "device_sessions":int(sessions.rowcount or 0),
+            }
+
+    def revoke_device_session_by_id(
+        self,
+        *,
+        session_id: str,
+        at: str | None = None,
+    ) -> bool:
+        timestamp = at or _now()
+        with self.backend.transaction() as db:
+            cursor = _execute(
+                db,
+                self.backend,
+                """UPDATE device_sessions
+                   SET revoked_at=?
+                   WHERE id=?
+                     AND revoked_at IS NULL""",
+                (timestamp, session_id),
+            )
+            return int(cursor.rowcount or 0) == 1
+
     def revoke_device_session(
         self,
         *,
