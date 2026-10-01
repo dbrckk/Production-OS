@@ -110,24 +110,28 @@ class ControlPlane:
         self.github_webhook_secret = github_webhook_secret
         self.webhook_deliveries = WebhookDeliveryStore(self.backend)
 
-    def worker_execution_capacity_available(self) -> bool:
+    def automatic_worker_wake_needed(self) -> bool:
         try:
             self.workers.detect_dead()
             self.workers.load()
         except Exception:
-            return False
+            return True
+        if not self.workers.workers:
+            return True
+
+        has_active_worker = False
         for worker in self.workers.workers.values():
-            if str(getattr(worker, "status", "") or "").lower() != "online":
-                continue
             worker_id = str(getattr(worker, "worker_id", "") or "").strip()
             desired = self.dashboard_control.worker_state(worker_id)
             if desired.get("desired_state") != "active":
                 continue
-            active_tasks = int(getattr(worker, "active_tasks", 0) or 0)
-            max_concurrency = int(getattr(worker, "max_concurrency", 0) or 0)
-            if max_concurrency > active_tasks:
-                return True
-        return False
+            has_active_worker = True
+            if str(getattr(worker, "status", "") or "").lower() == "online":
+                return False
+
+        # Do not override an intentional fleet-wide pause/drain. Wake only
+        # when there is no registered fleet yet or an active worker is offline.
+        return has_active_worker
 
     def cooperative_worker_fleet_available(
         self,
@@ -1027,7 +1031,7 @@ def make_handler(control: ControlPlane):
                         ),
                     )
                     wake = {"status":"not_needed"}
-                    if not control.worker_execution_capacity_available():
+                    if control.automatic_worker_wake_needed():
                         wake = control.dashboard_control.kick_worker(
                             "automatic-launch"
                         )
