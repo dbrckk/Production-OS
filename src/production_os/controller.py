@@ -238,14 +238,10 @@ def run_control_cycle(
         worker_registry = worker_registry_for(backend)
         durable_queue = job_queue_for(backend)
         claim_store = claim_store_for(backend)
-        workflow_engine = (
-            WorkflowEngine(backend, durable_queue)
-            if mode == "managed"
-            else None
-        )
+        workflow_engine = WorkflowEngine(backend, durable_queue)
         managed_projects = (
             ManagedProjectService(workflow_engine)
-            if workflow_engine is not None
+            if mode == "managed"
             else None
         )
     else:
@@ -331,7 +327,7 @@ def run_control_cycle(
             automatic_wake_store,
             durable_queue,
             workflow_engine,
-            github=(client if client.token else None),
+            github=(client if getattr(client, "token", None) else None),
             actions_repository=(
                 str(os.getenv("PRODUCTION_OS_ACTIONS_REPOSITORY") or "").strip()
                 or None
