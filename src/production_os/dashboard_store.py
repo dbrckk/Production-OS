@@ -645,6 +645,155 @@ class DashboardStore:
                             remediation.id DESC""",
             )
 
+    def create_pairing_code(
+        self,
+        *,
+        code_sha256: str,
+        requested_by: str,
+        expires_at: str,
+        at: str | None = None,
+    ) -> dict:
+        ident = uuid4().hex
+        created_at = at or _now()
+        with self.backend.transaction() as db:
+            _execute(
+                db,
+                self.backend,
+                """INSERT INTO device_pairing_codes(
+                    id, code_sha256, requested_by, created_at, expires_at,
+                    consumed_at
+                ) VALUES(?,?,?,?,?,NULL)""",
+                (
+                    ident,
+                    code_sha256,
+                    requested_by,
+                    created_at,
+                    expires_at,
+                ),
+            )
+            return self._fetchone(
+                db,
+                "SELECT * FROM device_pairing_codes WHERE id=?",
+                (ident,),
+            )
+
+    def exchange_pairing_code(
+        self,
+        *,
+        code_sha256: str,
+        session_id: str,
+        token_sha256: str,
+        name: str,
+        role: str,
+        expires_at: str,
+        at: str | None = None,
+    ) -> dict:
+        timestamp = at or _now()
+        with self.backend.transaction() as db:
+            code = self._fetchone(
+                db,
+                """SELECT * FROM device_pairing_codes
+                   WHERE code_sha256=?
+                     AND consumed_at IS NULL
+                     AND expires_at>?
+                   LIMIT 1""",
+                (code_sha256, timestamp),
+            )
+            if code is None:
+                raise KeyError("pairing code invalid or expired")
+            cursor = _execute(
+                db,
+                self.backend,
+                """UPDATE device_pairing_codes
+                   SET consumed_at=?
+                   WHERE id=?
+                     AND consumed_at IS NULL
+                     AND expires_at>?""",
+                (timestamp, code["id"], timestamp),
+            )
+            if int(cursor.rowcount or 0) != 1:
+                raise KeyError("pairing code already consumed")
+            _execute(
+                db,
+                self.backend,
+                """INSERT INTO device_sessions(
+                    id, token_sha256, name, role, created_at, expires_at,
+                    last_used_at, revoked_at
+                ) VALUES(?,?,?,?,?,?,?,NULL)""",
+                (
+                    session_id,
+                    token_sha256,
+                    name,
+                    role,
+                    timestamp,
+                    expires_at,
+                    timestamp,
+                ),
+            )
+            return self._fetchone(
+                db,
+                "SELECT * FROM device_sessions WHERE id=?",
+                (session_id,),
+            )
+
+    def device_session(
+        self,
+        *,
+        token_sha256: str,
+        at: str | None = None,
+    ) -> dict | None:
+        timestamp = at or _now()
+        with self.backend.connect() as db:
+            return self._fetchone(
+                db,
+                """SELECT * FROM device_sessions
+                   WHERE token_sha256=?
+                     AND revoked_at IS NULL
+                     AND expires_at>?
+                   LIMIT 1""",
+                (token_sha256, timestamp),
+            )
+
+    def revoke_device_session(
+        self,
+        *,
+        token_sha256: str,
+        at: str | None = None,
+    ) -> bool:
+        timestamp = at or _now()
+        with self.backend.transaction() as db:
+            cursor = _execute(
+                db,
+                self.backend,
+                """UPDATE device_sessions
+                   SET revoked_at=?
+                   WHERE token_sha256=?
+                     AND revoked_at IS NULL""",
+                (timestamp, token_sha256),
+            )
+            return int(cursor.rowcount or 0) == 1
+
+    def active_device_sessions(
+        self,
+        *,
+        limit: int = 50,
+        at: str | None = None,
+    ) -> list[dict]:
+        timestamp = at or _now()
+        bounded = max(1, min(200, int(limit)))
+        with self.backend.connect() as db:
+            return self._fetchall(
+                db,
+                """SELECT id, name, role, created_at, expires_at,
+                          last_used_at, revoked_at
+                   FROM device_sessions
+                   WHERE revoked_at IS NULL
+                     AND expires_at>?
+                   ORDER BY created_at DESC
+                   LIMIT ?""",
+                (timestamp, bounded),
+            )
+
     def append_control_audit(
         self,
         *,
