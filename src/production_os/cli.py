@@ -263,6 +263,24 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     controller.add_argument("--budgets", help="Persistent budget ledger JSON")
     controller.add_argument("--quarantine", help="Persistent quarantine state JSON")
     controller.add_argument("--database", help="P8 SQLite distributed backend")
+    controller.add_argument(
+        "--execution-mode",
+        choices=("legacy", "managed"),
+        default=os.getenv(
+            "PRODUCTION_OS_CONTROLLER_EXECUTION_MODE",
+            "legacy",
+        ),
+        help="Controller execution backend during managed-project migration",
+    )
+    controller.add_argument(
+        "--project-token-budget",
+        type=int,
+        default=int(os.getenv(
+            "PRODUCTION_OS_CONTROLLER_PROJECT_TOKEN_BUDGET",
+            "12000",
+        )),
+        help="Initial token budget for new autonomous Managed Projects",
+    )
 
     healthserver = sub.add_parser("health-server", help="Serve the health JSON over HTTP")
     healthserver.add_argument("--health", required=True)
@@ -1550,6 +1568,8 @@ def run_controller_command(args: argparse.Namespace) -> int:
         "slots":args.slots,
         "lease_owner":args.lease_owner,
         "lease_minutes":args.lease_minutes,
+        "execution_mode":args.execution_mode,
+        "project_token_budget":args.project_token_budget,
     }
 
     if args.daemon:
