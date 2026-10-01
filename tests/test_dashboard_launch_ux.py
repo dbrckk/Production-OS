@@ -213,11 +213,6 @@ def test_dashboard_launch_auto_wakes_worker_when_wake_is_needed(
     monkeypatch,
 ):
     control = ControlPlane(str(tmp_path / "auto-wake.sqlite"), authorizer=_auth())
-    monkeypatch.setattr(
-        control,
-        "automatic_worker_wake_needed",
-        lambda: True,
-    )
     wakes = []
     monkeypatch.setattr(
         control.dashboard_control,
@@ -259,11 +254,7 @@ def test_dashboard_launch_does_not_wake_worker_when_wake_is_not_needed(
     monkeypatch,
 ):
     control = ControlPlane(str(tmp_path / "no-auto-wake.sqlite"), authorizer=_auth())
-    monkeypatch.setattr(
-        control,
-        "automatic_worker_wake_needed",
-        lambda: False,
-    )
+    control.workers.register("worker-online", ["python"], 1)
     wakes = []
     monkeypatch.setattr(
         control.dashboard_control,
@@ -349,8 +340,12 @@ def test_dashboard_launch_skips_duplicate_wake_during_cooldown(
     monkeypatch,
 ):
     control = ControlPlane(str(tmp_path / "wake-dedupe.sqlite"), authorizer=_auth())
-    monkeypatch.setattr(control, "automatic_worker_wake_needed", lambda: True)
-    monkeypatch.setattr(control, "automatic_worker_wake_allowed", lambda: False)
+    control.dashboard_store.append_control_audit(
+        action="kick",
+        worker_id="automatic-launch",
+        requested_by="operator:test",
+        outcome="dispatched",
+    )
     wakes = []
     monkeypatch.setattr(
         control.dashboard_control,
@@ -394,6 +389,48 @@ def test_automatic_worker_wake_cooldown_allows_retry_after_failure(tmp_path):
         error_code="github_dispatch_failed",
     )
     assert control.automatic_worker_wake_allowed(cooldown_seconds=60) is True
+
+
+def test_dashboard_launch_survives_wake_audit_failure(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(
+        str(tmp_path / "wake-audit-failure.sqlite"),
+        authorizer=_auth(),
+    )
+    monkeypatch.setattr(
+        control.dashboard_control,
+        "kick_worker",
+        lambda _worker_id: {"status":"dispatched"},
+    )
+    monkeypatch.setattr(
+        control.dashboard_store,
+        "append_control_audit",
+        lambda **_kwargs: (_ for _ in ()).throw(RuntimeError("audit unavailable")),
+    )
+
+    server, thread, base = _server(control)
+    try:
+        status, payload = _post(
+            base + "/v1/dashboard/launch",
+            "operator",
+            {
+                "repository":"dbrckk/example",
+                "instruction":"Create durable work even if wake audit storage fails.",
+                "request_id":"wake-audit-failure-001",
+            },
+        )
+        assert status == 201
+        assert payload["launch"]["worker_wake"] == {
+            "status":"dispatched",
+            "audit_recorded":False,
+        }
+        assert payload["project"]["status"] == "ACTIVE"
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
 
 
 def test_readiness_returns_503_without_exposing_backend_error(
