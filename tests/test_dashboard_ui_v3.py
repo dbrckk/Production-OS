@@ -842,3 +842,7 @@ def test_dashboard_supports_one_time_fragment_pairing_without_operator_token_lin
     assert "Créer un lien 10 min" in DASHBOARD_HTML
     assert "/v1/dashboard/pairing-codes" in DASHBOARD_HTML
     assert "/v1/dashboard/session/revoke" in DASHBOARD_HTML
+    assert "function loadDeviceSessions" in DASHBOARD_HTML
+    assert "function revokeDeviceSession" in DASHBOARD_HTML
+    assert "/v1/dashboard/device-sessions/" in DASHBOARD_HTML
+    assert "Appareils appairés" in DASHBOARD_HTML
