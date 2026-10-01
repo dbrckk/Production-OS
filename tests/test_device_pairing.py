@@ -204,3 +204,22 @@ def test_viewer_cannot_issue_pairing_code_and_unknown_fields_are_rejected(tmp_pa
         server.shutdown()
         server.server_close()
         thread.join(timeout=2)
+
+
+
+def test_pairing_schema_is_persisted_at_version_18(tmp_path):
+    control = ControlPlane(str(tmp_path / "pairing-schema.sqlite"), authorizer=_auth())
+    with control.backend.connect() as db:
+        version = db.execute(
+            "SELECT value FROM schema_meta WHERE key='schema_version'"
+        ).fetchone()["value"]
+        tables = {
+            row["name"]
+            for row in db.execute(
+                "SELECT name FROM sqlite_master WHERE type='table'"
+            ).fetchall()
+        }
+
+    assert version == "18"
+    assert "device_pairing_codes" in tables
+    assert "device_sessions" in tables
