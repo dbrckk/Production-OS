@@ -207,7 +207,7 @@ def test_dashboard_launch_auto_wakes_worker_when_capacity_is_unavailable(
     control = ControlPlane(str(tmp_path / "auto-wake.sqlite"), authorizer=_auth())
     monkeypatch.setattr(
         control,
-        "worker_execution_capacity_available",
+        "automatic_worker_wake_needed",
         lambda: False,
     )
     wakes = []
@@ -248,7 +248,7 @@ def test_dashboard_launch_does_not_wake_worker_when_capacity_exists(
     control = ControlPlane(str(tmp_path / "no-auto-wake.sqlite"), authorizer=_auth())
     monkeypatch.setattr(
         control,
-        "worker_execution_capacity_available",
+        "automatic_worker_wake_needed",
         lambda: True,
     )
     wakes = []
