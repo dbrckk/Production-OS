@@ -131,6 +131,30 @@ class ControlPlane:
             self.dashboard_control,
         )
 
+    def ensure_worker_for_queued_work(
+        self,
+        *,
+        requested_by: str,
+    ) -> dict:
+        try:
+            queued = self.queue.peek_candidates(limit=1)
+        except Exception:
+            return {
+                "status":"failed",
+                "error":"queue_check_failed",
+            }
+        if not queued:
+            return {
+                "status":"not_needed",
+                "reason":"queue_empty",
+            }
+        return request_automatic_worker_wake(
+            workers=self.workers,
+            dashboard_control=self.dashboard_control,
+            store=self.dashboard_store,
+            requested_by=requested_by,
+        )
+
     def cooperative_worker_fleet_available(
         self,
         final_goal: str = "",
@@ -1059,10 +1083,7 @@ def make_handler(control: ControlPlane):
                             )
                         ),
                     )
-                    wake = request_automatic_worker_wake(
-                        workers=control.workers,
-                        dashboard_control=control.dashboard_control,
-                        store=control.dashboard_store,
+                    wake = control.ensure_worker_for_queued_work(
                         requested_by=f"{principal.role}:{principal.name}",
                     )
                 except ValueError as exc:
