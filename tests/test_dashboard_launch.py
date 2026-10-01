@@ -133,3 +133,5 @@ def test_dashboard_launch_surfaces_automatic_worker_wake_state():
     assert "réveil automatique du worker demandé" in launch_body
     assert "wakeStatus==='scheduled_fallback'" in launch_body
     assert "prochain réveil automatique" in launch_body
+    assert "wakeStatus==='cooldown'" in launch_body
+    assert "réveil automatique déjà demandé récemment" in launch_body
