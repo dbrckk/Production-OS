@@ -1,21 +1,22 @@
 # Change impact
 
-Base: 67f93998e5a1fddb69c5454800f43caa4adad0c2
-Head: 12f99b632401dfee93200368fe27e3f6a667c911
+Base: ae9234cb96e86ed040b56863ae59185a398b6702
+Head: 26be7a52851ff64f6b4b050021318fb2aeb1d6b1
 
 ## Changed files
-- M .github/workflows/ci.yml
-- A .python-version
-- M pyproject.toml
-- A tests/test_runtime_contract.py
+- M src/production_os/dashboard_control.py
+- M src/production_os/dashboard_service.py
+- M src/production_os/dashboard_ui.py
+- M tests/test_dashboard_control.py
+- M tests/test_dashboard_launch.py
+- M tests/test_dashboard_launch_readiness.py
 
 ## Affected areas
-- .github
-- (root)
+- src
 - tests
 
 ## Related test candidates
-- No direct filename-based test match detected.
+- tests/test_dashboard_control.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

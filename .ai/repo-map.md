@@ -4452,6 +4452,8 @@ def acknowledge_job_cancel(self, job_key: str, *, at: str | None = None) -> dict
 ⋮----
 row = self.store.acknowledge_job_control(job_key, at=at)
 ⋮----
+def worker_wake_mode(self) -> str
+⋮----
 def kick_worker(self, worker_id: str) -> dict
 ⋮----
 def retry_job(self, job_key: str, *, requested_by: str) -> dict
@@ -4949,7 +4951,7 @@ signals = signals_from_health(health)
 active_keys: set[str] = set()
 ⋮----
 rows = self.store.dashboard_incidents(
-kick_mode = (
+kick_mode = self.control.dashboard_control.worker_wake_mode()
 enriched = []
 ⋮----
 item = dict(incident)
@@ -5035,6 +5037,7 @@ queued = int(queued_row["count"] if queued_row else 0)
 ⋮----
 execution = "immediate" if available else "queued"
 message = (
+wake_mode = self.control.dashboard_control.worker_wake_mode()
 ⋮----
 key = str(job.get("key") or "").strip()
 ⋮----
@@ -13118,6 +13121,12 @@ result = control.kick_worker("github-actions-worker")
 def test_kick_reports_scheduled_fallback_without_dispatch_credentials(tmp_path)
 ⋮----
 def test_kick_reports_failed_when_dispatch_errors(tmp_path)
+⋮----
+def test_worker_wake_mode_matches_dispatch_configuration(tmp_path)
+⋮----
+fallback = DashboardControl(_store(tmp_path), None, None)
+⋮----
+immediate = DashboardControl(
 ````
 
 ## File: tests/test_dashboard_github.py
@@ -13274,6 +13283,10 @@ result = service.launch_readiness("dbrckk/example")
 def test_launch_readiness_validates_repository_shape(tmp_path)
 ⋮----
 control = ControlPlane(str(tmp_path / "readiness-invalid.sqlite"))
+⋮----
+def test_launch_readiness_reports_immediate_worker_wake_configuration(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "readiness-wake.sqlite"))
 ````
 
 ## File: tests/test_dashboard_launch_ux.py
@@ -13383,6 +13396,8 @@ def test_dashboard_launch_surfaces_automatic_worker_wake_state()
 launch_start = DASHBOARD_HTML.index("async function launchWorkflow")
 launch_end = DASHBOARD_HTML.index("async function refreshDashboard", launch_start)
 launch_body = DASHBOARD_HTML[launch_start:launch_end]
+⋮----
+def test_launch_readiness_surfaces_worker_wake_mode_before_launch()
 ````
 
 ## File: tests/test_dashboard_maintenance.py

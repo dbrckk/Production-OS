@@ -3864,6 +3864,8 @@ def acknowledge_job_cancel(self, job_key: str, *, at: str | None = None) -> dict
 ⋮----
 row = self.store.acknowledge_job_control(job_key, at=at)
 ⋮----
+def worker_wake_mode(self) -> str
+⋮----
 def kick_worker(self, worker_id: str) -> dict
 ⋮----
 def retry_job(self, job_key: str, *, requested_by: str) -> dict
@@ -4361,7 +4363,7 @@ signals = signals_from_health(health)
 active_keys: set[str] = set()
 ⋮----
 rows = self.store.dashboard_incidents(
-kick_mode = (
+kick_mode = self.control.dashboard_control.worker_wake_mode()
 enriched = []
 ⋮----
 item = dict(incident)
@@ -4447,6 +4449,7 @@ queued = int(queued_row["count"] if queued_row else 0)
 ⋮----
 execution = "immediate" if available else "queued"
 message = (
+wake_mode = self.control.dashboard_control.worker_wake_mode()
 ⋮----
 key = str(job.get("key") or "").strip()
 ⋮----

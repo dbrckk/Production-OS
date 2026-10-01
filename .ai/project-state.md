@@ -22,25 +22,29 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-01T15:59:38Z
+Generated: 2026-10-01T16:05:22Z
 
 ### Git
 - Branch: `main`
-- Head: `12f99b632401`
-- Commit date: 2026-10-01T17:59:23+02:00
-- Commit: chore(runtime): pin and enforce supported Python versions
-- Tracked files: 532
+- Head: `26be7a52851f`
+- Commit date: 2026-10-01T18:05:10+02:00
+- Commit: feat(dashboard): expose worker wake readiness before launch
+- Tracked files: 534
 
 ### Recently changed files
+- `src/production_os/dashboard_control.py`
+- `src/production_os/dashboard_service.py`
+- `src/production_os/dashboard_ui.py`
+- `tests/test_dashboard_control.py`
+- `tests/test_dashboard_launch.py`
+- `tests/test_dashboard_launch_readiness.py`
 - `.github/workflows/ci.yml`
 - `.python-version`
 - `pyproject.toml`
 - `tests/test_runtime_contract.py`
 - `src/production_os/control_plane.py`
 - `src/production_os/dashboard_store.py`
-- `src/production_os/dashboard_ui.py`
 - `tests/test_dashboard_api.py`
-- `tests/test_dashboard_launch.py`
 - `tests/test_dashboard_launch_ux.py`
 - `tests/test_release32_one_tap_e2e.py`
 - `README.md`
@@ -48,10 +52,6 @@ Generated: 2026-10-01T15:59:38Z
 - `compose.yaml`
 - `docs/superpowers/plans/2026-09-30-controller-managed-projects.md`
 - `docs/superpowers/specs/2026-09-30-controller-managed-projects-design.md`
-- `src/production_os/autonomous_admission.py`
-- `src/production_os/autonomous_projects.py`
-- `src/production_os/budgets.py`
-- `src/production_os/cli.py`
 
 ### Project signals
 - `pyproject.toml`
