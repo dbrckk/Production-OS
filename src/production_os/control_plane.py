@@ -27,6 +27,11 @@ from .dashboard_health import (
 from .dashboard_maintenance import RetentionCandidateConflict
 from .dashboard_backups import BackupError, BackupRetentionCandidateConflict, BackupTempCandidateConflict
 from .managed_projects import ManagedProjectService
+from .worker_wake import (
+    automatic_worker_wake_allowed as wake_allowed,
+    automatic_worker_wake_needed as wake_needed,
+    request_automatic_worker_wake,
+)
 from .database_maintenance_lock import database_server_lock
 from .github_webhook import (
     WebhookDeliveryStore,
@@ -115,42 +120,16 @@ class ControlPlane:
         *,
         cooldown_seconds: int = 60,
     ) -> bool:
-        latest = self.dashboard_store.latest_control_audit(
-            action="kick",
-            worker_id="automatic-launch",
+        return wake_allowed(
+            self.dashboard_store,
+            cooldown_seconds=cooldown_seconds,
         )
-        if latest is None:
-            return True
-        if str(latest.get("outcome") or "") == "failed":
-            return True
-        requested_at = self._parse_timestamp(latest.get("requested_at"))
-        if requested_at is None:
-            return True
-        age = (datetime.now(timezone.utc) - requested_at).total_seconds()
-        return age >= max(1, int(cooldown_seconds))
 
     def automatic_worker_wake_needed(self) -> bool:
-        try:
-            self.workers.detect_dead()
-            self.workers.load()
-        except Exception:
-            return True
-        if not self.workers.workers:
-            return True
-
-        has_active_worker = False
-        for worker in self.workers.workers.values():
-            worker_id = str(getattr(worker, "worker_id", "") or "").strip()
-            desired = self.dashboard_control.worker_state(worker_id)
-            if desired.get("desired_state") != "active":
-                continue
-            has_active_worker = True
-            if str(getattr(worker, "status", "") or "").lower() == "online":
-                return False
-
-        # Do not override an intentional fleet-wide pause/drain. Wake only
-        # when there is no registered fleet yet or an active worker is offline.
-        return has_active_worker
+        return wake_needed(
+            self.workers,
+            self.dashboard_control,
+        )
 
     def cooperative_worker_fleet_available(
         self,
@@ -1080,30 +1059,12 @@ def make_handler(control: ControlPlane):
                             )
                         ),
                     )
-                    wake = {"status":"not_needed"}
-                    wake_needed = control.automatic_worker_wake_needed()
-                    if wake_needed and not control.automatic_worker_wake_allowed():
-                        wake = {
-                            "status":"cooldown",
-                            "cooldown_seconds":60,
-                        }
-                    elif wake_needed:
-                        wake = control.dashboard_control.kick_worker(
-                            "automatic-launch"
-                        )
-                        control.dashboard_store.append_control_audit(
-                            action="kick",
-                            worker_id="automatic-launch",
-                            requested_by=(
-                                f"{principal.role}:{principal.name}"
-                            ),
-                            outcome=str(wake.get("status") or "failed"),
-                            error_code=(
-                                str(wake.get("error"))
-                                if wake.get("status") == "failed"
-                                else None
-                            ),
-                        )
+                    wake = request_automatic_worker_wake(
+                        workers=control.workers,
+                        dashboard_control=control.dashboard_control,
+                        store=control.dashboard_store,
+                        requested_by=f"{principal.role}:{principal.name}",
+                    )
                 except ValueError as exc:
                     self._send(
                         HTTPStatus.BAD_REQUEST,
