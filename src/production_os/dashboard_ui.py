@@ -809,7 +809,9 @@ async function launchWorkflow(){
     ?'Production persistante créée · réveil automatique du worker demandé · '+projectId.slice(0,12)
     :wakeStatus==='scheduled_fallback'
      ?'Production persistante créée · worker programmé au prochain réveil automatique · '+projectId.slice(0,12)
-     :'Production persistante créée · en attente du worker · mise en file sûre · '+projectId.slice(0,12);
+     :wakeStatus==='cooldown'
+      ?'Production persistante créée · réveil automatique déjà demandé récemment · '+projectId.slice(0,12)
+      :'Production persistante créée · en attente du worker · mise en file sûre · '+projectId.slice(0,12);
   document.getElementById('instruction').value='';
   await Promise.all([
    loadRecentRuns(),
