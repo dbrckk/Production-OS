@@ -178,7 +178,7 @@ def test_resolved_verification_never_regresses_after_incident_reopens(tmp_path):
     assert after["verification_checks"] == before["verification_checks"]
 
 
-def test_sqlite_v14_database_is_migrated_additively_to_v16(tmp_path):
+def test_sqlite_v14_database_is_migrated_additively_to_v18(tmp_path):
     path = tmp_path / "migration.sqlite"
     db = sqlite3.connect(path)
     db.executescript(
@@ -265,7 +265,7 @@ def test_sqlite_v14_database_is_migrated_additively_to_v16(tmp_path):
         runs = conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table' AND name='managed_project_runs'"
         ).fetchone()
-    assert version == "17"
+    assert version == "18"
     assert {
         "verification_state",
         "verification_checks",
