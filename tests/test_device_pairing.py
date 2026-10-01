@@ -284,15 +284,17 @@ def test_pairing_maintenance_prunes_expired_and_revoked_rows(tmp_path):
     )
 
     assert removed["pairing_codes"] >= 1
-    assert removed["device_sessions"] == 1
+    assert removed["device_sessions"] == 0
     with control.backend.connect() as db:
         expired_count = db.execute(
             "SELECT COUNT(*) AS n FROM device_pairing_codes WHERE code_sha256=?",
             (token_digest(expired["code"]),),
         ).fetchone()["n"]
-        revoked_count = db.execute(
-            "SELECT COUNT(*) AS n FROM device_sessions WHERE id=?",
+        revoked = db.execute(
+            "SELECT revoked_at FROM device_sessions WHERE id=?",
             (session["session_id"],),
-        ).fetchone()["n"]
+        ).fetchone()
     assert expired_count == 0
-    assert revoked_count == 0
+    assert revoked is not None
+    assert revoked["revoked_at"] is not None
+    assert control.device_pairing.sessions() == []
