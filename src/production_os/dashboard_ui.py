@@ -567,10 +567,14 @@ async function loadLaunchReadiness(){
   );
   launchReadiness=data;
   const immediate=data.execution==='immediate';
+  const wake=(data.worker_wake||{});
+  const wakeMode=String(wake.mode||'scheduled_fallback');
   el.className='launch-readiness '+(immediate?'ready':'queued');
   el.textContent=immediate
    ?'Prêt · '+String(data.available_workers||0)+' worker(s) disponible(s) · '+String(data.queued_jobs||0)+' job(s) en file.'
-   :'Mise en file sûre · aucun worker disponible immédiatement · '+String(data.queued_jobs||0)+' job(s) déjà en attente.';
+   :wakeMode==='immediate'
+    ?'Mise en file sûre · réveil GitHub Actions immédiat configuré · '+String(data.queued_jobs||0)+' job(s) déjà en attente.'
+    :'Mise en file sûre · réveil de secours automatique ≤ '+String(Math.ceil(Number(wake.poll_interval_seconds||300)/60))+' min · '+String(data.queued_jobs||0)+' job(s) déjà en attente.';
   return data;
  }catch(e){
   launchReadiness=null;
