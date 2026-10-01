@@ -121,6 +121,8 @@ class ControlPlane:
         )
         if latest is None:
             return True
+        if str(latest.get("outcome") or "") == "failed":
+            return True
         requested_at = self._parse_timestamp(latest.get("requested_at"))
         if requested_at is None:
             return True
