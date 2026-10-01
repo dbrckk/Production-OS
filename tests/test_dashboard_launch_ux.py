@@ -58,6 +58,23 @@ def _get(url, token=None, *, follow_redirects=True):
         return exc.code, payload, exc.headers
 
 
+
+def _post(url, token, payload):
+    request = urllib.request.Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Authorization":f"Bearer {token}",
+            "Content-Type":"application/json",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=3) as response:
+            return response.status, json.loads(response.read() or b"{}")
+    except urllib.error.HTTPError as exc:
+        return exc.code, json.loads(exc.read() or b"{}")
+
 def test_root_redirects_to_dashboard_and_health_stays_json(tmp_path):
     control = ControlPlane(str(tmp_path / "launch-ux.sqlite"), authorizer=_auth())
     server, thread, base = _server(control)
@@ -177,6 +194,87 @@ def test_repository_picker_falls_back_to_observed_projects_on_github_failure(
             "dbrckk/Alpha",
             "dbrckk/Zeta",
         ]
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+
+
+def test_dashboard_launch_auto_wakes_worker_when_capacity_is_unavailable(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "auto-wake.sqlite"), authorizer=_auth())
+    monkeypatch.setattr(
+        control,
+        "worker_execution_capacity_available",
+        lambda: False,
+    )
+    wakes = []
+    monkeypatch.setattr(
+        control.dashboard_control,
+        "kick_worker",
+        lambda worker_id: (
+            wakes.append(worker_id)
+            or {"status":"dispatched"}
+        ),
+    )
+
+    server, thread, base = _server(control)
+    try:
+        status, payload = _post(
+            base + "/v1/dashboard/launch",
+            "operator",
+            {
+                "repository":"dbrckk/example",
+                "instruction":"Fix the failing tests and verify the result.",
+                "request_id":"auto-wake-test-001",
+            },
+        )
+        assert status == 201
+        assert payload["launch"]["worker_wake"]["status"] == "dispatched"
+        assert wakes == ["automatic-launch"]
+        assert payload["project"]["repository"] == "dbrckk/example"
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+
+
+def test_dashboard_launch_does_not_wake_worker_when_capacity_exists(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "no-auto-wake.sqlite"), authorizer=_auth())
+    monkeypatch.setattr(
+        control,
+        "worker_execution_capacity_available",
+        lambda: True,
+    )
+    wakes = []
+    monkeypatch.setattr(
+        control.dashboard_control,
+        "kick_worker",
+        lambda worker_id: (
+            wakes.append(worker_id)
+            or {"status":"dispatched"}
+        ),
+    )
+
+    server, thread, base = _server(control)
+    try:
+        status, payload = _post(
+            base + "/v1/dashboard/launch",
+            "operator",
+            {
+                "repository":"dbrckk/example",
+                "instruction":"Run the next production task.",
+                "request_id":"auto-wake-test-002",
+            },
+        )
+        assert status == 201
+        assert payload["launch"]["worker_wake"]["status"] == "not_needed"
+        assert wakes == []
     finally:
         server.shutdown()
         server.server_close()
