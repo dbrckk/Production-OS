@@ -427,6 +427,10 @@ def test_one_tap_launch_creates_persistent_managed_project_with_server_defaults(
         "persistent":True,
         "token_budget":30000,
         "agent_preference":"auto",
+        "worker_wake":{
+            "status":"scheduled_fallback",
+            "poll_interval_seconds":300,
+        },
     }
 
     persisted = control.managed_projects.get(project["project_id"])

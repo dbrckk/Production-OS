@@ -110,6 +110,48 @@ class ControlPlane:
         self.github_webhook_secret = github_webhook_secret
         self.webhook_deliveries = WebhookDeliveryStore(self.backend)
 
+    def automatic_worker_wake_allowed(
+        self,
+        *,
+        cooldown_seconds: int = 60,
+    ) -> bool:
+        latest = self.dashboard_store.latest_control_audit(
+            action="kick",
+            worker_id="automatic-launch",
+        )
+        if latest is None:
+            return True
+        if str(latest.get("outcome") or "") == "failed":
+            return True
+        requested_at = self._parse_timestamp(latest.get("requested_at"))
+        if requested_at is None:
+            return True
+        age = (datetime.now(timezone.utc) - requested_at).total_seconds()
+        return age >= max(1, int(cooldown_seconds))
+
+    def automatic_worker_wake_needed(self) -> bool:
+        try:
+            self.workers.detect_dead()
+            self.workers.load()
+        except Exception:
+            return True
+        if not self.workers.workers:
+            return True
+
+        has_active_worker = False
+        for worker in self.workers.workers.values():
+            worker_id = str(getattr(worker, "worker_id", "") or "").strip()
+            desired = self.dashboard_control.worker_state(worker_id)
+            if desired.get("desired_state") != "active":
+                continue
+            has_active_worker = True
+            if str(getattr(worker, "status", "") or "").lower() == "online":
+                return False
+
+        # Do not override an intentional fleet-wide pause/drain. Wake only
+        # when there is no registered fleet yet or an active worker is offline.
+        return has_active_worker
+
     def cooperative_worker_fleet_available(
         self,
         final_goal: str = "",
@@ -1007,6 +1049,30 @@ def make_handler(control: ControlPlane):
                             )
                         ),
                     )
+                    wake = {"status":"not_needed"}
+                    wake_needed = control.automatic_worker_wake_needed()
+                    if wake_needed and not control.automatic_worker_wake_allowed():
+                        wake = {
+                            "status":"cooldown",
+                            "cooldown_seconds":60,
+                        }
+                    elif wake_needed:
+                        wake = control.dashboard_control.kick_worker(
+                            "automatic-launch"
+                        )
+                        control.dashboard_store.append_control_audit(
+                            action="kick",
+                            worker_id="automatic-launch",
+                            requested_by=(
+                                f"{principal.role}:{principal.name}"
+                            ),
+                            outcome=str(wake.get("status") or "failed"),
+                            error_code=(
+                                str(wake.get("error"))
+                                if wake.get("status") == "failed"
+                                else None
+                            ),
+                        )
                 except ValueError as exc:
                     self._send(
                         HTTPStatus.BAD_REQUEST,
@@ -1028,6 +1094,7 @@ def make_handler(control: ControlPlane):
                             "persistent":True,
                             "token_budget":30000,
                             "agent_preference":"auto",
+                            "worker_wake":wake,
                             **(
                                 {
                                     "request_id":request_id,

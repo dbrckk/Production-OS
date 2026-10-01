@@ -621,7 +621,7 @@ async function cancelLastProduction(projectId){
   ]);
  }catch(e){
   const status=document.getElementById("launch-status");
-  if(status)status.textContent=String(e).replace(/^Error:\s*/,"");
+  if(status)status.textContent=String(e).replace(/^Error:\\s*/,"");
  }
 }
 async function lastProductionManagedAction(projectId,action){
@@ -651,7 +651,7 @@ async function lastProductionManagedAction(projectId,action){
   ]);
  }catch(e){
   const status=document.getElementById("launch-status");
-  if(status)status.textContent=String(e).replace(/^Error:\s*/,"");
+  if(status)status.textContent=String(e).replace(/^Error:\\s*/,"");
  }
 }
 async function loadLastProduction(){
@@ -801,9 +801,17 @@ async function launchWorkflow(){
   rememberLastProject(projectId);
   clearPendingLaunchRequest(requestId);
   const immediate=launchReadiness&&launchReadiness.execution==='immediate';
+  const wake=(created.launch&&created.launch.worker_wake)||{};
+  const wakeStatus=String(wake.status||'');
   status.textContent=immediate
    ?'Production lancée et persistante · exécution disponible · '+projectId.slice(0,12)
-   :'Production persistante créée · en attente du worker · mise en file sûre · '+projectId.slice(0,12);
+   :wakeStatus==='dispatched'
+    ?'Production persistante créée · réveil automatique du worker demandé · '+projectId.slice(0,12)
+    :wakeStatus==='scheduled_fallback'
+     ?'Production persistante créée · worker programmé au prochain réveil automatique · '+projectId.slice(0,12)
+     :wakeStatus==='cooldown'
+      ?'Production persistante créée · réveil automatique déjà demandé récemment · '+projectId.slice(0,12)
+      :'Production persistante créée · en attente du worker · mise en file sûre · '+projectId.slice(0,12);
   document.getElementById('instruction').value='';
   await Promise.all([
    loadRecentRuns(),
