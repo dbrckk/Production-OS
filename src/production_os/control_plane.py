@@ -1035,6 +1035,19 @@ def make_handler(control: ControlPlane):
                         wake = control.dashboard_control.kick_worker(
                             "automatic-launch"
                         )
+                        control.dashboard_store.append_control_audit(
+                            action="kick",
+                            worker_id="automatic-launch",
+                            requested_by=(
+                                f"{principal.role}:{principal.name}"
+                            ),
+                            outcome=str(wake.get("status") or "failed"),
+                            error_code=(
+                                str(wake.get("error"))
+                                if wake.get("status") == "failed"
+                                else None
+                            ),
+                        )
                 except ValueError as exc:
                     self._send(
                         HTTPStatus.BAD_REQUEST,
