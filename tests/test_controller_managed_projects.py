@@ -12,6 +12,8 @@ from production_os.cli import _parse_args
 from production_os.controller import run_control_cycle
 from production_os.emergency import set_emergency_stop
 from production_os.managed_projects import ManagedProjectService
+from production_os.dashboard_store import DashboardStore
+from production_os.dashboard_control import DashboardControl
 from production_os.quarantine import QuarantineStore
 from production_os.rate_limit import RateLimitStore
 from production_os.storage import (
@@ -548,3 +550,127 @@ def test_terminal_same_fingerprint_is_skipped_but_new_evidence_creates_project(
     assert first_id in ids
     assert changed["managed_projects"][0]["project_id"] != first_id
     assert len(ids) == 2
+
+
+
+def test_controller_globally_wakes_worker_for_preexisting_queued_work(
+    tmp_path,
+    monkeypatch,
+):
+    kwargs, backend = _managed_cycle_setup(
+        tmp_path,
+        monkeypatch,
+        register_worker=False,
+    )
+    queue = job_queue_for(backend)
+    queue.enqueue({
+        "handoff":{
+            "repository":"owner/prequeued",
+            "task":"Resume durable queued work",
+            "priority":100,
+        },
+    })
+
+    calls = []
+
+    class WakeGitHub(_FakeGitHub):
+        token = "configured-token"
+
+        def dispatch_workflow(
+            self,
+            repository,
+            workflow,
+            *,
+            ref="main",
+            inputs=None,
+        ):
+            calls.append((repository, workflow, ref, dict(inputs or {})))
+
+    monkeypatch.setattr(controller, "GitHubClient", WakeGitHub)
+    monkeypatch.setenv(
+        "PRODUCTION_OS_ACTIONS_REPOSITORY",
+        "dbrckk/ai-dev-server",
+    )
+    monkeypatch.setenv(
+        "PRODUCTION_OS_ACTIONS_WORKFLOW",
+        "production-os-actions-worker.yml",
+    )
+    monkeypatch.setenv("PRODUCTION_OS_ACTIONS_REF", "main")
+
+    first = run_control_cycle(**kwargs)
+    second = run_control_cycle(**kwargs)
+
+    assert first["automatic_worker_wake"] == {"status":"dispatched"}
+    assert second["automatic_worker_wake"] == {
+        "status":"cooldown",
+        "cooldown_seconds":60,
+    }
+    assert calls == [(
+        "dbrckk/ai-dev-server",
+        "production-os-actions-worker.yml",
+        "main",
+        {},
+    )]
+
+    audit = DashboardStore(backend).control_audit_events(limit=10)
+    automatic = [
+        row
+        for row in audit
+        if row["worker_id"] == "automatic-launch"
+    ]
+    assert len(automatic) == 1
+    assert automatic[0]["requested_by"] == "controller:auto"
+    assert automatic[0]["outcome"] == "dispatched"
+
+
+def test_controller_global_wake_respects_intentional_worker_pause(
+    tmp_path,
+    monkeypatch,
+):
+    kwargs, backend = _managed_cycle_setup(tmp_path, monkeypatch)
+    queue = job_queue_for(backend)
+    queue.enqueue({
+        "handoff":{
+            "repository":"owner/prequeued",
+            "task":"Keep queued while fleet is paused",
+            "priority":100,
+        },
+    })
+    workflows = WorkflowEngine(backend, queue)
+    store = DashboardStore(backend)
+    control_surface = DashboardControl(store, queue, workflows)
+    control_surface.set_worker_state(
+        "worker-a",
+        "paused",
+        requested_by="operator:test",
+    )
+
+    calls = []
+
+    class WakeGitHub(_FakeGitHub):
+        token = "configured-token"
+
+        def dispatch_workflow(
+            self,
+            repository,
+            workflow,
+            *,
+            ref="main",
+            inputs=None,
+        ):
+            calls.append((repository, workflow, ref))
+
+    monkeypatch.setattr(controller, "GitHubClient", WakeGitHub)
+    monkeypatch.setenv(
+        "PRODUCTION_OS_ACTIONS_REPOSITORY",
+        "dbrckk/ai-dev-server",
+    )
+    monkeypatch.setenv(
+        "PRODUCTION_OS_ACTIONS_WORKFLOW",
+        "production-os-actions-worker.yml",
+    )
+
+    result = run_control_cycle(**kwargs)
+
+    assert result["automatic_worker_wake"]["status"] == "not_needed"
+    assert calls == []
