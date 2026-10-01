@@ -1,20 +1,18 @@
 # Change impact
 
-Base: 51901771ea03acc1587a0b05d0255a93b4817496
-Head: d18679a8bb1ad881d2178e7411bbda7bcb3ecfa9
+Base: 076b527c854ad1f8151c82cbac4464b553330d59
+Head: b56058e4069f7564e4278ce5c703fac06ceefc7f
 
 ## Changed files
-- M README.md
-- M src/production_os/control_plane.py
-- M tests/test_dashboard_launch_ux.py
+- M src/production_os/postgres_backend.py
+- A tests/test_postgres_connect_timeout_unit.py
 
 ## Affected areas
-- (root)
 - src
 - tests
 
 ## Related test candidates
-- tests/test_control_plane.py
+- tests/test_postgres_backend.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

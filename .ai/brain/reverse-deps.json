@@ -120,6 +120,7 @@
         "tests/test_portfolio_claim_api.py",
         "tests/test_portfolio_optimizer.py",
         "tests/test_postgres_backend.py",
+        "tests/test_postgres_connect_timeout_unit.py",
         "tests/test_preemption.py",
         "tests/test_production_stack_e2e.py",
         "tests/test_project_memory.py",
@@ -193,7 +194,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 181,
+      "in_degree": 182,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -1675,10 +1676,11 @@
         "tests/test_dashboard_store_postgres.py",
         "tests/test_execution_optimizer_postgres.py",
         "tests/test_postgres_backend.py",
+        "tests/test_postgres_connect_timeout_unit.py",
         "tests/test_rekor_checkpoint_state_postgres.py",
         "tests/test_workflow_postgres.py"
       ],
-      "in_degree": 10,
+      "in_degree": 11,
       "out_degree": 5
     },
     "src/production_os/preemption.py": {
@@ -3972,6 +3974,15 @@
       "dependents": [],
       "in_degree": 0,
       "out_degree": 3
+    },
+    "tests/test_postgres_connect_timeout_unit.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/postgres_backend.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 2
     },
     "tests/test_preemption.py": {
       "dependencies": [

@@ -22,16 +22,18 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-01T20:42:45Z
+Generated: 2026-10-01T20:50:37Z
 
 ### Git
 - Branch: `main`
-- Head: `d18679a8bb1a`
-- Commit date: 2026-10-01T22:42:31+02:00
-- Commit: feat(control-plane): add backend readiness endpoint
-- Tracked files: 534
+- Head: `b56058e4069f`
+- Commit date: 2026-10-01T22:50:25+02:00
+- Commit: fix(postgres): bound database connection attempts
+- Tracked files: 535
 
 ### Recently changed files
+- `src/production_os/postgres_backend.py`
+- `tests/test_postgres_connect_timeout_unit.py`
 - `README.md`
 - `src/production_os/control_plane.py`
 - `tests/test_dashboard_launch_ux.py`
@@ -48,7 +50,6 @@ Generated: 2026-10-01T20:42:45Z
 - `src/production_os/dashboard_store.py`
 - `tests/test_dashboard_api.py`
 - `tests/test_release32_one_tap_e2e.py`
-- `tests/test_dashboard_ui_v3.py`
 
 ### Project signals
 - `pyproject.toml`

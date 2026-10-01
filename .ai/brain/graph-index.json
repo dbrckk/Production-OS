@@ -117,6 +117,7 @@
         "tests/test_portfolio_claim_api.py",
         "tests/test_portfolio_optimizer.py",
         "tests/test_postgres_backend.py",
+        "tests/test_postgres_connect_timeout_unit.py",
         "tests/test_preemption.py",
         "tests/test_production_stack_e2e.py",
         "tests/test_project_memory.py",
@@ -190,7 +191,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 181,
+      "in_degree": 182,
       "out_degree": 0,
       "path": "src/production_os/__init__.py"
     },
@@ -1242,6 +1243,31 @@
     },
     {
       "dependencies": [
+        "src/production_os/claims.py",
+        "src/production_os/runtime_state.py",
+        "src/production_os/workers.py",
+        "tests/test_asset_forge.py",
+        "tests/test_fairness.py"
+      ],
+      "dependents": [
+        "src/production_os/controller_leader.py",
+        "src/production_os/dashboard_store.py",
+        "src/production_os/storage.py",
+        "tests/test_controller_leader.py",
+        "tests/test_dashboard_backups.py",
+        "tests/test_dashboard_store_postgres.py",
+        "tests/test_execution_optimizer_postgres.py",
+        "tests/test_postgres_backend.py",
+        "tests/test_postgres_connect_timeout_unit.py",
+        "tests/test_rekor_checkpoint_state_postgres.py",
+        "tests/test_workflow_postgres.py"
+      ],
+      "in_degree": 11,
+      "out_degree": 5,
+      "path": "src/production_os/postgres_backend.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/approvals.py",
         "src/production_os/asymmetric_attestations.py",
         "src/production_os/attestations.py",
@@ -1312,30 +1338,6 @@
       "in_degree": 10,
       "out_degree": 5,
       "path": "src/production_os/dashboard_store.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/claims.py",
-        "src/production_os/runtime_state.py",
-        "src/production_os/workers.py",
-        "tests/test_asset_forge.py",
-        "tests/test_fairness.py"
-      ],
-      "dependents": [
-        "src/production_os/controller_leader.py",
-        "src/production_os/dashboard_store.py",
-        "src/production_os/storage.py",
-        "tests/test_controller_leader.py",
-        "tests/test_dashboard_backups.py",
-        "tests/test_dashboard_store_postgres.py",
-        "tests/test_execution_optimizer_postgres.py",
-        "tests/test_postgres_backend.py",
-        "tests/test_rekor_checkpoint_state_postgres.py",
-        "tests/test_workflow_postgres.py"
-      ],
-      "in_degree": 10,
-      "out_degree": 5,
-      "path": "src/production_os/postgres_backend.py"
     },
     {
       "dependencies": [],
@@ -1991,8 +1993,8 @@
       "path": "src/production_os/delivery.py"
     }
   ],
-  "edge_count": 1697,
+  "edge_count": 1700,
   "generated_by": "dbrckk/repo-brain-v7-graph",
-  "node_count": 319,
+  "node_count": 320,
   "schema_version": 1
 }

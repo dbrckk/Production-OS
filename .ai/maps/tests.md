@@ -150,6 +150,7 @@ test_policy_validation.py
 test_portfolio_claim_api.py
 test_portfolio_optimizer.py
 test_postgres_backend.py
+test_postgres_connect_timeout_unit.py
 test_preemption.py
 test_production_stack_e2e.py
 test_project_memory.py
@@ -4930,6 +4931,21 @@ store = SkillStore(backend)
 learned = store.record_success(
 ⋮----
 selected = store.select(
+```
+
+## File: test_postgres_connect_timeout_unit.py
+```python
+def test_postgres_connect_uses_bounded_connect_timeout(monkeypatch)
+⋮----
+calls = []
+sentinel = object()
+⋮----
+class FakePsycopg
+⋮----
+@staticmethod
+        def connect(*args, **kwargs)
+⋮----
+backend = object.__new__(PostgresBackend)
 ```
 
 ## File: test_preemption.py

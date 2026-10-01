@@ -7220,6 +7220,7 @@ def _utcnow() -> str
 class PostgresBackend
 ⋮----
 SCHEMA_VERSION = 17
+CONNECT_TIMEOUT_SECONDS = 10
 ⋮----
 def __init__(self, dsn: str)
 ⋮----

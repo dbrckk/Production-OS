@@ -302,6 +302,7 @@ tests/
   test_portfolio_claim_api.py
   test_portfolio_optimizer.py
   test_postgres_backend.py
+  test_postgres_connect_timeout_unit.py
   test_preemption.py
   test_production_stack_e2e.py
   test_project_memory.py
@@ -7808,6 +7809,7 @@ def _utcnow() -> str
 class PostgresBackend
 ⋮----
 SCHEMA_VERSION = 17
+CONNECT_TIMEOUT_SECONDS = 10
 ⋮----
 def __init__(self, dsn: str)
 ⋮----
@@ -15676,6 +15678,21 @@ store = SkillStore(backend)
 learned = store.record_success(
 ⋮----
 selected = store.select(
+````
+
+## File: tests/test_postgres_connect_timeout_unit.py
+````python
+def test_postgres_connect_uses_bounded_connect_timeout(monkeypatch)
+⋮----
+calls = []
+sentinel = object()
+⋮----
+class FakePsycopg
+⋮----
+@staticmethod
+        def connect(*args, **kwargs)
+⋮----
+backend = object.__new__(PostgresBackend)
 ````
 
 ## File: tests/test_preemption.py
