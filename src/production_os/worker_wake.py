@@ -109,7 +109,4 @@ def request_automatic_worker_wake(
             "audit_recorded":False,
         }
 
-    return {
-        **wake,
-        "audit_recorded":True,
-    }
+    return wake
