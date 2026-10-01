@@ -278,7 +278,10 @@ def test_dashboard_launch_does_not_wake_worker_when_wake_is_not_needed(
             },
         )
         assert status == 201
-        assert payload["launch"]["worker_wake"]["status"] == "not_needed"
+        assert payload["launch"]["worker_wake"] == {
+            "status":"cooldown",
+            "cooldown_seconds":60,
+        }
         assert wakes == []
     finally:
         server.shutdown()
