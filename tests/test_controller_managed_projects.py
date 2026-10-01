@@ -1,15 +1,25 @@
 from __future__ import annotations
 
 import inspect
+import json
 from types import SimpleNamespace
 
 import pytest
 
 import production_os.controller as controller
+from production_os.budgets import BudgetLedger
 from production_os.cli import _parse_args
 from production_os.controller import run_control_cycle
+from production_os.emergency import set_emergency_stop
 from production_os.managed_projects import ManagedProjectService
-from production_os.storage import job_queue_for, open_backend, worker_registry_for
+from production_os.quarantine import QuarantineStore
+from production_os.rate_limit import RateLimitStore
+from production_os.storage import (
+    job_queue_for,
+    open_backend,
+    runtime_state_for,
+    worker_registry_for,
+)
 from production_os.workflow_engine import WorkflowEngine
 
 
@@ -89,13 +99,20 @@ class _FakeGitHub:
         return object()
 
 
-def _managed_cycle_setup(tmp_path, monkeypatch, *, lane="NOW"):
+def _managed_cycle_setup(
+    tmp_path,
+    monkeypatch,
+    *,
+    lane="NOW",
+    register_worker=True,
+    evidence=None,
+):
     action = SimpleNamespace(
         repository="owner/repo",
         task="Fix autonomous regression",
         rationale="Regression detected by controller",
         acceptance_criteria=["Regression is fixed", "Tests pass"],
-        evidence=["ci:regression"],
+        evidence=list(evidence or ["ci:regression"]),
         priority=90.0,
     )
     assessment = SimpleNamespace(
@@ -142,11 +159,12 @@ def _managed_cycle_setup(tmp_path, monkeypatch, *, lane="NOW"):
     database = tmp_path / "production.sqlite"
     backend = open_backend(str(database))
     registry = worker_registry_for(backend)
-    registry.register(
-        "worker-a",
-        ["code-implementation", "test-debug", "code-review"],
-        2,
-    )
+    if register_worker:
+        registry.register(
+            "worker-a",
+            ["code-implementation", "test-debug", "code-review"],
+            2,
+        )
     kwargs = {
         **_cycle_kwargs(tmp_path),
         "runtime_state_path":None,
@@ -291,3 +309,213 @@ def test_managed_cycle_response_contains_managed_projects_and_empty_dispatches(
 
     assert result["dispatches"] == []
     assert len(result["managed_projects"]) == 1
+
+
+
+def _project_service(backend):
+    return ManagedProjectService(
+        WorkflowEngine(backend, job_queue_for(backend))
+    )
+
+
+def _with_resource_request(monkeypatch, *, tokens=25):
+    original = controller._handoff_for_action
+
+    def wrapped(*args, **kwargs):
+        handoff = original(*args, **kwargs)
+        handoff["resource_request"] = {"tokens":tokens}
+        return handoff
+
+    monkeypatch.setattr(controller, "_handoff_for_action", wrapped)
+
+
+@pytest.mark.parametrize(
+    "blocker",
+    ["emergency", "policy", "budget", "approval", "rate-limit", "runtime"],
+)
+def test_managed_safety_gate_blocks_before_project_creation(
+    tmp_path,
+    monkeypatch,
+    blocker,
+):
+    kwargs, backend = _managed_cycle_setup(tmp_path, monkeypatch)
+
+    if blocker == "emergency":
+        path = tmp_path / "emergency.json"
+        set_emergency_stop(path, reason="test")
+        kwargs["emergency_stop_path"] = str(path)
+    elif blocker == "policy":
+        path = tmp_path / "policy.json"
+        path.write_text(
+            json.dumps({"defaults":{"disabled":True}}),
+            encoding="utf-8",
+        )
+        kwargs["policy_path"] = str(path)
+    elif blocker == "budget":
+        _with_resource_request(monkeypatch, tokens=25)
+        policy = tmp_path / "policy.json"
+        policy.write_text(
+            json.dumps({"defaults":{"budgets":{"tokens":10}}}),
+            encoding="utf-8",
+        )
+        kwargs["policy_path"] = str(policy)
+        kwargs["budget_path"] = str(tmp_path / "budget.json")
+    elif blocker == "approval":
+        policy = tmp_path / "policy.json"
+        policy.write_text(
+            json.dumps({"defaults":{"approval_required_from":"low"}}),
+            encoding="utf-8",
+        )
+        kwargs["policy_path"] = str(policy)
+        kwargs["approval_path"] = str(tmp_path / "approvals.json")
+    elif blocker == "rate-limit":
+        path = tmp_path / "rate.json"
+        store = RateLimitStore(path)
+        for _ in range(20):
+            decision = store.check_and_record(
+                "repo:owner/repo",
+                limit=20,
+                window_seconds=3600,
+            )
+            assert decision.allowed is True
+        kwargs["rate_limit_path"] = str(path)
+    elif blocker == "runtime":
+        state = runtime_state_for(backend)
+        state.record_outcome(
+            "owner/repo",
+            "Fix autonomous regression",
+            "promote",
+        )
+
+    result = run_control_cycle(**kwargs)
+
+    assert _project_service(backend).list() == []
+    assert result["managed_projects"] == []
+    assert result["dispatches"] == []
+
+
+def test_managed_backpressure_blocks_before_project_creation(
+    tmp_path,
+    monkeypatch,
+):
+    kwargs, backend = _managed_cycle_setup(
+        tmp_path,
+        monkeypatch,
+        register_worker=False,
+    )
+
+    result = run_control_cycle(**kwargs)
+
+    assert _project_service(backend).list() == []
+    assert result["managed_projects"] == []
+
+
+def test_successful_project_accounting_is_idempotent_across_cycles(
+    tmp_path,
+    monkeypatch,
+):
+    kwargs, backend = _managed_cycle_setup(tmp_path, monkeypatch)
+    _with_resource_request(monkeypatch, tokens=25)
+    budget_path = tmp_path / "budget.json"
+    rate_path = tmp_path / "rate.json"
+    kwargs["budget_path"] = str(budget_path)
+    kwargs["rate_limit_path"] = str(rate_path)
+
+    first = run_control_cycle(**kwargs)
+    second = run_control_cycle(**kwargs)
+
+    project_id = first["managed_projects"][0]["project_id"]
+    assert second["managed_projects"][0]["project_id"] == project_id
+    ledger = BudgetLedger(budget_path)
+    assert ledger.payload["usage"]["owner/repo"]["tokens"] == 25
+    assert ledger.payload["usage"]["__portfolio__"]["tokens"] == 25
+    rate = RateLimitStore(rate_path)
+    assert len(rate.events["repo:owner/repo"]) == 1
+
+
+def test_accounting_recovers_after_post_creation_commit_failure(
+    tmp_path,
+    monkeypatch,
+):
+    kwargs, backend = _managed_cycle_setup(tmp_path, monkeypatch)
+    _with_resource_request(monkeypatch, tokens=25)
+    budget_path = tmp_path / "budget.json"
+    rate_path = tmp_path / "rate.json"
+    kwargs["budget_path"] = str(budget_path)
+    kwargs["rate_limit_path"] = str(rate_path)
+
+    real_commit = controller.commit_autonomous_admission
+    calls = {"count":0}
+
+    def crash_once(*args, **kwargs):
+        calls["count"] += 1
+        if calls["count"] == 1:
+            raise RuntimeError("simulated crash before accounting commit")
+        return real_commit(*args, **kwargs)
+
+    monkeypatch.setattr(controller, "commit_autonomous_admission", crash_once)
+
+    first = run_control_cycle(**kwargs)
+    assert first["managed_projects"] == []
+    projects = _project_service(backend).list()
+    assert len(projects) == 1
+
+    second = run_control_cycle(**kwargs)
+
+    assert second["managed_projects"][0]["project_id"] == projects[0]["id"]
+    ledger = BudgetLedger(budget_path)
+    assert ledger.payload["usage"]["owner/repo"]["tokens"] == 25
+    assert ledger.payload["usage"]["__portfolio__"]["tokens"] == 25
+    rate = RateLimitStore(rate_path)
+    assert len(rate.events["repo:owner/repo"]) == 1
+
+
+def test_controller_restart_reuses_active_managed_project(
+    tmp_path,
+    monkeypatch,
+):
+    kwargs, backend = _managed_cycle_setup(tmp_path, monkeypatch)
+
+    first = run_control_cycle(**kwargs)
+    first_project = first["managed_projects"][0]
+    first_workflow = first_project["current_workflow_id"]
+
+    backend = open_backend(kwargs["database_path"])
+    second = run_control_cycle(**kwargs)
+    projects = _project_service(backend).list()
+
+    assert len(projects) == 1
+    assert second["managed_projects"][0]["project_id"] == first_project["project_id"]
+    assert second["managed_projects"][0]["current_workflow_id"] == first_workflow
+
+
+def test_terminal_same_fingerprint_is_skipped_but_new_evidence_creates_project(
+    tmp_path,
+    monkeypatch,
+):
+    kwargs, backend = _managed_cycle_setup(tmp_path, monkeypatch)
+
+    first = run_control_cycle(**kwargs)
+    first_id = first["managed_projects"][0]["project_id"]
+
+    with backend.transaction() as db:
+        db.execute(
+            "UPDATE managed_projects SET status='DONE' WHERE id=?",
+            (first_id,),
+        )
+
+    same = run_control_cycle(**kwargs)
+    assert same["managed_projects"][0]["project_id"] == first_id
+    assert same["managed_projects"][0]["created"] is False
+
+    kwargs2, backend2 = _managed_cycle_setup(
+        tmp_path,
+        monkeypatch,
+        evidence=["ci:regression", "issue:reopened"],
+    )
+    changed = run_control_cycle(**kwargs2)
+
+    ids = {row["id"] for row in _project_service(backend2).list()}
+    assert first_id in ids
+    assert changed["managed_projects"][0]["project_id"] != first_id
+    assert len(ids) == 2
