@@ -323,3 +323,51 @@ def test_automatic_worker_wake_policy_wakes_offline_active_worker(
     control.workers.save()
     monkeypatch.setattr(control.workers, "detect_dead", lambda *args, **kwargs: [])
     assert control.automatic_worker_wake_needed() is True
+
+
+def test_automatic_worker_wake_cooldown_blocks_duplicate_kick(tmp_path):
+    control = ControlPlane(str(tmp_path / "wake-cooldown.sqlite"), authorizer=_auth())
+    control.dashboard_store.append_control_audit(
+        action="kick",
+        worker_id="automatic-launch",
+        requested_by="operator:test",
+        outcome="dispatched",
+    )
+    assert control.automatic_worker_wake_allowed(cooldown_seconds=60) is False
+
+
+def test_dashboard_launch_skips_duplicate_wake_during_cooldown(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "wake-dedupe.sqlite"), authorizer=_auth())
+    monkeypatch.setattr(control, "automatic_worker_wake_needed", lambda: True)
+    monkeypatch.setattr(control, "automatic_worker_wake_allowed", lambda: False)
+    wakes = []
+    monkeypatch.setattr(
+        control.dashboard_control,
+        "kick_worker",
+        lambda worker_id: (
+            wakes.append(worker_id)
+            or {"status":"dispatched"}
+        ),
+    )
+
+    server, thread, base = _server(control)
+    try:
+        status, payload = _post(
+            base + "/v1/dashboard/launch",
+            "operator",
+            {
+                "repository":"dbrckk/example",
+                "instruction":"Queue this production safely.",
+                "request_id":"auto-wake-cooldown-001",
+            },
+        )
+        assert status == 201
+        assert payload["launch"]["worker_wake"]["status"] == "not_needed"
+        assert wakes == []
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
