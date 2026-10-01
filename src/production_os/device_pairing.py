@@ -35,6 +35,7 @@ class DevicePairingManager:
         now: datetime | None = None,
     ) -> dict:
         issued_at = now or _now()
+        self.store.prune_expired_device_auth(at=issued_at.isoformat())
         code = PAIRING_CODE_PREFIX + secrets.token_urlsafe(24)
         expires_at = issued_at + timedelta(seconds=PAIRING_CODE_TTL_SECONDS)
         row = self.store.create_pairing_code(
@@ -61,6 +62,7 @@ class DevicePairingManager:
             raise ValueError("pairing code invalid or expired")
 
         issued_at = now or _now()
+        self.store.prune_expired_device_auth(at=issued_at.isoformat())
         token = DEVICE_TOKEN_PREFIX + secrets.token_urlsafe(32)
         expires_at = issued_at + timedelta(days=DEVICE_SESSION_TTL_DAYS)
         session_id = uuid4().hex
@@ -116,5 +118,20 @@ class DevicePairingManager:
             at=(now or _now()).isoformat(),
         )
 
+    def revoke_session(
+        self,
+        session_id: str,
+        *,
+        now: datetime | None = None,
+    ) -> bool:
+        value = str(session_id or "").strip()
+        if not value or len(value) > 128:
+            return False
+        return self.store.revoke_device_session_by_id(
+            session_id=value,
+            at=(now or _now()).isoformat(),
+        )
+
     def sessions(self, *, limit: int = 50) -> list[dict]:
+        self.store.prune_expired_device_auth(at=_now().isoformat())
         return self.store.active_device_sessions(limit=limit)
