@@ -344,6 +344,14 @@ Worker credentials cannot read dashboard audit history.
 
 The liveness endpoint `/health` only answers whether the HTTP service is alive.
 
+Deployment readiness is separate:
+
+```text
+GET /readyz
+```
+
+It performs a bounded backend connectivity query. A reachable backend returns HTTP 200 with `status=ready`; an unavailable backend returns HTTP 503 with a redacted `database=unavailable` result. It never returns connection strings or backend exception text. Use `/readyz` for load-balancer or platform readiness checks when database access is required for useful traffic.
+
 Operational health is separate:
 
 ```text
