@@ -1138,6 +1138,9 @@ def make_handler(control: ControlPlane):
                             f"{principal.role}:{principal.name}"
                         ),
                     )
+                    control.ensure_worker_for_queued_work(
+                        requested_by=f"{principal.role}:{principal.name}",
+                    )
                 except ValueError as exc:
                     self._send(
                         HTTPStatus.BAD_REQUEST,
@@ -1165,6 +1168,9 @@ def make_handler(control: ControlPlane):
                                     f"{principal.role}:{principal.name}"
                                 ),
                             )
+                            control.ensure_worker_for_queued_work(
+                                requested_by=f"{principal.role}:{principal.name}",
+                            )
                         elif action == "verify":
                             project = (
                                 control.managed_projects.request_verification(
@@ -1173,6 +1179,9 @@ def make_handler(control: ControlPlane):
                                         f"{principal.role}:{principal.name}"
                                     ),
                                 )
+                            )
+                            control.ensure_worker_for_queued_work(
+                                requested_by=f"{principal.role}:{principal.name}",
                             )
                         elif action == "complete":
                             if str(body.get("confirm") or "") != "MARK_PROJECT_DONE":
@@ -2038,6 +2047,10 @@ def make_handler(control: ControlPlane):
                             str(recovered.get("status") or "recovered"),
                             job_key=job_key,
                         )
+                        if str(recovered.get("status") or "") == "queued":
+                            control.ensure_worker_for_queued_work(
+                                requested_by=requested_by,
+                            )
                         self._send(
                             HTTPStatus.OK,
                             {
@@ -2095,6 +2108,9 @@ def make_handler(control: ControlPlane):
                             )
                             raise
                         audit_control("accepted", job_key=job_key)
+                        control.ensure_worker_for_queued_work(
+                            requested_by=requested_by,
+                        )
                         self._send(
                             HTTPStatus.CREATED,
                             {
