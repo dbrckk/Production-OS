@@ -1048,10 +1048,13 @@ def make_handler(control: ControlPlane):
                         ),
                     )
                     wake = {"status":"not_needed"}
-                    if (
-                        control.automatic_worker_wake_needed()
-                        and control.automatic_worker_wake_allowed()
-                    ):
+                    wake_needed = control.automatic_worker_wake_needed()
+                    if wake_needed and not control.automatic_worker_wake_allowed():
+                        wake = {
+                            "status":"cooldown",
+                            "cooldown_seconds":60,
+                        }
+                    elif wake_needed:
                         wake = control.dashboard_control.kick_worker(
                             "automatic-launch"
                         )
