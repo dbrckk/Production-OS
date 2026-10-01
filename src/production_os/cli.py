@@ -268,9 +268,9 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         choices=("legacy", "managed"),
         default=os.getenv(
             "PRODUCTION_OS_CONTROLLER_EXECUTION_MODE",
-            "legacy",
+            "managed",
         ),
-        help="Controller execution backend during managed-project migration",
+        help="Controller execution backend; use legacy for explicit rollback",
     )
     controller.add_argument(
         "--project-token-budget",
