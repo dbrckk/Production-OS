@@ -110,6 +110,23 @@ class ControlPlane:
         self.github_webhook_secret = github_webhook_secret
         self.webhook_deliveries = WebhookDeliveryStore(self.backend)
 
+    def automatic_worker_wake_allowed(
+        self,
+        *,
+        cooldown_seconds: int = 60,
+    ) -> bool:
+        latest = self.dashboard_store.latest_control_audit(
+            action="kick",
+            worker_id="automatic-launch",
+        )
+        if latest is None:
+            return True
+        requested_at = self._parse_timestamp(latest.get("requested_at"))
+        if requested_at is None:
+            return True
+        age = (datetime.now(timezone.utc) - requested_at).total_seconds()
+        return age >= max(1, int(cooldown_seconds))
+
     def automatic_worker_wake_needed(self) -> bool:
         try:
             self.workers.detect_dead()
@@ -1031,7 +1048,10 @@ def make_handler(control: ControlPlane):
                         ),
                     )
                     wake = {"status":"not_needed"}
-                    if control.automatic_worker_wake_needed():
+                    if (
+                        control.automatic_worker_wake_needed()
+                        and control.automatic_worker_wake_allowed()
+                    ):
                         wake = control.dashboard_control.kick_worker(
                             "automatic-launch"
                         )
