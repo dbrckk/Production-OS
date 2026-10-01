@@ -124,3 +124,18 @@ def test_kick_reports_failed_when_dispatch_errors(tmp_path):
         "status":"failed",
         "error":"github_dispatch_failed",
     }
+
+
+def test_worker_wake_mode_matches_dispatch_configuration(tmp_path):
+    fallback = DashboardControl(_store(tmp_path), None, None)
+    assert fallback.worker_wake_mode() == "scheduled_fallback"
+
+    immediate = DashboardControl(
+        _store(tmp_path),
+        None,
+        None,
+        github=_FakeGitHub(),
+        actions_repository="dbrckk/ai-dev-server",
+        actions_workflow="production-os-actions-worker.yml",
+    )
+    assert immediate.worker_wake_mode() == "immediate"

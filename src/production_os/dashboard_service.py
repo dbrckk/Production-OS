@@ -609,15 +609,7 @@ class DashboardService:
             limit=limit,
             status=status,
         )
-        kick_mode = (
-            "immediate"
-            if (
-                self.control.dashboard_control.github is not None
-                and self.control.dashboard_control.actions_repository
-                and self.control.dashboard_control.actions_workflow
-            )
-            else "scheduled_fallback"
-        )
+        kick_mode = self.control.dashboard_control.worker_wake_mode()
         enriched = []
         for incident in rows:
             item = dict(incident)
@@ -872,6 +864,7 @@ class DashboardService:
             if available
             else "Aucun worker disponible immédiatement · le projet sera conservé en file."
         )
+        wake_mode = self.control.dashboard_control.worker_wake_mode()
         return {
             "schema_version":"production-os/launch-readiness/v1",
             "repository":repository,
@@ -882,6 +875,12 @@ class DashboardService:
             "available_workers":len(available),
             "online_workers":len(online),
             "queued_jobs":queued,
+            "worker_wake":{
+                "mode":wake_mode,
+                "poll_interval_seconds":(
+                    300 if wake_mode == "scheduled_fallback" else None
+                ),
+            },
             "message":message,
             "generated_at":_now(),
         }

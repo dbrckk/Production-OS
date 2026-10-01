@@ -127,13 +127,18 @@ class DashboardControl:
         row = self.store.acknowledge_job_control(job_key, at=at)
         return self._job_view(row, job_key)
 
+    def worker_wake_mode(self) -> str:
+        if (
+            self.github is not None
+            and self.actions_repository
+            and self.actions_workflow
+        ):
+            return "immediate"
+        return "scheduled_fallback"
+
     def kick_worker(self, worker_id: str) -> dict:
         del worker_id
-        if (
-            self.github is None
-            or not self.actions_repository
-            or not self.actions_workflow
-        ):
+        if self.worker_wake_mode() != "immediate":
             return {
                 "status":"scheduled_fallback",
                 "poll_interval_seconds":300,
