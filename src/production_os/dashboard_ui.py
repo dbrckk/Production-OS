@@ -183,7 +183,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   <label for="instruction">Instruction</label>
   <textarea id="instruction" rows="7" placeholder="Décris le résultat final attendu. Production-OS s'occupe de l'exécution."></textarea>
   <div class="launch-row">
-   <button id="launch-button" class="primary-btn" onclick="launchWorkflow()">Lancer la production</button>
+   <button id="launch-button" class="primary-btn" onclick="launchWorkflow()" disabled>Lancer la production</button>
    <button class="secondary-btn" type="button" onclick="refreshDashboard()" aria-label="Actualiser">↻</button>
   </div>
   <p id="launch-status" class="status-message"></p>
