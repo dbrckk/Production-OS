@@ -62,3 +62,29 @@ def test_queued_job_can_be_cancelled_atomically_without_worker(tmp_path):
     replay=queue.cancel_queued(queued["key"], reason="operator cancel")
     assert replay["status"]=="cancelled"
 
+
+
+def test_sqlite_claim_finds_compatible_job_beyond_first_hundred(tmp_path):
+    backend=SQLiteBackend(tmp_path/"starvation.db")
+    queue=SQLiteJobQueue(backend)
+    for index in range(101):
+        queue.enqueue({
+            "handoff":{
+                "repository":"o/incompatible",
+                "task":f"blocked-{index}",
+                "priority":100,
+            },
+            "required_capabilities":["gpu-only"],
+        })
+    compatible=queue.enqueue({
+        "handoff":{
+            "repository":"o/compatible",
+            "task":"runnable",
+            "priority":10,
+        },
+        "required_capabilities":["python"],
+    })
+
+    claimed=queue.claim_next("python-worker",capabilities=["python"])
+    assert claimed is not None
+    assert claimed["key"]==compatible["key"]
