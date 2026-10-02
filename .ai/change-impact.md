@@ -1,13 +1,15 @@
 # Change impact
 
-Base: fd86d2aa508fe8ee8bc9d5b4937bd5ed40161824
-Head: 50137147f60d1681abc1b94afcc23afabcf6a577
+Base: 60da6403dbae2716fe9bbe25b91705f16790b6d2
+Head: ab596488b7dfa33eab6cc47012d09e518c0b2c4f
 
 ## Changed files
-- M docs/production-readiness.md
+- M src/production_os/dashboard_ui.py
+- M tests/test_dashboard_ui_v3.py
 
 ## Affected areas
-- docs
+- src
+- tests
 
 ## Related test candidates
 - No direct filename-based test match detected.

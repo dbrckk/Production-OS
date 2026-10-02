@@ -22,16 +22,18 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-02T15:03:36Z
+Generated: 2026-10-02T16:05:30Z
 
 ### Git
 - Branch: `main`
-- Head: `50137147f60d`
-- Commit date: 2026-10-02T17:03:22+02:00
-- Commit: docs(release): document generated-head qualification
+- Head: `ab596488b7df`
+- Commit date: 2026-10-02T18:05:18+02:00
+- Commit: fix(dashboard): fail closed when repository list is unavailable
 - Tracked files: 540
 
 ### Recently changed files
+- `src/production_os/dashboard_ui.py`
+- `tests/test_dashboard_ui_v3.py`
 - `docs/production-readiness.md`
 - `.github/workflows/ai-repo-map.yml`
 - `scripts/render-start.py`
@@ -40,11 +42,6 @@ Generated: 2026-10-02T15:03:36Z
 - `src/production_os/control_plane.py`
 - `tests/test_control_plane.py`
 - `tests/test_control_plane_webhook.py`
-- `src/production_os/postgres_backend.py`
-- `src/production_os/sqlite_backend.py`
-- `tests/test_postgres_backend.py`
-- `tests/test_sqlite_backend.py`
-- `tests/test_worker_availability_api.py`
 
 ### Project signals
 - `pyproject.toml`

@@ -14340,6 +14340,10 @@ def test_activity_view_renders_remediation_durability_timing()
 ⋮----
 def test_launch_repository_picker_is_server_backed()
 ⋮----
+def test_launch_repository_picker_fails_closed_without_server_repositories()
+⋮----
+def test_repository_picker_preserves_selected_repository_across_refresh()
+⋮----
 def test_mobile_launch_flow_remains_repo_plus_instruction()
 ⋮----
 def test_overview_renders_storage_maintenance_card()
