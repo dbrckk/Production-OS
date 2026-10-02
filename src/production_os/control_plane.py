@@ -17,7 +17,7 @@ from .portfolio_optimizer import PortfolioOptimizer
 from .github_client import GitHubClient
 from .release_ledger import ReleaseLedger
 from .dashboard_store import DashboardStore
-from .device_pairing import DevicePairingManager
+from .device_pairing import DevicePairingLimitError, DevicePairingManager
 from .dashboard_control import DashboardControl
 from .dashboard_service import DashboardService, DashboardNotFound
 from .dashboard_ui import DASHBOARD_HTML
@@ -1107,6 +1107,12 @@ def make_handler(control: ControlPlane):
                     pairing = control.device_pairing.issue_pairing_code(
                         requested_by=f"{principal.role}:{principal.name}",
                     )
+                except DevicePairingLimitError as exc:
+                    self._send(
+                        HTTPStatus.TOO_MANY_REQUESTS,
+                        {"error":str(exc)},
+                    )
+                    return
                 except ValueError as exc:
                     self._send(
                         HTTPStatus.BAD_REQUEST,
