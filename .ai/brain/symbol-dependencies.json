@@ -5,6 +5,117 @@
   "semantic": false,
   "note": "Dependencies are known symbol names lexically present inside the symbol's AST/source range.",
   "symbols": {
+    "_required": {
+      "source": {
+        "file": "scripts/render-start.py",
+        "start": 11,
+        "end": 15
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "_auth_payload": {
+      "source": {
+        "file": "scripts/render-start.py",
+        "start": 18,
+        "end": 39
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "digest",
+          "definitions": [
+            {
+              "file": "scripts/render-start.py",
+              "line": 23,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "digest": {
+      "source": {
+        "file": "scripts/render-start.py",
+        "start": 23,
+        "end": 143
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_auth_payload",
+          "definitions": [
+            {
+              "file": "scripts/render-start.py",
+              "line": 18,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_required",
+          "definitions": [
+            {
+              "file": "scripts/render-start.py",
+              "line": 11,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "main",
+          "definitions": [
+            {
+              "file": "scripts/render-start.py",
+              "line": 42,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "main": {
+      "source": {
+        "file": "scripts/render-start.py",
+        "start": 42,
+        "end": 82
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_auth_payload",
+          "definitions": [
+            {
+              "file": "scripts/render-start.py",
+              "line": 18,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_required",
+          "definitions": [
+            {
+              "file": "scripts/render-start.py",
+              "line": 11,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 2
+    },
     "ControlPlane": {
       "source": {
         "file": "src/production_os/control_plane.py",
@@ -1242,7 +1353,7 @@
       "source": {
         "file": "src/production_os/control_plane.py",
         "start": 516,
-        "end": 3531
+        "end": 3552
       },
       "symbol_dependencies": [
         {
@@ -1658,7 +1769,7 @@
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 2213,
+              "line": 2225,
               "kind": "function",
               "language": "python"
             }
@@ -5191,8 +5302,8 @@
     "audit_control": {
       "source": {
         "file": "src/production_os/control_plane.py",
-        "start": 2213,
-        "end": 2333
+        "start": 2225,
+        "end": 2345
       },
       "symbol_dependencies": [
         {
@@ -5285,8 +5396,8 @@
     "serve_control_plane": {
       "source": {
         "file": "src/production_os/control_plane.py",
-        "start": 3534,
-        "end": 3573
+        "start": 3555,
+        "end": 3594
       },
       "symbol_dependencies": [
         {
@@ -5352,28 +5463,52 @@
       ],
       "dependency_count": 5
     },
-    "_utcnow": {
+    "request": {
       "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 20,
-        "end": 21
+        "file": "tests/test_control_plane.py",
+        "start": 11,
+        "end": 24
       },
       "symbol_dependencies": [],
       "dependency_count": 0
     },
-    "PostgresBackend": {
+    "test_control_plane_worker_and_queue": {
       "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 24,
-        "end": 634
+        "file": "tests/test_control_plane.py",
+        "start": 27,
+        "end": 74
       },
       "symbol_dependencies": [
         {
-          "symbol": "__init__",
+          "symbol": "ControlPlane",
           "definitions": [
             {
-              "file": "src/production_os/claims.py",
-              "line": 30,
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "TokenAuthorizer",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 31,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "make_handler",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 516,
               "kind": "function",
               "language": "python"
             }
@@ -5381,11 +5516,11 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "_utcnow",
+          "symbol": "request",
           "definitions": [
             {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 20,
+              "file": "tests/test_control_plane.py",
+              "line": 11,
               "kind": "function",
               "language": "python"
             }
@@ -5393,59 +5528,57 @@
           "relation": "same_file"
         },
         {
-          "symbol": "append_event",
+          "symbol": "token_digest",
           "definitions": [
             {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 580,
+              "file": "src/production_os/api_auth.py",
+              "line": 18,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "same_file"
-        },
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 5
+    },
+    "test_direct_enqueue_requests_worker_wake_when_no_worker_is_online": {
+      "source": {
+        "file": "tests/test_control_plane.py",
+        "start": 77,
+        "end": 103
+      },
+      "symbol_dependencies": [
         {
-          "symbol": "connect",
+          "symbol": "ControlPlane",
           "definitions": [
             {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 36,
-              "kind": "function",
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
+              "kind": "class",
               "language": "python"
             }
           ],
-          "relation": "same_file"
+          "relation": "imported_module"
         },
         {
-          "symbol": "events_after",
+          "symbol": "TokenAuthorizer",
           "definitions": [
             {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 609,
-              "kind": "function",
+              "file": "src/production_os/api_auth.py",
+              "line": 31,
+              "kind": "class",
               "language": "python"
             }
           ],
-          "relation": "same_file"
+          "relation": "imported_module"
         },
         {
-          "symbol": "initialize",
+          "symbol": "make_handler",
           "definitions": [
             {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 61,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "task_key",
-          "definitions": [
-            {
-              "file": "src/production_os/runtime_state.py",
-              "line": 36,
+              "file": "src/production_os/control_plane.py",
+              "line": 516,
               "kind": "function",
               "language": "python"
             }
@@ -5453,11 +5586,994 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "transaction",
+          "symbol": "request",
           "definitions": [
             {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 45,
+              "file": "tests/test_control_plane.py",
+              "line": 11,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "token_digest",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 18,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 5
+    },
+    "test_trust_status_endpoint_requires_auth_and_forwards_filters": {
+      "source": {
+        "file": "tests/test_control_plane.py",
+        "start": 106,
+        "end": 157
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ControlPlane",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "TokenAuthorizer",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 31,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "make_handler",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 516,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "request",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane.py",
+              "line": 11,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "token_digest",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 18,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "trust_status",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane.py",
+              "line": 113,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 6
+    },
+    "trust_status": {
+      "source": {
+        "file": "tests/test_control_plane.py",
+        "start": 113,
+        "end": 233
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ControlPlane",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "TokenAuthorizer",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 31,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "make_handler",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 516,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "request",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane.py",
+              "line": 11,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "snapshot",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane.py",
+              "line": 215,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "test_incident_history_endpoints_require_auth_and_forward_filter",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane.py",
+              "line": 160,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "test_incident_snapshot_requires_operator_and_reports_dedup",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane.py",
+              "line": 208,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "token_digest",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 18,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 8
+    },
+    "test_incident_history_endpoints_require_auth_and_forward_filter": {
+      "source": {
+        "file": "tests/test_control_plane.py",
+        "start": 160,
+        "end": 205
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ControlPlane",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "TokenAuthorizer",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 31,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "make_handler",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 516,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "request",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane.py",
+              "line": 11,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "token_digest",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 18,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 5
+    },
+    "test_incident_snapshot_requires_operator_and_reports_dedup": {
+      "source": {
+        "file": "tests/test_control_plane.py",
+        "start": 208,
+        "end": 295
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ControlPlane",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "TokenAuthorizer",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 31,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "make_handler",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 516,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "request",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane.py",
+              "line": 11,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "snapshot",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane.py",
+              "line": 215,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "token_digest",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 18,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 6
+    },
+    "snapshot": {
+      "source": {
+        "file": "tests/test_control_plane.py",
+        "start": 215,
+        "end": 335
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ControlPlane",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "TokenAuthorizer",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 31,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "make_handler",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 516,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "post",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane.py",
+              "line": 310,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "request",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane.py",
+              "line": 11,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "test_incident_snapshot_rejects_invalid_payload_shapes",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane.py",
+              "line": 298,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "token_digest",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 18,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 7
+    },
+    "test_incident_snapshot_rejects_invalid_payload_shapes": {
+      "source": {
+        "file": "tests/test_control_plane.py",
+        "start": 298,
+        "end": 338
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ControlPlane",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "TokenAuthorizer",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 31,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "make_handler",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 516,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "post",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane.py",
+              "line": 310,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "request",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane.py",
+              "line": 11,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "snapshot",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane.py",
+              "line": 215,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "token_digest",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 18,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 7
+    },
+    "post": {
+      "source": {
+        "file": "tests/test_control_plane.py",
+        "start": 310,
+        "end": 430
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ControlPlane",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "TokenAuthorizer",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 31,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "make_handler",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 516,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "request",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane.py",
+              "line": 11,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "snapshot",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane.py",
+              "line": 215,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "test_generic_post_returns_413_before_endpoint_processing",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane.py",
+              "line": 416,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "test_github_webhook_returns_413_for_oversized_body",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane.py",
+              "line": 387,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "test_http_body_parser_rejects_invalid_json_and_oversized_payload",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane.py",
+              "line": 341,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "token_digest",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 18,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 9
+    },
+    "test_http_body_parser_rejects_invalid_json_and_oversized_payload": {
+      "source": {
+        "file": "tests/test_control_plane.py",
+        "start": 341,
+        "end": 384
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ControlPlane",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "TokenAuthorizer",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 31,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "make_handler",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 516,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "request",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane.py",
+              "line": 11,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "snapshot",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane.py",
+              "line": 215,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "token_digest",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 18,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 6
+    },
+    "test_github_webhook_returns_413_for_oversized_body": {
+      "source": {
+        "file": "tests/test_control_plane.py",
+        "start": 387,
+        "end": 413
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ControlPlane",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "make_handler",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 516,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "request",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane.py",
+              "line": 11,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "test_generic_post_returns_413_before_endpoint_processing": {
+      "source": {
+        "file": "tests/test_control_plane.py",
+        "start": 416,
+        "end": 442
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ControlPlane",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "TokenAuthorizer",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 31,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "make_handler",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 516,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "request",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane.py",
+              "line": 11,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "token_digest",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 18,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 5
+    },
+    "signed_request": {
+      "source": {
+        "file": "tests/test_control_plane_webhook.py",
+        "start": 14,
+        "end": 33
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "test_signed_pr_webhook_refreshes_and_dispatches": {
+      "source": {
+        "file": "tests/test_control_plane_webhook.py",
+        "start": 36,
+        "end": 147
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ControlPlane",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "FakeGitHubClient",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane_webhook.py",
+              "line": 37,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_control_plane_webhook.py",
+              "line": 188,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "GitHubClient",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 21,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "class_like"
+        },
+        {
+          "symbol": "TokenAuthorizer",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 31,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "WorkflowTaskSpec",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 218,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "class_like"
+        },
+        {
+          "symbol": "list_pull_request_files",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane_webhook.py",
+              "line": 40,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_control_plane_webhook.py",
+              "line": 189,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "make_handler",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 516,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "signed_request",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane_webhook.py",
+              "line": 14,
               "kind": "function",
               "language": "python"
             }
@@ -5467,164 +6583,19 @@
       ],
       "dependency_count": 8
     },
-    "connect": {
+    "FakeGitHubClient": {
       "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 36,
-        "end": 42
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "transaction": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 45,
-        "end": 59
+        "file": "tests/test_control_plane_webhook.py",
+        "start": 37,
+        "end": 157
       },
       "symbol_dependencies": [
         {
-          "symbol": "connect",
+          "symbol": "ControlPlane",
           "definitions": [
             {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "initialize": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 61,
-        "end": 578
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "connect",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "task_key",
-          "definitions": [
-            {
-              "file": "src/production_os/runtime_state.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "append_event": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 580,
-        "end": 607
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_utcnow",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 20,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "task_key",
-          "definitions": [
-            {
-              "file": "src/production_os/runtime_state.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "events_after": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 609,
-        "end": 634
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "connect",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "task_key",
-          "definitions": [
-            {
-              "file": "src/production_os/runtime_state.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "PostgresRuntimeState": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 637,
-        "end": 962
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "PostgresBackend",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 24,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "RuntimeRecord",
-          "definitions": [
-            {
-              "file": "src/production_os/runtime_state.py",
-              "line": 14,
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
               "kind": "class",
               "language": "python"
             }
@@ -5632,2735 +6603,11 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "__init__",
+          "symbol": "GitHubClient",
           "definitions": [
             {
-              "file": "src/production_os/claims.py",
-              "line": 30,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_parse",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 718,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_row",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 644,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 972,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1154,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_utcnow",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 20,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "acquire_lease",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 754,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "append_event",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 580,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "connect",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 733,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1416,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "heartbeat_lease",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 814,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "in_cooldown",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 728,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "is_leased",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 723,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "load",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 664,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 982,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1166,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "record_outcome",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 897,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "release_lease",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 855,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "save",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 671,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 989,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1173,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "task_key",
-          "definitions": [
-            {
-              "file": "src/production_os/runtime_state.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "transaction",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 45,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 19
-    },
-    "_row": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 644,
-        "end": 662
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "RuntimeRecord",
-          "definitions": [
-            {
-              "file": "src/production_os/runtime_state.py",
-              "line": 14,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "load": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 664,
-        "end": 669
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_row",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 644,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 972,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1154,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "connect",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "save": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 671,
-        "end": 715
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "transaction",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 45,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "_parse": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 718,
-        "end": 721
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "is_leased": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 723,
-        "end": 726
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "RuntimeRecord",
-          "definitions": [
-            {
-              "file": "src/production_os/runtime_state.py",
-              "line": 14,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_parse",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 718,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "in_cooldown": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 728,
-        "end": 731
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "RuntimeRecord",
-          "definitions": [
-            {
-              "file": "src/production_os/runtime_state.py",
-              "line": 14,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_parse",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 718,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "get": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 733,
-        "end": 752
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "RuntimeRecord",
-          "definitions": [
-            {
-              "file": "src/production_os/runtime_state.py",
-              "line": 14,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_row",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 644,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 972,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1154,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "task_key",
-          "definitions": [
-            {
-              "file": "src/production_os/runtime_state.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "transaction",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 45,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "acquire_lease": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 754,
-        "end": 812
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "RuntimeRecord",
-          "definitions": [
-            {
-              "file": "src/production_os/runtime_state.py",
-              "line": 14,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_row",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 644,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 972,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1154,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "append_event",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 580,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "is_leased",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 723,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "task_key",
-          "definitions": [
-            {
-              "file": "src/production_os/runtime_state.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "transaction",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 45,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 6
-    },
-    "heartbeat_lease": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 814,
-        "end": 853
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "RuntimeRecord",
-          "definitions": [
-            {
-              "file": "src/production_os/runtime_state.py",
-              "line": 14,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_row",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 644,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 972,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1154,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "is_leased",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 723,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "task_key",
-          "definitions": [
-            {
-              "file": "src/production_os/runtime_state.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "transaction",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 45,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 5
-    },
-    "release_lease": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 855,
-        "end": 895
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "RuntimeRecord",
-          "definitions": [
-            {
-              "file": "src/production_os/runtime_state.py",
-              "line": 14,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_row",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 644,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 972,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1154,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_utcnow",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 20,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "append_event",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 580,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "task_key",
-          "definitions": [
-            {
-              "file": "src/production_os/runtime_state.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "transaction",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 45,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 6
-    },
-    "record_outcome": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 897,
-        "end": 962
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "RuntimeRecord",
-          "definitions": [
-            {
-              "file": "src/production_os/runtime_state.py",
-              "line": 14,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_row",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 644,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 972,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1154,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "append_event",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 580,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 733,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1416,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "transaction",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 45,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 5
-    },
-    "PostgresWorkerRegistry": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 965,
-        "end": 1144
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "PostgresBackend",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 24,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "Worker",
-          "definitions": [
-            {
-              "file": "src/production_os/workers.py",
-              "line": 13,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "__init__",
-          "definitions": [
-            {
-              "file": "src/production_os/claims.py",
-              "line": 30,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_row",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 644,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 972,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1154,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_utcnow",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 20,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "adjust_active_tasks",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1091,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "append_event",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 580,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "available",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1139,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "connect",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "detect_dead",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1115,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "heartbeat",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1058,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "load",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 664,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 982,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1166,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "register",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1010,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "save",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 671,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 989,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1173,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "transaction",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 45,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 15
-    },
-    "register": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 1010,
-        "end": 1056
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "Worker",
-          "definitions": [
-            {
-              "file": "src/production_os/workers.py",
-              "line": 13,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_row",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 644,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 972,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1154,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_utcnow",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 20,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "append_event",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 580,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "transaction",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 45,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 5
-    },
-    "heartbeat": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 1058,
-        "end": 1089
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "Worker",
-          "definitions": [
-            {
-              "file": "src/production_os/workers.py",
-              "line": 13,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_row",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 644,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 972,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1154,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_utcnow",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 20,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "transaction",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 45,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "adjust_active_tasks": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 1091,
-        "end": 1113
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "Worker",
-          "definitions": [
-            {
-              "file": "src/production_os/workers.py",
-              "line": 13,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_row",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 644,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 972,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1154,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "transaction",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 45,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "detect_dead": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 1115,
-        "end": 1137
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "Worker",
-          "definitions": [
-            {
-              "file": "src/production_os/workers.py",
-              "line": 13,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "load",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 664,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 982,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1166,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "transaction",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 45,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "available": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 1139,
-        "end": 1144
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "Worker",
-          "definitions": [
-            {
-              "file": "src/production_os/workers.py",
-              "line": 13,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "load",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 664,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 982,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1166,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "PostgresClaimStore": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 1147,
-        "end": 1322
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ClaimRecord",
-          "definitions": [
-            {
-              "file": "src/production_os/claims.py",
-              "line": 13,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "PostgresBackend",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 24,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "__init__",
-          "definitions": [
-            {
-              "file": "src/production_os/claims.py",
-              "line": 30,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_row",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 644,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 972,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1154,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_utcnow",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 20,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "ack",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1254,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1578,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "claim",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1200,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "complete",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1280,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1583,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "connect",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "expired_unacked",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1310,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "load",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 664,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 982,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1166,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "save",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 671,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 989,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1173,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "transaction",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 45,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 13
-    },
-    "claim": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 1200,
-        "end": 1252
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ClaimRecord",
-          "definitions": [
-            {
-              "file": "src/production_os/claims.py",
-              "line": 13,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_row",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 644,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 972,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1154,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "transaction",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 45,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "ack": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 1254,
-        "end": 1278
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ClaimRecord",
-          "definitions": [
-            {
-              "file": "src/production_os/claims.py",
-              "line": 13,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_row",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 644,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 972,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1154,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "claim",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1200,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "transaction",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 45,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "complete": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 1280,
-        "end": 1308
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ClaimRecord",
-          "definitions": [
-            {
-              "file": "src/production_os/claims.py",
-              "line": 13,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_row",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 644,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 972,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1154,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_utcnow",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 20,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "claim",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1200,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "transaction",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 45,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 5
-    },
-    "expired_unacked": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 1310,
-        "end": 1322
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ClaimRecord",
-          "definitions": [
-            {
-              "file": "src/production_os/claims.py",
-              "line": 13,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_row",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 644,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 972,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1154,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_utcnow",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 20,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "connect",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "PostgresJobQueue": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 1325,
-        "end": 1779
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "PostgresBackend",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 24,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "__init__",
-          "definitions": [
-            {
-              "file": "src/production_os/claims.py",
-              "line": 30,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_job_dict",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1330,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_transition",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1641,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_utcnow",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 20,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "ack",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1254,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1578,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "append_event",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 580,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "cancel",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1634,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "cancel_queued",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1595,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "claim",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1200,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "claim_key",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1459,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "claim_next",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1515,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "complete",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1280,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1583,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "connect",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "enqueue",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1348,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "fail",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1589,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 733,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1416,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "peek_candidates",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1426,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "recover_expired",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1737,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "recover_job",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1690,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "task_key",
-          "definitions": [
-            {
-              "file": "src/production_os/runtime_state.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "transaction",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 45,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 22
-    },
-    "_job_dict": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 1330,
-        "end": 1346
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "enqueue": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 1348,
-        "end": 1414
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_job_dict",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1330,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_utcnow",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 20,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "append_event",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 580,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 733,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1416,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "task_key",
-          "definitions": [
-            {
-              "file": "src/production_os/runtime_state.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "transaction",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 45,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 6
-    },
-    "peek_candidates": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 1426,
-        "end": 1456
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_job_dict",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1330,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "connect",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "claim_key": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 1459,
-        "end": 1513
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_job_dict",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1330,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "append_event",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 580,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "transaction",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 45,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "claim_next": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 1515,
-        "end": 1576
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_job_dict",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1330,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "append_event",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 580,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 733,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1416,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "transaction",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 45,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "fail": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 1589,
-        "end": 1593
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_transition",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1641,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "cancel_queued": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 1595,
-        "end": 1632
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_job_dict",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1330,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_utcnow",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 20,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "append_event",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 580,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "cancel",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1634,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "transaction",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 45,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 5
-    },
-    "cancel": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 1634,
-        "end": 1639
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_transition",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1641,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "_transition": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 1641,
-        "end": 1688
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_job_dict",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1330,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_utcnow",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 20,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "append_event",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 580,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "claim",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1200,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "transaction",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 45,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 5
-    },
-    "recover_job": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 1690,
-        "end": 1735
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_job_dict",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1330,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_utcnow",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 20,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "append_event",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 580,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "claim",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1200,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "transaction",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 45,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 5
-    },
-    "recover_expired": {
-      "source": {
-        "file": "src/production_os/postgres_backend.py",
-        "start": 1737,
-        "end": 1779
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_utcnow",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 20,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "append_event",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 580,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "transaction",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 45,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "SQLiteBackend": {
-      "source": {
-        "file": "src/production_os/sqlite_backend.py",
-        "start": 20,
-        "end": 648
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "Connection",
-          "definitions": [
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 62,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_controller_leader.py",
-              "line": 106,
+              "file": "src/production_os/github_client.py",
+              "line": 21,
               "kind": "class",
               "language": "python"
             }
@@ -8368,11 +6615,53 @@
           "relation": "class_like"
         },
         {
-          "symbol": "__init__",
+          "symbol": "TokenAuthorizer",
           "definitions": [
             {
-              "file": "src/production_os/claims.py",
-              "line": 30,
+              "file": "src/production_os/api_auth.py",
+              "line": 31,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "WorkflowTaskSpec",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 218,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "class_like"
+        },
+        {
+          "symbol": "list_pull_request_files",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane_webhook.py",
+              "line": 40,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_control_plane_webhook.py",
+              "line": 189,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "make_handler",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 516,
               "kind": "function",
               "language": "python"
             }
@@ -8380,105 +6669,45 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "_utcnow",
+          "symbol": "signed_request",
           "definitions": [
             {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 16,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "append_event",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 602,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "connect",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 28,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "events_after",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 626,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "initialize",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 54,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "task_key",
-          "definitions": [
-            {
-              "file": "src/production_os/runtime_state.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "transaction",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 42,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 9
-    },
-    "SQLiteRuntimeState": {
-      "source": {
-        "file": "src/production_os/sqlite_backend.py",
-        "start": 651,
-        "end": 974
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "RuntimeRecord",
-          "definitions": [
-            {
-              "file": "src/production_os/runtime_state.py",
+              "file": "tests/test_control_plane_webhook.py",
               "line": 14,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "test_webhook_rejects_bad_signature",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane_webhook.py",
+              "line": 150,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 8
+    },
+    "list_pull_request_files": {
+      "source": {
+        "file": "tests/test_control_plane_webhook.py",
+        "start": 40,
+        "end": 160
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ControlPlane",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
               "kind": "class",
               "language": "python"
             }
@@ -8486,35 +6715,275 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "SQLiteBackend",
+          "symbol": "FakeGitHubClient",
           "definitions": [
             {
-              "file": "src/production_os/sqlite_backend.py",
+              "file": "tests/test_control_plane_webhook.py",
+              "line": 37,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_control_plane_webhook.py",
+              "line": 188,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "GitHubClient",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 21,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "class_like"
+        },
+        {
+          "symbol": "TokenAuthorizer",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 31,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "WorkflowTaskSpec",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 218,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "class_like"
+        },
+        {
+          "symbol": "make_handler",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 516,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "signed_request",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane_webhook.py",
+              "line": 14,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "test_webhook_rejects_bad_signature",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane_webhook.py",
+              "line": 150,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 8
+    },
+    "test_webhook_rejects_bad_signature": {
+      "source": {
+        "file": "tests/test_control_plane_webhook.py",
+        "start": 150,
+        "end": 184
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ControlPlane",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "TokenAuthorizer",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 31,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "make_handler",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 516,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 3
+    },
+    "test_webhook_creates_unseen_pr_from_template": {
+      "source": {
+        "file": "tests/test_control_plane_webhook.py",
+        "start": 187,
+        "end": 250
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ControlPlane",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "FakeGitHubClient",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane_webhook.py",
+              "line": 37,
+              "kind": "class",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_control_plane_webhook.py",
+              "line": 188,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "GitHubClient",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 21,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "class_like"
+        },
+        {
+          "symbol": "TokenAuthorizer",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 31,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "WorkflowTaskSpec",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 218,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "class_like"
+        },
+        {
+          "symbol": "list_pull_request_files",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane_webhook.py",
+              "line": 40,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "tests/test_control_plane_webhook.py",
+              "line": 189,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "make_handler",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 516,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "signed_request",
+          "definitions": [
+            {
+              "file": "tests/test_control_plane_webhook.py",
+              "line": 14,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 8
+    },
+    "RenderStartTests": {
+      "source": {
+        "file": "tests/test_render_start.py",
+        "start": 19,
+        "end": 78
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "test_auth_payload_hashes_tokens_without_storing_plaintext",
+          "definitions": [
+            {
+              "file": "tests/test_render_start.py",
               "line": 20,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "__init__",
-          "definitions": [
-            {
-              "file": "src/production_os/claims.py",
-              "line": 30,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_parse",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 757,
               "kind": "function",
               "language": "python"
             }
@@ -8522,23 +6991,11 @@
           "relation": "same_file"
         },
         {
-          "symbol": "_row",
+          "symbol": "test_invalid_port_fails_closed",
           "definitions": [
             {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 658,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 984,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1156,
+              "file": "tests/test_render_start.py",
+              "line": 66,
               "kind": "function",
               "language": "python"
             }
@@ -8546,197 +7003,11 @@
           "relation": "same_file"
         },
         {
-          "symbol": "_utcnow",
+          "symbol": "test_main_builds_control_plane_command_from_environment",
           "definitions": [
             {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 16,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "acquire_lease",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 772,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "append_event",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 602,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "connect",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 28,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 733,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1357,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "heartbeat_lease",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 838,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "in_cooldown",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 767,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "is_leased",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 762,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "load",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 678,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 994,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1168,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "record_outcome",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 910,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "release_lease",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 876,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "save",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 683,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 999,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1173,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "task_key",
-          "definitions": [
-            {
-              "file": "src/production_os/runtime_state.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "transaction",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 42,
+              "file": "tests/test_render_start.py",
+              "line": 37,
               "kind": "function",
               "language": "python"
             }
@@ -8744,951 +7015,34 @@
           "relation": "same_file"
         }
       ],
-      "dependency_count": 19
+      "dependency_count": 3
     },
-    "SQLiteWorkerRegistry": {
+    "test_auth_payload_hashes_tokens_without_storing_plaintext": {
       "source": {
-        "file": "src/production_os/sqlite_backend.py",
-        "start": 977,
-        "end": 1146
+        "file": "tests/test_render_start.py",
+        "start": 20,
+        "end": 35
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "SQLiteBackend",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 20,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "Worker",
-          "definitions": [
-            {
-              "file": "src/production_os/workers.py",
-              "line": 13,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "__init__",
-          "definitions": [
-            {
-              "file": "src/production_os/claims.py",
-              "line": 30,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_row",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 658,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 984,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1156,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_utcnow",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 16,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "adjust_active_tasks",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1095,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "append_event",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 602,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "available",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1139,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "connect",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 28,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "detect_dead",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1116,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "heartbeat",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1069,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "load",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 678,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 994,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1168,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "register",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1026,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "save",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 683,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 999,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1173,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "transaction",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 42,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 15
+      "symbol_dependencies": [],
+      "dependency_count": 0
     },
-    "SQLiteClaimStore": {
+    "test_main_builds_control_plane_command_from_environment": {
       "source": {
-        "file": "src/production_os/sqlite_backend.py",
-        "start": 1149,
-        "end": 1290
+        "file": "tests/test_render_start.py",
+        "start": 37,
+        "end": 64
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "ClaimRecord",
-          "definitions": [
-            {
-              "file": "src/production_os/claims.py",
-              "line": 13,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "SQLiteBackend",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 20,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "__init__",
-          "definitions": [
-            {
-              "file": "src/production_os/claims.py",
-              "line": 30,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_row",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 658,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 984,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1156,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_utcnow",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 16,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "ack",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1242,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1540,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "claim",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1204,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "complete",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1259,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1543,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "connect",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 28,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "expired_unacked",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1280,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "load",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 678,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 994,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1168,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "save",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 683,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 999,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1173,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "transaction",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 42,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 13
+      "symbol_dependencies": [],
+      "dependency_count": 0
     },
-    "SQLiteJobQueue": {
+    "test_invalid_port_fails_closed": {
       "source": {
-        "file": "src/production_os/sqlite_backend.py",
-        "start": 1293,
-        "end": 1734
+        "file": "tests/test_render_start.py",
+        "start": 66,
+        "end": 78
       },
-      "symbol_dependencies": [
-        {
-          "symbol": "SQLiteBackend",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 20,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "__init__",
-          "definitions": [
-            {
-              "file": "src/production_os/claims.py",
-              "line": 30,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_job_dict",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1365,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_transition",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1610,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_utcnow",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 16,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "ack",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1242,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1540,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "append_event",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 602,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "cancel",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1599,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "cancel_queued",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1563,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "claim",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1204,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "claim_key",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1415,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "claim_next",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1468,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "complete",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1259,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1543,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "connect",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 28,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "enqueue",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1297,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "fail",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1553,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 733,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1357,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "peek_candidates",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1384,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "recover_expired",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1695,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "recover_job",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 1648,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "task_key",
-          "definitions": [
-            {
-              "file": "src/production_os/runtime_state.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "transaction",
-          "definitions": [
-            {
-              "file": "src/production_os/sqlite_backend.py",
-              "line": 42,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 22
-    },
-    "reset": {
-      "source": {
-        "file": "tests/test_postgres_backend.py",
-        "start": 23,
-        "end": 27
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "connect",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "test_postgres_runtime_workers_and_queue": {
-      "source": {
-        "file": "tests/test_postgres_backend.py",
-        "start": 30,
-        "end": 62
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "PostgresBackend",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 24,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "PostgresJobQueue",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1325,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "PostgresRuntimeState",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 637,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "PostgresWorkerRegistry",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 965,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "ack",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1254,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1578,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "acquire_lease",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 754,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "adjust_active_tasks",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1091,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "available",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1139,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "claim_next",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1515,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "complete",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1280,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1583,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "enqueue",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1348,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "events_after",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 609,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "register",
-          "definitions": [
-            {
-              "file": "src/production_os/postgres_backend.py",
-              "line": 1010,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "reset",
-          "definitions": [
-            {
-              "file": "tests/test_postgres_backend.py",
-              "line": 23,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 14
+      "symbol_dependencies": [],
+      "dependency_count": 0
     }
   }
 }

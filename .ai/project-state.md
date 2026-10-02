@@ -22,36 +22,32 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-02T10:48:05Z
+Generated: 2026-10-02T13:51:18Z
 
 ### Git
 - Branch: `main`
-- Head: `935ac148e2d5`
-- Commit date: 2026-10-02T12:47:54+02:00
-- Commit: fix(queue): prevent capability starvation beyond first 100 jobs
+- Head: `22e177da109d`
+- Commit date: 2026-10-02T15:50:59+02:00
+- Commit: fix(auth): align Render worker identity with GitHub Actions
 - Tracked files: 540
 
 ### Recently changed files
+- `scripts/render-start.py`
+- `tests/test_render_start.py`
+- `README.md`
 - `src/production_os/control_plane.py`
+- `tests/test_control_plane.py`
+- `tests/test_control_plane_webhook.py`
 - `src/production_os/postgres_backend.py`
 - `src/production_os/sqlite_backend.py`
 - `tests/test_postgres_backend.py`
 - `tests/test_sqlite_backend.py`
 - `tests/test_worker_availability_api.py`
-- `README.md`
 - `src/production_os/dashboard_store.py`
 - `src/production_os/dashboard_ui.py`
 - `src/production_os/device_pairing.py`
 - `tests/test_dashboard_ui_v3.py`
 - `tests/test_device_pairing.py`
-- `tests/test_dashboard_control_audit.py`
-- `tests/test_dashboard_remediation_history.py`
-- `tests/test_dashboard_store_postgres.py`
-- `src/production_os/controller.py`
-- `src/production_os/worker_wake.py`
-- `tests/test_controller_managed_projects.py`
-- `tests/test_dashboard_launch_ux.py`
-- `tests/test_worker_wake.py`
 
 ### Project signals
 - `pyproject.toml`

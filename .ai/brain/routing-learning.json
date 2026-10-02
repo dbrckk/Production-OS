@@ -2,26 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "test: verify cooperative specialist pipeline end to end",
-      "terms": [
-        "cooperative",
-        "end",
-        "pipeline",
-        "specialist",
-        "test",
-        "verify"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/dashboard_ui.py",
-        "src/production_os/managed_projects.py",
-        "tests/test_cooperative_specialist_e2e.py",
-        "tests/test_dashboard_ui_v3.py",
-        "tests/test_managed_project_outcome.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "fix: keep native UI goals out of Playwright routing",
       "terms": [
         "goals",
@@ -1299,6 +1279,27 @@
         "tests/test_sqlite_backend.py",
         "tests/test_worker_availability_api.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "fix(auth): align Render worker identity with GitHub Actions",
+      "terms": [
+        "actions",
+        "align",
+        "auth",
+        "github",
+        "identity",
+        "render",
+        "worker"
+      ],
+      "tests": [],
+      "useful": [
+        "scripts/render-start.py",
+        "src/production_os/control_plane.py",
+        "tests/test_control_plane.py",
+        "tests/test_control_plane_webhook.py",
+        "tests/test_render_start.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1647,15 +1648,20 @@
       "tests/test_worker_wake.py": 4
     },
     "actions": {
+      "scripts/render-start.py": 4,
       "src/production_os/browser_computer.py": 4,
+      "src/production_os/control_plane.py": 4,
       "src/production_os/dashboard_service.py": 8,
       "src/production_os/dashboard_ui.py": 12,
       "tests/test_browser_computer.py": 4,
+      "tests/test_control_plane.py": 4,
+      "tests/test_control_plane_webhook.py": 4,
       "tests/test_dashboard_api.py": 4,
       "tests/test_dashboard_attention.py": 8,
       "tests/test_dashboard_production_inbox_filters_ui.py": 4,
       "tests/test_dashboard_ui_v3.py": 8,
-      "tests/test_release44_one_tap_recovery_actions_e2e.py": 4
+      "tests/test_release44_one_tap_recovery_actions_e2e.py": 4,
+      "tests/test_render_start.py": 4
     },
     "activate": {
       "src/production_os/managed_projects.py": 4,
@@ -1849,6 +1855,13 @@
       "tests/test_task_capabilities.py": 4,
       "tests/test_workflow_engine.py": 4
     },
+    "align": {
+      "scripts/render-start.py": 4,
+      "src/production_os/control_plane.py": 4,
+      "tests/test_control_plane.py": 4,
+      "tests/test_control_plane_webhook.py": 4,
+      "tests/test_render_start.py": 4
+    },
     "analytics": {
       "src/production_os/control_plane.py": 4,
       "src/production_os/dashboard_remediation_metrics.py": 4,
@@ -1941,17 +1954,21 @@
       "tests/test_asset_forge.py": 4
     },
     "auth": {
-      "src/production_os/control_plane.py": 8,
+      "scripts/render-start.py": 4,
+      "src/production_os/control_plane.py": 12,
       "src/production_os/dashboard_store.py": 8,
       "src/production_os/dashboard_ui.py": 8,
       "src/production_os/device_pairing.py": 8,
       "src/production_os/postgres_backend.py": 4,
       "src/production_os/sqlite_backend.py": 4,
+      "tests/test_control_plane.py": 4,
+      "tests/test_control_plane_webhook.py": 4,
       "tests/test_dashboard_control_audit.py": 4,
       "tests/test_dashboard_remediation_history.py": 4,
       "tests/test_dashboard_store_postgres.py": 4,
       "tests/test_dashboard_ui_v3.py": 8,
-      "tests/test_device_pairing.py": 8
+      "tests/test_device_pairing.py": 8,
+      "tests/test_render_start.py": 4
     },
     "authenticated": {
       "tests/test_asset_forge.py": 4,
@@ -3145,11 +3162,16 @@
       "tests/test_repository_cache.py": 4
     },
     "github": {
+      "scripts/render-start.py": 4,
+      "src/production_os/control_plane.py": 4,
       "src/production_os/managed_projects.py": 4,
       "tests/test_asset_forge.py": 4,
+      "tests/test_control_plane.py": 4,
+      "tests/test_control_plane_webhook.py": 4,
       "tests/test_cooperative_managed_projects.py": 4,
       "tests/test_github_client_put_file.py": 4,
-      "tests/test_managed_github_reconciliation.py": 4
+      "tests/test_managed_github_reconciliation.py": 4,
+      "tests/test_render_start.py": 4
     },
     "goals": {
       "src/production_os/managed_projects.py": 4,
@@ -3235,6 +3257,13 @@
       "tests/test_dashboard_ui_v3.py": 4,
       "tests/test_managed_projects_v4.py": 4,
       "tests/test_release42_idempotent_launch_e2e.py": 4
+    },
+    "identity": {
+      "scripts/render-start.py": 4,
+      "src/production_os/control_plane.py": 4,
+      "tests/test_control_plane.py": 4,
+      "tests/test_control_plane_webhook.py": 4,
+      "tests/test_render_start.py": 4
     },
     "immutable": {
       "src/production_os/control_plane.py": 4,
@@ -4347,8 +4376,11 @@
       "tests/test_worker_compose_deployment.py": 4
     },
     "render": {
-      "scripts/render-start.py": 4,
-      "tests/test_render_start.py": 4
+      "scripts/render-start.py": 8,
+      "src/production_os/control_plane.py": 4,
+      "tests/test_control_plane.py": 4,
+      "tests/test_control_plane_webhook.py": 4,
+      "tests/test_render_start.py": 8
     },
     "replay": {
       "src/production_os/browser_computer.py": 4,
@@ -5215,9 +5247,10 @@
       "tests/test_workers.py": 4
     },
     "worker": {
+      "scripts/render-start.py": 4,
       "src/production_os/browser_computer.py": 4,
       "src/production_os/cli.py": 8,
-      "src/production_os/control_plane.py": 28,
+      "src/production_os/control_plane.py": 32,
       "src/production_os/controller.py": 8,
       "src/production_os/dashboard_control.py": 4,
       "src/production_os/dashboard_service.py": 4,
@@ -5233,6 +5266,8 @@
       "tests/test_browser_computer.py": 4,
       "tests/test_browser_worker_image.py": 4,
       "tests/test_cli.py": 4,
+      "tests/test_control_plane.py": 4,
+      "tests/test_control_plane_webhook.py": 4,
       "tests/test_controller_asset_capabilities.py": 4,
       "tests/test_controller_managed_projects.py": 4,
       "tests/test_cooperative_managed_projects.py": 4,
@@ -5246,6 +5281,7 @@
       "tests/test_release55_worker_operations.py": 4,
       "tests/test_remote_worker.py": 4,
       "tests/test_remote_worker_runner.py": 8,
+      "tests/test_render_start.py": 4,
       "tests/test_specialist_job_preferences.py": 4,
       "tests/test_task_capabilities.py": 4,
       "tests/test_worker_availability_api.py": 4,

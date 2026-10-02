@@ -754,14 +754,14 @@ def _required(name: str) -> str
 ⋮----
 value = str(os.environ.get(name) or "").strip()
 ⋮----
-def _auth_payload(worker_token: str, operator_token: str) -> dict
-⋮----
 def digest(value: str) -> str
 ⋮----
 def main() -> None
 ⋮----
 database_url = _required("DATABASE_URL")
 worker_token = _required("PRODUCTION_OS_WORKER_TOKEN")
+worker_name = str(
+⋮----
 operator_token = _required("PRODUCTION_OS_OPERATOR_TOKEN")
 port = str(os.environ.get("PORT") or "8787").strip()
 ⋮----
@@ -3641,6 +3641,8 @@ dispatched = []
 ⋮----
 decisions = control.workflows.apply_change_impact(
 jobs = control.workflows.dispatch_ready(
+⋮----
+webhook_wake = (
 ⋮----
 backup_id = parts[3]
 requested_by = f"{principal.role}:{principal.name}"
@@ -12187,6 +12189,10 @@ base=f"http://127.0.0.1:{server.server_port}"
 ⋮----
 key=claimed["job"]["key"]
 ⋮----
+def test_direct_enqueue_requests_worker_wake_when_no_worker_is_online(tmp_path)
+⋮----
+control=ControlPlane(str(tmp_path/"wake-enqueue.sqlite"),authorizer=auth)
+⋮----
 def test_trust_status_endpoint_requires_auth_and_forwards_filters(tmp_path)
 ⋮----
 captured={}
@@ -19822,7 +19828,7 @@ failed
 
 `scheduled_fallback` means no immediate dispatch was possible and the existing five-minute scheduled worker poll remains the next wake-up path. It must not be presented as a started worker.
 
-Automatic wake-up is queue-driven, not dashboard-only. New managed projects, added instructions, verification runs, operator retries, recovered stuck jobs, and durable work discovered by the autonomous controller all reuse the same wake policy. An online worker suppresses extra dispatches, a fleet-wide operator pause/drain is respected, and recent automatic wake attempts are deduplicated with a durable cooldown.
+Automatic wake-up is queue-driven, not dashboard-only. New managed projects, added instructions, verification runs, operator retries, recovered stuck jobs, direct operator job enqueue, GitHub webhook-dispatched jobs, and durable work discovered by the autonomous controller all reuse the same wake policy. An online worker suppresses extra dispatches, a fleet-wide operator pause/drain is respected, and recent automatic wake attempts are deduplicated with a durable cooldown.
 
 Workers can also perform a non-destructive preflight before expensive runtime setup:
 

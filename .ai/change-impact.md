@@ -1,24 +1,18 @@
 # Change impact
 
-Base: 7b9efe1616825e6e78be563f65696c865a70ca72
-Head: 935ac148e2d5d408ad0e27d89cb2983ec5210d9a
+Base: 76b203255751310bcca44d318f6953ae828fcd55
+Head: 22e177da109d3e3d8e9ed232f84c2df6dc89c981
 
 ## Changed files
-- M src/production_os/control_plane.py
-- M src/production_os/postgres_backend.py
-- M src/production_os/sqlite_backend.py
-- M tests/test_postgres_backend.py
-- M tests/test_sqlite_backend.py
-- M tests/test_worker_availability_api.py
+- M scripts/render-start.py
+- M tests/test_render_start.py
 
 ## Affected areas
-- src
+- scripts
 - tests
 
 ## Related test candidates
-- tests/test_control_plane.py
-- tests/test_postgres_backend.py
-- tests/test_sqlite_backend.py
+- No direct filename-based test match detected.
 
 ## Agent guidance
 - Read this file before broad repository exploration.

@@ -1297,6 +1297,10 @@ base=f"http://127.0.0.1:{server.server_port}"
 ⋮----
 key=claimed["job"]["key"]
 ⋮----
+def test_direct_enqueue_requests_worker_wake_when_no_worker_is_online(tmp_path)
+⋮----
+control=ControlPlane(str(tmp_path/"wake-enqueue.sqlite"),authorizer=auth)
+⋮----
 def test_trust_status_endpoint_requires_auth_and_forwards_filters(tmp_path)
 ⋮----
 captured={}

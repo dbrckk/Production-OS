@@ -51,14 +51,14 @@ def _required(name: str) -> str
 ⋮----
 value = str(os.environ.get(name) or "").strip()
 ⋮----
-def _auth_payload(worker_token: str, operator_token: str) -> dict
-⋮----
 def digest(value: str) -> str
 ⋮----
 def main() -> None
 ⋮----
 database_url = _required("DATABASE_URL")
 worker_token = _required("PRODUCTION_OS_WORKER_TOKEN")
+worker_name = str(
+⋮----
 operator_token = _required("PRODUCTION_OS_OPERATOR_TOKEN")
 port = str(os.environ.get("PORT") or "8787").strip()
 ⋮----

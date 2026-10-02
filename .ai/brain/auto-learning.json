@@ -5,29 +5,27 @@
     "example_count": 64,
     "rejected_count": 0,
     "terms": [
-      "100",
-      "beyond",
-      "capability",
-      "first",
-      "jobs",
-      "prevent",
-      "queue",
-      "starvation"
+      "actions",
+      "align",
+      "auth",
+      "github",
+      "identity",
+      "render",
+      "worker"
     ],
     "test_count": 0,
-    "useful_count": 6
+    "useful_count": 5
   },
   "note": "Selected tests are routing hints; this artifact does not claim they executed successfully.",
   "rejected": [],
   "schema_version": 1,
-  "task": "fix(queue): prevent capability starvation beyond first 100 jobs",
+  "task": "fix(auth): align Render worker identity with GitHub Actions",
   "tests_selected": [],
   "useful": [
+    "scripts/render-start.py",
     "src/production_os/control_plane.py",
-    "src/production_os/postgres_backend.py",
-    "src/production_os/sqlite_backend.py",
-    "tests/test_postgres_backend.py",
-    "tests/test_sqlite_backend.py",
-    "tests/test_worker_availability_api.py"
+    "tests/test_control_plane.py",
+    "tests/test_control_plane_webhook.py",
+    "tests/test_render_start.py"
   ]
 }
