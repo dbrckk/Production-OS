@@ -1,3 +1,6 @@
+import shutil
+import subprocess
+
 from production_os.dashboard_ui import DASHBOARD_HTML
 
 
@@ -900,3 +903,19 @@ def test_dashboard_supports_one_time_fragment_pairing_without_operator_token_lin
     assert "Appareils appairés" in DASHBOARD_HTML
     assert "item.last_used_at" in DASHBOARD_HTML
     assert "dernière activité" in DASHBOARD_HTML
+
+
+
+def test_dashboard_runtime_javascript_parses(tmp_path):
+    node = shutil.which("node")
+    assert node is not None, "Node.js is required to validate dashboard JavaScript"
+    script = DASHBOARD_HTML.split("<script>", 1)[1].split("</script>", 1)[0]
+    script_path = tmp_path / "dashboard-runtime.js"
+    script_path.write_text(script, encoding="utf-8")
+    result = subprocess.run(
+        [node, "--check", str(script_path)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
