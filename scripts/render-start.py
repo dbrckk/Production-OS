@@ -38,6 +38,11 @@ def _auth_payload(\n    worker_token: str,\n    operator_token: str,\n    worker
 def main() -> None:
     database_url = _required("DATABASE_URL")
     worker_token = _required("PRODUCTION_OS_WORKER_TOKEN")
+    worker_name = str(
+        os.environ.get("PRODUCTION_OS_WORKER_ID") or "github-actions-worker"
+    ).strip()
+    if not worker_name:
+        raise SystemExit("PRODUCTION_OS_WORKER_ID must not be empty")
     operator_token = _required("PRODUCTION_OS_OPERATOR_TOKEN")
     port = str(os.environ.get("PORT") or "8787").strip()
     if not port.isdigit() or not (1 <= int(port) <= 65535):
@@ -47,7 +52,10 @@ def main() -> None:
     runtime_dir.mkdir(parents=True, exist_ok=True)
     auth_path = runtime_dir / "auth.json"
     auth_path.write_text(
-        json.dumps(_auth_payload(worker_token, operator_token, worker_name), separators=(",", ":")),
+        json.dumps(
+            _auth_payload(worker_token, operator_token, worker_name),
+            separators=(",", ":"),
+        ),
         encoding="utf-8",
     )
     try:
