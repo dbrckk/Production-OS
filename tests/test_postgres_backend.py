@@ -108,3 +108,30 @@ def test_postgres_learned_skill_storage_round_trip():
         capabilities=["test-debug"],
     )
     assert [row.skill_id for row in selected] == [learned.skill_id]
+
+
+def test_postgres_claim_finds_compatible_job_beyond_first_hundred():
+    backend=PostgresBackend(DSN)
+    reset(backend)
+    queue=PostgresJobQueue(backend)
+    for index in range(101):
+        queue.enqueue({
+            "handoff":{
+                "repository":"o/incompatible",
+                "task":f"blocked-{index}",
+                "priority":100,
+            },
+            "required_capabilities":["gpu-only"],
+        })
+    compatible=queue.enqueue({
+        "handoff":{
+            "repository":"o/compatible",
+            "task":"runnable",
+            "priority":10,
+        },
+        "required_capabilities":["python"],
+    })
+
+    claimed=queue.claim_next("python-worker",capabilities=["python"])
+    assert claimed is not None
+    assert claimed["key"]==compatible["key"]

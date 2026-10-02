@@ -1533,7 +1533,7 @@ class PostgresJobQueue:
                       AND (assigned_worker IS NULL OR assigned_worker=%s)
                     ORDER BY priority DESC, created_at ASC
                     FOR UPDATE SKIP LOCKED
-                    LIMIT 100
+                    LIMIT 1000
                     """,
                     (worker_id,),
                 )

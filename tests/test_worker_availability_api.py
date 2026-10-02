@@ -230,3 +230,39 @@ def test_worker_availability_requires_worker_auth_and_valid_shape(tmp_path):
         server.shutdown()
         server.server_close()
         thread.join(timeout=2)
+
+
+
+def test_worker_availability_matches_deep_claim_window(tmp_path):
+    control = ControlPlane(str(tmp_path / "availability-deep.sqlite"), authorizer=_auth())
+    for index in range(101):
+        control.queue.enqueue({
+            "handoff":{
+                "repository":"owner/incompatible",
+                "task":f"blocked-{index}",
+                "priority":100,
+            },
+            "required_capabilities":["gpu-only"],
+        })
+    compatible = control.queue.enqueue({
+        "handoff":{
+            "repository":"owner/compatible",
+            "task":"runnable",
+            "priority":10,
+        },
+        "required_capabilities":["python"],
+    })
+
+    result = control.worker_queue_availability(
+        worker_id="python-worker",
+        capabilities=["python"],
+    )
+    assert result["available"] is True
+    assert result["compatible_jobs"] == 1
+
+    claimed = control.queue.claim_next(
+        "python-worker",
+        capabilities=["python"],
+    )
+    assert claimed is not None
+    assert claimed["key"] == compatible["key"]

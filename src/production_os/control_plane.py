@@ -138,7 +138,7 @@ class ControlPlane:
         *,
         worker_id: str,
         capabilities: list[str],
-        limit: int = 100,
+        limit: int = 1000,
     ) -> dict:
         if not isinstance(worker_id, str):
             raise ValueError("worker_id must be a string")

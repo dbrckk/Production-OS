@@ -1482,7 +1482,7 @@ class SQLiteJobQueue:
                 WHERE status='queued'
                   AND (assigned_worker IS NULL OR assigned_worker=?)
                 ORDER BY priority DESC, created_at ASC
-                LIMIT 100
+                LIMIT 1000
                 """,
                 (worker_id,),
             ).fetchall()
