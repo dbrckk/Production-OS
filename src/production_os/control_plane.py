@@ -140,13 +140,17 @@ class ControlPlane:
         capabilities: list[str],
         limit: int = 100,
     ) -> dict:
-        worker = str(worker_id or "").strip()
+        if not isinstance(worker_id, str):
+            raise ValueError("worker_id must be a string")
+        worker = worker_id.strip()
         if not worker or len(worker) > 128:
             raise ValueError("worker_id is invalid")
         normalized = []
         seen = set()
         for raw in capabilities:
-            value = str(raw or "").strip()
+            if not isinstance(raw, str):
+                raise ValueError("capabilities must contain strings")
+            value = raw.strip()
             if not value or len(value) > 128:
                 raise ValueError("capabilities are invalid")
             if value in seen:
@@ -1257,8 +1261,11 @@ def make_handler(control: ControlPlane):
                     capabilities = body.get("capabilities", [])
                     if not isinstance(capabilities, list):
                         raise ValueError("capabilities must be a list")
+                    worker_id = body.get("worker_id")
+                    if not isinstance(worker_id, str):
+                        raise ValueError("worker_id must be a string")
                     availability = control.worker_queue_availability(
-                        worker_id=str(body.get("worker_id") or ""),
+                        worker_id=worker_id,
                         capabilities=capabilities,
                     )
                 except ValueError as exc:
