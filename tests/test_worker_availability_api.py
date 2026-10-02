@@ -197,6 +197,28 @@ def test_worker_availability_requires_worker_auth_and_valid_shape(tmp_path):
             base,
             "worker",
             {
+                "worker_id":123,
+                "capabilities":["python"],
+            },
+        )
+        assert status == 400
+        assert payload["error"] == "worker_id must be a string"
+
+        status, payload = _post(
+            base,
+            "worker",
+            {
+                "worker_id":"worker-a",
+                "capabilities":["python", 123],
+            },
+        )
+        assert status == 400
+        assert payload["error"] == "capabilities must contain strings"
+
+        status, payload = _post(
+            base,
+            "worker",
+            {
                 "worker_id":"worker-a",
                 "capabilities":["python"],
                 "unexpected":True,
