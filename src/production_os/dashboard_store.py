@@ -645,6 +645,27 @@ class DashboardStore:
                             remediation.id DESC""",
             )
 
+    def active_pairing_code_count(
+        self,
+        *,
+        requested_by: str,
+        at: str | None = None,
+    ) -> int:
+        timestamp = at or _now()
+        with self.backend.connect() as db:
+            cursor = _execute(
+                db,
+                self.backend,
+                """SELECT COUNT(*) AS n
+                   FROM device_pairing_codes
+                   WHERE requested_by=?
+                     AND consumed_at IS NULL
+                     AND expires_at>?""",
+                (requested_by, timestamp),
+            )
+            row = cursor.fetchone()
+        return int(row["n"] if row is not None else 0)
+
     def create_pairing_code(
         self,
         *,
@@ -753,6 +774,26 @@ class DashboardStore:
                    LIMIT 1""",
                 (token_sha256, timestamp),
             )
+
+    def touch_device_session(
+        self,
+        *,
+        token_sha256: str,
+        at: str | None = None,
+    ) -> bool:
+        timestamp = at or _now()
+        with self.backend.transaction() as db:
+            cursor = _execute(
+                db,
+                self.backend,
+                """UPDATE device_sessions
+                   SET last_used_at=?
+                   WHERE token_sha256=?
+                     AND revoked_at IS NULL
+                     AND expires_at>?""",
+                (timestamp, token_sha256, timestamp),
+            )
+            return int(cursor.rowcount or 0) == 1
 
     def prune_expired_device_auth(
         self,
