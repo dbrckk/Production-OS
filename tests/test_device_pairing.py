@@ -298,3 +298,101 @@ def test_pairing_maintenance_prunes_expired_and_revoked_rows(tmp_path):
     assert revoked is not None
     assert revoked["revoked_at"] is not None
     assert control.device_pairing.sessions() == []
+
+
+
+def test_device_last_used_is_refreshed_at_most_once_per_five_minutes(tmp_path):
+    control = ControlPlane(str(tmp_path / "pairing-activity.sqlite"), authorizer=_auth())
+    now = datetime(2026, 10, 2, 6, 0, tzinfo=timezone.utc)
+    issued = control.device_pairing.issue_pairing_code(
+        requested_by="operator:test",
+        now=now,
+    )
+    exchanged = control.device_pairing.exchange(
+        issued["code"],
+        device_name="android-phone",
+        now=now,
+    )
+    token = exchanged["session_token"]
+    digest = token_digest(token)
+
+    assert control.device_pairing.authenticate(
+        token,
+        now=now + timedelta(seconds=299),
+    ) is not None
+    with control.backend.connect() as db:
+        first = db.execute(
+            "SELECT last_used_at FROM device_sessions WHERE token_sha256=?",
+            (digest,),
+        ).fetchone()["last_used_at"]
+    assert first == now.isoformat()
+
+    touched_at = now + timedelta(seconds=300)
+    assert control.device_pairing.authenticate(
+        token,
+        now=touched_at,
+    ) is not None
+    with control.backend.connect() as db:
+        second = db.execute(
+            "SELECT last_used_at FROM device_sessions WHERE token_sha256=?",
+            (digest,),
+        ).fetchone()["last_used_at"]
+    assert second == touched_at.isoformat()
+
+
+def test_pairing_code_limit_is_per_operator_and_pruned_after_expiry(tmp_path):
+    control = ControlPlane(str(tmp_path / "pairing-limit.sqlite"), authorizer=_auth())
+    now = datetime(2026, 10, 2, 6, 0, tzinfo=timezone.utc)
+
+    for _ in range(10):
+        control.device_pairing.issue_pairing_code(
+            requested_by="operator:a",
+            now=now,
+        )
+
+    with pytest.raises(ValueError, match="too many active pairing codes"):
+        control.device_pairing.issue_pairing_code(
+            requested_by="operator:a",
+            now=now,
+        )
+
+    # Another operator has an independent allowance.
+    other = control.device_pairing.issue_pairing_code(
+        requested_by="operator:b",
+        now=now,
+    )
+    assert other["code"].startswith("posp_")
+
+    # The expired set is pruned before the next issuance.
+    later = control.device_pairing.issue_pairing_code(
+        requested_by="operator:a",
+        now=now + timedelta(seconds=601),
+    )
+    assert later["code"].startswith("posp_")
+
+
+def test_http_pairing_code_limit_returns_429(tmp_path):
+    control = ControlPlane(str(tmp_path / "pairing-limit-http.sqlite"), authorizer=_auth())
+    server, thread, base = _server(control)
+    try:
+        for _ in range(10):
+            status, _payload = _request(
+                base,
+                "/v1/dashboard/pairing-codes",
+                token="operator",
+                method="POST",
+            )
+            assert status == 201
+
+        status, payload = _request(
+            base,
+            "/v1/dashboard/pairing-codes",
+            token="operator",
+            method="POST",
+        )
+        assert status == 429
+        assert payload["error"] == "too many active pairing codes"
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
