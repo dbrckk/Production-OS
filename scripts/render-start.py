@@ -15,7 +15,11 @@ def _required(name: str) -> str:
     return value
 
 
-def _auth_payload(\n    worker_token: str,\n    operator_token: str,\n    worker_name: str = "github-actions-worker",\n) -> dict:
+def _auth_payload(
+    worker_token: str,
+    operator_token: str,
+    worker_name: str = "github-actions-worker",
+) -> dict:
     def digest(value: str) -> str:
         return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
