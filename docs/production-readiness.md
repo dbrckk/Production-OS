@@ -38,3 +38,12 @@ Rekor witness independence is an operational requirement: deployments that rely 
 The supported stable line is 1.x. Changes that break documented CLI, persistence, receipt or API contracts require a new major version. Security and correctness fixes may ship in compatible 1.x releases after passing the same canonical qualification gate.
 
 A release must not be declared stable from a branch-only result. The exact merged release commit on `main` must be green before a tag or GitHub Release is created.
+
+
+## Generated-context head qualification
+
+Repository-standards may advance `main` after an application merge by committing regenerated `.ai/**` context. Those generated-only commits are part of the branch history, so Production-OS treats the resulting commit as the new release candidate rather than relying on the CI result of its parent.
+
+The repository-standards workflow therefore compares the post-generation `main` head with the triggering commit. If generated context advanced the branch, it explicitly dispatches the canonical `ci.yml` workflow against the new head. A generated-only commit must not be considered release-qualified until that exact-head CI succeeds.
+
+Generated unified AI-context commits are marked `[skip render]`. They stage only `.ai/**`, so this prevents redundant Render rebuilds without suppressing deployment of application, workflow, configuration, or documentation changes that can affect the production artifact.
