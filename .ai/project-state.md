@@ -22,35 +22,36 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-01T21:02:31Z
+Generated: 2026-10-02T05:40:19Z
 
 ### Git
 - Branch: `main`
-- Head: `188bfe1cad72`
-- Commit date: 2026-10-01T23:02:19+02:00
-- Commit: feat(worker): make automatic wake queue-driven across Production-OS
-- Tracked files: 537
+- Head: `9cf817b65569`
+- Commit date: 2026-10-02T07:40:07+02:00
+- Commit: feat(auth): add one-time revocable mobile device pairing
+- Tracked files: 539
 
 ### Recently changed files
 - `README.md`
 - `src/production_os/control_plane.py`
+- `src/production_os/dashboard_store.py`
+- `src/production_os/dashboard_ui.py`
+- `src/production_os/device_pairing.py`
+- `src/production_os/postgres_backend.py`
+- `src/production_os/sqlite_backend.py`
+- `tests/test_dashboard_control_audit.py`
+- `tests/test_dashboard_remediation_history.py`
+- `tests/test_dashboard_store_postgres.py`
+- `tests/test_dashboard_ui_v3.py`
+- `tests/test_device_pairing.py`
 - `src/production_os/controller.py`
 - `src/production_os/worker_wake.py`
 - `tests/test_controller_managed_projects.py`
 - `tests/test_dashboard_launch_ux.py`
 - `tests/test_worker_wake.py`
-- `src/production_os/postgres_backend.py`
 - `tests/test_postgres_connect_timeout_unit.py`
 - `src/production_os/dashboard_control.py`
 - `src/production_os/dashboard_service.py`
-- `src/production_os/dashboard_ui.py`
-- `tests/test_dashboard_control.py`
-- `tests/test_dashboard_launch.py`
-- `tests/test_dashboard_launch_readiness.py`
-- `.github/workflows/ci.yml`
-- `.python-version`
-- `pyproject.toml`
-- `tests/test_runtime_contract.py`
 
 ### Project signals
 - `pyproject.toml`

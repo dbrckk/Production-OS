@@ -110,6 +110,7 @@ test_dashboard_ui_v3.py
 test_dashboard_usage.py
 test_database_maintenance_lock.py
 test_deep_fingerprint_starlist.py
+test_device_pairing.py
 test_dynamic_agent_fanout.py
 test_emergency_key_revocation.py
 test_execution_feedback_trends.py
@@ -2248,7 +2249,7 @@ base = f"http://127.0.0.1:{server.server_port}"
 ⋮----
 events = payload["events"]
 ⋮----
-def test_release17_schema_is_v16_and_contains_managed_project_tables(tmp_path)
+def test_release18_schema_contains_managed_project_and_pairing_tables(tmp_path)
 ⋮----
 backend = SQLiteBackend(tmp_path / "schema.sqlite")
 ⋮----
@@ -2259,6 +2260,9 @@ remediation_columns = {
 ⋮----
 managed = db.execute(
 runs = db.execute(
+⋮----
+pairing = db.execute(
+sessions = db.execute(
 ⋮----
 def test_control_action_remains_traced_if_audit_finalization_fails(tmp_path)
 ⋮----
@@ -3055,7 +3059,7 @@ reopened = store.upsert_dashboard_incident(
 ⋮----
 after = store.remediation_events(limit=1)[0]
 ⋮----
-def test_sqlite_v14_database_is_migrated_additively_to_v16(tmp_path)
+def test_sqlite_v14_database_is_migrated_additively_to_v18(tmp_path)
 ⋮----
 path = tmp_path / "migration.sqlite"
 db = sqlite3.connect(path)
@@ -3219,7 +3223,7 @@ pytestmark = pytest.mark.skipif(
 ⋮----
 REQUIRED_EXECUTION_COLUMNS = {
 ⋮----
-def test_postgres_schema_v16_has_managed_project_generation_tables()
+def test_postgres_schema_v18_has_managed_project_and_pairing_tables()
 ⋮----
 backend = PostgresBackend(DSN)
 ⋮----
@@ -3538,7 +3542,9 @@ def test_dashboard_has_server_backed_multi_production_view()
 ⋮----
 def test_production_inbox_renders_live_runtime_and_server_actions()
 ⋮----
-def test_dashboard_supports_secure_fragment_pairing_without_query_leak()
+def test_dashboard_supports_one_time_fragment_pairing_without_operator_token_link()
+⋮----
+bootstrap = DASHBOARD_HTML.split(
 ```
 
 ## File: test_dashboard_usage.py
@@ -3615,6 +3621,86 @@ def test_starlist_catalog_is_ranked_by_score_and_match()
 ⋮----
 catalog = {
 refs = suggest_external_references("backtesting", catalog)
+```
+
+## File: test_device_pairing.py
+```python
+def _auth()
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+def _request(base, path, *, token=None, method="GET", body=None)
+⋮----
+data = None if body is None else json.dumps(body).encode("utf-8")
+headers = {}
+⋮----
+req = urllib.request.Request(
+⋮----
+def test_pairing_code_is_single_use_and_creates_revocable_device_session(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "pairing.sqlite"), authorizer=_auth())
+⋮----
+issued = control.device_pairing.issue_pairing_code(
+⋮----
+exchanged = control.device_pairing.exchange(
+token = exchanged["session_token"]
+⋮----
+principal = control.device_pairing.authenticate(token)
+⋮----
+sessions = control.device_pairing.sessions()
+⋮----
+def test_expired_pairing_code_is_rejected(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "pairing-expired.sqlite"), authorizer=_auth())
+now = datetime(2026, 10, 1, 12, 0, tzinfo=timezone.utc)
+⋮----
+def test_pairing_storage_never_contains_plaintext_code_or_session_token(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "pairing-hash.sqlite"), authorizer=_auth())
+⋮----
+exchanged = control.device_pairing.exchange(issued["code"])
+⋮----
+code = db.execute(
+session = db.execute(
+⋮----
+def test_http_pairing_exchange_authenticates_device_and_revokes_current_session(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "pairing-http.sqlite"), authorizer=_auth())
+⋮----
+code = issued["code"]
+⋮----
+device_token = exchanged["session_token"]
+⋮----
+session_id = exchanged["session_id"]
+⋮----
+device_token = replacement["session_token"]
+⋮----
+def test_viewer_cannot_issue_pairing_code_and_unknown_fields_are_rejected(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "pairing-permissions.sqlite"), authorizer=_auth())
+⋮----
+def test_pairing_schema_is_persisted_at_version_18(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "pairing-schema.sqlite"), authorizer=_auth())
+⋮----
+version = db.execute(
+tables = {
+⋮----
+def test_pairing_maintenance_prunes_expired_and_revoked_rows(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "pairing-prune.sqlite"), authorizer=_auth())
+⋮----
+expired = control.device_pairing.issue_pairing_code(
+active = control.device_pairing.issue_pairing_code(
+session = control.device_pairing.exchange(
+⋮----
+removed = control.dashboard_store.prune_expired_device_auth(
+⋮----
+expired_count = db.execute(
+revoked = db.execute(
 ```
 
 ## File: test_dynamic_agent_fanout.py

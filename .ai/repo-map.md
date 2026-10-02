@@ -105,6 +105,7 @@ src/
     database_maintenance_lock.py
     deep_fingerprint.py
     delivery.py
+    device_pairing.py
     dispatch.py
     dual_sign.py
     emergency.py
@@ -263,6 +264,7 @@ tests/
   test_dashboard_usage.py
   test_database_maintenance_lock.py
   test_deep_fingerprint_starlist.py
+  test_device_pairing.py
   test_dynamic_agent_fanout.py
   test_emergency_key_revocation.py
   test_execution_feedback_trends.py
@@ -3434,11 +3436,17 @@ raw = self._read_body()
 ⋮----
 payload = json.loads(raw.decode("utf-8"))
 ⋮----
-def _principal(self) -> Principal | None
+def _bearer_token(self) -> str | None
 ⋮----
 header = self.headers.get("Authorization", "")
 prefix = "Bearer "
-token = header[len(prefix):] if header.startswith(prefix) else None
+⋮----
+token = header[len(prefix):].strip()
+⋮----
+def _principal(self) -> Principal | None
+⋮----
+token = self._bearer_token()
+principal = control.authorizer.authenticate(token)
 ⋮----
 def _require(self, role: str) -> Principal | None
 ⋮----
@@ -3459,6 +3467,8 @@ query = parse_qs(parsed.query)
 window = query.get("window", ["7d"])[0]
 parts = [part for part in parsed.path.split("/") if part]
 service = control.dashboard
+⋮----
+payload = {
 ⋮----
 payload = service.overview(window)
 ⋮----
@@ -3551,9 +3561,20 @@ project = control.managed_projects.get(parts[2])
 ⋮----
 def do_POST(self) -> None
 ⋮----
+body = self._read_json()
+unknown = sorted(
+⋮----
+pairing = control.device_pairing.exchange(
+⋮----
 principal = self._require("operator")
 ⋮----
-body = self._read_json()
+pairing = control.device_pairing.issue_pairing_code(
+⋮----
+revoked = control.device_pairing.revoke(
+⋮----
+session_id = str(parts[3]).strip()
+revoked = control.device_pairing.revoke_session(session_id)
+⋮----
 request_id = str(body.get("request_id") or "").strip()
 project_id = None
 ⋮----
@@ -5391,6 +5412,17 @@ current = self._fetchone(
 ⋮----
 def remediation_analytics_rows(self) -> list[dict]
 ⋮----
+created_at = at or _now()
+⋮----
+code = self._fetchone(
+⋮----
+cursor = _execute(
+⋮----
+codes = _execute(
+sessions = _execute(
+⋮----
+bounded = max(1, min(200, int(limit)))
+⋮----
 def control_audit_events(self, *, limit: int = 100) -> list[dict]
 ⋮----
 def get_worker_control(self, worker_id: str) -> dict | None
@@ -5583,6 +5615,53 @@ record = runtime_state.get(claim.repository, claim.task)
 current = claims.claims.get(claim.key)
 ⋮----
 target = dead / source.name
+````
+
+## File: src/production_os/device_pairing.py
+````python
+PAIRING_CODE_TTL_SECONDS = 600
+DEVICE_SESSION_TTL_DAYS = 90
+PAIRING_CODE_PREFIX = "posp_"
+DEVICE_TOKEN_PREFIX = "posd_"
+⋮----
+def _now() -> datetime
+⋮----
+def _device_name(value: str | None) -> str
+⋮----
+name = "dashboard-device" if value is None else str(value).strip()
+⋮----
+name = "dashboard-device"
+⋮----
+class DevicePairingManager
+⋮----
+def __init__(self, store)
+⋮----
+issued_at = now or _now()
+⋮----
+code = PAIRING_CODE_PREFIX + secrets.token_urlsafe(24)
+expires_at = issued_at + timedelta(seconds=PAIRING_CODE_TTL_SECONDS)
+row = self.store.create_pairing_code(
+⋮----
+value = str(code or "").strip()
+⋮----
+token = DEVICE_TOKEN_PREFIX + secrets.token_urlsafe(32)
+expires_at = issued_at + timedelta(days=DEVICE_SESSION_TTL_DAYS)
+session_id = uuid4().hex
+⋮----
+session = self.store.exchange_pairing_code(
+⋮----
+value = str(token or "").strip()
+⋮----
+timestamp = (now or _now()).isoformat()
+session = self.store.device_session(
+⋮----
+role = str(session.get("role") or "")
+⋮----
+def revoke(self, token: str | None, *, now: datetime | None = None) -> bool
+⋮----
+value = str(session_id or "").strip()
+⋮----
+def sessions(self, *, limit: int = 50) -> list[dict]
 ````
 
 ## File: src/production_os/dispatch.py
@@ -7802,7 +7881,7 @@ def _utcnow() -> str
 ⋮----
 class PostgresBackend
 ⋮----
-SCHEMA_VERSION = 17
+SCHEMA_VERSION = 18
 CONNECT_TIMEOUT_SECONDS = 10
 ⋮----
 def __init__(self, dsn: str)
@@ -9731,7 +9810,7 @@ def _utcnow() -> str
 ⋮----
 class SQLiteBackend
 ⋮----
-SCHEMA_VERSION = 17
+SCHEMA_VERSION = 18
 ⋮----
 def __init__(self, path: str | Path)
 ⋮----
@@ -13020,7 +13099,7 @@ base = f"http://127.0.0.1:{server.server_port}"
 ⋮----
 events = payload["events"]
 ⋮----
-def test_release17_schema_is_v16_and_contains_managed_project_tables(tmp_path)
+def test_release18_schema_contains_managed_project_and_pairing_tables(tmp_path)
 ⋮----
 backend = SQLiteBackend(tmp_path / "schema.sqlite")
 ⋮----
@@ -13031,6 +13110,9 @@ remediation_columns = {
 ⋮----
 managed = db.execute(
 runs = db.execute(
+⋮----
+pairing = db.execute(
+sessions = db.execute(
 ⋮----
 def test_control_action_remains_traced_if_audit_finalization_fails(tmp_path)
 ⋮----
@@ -13827,7 +13909,7 @@ reopened = store.upsert_dashboard_incident(
 ⋮----
 after = store.remediation_events(limit=1)[0]
 ⋮----
-def test_sqlite_v14_database_is_migrated_additively_to_v16(tmp_path)
+def test_sqlite_v14_database_is_migrated_additively_to_v18(tmp_path)
 ⋮----
 path = tmp_path / "migration.sqlite"
 db = sqlite3.connect(path)
@@ -13991,7 +14073,7 @@ pytestmark = pytest.mark.skipif(
 ⋮----
 REQUIRED_EXECUTION_COLUMNS = {
 ⋮----
-def test_postgres_schema_v16_has_managed_project_generation_tables()
+def test_postgres_schema_v18_has_managed_project_and_pairing_tables()
 ⋮----
 backend = PostgresBackend(DSN)
 ⋮----
@@ -14310,7 +14392,9 @@ def test_dashboard_has_server_backed_multi_production_view()
 ⋮----
 def test_production_inbox_renders_live_runtime_and_server_actions()
 ⋮----
-def test_dashboard_supports_secure_fragment_pairing_without_query_leak()
+def test_dashboard_supports_one_time_fragment_pairing_without_operator_token_link()
+⋮----
+bootstrap = DASHBOARD_HTML.split(
 ````
 
 ## File: tests/test_dashboard_usage.py
@@ -14387,6 +14471,86 @@ def test_starlist_catalog_is_ranked_by_score_and_match()
 ⋮----
 catalog = {
 refs = suggest_external_references("backtesting", catalog)
+````
+
+## File: tests/test_device_pairing.py
+````python
+def _auth()
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+def _request(base, path, *, token=None, method="GET", body=None)
+⋮----
+data = None if body is None else json.dumps(body).encode("utf-8")
+headers = {}
+⋮----
+req = urllib.request.Request(
+⋮----
+def test_pairing_code_is_single_use_and_creates_revocable_device_session(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "pairing.sqlite"), authorizer=_auth())
+⋮----
+issued = control.device_pairing.issue_pairing_code(
+⋮----
+exchanged = control.device_pairing.exchange(
+token = exchanged["session_token"]
+⋮----
+principal = control.device_pairing.authenticate(token)
+⋮----
+sessions = control.device_pairing.sessions()
+⋮----
+def test_expired_pairing_code_is_rejected(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "pairing-expired.sqlite"), authorizer=_auth())
+now = datetime(2026, 10, 1, 12, 0, tzinfo=timezone.utc)
+⋮----
+def test_pairing_storage_never_contains_plaintext_code_or_session_token(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "pairing-hash.sqlite"), authorizer=_auth())
+⋮----
+exchanged = control.device_pairing.exchange(issued["code"])
+⋮----
+code = db.execute(
+session = db.execute(
+⋮----
+def test_http_pairing_exchange_authenticates_device_and_revokes_current_session(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "pairing-http.sqlite"), authorizer=_auth())
+⋮----
+code = issued["code"]
+⋮----
+device_token = exchanged["session_token"]
+⋮----
+session_id = exchanged["session_id"]
+⋮----
+device_token = replacement["session_token"]
+⋮----
+def test_viewer_cannot_issue_pairing_code_and_unknown_fields_are_rejected(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "pairing-permissions.sqlite"), authorizer=_auth())
+⋮----
+def test_pairing_schema_is_persisted_at_version_18(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "pairing-schema.sqlite"), authorizer=_auth())
+⋮----
+version = db.execute(
+tables = {
+⋮----
+def test_pairing_maintenance_prunes_expired_and_revoked_rows(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "pairing-prune.sqlite"), authorizer=_auth())
+⋮----
+expired = control.device_pairing.issue_pairing_code(
+active = control.device_pairing.issue_pairing_code(
+session = control.device_pairing.exchange(
+⋮----
+removed = control.dashboard_store.prune_expired_device_auth(
+⋮----
+expired_count = db.execute(
+revoked = db.execute(
 ````
 
 ## File: tests/test_dynamic_agent_fanout.py
@@ -19507,13 +19671,15 @@ Worker controls:
 
 All dashboard control endpoints require the `operator` role.
 
-For single-device operation, the dashboard can bootstrap the existing operator credential from a URL fragment:
+For mobile or additional-device operation, an already authenticated operator device creates a one-time pairing link from dashboard settings:
 
 ```text
-https://<production-os-host>/dashboard#pair=<operator-token>
+https://<production-os-host>/dashboard#pair-code=<one-time-code>
 ```
 
-The fragment is processed only by the browser, copied into local storage, and immediately removed from the visible URL with `history.replaceState`. Production-OS never accepts `?pair=` query-string credentials, so the bootstrap secret is not sent in the HTTP request, server logs, or referrer URL. After the first successful bootstrap, normal launches remain the two-field flow: choose a repository, enter the instruction, and launch.
+The pairing code is random, valid for 10 minutes, stored server-side only as a SHA-256 digest, and atomically consumable once. The browser removes the fragment immediately, exchanges the one-time code for a distinct revocable device-session token, and stores only that device token locally. The long-lived operator bearer token is never embedded in the link.
+
+Device sessions expire after 90 days and can be revoked. Dashboard settings list active paired devices so an operator can revoke a lost device remotely. “Oublier cet appareil” revokes the current device session when applicable and clears local storage even if the server is temporarily unreachable. Consumed/expired pairing codes and expired sessions are pruned opportunistically to keep authentication state bounded. Revoked sessions remain stored until their normal expiry for auditability, but are immediately invalid for authentication and omitted from the active-session list. Manual operator-token entry remains available only as a recovery path. Production-OS still refuses query-string pairing credentials.
 
 Cancellation is job-scoped rather than worker-wide. A cancellation request is not considered acknowledged until the worker reports the matching `cancel_requested` state. Terminal job transitions are exclusive: once cancellation wins, a late completion is rejected; once completion wins, a later cancel-current request is rejected.
 

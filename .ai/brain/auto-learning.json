@@ -5,29 +5,34 @@
     "example_count": 64,
     "rejected_count": 0,
     "terms": [
-      "across",
-      "automatic",
+      "add",
+      "auth",
+      "device",
       "feat",
-      "make",
-      "production-os",
-      "queue-driven",
-      "wake",
-      "worker"
+      "mobile",
+      "one-time",
+      "pairing",
+      "revocable"
     ],
     "test_count": 0,
-    "useful_count": 6
+    "useful_count": 11
   },
   "note": "Selected tests are routing hints; this artifact does not claim they executed successfully.",
   "rejected": [],
   "schema_version": 1,
-  "task": "feat(worker): make automatic wake queue-driven across Production-OS",
+  "task": "feat(auth): add one-time revocable mobile device pairing",
   "tests_selected": [],
   "useful": [
     "src/production_os/control_plane.py",
-    "src/production_os/controller.py",
-    "src/production_os/worker_wake.py",
-    "tests/test_controller_managed_projects.py",
-    "tests/test_dashboard_launch_ux.py",
-    "tests/test_worker_wake.py"
+    "src/production_os/dashboard_store.py",
+    "src/production_os/dashboard_ui.py",
+    "src/production_os/device_pairing.py",
+    "src/production_os/postgres_backend.py",
+    "src/production_os/sqlite_backend.py",
+    "tests/test_dashboard_control_audit.py",
+    "tests/test_dashboard_remediation_history.py",
+    "tests/test_dashboard_store_postgres.py",
+    "tests/test_dashboard_ui_v3.py",
+    "tests/test_device_pairing.py"
   ]
 }

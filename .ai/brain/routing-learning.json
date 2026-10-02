@@ -2,26 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat: reconcile managed projects against GitHub PR gates",
-      "terms": [
-        "against",
-        "feat",
-        "gates",
-        "github",
-        "managed",
-        "pr",
-        "projects",
-        "reconcile"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/managed_projects.py",
-        "tests/test_cooperative_managed_projects.py",
-        "tests/test_managed_github_reconciliation.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat: add real Playwright browser validation worker",
       "terms": [
         "add",
@@ -1284,6 +1264,34 @@
         "tests/test_dashboard_launch_ux.py",
         "tests/test_worker_wake.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "feat(auth): add one-time revocable mobile device pairing",
+      "terms": [
+        "add",
+        "auth",
+        "device",
+        "feat",
+        "mobile",
+        "one-time",
+        "pairing",
+        "revocable"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/control_plane.py",
+        "src/production_os/dashboard_store.py",
+        "src/production_os/dashboard_ui.py",
+        "src/production_os/device_pairing.py",
+        "src/production_os/postgres_backend.py",
+        "src/production_os/sqlite_backend.py",
+        "tests/test_dashboard_control_audit.py",
+        "tests/test_dashboard_remediation_history.py",
+        "tests/test_dashboard_store_postgres.py",
+        "tests/test_dashboard_ui_v3.py",
+        "tests/test_device_pairing.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1689,19 +1697,22 @@
       "src/production_os/browser_computer.py": 4,
       "src/production_os/browser_loop.py": 8,
       "src/production_os/cli.py": 20,
-      "src/production_os/control_plane.py": 4,
-      "src/production_os/dashboard_ui.py": 8,
+      "src/production_os/control_plane.py": 8,
+      "src/production_os/dashboard_store.py": 4,
+      "src/production_os/dashboard_ui.py": 12,
+      "src/production_os/device_pairing.py": 4,
       "src/production_os/github_change_review.py": 4,
       "src/production_os/github_client.py": 4,
       "src/production_os/github_work_state.py": 8,
       "src/production_os/managed_projects.py": 20,
       "src/production_os/model_router.py": 4,
       "src/production_os/native_executor.py": 4,
+      "src/production_os/postgres_backend.py": 4,
       "src/production_os/project_memory.py": 4,
       "src/production_os/regression_bisect.py": 4,
       "src/production_os/remote_worker_runner.py": 16,
       "src/production_os/rollback_plan.py": 4,
-      "src/production_os/sqlite_backend.py": 4,
+      "src/production_os/sqlite_backend.py": 8,
       "src/production_os/task_capabilities.py": 8,
       "src/production_os/workflow_engine.py": 28,
       "tests/test_agent_plan.py": 4,
@@ -1709,8 +1720,12 @@
       "tests/test_browser_loop.py": 8,
       "tests/test_browser_worker_image.py": 4,
       "tests/test_cooperative_managed_projects.py": 12,
+      "tests/test_dashboard_control_audit.py": 4,
       "tests/test_dashboard_launch_ux.py": 4,
-      "tests/test_dashboard_ui_v3.py": 8,
+      "tests/test_dashboard_remediation_history.py": 4,
+      "tests/test_dashboard_store_postgres.py": 4,
+      "tests/test_dashboard_ui_v3.py": 12,
+      "tests/test_device_pairing.py": 4,
       "tests/test_dynamic_agent_fanout.py": 4,
       "tests/test_github_change_review.py": 4,
       "tests/test_github_work_state.py": 8,
@@ -1900,6 +1915,19 @@
     "attestations": {
       "src/production_os/asset_forge.py": 4,
       "tests/test_asset_forge.py": 4
+    },
+    "auth": {
+      "src/production_os/control_plane.py": 4,
+      "src/production_os/dashboard_store.py": 4,
+      "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/device_pairing.py": 4,
+      "src/production_os/postgres_backend.py": 4,
+      "src/production_os/sqlite_backend.py": 4,
+      "tests/test_dashboard_control_audit.py": 4,
+      "tests/test_dashboard_remediation_history.py": 4,
+      "tests/test_dashboard_store_postgres.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_device_pairing.py": 4
     },
     "authenticated": {
       "tests/test_asset_forge.py": 4,
@@ -2641,8 +2669,17 @@
       "tests/test_workflow_engine.py": 4
     },
     "device": {
-      "src/production_os/dashboard_ui.py": 4,
-      "tests/test_dashboard_ui_v3.py": 4
+      "src/production_os/control_plane.py": 4,
+      "src/production_os/dashboard_store.py": 4,
+      "src/production_os/dashboard_ui.py": 8,
+      "src/production_os/device_pairing.py": 4,
+      "src/production_os/postgres_backend.py": 4,
+      "src/production_os/sqlite_backend.py": 4,
+      "tests/test_dashboard_control_audit.py": 4,
+      "tests/test_dashboard_remediation_history.py": 4,
+      "tests/test_dashboard_store_postgres.py": 4,
+      "tests/test_dashboard_ui_v3.py": 8,
+      "tests/test_device_pairing.py": 4
     },
     "diagnostics": {
       "src/production_os/dashboard_ui.py": 4,
@@ -2913,7 +2950,7 @@
       "src/production_os/dashboard_maintenance.py": 8,
       "src/production_os/dashboard_remediation_metrics.py": 12,
       "src/production_os/dashboard_service.py": 40,
-      "src/production_os/dashboard_store.py": 36,
+      "src/production_os/dashboard_store.py": 40,
       "src/production_os/dashboard_ui.py": 40,
       "src/production_os/executor_worktree.py": 16,
       "src/production_os/github_change_review.py": 8,
@@ -2938,7 +2975,7 @@
       "tests/test_dashboard_backup_api.py": 32,
       "tests/test_dashboard_backups.py": 40,
       "tests/test_dashboard_control_api.py": 8,
-      "tests/test_dashboard_control_audit.py": 32,
+      "tests/test_dashboard_control_audit.py": 36,
       "tests/test_dashboard_control_e2e.py": 12,
       "tests/test_dashboard_health.py": 8,
       "tests/test_dashboard_incident_signals.py": 8,
@@ -2946,7 +2983,7 @@
       "tests/test_dashboard_production_inbox_filters_ui.py": 16,
       "tests/test_dashboard_production_status.py": 8,
       "tests/test_dashboard_remediation_api.py": 12,
-      "tests/test_dashboard_remediation_history.py": 24,
+      "tests/test_dashboard_remediation_history.py": 28,
       "tests/test_dashboard_remediation_metrics.py": 12,
       "tests/test_dashboard_store_postgres.py": 40,
       "tests/test_dashboard_ui_v3.py": 40,
@@ -3431,16 +3468,23 @@
       "src/production_os/asset_forge.py": 4
     },
     "mobile": {
-      "src/production_os/control_plane.py": 8,
-      "src/production_os/dashboard_store.py": 4,
-      "src/production_os/dashboard_ui.py": 20,
+      "src/production_os/control_plane.py": 12,
+      "src/production_os/dashboard_store.py": 8,
+      "src/production_os/dashboard_ui.py": 24,
+      "src/production_os/device_pairing.py": 4,
       "src/production_os/managed_projects.py": 12,
+      "src/production_os/postgres_backend.py": 4,
+      "src/production_os/sqlite_backend.py": 4,
       "tests/test_cooperative_managed_projects.py": 4,
       "tests/test_dashboard_api.py": 4,
+      "tests/test_dashboard_control_audit.py": 4,
       "tests/test_dashboard_launch.py": 4,
       "tests/test_dashboard_launch_ux.py": 4,
       "tests/test_dashboard_mobile_stability.py": 4,
-      "tests/test_dashboard_ui_v3.py": 12,
+      "tests/test_dashboard_remediation_history.py": 4,
+      "tests/test_dashboard_store_postgres.py": 4,
+      "tests/test_dashboard_ui_v3.py": 16,
+      "tests/test_device_pairing.py": 4,
       "tests/test_managed_project_outcome.py": 8,
       "tests/test_release32_one_tap_e2e.py": 8
     },
@@ -3598,6 +3642,19 @@
       "tests/test_repository_cache.py": 4,
       "tests/test_worker_compose_deployment.py": 4
     },
+    "one-time": {
+      "src/production_os/control_plane.py": 4,
+      "src/production_os/dashboard_store.py": 4,
+      "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/device_pairing.py": 4,
+      "src/production_os/postgres_backend.py": 4,
+      "src/production_os/sqlite_backend.py": 4,
+      "tests/test_dashboard_control_audit.py": 4,
+      "tests/test_dashboard_remediation_history.py": 4,
+      "tests/test_dashboard_store_postgres.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_device_pairing.py": 4
+    },
     "operations": {
       "src/production_os/remote_worker.py": 4,
       "tests/test_release16_operations_e2e.py": 4,
@@ -3631,8 +3688,17 @@
       "tests/test_asset_forge.py": 4
     },
     "pairing": {
-      "src/production_os/dashboard_ui.py": 4,
-      "tests/test_dashboard_ui_v3.py": 4
+      "src/production_os/control_plane.py": 4,
+      "src/production_os/dashboard_store.py": 4,
+      "src/production_os/dashboard_ui.py": 8,
+      "src/production_os/device_pairing.py": 4,
+      "src/production_os/postgres_backend.py": 4,
+      "src/production_os/sqlite_backend.py": 4,
+      "tests/test_dashboard_control_audit.py": 4,
+      "tests/test_dashboard_remediation_history.py": 4,
+      "tests/test_dashboard_store_postgres.py": 4,
+      "tests/test_dashboard_ui_v3.py": 8,
+      "tests/test_device_pairing.py": 4
     },
     "parallel": {
       "src/production_os/workflow_engine.py": 4,
@@ -4314,6 +4380,19 @@
       "tests/test_github_work_state.py": 4,
       "tests/test_release51_one_tap_runner_e2e.py": 4,
       "tests/test_rollback_plan.py": 4
+    },
+    "revocable": {
+      "src/production_os/control_plane.py": 4,
+      "src/production_os/dashboard_store.py": 4,
+      "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/device_pairing.py": 4,
+      "src/production_os/postgres_backend.py": 4,
+      "src/production_os/sqlite_backend.py": 4,
+      "tests/test_dashboard_control_audit.py": 4,
+      "tests/test_dashboard_remediation_history.py": 4,
+      "tests/test_dashboard_store_postgres.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_device_pairing.py": 4
     },
     "rollback": {
       "src/production_os/github_change_review.py": 4,

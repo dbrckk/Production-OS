@@ -90,6 +90,7 @@ production_os/
   database_maintenance_lock.py
   deep_fingerprint.py
   delivery.py
+  device_pairing.py
   dispatch.py
   dual_sign.py
   emergency.py
@@ -2844,11 +2845,17 @@ raw = self._read_body()
 ⋮----
 payload = json.loads(raw.decode("utf-8"))
 ⋮----
-def _principal(self) -> Principal | None
+def _bearer_token(self) -> str | None
 ⋮----
 header = self.headers.get("Authorization", "")
 prefix = "Bearer "
-token = header[len(prefix):] if header.startswith(prefix) else None
+⋮----
+token = header[len(prefix):].strip()
+⋮----
+def _principal(self) -> Principal | None
+⋮----
+token = self._bearer_token()
+principal = control.authorizer.authenticate(token)
 ⋮----
 def _require(self, role: str) -> Principal | None
 ⋮----
@@ -2869,6 +2876,8 @@ query = parse_qs(parsed.query)
 window = query.get("window", ["7d"])[0]
 parts = [part for part in parsed.path.split("/") if part]
 service = control.dashboard
+⋮----
+payload = {
 ⋮----
 payload = service.overview(window)
 ⋮----
@@ -2961,9 +2970,20 @@ project = control.managed_projects.get(parts[2])
 ⋮----
 def do_POST(self) -> None
 ⋮----
+body = self._read_json()
+unknown = sorted(
+⋮----
+pairing = control.device_pairing.exchange(
+⋮----
 principal = self._require("operator")
 ⋮----
-body = self._read_json()
+pairing = control.device_pairing.issue_pairing_code(
+⋮----
+revoked = control.device_pairing.revoke(
+⋮----
+session_id = str(parts[3]).strip()
+revoked = control.device_pairing.revoke_session(session_id)
+⋮----
 request_id = str(body.get("request_id") or "").strip()
 project_id = None
 ⋮----
@@ -4801,6 +4821,17 @@ current = self._fetchone(
 ⋮----
 def remediation_analytics_rows(self) -> list[dict]
 ⋮----
+created_at = at or _now()
+⋮----
+code = self._fetchone(
+⋮----
+cursor = _execute(
+⋮----
+codes = _execute(
+sessions = _execute(
+⋮----
+bounded = max(1, min(200, int(limit)))
+⋮----
 def control_audit_events(self, *, limit: int = 100) -> list[dict]
 ⋮----
 def get_worker_control(self, worker_id: str) -> dict | None
@@ -4993,6 +5024,53 @@ record = runtime_state.get(claim.repository, claim.task)
 current = claims.claims.get(claim.key)
 ⋮----
 target = dead / source.name
+```
+
+## File: production_os/device_pairing.py
+```python
+PAIRING_CODE_TTL_SECONDS = 600
+DEVICE_SESSION_TTL_DAYS = 90
+PAIRING_CODE_PREFIX = "posp_"
+DEVICE_TOKEN_PREFIX = "posd_"
+⋮----
+def _now() -> datetime
+⋮----
+def _device_name(value: str | None) -> str
+⋮----
+name = "dashboard-device" if value is None else str(value).strip()
+⋮----
+name = "dashboard-device"
+⋮----
+class DevicePairingManager
+⋮----
+def __init__(self, store)
+⋮----
+issued_at = now or _now()
+⋮----
+code = PAIRING_CODE_PREFIX + secrets.token_urlsafe(24)
+expires_at = issued_at + timedelta(seconds=PAIRING_CODE_TTL_SECONDS)
+row = self.store.create_pairing_code(
+⋮----
+value = str(code or "").strip()
+⋮----
+token = DEVICE_TOKEN_PREFIX + secrets.token_urlsafe(32)
+expires_at = issued_at + timedelta(days=DEVICE_SESSION_TTL_DAYS)
+session_id = uuid4().hex
+⋮----
+session = self.store.exchange_pairing_code(
+⋮----
+value = str(token or "").strip()
+⋮----
+timestamp = (now or _now()).isoformat()
+session = self.store.device_session(
+⋮----
+role = str(session.get("role") or "")
+⋮----
+def revoke(self, token: str | None, *, now: datetime | None = None) -> bool
+⋮----
+value = str(session_id or "").strip()
+⋮----
+def sessions(self, *, limit: int = 50) -> list[dict]
 ```
 
 ## File: production_os/dispatch.py
@@ -7212,7 +7290,7 @@ def _utcnow() -> str
 ⋮----
 class PostgresBackend
 ⋮----
-SCHEMA_VERSION = 17
+SCHEMA_VERSION = 18
 CONNECT_TIMEOUT_SECONDS = 10
 ⋮----
 def __init__(self, dsn: str)
@@ -9141,7 +9219,7 @@ def _utcnow() -> str
 ⋮----
 class SQLiteBackend
 ⋮----
-SCHEMA_VERSION = 17
+SCHEMA_VERSION = 18
 ⋮----
 def __init__(self, path: str | Path)
 ⋮----

@@ -1,25 +1,25 @@
 # Repo Brain
 
 - Index mode: incremental
-- Files indexed: 326
-- Files reparsed this run: 6
-- Symbols: 2983
-- Internal import edges: 948
-- Impacted files: 55
-- Selected tests: 53
+- Files indexed: 328
+- Files reparsed this run: 11
+- Symbols: 3011
+- Internal import edges: 953
+- Impacted files: 112
+- Selected tests: 100
 
 ## Languages
-- python: 326 files
+- python: 328 files
 
 ## Highest-density symbol files
 - tests/test_dashboard_ui_v3.py: 95 symbols
 - src/production_os/cli.py: 92 symbols
+- src/production_os/dashboard_store.py: 59 symbols
 - src/production_os/postgres_backend.py: 56 symbols
 - src/production_os/sqlite_backend.py: 56 symbols
 - tests/test_asset_forge.py: 56 symbols
 - tests/test_browser_computer.py: 55 symbols
 - src/production_os/dashboard_service.py: 52 symbols
-- src/production_os/dashboard_store.py: 52 symbols
 - tests/test_remote_worker_runner.py: 52 symbols
 - tests/test_dashboard_backups.py: 49 symbols
 - src/production_os/github_client.py: 42 symbols
@@ -27,8 +27,8 @@
 - tests/test_controller_managed_projects.py: 38 symbols
 - src/production_os/managed_projects.py: 35 symbols
 - tests/test_browser_loop.py: 31 symbols
+- src/production_os/control_plane.py: 30 symbols
 - tests/test_dashboard_api.py: 30 symbols
-- src/production_os/control_plane.py: 29 symbols
 - tests/test_transparency_receipts.py: 29 symbols
 - src/production_os/dashboard_backups.py: 25 symbols
 - tests/test_controller_leader.py: 24 symbols
@@ -42,10 +42,10 @@
 ## ast-grep enrichment
 - ast-grep outline: available
 - AST index mode: incremental
-- AST files reparsed this run: 6
-- outline files retained: 326
-- top-level items retained: 3748
-- direct members retained: 1218
+- AST files reparsed this run: 11
+- outline files retained: 328
+- top-level items retained: 3779
+- direct members retained: 1232
 - symbol shards: 25
 - route named symbols via ast-routing.json, then fetch one ast-symbols/<initial>.json shard
 
