@@ -179,11 +179,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
  <div id="one-tap-production" class="card launch-card">
   <h2>Nouvelle production</h2>
   <label for="repository">Repository</label>
-  <select id="repository"><option value="dbrckk/Jumpy">dbrckk/Jumpy</option></select>
+  <select id="repository" disabled><option value="">Chargement des repositories...</option></select>
   <label for="instruction">Instruction</label>
   <textarea id="instruction" rows="7" placeholder="Décris le résultat final attendu. Production-OS s'occupe de l'exécution."></textarea>
   <div class="launch-row">
-   <button id="launch-button" class="primary-btn" onclick="launchWorkflow()">Lancer la production</button>
+   <button id="launch-button" class="primary-btn" onclick="launchWorkflow()" disabled>Lancer la production</button>
    <button class="secondary-btn" type="button" onclick="refreshDashboard()" aria-label="Actualiser">↻</button>
   </div>
   <p id="launch-status" class="status-message"></p>
@@ -463,32 +463,64 @@ async function clearPairing(){
 }
 
 async function loadRepositories(){
- if(!token()) return;
+ const launchSelect=document.getElementById('repository');
+ const managedSelect=document.getElementById('managed-create-repository');
+ const launchButton=document.getElementById('launch-button');
+ const launchStatus=document.getElementById('launch-status');
+ const selects=[launchSelect,managedSelect].filter(Boolean);
+ const selectedById={};
+ selects.forEach(function(select){selectedById[select.id]=select.value});
+ function markUnavailable(message){
+  selects.forEach(function(select){
+   select.innerHTML='';
+   const option=document.createElement('option');
+   option.value='';
+   option.textContent=message;
+   option.selected=true;
+   select.appendChild(option);
+   select.disabled=true;
+  });
+  if(launchButton) launchButton.disabled=true;
+ }
+ if(!token()){
+  markUnavailable('Appairage requis');
+  return false;
+ }
+ markUnavailable('Chargement des repositories...');
  try{
   const data=await api('/v1/dashboard/repositories');
-  const repos=data.repositories||[];
-  const selects=[
-   document.getElementById('repository'),
-   document.getElementById('managed-create-repository')
-  ].filter(Boolean);
+  const repos=(data.repositories||[]).filter(function(x){
+   return x&&typeof x.full_name==='string'&&x.full_name.trim();
+  });
+  if(!repos.length){
+   markUnavailable('Aucun repository disponible');
+   if(launchStatus) launchStatus.textContent='Aucun repository accessible. Vérifie la connexion GitHub de Production-OS.';
+   return false;
+  }
   selects.forEach(function(select){
-   const selected=select.value;
+   const selected=selectedById[select.id]||'';
    select.innerHTML='';
    repos.forEach(function(x){
     const option=document.createElement('option');
     option.value=x.full_name;
     option.textContent=x.full_name+(x.private?' · privé':'');
-    if(x.full_name===selected||(!selected&&x.full_name==='dbrckk/Jumpy')) option.selected=true;
+    if(x.full_name===selected) option.selected=true;
     select.appendChild(option);
    });
-   if(!repos.length){
-    const option=document.createElement('option');
-    option.value='dbrckk/Jumpy';
-    option.textContent='dbrckk/Jumpy';
-    select.appendChild(option);
+   if(selected&&!repos.some(function(x){return x.full_name===selected})){
+    select.selectedIndex=0;
    }
+   select.disabled=false;
   });
- }catch(_e){}
+  if(launchButton) launchButton.disabled=false;
+  return true;
+ }catch(e){
+  markUnavailable('Repositories indisponibles');
+  if(launchStatus){
+   launchStatus.textContent='Impossible de charger les repositories · '+String(e).replace(/^Error:\\s*/,'');
+  }
+  return false;
+ }
 }
 
 async function loadWorkerStatus(){
@@ -894,9 +926,14 @@ async function launchWorkflow(){
   status.textContent='Appairage requis avant le premier lancement.';
   setSettingsOpen(true);return;
  }
- const repository=document.getElementById('repository').value.trim();
+ const repositorySelect=document.getElementById('repository');
+ const repository=repositorySelect.value.trim();
  const task=document.getElementById('instruction').value.trim();
- if(!repository||!task){status.textContent='Sélectionne un repo et écris une instruction.';return}
+ if(repositorySelect.disabled||!repository){
+  status.textContent='Aucun repository disponible. Recharge la liste avant de lancer.';
+  return;
+ }
+ if(!task){status.textContent='Écris une instruction avant de lancer.';return}
  const requestId=pendingLaunchRequest(repository,task);
  button.disabled=true;button.textContent='Lancement…';status.textContent='Création du workflow…';
  try{
