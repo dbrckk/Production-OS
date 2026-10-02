@@ -433,7 +433,6 @@ async function savePairing(){
   setSettingsOpen(false);
   setState('pair-state','ok','Appairé');
   status.textContent='Appareil appairé.';
-  await loadRepositories();
   await refreshDashboard();
  }catch(e){
   if(previous) localStorage.setItem(TOKEN_KEY,previous); else localStorage.removeItem(TOKEN_KEY);
@@ -984,6 +983,7 @@ async function refreshDashboard(){
  refreshBusy=true;
  try{
   await checkServer();
+  await loadRepositories();
   await Promise.all([
    loadWorkerStatus(),
    loadRecentRuns(),
@@ -995,7 +995,7 @@ async function refreshDashboard(){
 }
 
 bootstrapPairingFromFragment().finally(function(){
- return loadRepositories().then(function(){return refreshDashboard()});
+ return refreshDashboard();
 });
 document.getElementById('repository').addEventListener('change',loadVisualQuality);
 document.getElementById('repository').addEventListener('change',loadRecentRuns);

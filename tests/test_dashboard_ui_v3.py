@@ -355,6 +355,15 @@ def test_repository_picker_preserves_selected_repository_across_refresh():
     assert "x.full_name===selected" in DASHBOARD_HTML
 
 
+def test_dashboard_refresh_reloads_repository_picker_once():
+    refresh = DASHBOARD_HTML.split("async function refreshDashboard(){", 1)[1].split("bootstrapPairingFromFragment()", 1)[0]
+    assert "await loadRepositories();" in refresh
+    assert "loadRepositories().then(function(){return refreshDashboard()})" not in DASHBOARD_HTML
+    save_pairing = DASHBOARD_HTML.split("async function savePairing(){", 1)[1].split("async function clearPairing(){", 1)[0]
+    assert "await loadRepositories();" not in save_pairing
+    assert "await refreshDashboard();" in save_pairing
+
+
 def test_mobile_launch_flow_remains_repo_plus_instruction():
     assert 'id="repository"' in DASHBOARD_HTML
     assert 'id="instruction"' in DASHBOARD_HTML
