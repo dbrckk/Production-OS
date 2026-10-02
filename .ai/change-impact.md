@@ -1,13 +1,13 @@
 # Change impact
 
-Base: b1ba0f3aa70da56320cdcf14bcb4289f0b8319bb
-Head: 7296e8ff43b83dc6c280c7708873883ad9b22b4c
+Base: fd86d2aa508fe8ee8bc9d5b4937bd5ed40161824
+Head: 50137147f60d1681abc1b94afcc23afabcf6a577
 
 ## Changed files
-- M .github/workflows/ai-repo-map.yml
+- M docs/production-readiness.md
 
 ## Affected areas
-- .github
+- docs
 
 ## Related test candidates
 - No direct filename-based test match detected.

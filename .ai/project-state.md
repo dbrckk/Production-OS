@@ -22,16 +22,17 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-02T14:10:13Z
+Generated: 2026-10-02T15:03:36Z
 
 ### Git
 - Branch: `main`
-- Head: `7296e8ff43b8`
-- Commit date: 2026-10-02T16:10:02+02:00
-- Commit: fix(ci): qualify generated main head
+- Head: `50137147f60d`
+- Commit date: 2026-10-02T17:03:22+02:00
+- Commit: docs(release): document generated-head qualification
 - Tracked files: 540
 
 ### Recently changed files
+- `docs/production-readiness.md`
 - `.github/workflows/ai-repo-map.yml`
 - `scripts/render-start.py`
 - `tests/test_render_start.py`
