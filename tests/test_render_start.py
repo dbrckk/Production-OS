@@ -24,6 +24,7 @@ class RenderStartTests(unittest.TestCase):
         self.assertNotIn("worker-secret", rendered)
         self.assertNotIn("operator-secret", rendered)
         entries = {entry["role"]: entry for entry in payload["tokens"]}
+        self.assertEqual(entries["worker"]["name"], "github-actions-worker")
         self.assertEqual(
             entries["worker"]["sha256"],
             hashlib.sha256(b"worker-secret").hexdigest(),
@@ -40,6 +41,7 @@ class RenderStartTests(unittest.TestCase):
                 "DATABASE_URL": "postgresql://example/db",
                 "PRODUCTION_OS_WORKER_TOKEN": "worker-secret",
                 "PRODUCTION_OS_OPERATOR_TOKEN": "operator-secret",
+                "PRODUCTION_OS_WORKER_ID": "custom-actions-worker",
                 "PORT": "9999",
                 "PRODUCTION_OS_RUNTIME_DIR": td,
             },
@@ -58,6 +60,8 @@ class RenderStartTests(unittest.TestCase):
                 {entry["role"] for entry in payload["tokens"]},
                 {"worker", "operator"},
             )
+            entries = {entry["role"]: entry for entry in payload["tokens"]}
+            self.assertEqual(entries["worker"]["name"], "custom-actions-worker")
 
     def test_invalid_port_fails_closed(self):
         with patch.dict(
