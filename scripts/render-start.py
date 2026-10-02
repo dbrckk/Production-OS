@@ -15,14 +15,14 @@ def _required(name: str) -> str:
     return value
 
 
-def _auth_payload(worker_token: str, operator_token: str) -> dict:
+def _auth_payload(\n    worker_token: str,\n    operator_token: str,\n    worker_name: str = "github-actions-worker",\n) -> dict:
     def digest(value: str) -> str:
         return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
     return {
         "tokens": [
             {
-                "name": "ai-dev-server-worker",
+                "name": worker_name,
                 "role": "worker",
                 "sha256": digest(worker_token),
             },
@@ -47,7 +47,7 @@ def main() -> None:
     runtime_dir.mkdir(parents=True, exist_ok=True)
     auth_path = runtime_dir / "auth.json"
     auth_path.write_text(
-        json.dumps(_auth_payload(worker_token, operator_token), separators=(",", ":")),
+        json.dumps(_auth_payload(worker_token, operator_token, worker_name), separators=(",", ":")),
         encoding="utf-8",
     )
     try:
