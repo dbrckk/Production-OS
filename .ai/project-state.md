@@ -22,13 +22,13 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-02T16:05:30Z
+Generated: 2026-10-02T16:06:35Z
 
 ### Git
 - Branch: `main`
-- Head: `ab596488b7df`
-- Commit date: 2026-10-02T18:05:18+02:00
-- Commit: fix(dashboard): fail closed when repository list is unavailable
+- Head: `dda5b0e3cb4f`
+- Commit date: 2026-10-02T16:05:59Z
+- Commit: chore(ai): refresh unified AI context [skip render]
 - Tracked files: 540
 
 ### Recently changed files
