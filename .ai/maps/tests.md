@@ -218,6 +218,7 @@ test_trust_status_summary.py
 test_vault_auth.py
 test_vault_signer.py
 test_witness.py
+test_worker_availability_api.py
 test_worker_compose_deployment.py
 test_worker_wake.py
 test_workers.py
@@ -7574,6 +7575,41 @@ envelope=sign_checkpoint(
 def test_checkpoint_root_tampering_is_detected()
 ⋮----
 def test_checkpoint_expected_root_mismatch_fails()
+```
+
+## File: test_worker_availability_api.py
+```python
+def _auth()
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+def _post(base, token, payload)
+⋮----
+req = urllib.request.Request(
+⋮----
+def test_worker_availability_is_non_destructive_and_capability_aware(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "availability.sqlite"), authorizer=_auth())
+queued = control.queue.enqueue({
+⋮----
+# Availability must never claim or mutate queued work.
+persisted = control.queue.get(queued["key"])
+⋮----
+def test_worker_availability_skips_cancelled_and_stale_work(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "availability-filter.sqlite"), authorizer=_auth())
+cancelled = control.queue.enqueue({
+⋮----
+def test_worker_availability_respects_pause_and_drain(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "availability-pause.sqlite"), authorizer=_auth())
+⋮----
+def test_worker_availability_requires_worker_auth_and_valid_shape(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "availability-auth.sqlite"), authorizer=_auth())
 ```
 
 ## File: test_worker_compose_deployment.py

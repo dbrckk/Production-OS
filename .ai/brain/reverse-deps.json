@@ -186,6 +186,7 @@
         "tests/test_vault_auth.py",
         "tests/test_vault_signer.py",
         "tests/test_witness.py",
+        "tests/test_worker_availability_api.py",
         "tests/test_worker_wake.py",
         "tests/test_workers.py",
         "tests/test_workflow_api.py",
@@ -196,7 +197,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 184,
+      "in_degree": 185,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -325,9 +326,10 @@
         "tests/test_remote_worker.py",
         "tests/test_remote_worker_runner.py",
         "tests/test_speculation_api.py",
+        "tests/test_worker_availability_api.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 46,
+      "in_degree": 47,
       "out_degree": 1
     },
     "src/production_os/approvals.py": {
@@ -843,10 +845,11 @@
         "tests/test_remote_worker.py",
         "tests/test_remote_worker_runner.py",
         "tests/test_speculation_api.py",
+        "tests/test_worker_availability_api.py",
         "tests/test_worker_wake.py",
         "tests/test_workflow_api.py"
       ],
-      "in_degree": 53,
+      "in_degree": 54,
       "out_degree": 25
     },
     "src/production_os/control_surface.py": {
@@ -4736,6 +4739,16 @@
         "src/production_os/__init__.py",
         "src/production_os/signing.py",
         "src/production_os/witness.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 3
+    },
+    "tests/test_worker_availability_api.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/api_auth.py",
+        "src/production_os/control_plane.py"
       ],
       "dependents": [],
       "in_degree": 0,

@@ -372,6 +372,7 @@ tests/
   test_vault_auth.py
   test_vault_signer.py
   test_witness.py
+  test_worker_availability_api.py
   test_worker_compose_deployment.py
   test_worker_wake.py
   test_workers.py
@@ -3334,6 +3335,26 @@ actions_ref = str(
 ⋮----
 def automatic_worker_wake_needed(self) -> bool
 ⋮----
+worker = worker_id.strip()
+⋮----
+normalized = []
+seen = set()
+⋮----
+value = raw.strip()
+⋮----
+desired = self.dashboard_control.worker_state(worker)
+⋮----
+capability_set = set(normalized)
+compatible = 0
+mobile = 0
+browser = 0
+⋮----
+key = str(queued.get("key") or "")
+⋮----
+job_control = self.dashboard_control.job_state(key)
+⋮----
+required = {
+⋮----
 queued = self.queue.peek_candidates(limit=1)
 ⋮----
 specialist = {
@@ -3575,6 +3596,14 @@ revoked = control.device_pairing.revoke(
 session_id = str(parts[3]).strip()
 revoked = control.device_pairing.revoke_session(session_id)
 ⋮----
+principal = self._require("worker")
+⋮----
+capabilities = body.get("capabilities", [])
+⋮----
+worker_id = body.get("worker_id")
+⋮----
+availability = control.worker_queue_availability(
+⋮----
 request_id = str(body.get("request_id") or "").strip()
 project_id = None
 ⋮----
@@ -3701,8 +3730,6 @@ workflow = control.workflows.cancel(workflow_id)
 release = control.releases.promote(
 ⋮----
 artifact = control.workflows.add_artifact(
-⋮----
-principal = self._require("worker")
 ⋮----
 worker_id = str(body["worker_id"]).strip()
 ⋮----
@@ -18440,6 +18467,41 @@ def test_checkpoint_root_tampering_is_detected()
 def test_checkpoint_expected_root_mismatch_fails()
 ````
 
+## File: tests/test_worker_availability_api.py
+````python
+def _auth()
+⋮----
+def _server(control)
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+def _post(base, token, payload)
+⋮----
+req = urllib.request.Request(
+⋮----
+def test_worker_availability_is_non_destructive_and_capability_aware(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "availability.sqlite"), authorizer=_auth())
+queued = control.queue.enqueue({
+⋮----
+# Availability must never claim or mutate queued work.
+persisted = control.queue.get(queued["key"])
+⋮----
+def test_worker_availability_skips_cancelled_and_stale_work(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "availability-filter.sqlite"), authorizer=_auth())
+cancelled = control.queue.enqueue({
+⋮----
+def test_worker_availability_respects_pause_and_drain(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "availability-pause.sqlite"), authorizer=_auth())
+⋮----
+def test_worker_availability_requires_worker_auth_and_valid_shape(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "availability-auth.sqlite"), authorizer=_auth())
+````
+
 ## File: tests/test_worker_compose_deployment.py
 ````python
 def test_worker_compose_profile_is_safe_and_deployable()
@@ -19737,6 +19799,14 @@ failed
 `scheduled_fallback` means no immediate dispatch was possible and the existing five-minute scheduled worker poll remains the next wake-up path. It must not be presented as a started worker.
 
 Automatic wake-up is queue-driven, not dashboard-only. New managed projects, added instructions, verification runs, operator retries, recovered stuck jobs, and durable work discovered by the autonomous controller all reuse the same wake policy. An online worker suppresses extra dispatches, a fleet-wide operator pause/drain is respected, and recent automatic wake attempts are deduplicated with a durable cooldown.
+
+Workers can also perform a non-destructive preflight before expensive runtime setup:
+
+```text
+POST /v1/jobs/availability
+```
+
+The endpoint requires worker authentication and accepts only `worker_id` plus a capability list. It reports whether compatible queued work exists, including mobile/browser counts, without claiming or mutating the job. Cancel-requested and stale workflow generations are excluded, and an operator-paused/draining worker reports unavailable. This lets scheduled workers exit before installing large toolchains when no useful work can be claimed.
 
 The UI separately presents:
 

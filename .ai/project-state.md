@@ -22,18 +22,19 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-02T05:55:11Z
+Generated: 2026-10-02T06:03:12Z
 
 ### Git
 - Branch: `main`
-- Head: `b129cf48ef09`
-- Commit date: 2026-10-02T07:55:01+02:00
-- Commit: feat(auth): track paired-device activity and bound pairing issuance
-- Tracked files: 539
+- Head: `24d3a3b3f654`
+- Commit date: 2026-10-02T08:03:02+02:00
+- Commit: feat(worker): add non-destructive compatible-work availability probe
+- Tracked files: 540
 
 ### Recently changed files
 - `README.md`
 - `src/production_os/control_plane.py`
+- `tests/test_worker_availability_api.py`
 - `src/production_os/dashboard_store.py`
 - `src/production_os/dashboard_ui.py`
 - `src/production_os/device_pairing.py`

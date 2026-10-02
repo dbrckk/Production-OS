@@ -1,16 +1,12 @@
 # Change impact
 
-Base: 97c3863f700795e7d4c42ef0cebdbdbd0626be7b
-Head: b129cf48ef096beecf16f2f7f6b6c019f4c3568c
+Base: 9d7e0becc5fa3529d90c2ffecf9e8c737dee0fb2
+Head: 24d3a3b3f65463ae7ac9c17cbbc426660d69343a
 
 ## Changed files
 - M README.md
 - M src/production_os/control_plane.py
-- M src/production_os/dashboard_store.py
-- M src/production_os/dashboard_ui.py
-- M src/production_os/device_pairing.py
-- M tests/test_dashboard_ui_v3.py
-- M tests/test_device_pairing.py
+- A tests/test_worker_availability_api.py
 
 ## Affected areas
 - (root)
@@ -19,8 +15,6 @@ Head: b129cf48ef096beecf16f2f7f6b6c019f4c3568c
 
 ## Related test candidates
 - tests/test_control_plane.py
-- tests/test_dashboard_store.py
-- tests/test_device_pairing.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

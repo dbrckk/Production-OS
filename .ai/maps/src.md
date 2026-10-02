@@ -2743,6 +2743,26 @@ actions_ref = str(
 ⋮----
 def automatic_worker_wake_needed(self) -> bool
 ⋮----
+worker = worker_id.strip()
+⋮----
+normalized = []
+seen = set()
+⋮----
+value = raw.strip()
+⋮----
+desired = self.dashboard_control.worker_state(worker)
+⋮----
+capability_set = set(normalized)
+compatible = 0
+mobile = 0
+browser = 0
+⋮----
+key = str(queued.get("key") or "")
+⋮----
+job_control = self.dashboard_control.job_state(key)
+⋮----
+required = {
+⋮----
 queued = self.queue.peek_candidates(limit=1)
 ⋮----
 specialist = {
@@ -2984,6 +3004,14 @@ revoked = control.device_pairing.revoke(
 session_id = str(parts[3]).strip()
 revoked = control.device_pairing.revoke_session(session_id)
 ⋮----
+principal = self._require("worker")
+⋮----
+capabilities = body.get("capabilities", [])
+⋮----
+worker_id = body.get("worker_id")
+⋮----
+availability = control.worker_queue_availability(
+⋮----
 request_id = str(body.get("request_id") or "").strip()
 project_id = None
 ⋮----
@@ -3110,8 +3138,6 @@ workflow = control.workflows.cancel(workflow_id)
 release = control.releases.promote(
 ⋮----
 artifact = control.workflows.add_artifact(
-⋮----
-principal = self._require("worker")
 ⋮----
 worker_id = str(body["worker_id"]).strip()
 ⋮----
