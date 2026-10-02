@@ -22,13 +22,13 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-02T05:40:19Z
+Generated: 2026-10-02T05:55:11Z
 
 ### Git
 - Branch: `main`
-- Head: `9cf817b65569`
-- Commit date: 2026-10-02T07:40:07+02:00
-- Commit: feat(auth): add one-time revocable mobile device pairing
+- Head: `b129cf48ef09`
+- Commit date: 2026-10-02T07:55:01+02:00
+- Commit: feat(auth): track paired-device activity and bound pairing issuance
 - Tracked files: 539
 
 ### Recently changed files
@@ -37,21 +37,19 @@ Generated: 2026-10-02T05:40:19Z
 - `src/production_os/dashboard_store.py`
 - `src/production_os/dashboard_ui.py`
 - `src/production_os/device_pairing.py`
+- `tests/test_dashboard_ui_v3.py`
+- `tests/test_device_pairing.py`
 - `src/production_os/postgres_backend.py`
 - `src/production_os/sqlite_backend.py`
 - `tests/test_dashboard_control_audit.py`
 - `tests/test_dashboard_remediation_history.py`
 - `tests/test_dashboard_store_postgres.py`
-- `tests/test_dashboard_ui_v3.py`
-- `tests/test_device_pairing.py`
 - `src/production_os/controller.py`
 - `src/production_os/worker_wake.py`
 - `tests/test_controller_managed_projects.py`
 - `tests/test_dashboard_launch_ux.py`
 - `tests/test_worker_wake.py`
 - `tests/test_postgres_connect_timeout_unit.py`
-- `src/production_os/dashboard_control.py`
-- `src/production_os/dashboard_service.py`
 
 ### Project signals
 - `pyproject.toml`

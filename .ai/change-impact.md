@@ -1,21 +1,16 @@
 # Change impact
 
-Base: 4900ccc3f4c6dca0678398f1063fe5e7aa627249
-Head: 9cf817b65569b19d794001f456cc0c3cd162d8d1
+Base: 97c3863f700795e7d4c42ef0cebdbdbd0626be7b
+Head: b129cf48ef096beecf16f2f7f6b6c019f4c3568c
 
 ## Changed files
 - M README.md
 - M src/production_os/control_plane.py
 - M src/production_os/dashboard_store.py
 - M src/production_os/dashboard_ui.py
-- A src/production_os/device_pairing.py
-- M src/production_os/postgres_backend.py
-- M src/production_os/sqlite_backend.py
-- M tests/test_dashboard_control_audit.py
-- M tests/test_dashboard_remediation_history.py
-- M tests/test_dashboard_store_postgres.py
+- M src/production_os/device_pairing.py
 - M tests/test_dashboard_ui_v3.py
-- A tests/test_device_pairing.py
+- M tests/test_device_pairing.py
 
 ## Affected areas
 - (root)
@@ -26,8 +21,6 @@ Head: 9cf817b65569b19d794001f456cc0c3cd162d8d1
 - tests/test_control_plane.py
 - tests/test_dashboard_store.py
 - tests/test_device_pairing.py
-- tests/test_postgres_backend.py
-- tests/test_sqlite_backend.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

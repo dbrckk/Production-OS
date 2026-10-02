@@ -4821,11 +4821,12 @@ current = self._fetchone(
 ⋮----
 def remediation_analytics_rows(self) -> list[dict]
 ⋮----
+cursor = _execute(
+row = cursor.fetchone()
+⋮----
 created_at = at or _now()
 ⋮----
 code = self._fetchone(
-⋮----
-cursor = _execute(
 ⋮----
 codes = _execute(
 sessions = _execute(
@@ -5029,11 +5030,19 @@ target = dead / source.name
 ## File: production_os/device_pairing.py
 ```python
 PAIRING_CODE_TTL_SECONDS = 600
+ACTIVE_PAIRING_CODE_LIMIT = 10
 DEVICE_SESSION_TTL_DAYS = 90
+DEVICE_ACTIVITY_TOUCH_SECONDS = 300
 PAIRING_CODE_PREFIX = "posp_"
 DEVICE_TOKEN_PREFIX = "posd_"
 ⋮----
 def _now() -> datetime
+⋮----
+def _parse_timestamp(value) -> datetime | None
+⋮----
+parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+⋮----
+class DevicePairingLimitError(ValueError)
 ⋮----
 def _device_name(value: str | None) -> str
 ⋮----
@@ -5046,6 +5055,7 @@ class DevicePairingManager
 def __init__(self, store)
 ⋮----
 issued_at = now or _now()
+timestamp = issued_at.isoformat()
 ⋮----
 code = PAIRING_CODE_PREFIX + secrets.token_urlsafe(24)
 expires_at = issued_at + timedelta(seconds=PAIRING_CODE_TTL_SECONDS)
@@ -5061,8 +5071,12 @@ session = self.store.exchange_pairing_code(
 ⋮----
 value = str(token or "").strip()
 ⋮----
-timestamp = (now or _now()).isoformat()
+authenticated_at = now or _now()
+timestamp = authenticated_at.isoformat()
+digest = token_digest(value)
 session = self.store.device_session(
+⋮----
+last_used = _parse_timestamp(session.get("last_used_at"))
 ⋮----
 role = str(session.get("role") or "")
 ⋮----

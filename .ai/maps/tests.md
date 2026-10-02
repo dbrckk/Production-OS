@@ -3701,6 +3701,33 @@ removed = control.dashboard_store.prune_expired_device_auth(
 ⋮----
 expired_count = db.execute(
 revoked = db.execute(
+⋮----
+def test_device_last_used_is_refreshed_at_most_once_per_five_minutes(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "pairing-activity.sqlite"), authorizer=_auth())
+now = datetime(2026, 10, 2, 6, 0, tzinfo=timezone.utc)
+⋮----
+digest = token_digest(token)
+⋮----
+first = db.execute(
+⋮----
+touched_at = now + timedelta(seconds=300)
+⋮----
+second = db.execute(
+⋮----
+def test_pairing_code_limit_is_per_operator_and_pruned_after_expiry(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "pairing-limit.sqlite"), authorizer=_auth())
+⋮----
+# Another operator has an independent allowance.
+other = control.device_pairing.issue_pairing_code(
+⋮----
+# The expired set is pruned before the next issuance.
+later = control.device_pairing.issue_pairing_code(
+⋮----
+def test_http_pairing_code_limit_returns_429(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "pairing-limit-http.sqlite"), authorizer=_auth())
 ```
 
 ## File: test_dynamic_agent_fanout.py

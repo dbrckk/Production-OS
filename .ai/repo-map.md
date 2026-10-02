@@ -5412,11 +5412,12 @@ current = self._fetchone(
 ⋮----
 def remediation_analytics_rows(self) -> list[dict]
 ⋮----
+cursor = _execute(
+row = cursor.fetchone()
+⋮----
 created_at = at or _now()
 ⋮----
 code = self._fetchone(
-⋮----
-cursor = _execute(
 ⋮----
 codes = _execute(
 sessions = _execute(
@@ -5620,11 +5621,19 @@ target = dead / source.name
 ## File: src/production_os/device_pairing.py
 ````python
 PAIRING_CODE_TTL_SECONDS = 600
+ACTIVE_PAIRING_CODE_LIMIT = 10
 DEVICE_SESSION_TTL_DAYS = 90
+DEVICE_ACTIVITY_TOUCH_SECONDS = 300
 PAIRING_CODE_PREFIX = "posp_"
 DEVICE_TOKEN_PREFIX = "posd_"
 ⋮----
 def _now() -> datetime
+⋮----
+def _parse_timestamp(value) -> datetime | None
+⋮----
+parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+⋮----
+class DevicePairingLimitError(ValueError)
 ⋮----
 def _device_name(value: str | None) -> str
 ⋮----
@@ -5637,6 +5646,7 @@ class DevicePairingManager
 def __init__(self, store)
 ⋮----
 issued_at = now or _now()
+timestamp = issued_at.isoformat()
 ⋮----
 code = PAIRING_CODE_PREFIX + secrets.token_urlsafe(24)
 expires_at = issued_at + timedelta(seconds=PAIRING_CODE_TTL_SECONDS)
@@ -5652,8 +5662,12 @@ session = self.store.exchange_pairing_code(
 ⋮----
 value = str(token or "").strip()
 ⋮----
-timestamp = (now or _now()).isoformat()
+authenticated_at = now or _now()
+timestamp = authenticated_at.isoformat()
+digest = token_digest(value)
 session = self.store.device_session(
+⋮----
+last_used = _parse_timestamp(session.get("last_used_at"))
 ⋮----
 role = str(session.get("role") or "")
 ⋮----
@@ -14551,6 +14565,33 @@ removed = control.dashboard_store.prune_expired_device_auth(
 ⋮----
 expired_count = db.execute(
 revoked = db.execute(
+⋮----
+def test_device_last_used_is_refreshed_at_most_once_per_five_minutes(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "pairing-activity.sqlite"), authorizer=_auth())
+now = datetime(2026, 10, 2, 6, 0, tzinfo=timezone.utc)
+⋮----
+digest = token_digest(token)
+⋮----
+first = db.execute(
+⋮----
+touched_at = now + timedelta(seconds=300)
+⋮----
+second = db.execute(
+⋮----
+def test_pairing_code_limit_is_per_operator_and_pruned_after_expiry(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "pairing-limit.sqlite"), authorizer=_auth())
+⋮----
+# Another operator has an independent allowance.
+other = control.device_pairing.issue_pairing_code(
+⋮----
+# The expired set is pruned before the next issuance.
+later = control.device_pairing.issue_pairing_code(
+⋮----
+def test_http_pairing_code_limit_returns_429(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "pairing-limit-http.sqlite"), authorizer=_auth())
 ````
 
 ## File: tests/test_dynamic_agent_fanout.py
@@ -19679,7 +19720,7 @@ https://<production-os-host>/dashboard#pair-code=<one-time-code>
 
 The pairing code is random, valid for 10 minutes, stored server-side only as a SHA-256 digest, and atomically consumable once. The browser removes the fragment immediately, exchanges the one-time code for a distinct revocable device-session token, and stores only that device token locally. The long-lived operator bearer token is never embedded in the link.
 
-Device sessions expire after 90 days and can be revoked. Dashboard settings list active paired devices so an operator can revoke a lost device remotely. “Oublier cet appareil” revokes the current device session when applicable and clears local storage even if the server is temporarily unreachable. Consumed/expired pairing codes and expired sessions are pruned opportunistically to keep authentication state bounded. Revoked sessions remain stored until their normal expiry for auditability, but are immediately invalid for authentication and omitted from the active-session list. Manual operator-token entry remains available only as a recovery path. Production-OS still refuses query-string pairing credentials.
+Device sessions expire after 90 days and can be revoked. Dashboard settings list active paired devices, including their last observed activity, so an operator can identify and revoke a lost device remotely. Session activity is refreshed at most once every five minutes to avoid turning dashboard polling into continuous database writes. “Oublier cet appareil” revokes the current device session when applicable and clears local storage even if the server is temporarily unreachable. Consumed/expired pairing codes and expired sessions are pruned opportunistically to keep authentication state bounded. Revoked sessions remain stored until their normal expiry for auditability, but are immediately invalid for authentication and omitted from the active-session list. Each operator may keep at most 10 unconsumed pairing codes active at once; excess issuance returns HTTP 429 until codes are consumed or expire. Manual operator-token entry remains available only as a recovery path. Production-OS still refuses query-string pairing credentials.
 
 Cancellation is job-scoped rather than worker-wide. A cancellation request is not considered acknowledged until the worker reports the matching `cancel_requested` state. Terminal job transitions are exclusive: once cancellation wins, a late completion is rejected; once completion wins, a later cancel-current request is rejected.
 
