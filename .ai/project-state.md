@@ -22,13 +22,13 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-02T16:06:35Z
+Generated: 2026-10-02T16:22:59Z
 
 ### Git
 - Branch: `main`
-- Head: `dda5b0e3cb4f`
-- Commit date: 2026-10-02T16:05:59Z
-- Commit: chore(ai): refresh unified AI context [skip render]
+- Head: `cb1e7a09e4e6`
+- Commit date: 2026-10-02T18:22:46+02:00
+- Commit: fix(dashboard): refresh repository picker with dashboard
 - Tracked files: 540
 
 ### Recently changed files
@@ -38,10 +38,6 @@ Generated: 2026-10-02T16:06:35Z
 - `.github/workflows/ai-repo-map.yml`
 - `scripts/render-start.py`
 - `tests/test_render_start.py`
-- `README.md`
-- `src/production_os/control_plane.py`
-- `tests/test_control_plane.py`
-- `tests/test_control_plane_webhook.py`
 
 ### Project signals
 - `pyproject.toml`

@@ -1,7 +1,7 @@
 # Change impact
 
-Base: 60da6403dbae2716fe9bbe25b91705f16790b6d2
-Head: ab596488b7dfa33eab6cc47012d09e518c0b2c4f
+Base: 806d767c190a79356603f94a200219408961b590
+Head: cb1e7a09e4e64baab08035bb37018a924e8b4deb
 
 ## Changed files
 - M src/production_os/dashboard_ui.py

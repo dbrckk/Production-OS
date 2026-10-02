@@ -2,16 +2,35 @@
   "area": "src-production-os",
   "files": [
     {
-      "path": "src/production_os/control_plane.py",
-      "reasons": [
-        "recent-project-state"
-      ],
-      "score": 60
-    },
-    {
       "path": "src/production_os/dashboard_ui.py",
       "reasons": [
-        "recent-project-state"
+        "changed",
+        "changed-source",
+        "dependency-neighbor",
+        "impact"
+      ],
+      "score": 400
+    },
+    {
+      "path": "src/production_os/control_plane.py",
+      "reasons": [
+        "impact",
+        "reverse-dependency-neighbor",
+        "symbol-indexed"
+      ],
+      "score": 265
+    },
+    {
+      "path": "src/production_os/__init__.py",
+      "reasons": [
+        "dependency-neighbor"
+      ],
+      "score": 75
+    },
+    {
+      "path": "src/production_os/cli.py",
+      "reasons": [
+        "reverse-dependency-neighbor"
       ],
       "score": 60
     }
