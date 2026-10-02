@@ -338,6 +338,15 @@ def test_launch_repository_picker_is_server_backed():
     assert "async function loadRepositories" in DASHBOARD_HTML
 
 
+def test_launch_repository_picker_fails_closed_without_server_repositories():
+    assert '<select id="repository" disabled>' in DASHBOARD_HTML
+    assert "Chargement des repositories..." in DASHBOARD_HTML
+    assert "Aucun repository disponible" in DASHBOARD_HTML
+    assert "Repositories indisponibles" in DASHBOARD_HTML
+    assert "repositorySelect.disabled||!repository" in DASHBOARD_HTML
+    assert "option.value='dbrckk/Jumpy'" not in DASHBOARD_HTML
+
+
 def test_mobile_launch_flow_remains_repo_plus_instruction():
     assert 'id="repository"' in DASHBOARD_HTML
     assert 'id="instruction"' in DASHBOARD_HTML
