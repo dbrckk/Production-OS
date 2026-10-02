@@ -8433,9 +8433,14 @@ def _native_cancel_grace_seconds(self) -> float
 result = execute_native(context)
 ⋮----
 future: Future = Future()
+completion: dict[str, float] = {}
 thread = threading.Thread(
 ⋮----
 heartbeat_failures = 0
+⋮----
+finished_at = completion.get("finished_at")
+⋮----
+duration = max(0.0, finished_at - started)
 ⋮----
 payload = future.result()
 ⋮----
