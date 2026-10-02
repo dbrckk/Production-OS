@@ -347,6 +347,13 @@ def test_launch_repository_picker_fails_closed_without_server_repositories():
     assert "option.value='dbrckk/Jumpy'" not in DASHBOARD_HTML
 
 
+def test_repository_picker_preserves_selected_repository_across_refresh():
+    assert "const selectedById={};" in DASHBOARD_HTML
+    assert "selectedById[select.id]=select.value" in DASHBOARD_HTML
+    assert "const selected=selectedById[select.id]||'';" in DASHBOARD_HTML
+    assert "x.full_name===selected" in DASHBOARD_HTML
+
+
 def test_mobile_launch_flow_remains_repo_plus_instruction():
     assert 'id="repository"' in DASHBOARD_HTML
     assert 'id="instruction"' in DASHBOARD_HTML
