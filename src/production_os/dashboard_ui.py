@@ -468,6 +468,8 @@ async function loadRepositories(){
  const launchButton=document.getElementById('launch-button');
  const launchStatus=document.getElementById('launch-status');
  const selects=[launchSelect,managedSelect].filter(Boolean);
+ const selectedById={};
+ selects.forEach(function(select){selectedById[select.id]=select.value});
  function markUnavailable(message){
   selects.forEach(function(select){
    select.innerHTML='';
@@ -496,7 +498,7 @@ async function loadRepositories(){
    return false;
   }
   selects.forEach(function(select){
-   const selected=select.value;
+   const selected=selectedById[select.id]||'';
    select.innerHTML='';
    repos.forEach(function(x){
     const option=document.createElement('option');
@@ -505,6 +507,9 @@ async function loadRepositories(){
     if(x.full_name===selected) option.selected=true;
     select.appendChild(option);
    });
+   if(selected&&!repos.some(function(x){return x.full_name===selected})){
+    select.selectedIndex=0;
+   }
    select.disabled=false;
   });
   if(launchButton) launchButton.disabled=false;
