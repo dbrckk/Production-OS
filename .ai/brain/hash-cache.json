@@ -13,8 +13,20 @@
       "size": 117276
     },
     "src/production_os/control_plane.py": {
-      "sha256": "bb782261a5bde5a6c5ef589fb587a0897d68a6b396d0b1628d6a2dbaa8e499cc",
-      "size": 152748
+      "sha256": "959953444eb7298bafab12400fdbe94c5e98064b4fb5c3903b2f1517a86e1bf7",
+      "size": 152749
+    },
+    "src/production_os/dashboard_store.py": {
+      "sha256": "fa5d9d95ccaa99f9fa3ae6158685f762c793d39681216e99b52a77021e7bc5c9",
+      "size": 46405
+    },
+    "src/production_os/managed_projects.py": {
+      "sha256": "551cbdd052aa51979068b1dad0d19425f9b9117da5714287d07a925f525e8e2c",
+      "size": 77195
+    },
+    "src/production_os/postgres_backend.py": {
+      "sha256": "c4c55b2355c0a8778b8ecec9f42d34f704ffc9a31baa9dcc4369c64e6f4a3197",
+      "size": 73982
     },
     "src/production_os/remote_worker.py": {
       "sha256": "491c13a2f19d6b740e613febbba02b122f482ea4f837cdd6657c048614c6c879",
@@ -25,8 +37,12 @@
       "size": 34480
     },
     "src/production_os/sqlite_backend.py": {
-      "sha256": "31f2b44ba832303d40f4c16591373f0bacfed1be08fa065cddbfeeb00a6d7cf8",
-      "size": 69356
+      "sha256": "3819ae23b6c1f1dc9ebfbcd345c2fbdebd522d5684fd7bf8db071350008b91c6",
+      "size": 69357
+    },
+    "src/production_os/storage.py": {
+      "sha256": "26ced440eeb1bf429e982141c073264d5e0559a7fd7e38a09e57f5830b7dde4b",
+      "size": 1243
     },
     "src/production_os/workers.py": {
       "sha256": "30e6514ef86731b279648d0aaa54c4cd987309e71c286e5c31c3bbe8dfc1a5d1",
@@ -36,21 +52,25 @@
       "sha256": "7af7e8519c2cd96609ea971dba9ba74b8561e80cc39ad2d6781a06e23a10a85d",
       "size": 81597
     },
-    "tests/test_control_plane.py": {
-      "sha256": "9da2c8199bf05c791021bd71ca742e8d0ea9d0957437989850a829db320f1061",
-      "size": 14652
+    "tests/test_asset_forge.py": {
+      "sha256": "a1c28454a89887eb89d34cca4e3901156ade26ec72107fe6ecf751874b1a90c2",
+      "size": 35251
     },
-    "tests/test_control_plane_webhook.py": {
-      "sha256": "618b06c952f6d10d4a026e5c227abd241dad63557ef571ea1d5a786f620ecc50",
-      "size": 7333
+    "tests/test_browser_computer.py": {
+      "sha256": "ad3f96ee9705f0798b2343cf14ec429cced9f25b2fad4ce5e93675119be076e3",
+      "size": 30702
+    },
+    "tests/test_cli.py": {
+      "sha256": "c3f464d4565153ffbe2b41938df618bd2021b88b08d7cea3520451856f171bed",
+      "size": 10007
     },
     "tests/test_dashboard_api.py": {
       "sha256": "ecbe713625262cd6c95f851fb19b0f04595145e4ae2eb882fbeaaecdf88a5740",
       "size": 25906
     },
-    "tests/test_dashboard_backup_api.py": {
-      "sha256": "31e733d5e3d6810182471901dcf916847aee0d551af5d1a5bdb7c9faca96be46",
-      "size": 22889
+    "tests/test_dashboard_backups.py": {
+      "sha256": "2d1a72bdebc9b68b365a7d6575cd0252b5b041911483f05b2fb808c791838e71",
+      "size": 42934
     },
     "tests/test_dashboard_control_api.py": {
       "sha256": "47fb77400ceea283104f999b0f6f17a315b85164fe8259de9e747eb9b603a0cf",
@@ -60,17 +80,9 @@
       "sha256": "685e694b9c425c0943080caba68bb6c1758ad98e646f45ede1b1c4534fb89b9d",
       "size": 9166
     },
-    "tests/test_dashboard_control_e2e.py": {
-      "sha256": "f76c8fbbf0c0fb78a738ce65eb8ae37638845cb02199a8b2a21cb8ab830ddf74",
-      "size": 11145
-    },
     "tests/test_dashboard_incidents.py": {
       "sha256": "986936ab3c73da65d91841e7dfdbfce41e8176d22af73e22e55bc7f32751e8cb",
       "size": 10102
-    },
-    "tests/test_dashboard_launch.py": {
-      "sha256": "5b6591aa4ceb3470c8cee6f1befba97821184d2d529176c0dac58f201c8b0fcb",
-      "size": 6272
     },
     "tests/test_dashboard_launch_ux.py": {
       "sha256": "eb412ede07983335c855c096d72d460ad751e71163d274015eaab1a6737509ee",
@@ -80,53 +92,41 @@
       "sha256": "e64a1eafbf88fecaeb662f0ea9266b36b393bf1dac2ba0cd589cd3dcab3a7c8b",
       "size": 5856
     },
-    "tests/test_dashboard_observability_e2e.py": {
-      "sha256": "5d25c9c9d1ebdf4de43fa56afa0a2cf2fd8071529107c56313f96ef54a7b24f8",
-      "size": 8669
-    },
-    "tests/test_dashboard_production_inbox.py": {
-      "sha256": "e5e111b1cb9b4edddfc600e2971335ea3d19e609142d81fa17a6434e70568f68",
-      "size": 8860
-    },
-    "tests/test_dashboard_remediation_api.py": {
-      "sha256": "f2f3b7c754393ae4babc2936a7d51f4d7c6b3eb47e66207a36d7d240672b9f79",
-      "size": 11639
-    },
     "tests/test_dashboard_retention_prune.py": {
       "sha256": "ca9a68290921734b97de21f5ac12454910ae3bd303ba4d55b84d5f8ca3b15000",
       "size": 10386
-    },
-    "tests/test_database_maintenance_lock.py": {
-      "sha256": "c14bc2dd53fface66723191298f201a33a247b6dd9e3b3b01edde22ed8c82b63",
-      "size": 3533
-    },
-    "tests/test_device_pairing.py": {
-      "sha256": "ddbdf419db93f04afe052066c512ec638f403abf56f5b6a0cc8cfae9bc0d2b02",
-      "size": 13177
     },
     "tests/test_fairness.py": {
       "sha256": "049c558e2f3319632921e7a5a3dcb4422c4586d1787603a0470ce0185dab3950",
       "size": 512
     },
-    "tests/test_managed_projects_http_v4.py": {
-      "sha256": "8467c48fb5706b6410a42f124007f82cb0a13f33e730a986d7f997f63f04f1e6",
-      "size": 8640
+    "tests/test_managed_github_reconciliation.py": {
+      "sha256": "3cad7f7e3a4f51fe9f09ca4fad5f434d539719289ae31e74ff3c88aa9002cfe4",
+      "size": 15678
     },
-    "tests/test_native_browser_worker_e2e.py": {
-      "sha256": "3dee8ff19db87d29c2c286936be6d0e7a38edbee8a8205e5deb6d2aa6244b315",
-      "size": 7915
+    "tests/test_postgres_backend.py": {
+      "sha256": "11518b504c530028539e082dde09034664f418e1e527b6e38da0c0188da39242",
+      "size": 4097
     },
-    "tests/test_release32_one_tap_e2e.py": {
-      "sha256": "670c438c6cfda1de2c81e301b3cf5c1ab4403691d00cb73638d4403156f0854b",
-      "size": 11757
+    "tests/test_release_ledger.py": {
+      "sha256": "48f0e0034287e47829584485b7d2b70a9df7f3066dbdf9be603925283b506891",
+      "size": 19629
     },
     "tests/test_remote_worker_runner.py": {
       "sha256": "f79fe71173b4ae6a5966e9fbe24031d8acb69aab35840e120fce23861a646a9d",
       "size": 63771
     },
+    "tests/test_sqlite_backend.py": {
+      "sha256": "36cf612783f938bc3af350ddf95fdaa75c9306329b7911fa0b8b2fda37151ae5",
+      "size": 2928
+    },
     "tests/test_worker_availability_api.py": {
-      "sha256": "b306de1c52da6231c5957a63f1a6e7d2f7085b1839fdfdf252a942c7b7514537",
-      "size": 7022
+      "sha256": "4ad44fecf25ac89ec4c1ae67a6be5ad210d3440a6629657a57fcde5023d0a658",
+      "size": 8082
+    },
+    "tests/test_workflow_engine.py": {
+      "sha256": "6583b7bb8f58b8a577c7f168b60bd8367f2dbf52b8ca9899cec0429f5a8c28e5",
+      "size": 18641
     }
   },
   "generated_by": "dbrckk/repo-brain-v6",

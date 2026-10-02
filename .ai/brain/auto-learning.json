@@ -5,24 +5,29 @@
     "example_count": 64,
     "rejected_count": 0,
     "terms": [
-      "add",
-      "availability",
-      "compatible-work",
-      "feat",
-      "non-destructive",
-      "probe",
-      "worker"
+      "100",
+      "beyond",
+      "capability",
+      "first",
+      "jobs",
+      "prevent",
+      "queue",
+      "starvation"
     ],
     "test_count": 0,
-    "useful_count": 2
+    "useful_count": 6
   },
   "note": "Selected tests are routing hints; this artifact does not claim they executed successfully.",
   "rejected": [],
   "schema_version": 1,
-  "task": "feat(worker): add non-destructive compatible-work availability probe",
+  "task": "fix(queue): prevent capability starvation beyond first 100 jobs",
   "tests_selected": [],
   "useful": [
     "src/production_os/control_plane.py",
+    "src/production_os/postgres_backend.py",
+    "src/production_os/sqlite_backend.py",
+    "tests/test_postgres_backend.py",
+    "tests/test_sqlite_backend.py",
     "tests/test_worker_availability_api.py"
   ]
 }

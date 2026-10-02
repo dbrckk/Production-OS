@@ -5059,6 +5059,12 @@ store = SkillStore(backend)
 learned = store.record_success(
 ⋮----
 selected = store.select(
+⋮----
+def test_postgres_claim_finds_compatible_job_beyond_first_hundred()
+⋮----
+compatible=queue.enqueue({
+⋮----
+claimed=queue.claim_next("python-worker",capabilities=["python"])
 ```
 
 ## File: test_postgres_connect_timeout_unit.py
@@ -7242,6 +7248,14 @@ backend=SQLiteBackend(tmp_path/"cancel.db")
 cancelled=queue.cancel_queued(queued["key"], reason="operator cancel")
 ⋮----
 replay=queue.cancel_queued(queued["key"], reason="operator cancel")
+⋮----
+def test_sqlite_claim_finds_compatible_job_beyond_first_hundred(tmp_path)
+⋮----
+backend=SQLiteBackend(tmp_path/"starvation.db")
+⋮----
+compatible=queue.enqueue({
+⋮----
+claimed=queue.claim_next("python-worker",capabilities=["python"])
 ```
 
 ## File: test_sqlite_migration.py
@@ -7610,6 +7624,16 @@ control = ControlPlane(str(tmp_path / "availability-pause.sqlite"), authorizer=_
 def test_worker_availability_requires_worker_auth_and_valid_shape(tmp_path)
 ⋮----
 control = ControlPlane(str(tmp_path / "availability-auth.sqlite"), authorizer=_auth())
+⋮----
+def test_worker_availability_matches_deep_claim_window(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "availability-deep.sqlite"), authorizer=_auth())
+⋮----
+compatible = control.queue.enqueue({
+⋮----
+result = control.worker_queue_availability(
+⋮----
+claimed = control.queue.claim_next(
 ```
 
 ## File: test_worker_compose_deployment.py

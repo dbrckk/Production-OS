@@ -1,20 +1,24 @@
 # Change impact
 
-Base: 9d7e0becc5fa3529d90c2ffecf9e8c737dee0fb2
-Head: 24d3a3b3f65463ae7ac9c17cbbc426660d69343a
+Base: 7b9efe1616825e6e78be563f65696c865a70ca72
+Head: 935ac148e2d5d408ad0e27d89cb2983ec5210d9a
 
 ## Changed files
-- M README.md
 - M src/production_os/control_plane.py
-- A tests/test_worker_availability_api.py
+- M src/production_os/postgres_backend.py
+- M src/production_os/sqlite_backend.py
+- M tests/test_postgres_backend.py
+- M tests/test_sqlite_backend.py
+- M tests/test_worker_availability_api.py
 
 ## Affected areas
-- (root)
 - src
 - tests
 
 ## Related test candidates
 - tests/test_control_plane.py
+- tests/test_postgres_backend.py
+- tests/test_sqlite_backend.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.
