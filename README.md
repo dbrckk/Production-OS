@@ -295,7 +295,7 @@ failed
 
 `scheduled_fallback` means no immediate dispatch was possible and the existing five-minute scheduled worker poll remains the next wake-up path. It must not be presented as a started worker.
 
-Automatic wake-up is queue-driven, not dashboard-only. New managed projects, added instructions, verification runs, operator retries, recovered stuck jobs, and durable work discovered by the autonomous controller all reuse the same wake policy. An online worker suppresses extra dispatches, a fleet-wide operator pause/drain is respected, and recent automatic wake attempts are deduplicated with a durable cooldown.
+Automatic wake-up is queue-driven, not dashboard-only. New managed projects, added instructions, verification runs, operator retries, recovered stuck jobs, direct operator job enqueue, GitHub webhook-dispatched jobs, and durable work discovered by the autonomous controller all reuse the same wake policy. An online worker suppresses extra dispatches, a fleet-wide operator pause/drain is respected, and recent automatic wake attempts are deduplicated with a durable cooldown.
 
 Workers can also perform a non-destructive preflight before expensive runtime setup:
 
