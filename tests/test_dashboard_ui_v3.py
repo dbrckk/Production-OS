@@ -364,6 +364,28 @@ def test_dashboard_refresh_reloads_repository_picker_once():
     assert "await refreshDashboard();" in save_pairing
 
 
+def test_dashboard_refresh_does_not_block_unpaired_state_on_health_check():
+    refresh = DASHBOARD_HTML.split("async function refreshDashboard(){", 1)[1].split("bootstrapPairingFromFragment()", 1)[0]
+    assert "const serverCheck=checkServer();" in refresh
+    assert refresh.index("const serverCheck=checkServer();") < refresh.index("await loadRepositories();")
+    assert refresh.index("await loadRepositories();") < refresh.index("await serverCheck;")
+
+
+def test_dashboard_health_check_is_bounded_and_retried():
+    check = DASHBOARD_HTML.split("async function checkServer(){", 1)[1].split("async function loadDeviceSessions(){", 1)[0]
+    assert "new AbortController()" in check
+    assert "controller.abort()" in check
+    assert "8000" in check
+    assert "Démarrage…" in check
+    assert "checkServer();" in DASHBOARD_HTML.split("setInterval(function(){", 1)[1]
+
+
+def test_unpaired_repository_picker_fails_fast_with_clear_message():
+    loader = DASHBOARD_HTML.split("async function loadRepositories(){", 1)[1].split("async function loadWorkerStatus(){", 1)[0]
+    assert "markUnavailable('Appairage requis')" in loader
+    assert "Appairage requis via ⚙ pour activer la production sur cet appareil." in loader
+
+
 def test_mobile_launch_flow_remains_repo_plus_instruction():
     assert 'id="repository"' in DASHBOARD_HTML
     assert 'id="instruction"' in DASHBOARD_HTML
