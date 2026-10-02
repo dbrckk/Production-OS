@@ -865,10 +865,10 @@ async function loadLastProduction(){
     :phase==="cancelling"
       ?'<button class="danger-btn" type="button" disabled>Annulation en cours</button>'
       :phase==="needs_attention"
-        ?'<button class="primary-btn" type="button" data-project-id="'+esc(projectId)+'" onclick="lastProductionManagedAction(this.dataset.projectId,\'verify\')">Relancer / retester</button>'
+        ?'<button class="primary-btn" type="button" data-project-id="'+esc(projectId)+'" onclick="lastProductionManagedAction(this.dataset.projectId,&quot;verify&quot;)">Relancer / retester</button>'
         :phase==="review_required"
-          ?'<button class="secondary-btn" type="button" data-project-id="'+esc(projectId)+'" onclick="lastProductionManagedAction(this.dataset.projectId,\'verify\')">Retester</button>'+
-           '<button class="primary-btn" type="button" data-project-id="'+esc(projectId)+'" onclick="lastProductionManagedAction(this.dataset.projectId,\'complete\')">Valider DONE</button>'
+          ?'<button class="secondary-btn" type="button" data-project-id="'+esc(projectId)+'" onclick="lastProductionManagedAction(this.dataset.projectId,&quot;verify&quot;)">Retester</button>'+
+           '<button class="primary-btn" type="button" data-project-id="'+esc(projectId)+'" onclick="lastProductionManagedAction(this.dataset.projectId,&quot;complete&quot;)">Valider DONE</button>'
           :'')+
    '</div>';
   return data;
@@ -2075,12 +2075,12 @@ function productionInboxActions(projectId,phase){
   return open+'<button class="danger-btn" type="button" disabled>Annulation en cours</button>';
  }
  if(phase==="needs_attention"){
-  return open+'<button class="primary-btn" type="button" data-project-id="'+id+'" onclick="lastProductionManagedAction(this.dataset.projectId,\'verify\')">Relancer / retester</button>';
+  return open+'<button class="primary-btn" type="button" data-project-id="'+id+'" onclick="lastProductionManagedAction(this.dataset.projectId,&quot;verify&quot;)">Relancer / retester</button>';
  }
  if(phase==="review_required"){
   return open+
-   '<button class="secondary-btn" type="button" data-project-id="'+id+'" onclick="lastProductionManagedAction(this.dataset.projectId,\'verify\')">Retester</button>'+
-   '<button class="primary-btn" type="button" data-project-id="'+id+'" onclick="lastProductionManagedAction(this.dataset.projectId,\'complete\')">Valider DONE</button>';
+   '<button class="secondary-btn" type="button" data-project-id="'+id+'" onclick="lastProductionManagedAction(this.dataset.projectId,&quot;verify&quot;)">Retester</button>'+
+   '<button class="primary-btn" type="button" data-project-id="'+id+'" onclick="lastProductionManagedAction(this.dataset.projectId,&quot;complete&quot;)">Valider DONE</button>';
  }
  return open;
 }
@@ -2252,7 +2252,7 @@ async function loadManagedProjects(){
    const canComplete=status==="REVIEW_REQUIRED";
    const runs=row.runs||[];
    const actions=canFollow
-    ?'<textarea id="managed-instruction-'+esc(projectId)+'" rows="3" placeholder="Instruction supplémentaire"></textarea><div class="v3-tabs"><button class="secondary-btn" data-project-id="'+esc(projectId)+'" onclick="managedAction(this.dataset.projectId,\'instructions\')">Ajouter instruction</button><button class="secondary-btn" data-project-id="'+esc(projectId)+'" onclick="managedAction(this.dataset.projectId,\'verify\')">Retester</button>'+(canComplete?'<button class="secondary-btn" data-project-id="'+esc(projectId)+'" onclick="managedAction(this.dataset.projectId,\'complete\')">Valider DONE</button>':'')+'</div><div id="managed-action-status-'+esc(projectId)+'" class="status-message"></div>'
+    ?'<textarea id="managed-instruction-'+esc(projectId)+'" rows="3" placeholder="Instruction supplémentaire"></textarea><div class="v3-tabs"><button class="secondary-btn" data-project-id="'+esc(projectId)+'" onclick="managedAction(this.dataset.projectId,\'instructions\')">Ajouter instruction</button><button class="secondary-btn" data-project-id="'+esc(projectId)+'" onclick="managedAction(this.dataset.projectId,&quot;verify&quot;)">Retester</button>'+(canComplete?'<button class="secondary-btn" data-project-id="'+esc(projectId)+'" onclick="managedAction(this.dataset.projectId,&quot;complete&quot;)">Valider DONE</button>':'')+'</div><div id="managed-action-status-'+esc(projectId)+'" class="status-message"></div>'
     :'';
    const history=runs.length?'<div class="small"><strong>Générations :</strong> '+runs.map(function(run){return 'g'+esc(String(run.generation||""))+' '+esc(String(run.kind||""))}).join(" · ")+'</div>':'';
    return '<div class="card'+(appState.focus===projectId?' attention-focus':'')+'" data-managed-project-id="'+esc(projectId)+'"><div class="section-head"><strong>'+esc(String(row.repository||""))+'</strong><span class="badge">'+esc(status)+'</span></div>'+
