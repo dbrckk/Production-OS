@@ -47,6 +47,7 @@ def test_control_plane_worker_and_queue(tmp_path):
             "required_capabilities":["python"],
         })
         assert status==201
+        assert enqueued["worker_wake"]["status"]=="not_needed"
 
         status,claimed=request(base+"/v1/jobs/claim","worker",{
             "worker_id":"python-1",
