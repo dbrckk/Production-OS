@@ -22,7 +22,7 @@ def _auth_payload(worker_token: str, operator_token: str) -> dict:
     return {
         "tokens": [
             {
-                "name": "ai-dev-server-worker",
+                "name": "github-actions-worker",
                 "role": "worker",
                 "sha256": digest(worker_token),
             },
