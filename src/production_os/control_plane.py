@@ -156,6 +156,17 @@ class ControlPlane:
         if len(normalized) > 128:
             raise ValueError("too many capabilities")
 
+        desired = self.dashboard_control.worker_state(worker)
+        if desired.get("desired_state") in {"paused", "draining"}:
+            return {
+                "schema_version":"production-os/job-availability/v1",
+                "available":False,
+                "compatible_jobs":0,
+                "mobile_jobs":0,
+                "browser_jobs":0,
+                "worker_state":desired.get("desired_state"),
+            }
+
         capability_set = set(normalized)
         compatible = 0
         mobile = 0
@@ -194,6 +205,7 @@ class ControlPlane:
             "compatible_jobs":compatible,
             "mobile_jobs":mobile,
             "browser_jobs":browser,
+            "worker_state":"active",
         }
 
     def ensure_worker_for_queued_work(
