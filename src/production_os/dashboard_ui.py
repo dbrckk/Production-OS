@@ -330,14 +330,22 @@ async function api(path,options){
 }
 
 async function checkServer(){
+ const controller=new AbortController();
+ const timeout=setTimeout(function(){controller.abort()},8000);
  try{
-  const r=await fetch('/health',{cache:'no-store'});
+  const r=await fetch('/health',{cache:'no-store',signal:controller.signal});
   if(!r.ok) throw new Error('health');
   setState('server-state','ok','En ligne');
   return true;
- }catch(_e){
-  setState('server-state','bad','Indisponible');
+ }catch(e){
+  if(e&&e.name==='AbortError'){
+   setState('server-state','warn','Démarrage…');
+  }else{
+   setState('server-state','bad','Indisponible');
+  }
   return false;
+ }finally{
+  clearTimeout(timeout);
  }
 }
 
@@ -483,6 +491,9 @@ async function loadRepositories(){
  }
  if(!token()){
   markUnavailable('Appairage requis');
+  if(launchStatus&&!launchStatus.textContent){
+   launchStatus.textContent='Appairage requis via ⚙ pour activer la production sur cet appareil.';
+  }
   return false;
  }
  markUnavailable('Chargement des repositories...');
@@ -982,7 +993,7 @@ async function refreshDashboard(){
  if(refreshBusy) return;
  refreshBusy=true;
  try{
-  await checkServer();
+  const serverCheck=checkServer();
   await loadRepositories();
   await Promise.all([
    loadWorkerStatus(),
@@ -991,6 +1002,7 @@ async function refreshDashboard(){
    loadLaunchReadiness(),
    loadLastProduction()
   ]);
+  await serverCheck;
  }finally{refreshBusy=false}
 }
 
@@ -1002,6 +1014,7 @@ document.getElementById('repository').addEventListener('change',loadRecentRuns);
 document.getElementById('repository').addEventListener('change',loadLaunchReadiness);
 setInterval(loadVisualQuality,10000);
 setInterval(function(){
+ checkServer();
  loadWorkerStatus();
  loadRecentRuns();
  loadLaunchReadiness();
