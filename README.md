@@ -297,6 +297,14 @@ failed
 
 Automatic wake-up is queue-driven, not dashboard-only. New managed projects, added instructions, verification runs, operator retries, recovered stuck jobs, and durable work discovered by the autonomous controller all reuse the same wake policy. An online worker suppresses extra dispatches, a fleet-wide operator pause/drain is respected, and recent automatic wake attempts are deduplicated with a durable cooldown.
 
+Workers can also perform a non-destructive preflight before expensive runtime setup:
+
+```text
+POST /v1/jobs/availability
+```
+
+The endpoint requires worker authentication and accepts only `worker_id` plus a capability list. It reports whether compatible queued work exists, including mobile/browser counts, without claiming or mutating the job. Cancel-requested and stale workflow generations are excluded, and an operator-paused/draining worker reports unavailable. This lets scheduled workers exit before installing large toolchains when no useful work can be claimed.
+
 The UI separately presents:
 
 ```text
