@@ -233,12 +233,17 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 <div id="settings">
  <div class="settings-panel">
   <div class="section-head"><h2>Appairage</h2><button class="icon-btn" type="button" onclick="setSettingsOpen(false)" aria-label="Fermer">×</button></div>
-  <p class="small">À faire une seule fois sur cet appareil. Le token reste dans le stockage local de ce navigateur.</p>
-  <input id="pair-token" type="password" placeholder="Operator token" autocomplete="off">
-  <div id="pair-feedback" class="pair-feedback"></div>
+  <p class="small">Appairage recommandé : crée un lien à usage unique valable 10 minutes. Le token opérateur permanent n’est jamais placé dans le lien.</p>
   <div class="settings-actions">
-   <button class="primary-btn" type="button" onclick="savePairing()">Enregistrer</button>
-   <button class="secondary-btn" type="button" onclick="clearPairing()">Oublier</button>
+   <button class="primary-btn" type="button" onclick="createPairingLink()">Créer un lien 10 min</button>
+  </div>
+  <p class="small">Secours uniquement : saisir manuellement le token opérateur sur cet appareil.</p>
+  <input id="pair-token" type="password" placeholder="Token opérateur (secours)" autocomplete="off">
+  <div id="pair-feedback" class="pair-feedback"></div>
+  <div id="device-sessions" class="small"></div>
+  <div class="settings-actions">
+   <button class="secondary-btn" type="button" onclick="savePairing()">Enregistrer le token de secours</button>
+   <button class="secondary-btn" type="button" onclick="clearPairing()">Oublier cet appareil</button>
    <button class="secondary-btn" type="button" onclick="setSettingsOpen(false)">Fermer</button>
   </div>
  </div>
@@ -257,16 +262,33 @@ let productionSort="priority";
 let productionSearchTimer=null;
 
 function token(){return localStorage.getItem(TOKEN_KEY)||''}
-function bootstrapPairingFromFragment(){
+async function bootstrapPairingFromFragment(){
  const raw=String(window.location.hash||'');
- if(!raw.startsWith('#pair=')) return false;
- let value='';
- try{value=decodeURIComponent(raw.slice(6)).trim()}catch(_e){value=''}
+ if(raw.startsWith('#pair=')){
+  history.replaceState(null,'',window.location.pathname+window.location.search);
+  setState('pair-state','bad','Lien ancien refusé');
+  return false;
+ }
+ if(!raw.startsWith('#pair-code=')) return false;
+ let code='';
+ try{code=decodeURIComponent(raw.slice(11)).trim()}catch(_e){code=''}
  history.replaceState(null,'',window.location.pathname+window.location.search);
- if(!value) return false;
- localStorage.setItem(TOKEN_KEY,value);
- setState('pair-state','ok','Appairé');
- return true;
+ if(!code) return false;
+ try{
+  const r=await fetch('/v1/dashboard/pair',{
+   method:'POST',
+   headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({code:code,device_name:'mobile-dashboard'})
+  });
+  const payload=await r.json();
+  if(!r.ok||!payload.session_token)throw new Error(payload.error||'Appairage refusé');
+  localStorage.setItem(TOKEN_KEY,String(payload.session_token));
+  setState('pair-state','ok','Appairé');
+  return true;
+ }catch(_e){
+  setState('pair-state','bad','Lien expiré ou déjà utilisé');
+  return false;
+ }
 }
 function esc(value){return String(value).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})}
 function dot(state){return '<span class="dot '+state+'"></span>'}
@@ -274,7 +296,10 @@ function setState(id,state,text){document.getElementById(id).innerHTML=dot(state
 function setSettingsOpen(open){
  const el=document.getElementById('settings');
  el.classList.toggle('open',Boolean(open));
- if(open){setTimeout(function(){document.getElementById('pair-token').focus()},0)}
+ if(open){
+  loadDeviceSessions();
+  setTimeout(function(){document.getElementById('pair-token').focus()},0);
+ }
 }
 function toggleSettings(){const el=document.getElementById('settings');setSettingsOpen(!el.classList.contains('open'))}
 
@@ -316,6 +341,79 @@ async function checkServer(){
  }
 }
 
+async function loadDeviceSessions(){
+ const el=document.getElementById('device-sessions');
+ if(!el)return;
+ if(!token()){
+  el.innerHTML='<div class="small">Aucun appareil authentifié.</div>';
+  return;
+ }
+ try{
+  const data=await api('/v1/dashboard/device-sessions');
+  const sessions=data.sessions||[];
+  if(!sessions.length){
+   el.innerHTML='<div class="small">Aucune session appareil active.</div>';
+   return;
+  }
+  el.innerHTML='<div class="small"><strong>Appareils appairés</strong></div>'+
+   sessions.map(function(item){
+    const id=String(item.id||'');
+    const name=String(item.name||'appareil');
+    const expiry=String(item.expires_at||'').replace('T',' ').replace('Z','');
+    return '<div class="history-row"><span>'+esc(name)+
+     (expiry?' · expire '+esc(expiry):'')+
+     '</span><button class="secondary-btn" type="button" data-session-id="'+
+     esc(id)+'" onclick="revokeDeviceSession(this.dataset.sessionId)">Révoquer</button></div>';
+   }).join('');
+ }catch(e){
+  el.textContent='Sessions indisponibles : '+String(e).replace(/^Error:\\s*/,'');
+ }
+}
+
+async function revokeDeviceSession(sessionId){
+ const id=String(sessionId||'').trim();
+ if(!id)return;
+ const feedback=document.getElementById('pair-feedback');
+ try{
+  const r=await api(
+   '/v1/dashboard/device-sessions/'+encodeURIComponent(id)+'/revoke',
+   {method:'POST'}
+  );
+  feedback.textContent=r.revoked
+   ?'Session appareil révoquée.'
+   :'Session déjà absente.';
+  await loadDeviceSessions();
+ }catch(e){
+  feedback.textContent=String(e).replace(/^Error:\\s*/,'');
+ }
+}
+
+async function createPairingLink(){
+ const feedback=document.getElementById('pair-feedback');
+ if(!token()){
+  feedback.textContent='Appaire d’abord cet appareil avec le token opérateur de secours.';
+  return;
+ }
+ feedback.textContent='Création du lien à usage unique...';
+ try{
+  const data=await api('/v1/dashboard/pairing-codes',{method:'POST'});
+  const link=window.location.origin+window.location.pathname+
+   '#pair-code='+encodeURIComponent(String(data.code||''));
+  let copied=false;
+  try{
+   if(navigator.clipboard&&navigator.clipboard.writeText){
+    await navigator.clipboard.writeText(link);
+    copied=true;
+   }
+  }catch(_e){}
+  feedback.textContent=copied
+   ?'Lien copié · valable 10 min · utilisable une seule fois.'
+   :'Lien 10 min : '+link;
+ }catch(e){
+  feedback.textContent=String(e).replace(/^Error:\\s*/,'');
+ }
+}
+
 async function savePairing(){
  const input=document.getElementById('pair-token');
  const value=input.value.trim();
@@ -343,7 +441,16 @@ async function savePairing(){
  }
 }
 
-function clearPairing(){
+async function clearPairing(){
+ const secret=token();
+ if(secret){
+  try{
+   await fetch('/v1/dashboard/session/revoke',{
+    method:'POST',
+    headers:{Authorization:'Bearer '+secret}
+   });
+  }catch(_e){}
+ }
  localStorage.removeItem(TOKEN_KEY);
  setState('pair-state','warn','Non appairé');
  setState('worker-state','warn','Appairage requis');
@@ -848,8 +955,9 @@ async function refreshDashboard(){
  }finally{refreshBusy=false}
 }
 
-bootstrapPairingFromFragment();
-loadRepositories().then(function(){return refreshDashboard()});
+bootstrapPairingFromFragment().finally(function(){
+ return loadRepositories().then(function(){return refreshDashboard()});
+});
 document.getElementById('repository').addEventListener('change',loadVisualQuality);
 document.getElementById('repository').addEventListener('change',loadRecentRuns);
 document.getElementById('repository').addEventListener('change',loadLaunchReadiness);

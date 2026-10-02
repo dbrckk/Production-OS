@@ -18,7 +18,7 @@ def _utcnow() -> str:
 
 
 class SQLiteBackend:
-    SCHEMA_VERSION = 17
+    SCHEMA_VERSION = 18
 
     def __init__(self, path: str | Path):
         self.path = Path(path)
@@ -341,6 +341,28 @@ class SQLiteBackend:
                 );
                 CREATE INDEX IF NOT EXISTS idx_control_audit_requested_at
                 ON control_audit_events(requested_at DESC);
+                CREATE TABLE IF NOT EXISTS device_pairing_codes (
+                    id TEXT PRIMARY KEY,
+                    code_sha256 TEXT NOT NULL UNIQUE,
+                    requested_by TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    expires_at TEXT NOT NULL,
+                    consumed_at TEXT
+                );
+                CREATE INDEX IF NOT EXISTS idx_device_pairing_codes_expiry
+                ON device_pairing_codes(expires_at, consumed_at);
+                CREATE TABLE IF NOT EXISTS device_sessions (
+                    id TEXT PRIMARY KEY,
+                    token_sha256 TEXT NOT NULL UNIQUE,
+                    name TEXT NOT NULL,
+                    role TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    expires_at TEXT NOT NULL,
+                    last_used_at TEXT,
+                    revoked_at TEXT
+                );
+                CREATE INDEX IF NOT EXISTS idx_device_sessions_expiry
+                ON device_sessions(expires_at, revoked_at);
                 CREATE TABLE IF NOT EXISTS dashboard_incidents (
                     id TEXT PRIMARY KEY,
                     dedupe_key TEXT NOT NULL UNIQUE,
