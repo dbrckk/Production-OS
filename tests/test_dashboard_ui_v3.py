@@ -850,3 +850,5 @@ def test_dashboard_supports_one_time_fragment_pairing_without_operator_token_lin
     assert "function revokeDeviceSession" in DASHBOARD_HTML
     assert "/v1/dashboard/device-sessions/" in DASHBOARD_HTML
     assert "Appareils appairés" in DASHBOARD_HTML
+    assert "item.last_used_at" in DASHBOARD_HTML
+    assert "dernière activité" in DASHBOARD_HTML

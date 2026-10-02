@@ -8,13 +8,29 @@ from .api_auth import Principal, token_digest
 
 
 PAIRING_CODE_TTL_SECONDS = 600
+ACTIVE_PAIRING_CODE_LIMIT = 10
 DEVICE_SESSION_TTL_DAYS = 90
+DEVICE_ACTIVITY_TOUCH_SECONDS = 300
 PAIRING_CODE_PREFIX = "posp_"
 DEVICE_TOKEN_PREFIX = "posd_"
 
 
 def _now() -> datetime:
     return datetime.now(timezone.utc)
+
+
+def _parse_timestamp(value) -> datetime | None:
+    if not value:
+        return None
+    try:
+        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
+
+
+class DevicePairingLimitError(ValueError):
+    pass
 
 
 def _device_name(value: str | None) -> str:
@@ -35,7 +51,15 @@ class DevicePairingManager:
         now: datetime | None = None,
     ) -> dict:
         issued_at = now or _now()
-        self.store.prune_expired_device_auth(at=issued_at.isoformat())
+        timestamp = issued_at.isoformat()
+        self.store.prune_expired_device_auth(at=timestamp)
+        if self.store.active_pairing_code_count(
+            requested_by=str(requested_by),
+            at=timestamp,
+        ) >= ACTIVE_PAIRING_CODE_LIMIT:
+            raise DevicePairingLimitError(
+                "too many active pairing codes"
+            )
         code = PAIRING_CODE_PREFIX + secrets.token_urlsafe(24)
         expires_at = issued_at + timedelta(seconds=PAIRING_CODE_TTL_SECONDS)
         row = self.store.create_pairing_code(
@@ -94,13 +118,25 @@ class DevicePairingManager:
         value = str(token or "").strip()
         if not value.startswith(DEVICE_TOKEN_PREFIX) or len(value) > 512:
             return None
-        timestamp = (now or _now()).isoformat()
+        authenticated_at = now or _now()
+        timestamp = authenticated_at.isoformat()
+        digest = token_digest(value)
         session = self.store.device_session(
-            token_sha256=token_digest(value),
+            token_sha256=digest,
             at=timestamp,
         )
         if session is None:
             return None
+        last_used = _parse_timestamp(session.get("last_used_at"))
+        if (
+            last_used is None
+            or (authenticated_at - last_used).total_seconds()
+                >= DEVICE_ACTIVITY_TOUCH_SECONDS
+        ):
+            self.store.touch_device_session(
+                token_sha256=digest,
+                at=timestamp,
+            )
         role = str(session.get("role") or "")
         if role != "operator":
             return None
