@@ -275,15 +275,18 @@ class RemoteWorkerRunner:
     def _complete_native_future(
         future: Future,
         context: NativeExecutionContext,
+        completion: dict[str, float],
     ) -> None:
         try:
             result = execute_native(context)
         except BaseException as exc:
+            completion["finished_at"] = time.monotonic()
             try:
                 future.set_exception(exc)
             except Exception:
                 pass
         else:
+            completion["finished_at"] = time.monotonic()
             try:
                 future.set_result(result)
             except Exception:
@@ -297,9 +300,10 @@ class RemoteWorkerRunner:
         started: float,
     ) -> tuple[dict | None, dict | None, bool]:
         future: Future = Future()
+        completion: dict[str, float] = {}
         thread = threading.Thread(
             target=self._complete_native_future,
-            args=(future, context),
+            args=(future, context, completion),
             name=f"production-os-native-{key[:12]}",
             daemon=True,
         )
@@ -308,6 +312,26 @@ class RemoteWorkerRunner:
 
         while True:
             if future.done():
+                finished_at = completion.get("finished_at")
+                if (
+                    finished_at is not None
+                    and finished_at - started >= self.executor_timeout_seconds
+                ):
+                    context.cancellation_event.set()
+                    duration = max(0.0, finished_at - started)
+                    self.client.fail(
+                        key,
+                        "executor_timeout",
+                        result_payload={
+                            "summary":"native executor exceeded its timeout",
+                        },
+                        duration_seconds=duration,
+                    )
+                    return None, {
+                        "job_key":key,
+                        "status":"failed",
+                        "reason":"executor_timeout",
+                    }, False
                 try:
                     payload = future.result()
                 except BaseException as exc:
