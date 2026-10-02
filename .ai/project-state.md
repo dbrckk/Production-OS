@@ -22,21 +22,20 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-02T16:48:34Z
+Generated: 2026-10-02T21:58:51Z
 
 ### Git
 - Branch: `main`
-- Head: `df75df529d81`
-- Commit date: 2026-10-02T18:48:23+02:00
-- Commit: fix(worker): make native execution timeout authoritative
+- Head: `b8610dfc7b69`
+- Commit date: 2026-10-02T23:58:38+02:00
+- Commit: fix(dashboard): avoid cold-start verification dead state
 - Tracked files: 540
 
 ### Recently changed files
-- `src/production_os/remote_worker_runner.py`
 - `src/production_os/dashboard_ui.py`
 - `tests/test_dashboard_ui_v3.py`
+- `src/production_os/remote_worker_runner.py`
 - `docs/production-readiness.md`
-- `.github/workflows/ai-repo-map.yml`
 
 ### Project signals
 - `pyproject.toml`

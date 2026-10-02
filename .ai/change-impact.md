@@ -1,16 +1,18 @@
 # Change impact
 
-Base: 0b52370dae5db5376dd5acc96cfa8cdca13c7faf
-Head: df75df529d81a31826187b7385f165ae5179cc9b
+Base: 2ab9bbc80b032108e68b798edfe2f28701ea2775
+Head: b8610dfc7b69afb59c8259aee5a516435e22f53b
 
 ## Changed files
-- M src/production_os/remote_worker_runner.py
+- M src/production_os/dashboard_ui.py
+- M tests/test_dashboard_ui_v3.py
 
 ## Affected areas
 - src
+- tests
 
 ## Related test candidates
-- tests/test_remote_worker_runner.py
+- No direct filename-based test match detected.
 
 ## Agent guidance
 - Read this file before broad repository exploration.

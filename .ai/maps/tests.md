@@ -3439,6 +3439,16 @@ refresh = DASHBOARD_HTML.split("async function refreshDashboard(){", 1)[1].split
 ⋮----
 save_pairing = DASHBOARD_HTML.split("async function savePairing(){", 1)[1].split("async function clearPairing(){", 1)[0]
 ⋮----
+def test_dashboard_refresh_does_not_block_unpaired_state_on_health_check()
+⋮----
+def test_dashboard_health_check_is_bounded_and_retried()
+⋮----
+check = DASHBOARD_HTML.split("async function checkServer(){", 1)[1].split("async function loadDeviceSessions(){", 1)[0]
+⋮----
+def test_unpaired_repository_picker_fails_fast_with_clear_message()
+⋮----
+loader = DASHBOARD_HTML.split("async function loadRepositories(){", 1)[1].split("async function loadWorkerStatus(){", 1)[0]
+⋮----
 def test_mobile_launch_flow_remains_repo_plus_instruction()
 ⋮----
 def test_overview_renders_storage_maintenance_card()
