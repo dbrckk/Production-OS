@@ -1,10 +1,11 @@
 # Change impact
 
-Base: 2ab9bbc80b032108e68b798edfe2f28701ea2775
-Head: b8610dfc7b69afb59c8259aee5a516435e22f53b
+Base: ce51b8f7e24f70e294454a55cf0348b7533c04de
+Head: b8be27a65200629553200f912b0caa9112ff8f4c
 
 ## Changed files
 - M src/production_os/dashboard_ui.py
+- M tests/test_dashboard_production_inbox_filters_ui.py
 - M tests/test_dashboard_ui_v3.py
 
 ## Affected areas

@@ -3570,6 +3570,15 @@ def test_production_inbox_renders_live_runtime_and_server_actions()
 def test_dashboard_supports_one_time_fragment_pairing_without_operator_token_link()
 ⋮----
 bootstrap = DASHBOARD_HTML.split(
+⋮----
+def test_dashboard_runtime_javascript_parses(tmp_path)
+⋮----
+node = shutil.which("node")
+⋮----
+script = DASHBOARD_HTML.split("<script>", 1)[1].split("</script>", 1)[0]
+script_path = tmp_path / "dashboard-runtime.js"
+⋮----
+result = subprocess.run(
 ```
 
 ## File: test_dashboard_usage.py

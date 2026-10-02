@@ -22,20 +22,20 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-02T21:58:51Z
+Generated: 2026-10-02T23:00:34Z
 
 ### Git
 - Branch: `main`
-- Head: `b8610dfc7b69`
-- Commit date: 2026-10-02T23:58:38+02:00
-- Commit: fix(dashboard): avoid cold-start verification dead state
+- Head: `b8be27a65200`
+- Commit date: 2026-10-03T01:00:24+02:00
+- Commit: fix(dashboard): repair rendered JavaScript syntax
 - Tracked files: 540
 
 ### Recently changed files
 - `src/production_os/dashboard_ui.py`
+- `tests/test_dashboard_production_inbox_filters_ui.py`
 - `tests/test_dashboard_ui_v3.py`
 - `src/production_os/remote_worker_runner.py`
-- `docs/production-readiness.md`
 
 ### Project signals
 - `pyproject.toml`
