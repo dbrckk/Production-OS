@@ -514,7 +514,7 @@ def test_managed_project_instruction_uses_inline_textarea_not_prompt():
     assert "window.prompt(" not in DASHBOARD_HTML
     assert 'id="managed-instruction-' in DASHBOARD_HTML
     assert 'placeholder="Instruction supplémentaire"' in DASHBOARD_HTML
-    assert "managedAction(this.dataset.projectId,'instructions')" in DASHBOARD_HTML
+    assert "managedAction(this.dataset.projectId,&quot;instructions&quot;)" in DASHBOARD_HTML
 
 
 def test_managed_projects_mobile_view_renders_generation_history():
