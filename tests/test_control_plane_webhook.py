@@ -108,6 +108,8 @@ def test_signed_pr_webhook_refreshes_and_dispatches(tmp_path, monkeypatch):
         assert result["head_sha"]=="newsha"
         assert result["superseded_workflows"]==[workflow["id"]]
         assert len(result["dispatched_jobs"])==1
+        assert result["worker_wake"]["status"]=="scheduled_fallback"
+        assert result["worker_wake"]["poll_interval_seconds"]==300
         new_workflow_id=result["workflows"][0]["workflow_id"]
         assert new_workflow_id!=workflow["id"]
         assert result["dispatched_jobs"][0]["payload"][
@@ -135,6 +137,10 @@ def test_signed_pr_webhook_refreshes_and_dispatches(tmp_path, monkeypatch):
             "generation_noop"
         ] is True
         assert same_generation["dispatched_jobs"]==[]
+        assert same_generation["worker_wake"]=={
+            "status":"not_needed",
+            "reason":"no_dispatched_jobs",
+        }
         assert FakeGitHubClient.calls==1
     finally:
         server.shutdown()

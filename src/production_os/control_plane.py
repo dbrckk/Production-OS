@@ -1646,6 +1646,17 @@ def make_handler(control: ControlPlane):
                         })
                         dispatched.extend(jobs)
 
+                    webhook_wake = (
+                        control.ensure_worker_for_queued_work(
+                            requested_by=f"github-webhook:{delivery_id}",
+                        )
+                        if dispatched
+                        else {
+                            "status":"not_needed",
+                            "reason":"no_dispatched_jobs",
+                        }
+                    )
+
                     self._send(
                         HTTPStatus.OK,
                         {
@@ -1664,6 +1675,7 @@ def make_handler(control: ControlPlane):
                                 for item in superseded
                             ],
                             "dispatched_jobs":dispatched,
+                            "worker_wake":webhook_wake,
                         },
                     )
                     return
@@ -3059,7 +3071,16 @@ def make_handler(control: ControlPlane):
                     if principal is None:
                         return
                     job = control.queue.enqueue(body)
-                    self._send(HTTPStatus.CREATED, {"job":job})
+                    wake = control.ensure_worker_for_queued_work(
+                        requested_by=f"{principal.role}:{principal.name}",
+                    )
+                    self._send(
+                        HTTPStatus.CREATED,
+                        {
+                            "job":job,
+                            "worker_wake":wake,
+                        },
+                    )
                     return
 
                 if parsed.path == "/v1/jobs/claim":

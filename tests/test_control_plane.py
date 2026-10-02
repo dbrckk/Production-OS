@@ -47,6 +47,7 @@ def test_control_plane_worker_and_queue(tmp_path):
             "required_capabilities":["python"],
         })
         assert status==201
+        assert enqueued["worker_wake"]["status"]=="not_needed"
 
         status,claimed=request(base+"/v1/jobs/claim","worker",{
             "worker_id":"python-1",
@@ -68,6 +69,35 @@ def test_control_plane_worker_and_queue(tmp_path):
         })
         assert status==200
         assert completed["job"]["status"]=="completed"
+    finally:
+        server.shutdown()
+        server.server_close()
+
+
+def test_direct_enqueue_requests_worker_wake_when_no_worker_is_online(tmp_path):
+    auth=TokenAuthorizer([
+        {"name":"op","role":"operator","sha256":token_digest("op")},
+    ])
+    control=ControlPlane(str(tmp_path/"wake-enqueue.sqlite"),authorizer=auth)
+    server=ThreadingHTTPServer(("127.0.0.1",0),make_handler(control))
+    thread=threading.Thread(target=server.serve_forever,daemon=True)
+    thread.start()
+    base=f"http://127.0.0.1:{server.server_port}"
+    try:
+        status,payload=request(base+"/v1/jobs/enqueue","op",{
+            "handoff":{
+                "repository":"o/a",
+                "task":"Wake for this queued task",
+                "priority":10,
+            },
+            "required_capabilities":["python"],
+        })
+        assert status==201
+        assert payload["job"]["status"]=="queued"
+        assert payload["worker_wake"]=={
+            "status":"scheduled_fallback",
+            "poll_interval_seconds":300,
+        }
     finally:
         server.shutdown()
         server.server_close()
