@@ -1634,15 +1634,15 @@ async function loadWorkerDetail(workerId){
    '<p class="small"><strong>État demandé :</strong> '+esc(String(worker.desired_state||"active"))+' · <strong>Action demandée :</strong> '+esc(String(worker.control_requested_at||"—"))+'</p>'+
    '<p class="small"><strong>Confirmée par le worker :</strong> '+esc(String(worker.control_acknowledged_at||"En attente"))+'</p>'+
    '<div class="v3-tabs">'+
-   '<button class="secondary-btn" data-control-action="pause" onclick="runWorkerControl('+JSON.stringify(workerId)+',\'pause\')">Pause</button>'+
-   '<button class="secondary-btn" data-control-action="resume" onclick="runWorkerControl('+JSON.stringify(workerId)+',\'resume\')">Reprendre</button>'+
-   '<button class="secondary-btn" data-control-action="drain" onclick="runWorkerControl('+JSON.stringify(workerId)+',\'drain\')">Drain</button>'+
-   '<button class="secondary-btn" data-control-action="kick" onclick="runWorkerControl('+JSON.stringify(workerId)+',\'kick\')">Kick</button>'+
-   (activeJobKey?'<button class="secondary-btn" data-control-action="cancel-current" data-job-key="'+esc(activeJobKey)+'" onclick="runWorkerControl('+JSON.stringify(workerId)+',\'cancel-current\',this.dataset.jobKey)">Annuler '+esc(activeJobKey)+'</button>':'')+
-   (retryJobKey?'<button class="secondary-btn" data-control-action="retry" data-job-key="'+esc(retryJobKey)+'" onclick="runWorkerControl('+JSON.stringify(workerId)+',\'retry\',this.dataset.jobKey)">Retry '+esc(retryJobKey)+'</button>':'')+
+   '<button class="secondary-btn" data-control-action="pause" onclick="runWorkerControl('+JSON.stringify(workerId)+',&quot;pause&quot;)">Pause</button>'+
+   '<button class="secondary-btn" data-control-action="resume" onclick="runWorkerControl('+JSON.stringify(workerId)+',&quot;resume&quot;)">Reprendre</button>'+
+   '<button class="secondary-btn" data-control-action="drain" onclick="runWorkerControl('+JSON.stringify(workerId)+',&quot;drain&quot;)">Drain</button>'+
+   '<button class="secondary-btn" data-control-action="kick" onclick="runWorkerControl('+JSON.stringify(workerId)+',&quot;kick&quot;)">Kick</button>'+
+   (activeJobKey?'<button class="secondary-btn" data-control-action="cancel-current" data-job-key="'+esc(activeJobKey)+'" onclick="runWorkerControl('+JSON.stringify(workerId)+',&quot;cancel-current&quot;,this.dataset.jobKey)">Annuler '+esc(activeJobKey)+'</button>':'')+
+   (retryJobKey?'<button class="secondary-btn" data-control-action="retry" data-job-key="'+esc(retryJobKey)+'" onclick="runWorkerControl('+JSON.stringify(workerId)+',&quot;retry&quot;,this.dataset.jobKey)">Retry '+esc(retryJobKey)+'</button>':'')+
    recoverableJobs.map(function(row){
     const key=String(row.key||"");
-    return '<button class="secondary-btn" data-control-action="recover-stuck" data-job-key="'+esc(key)+'" onclick="runWorkerControl('+JSON.stringify(workerId)+',\'recover-stuck\',this.dataset.jobKey)">Récupérer '+esc(key)+'</button>';
+    return '<button class="secondary-btn" data-control-action="recover-stuck" data-job-key="'+esc(key)+'" onclick="runWorkerControl('+JSON.stringify(workerId)+',&quot;recover-stuck&quot;,this.dataset.jobKey)">Récupérer '+esc(key)+'</button>';
    }).join("")+
    '</div><div id="worker-control-receipt" class="status-message"></div>'+
    '<h3 style="font-size:.85rem;margin:15px 0 6px">Historique d’exécution</h3>'+
@@ -2252,7 +2252,7 @@ async function loadManagedProjects(){
    const canComplete=status==="REVIEW_REQUIRED";
    const runs=row.runs||[];
    const actions=canFollow
-    ?'<textarea id="managed-instruction-'+esc(projectId)+'" rows="3" placeholder="Instruction supplémentaire"></textarea><div class="v3-tabs"><button class="secondary-btn" data-project-id="'+esc(projectId)+'" onclick="managedAction(this.dataset.projectId,\'instructions\')">Ajouter instruction</button><button class="secondary-btn" data-project-id="'+esc(projectId)+'" onclick="managedAction(this.dataset.projectId,&quot;verify&quot;)">Retester</button>'+(canComplete?'<button class="secondary-btn" data-project-id="'+esc(projectId)+'" onclick="managedAction(this.dataset.projectId,&quot;complete&quot;)">Valider DONE</button>':'')+'</div><div id="managed-action-status-'+esc(projectId)+'" class="status-message"></div>'
+    ?'<textarea id="managed-instruction-'+esc(projectId)+'" rows="3" placeholder="Instruction supplémentaire"></textarea><div class="v3-tabs"><button class="secondary-btn" data-project-id="'+esc(projectId)+'" onclick="managedAction(this.dataset.projectId,&quot;instructions&quot;)">Ajouter instruction</button><button class="secondary-btn" data-project-id="'+esc(projectId)+'" onclick="managedAction(this.dataset.projectId,&quot;verify&quot;)">Retester</button>'+(canComplete?'<button class="secondary-btn" data-project-id="'+esc(projectId)+'" onclick="managedAction(this.dataset.projectId,&quot;complete&quot;)">Valider DONE</button>':'')+'</div><div id="managed-action-status-'+esc(projectId)+'" class="status-message"></div>'
     :'';
    const history=runs.length?'<div class="small"><strong>Générations :</strong> '+runs.map(function(run){return 'g'+esc(String(run.generation||""))+' '+esc(String(run.kind||""))}).join(" · ")+'</div>':'';
    return '<div class="card'+(appState.focus===projectId?' attention-focus':'')+'" data-managed-project-id="'+esc(projectId)+'"><div class="section-head"><strong>'+esc(String(row.repository||""))+'</strong><span class="badge">'+esc(status)+'</span></div>'+
