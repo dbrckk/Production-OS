@@ -408,7 +408,7 @@ on:
 
 permissions:
   contents: write
-  actions: read
+  actions: write
 
 concurrency:
   group: repo-standards-${{ github.repository }}-${{ github.ref }}
@@ -417,6 +417,25 @@ concurrency:
 jobs:
   repository-standards:
     uses: dbrckk/repo-standards/.github/workflows/reusable-unified.yml@main
+
+  qualify-generated-head:
+    needs: repository-standards
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Qualify generated main head
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          head_sha="$(gh api "repos/${GITHUB_REPOSITORY}/commits/main" --jq '.sha')"
+          if [ "$head_sha" = "$GITHUB_SHA" ]; then
+            echo "Repository standards did not create a new main commit; existing push CI already qualifies $head_sha."
+            exit 0
+          fi
+          echo "Repository standards advanced main from $GITHUB_SHA to $head_sha; dispatching canonical CI."
+          gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref main
 ````
 
 ## File: .github/workflows/ci.yml

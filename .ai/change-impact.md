@@ -1,15 +1,13 @@
 # Change impact
 
-Base: 76b203255751310bcca44d318f6953ae828fcd55
-Head: 22e177da109d3e3d8e9ed232f84c2df6dc89c981
+Base: b1ba0f3aa70da56320cdcf14bcb4289f0b8319bb
+Head: 7296e8ff43b83dc6c280c7708873883ad9b22b4c
 
 ## Changed files
-- M scripts/render-start.py
-- M tests/test_render_start.py
+- M .github/workflows/ai-repo-map.yml
 
 ## Affected areas
-- scripts
-- tests
+- .github
 
 ## Related test candidates
 - No direct filename-based test match detected.

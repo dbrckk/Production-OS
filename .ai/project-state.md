@@ -22,16 +22,17 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-02T13:51:18Z
+Generated: 2026-10-02T14:10:13Z
 
 ### Git
 - Branch: `main`
-- Head: `22e177da109d`
-- Commit date: 2026-10-02T15:50:59+02:00
-- Commit: fix(auth): align Render worker identity with GitHub Actions
+- Head: `7296e8ff43b8`
+- Commit date: 2026-10-02T16:10:02+02:00
+- Commit: fix(ci): qualify generated main head
 - Tracked files: 540
 
 ### Recently changed files
+- `.github/workflows/ai-repo-map.yml`
 - `scripts/render-start.py`
 - `tests/test_render_start.py`
 - `README.md`
@@ -43,11 +44,6 @@ Generated: 2026-10-02T13:51:18Z
 - `tests/test_postgres_backend.py`
 - `tests/test_sqlite_backend.py`
 - `tests/test_worker_availability_api.py`
-- `src/production_os/dashboard_store.py`
-- `src/production_os/dashboard_ui.py`
-- `src/production_os/device_pairing.py`
-- `tests/test_dashboard_ui_v3.py`
-- `tests/test_device_pairing.py`
 
 ### Project signals
 - `pyproject.toml`
