@@ -22,8 +22,8 @@ def test_production_inbox_requests_selected_server_filter():
 def test_production_inbox_filter_does_not_duplicate_mutation_contracts():
     assert "productionInboxActions" in DASHBOARD_HTML
     assert "cancelLastProduction(this.dataset.projectId)" in DASHBOARD_HTML
-    assert "lastProductionManagedAction(this.dataset.projectId,'verify')" in DASHBOARD_HTML
-    assert "lastProductionManagedAction(this.dataset.projectId,'complete')" in DASHBOARD_HTML
+    assert "lastProductionManagedAction(this.dataset.projectId,&quot;verify&quot;)" in DASHBOARD_HTML
+    assert "lastProductionManagedAction(this.dataset.projectId,&quot;complete&quot;)" in DASHBOARD_HTML
 
 def test_production_inbox_exposes_search_sort_and_shareable_url_state():
     assert 'id="production-search"' in DASHBOARD_HTML
@@ -62,8 +62,8 @@ def test_production_inbox_open_stays_in_productions_and_reuses_safe_actions():
     body = DASHBOARD_HTML[start:end]
     assert "openProductionInboxItem(this.dataset.projectId)" in body
     assert "cancelLastProduction(this.dataset.projectId)" in body
-    assert "lastProductionManagedAction(this.dataset.projectId,'verify')" in body
-    assert "lastProductionManagedAction(this.dataset.projectId,'complete')" in body
+    assert "lastProductionManagedAction(this.dataset.projectId,&quot;verify&quot;)" in body
+    assert "lastProductionManagedAction(this.dataset.projectId,&quot;complete&quot;)" in body
     assert "openLastProduction(this.dataset.projectId)" not in body
 
 
