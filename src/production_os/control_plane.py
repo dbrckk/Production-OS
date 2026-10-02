@@ -133,6 +133,69 @@ class ControlPlane:
             self.dashboard_control,
         )
 
+    def worker_queue_availability(
+        self,
+        *,
+        worker_id: str,
+        capabilities: list[str],
+        limit: int = 100,
+    ) -> dict:
+        worker = str(worker_id or "").strip()
+        if not worker or len(worker) > 128:
+            raise ValueError("worker_id is invalid")
+        normalized = []
+        seen = set()
+        for raw in capabilities:
+            value = str(raw or "").strip()
+            if not value or len(value) > 128:
+                raise ValueError("capabilities are invalid")
+            if value in seen:
+                continue
+            seen.add(value)
+            normalized.append(value)
+        if len(normalized) > 128:
+            raise ValueError("too many capabilities")
+
+        capability_set = set(normalized)
+        compatible = 0
+        mobile = 0
+        browser = 0
+        for queued in self.queue.peek_candidates(
+            worker_id=worker,
+            limit=max(1, min(1000, int(limit))),
+        ):
+            key = str(queued.get("key") or "")
+            if not key:
+                continue
+            job_control = self.dashboard_control.job_state(key)
+            if job_control.get("desired_state") == "cancel_requested":
+                continue
+            if not self.workflows.job_generation_current(queued):
+                continue
+            required = {
+                str(item).strip()
+                for item in queued.get("payload", {}).get(
+                    "required_capabilities",
+                    [],
+                )
+                if str(item).strip()
+            }
+            if not required.issubset(capability_set):
+                continue
+            compatible += 1
+            if "mobile-ui-validation" in required:
+                mobile += 1
+            if "browser-ui-validation" in required:
+                browser += 1
+
+        return {
+            "schema_version":"production-os/job-availability/v1",
+            "available":compatible > 0,
+            "compatible_jobs":compatible,
+            "mobile_jobs":mobile,
+            "browser_jobs":browser,
+        }
+
     def ensure_worker_for_queued_work(
         self,
         *,
@@ -1166,6 +1229,33 @@ def make_handler(control: ControlPlane):
                         "session_id":session_id,
                     },
                 )
+                return
+
+            if parsed.path == "/v1/jobs/availability":
+                principal = self._require("worker")
+                if principal is None:
+                    return
+                try:
+                    body = self._read_json()
+                    unknown = sorted(
+                        set(body).difference({"worker_id", "capabilities"})
+                    )
+                    if unknown:
+                        raise ValueError("unknown availability fields")
+                    capabilities = body.get("capabilities", [])
+                    if not isinstance(capabilities, list):
+                        raise ValueError("capabilities must be a list")
+                    availability = control.worker_queue_availability(
+                        worker_id=str(body.get("worker_id") or ""),
+                        capabilities=capabilities,
+                    )
+                except ValueError as exc:
+                    self._send(
+                        HTTPStatus.BAD_REQUEST,
+                        {"error":str(exc)},
+                    )
+                    return
+                self._send(HTTPStatus.OK, availability)
                 return
 
             if parsed.path == "/v1/dashboard/launch":
