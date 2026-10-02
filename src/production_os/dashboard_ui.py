@@ -360,7 +360,9 @@ async function loadDeviceSessions(){
     const id=String(item.id||'');
     const name=String(item.name||'appareil');
     const expiry=String(item.expires_at||'').replace('T',' ').replace('Z','');
+    const lastUsed=String(item.last_used_at||'').replace('T',' ').replace('Z','');
     return '<div class="history-row"><span>'+esc(name)+
+     (lastUsed?' · dernière activité '+esc(lastUsed):'')+
      (expiry?' · expire '+esc(expiry):'')+
      '</span><button class="secondary-btn" type="button" data-session-id="'+
      esc(id)+'" onclick="revokeDeviceSession(this.dataset.sessionId)">Révoquer</button></div>';
