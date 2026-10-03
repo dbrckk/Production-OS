@@ -22,26 +22,26 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-03T11:27:02Z
+Generated: 2026-10-03T13:03:11Z
 
 ### Git
 - Branch: `main`
-- Head: `5b030cc3a53b`
-- Commit date: 2026-10-03T13:26:53+02:00
-- Commit: fix(dashboard): clarify worker wait diagnostics
+- Head: `d6f99204cbd2`
+- Commit date: 2026-10-03T15:02:26+02:00
+- Commit: fix(dashboard): make launch repository selection deliberate (#228)
 - Tracked files: 543
 
 ### Recently changed files
-- `src/production_os/dashboard_service.py`
+- `README.md`
 - `src/production_os/dashboard_ui.py`
+- `tests/test_dashboard_ui_v3.py`
+- `src/production_os/dashboard_service.py`
 - `tests/test_dashboard_attention.py`
 - `tests/test_dashboard_launch.py`
-- `tests/test_dashboard_ui_v3.py`
 - `config/repository-catalog.json`
 - `tests/test_dashboard_launch_ux.py`
 - `tests/test_dashboard_repositories.py`
 - `tests/test_dashboard_production_inbox_filters_ui.py`
-- `src/production_os/remote_worker_runner.py`
 
 ### Project signals
 - `pyproject.toml`

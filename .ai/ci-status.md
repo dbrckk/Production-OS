@@ -1,15 +1,15 @@
 # CI status
 
-Summary: 3 success / 3 failure / 1 active
+Summary: 4 success / 2 failure / 1 active
 
-- CI: in_progress / pending (5b030cc3)
+- CI: in_progress / pending (d6f99204)
+- CI: completed / success (04e10819)
+- CI: completed / success (c5e3bf69)
+- CI: completed / cancelled (5b030cc3)
 - CI: completed / success (962b0491)
 - CI: completed / failure (f1a4d307)
 - CI: completed / failure (6a53714f)
 - CI: completed / success (ad8497b1)
-- CI: completed / cancelled (c8eb31b5)
-- CI: completed / success (b5af0a57)
-- CI: completed / failure (ae050a12)
 
 ## Latest failed run structure
 - Job: python-compat (3.12)

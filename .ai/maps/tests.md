@@ -3459,6 +3459,12 @@ def test_launch_repository_picker_fails_closed_without_server_repositories()
 ⋮----
 def test_repository_picker_preserves_selected_repository_across_refresh()
 ⋮----
+def test_launch_repository_selection_is_deliberate_and_persisted()
+⋮----
+def test_launch_button_requires_repository_and_instruction()
+⋮----
+launch = DASHBOARD_HTML.split("async function launchWorkflow(){", 1)[1].split("async function refreshDashboard(){", 1)[0]
+⋮----
 def test_dashboard_refresh_reloads_repository_picker_once()
 ⋮----
 refresh = DASHBOARD_HTML.split("async function refreshDashboard(){", 1)[1].split("bootstrapPairingFromFragment()", 1)[0]
