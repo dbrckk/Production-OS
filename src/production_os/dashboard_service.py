@@ -6,6 +6,7 @@ import json
 import os
 import hashlib
 import time
+from pathlib import Path
 
 from .dashboard_usage import aggregate_usage
 from .dashboard_alerts import derive_alerts
@@ -1331,40 +1332,81 @@ class DashboardService:
             "items":visible,
         }
 
+    @staticmethod
+    def _repository_catalog(owner: str) -> list[dict]:
+        path = Path(
+            os.getenv("PRODUCTION_OS_REPOSITORY_CATALOG")
+            or "config/repository-catalog.json"
+        )
+        if not path.is_file():
+            return []
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, json.JSONDecodeError):
+            return []
+        if not isinstance(payload, dict):
+            return []
+        configured_owner = str(payload.get("owner") or "").strip()
+        if configured_owner and configured_owner.lower() != owner.lower():
+            return []
+        rows = payload.get("repositories")
+        if not isinstance(rows, list):
+            return []
+        prefix = owner.lower() + "/"
+        return [
+            dict(row)
+            for row in rows
+            if isinstance(row, dict)
+            and str(row.get("full_name") or "").strip().lower().startswith(prefix)
+            and not bool(row.get("archived", False))
+        ]
+
     def repositories(self) -> dict:
         owner = str(
             os.getenv("PRODUCTION_OS_GITHUB_OWNER") or "dbrckk"
         ).strip() or "dbrckk"
-        github = GitHubClient()
-        source = "github"
-        try:
-            rows = github.list_accessible_repositories(owner)
-        except GitHubAPIError:
-            source = "observed-projects"
-            rows = [
-                {
-                    "full_name":item.get("repository"),
-                    "private":False,
-                    "archived":False,
-                    "default_branch":None,
-                    "pushed_at":None,
+        merged: dict[str, dict] = {}
+
+        def add(rows) -> None:
+            for row in rows:
+                if not isinstance(row, dict) or bool(row.get("archived", False)):
+                    continue
+                full_name = str(row.get("full_name") or "").strip()
+                if not full_name:
+                    continue
+                merged[full_name.lower()] = {
+                    "full_name":full_name,
+                    "private":bool(row.get("private", False)),
+                    "default_branch":row.get("default_branch"),
+                    "pushed_at":row.get("pushed_at"),
                 }
-                for item in self.projects().get("projects", [])
-            ]
-        repositories = []
-        for row in rows:
-            if not isinstance(row, dict) or bool(row.get("archived", False)):
-                continue
-            full_name = str(row.get("full_name") or "").strip()
-            if not full_name:
-                continue
-            repositories.append({
-                "full_name":full_name,
-                "private":bool(row.get("private", False)),
-                "default_branch":row.get("default_branch"),
-                "pushed_at":row.get("pushed_at"),
-            })
-        repositories.sort(key=lambda item: item["full_name"].lower())
+
+        catalog = self._repository_catalog(owner)
+        add(catalog)
+        add(
+            {
+                "full_name":item.get("repository"),
+                "private":False,
+                "archived":False,
+                "default_branch":None,
+                "pushed_at":None,
+            }
+            for item in self.projects().get("projects", [])
+        )
+
+        source = "catalog" if catalog else "observed-projects"
+        try:
+            live = GitHubClient().list_accessible_repositories(owner)
+        except GitHubAPIError:
+            live = []
+        else:
+            source = "github"
+        add(live)
+
+        repositories = sorted(
+            merged.values(),
+            key=lambda item: item["full_name"].lower(),
+        )
         return {
             "owner":owner,
             "source":source,

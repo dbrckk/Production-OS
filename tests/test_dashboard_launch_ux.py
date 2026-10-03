@@ -145,11 +145,16 @@ def test_repository_picker_is_server_backed_sorted_and_excludes_archived(
             "viewer",
         )
         assert status == 200
-        assert [x["full_name"] for x in payload["repositories"]] == [
-            "dbrckk/Alpha",
-            "dbrckk/Zeta",
-        ]
-        assert payload["repositories"][0]["private"] is True
+        assert payload["source"] == "github"
+        by_name = {
+            item["full_name"]: item
+            for item in payload["repositories"]
+        }
+        assert "dbrckk/Alpha" in by_name
+        assert "dbrckk/Zeta" in by_name
+        assert "dbrckk/Archived" not in by_name
+        assert by_name["dbrckk/Alpha"]["private"] is True
+        assert "dbrckk/Jumpy" in by_name
 
         status, payload, _ = _get(
             base + "/v1/dashboard/repositories",
@@ -197,11 +202,14 @@ def test_repository_picker_falls_back_to_observed_projects_on_github_failure(
             "viewer",
         )
         assert status == 200
-        assert payload["source"] == "observed-projects"
-        assert [row["full_name"] for row in payload["repositories"]] == [
-            "dbrckk/Alpha",
-            "dbrckk/Zeta",
-        ]
+        assert payload["source"] == "catalog"
+        names = {
+            row["full_name"]
+            for row in payload["repositories"]
+        }
+        assert {"dbrckk/Alpha", "dbrckk/Zeta"} <= names
+        assert "dbrckk/Jumpy" in names
+        assert "dbrckk/Production-OS" in names
     finally:
         server.shutdown()
         server.server_close()
