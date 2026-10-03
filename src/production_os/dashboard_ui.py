@@ -2271,7 +2271,6 @@ async function loadManagedProjects(){
  const el=document.getElementById("managed-list");
  const count=document.getElementById("managed-count");
  try{
-  await loadRepositories();
   const data=await api("/v1/managed-projects");
   const rows=data.projects||[];
   count.textContent=String(rows.length);
@@ -2372,10 +2371,17 @@ async function renderActiveView(){
 }
 function schedulePoll(key,intervalMs,fn){
  if(appState.polling.has(key))clearInterval(appState.polling.get(key));
+ let busy=false;
  const id=setInterval(async function(){
+  if(busy)return;
+  busy=true;
   const y=window.scrollY;
-  await fn();
-  if(Math.abs(window.scrollY-y)>1)window.scrollTo({top:y,behavior:"instant"});
+  try{
+   await fn();
+   if(Math.abs(window.scrollY-y)>1)window.scrollTo({top:y,behavior:"instant"});
+  }finally{
+   busy=false;
+  }
  },intervalMs);
  appState.polling.set(key,id);
 }
