@@ -1070,14 +1070,28 @@ document.getElementById('repository').addEventListener('change',loadVisualQualit
 document.getElementById('repository').addEventListener('change',loadRecentRuns);
 document.getElementById('repository').addEventListener('change',loadLaunchReadiness);
 document.getElementById('instruction').addEventListener('input',updateLaunchButtonState);
-setInterval(loadVisualQuality,10000);
-setInterval(function(){
- checkServer();
- loadWorkerStatus();
- loadRecentRuns();
- loadLaunchReadiness();
-},10000);
-setInterval(loadLastProduction,5000);
+function scheduleGlobalPoll(intervalMs,fn){
+ let busy=false;
+ return setInterval(async function(){
+  if(busy)return;
+  busy=true;
+  try{
+   await fn();
+  }finally{
+   busy=false;
+  }
+ },intervalMs);
+}
+scheduleGlobalPoll(10000,loadVisualQuality);
+scheduleGlobalPoll(10000,function(){
+ return Promise.all([
+  checkServer(),
+  loadWorkerStatus(),
+  loadRecentRuns(),
+  loadLaunchReadiness()
+ ]);
+});
+scheduleGlobalPoll(5000,loadLastProduction);
 
 const appState={view:"attention",workerId:null,repository:null,tab:null,focus:null,window:"7d",polling:new Map()};
 (function restoreNavigation(){
