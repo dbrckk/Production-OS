@@ -1338,6 +1338,7 @@ async function pruneExpiredHistory(expected){
    "/v1/dashboard/maintenance/prune",
    {
     method:"POST",
+    timeoutMs:120000,
     body:JSON.stringify({
      confirm:"PRUNE_EXPIRED_HISTORY",
      expected_candidate_rows:count
@@ -1368,6 +1369,7 @@ async function pruneExpiredBackups(expected,fingerprint){
    "/v1/dashboard/backups/prune-expired",
    {
     method:"POST",
+    timeoutMs:120000,
     body:JSON.stringify({
      confirm:"PRUNE_EXPIRED_VERIFIED_BACKUPS",
      expected_candidate_count:count,
@@ -1400,6 +1402,7 @@ async function pruneStaleBackupTemps(expected){
    "/v1/dashboard/backups/prune-temp",
    {
     method:"POST",
+    timeoutMs:120000,
     body:JSON.stringify({
      confirm:"PRUNE_STALE_BACKUP_TEMPS",
      expected_candidate_count:count
@@ -1428,6 +1431,7 @@ async function createVerifiedBackup(){
    "/v1/dashboard/backups/create",
    {
     method:"POST",
+    timeoutMs:120000,
     body:JSON.stringify({confirm:"CREATE_VERIFIED_BACKUP"})
    }
   );
@@ -1452,6 +1456,7 @@ async function verifyBackupReadiness(backupId){
    "/v1/dashboard/backups/"+encodeURIComponent(backupId)+"/verify",
    {
     method:"POST",
+    timeoutMs:120000,
     body:JSON.stringify({confirm:"VERIFY_BACKUP_FOR_RESTORE"})
    }
   );
@@ -1477,6 +1482,7 @@ async function stageBackupRestore(backupId){
    "/v1/dashboard/backups/"+encodeURIComponent(backupId)+"/stage-restore",
    {
     method:"POST",
+    timeoutMs:120000,
     body:JSON.stringify({confirm:"STAGE_VERIFIED_RESTORE"})
    }
   );
