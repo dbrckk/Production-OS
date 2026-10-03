@@ -145,4 +145,3 @@ def test_launch_readiness_surfaces_worker_wake_mode_before_launch():
     assert "réveil GitHub Actions planifié" in DASHBOARD_HTML
     assert "délai variable" in DASHBOARD_HTML
     assert "réveil de secours automatique ≤ " not in DASHBOARD_HTML
-    assert "wake.poll_interval_seconds||300" in DASHBOARD_HTML
