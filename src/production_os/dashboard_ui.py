@@ -506,6 +506,10 @@ async function savePairing(){
  status.textContent='Vérification de l’appairage...';
  try{
   await api('/v1/workers',{authToken:value});
+  if(token()!==previous){
+   feedback.textContent='Appairage modifié pendant la vérification · nouveau token non appliqué.';
+   return null;
+  }
   localStorage.setItem(TOKEN_KEY,value);
   const draftStillCurrent=input.value.trim()===value;
   if(draftStillCurrent){
