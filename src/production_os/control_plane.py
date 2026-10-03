@@ -229,6 +229,18 @@ class ControlPlane:
                 "status":"not_needed",
                 "reason":"queue_empty",
             }
+        queued = [
+            job for job in queued
+            if self.dashboard_control.job_state(
+                str(job.get("key") or "")
+            ).get("desired_state") != "cancel_requested"
+            and self.workflows.job_generation_current(job)
+        ]
+        if not queued:
+            return {
+                "status":"not_needed",
+                "reason":"no_actionable_queued_work",
+            }
         return request_automatic_worker_wake(
             workers=self.workers,
             dashboard_control=self.dashboard_control,
