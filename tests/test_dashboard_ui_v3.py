@@ -945,3 +945,19 @@ def test_launch_readiness_scheduled_fallback_is_truthful_about_variable_delay():
     assert "réveil GitHub Actions planifié · délai variable" in DASHBOARD_HTML
     assert "worker programmé au prochain passage GitHub Actions · délai variable" in DASHBOARD_HTML
     assert "réveil de secours automatique ≤" not in DASHBOARD_HTML
+
+
+
+def test_managed_projects_poll_does_not_repeat_repository_discovery():
+    managed = DASHBOARD_HTML.split("async function loadManagedProjects(){", 1)[1].split("async function loadActivityView(){", 1)[0]
+    assert 'api("/v1/managed-projects")' in managed
+    assert "loadRepositories()" not in managed
+
+
+def test_active_view_poll_is_single_flight():
+    polling = DASHBOARD_HTML.split("function schedulePoll(key,intervalMs,fn){", 1)[1].split("renderActiveView();", 1)[0]
+    assert "let busy=false;" in polling
+    assert "if(busy)return;" in polling
+    assert "busy=true;" in polling
+    assert "finally{" in polling
+    assert "busy=false;" in polling
