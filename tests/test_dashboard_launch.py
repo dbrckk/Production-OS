@@ -35,7 +35,7 @@ def test_dashboard_surfaces_visual_quality_without_extra_controls():
     assert "Régénéré" in DASHBOARD_HTML
     assert "Qualité faible" in DASHBOARD_HTML
     assert "loadVisualQuality()" in DASHBOARD_HTML
-    assert "setInterval(loadVisualQuality,10000)" in DASHBOARD_HTML
+    assert "scheduleGlobalPoll(10000,loadVisualQuality);" in DASHBOARD_HTML
 
 
 def test_dashboard_visual_quality_follows_selected_repository():
