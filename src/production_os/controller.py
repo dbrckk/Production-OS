@@ -593,17 +593,30 @@ def run_control_cycle(
         "status":"not_needed",
         "reason":"queue_empty",
     }
+    queued_for_wake = (
+        durable_queue.peek_candidates(limit=1000)
+        if durable_queue is not None
+        else []
+    )
+    if queued_for_wake and automatic_wake_control is not None and workflow_engine is not None:
+        queued_for_wake = [
+            job for job in queued_for_wake
+            if automatic_wake_control.job_state(
+                str(job.get("key") or "")
+            ).get("desired_state") != "cancel_requested"
+            and workflow_engine.job_generation_current(job)
+        ]
     if (
-        durable_queue is not None
+        queued_for_wake
         and automatic_wake_store is not None
         and automatic_wake_control is not None
-        and durable_queue.peek_candidates(limit=1)
     ):
         automatic_worker_wake = request_automatic_worker_wake(
             workers=worker_registry,
             dashboard_control=automatic_wake_control,
             store=automatic_wake_store,
             requested_by="controller:auto",
+            queued_jobs=queued_for_wake,
         )
         journal.append({
             "source":"controller",

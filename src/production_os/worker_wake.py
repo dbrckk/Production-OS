@@ -40,6 +40,8 @@ def automatic_worker_wake_allowed(
 def automatic_worker_wake_needed(
     workers,
     dashboard_control,
+    *,
+    queued_jobs: list[dict] | None = None,
 ) -> bool:
     try:
         workers.detect_dead()
@@ -50,19 +52,56 @@ def automatic_worker_wake_needed(
     if not workers.workers:
         return True
 
-    has_active_worker = False
+    active_workers = []
     for worker in workers.workers.values():
         worker_id = str(getattr(worker, "worker_id", "") or "").strip()
         desired = dashboard_control.worker_state(worker_id)
-        if desired.get("desired_state") != "active":
-            continue
-        has_active_worker = True
-        if str(getattr(worker, "status", "") or "").lower() == "online":
-            return False
+        if desired.get("desired_state") == "active":
+            active_workers.append(worker)
 
-    # Respect an intentional fleet-wide pause/drain. Wake only when there is
-    # no registered fleet yet or at least one desired-active worker is offline.
-    return has_active_worker
+    # Respect an intentional fleet-wide pause/drain.
+    if not active_workers:
+        return False
+
+    online_workers = [
+        worker for worker in active_workers
+        if str(getattr(worker, "status", "") or "").lower() == "online"
+    ]
+    if not online_workers:
+        return True
+
+    if queued_jobs is None:
+        return False
+
+    for job in queued_jobs:
+        payload = job.get("payload") if isinstance(job, dict) else None
+        if not isinstance(payload, dict):
+            payload = {}
+        required = {
+            str(item).strip()
+            for item in payload.get("required_capabilities", [])
+            if str(item).strip()
+        }
+        assigned_worker = str(
+            (job.get("assigned_worker") if isinstance(job, dict) else "") or ""
+        ).strip()
+        compatible = False
+        for worker in online_workers:
+            worker_id = str(getattr(worker, "worker_id", "") or "").strip()
+            if assigned_worker and worker_id != assigned_worker:
+                continue
+            capabilities = {
+                str(item).strip()
+                for item in getattr(worker, "capabilities", [])
+                if str(item).strip()
+            }
+            if required.issubset(capabilities):
+                compatible = True
+                break
+        if not compatible:
+            return True
+
+    return False
 
 
 def request_automatic_worker_wake(
@@ -73,8 +112,13 @@ def request_automatic_worker_wake(
     requested_by: str,
     worker_id: str = AUTOMATIC_WAKE_WORKER_ID,
     cooldown_seconds: int = DEFAULT_WAKE_COOLDOWN_SECONDS,
+    queued_jobs: list[dict] | None = None,
 ) -> dict:
-    if not automatic_worker_wake_needed(workers, dashboard_control):
+    if not automatic_worker_wake_needed(
+        workers,
+        dashboard_control,
+        queued_jobs=queued_jobs,
+    ):
         return {"status":"not_needed"}
 
     if not automatic_worker_wake_allowed(

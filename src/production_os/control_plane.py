@@ -218,7 +218,7 @@ class ControlPlane:
         requested_by: str,
     ) -> dict:
         try:
-            queued = self.queue.peek_candidates(limit=1)
+            queued = self.queue.peek_candidates(limit=1000)
         except Exception:
             return {
                 "status":"failed",
@@ -229,11 +229,24 @@ class ControlPlane:
                 "status":"not_needed",
                 "reason":"queue_empty",
             }
+        queued = [
+            job for job in queued
+            if self.dashboard_control.job_state(
+                str(job.get("key") or "")
+            ).get("desired_state") != "cancel_requested"
+            and self.workflows.job_generation_current(job)
+        ]
+        if not queued:
+            return {
+                "status":"not_needed",
+                "reason":"no_actionable_queued_work",
+            }
         return request_automatic_worker_wake(
             workers=self.workers,
             dashboard_control=self.dashboard_control,
             store=self.dashboard_store,
             requested_by=requested_by,
+            queued_jobs=queued,
         )
 
     def cooperative_worker_fleet_available(
