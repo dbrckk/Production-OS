@@ -295,7 +295,7 @@ failed
 
 `scheduled_fallback` means no immediate dispatch was possible and a scheduled GitHub Actions worker run remains the fallback wake-up path. GitHub scheduling latency is variable, so Production-OS does not promise a fixed wake-up deadline and must not present the worker as started before runtime evidence exists.
 
-Automatic wake-up is queue-driven, not dashboard-only. New managed projects, added instructions, verification runs, operator retries, recovered stuck jobs, direct operator job enqueue, GitHub webhook-dispatched jobs, and durable work discovered by the autonomous controller all reuse the same wake policy. An online worker suppresses extra dispatches, a fleet-wide operator pause/drain is respected, and recent automatic wake attempts are deduplicated with a durable cooldown.
+Automatic wake-up is queue-driven, not dashboard-only. New managed projects, added instructions, verification runs, operator retries, recovered stuck jobs, direct operator job enqueue, GitHub webhook-dispatched jobs, and durable work discovered by the autonomous controller all reuse the same wake policy. The policy is capability-aware: an online worker suppresses extra dispatches only when every queued job considered by the wake scan has an online desired-active worker that is eligible for its assignment and required capabilities. A queued specialist job can therefore wake the Actions worker even while an incompatible generic worker is online. A fleet-wide operator pause/drain is respected, and recent automatic wake attempts are deduplicated with a durable cooldown.
 
 Workers can also perform a non-destructive preflight before expensive runtime setup:
 
