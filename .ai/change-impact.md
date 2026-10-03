@@ -1,12 +1,14 @@
 # Change impact
 
-Base: c5e3bf69d41ae0e276ddb676df0013f8c0123779
-Head: d6f99204cbd2067023c4a6603689329eb452220a
+Base: 27b533eb4a26cac291a4b1116d1d633c71fd1d83
+Head: 410ed8ff2e211c7846c19de970c02bdd1a57a146
 
 ## Changed files
 - M README.md
-- M src/production_os/dashboard_ui.py
-- M tests/test_dashboard_ui_v3.py
+- M src/production_os/control_plane.py
+- M src/production_os/controller.py
+- M src/production_os/worker_wake.py
+- M tests/test_worker_wake.py
 
 ## Affected areas
 - (root)
@@ -14,7 +16,8 @@ Head: d6f99204cbd2067023c4a6603689329eb452220a
 - tests
 
 ## Related test candidates
-- No direct filename-based test match detected.
+- tests/test_control_plane.py
+- tests/test_worker_wake.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

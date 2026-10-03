@@ -1,22 +1,14 @@
 # CI status
 
-Summary: 4 success / 2 failure / 1 active
+Summary: 3 success / 0 failure / 1 active
 
-- CI: in_progress / pending (d6f99204)
+- CI: queued / pending (410ed8ff)
+- CI: completed / success (a8697e7c)
+- CI: completed / cancelled (27e110af)
+- CI: completed / cancelled (5b9756ee)
+- CI: completed / cancelled (13fb9237)
+- CI: completed / success (27b533eb)
+- CI: completed / cancelled (d6f99204)
 - CI: completed / success (04e10819)
-- CI: completed / success (c5e3bf69)
-- CI: completed / cancelled (5b030cc3)
-- CI: completed / success (962b0491)
-- CI: completed / failure (f1a4d307)
-- CI: completed / failure (6a53714f)
-- CI: completed / success (ad8497b1)
-
-## Latest failed run structure
-- Job: python-compat (3.12)
-  - Failed step: Compatibility tests
-- Job: python-compat (3.11)
-  - Failed step: Compatibility tests
-- Job: test
-  - Failed step: Unit tests
 
 > Generated summary only; inspect GitHub Actions for full logs when needed.

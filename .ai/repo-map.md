@@ -3624,7 +3624,9 @@ job_control = self.dashboard_control.job_state(key)
 ⋮----
 required = {
 ⋮----
-queued = self.queue.peek_candidates(limit=1)
+queued = self.queue.peek_candidates(limit=1000)
+⋮----
+queued = [
 ⋮----
 specialist = {
 ⋮----
@@ -4339,6 +4341,9 @@ launch = launch_autonomous_project(
 result = dispatch_handoff(
 ⋮----
 automatic_worker_wake = {
+queued_for_wake = (
+⋮----
+queued_for_wake = [
 ⋮----
 automatic_worker_wake = request_automatic_worker_wake(
 ⋮----
@@ -10898,15 +10903,25 @@ requested_at = _parse_timestamp(latest.get("requested_at"))
 ⋮----
 age = (datetime.now(timezone.utc) - requested_at).total_seconds()
 ⋮----
-has_active_worker = False
+active_workers = []
 ⋮----
 worker_id = str(getattr(worker, "worker_id", "") or "").strip()
 desired = dashboard_control.worker_state(worker_id)
 ⋮----
-has_active_worker = True
+# Respect an intentional fleet-wide pause/drain.
 ⋮----
-# Respect an intentional fleet-wide pause/drain. Wake only when there is
-# no registered fleet yet or at least one desired-active worker is offline.
+online_workers = [
+⋮----
+payload = job.get("payload") if isinstance(job, dict) else None
+⋮----
+payload = {}
+required = {
+assigned_worker = str(
+compatible = False
+⋮----
+capabilities = {
+⋮----
+compatible = True
 ⋮----
 wake = dashboard_control.kick_worker(worker_id)
 ⋮----
@@ -18944,6 +18959,22 @@ def test_shared_wake_uses_durable_cooldown(tmp_path, monkeypatch)
 control = ControlPlane(str(tmp_path / "wake-cooldown.sqlite"))
 ⋮----
 control = ControlPlane(str(tmp_path / "wake-audit.sqlite"))
+⋮----
+control = ControlPlane(str(tmp_path / "wake-capability-gap.sqlite"))
+⋮----
+queued = [{
+⋮----
+control = ControlPlane(str(tmp_path / "wake-compatible.sqlite"))
+⋮----
+control = ControlPlane(str(tmp_path / "wake-assigned.sqlite"))
+⋮----
+control = ControlPlane(str(tmp_path / "wake-control-plane.sqlite"))
+⋮----
+result = control.ensure_worker_for_queued_work(requested_by="operator:test")
+⋮----
+control = ControlPlane(str(tmp_path / "wake-cancel-requested.sqlite"))
+⋮----
+control = ControlPlane(str(tmp_path / "wake-stale-generation.sqlite"))
 ````
 
 ## File: tests/test_workers.py
@@ -20187,7 +20218,7 @@ failed
 
 `scheduled_fallback` means no immediate dispatch was possible and a scheduled GitHub Actions worker run remains the fallback wake-up path. GitHub scheduling latency is variable, so Production-OS does not promise a fixed wake-up deadline and must not present the worker as started before runtime evidence exists.
 
-Automatic wake-up is queue-driven, not dashboard-only. New managed projects, added instructions, verification runs, operator retries, recovered stuck jobs, direct operator job enqueue, GitHub webhook-dispatched jobs, and durable work discovered by the autonomous controller all reuse the same wake policy. An online worker suppresses extra dispatches, a fleet-wide operator pause/drain is respected, and recent automatic wake attempts are deduplicated with a durable cooldown.
+Automatic wake-up is queue-driven, not dashboard-only. New managed projects, added instructions, verification runs, operator retries, recovered stuck jobs, direct operator job enqueue, GitHub webhook-dispatched jobs, and durable work discovered by the autonomous controller all reuse the same wake policy. The policy is capability-aware: an online worker suppresses extra dispatches only when every queued job considered by the wake scan has an online desired-active worker that is eligible for its assignment and required capabilities. A queued specialist job can therefore wake the Actions worker even while an incompatible generic worker is online. A fleet-wide operator pause/drain is respected, and recent automatic wake attempts are deduplicated with a durable cooldown.
 
 Workers can also perform a non-destructive preflight before expensive runtime setup:
 

@@ -2763,7 +2763,9 @@ job_control = self.dashboard_control.job_state(key)
 ⋮----
 required = {
 ⋮----
-queued = self.queue.peek_candidates(limit=1)
+queued = self.queue.peek_candidates(limit=1000)
+⋮----
+queued = [
 ⋮----
 specialist = {
 ⋮----
@@ -3478,6 +3480,9 @@ launch = launch_autonomous_project(
 result = dispatch_handoff(
 ⋮----
 automatic_worker_wake = {
+queued_for_wake = (
+⋮----
+queued_for_wake = [
 ⋮----
 automatic_worker_wake = request_automatic_worker_wake(
 ⋮----
@@ -10037,15 +10042,25 @@ requested_at = _parse_timestamp(latest.get("requested_at"))
 ⋮----
 age = (datetime.now(timezone.utc) - requested_at).total_seconds()
 ⋮----
-has_active_worker = False
+active_workers = []
 ⋮----
 worker_id = str(getattr(worker, "worker_id", "") or "").strip()
 desired = dashboard_control.worker_state(worker_id)
 ⋮----
-has_active_worker = True
+# Respect an intentional fleet-wide pause/drain.
 ⋮----
-# Respect an intentional fleet-wide pause/drain. Wake only when there is
-# no registered fleet yet or at least one desired-active worker is offline.
+online_workers = [
+⋮----
+payload = job.get("payload") if isinstance(job, dict) else None
+⋮----
+payload = {}
+required = {
+assigned_worker = str(
+compatible = False
+⋮----
+capabilities = {
+⋮----
+compatible = True
 ⋮----
 wake = dashboard_control.kick_worker(worker_id)
 ⋮----

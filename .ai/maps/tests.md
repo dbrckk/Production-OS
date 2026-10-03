@@ -7756,6 +7756,22 @@ def test_shared_wake_uses_durable_cooldown(tmp_path, monkeypatch)
 control = ControlPlane(str(tmp_path / "wake-cooldown.sqlite"))
 ⋮----
 control = ControlPlane(str(tmp_path / "wake-audit.sqlite"))
+⋮----
+control = ControlPlane(str(tmp_path / "wake-capability-gap.sqlite"))
+⋮----
+queued = [{
+⋮----
+control = ControlPlane(str(tmp_path / "wake-compatible.sqlite"))
+⋮----
+control = ControlPlane(str(tmp_path / "wake-assigned.sqlite"))
+⋮----
+control = ControlPlane(str(tmp_path / "wake-control-plane.sqlite"))
+⋮----
+result = control.ensure_worker_for_queued_work(requested_by="operator:test")
+⋮----
+control = ControlPlane(str(tmp_path / "wake-cancel-requested.sqlite"))
+⋮----
+control = ControlPlane(str(tmp_path / "wake-stale-generation.sqlite"))
 ```
 
 ## File: test_workers.py

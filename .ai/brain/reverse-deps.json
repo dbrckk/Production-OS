@@ -596,9 +596,10 @@
         "tests/test_classification_history_reuse.py",
         "tests/test_controller_asset_capabilities.py",
         "tests/test_skill_memory.py",
-        "tests/test_worker_compose_deployment.py"
+        "tests/test_worker_compose_deployment.py",
+        "tests/test_worker_wake.py"
       ],
-      "in_degree": 16,
+      "in_degree": 17,
       "out_degree": 2
     },
     "src/production_os/change_impact.py": {
@@ -4778,13 +4779,14 @@
     "tests/test_worker_wake.py": {
       "dependencies": [
         "src/production_os/__init__.py",
+        "src/production_os/capabilities.py",
         "src/production_os/control_plane.py",
         "src/production_os/worker_wake.py",
         "tests/test_fairness.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 4
+      "out_degree": 5
     },
     "tests/test_workers.py": {
       "dependencies": [
