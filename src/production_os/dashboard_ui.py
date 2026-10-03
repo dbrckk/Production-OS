@@ -1570,7 +1570,7 @@ function renderControlReceipt(result){
  if(!el)return;
  const status=String((result&&result.status)||"");
  if(status==="scheduled_fallback"){
-  el.textContent="Action demandée · Réveil automatique prévu ≤ 5 min";
+  el.textContent="Action demandée · réveil GitHub Actions planifié · délai variable";
   return;
  }
  if(status==="dispatched"){
