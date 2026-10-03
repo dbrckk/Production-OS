@@ -358,6 +358,25 @@ def test_repository_picker_preserves_selected_repository_across_refresh():
     assert "const selected=selectedById[select.id]||'';" in DASHBOARD_HTML
     assert "x.full_name===selected" in DASHBOARD_HTML
 
+def test_launch_repository_selection_is_deliberate_and_persisted():
+    assert "const LAST_REPOSITORY_KEY='production_os_last_repository';" in DASHBOARD_HTML
+    assert "Sélectionne un repository" in DASHBOARD_HTML
+    assert "localStorage.getItem(LAST_REPOSITORY_KEY)" in DASHBOARD_HTML
+    assert "localStorage.setItem(LAST_REPOSITORY_KEY,value)" in DASHBOARD_HTML
+    assert "localStorage.removeItem(LAST_REPOSITORY_KEY)" in DASHBOARD_HTML
+    assert "select.value='';" in DASHBOARD_HTML
+
+
+def test_launch_button_requires_repository_and_instruction():
+    assert "function updateLaunchButtonState()" in DASHBOARD_HTML
+    assert "!select.value.trim()||!instruction.value.trim()" in DASHBOARD_HTML
+    assert "document.getElementById('instruction').addEventListener('input',updateLaunchButtonState)" in DASHBOARD_HTML
+    assert "document.getElementById('repository').addEventListener('change',rememberLaunchRepository)" in DASHBOARD_HTML
+    launch = DASHBOARD_HTML.split("async function launchWorkflow(){", 1)[1].split("async function refreshDashboard(){", 1)[0]
+    assert "button.textContent='Lancer la production';" in launch
+    assert "updateLaunchButtonState();" in launch
+    assert "button.disabled=false" not in launch
+
 
 def test_dashboard_refresh_reloads_repository_picker_once():
     refresh = DASHBOARD_HTML.split("async function refreshDashboard(){", 1)[1].split("bootstrapPairingFromFragment()", 1)[0]

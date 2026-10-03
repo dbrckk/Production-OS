@@ -252,6 +252,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 <script>
 const TOKEN_KEY='production_os_operator_token';
 const LAST_PROJECT_KEY='production_os_last_project_id';
+const LAST_REPOSITORY_KEY='production_os_last_repository';
 const PENDING_LAUNCH_KEY='production_os_pending_launch';
 let workerOnline=false;
 let refreshBusy=false;
@@ -469,6 +470,22 @@ async function clearPairing(){
  workerOnline=false;
 }
 
+function updateLaunchButtonState(){
+ const select=document.getElementById('repository');
+ const instruction=document.getElementById('instruction');
+ const button=document.getElementById('launch-button');
+ if(!select||!instruction||!button)return;
+ button.disabled=Boolean(select.disabled||!select.value.trim()||!instruction.value.trim());
+}
+function rememberLaunchRepository(){
+ const select=document.getElementById('repository');
+ if(!select)return;
+ const value=select.value.trim();
+ if(value)localStorage.setItem(LAST_REPOSITORY_KEY,value);
+ else localStorage.removeItem(LAST_REPOSITORY_KEY);
+ updateLaunchButtonState();
+}
+
 async function loadRepositories(){
  const launchSelect=document.getElementById('repository');
  const managedSelect=document.getElementById('managed-create-repository');
@@ -477,6 +494,9 @@ async function loadRepositories(){
  const selects=[launchSelect,managedSelect].filter(Boolean);
  const selectedById={};
  selects.forEach(function(select){selectedById[select.id]=select.value});
+ if(launchSelect&&!selectedById.repository){
+  selectedById.repository=String(localStorage.getItem(LAST_REPOSITORY_KEY)||'').trim();
+ }
  function markUnavailable(message){
   selects.forEach(function(select){
    select.innerHTML='';
@@ -510,6 +530,13 @@ async function loadRepositories(){
   selects.forEach(function(select){
    const selected=selectedById[select.id]||'';
    select.innerHTML='';
+   if(select===launchSelect){
+    const placeholder=document.createElement('option');
+    placeholder.value='';
+    placeholder.textContent='Sélectionne un repository';
+    placeholder.selected=!selected;
+    select.appendChild(placeholder);
+   }
    repos.forEach(function(x){
     const option=document.createElement('option');
     option.value=x.full_name;
@@ -518,11 +545,12 @@ async function loadRepositories(){
     select.appendChild(option);
    });
    if(selected&&!repos.some(function(x){return x.full_name===selected})){
-    select.selectedIndex=0;
+    select.value='';
+    if(select===launchSelect)localStorage.removeItem(LAST_REPOSITORY_KEY);
    }
    select.disabled=false;
   });
-  if(launchButton) launchButton.disabled=false;
+  updateLaunchButtonState();
   return true;
  }catch(e){
   markUnavailable('Repositories indisponibles');
@@ -973,6 +1001,7 @@ async function launchWorkflow(){
       ?'Production persistante créée · réveil automatique déjà demandé récemment · '+projectId.slice(0,12)
       :'Production persistante créée · en attente du worker · mise en file sûre · '+projectId.slice(0,12);
   document.getElementById('instruction').value='';
+  updateLaunchButtonState();
   await Promise.all([
    loadRecentRuns(),
    loadManagedProjects(),
@@ -985,7 +1014,8 @@ async function launchWorkflow(){
  }catch(e){
   status.textContent=String(e).replace(/^Error:\\s*/,'');
  }finally{
-  button.disabled=false;button.textContent='Lancer la production';
+  button.textContent='Lancer la production';
+  updateLaunchButtonState();
  }
 }
 
@@ -1009,9 +1039,11 @@ async function refreshDashboard(){
 bootstrapPairingFromFragment().finally(function(){
  return refreshDashboard();
 });
+document.getElementById('repository').addEventListener('change',rememberLaunchRepository);
 document.getElementById('repository').addEventListener('change',loadVisualQuality);
 document.getElementById('repository').addEventListener('change',loadRecentRuns);
 document.getElementById('repository').addEventListener('change',loadLaunchReadiness);
+document.getElementById('instruction').addEventListener('input',updateLaunchButtonState);
 setInterval(loadVisualQuality,10000);
 setInterval(function(){
  checkServer();
