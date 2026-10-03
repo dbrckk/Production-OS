@@ -3613,6 +3613,14 @@ script_path = tmp_path / "dashboard-runtime.js"
 result = subprocess.run(
 ⋮----
 def test_launch_readiness_scheduled_fallback_is_truthful_about_variable_delay()
+⋮----
+def test_managed_projects_poll_does_not_repeat_repository_discovery()
+⋮----
+managed = DASHBOARD_HTML.split("async function loadManagedProjects(){", 1)[1].split("async function loadActivityView(){", 1)[0]
+⋮----
+def test_active_view_poll_is_single_flight()
+⋮----
+polling = DASHBOARD_HTML.split("function schedulePoll(key,intervalMs,fn){", 1)[1].split("renderActiveView();", 1)[0]
 ```
 
 ## File: test_dashboard_usage.py

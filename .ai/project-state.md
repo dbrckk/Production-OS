@@ -22,30 +22,29 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-03T13:16:59Z
+Generated: 2026-10-03T13:28:50Z
 
 ### Git
 - Branch: `main`
-- Head: `410ed8ff2e21`
-- Commit date: 2026-10-03T15:16:49+02:00
-- Commit: fix(worker): wake for capability-blocked queued jobs (#229)
+- Head: `60fa92fe97bf`
+- Commit date: 2026-10-03T15:28:39+02:00
+- Commit: fix(dashboard): make active polling single-flight (#230)
 - Tracked files: 543
 
 ### Recently changed files
+- `src/production_os/dashboard_ui.py`
+- `tests/test_dashboard_ui_v3.py`
 - `README.md`
 - `src/production_os/control_plane.py`
 - `src/production_os/controller.py`
 - `src/production_os/worker_wake.py`
 - `tests/test_worker_wake.py`
-- `src/production_os/dashboard_ui.py`
-- `tests/test_dashboard_ui_v3.py`
 - `src/production_os/dashboard_service.py`
 - `tests/test_dashboard_attention.py`
 - `tests/test_dashboard_launch.py`
 - `config/repository-catalog.json`
 - `tests/test_dashboard_launch_ux.py`
 - `tests/test_dashboard_repositories.py`
-- `tests/test_dashboard_production_inbox_filters_ui.py`
 
 ### Project signals
 - `pyproject.toml`

@@ -2,27 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat(runtime): add persistent agent sessions and resumable workspaces",
-      "terms": [
-        "add",
-        "agent",
-        "feat",
-        "persistent",
-        "resumable",
-        "runtime",
-        "sessions",
-        "workspaces"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/agent_runtime.py",
-        "src/production_os/cli.py",
-        "src/production_os/remote_worker_runner.py",
-        "tests/test_persistent_agent_runtime.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat(runtime): add active durable checkpoint protocol",
       "terms": [
         "active",
@@ -1293,6 +1272,23 @@
         "src/production_os/worker_wake.py",
         "tests/test_worker_wake.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "fix(dashboard): make active polling single-flight (#230)",
+      "terms": [
+        "230",
+        "active",
+        "dashboard",
+        "make",
+        "polling",
+        "single-flight"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/dashboard_ui.py",
+        "tests/test_dashboard_ui_v3.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1410,6 +1406,10 @@
       "src/production_os/dashboard_ui.py": 4,
       "tests/test_dashboard_backup_api.py": 4,
       "tests/test_dashboard_backups.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4
+    },
+    "230": {
+      "src/production_os/dashboard_ui.py": 4,
       "tests/test_dashboard_ui_v3.py": 4
     },
     "24": {
@@ -1686,7 +1686,9 @@
     },
     "active": {
       "src/production_os/agent_runtime.py": 4,
+      "src/production_os/dashboard_ui.py": 4,
       "src/production_os/remote_worker_runner.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4,
       "tests/test_persistent_agent_runtime.py": 4
     },
     "activity": {
@@ -3559,7 +3561,7 @@
     "make": {
       "src/production_os/control_plane.py": 8,
       "src/production_os/controller.py": 4,
-      "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/dashboard_ui.py": 8,
       "src/production_os/managed_projects.py": 4,
       "src/production_os/remote_worker_runner.py": 4,
       "src/production_os/task_capabilities.py": 4,
@@ -3567,7 +3569,7 @@
       "tests/test_controller_managed_projects.py": 4,
       "tests/test_cooperative_managed_projects.py": 4,
       "tests/test_dashboard_launch_ux.py": 4,
-      "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_dashboard_ui_v3.py": 8,
       "tests/test_release32_one_tap_e2e.py": 4,
       "tests/test_task_capabilities.py": 4,
       "tests/test_worker_wake.py": 4
@@ -4000,6 +4002,10 @@
       "tests/test_github_work_state.py": 4,
       "tests/test_release51_one_tap_runner_e2e.py": 4,
       "tests/test_rollback_plan.py": 4
+    },
+    "polling": {
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4
     },
     "positive": {
       "src/production_os/browser_computer.py": 4,
@@ -4895,6 +4901,10 @@
     "sidecars": {
       "src/production_os/asset_forge.py": 4,
       "tests/test_asset_forge.py": 4
+    },
+    "single-flight": {
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4
     },
     "skills": {
       "src/production_os/postgres_backend.py": 4,
