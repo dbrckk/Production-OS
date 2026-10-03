@@ -33,9 +33,8 @@ def test_production_detail_only_latest_focus_can_render():
         '"/v1/dashboard/production-status?project_id="+encodeURIComponent(value)'
     )
     guard_index = body.index("requestSequence!==productionDetailLoadSequence")
-    render_index = body.index("detail.innerHTML=")
-    assert await_index < guard_index
-    assert guard_index < render_index
+    render_index = body.index("const project=data.project||{};")
+    assert await_index < guard_index < render_index
 
 
 def test_closing_production_detail_invalidates_inflight_detail_request():
