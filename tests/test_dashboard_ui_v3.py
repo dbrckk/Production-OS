@@ -400,7 +400,7 @@ def test_dashboard_health_check_is_bounded_and_retried():
     assert "controller.abort()" in check
     assert "8000" in check
     assert "Démarrage…" in check
-    assert "checkServer();" in DASHBOARD_HTML.split("setInterval(function(){", 1)[1]
+    assert "checkServer()," in DASHBOARD_HTML.split("scheduleGlobalPoll(10000,function(){", 1)[1]
 
 
 def test_unpaired_repository_picker_fails_fast_with_clear_message():
@@ -786,7 +786,7 @@ def test_last_launched_project_survives_dashboard_reload_on_same_device():
 def test_dashboard_refresh_and_repository_change_refresh_launch_readiness():
     assert "loadLaunchReadiness()," in DASHBOARD_HTML
     assert "addEventListener('change',loadLaunchReadiness)" in DASHBOARD_HTML
-    assert "setInterval(loadLastProduction,5000)" in DASHBOARD_HTML
+    assert "scheduleGlobalPoll(5000,loadLastProduction);" in DASHBOARD_HTML
 
 def test_last_production_tracker_renders_live_runtime_status():
     assert "/v1/dashboard/production-status?project_id=" in DASHBOARD_HTML
@@ -800,7 +800,7 @@ def test_last_production_tracker_renders_live_runtime_status():
     assert 'class="live-progress"' in DASHBOARD_HTML
     assert 'class="live-progress-fill"' in DASHBOARD_HTML
     assert "Résultat prêt à revoir." not in DASHBOARD_HTML
-    assert "setInterval(loadLastProduction,5000)" in DASHBOARD_HTML
+    assert "scheduleGlobalPoll(5000,loadLastProduction);" in DASHBOARD_HTML
 
 
 def test_last_production_tracker_keeps_server_outcome_and_project_deep_link():
