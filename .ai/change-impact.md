@@ -1,11 +1,11 @@
 # Change impact
 
-Base: 31118a235fb424430df940c52d67a131ddf6be90
-Head: b71918f7373efaedc9522443822dd11804233760
+Base: 457f97d8dc878ba54af437b4be3c32c01a168913
+Head: 7fd70d7fee36591f80b8377bc780e5bb38a89dd8
 
 ## Changed files
 - M src/production_os/dashboard_ui.py
-- A tests/test_dashboard_worker_detail_freshness.py
+- A tests/test_dashboard_windowed_view_freshness.py
 
 ## Affected areas
 - src

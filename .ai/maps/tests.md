@@ -113,6 +113,7 @@ test_dashboard_store_postgres.py
 test_dashboard_store.py
 test_dashboard_ui_v3.py
 test_dashboard_usage.py
+test_dashboard_windowed_view_freshness.py
 test_dashboard_worker_detail_freshness.py
 test_database_maintenance_lock.py
 test_deep_fingerprint_starlist.py
@@ -3732,6 +3733,21 @@ def test_usage_aggregation_hides_unauthenticated_quota_numbers()
 quotas = {row["provider"]: row for row in result["quotas"]}
 ⋮----
 def test_usage_aggregation_rejects_unknown_window()
+```
+
+## File: test_dashboard_windowed_view_freshness.py
+```python
+def test_overview_ignores_stale_window_or_view_responses()
+⋮----
+body = DASHBOARD_HTML.split(
+⋮----
+await_index = body.index("const results=await Promise.all([")
+guard_index = body.index("requestSequence!==overviewLoadSequence")
+render_index = body.index("const data=results[0]")
+⋮----
+def test_activity_ignores_stale_window_or_view_responses()
+⋮----
+guard_index = body.index("requestSequence!==activityLoadSequence")
 ```
 
 ## File: test_dashboard_worker_detail_freshness.py

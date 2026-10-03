@@ -2,27 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat(agents): expose dynamic planner provenance and fanout",
-      "terms": [
-        "agents",
-        "dynamic",
-        "expose",
-        "fanout",
-        "feat",
-        "planner",
-        "provenance"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/managed_projects.py",
-        "src/production_os/workflow_engine.py",
-        "tests/test_dynamic_agent_fanout.py",
-        "tests/test_managed_dynamic_plan_outcome.py",
-        "tests/test_managed_project_outcome.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat(agents): preintegrate upstream commits before integration executors",
       "terms": [
         "agents",
@@ -1260,6 +1239,23 @@
         "src/production_os/dashboard_ui.py",
         "tests/test_dashboard_worker_detail_freshness.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "fix(dashboard): keep windowed views fresh (#240)",
+      "terms": [
+        "240",
+        "dashboard",
+        "fresh",
+        "keep",
+        "views",
+        "windowed"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/dashboard_ui.py",
+        "tests/test_dashboard_windowed_view_freshness.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1427,6 +1423,10 @@
       "tests/test_dashboard_backup_api.py": 4,
       "tests/test_dashboard_backups.py": 4,
       "tests/test_dashboard_ui_v3.py": 4
+    },
+    "240": {
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_windowed_view_freshness.py": 4
     },
     "24x7": {
       "src/production_os/cli.py": 4,
@@ -2691,6 +2691,7 @@
       "tests/test_dashboard_store_postgres.py": 4,
       "tests/test_dashboard_ui_v3.py": 40,
       "tests/test_dashboard_usage.py": 4,
+      "tests/test_dashboard_windowed_view_freshness.py": 4,
       "tests/test_dashboard_worker_detail_freshness.py": 4,
       "tests/test_github_client_pr_files.py": 4,
       "tests/test_portfolio_claim_api.py": 4,
@@ -3178,10 +3179,11 @@
       "tests/test_workflow_engine.py": 4
     },
     "fresh": {
-      "src/production_os/dashboard_ui.py": 16,
+      "src/production_os/dashboard_ui.py": 20,
       "tests/test_dashboard_async_freshness.py": 4,
       "tests/test_dashboard_production_inbox_freshness.py": 4,
       "tests/test_dashboard_project_detail_freshness.py": 4,
+      "tests/test_dashboard_windowed_view_freshness.py": 4,
       "tests/test_dashboard_worker_detail_freshness.py": 4
     },
     "from": {
@@ -3515,7 +3517,7 @@
     },
     "keep": {
       "src/production_os/dashboard_service.py": 4,
-      "src/production_os/dashboard_ui.py": 16,
+      "src/production_os/dashboard_ui.py": 20,
       "src/production_os/managed_projects.py": 4,
       "tests/test_cooperative_managed_projects.py": 4,
       "tests/test_dashboard_async_freshness.py": 4,
@@ -3523,6 +3525,7 @@
       "tests/test_dashboard_production_inbox_freshness.py": 4,
       "tests/test_dashboard_project_detail_freshness.py": 4,
       "tests/test_dashboard_repositories.py": 4,
+      "tests/test_dashboard_windowed_view_freshness.py": 4,
       "tests/test_dashboard_worker_detail_freshness.py": 4
     },
     "last": {
@@ -5421,6 +5424,10 @@
       "src/production_os/dashboard_ui.py": 4,
       "tests/test_dashboard_ui_v3.py": 4
     },
+    "views": {
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_windowed_view_freshness.py": 4
+    },
     "visual": {
       "src/production_os/asset_forge.py": 8,
       "src/production_os/control_plane.py": 20,
@@ -5461,6 +5468,10 @@
     "when": {
       "src/production_os/dashboard_ui.py": 4,
       "tests/test_dashboard_ui_v3.py": 4
+    },
+    "windowed": {
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_windowed_view_freshness.py": 4
     },
     "without": {
       "src/production_os/postgres_backend.py": 4,
