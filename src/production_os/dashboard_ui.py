@@ -805,6 +805,11 @@ function rememberLastProject(projectId){
  const value=String(projectId||'').trim();
  if(value)localStorage.setItem(LAST_PROJECT_KEY,value);
 }
+
+function currentLastProjectId(){
+ return String(localStorage.getItem(LAST_PROJECT_KEY)||'').trim();
+}
+let lastProductionLoadSequence=0;
 async function openLastProduction(projectId){
  navigate({
   view:'managed',
@@ -878,7 +883,8 @@ async function lastProductionManagedAction(projectId,action){
 }
 async function loadLastProduction(){
  const el=document.getElementById('last-production-card');
- const projectId=String(localStorage.getItem(LAST_PROJECT_KEY)||'').trim();
+ const requestSequence=++lastProductionLoadSequence;
+ const projectId=currentLastProjectId();
  if(!token()||!projectId){
   el.hidden=true;
   el.innerHTML='';
@@ -888,6 +894,10 @@ async function loadLastProduction(){
   const data=await api(
    '/v1/dashboard/production-status?project_id='+encodeURIComponent(projectId)
   );
+  if(
+   requestSequence!==lastProductionLoadSequence
+   ||currentLastProjectId()!==projectId
+  )return null;
   const project=data.project||{};
   const runtime=data.runtime||{};
   const outcome=project.outcome||{};
@@ -940,6 +950,10 @@ async function loadLastProduction(){
    '</div>';
   return data;
  }catch(e){
+  if(
+   requestSequence!==lastProductionLoadSequence
+   ||currentLastProjectId()!==projectId
+  )return null;
   el.hidden=false;
   el.innerHTML='<div class="small">Dernière production indisponible · '+esc(String(e).replace(/^Error:\\s*/,''))+'</div>';
   return null;
