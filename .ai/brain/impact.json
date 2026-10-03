@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "generated_by": "dbrckk/repo-brain",
-  "base": "4d35ba23445e25fdaab827b00977e425ba9ce5ca",
-  "head": "eb893e84437b27fb1fcf4ddc5548e5b713afffc0",
+  "base": "eb893e84437b27fb1fcf4ddc5548e5b713afffc0",
+  "head": "8999bb03509dcfcba57836b54ebcc1f55e911b5d",
   "index_mode": "incremental",
   "changed_files": [
     {
@@ -10,13 +10,13 @@
       "status": "M"
     },
     {
-      "path": "tests/test_dashboard_launch_freshness.py",
+      "path": "tests/test_dashboard_production_inbox_freshness.py",
       "status": "A"
     }
   ],
   "changed_source_files": [
     "src/production_os/dashboard_ui.py",
-    "tests/test_dashboard_launch_freshness.py"
+    "tests/test_dashboard_production_inbox_freshness.py"
   ],
   "impacted_files": [
     "src/production_os/control_plane.py",
@@ -25,6 +25,7 @@
     "tests/test_dashboard_launch_freshness.py",
     "tests/test_dashboard_mobile_stability.py",
     "tests/test_dashboard_production_inbox_filters_ui.py",
+    "tests/test_dashboard_production_inbox_freshness.py",
     "tests/test_dashboard_ui_v3.py"
   ],
   "impacted_symbols": [
@@ -321,6 +322,24 @@
       "kind": "function",
       "file": "tests/test_dashboard_production_inbox_filters_ui.py",
       "line": 85
+    },
+    {
+      "name": "test_production_inbox_only_latest_request_can_render",
+      "kind": "function",
+      "file": "tests/test_dashboard_production_inbox_freshness.py",
+      "line": 4
+    },
+    {
+      "name": "test_production_detail_only_latest_focus_can_render",
+      "kind": "function",
+      "file": "tests/test_dashboard_production_inbox_freshness.py",
+      "line": 21
+    },
+    {
+      "name": "test_closing_production_detail_invalidates_inflight_detail_request",
+      "kind": "function",
+      "file": "tests/test_dashboard_production_inbox_freshness.py",
+      "line": 40
     },
     {
       "name": "test_dashboard_has_primary_views_and_clickable_entities",
@@ -997,10 +1016,11 @@
   ],
   "selected_tests": [
     "tests/test_dashboard_async_freshness.py",
-    "tests/test_dashboard_launch.py",
     "tests/test_dashboard_launch_freshness.py",
     "tests/test_dashboard_mobile_stability.py",
+    "tests/test_dashboard_production_inbox.py",
     "tests/test_dashboard_production_inbox_filters_ui.py",
+    "tests/test_dashboard_production_inbox_freshness.py",
     "tests/test_dashboard_ui_v3.py"
   ]
 }

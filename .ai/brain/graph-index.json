@@ -68,6 +68,7 @@
         "tests/test_dashboard_playbooks.py",
         "tests/test_dashboard_production_inbox.py",
         "tests/test_dashboard_production_inbox_filters_ui.py",
+        "tests/test_dashboard_production_inbox_freshness.py",
         "tests/test_dashboard_production_status.py",
         "tests/test_dashboard_remediation_api.py",
         "tests/test_dashboard_remediation_history.py",
@@ -197,7 +198,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 188,
+      "in_degree": 189,
       "out_degree": 0,
       "path": "src/production_os/__init__.py"
     },
@@ -1922,6 +1923,21 @@
       "path": "tests/test_native_browser_worker_e2e.py"
     },
     {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/control_plane.py",
+        "tests/test_dashboard_async_freshness.py",
+        "tests/test_dashboard_launch_freshness.py",
+        "tests/test_dashboard_mobile_stability.py",
+        "tests/test_dashboard_production_inbox_filters_ui.py",
+        "tests/test_dashboard_production_inbox_freshness.py",
+        "tests/test_dashboard_ui_v3.py"
+      ],
+      "in_degree": 7,
+      "out_degree": 0,
+      "path": "src/production_os/dashboard_ui.py"
+    },
+    {
       "dependencies": [
         "src/production_os/atomic_io.py"
       ],
@@ -2000,26 +2016,10 @@
       "in_degree": 4,
       "out_degree": 3,
       "path": "src/production_os/dashboard_control.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/signers.py",
-        "src/production_os/signing.py",
-        "tests/test_asset_forge.py"
-      ],
-      "dependents": [
-        "src/production_os/cli.py",
-        "tests/test_signers.py",
-        "tests/test_transparency_cli.py",
-        "tests/test_witness.py"
-      ],
-      "in_degree": 4,
-      "out_degree": 3,
-      "path": "src/production_os/witness.py"
     }
   ],
-  "edge_count": 1739,
+  "edge_count": 1741,
   "generated_by": "dbrckk/repo-brain-v7-graph",
-  "node_count": 328,
+  "node_count": 329,
   "schema_version": 1
 }

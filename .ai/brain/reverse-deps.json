@@ -71,6 +71,7 @@
         "tests/test_dashboard_playbooks.py",
         "tests/test_dashboard_production_inbox.py",
         "tests/test_dashboard_production_inbox_filters_ui.py",
+        "tests/test_dashboard_production_inbox_freshness.py",
         "tests/test_dashboard_production_status.py",
         "tests/test_dashboard_remediation_api.py",
         "tests/test_dashboard_remediation_history.py",
@@ -200,7 +201,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 188,
+      "in_degree": 189,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -1108,9 +1109,10 @@
         "tests/test_dashboard_launch_freshness.py",
         "tests/test_dashboard_mobile_stability.py",
         "tests/test_dashboard_production_inbox_filters_ui.py",
+        "tests/test_dashboard_production_inbox_freshness.py",
         "tests/test_dashboard_ui_v3.py"
       ],
-      "in_degree": 6,
+      "in_degree": 7,
       "out_degree": 0
     },
     "src/production_os/dashboard_usage.py": {
@@ -3398,6 +3400,15 @@
       "out_degree": 2
     },
     "tests/test_dashboard_production_inbox_filters_ui.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/dashboard_ui.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 2
+    },
+    "tests/test_dashboard_production_inbox_freshness.py": {
       "dependencies": [
         "src/production_os/__init__.py",
         "src/production_os/dashboard_ui.py"

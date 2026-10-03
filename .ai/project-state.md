@@ -22,21 +22,21 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-03T15:04:21Z
+Generated: 2026-10-03T15:25:05Z
 
 ### Git
 - Branch: `main`
-- Head: `eb893e84437b`
-- Commit date: 2026-10-03T17:04:11+02:00
-- Commit: fix(dashboard): preserve newer launch drafts (#236)
-- Tracked files: 545
+- Head: `8999bb03509d`
+- Commit date: 2026-10-03T17:24:56+02:00
+- Commit: fix(dashboard): keep production inbox responses fresh (#237)
+- Tracked files: 546
 
 ### Recently changed files
 - `src/production_os/dashboard_ui.py`
+- `tests/test_dashboard_production_inbox_freshness.py`
 - `tests/test_dashboard_launch_freshness.py`
 - `tests/test_dashboard_async_freshness.py`
 - `tests/test_dashboard_ui_v3.py`
-- `tests/test_dashboard_launch.py`
 
 ### Project signals
 - `pyproject.toml`

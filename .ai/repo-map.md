@@ -254,6 +254,7 @@ tests/
   test_dashboard_playbook_api.py
   test_dashboard_playbooks.py
   test_dashboard_production_inbox_filters_ui.py
+  test_dashboard_production_inbox_freshness.py
   test_dashboard_production_inbox.py
   test_dashboard_production_status.py
   test_dashboard_remediation_api.py
@@ -14055,6 +14056,24 @@ def test_custom_follow_up_refreshes_unified_operator_surfaces()
 ⋮----
 start = DASHBOARD_HTML.index("async function submitProductionInstruction")
 end = DASHBOARD_HTML.index("function productionInboxActions", start)
+````
+
+## File: tests/test_dashboard_production_inbox_freshness.py
+````python
+def test_production_inbox_only_latest_request_can_render()
+⋮----
+body = DASHBOARD_HTML.split(
+⋮----
+def test_production_detail_only_latest_focus_can_render()
+⋮----
+await_index = body.index(
+guard_index = body.index("requestSequence!==productionDetailLoadSequence")
+render_index = body.index("const project=data.project||{};")
+⋮----
+def test_closing_production_detail_invalidates_inflight_detail_request()
+⋮----
+sequence_index = body.index(
+empty_index = body.index("if(!value){")
 ````
 
 ## File: tests/test_dashboard_production_inbox.py
