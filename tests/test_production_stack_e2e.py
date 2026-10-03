@@ -16,6 +16,7 @@ from production_os.api_auth import TokenAuthorizer, token_digest
 from production_os.attestations import create_validation_attestation
 from production_os.control_plane import ControlPlane, make_handler
 from production_os.remote_worker import RemoteWorkerClient
+from production_os.postgres_backend import PostgresBackend
 
 
 def _api(base: str, path: str, token: str, payload=None):
@@ -95,6 +96,7 @@ def test_postgres_http_worker_workflow_release_pipeline_end_to_end():
             trusted_validation_secrets={validator_id: validator_secret},
             provenance_secret=provenance_secret,
         )
+        assert isinstance(control.backend, PostgresBackend)
         server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
         thread = threading.Thread(target=server.serve_forever, daemon=True)
         thread.start()

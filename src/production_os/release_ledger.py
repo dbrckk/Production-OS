@@ -248,10 +248,14 @@ class ReleaseLedger:
             predicate = dict(statement.get("predicate") or {})
             run_details = dict(predicate.get("runDetails") or {})
             builder = dict(run_details.get("builder") or {})
-            attestation_signature = dict(
-                attestation.get("signature") or {}
-            )
-            slsa_signature = dict(slsa.get("signature") or {})
+            # Legacy HMAC attestations store a string signature and have no
+            # asymmetric key ID. Verification below still checks their HMAC.
+            attestation_signature = attestation.get("signature")
+            if not isinstance(attestation_signature, dict):
+                attestation_signature = {}
+            slsa_signature = slsa.get("signature")
+            if not isinstance(slsa_signature, dict):
+                slsa_signature = {}
 
             release_validator = str(
                 attestation.get("validator_id") or ""
@@ -396,6 +400,9 @@ class ReleaseLedger:
         stable_report.pop("generated_at", None)
         report_state_hash = _canonical_sha256(stable_report)
         with self.backend.transaction() as db:
+            if _is_postgres(self.backend):
+                # Also serialize the empty-ledger case, where no row can be locked.
+                db.execute("LOCK TABLE trust_incident_reports IN SHARE ROW EXCLUSIVE MODE")
             latest = _execute(
                 db,
                 self.backend,
@@ -948,6 +955,9 @@ class ReleaseLedger:
                     now,
                 ),
             )
+            if _is_postgres(self.backend):
+                # Promotions from different workflows share one global hash chain.
+                db.execute("LOCK TABLE transparency_log IN SHARE ROW EXCLUSIVE MODE")
             previous_row = _execute(
                 db,
                 self.backend,
