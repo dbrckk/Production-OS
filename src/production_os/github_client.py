@@ -304,6 +304,53 @@ class GitHubClient:
 
 
 
+    def dispatch_repository_event(
+        self,
+        full_name: str,
+        *,
+        event_type: str,
+        client_payload: dict[str, Any] | None = None,
+    ) -> None:
+        if not self.token:
+            raise GitHubAPIError(
+                "GITHUB_TOKEN is required to dispatch a repository event"
+            )
+        event = str(event_type or "").strip()
+        if not event or len(event) > 100:
+            raise ValueError("repository dispatch event_type must be 1-100 characters")
+        self._request(
+            "POST",
+            f"/repos/{full_name}/dispatches",
+            {
+                "event_type": event,
+                "client_payload": dict(client_payload or {}),
+            },
+        )
+
+    def can_dispatch_repository_event(self, full_name: str) -> bool:
+        """Probe repository_dispatch permission without triggering a workflow."""
+        if not self.token:
+            return False
+        try:
+            self.dispatch_repository_event(
+                full_name,
+                event_type="production-os-capability-probe",
+                client_payload={"probe": True},
+            )
+        except GitHubAPIError as exc:
+            detail = str(exc)
+            if any(
+                marker in detail
+                for marker in (
+                    "GitHub API 401:",
+                    "GitHub API 403:",
+                    "GitHub API 404:",
+                )
+            ):
+                return False
+            raise
+        return True
+
     def workflow_runs(
         self,
         full_name: str,
@@ -326,6 +373,7 @@ class GitHubClient:
         workflow: str,
         *,
         display_title: str,
+        event: str = "workflow_dispatch",
         timeout_seconds: float = 2100.0,
         poll_seconds: float = 5.0,
         sleeper=time.sleep,
@@ -333,7 +381,11 @@ class GitHubClient:
     ) -> dict[str, Any]:
         deadline = clock() + float(timeout_seconds)
         while clock() < deadline:
-            for run in self.workflow_runs(full_name, workflow):
+            for run in self.workflow_runs(
+                full_name,
+                workflow,
+                event=event,
+            ):
                 if str(run.get("display_title") or "") != display_title:
                     continue
                 status = str(run.get("status") or "")
