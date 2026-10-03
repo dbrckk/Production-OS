@@ -1,14 +1,14 @@
 # CI status
 
-Summary: 3 success / 0 failure / 3 active
+Summary: 2 success / 0 failure / 2 active
 
-- CI: pending / pending (9f796bdd)
-- CI: completed / cancelled (3ebf527f)
-- CI: in_progress / pending (290eb380)
-- CI: in_progress / pending (be62c05a)
-- CI: completed / success (2309bd73)
-- CI: completed / success (3bd2b58c)
-- CI: completed / success (d1d52bb2)
-- CI: completed / cancelled (71387725)
+- CI: queued / pending (628ad1f3)
+- CI: in_progress / pending (b5ea2d1a)
+- CI: completed / success (8085dfbb)
+- CI: completed / success (a90ecabd)
+- CI: completed / cancelled (87339848)
+- CI: completed / cancelled (6ceed34f)
+- CI: completed / cancelled (e19ca7c5)
+- CI: completed / cancelled (740200cc)
 
 > Generated summary only; inspect GitHub Actions for full logs when needed.

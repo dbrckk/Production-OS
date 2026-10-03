@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "generated_by": "dbrckk/repo-brain",
-  "base": "290eb380b519cefc7418a4bcd8696db0fabb81ca",
-  "head": "9f796bdd3e784fc19f6f3b3bece65eedd5d13c61",
+  "base": "9f796bdd3e784fc19f6f3b3bece65eedd5d13c61",
+  "head": "628ad1f345fb4ccc2a5c8956b12bf2b544882749",
   "index_mode": "incremental",
   "changed_files": [
     {
@@ -10,17 +10,18 @@
       "status": "M"
     },
     {
-      "path": "tests/test_dashboard_clear_pairing_state.py",
+      "path": "tests/test_dashboard_api_timeout.py",
       "status": "A"
     }
   ],
   "changed_source_files": [
     "src/production_os/dashboard_ui.py",
-    "tests/test_dashboard_clear_pairing_state.py"
+    "tests/test_dashboard_api_timeout.py"
   ],
   "impacted_files": [
     "src/production_os/control_plane.py",
     "src/production_os/dashboard_ui.py",
+    "tests/test_dashboard_api_timeout.py",
     "tests/test_dashboard_async_freshness.py",
     "tests/test_dashboard_clear_pairing_state.py",
     "tests/test_dashboard_collection_view_freshness.py",
@@ -221,6 +222,36 @@
       "kind": "function",
       "file": "src/production_os/control_plane.py",
       "line": 3568
+    },
+    {
+      "name": "test_authenticated_api_requests_have_bounded_timeout",
+      "kind": "function",
+      "file": "tests/test_dashboard_api_timeout.py",
+      "line": 4
+    },
+    {
+      "name": "test_authenticated_api_timeout_preserves_external_abort_signal",
+      "kind": "function",
+      "file": "tests/test_dashboard_api_timeout.py",
+      "line": 19
+    },
+    {
+      "name": "test_authenticated_api_allows_explicit_timeout_disable",
+      "kind": "function",
+      "file": "tests/test_dashboard_api_timeout.py",
+      "line": 30
+    },
+    {
+      "name": "test_authenticated_api_can_verify_ephemeral_token_without_persisting_it",
+      "kind": "function",
+      "file": "tests/test_dashboard_api_timeout.py",
+      "line": 39
+    },
+    {
+      "name": "test_heavy_maintenance_actions_override_default_timeout",
+      "kind": "function",
+      "file": "tests/test_dashboard_api_timeout.py",
+      "line": 51
     },
     {
       "name": "test_last_production_only_latest_request_can_render",
@@ -1106,6 +1137,8 @@
     }
   ],
   "selected_tests": [
+    "tests/test_dashboard_api.py",
+    "tests/test_dashboard_api_timeout.py",
     "tests/test_dashboard_async_freshness.py",
     "tests/test_dashboard_clear_pairing_state.py",
     "tests/test_dashboard_collection_view_freshness.py",

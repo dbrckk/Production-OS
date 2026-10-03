@@ -231,6 +231,7 @@ tests/
   test_cooperative_managed_projects.py
   test_cooperative_specialist_e2e.py
   test_dashboard_alerts.py
+  test_dashboard_api_timeout.py
   test_dashboard_api.py
   test_dashboard_async_freshness.py
   test_dashboard_attention.py
@@ -12941,6 +12942,25 @@ def test_previous_window_cost_uses_observed_historical_cost_only()
 ⋮----
 now = datetime.now(timezone.utc)
 rows = [
+````
+
+## File: tests/test_dashboard_api_timeout.py
+````python
+def test_authenticated_api_requests_have_bounded_timeout()
+⋮----
+body = DASHBOARD_HTML.split(
+⋮----
+def test_authenticated_api_timeout_preserves_external_abort_signal()
+⋮----
+def test_authenticated_api_allows_explicit_timeout_disable()
+⋮----
+def test_authenticated_api_can_verify_ephemeral_token_without_persisting_it()
+⋮----
+def test_heavy_maintenance_actions_override_default_timeout()
+⋮----
+pairs = [
+⋮----
+body = DASHBOARD_HTML.split(start, 1)[1].split(end, 1)[0]
 ````
 
 ## File: tests/test_dashboard_api.py

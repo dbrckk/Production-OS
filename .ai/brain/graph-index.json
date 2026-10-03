@@ -45,6 +45,7 @@
         "tests/test_cooperative_specialist_e2e.py",
         "tests/test_dashboard_alerts.py",
         "tests/test_dashboard_api.py",
+        "tests/test_dashboard_api_timeout.py",
         "tests/test_dashboard_async_freshness.py",
         "tests/test_dashboard_attention.py",
         "tests/test_dashboard_backup_api.py",
@@ -205,7 +206,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 196,
+      "in_degree": 197,
       "out_degree": 0,
       "path": "src/production_os/__init__.py"
     },
@@ -1375,6 +1376,29 @@
     {
       "dependencies": [],
       "dependents": [
+        "src/production_os/control_plane.py",
+        "tests/test_dashboard_api_timeout.py",
+        "tests/test_dashboard_async_freshness.py",
+        "tests/test_dashboard_clear_pairing_state.py",
+        "tests/test_dashboard_collection_view_freshness.py",
+        "tests/test_dashboard_global_status_freshness.py",
+        "tests/test_dashboard_launch_freshness.py",
+        "tests/test_dashboard_mobile_stability.py",
+        "tests/test_dashboard_production_inbox_filters_ui.py",
+        "tests/test_dashboard_production_inbox_freshness.py",
+        "tests/test_dashboard_project_detail_freshness.py",
+        "tests/test_dashboard_ui_v3.py",
+        "tests/test_dashboard_windowed_view_freshness.py",
+        "tests/test_dashboard_worker_detail_freshness.py",
+        "tests/test_dashboard_workflow_snapshot_invalidation.py"
+      ],
+      "in_degree": 15,
+      "out_degree": 0,
+      "path": "src/production_os/dashboard_ui.py"
+    },
+    {
+      "dependencies": [],
+      "dependents": [
         "src/production_os/approvals.py",
         "src/production_os/audit_checkpoint.py",
         "src/production_os/backup.py",
@@ -1393,28 +1417,6 @@
       "in_degree": 14,
       "out_degree": 0,
       "path": "src/production_os/atomic_io.py"
-    },
-    {
-      "dependencies": [],
-      "dependents": [
-        "src/production_os/control_plane.py",
-        "tests/test_dashboard_async_freshness.py",
-        "tests/test_dashboard_clear_pairing_state.py",
-        "tests/test_dashboard_collection_view_freshness.py",
-        "tests/test_dashboard_global_status_freshness.py",
-        "tests/test_dashboard_launch_freshness.py",
-        "tests/test_dashboard_mobile_stability.py",
-        "tests/test_dashboard_production_inbox_filters_ui.py",
-        "tests/test_dashboard_production_inbox_freshness.py",
-        "tests/test_dashboard_project_detail_freshness.py",
-        "tests/test_dashboard_ui_v3.py",
-        "tests/test_dashboard_windowed_view_freshness.py",
-        "tests/test_dashboard_worker_detail_freshness.py",
-        "tests/test_dashboard_workflow_snapshot_invalidation.py"
-      ],
-      "in_degree": 14,
-      "out_degree": 0,
-      "path": "src/production_os/dashboard_ui.py"
     },
     {
       "dependencies": [
@@ -2032,8 +2034,8 @@
       "path": "src/production_os/dashboard_control.py"
     }
   ],
-  "edge_count": 1755,
+  "edge_count": 1757,
   "generated_by": "dbrckk/repo-brain-v7-graph",
-  "node_count": 336,
+  "node_count": 337,
   "schema_version": 1
 }

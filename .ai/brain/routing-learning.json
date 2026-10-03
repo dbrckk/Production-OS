@@ -2,27 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat(browser): add bounded persistent computer-use runtime",
-      "terms": [
-        "add",
-        "bounded",
-        "browser",
-        "computer-use",
-        "feat",
-        "persistent",
-        "runtime"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/browser_computer.py",
-        "src/production_os/cli.py",
-        "src/production_os/workflow_engine.py",
-        "tests/test_browser_computer.py",
-        "tests/test_worker_compose_deployment.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat(runtime): clean successful worktrees without deleting branches",
       "terms": [
         "branches",
@@ -1239,6 +1218,23 @@
         "src/production_os/dashboard_ui.py",
         "tests/test_dashboard_clear_pairing_state.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "fix(dashboard): bound authenticated API requests (#245)",
+      "terms": [
+        "245",
+        "api",
+        "authenticated",
+        "bound",
+        "dashboard",
+        "requests"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/dashboard_ui.py",
+        "tests/test_dashboard_api_timeout.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1427,6 +1423,10 @@
     "244": {
       "src/production_os/dashboard_ui.py": 4,
       "tests/test_dashboard_clear_pairing_state.py": 4
+    },
+    "245": {
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_api_timeout.py": 4
     },
     "24x7": {
       "src/production_os/cli.py": 4,
@@ -1897,6 +1897,10 @@
       "tests/test_worker_compose_deployment.py": 4,
       "tests/test_workflow_engine.py": 4
     },
+    "api": {
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_api_timeout.py": 4
+    },
     "artifact": {
       "src/production_os/asset_forge.py": 4,
       "tests/test_asset_forge.py": 4
@@ -1984,7 +1988,9 @@
       "tests/test_render_start.py": 4
     },
     "authenticated": {
+      "src/production_os/dashboard_ui.py": 4,
       "tests/test_asset_forge.py": 4,
+      "tests/test_dashboard_api_timeout.py": 4,
       "tests/test_github_client_put_file.py": 4
     },
     "authoritative": {
@@ -2168,9 +2174,10 @@
     "bound": {
       "src/production_os/control_plane.py": 4,
       "src/production_os/dashboard_store.py": 4,
-      "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/dashboard_ui.py": 8,
       "src/production_os/device_pairing.py": 4,
       "src/production_os/postgres_backend.py": 4,
+      "tests/test_dashboard_api_timeout.py": 4,
       "tests/test_dashboard_ui_v3.py": 4,
       "tests/test_device_pairing.py": 4,
       "tests/test_postgres_connect_timeout_unit.py": 4
@@ -2674,6 +2681,7 @@
       "tests/test_asset_forge.py": 8,
       "tests/test_dashboard_alerts.py": 4,
       "tests/test_dashboard_api.py": 12,
+      "tests/test_dashboard_api_timeout.py": 4,
       "tests/test_dashboard_async_freshness.py": 4,
       "tests/test_dashboard_attention.py": 4,
       "tests/test_dashboard_clear_pairing_state.py": 4,
@@ -4641,7 +4649,8 @@
       "tests/test_dashboard_launch.py": 8
     },
     "requests": {
-      "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/dashboard_ui.py": 8,
+      "tests/test_dashboard_api_timeout.py": 4,
       "tests/test_dashboard_ui_v3.py": 4
     },
     "require": {

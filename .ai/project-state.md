@@ -22,23 +22,23 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-03T16:26:58Z
+Generated: 2026-10-03T16:39:42Z
 
 ### Git
 - Branch: `main`
-- Head: `9f796bdd3e78`
-- Commit date: 2026-10-03T18:26:48+02:00
-- Commit: fix(dashboard): purge local state when unpairing (#244)
-- Tracked files: 553
+- Head: `628ad1f345fb`
+- Commit date: 2026-10-03T18:39:30+02:00
+- Commit: fix(dashboard): bound authenticated API requests (#245)
+- Tracked files: 554
 
 ### Recently changed files
 - `src/production_os/dashboard_ui.py`
+- `tests/test_dashboard_api_timeout.py`
 - `tests/test_dashboard_clear_pairing_state.py`
 - `tests/test_dashboard_global_status_freshness.py`
 - `tests/test_dashboard_ui_v3.py`
 - `tests/test_dashboard_collection_view_freshness.py`
 - `tests/test_dashboard_workflow_snapshot_invalidation.py`
-- `tests/test_dashboard_windowed_view_freshness.py`
 
 ### Project signals
 - `pyproject.toml`
