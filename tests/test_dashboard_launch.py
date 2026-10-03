@@ -132,7 +132,8 @@ def test_dashboard_launch_surfaces_automatic_worker_wake_state():
     assert "wakeStatus==='dispatched'" in launch_body
     assert "réveil automatique du worker demandé" in launch_body
     assert "wakeStatus==='scheduled_fallback'" in launch_body
-    assert "prochain réveil automatique" in launch_body
+    assert "prochain passage GitHub Actions" in launch_body
+    assert "délai variable" in launch_body
     assert "wakeStatus==='cooldown'" in launch_body
     assert "réveil automatique déjà demandé récemment" in launch_body
 
@@ -141,5 +142,6 @@ def test_launch_readiness_surfaces_worker_wake_mode_before_launch():
     assert "data.worker_wake||{}" in DASHBOARD_HTML
     assert "wake.mode||'scheduled_fallback'" in DASHBOARD_HTML
     assert "réveil GitHub Actions immédiat configuré" in DASHBOARD_HTML
-    assert "réveil de secours automatique ≤ " in DASHBOARD_HTML
-    assert "wake.poll_interval_seconds||300" in DASHBOARD_HTML
+    assert "réveil GitHub Actions planifié" in DASHBOARD_HTML
+    assert "délai variable" in DASHBOARD_HTML
+    assert "réveil de secours automatique ≤ " not in DASHBOARD_HTML

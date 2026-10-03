@@ -233,3 +233,29 @@ def test_attention_managed_projects_open_unified_productions_surface():
         "project-attention",
     }
 
+
+
+def test_attention_explains_missing_worker_capability():
+    control = SimpleNamespace(
+        dashboard_store=None,
+        managed_projects=ManagedProjects([]),
+    )
+    service = DashboardService(control)
+    service.incidents = lambda limit=100, status=None: {"incidents":[]}
+    service.autopilot_queue = lambda limit=50: {
+        "jobs":[{
+            "job_key":"job-visual",
+            "repository":"dbrckk/Jumpy",
+            "task":"Improve visual assets",
+            "wait_reason":"missing_capability",
+            "required_capabilities":["visual-asset-production"],
+            "created_at":"2026-10-03T09:39:38+00:00",
+        }]
+    }
+
+    payload = service.attention(limit=20)
+    item = next(row for row in payload["items"] if row["kind"] == "blocked_job")
+
+    assert item["summary"] == (
+        "Capacité requise indisponible · visual-asset-production"
+    )

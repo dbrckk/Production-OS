@@ -466,16 +466,32 @@ class DashboardService:
             job for job in autopilot.get("jobs", [])
             if job.get("wait_reason")
         ]
+        wait_labels = {
+            "assigned_worker_unavailable":"Worker assigné indisponible",
+            "no_worker":"Aucun worker enregistré",
+            "missing_capability":"Capacité requise indisponible",
+            "no_online_worker":"Aucun worker en ligne",
+            "worker_controlled":"Worker en pause ou drain",
+            "capacity_full":"Capacité worker saturée",
+        }
         for job in blocked_jobs[:8]:
-            reason = job.get("wait_reason")
+            reason = str(job.get("wait_reason") or "")
+            required = [
+                str(value).strip()
+                for value in job.get("required_capabilities", [])
+                if str(value).strip()
+            ]
+            summary = wait_labels.get(reason, reason or "En attente")
+            if reason == "missing_capability" and required:
+                summary += " · " + ", ".join(required)
             items.append({
                 "id":f"job:{job.get('job_key')}",
                 "kind":"blocked_job",
-                "priority":wait_priorities.get(str(reason), 72),
+                "priority":wait_priorities.get(reason, 72),
                 "action_required":True,
                 "severity":"medium",
                 "title":"Production en attente",
-                "summary":str(reason),
+                "summary":summary,
                 "repository":job.get("repository"),
                 "target_type":"job",
                 "target_id":job.get("job_key"),
