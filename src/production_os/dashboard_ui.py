@@ -1548,11 +1548,14 @@ function autopilotWaitLabel(value){
  };
  return value?(labels[value]||String(value)):"Prêt à être pris";
 }
+let autopilotLoadSequence=0;
 async function loadAutopilot(){
  const el=document.getElementById("autopilot-list");
  const count=document.getElementById("autopilot-count");
+ const requestSequence=++autopilotLoadSequence;
  try{
   const data=await api("/v1/dashboard/autopilot?limit=50");
+  if(requestSequence!==autopilotLoadSequence)return null;
   const jobs=data.jobs||[],summary=data.summary||{};
   count.textContent=String(jobs.length);
   const summaryHtml=
@@ -1585,11 +1588,17 @@ async function loadAutopilot(){
   }).join("");
   if(appState.focus){
    const focused=el.querySelector('[data-job-key="'+CSS.escape(String(appState.focus))+'"]');
-   if(focused)setTimeout(function(){focused.scrollIntoView({block:"center"})},0);
+   if(focused)setTimeout(function(){
+    if(requestSequence===autopilotLoadSequence){
+     focused.scrollIntoView({block:"center"});
+    }
+   },0);
   }
  }catch(e){
+  if(requestSequence!==autopilotLoadSequence)return null;
   count.textContent="—";
   el.innerHTML=errorCard(e);
+  return null;
  }
 }
 async function acknowledgeIncident(incidentId){
@@ -1610,10 +1619,13 @@ async function acknowledgeIncident(incidentId){
 function openProject(encoded){
  navigate({view:"projects",repository:decodeURIComponent(encoded),workerId:null,tab:"overview"});
 }
+let projectsViewLoadSequence=0;
 async function loadProjectsView(){
  const list=document.getElementById("projects-list");
+ const requestSequence=++projectsViewLoadSequence;
  try{
   const data=await api("/v1/dashboard/projects");
+  if(requestSequence!==projectsViewLoadSequence)return null;
   const rows=data.projects||[];
   list.innerHTML=rows.length?rows.map(function(item){
    const repo=String(item.repository||"");
@@ -1621,7 +1633,11 @@ async function loadProjectsView(){
   }).join(" "):'<div class="empty">Aucun projet observé.</div>';
   if(appState.repository)await loadProjectDetail(appState.repository);
   else document.getElementById("project-detail").innerHTML='<div class="empty">Sélectionne un projet.</div>';
- }catch(e){list.innerHTML=errorCard(e)}
+ }catch(e){
+  if(requestSequence!==projectsViewLoadSequence)return null;
+  list.innerHTML=errorCard(e);
+  return null;
+ }
 }
 async function loadProjectDetail(repository){
  const el=document.getElementById("project-detail");
@@ -1700,10 +1716,13 @@ async function loadProjectDetail(repository){
 function openWorker(encoded){
  navigate({view:"workers",workerId:decodeURIComponent(encoded),repository:null,tab:"overview"});
 }
+let workersViewLoadSequence=0;
 async function loadWorkersView(){
  const list=document.getElementById("workers-list");
+ const requestSequence=++workersViewLoadSequence;
  try{
   const data=await api("/v1/dashboard/workers");
+  if(requestSequence!==workersViewLoadSequence)return null;
   const rows=data.workers||[];
   list.innerHTML=rows.length?rows.map(function(worker){
    const id=String(worker.worker_id||"");
@@ -1711,7 +1730,11 @@ async function loadWorkersView(){
   }).join(" "):'<div class="empty">Aucun worker enregistré.</div>';
   if(appState.workerId)await loadWorkerDetail(appState.workerId);
   else document.getElementById("worker-detail").innerHTML='<div class="empty">Sélectionne un worker.</div>';
- }catch(e){list.innerHTML=errorCard(e)}
+ }catch(e){
+  if(requestSequence!==workersViewLoadSequence)return null;
+  list.innerHTML=errorCard(e);
+  return null;
+ }
 }
 function confirmControlAction(action,jobKey){
  if(!["cancel-current","retry","recover-stuck"].includes(action))return true;
@@ -2379,11 +2402,14 @@ async function loadProductionInbox(){
  }
 }
 
+let attentionLoadSequence=0;
 async function loadAttention(){
  const el=document.getElementById("attention-list");
  const count=document.getElementById("attention-count");
+ const requestSequence=++attentionLoadSequence;
  try{
   const data=await api("/v1/dashboard/attention?limit=50");
+  if(requestSequence!==attentionLoadSequence)return null;
   const summary=data.summary||{};
   const rows=data.items||[];
   count.textContent=String(summary.action_required||0);
@@ -2419,16 +2445,21 @@ async function loadAttention(){
   }).join("");
   el.innerHTML=headline+cards;
  }catch(e){
+  if(requestSequence!==attentionLoadSequence)return null;
   count.textContent="!";
   el.innerHTML=errorCard(e);
+  return null;
  }
 }
 
+let managedProjectsLoadSequence=0;
 async function loadManagedProjects(){
  const el=document.getElementById("managed-list");
  const count=document.getElementById("managed-count");
+ const requestSequence=++managedProjectsLoadSequence;
  try{
   const data=await api("/v1/managed-projects");
+  if(requestSequence!==managedProjectsLoadSequence)return null;
   const rows=data.projects||[];
   count.textContent=String(rows.length);
   el.innerHTML=rows.length?rows.map(function(row){
@@ -2452,9 +2483,17 @@ async function loadManagedProjects(){
   }).join(""):'<div class="empty">Aucun projet managé.</div>';
   if(appState.focus){
    const focused=el.querySelector('[data-managed-project-id="'+CSS.escape(String(appState.focus))+'"]');
-   if(focused)setTimeout(function(){focused.scrollIntoView({block:"center"})},0);
+   if(focused)setTimeout(function(){
+    if(requestSequence===managedProjectsLoadSequence){
+     focused.scrollIntoView({block:"center"});
+    }
+   },0);
   }
- }catch(e){el.innerHTML=errorCard(e)}
+ }catch(e){
+  if(requestSequence!==managedProjectsLoadSequence)return null;
+  el.innerHTML=errorCard(e);
+  return null;
+ }
 }
 let activityLoadSequence=0;
 async function loadActivityView(){
