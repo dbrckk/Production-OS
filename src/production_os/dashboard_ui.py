@@ -725,7 +725,7 @@ async function loadLaunchReadiness(){
    ?'Prêt · '+String(data.available_workers||0)+' worker(s) disponible(s) · '+String(data.queued_jobs||0)+' job(s) en file.'
    :wakeMode==='immediate'
     ?'Mise en file sûre · réveil GitHub Actions immédiat configuré · '+String(data.queued_jobs||0)+' job(s) déjà en attente.'
-    :'Mise en file sûre · réveil de secours automatique ≤ '+String(Math.ceil(Number(wake.poll_interval_seconds||300)/60))+' min · '+String(data.queued_jobs||0)+' job(s) déjà en attente.';
+    :'Mise en file sûre · réveil GitHub Actions planifié · délai variable · '+String(data.queued_jobs||0)+' job(s) déjà en attente.';
   return data;
  }catch(e){
   launchReadiness=null;
@@ -968,7 +968,7 @@ async function launchWorkflow(){
    :wakeStatus==='dispatched'
     ?'Production persistante créée · réveil automatique du worker demandé · '+projectId.slice(0,12)
     :wakeStatus==='scheduled_fallback'
-     ?'Production persistante créée · worker programmé au prochain réveil automatique · '+projectId.slice(0,12)
+     ?'Production persistante créée · worker programmé au prochain passage GitHub Actions · délai variable · '+projectId.slice(0,12)
      :wakeStatus==='cooldown'
       ?'Production persistante créée · réveil automatique déjà demandé récemment · '+projectId.slice(0,12)
       :'Production persistante créée · en attente du worker · mise en file sûre · '+projectId.slice(0,12);
