@@ -5251,8 +5251,11 @@ failed = workflow_status == "failed"
 ⋮----
 wait_priorities = {
 blocked_jobs = [
+wait_labels = {
 ⋮----
-reason = job.get("wait_reason")
+reason = str(job.get("wait_reason") or "")
+required = [
+summary = wait_labels.get(reason, reason or "En attente")
 ⋮----
 completed = [
 ⋮----
@@ -13038,6 +13041,10 @@ def test_attention_managed_projects_open_unified_productions_surface()
 ⋮----
 payload = service.attention(limit=20)
 project_items = [
+⋮----
+def test_attention_explains_missing_worker_capability()
+⋮----
+item = next(row for row in payload["items"] if row["kind"] == "blocked_job")
 ````
 
 ## File: tests/test_dashboard_backup_api.py
@@ -14786,6 +14793,8 @@ script = DASHBOARD_HTML.split("<script>", 1)[1].split("</script>", 1)[0]
 script_path = tmp_path / "dashboard-runtime.js"
 ⋮----
 result = subprocess.run(
+⋮----
+def test_launch_readiness_scheduled_fallback_is_truthful_about_variable_delay()
 ````
 
 ## File: tests/test_dashboard_usage.py

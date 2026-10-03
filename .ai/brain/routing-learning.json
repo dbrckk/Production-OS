@@ -2,23 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat: launch automatic compensating rollback generations",
-      "terms": [
-        "automatic",
-        "compensating",
-        "feat",
-        "generations",
-        "launch",
-        "rollback"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/managed_projects.py",
-        "tests/test_managed_github_reconciliation.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat: safely auto-merge green nonsensitive managed PRs",
       "terms": [
         "auto-merge",
@@ -1295,6 +1278,25 @@
         "tests/test_dashboard_launch_ux.py",
         "tests/test_dashboard_repositories.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "fix(dashboard): clarify worker wait diagnostics",
+      "terms": [
+        "clarify",
+        "dashboard",
+        "diagnostics",
+        "wait",
+        "worker"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/dashboard_service.py",
+        "src/production_os/dashboard_ui.py",
+        "tests/test_dashboard_attention.py",
+        "tests/test_dashboard_launch.py",
+        "tests/test_dashboard_ui_v3.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -2350,6 +2352,13 @@
       "tests/test_release51_one_tap_runner_e2e.py": 4,
       "tests/test_workflow_engine.py": 4
     },
+    "clarify": {
+      "src/production_os/dashboard_service.py": 4,
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_attention.py": 4,
+      "tests/test_dashboard_launch.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4
+    },
     "classification": {
       "src/production_os/capabilities.py": 4,
       "src/production_os/classification.py": 4,
@@ -2626,7 +2635,7 @@
       "src/production_os/dashboard_control.py": 8,
       "src/production_os/dashboard_github.py": 4,
       "src/production_os/dashboard_security.py": 4,
-      "src/production_os/dashboard_service.py": 20,
+      "src/production_os/dashboard_service.py": 24,
       "src/production_os/dashboard_store.py": 12,
       "src/production_os/dashboard_ui.py": 40,
       "src/production_os/dashboard_usage.py": 4,
@@ -2639,11 +2648,12 @@
       "tests/test_asset_forge.py": 8,
       "tests/test_dashboard_alerts.py": 4,
       "tests/test_dashboard_api.py": 12,
+      "tests/test_dashboard_attention.py": 4,
       "tests/test_dashboard_control.py": 8,
       "tests/test_dashboard_control_api.py": 4,
       "tests/test_dashboard_control_e2e.py": 4,
       "tests/test_dashboard_github.py": 4,
-      "tests/test_dashboard_launch.py": 32,
+      "tests/test_dashboard_launch.py": 36,
       "tests/test_dashboard_launch_readiness.py": 4,
       "tests/test_dashboard_launch_ux.py": 8,
       "tests/test_dashboard_mobile_stability.py": 4,
@@ -2653,7 +2663,7 @@
       "tests/test_dashboard_security.py": 4,
       "tests/test_dashboard_store.py": 4,
       "tests/test_dashboard_store_postgres.py": 4,
-      "tests/test_dashboard_ui_v3.py": 36,
+      "tests/test_dashboard_ui_v3.py": 40,
       "tests/test_dashboard_usage.py": 4,
       "tests/test_github_client_pr_files.py": 4,
       "tests/test_portfolio_claim_api.py": 4,
@@ -2766,13 +2776,16 @@
       "tests/test_device_pairing.py": 4
     },
     "diagnostics": {
-      "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/dashboard_service.py": 4,
+      "src/production_os/dashboard_ui.py": 8,
       "src/production_os/github_client.py": 4,
       "src/production_os/github_work_state.py": 4,
       "src/production_os/managed_projects.py": 8,
       "src/production_os/rollback_plan.py": 4,
       "src/production_os/workflow_engine.py": 4,
-      "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_dashboard_attention.py": 4,
+      "tests/test_dashboard_launch.py": 4,
+      "tests/test_dashboard_ui_v3.py": 8,
       "tests/test_github_work_state.py": 4,
       "tests/test_managed_github_reconciliation.py": 4,
       "tests/test_managed_project_outcome.py": 4,
@@ -5283,6 +5296,13 @@
       "tests/test_task_capabilities.py": 4,
       "tests/test_workflow_engine.py": 4
     },
+    "wait": {
+      "src/production_os/dashboard_service.py": 4,
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_attention.py": 4,
+      "tests/test_dashboard_launch.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4
+    },
     "wake": {
       "src/production_os/control_plane.py": 4,
       "src/production_os/controller.py": 4,
@@ -5340,8 +5360,8 @@
       "src/production_os/control_plane.py": 32,
       "src/production_os/controller.py": 8,
       "src/production_os/dashboard_control.py": 4,
-      "src/production_os/dashboard_service.py": 4,
-      "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/dashboard_service.py": 8,
+      "src/production_os/dashboard_ui.py": 8,
       "src/production_os/managed_projects.py": 4,
       "src/production_os/model_router.py": 4,
       "src/production_os/remote_worker.py": 12,
@@ -5358,10 +5378,12 @@
       "tests/test_controller_asset_capabilities.py": 4,
       "tests/test_controller_managed_projects.py": 4,
       "tests/test_cooperative_managed_projects.py": 4,
+      "tests/test_dashboard_attention.py": 4,
       "tests/test_dashboard_control.py": 4,
-      "tests/test_dashboard_launch.py": 8,
+      "tests/test_dashboard_launch.py": 12,
       "tests/test_dashboard_launch_readiness.py": 4,
       "tests/test_dashboard_launch_ux.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4,
       "tests/test_model_router.py": 4,
       "tests/test_release33_auto_worker_recovery_e2e.py": 4,
       "tests/test_release36_worker_session_reconciliation_e2e.py": 4,

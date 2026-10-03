@@ -4390,8 +4390,11 @@ failed = workflow_status == "failed"
 ⋮----
 wait_priorities = {
 blocked_jobs = [
+wait_labels = {
 ⋮----
-reason = job.get("wait_reason")
+reason = str(job.get("wait_reason") or "")
+required = [
+summary = wait_labels.get(reason, reason or "En attente")
 ⋮----
 completed = [
 ⋮----

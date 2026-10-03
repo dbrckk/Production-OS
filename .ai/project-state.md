@@ -22,23 +22,25 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-03T10:23:09Z
+Generated: 2026-10-03T11:27:02Z
 
 ### Git
 - Branch: `main`
-- Head: `c8eb31b585a1`
-- Commit date: 2026-10-03T12:22:59+02:00
-- Commit: fix(dashboard): keep repository catalog during GitHub outages
-- Tracked files: 542
+- Head: `5b030cc3a53b`
+- Commit date: 2026-10-03T13:26:53+02:00
+- Commit: fix(dashboard): clarify worker wait diagnostics
+- Tracked files: 543
 
 ### Recently changed files
-- `config/repository-catalog.json`
 - `src/production_os/dashboard_service.py`
+- `src/production_os/dashboard_ui.py`
+- `tests/test_dashboard_attention.py`
+- `tests/test_dashboard_launch.py`
+- `tests/test_dashboard_ui_v3.py`
+- `config/repository-catalog.json`
 - `tests/test_dashboard_launch_ux.py`
 - `tests/test_dashboard_repositories.py`
-- `src/production_os/dashboard_ui.py`
 - `tests/test_dashboard_production_inbox_filters_ui.py`
-- `tests/test_dashboard_ui_v3.py`
 - `src/production_os/remote_worker_runner.py`
 
 ### Project signals
