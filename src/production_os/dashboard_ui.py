@@ -310,7 +310,8 @@ function toggleSettings(){const el=document.getElementById('settings');setSettin
 
 async function api(path,options){
  options=options||{};
- const secret=token();
+ const explicitToken=options.authToken;
+ const secret=String(explicitToken===undefined?token():explicitToken||'');
  if(!secret) throw new Error('Cet appareil doit être appairé une seule fois via ⚙.');
  const headers=Object.assign(
   {Authorization:'Bearer '+secret},
@@ -321,6 +322,7 @@ async function api(path,options){
  const timeoutMs=Number.isFinite(timeoutValue)?Math.max(0,timeoutValue):30000;
  const requestOptions=Object.assign({},options);
  delete requestOptions.timeoutMs;
+ delete requestOptions.authToken;
  const externalSignal=requestOptions.signal||null;
  const controller=new AbortController();
  let timedOut=false;
