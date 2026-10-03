@@ -983,3 +983,20 @@ def test_successful_launch_invalidates_workflow_snapshot_before_refresh():
     launch = DASHBOARD_HTML.split("async function launchWorkflow(){", 1)[1].split("async function refreshDashboard(){", 1)[0]
     assert "invalidateWorkflowsSnapshot();" in launch
     assert launch.index("invalidateWorkflowsSnapshot();") < launch.index("await Promise.all([")
+
+
+
+def test_global_dashboard_polls_are_single_flight():
+    html = DASHBOARD_HTML
+    assert "function scheduleGlobalPoll(intervalMs,fn){" in html
+    helper = html.split("function scheduleGlobalPoll(intervalMs,fn){", 1)[1].split("const appState=", 1)[0]
+    assert "let busy=false;" in helper
+    assert "if(busy)return;" in helper
+    assert "busy=true;" in helper
+    assert "finally{" in helper
+    assert "busy=false;" in helper
+    assert "scheduleGlobalPoll(10000,loadVisualQuality);" in helper
+    assert "scheduleGlobalPoll(5000,loadLastProduction);" in helper
+    assert "return Promise.all([" in helper
+    assert "setInterval(loadVisualQuality,10000)" not in html
+    assert "setInterval(loadLastProduction,5000)" not in html
