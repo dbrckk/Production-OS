@@ -1043,3 +1043,34 @@ def test_repository_scoped_dashboard_loaders_ignore_stale_responses():
     assert readiness.count(
         "if(!repositorySelectionStillCurrent(repository))return null;"
     ) >= 2
+
+
+
+def test_active_view_navigation_invalidates_stale_render_and_poll_work():
+    assert 'viewEpoch:0' in DASHBOARD_HTML
+
+    clear = DASHBOARD_HTML.split(
+        "function clearViewPolls(){", 1
+    )[1].split("function setDashboardWindow", 1)[0]
+    assert "appState.viewEpoch+=1;" in clear
+
+    render = DASHBOARD_HTML.split(
+        "async function renderActiveView(){", 1
+    )[1].split("function schedulePoll(key,intervalMs,fn){", 1)[0]
+    assert "const requestedView=appState.view;" in render
+    assert 'const target=document.getElementById("view-"+requestedView);' in render
+    assert "const viewEpoch=appState.viewEpoch;" in render
+    assert "const loader=loaders[requestedView]||loadAttention;" in render
+    assert "if(appState.viewEpoch!==viewEpoch||appState.view!==requestedView)return;" in render
+    assert 'schedulePoll("active-view",requestedView==="overview"?15000:5000,loader);' in render
+
+    polling = DASHBOARD_HTML.split(
+        "function schedulePoll(key,intervalMs,fn){", 1
+    )[1].split("renderActiveView();", 1)[0]
+    assert "const viewEpoch=appState.viewEpoch;" in polling
+    assert "await fn();" in polling
+    assert "if(appState.viewEpoch!==viewEpoch)return;" in polling
+    assert (
+        polling.index("if(appState.viewEpoch!==viewEpoch)return;")
+        < polling.index("window.scrollTo(")
+    )
