@@ -1107,7 +1107,7 @@ scheduleGlobalPoll(10000,function(){
 });
 scheduleGlobalPoll(5000,loadLastProduction);
 
-const appState={view:"attention",workerId:null,repository:null,tab:null,focus:null,window:"7d",polling:new Map()};
+const appState={view:"attention",workerId:null,repository:null,tab:null,focus:null,window:"7d",polling:new Map(),viewEpoch:0};
 (function restoreNavigation(){
  const q=new URLSearchParams(window.location.search);
  const view=q.get("view");
@@ -1128,6 +1128,7 @@ const appState={view:"attention",workerId:null,repository:null,tab:null,focus:nu
 })();
 
 function clearViewPolls(){
+ appState.viewEpoch+=1;
  appState.polling.forEach(function(id){clearInterval(id)});
  appState.polling.clear();
 }
@@ -2414,24 +2415,29 @@ function navigate(next){
  renderActiveView();
 }
 async function renderActiveView(){
+ const requestedView=appState.view;
  document.querySelectorAll(".v3-view").forEach(function(el){el.classList.remove("active")});
- const target=document.getElementById("view-"+appState.view);
+ const target=document.getElementById("view-"+requestedView);
  if(target)target.classList.add("active");
  clearViewPolls();
+ const viewEpoch=appState.viewEpoch;
  const loaders={attention:loadAttention,productions:loadProductionInbox,overview:loadOverview,projects:loadProjectsView,workers:loadWorkersView,autopilot:loadAutopilot,managed:loadManagedProjects,activity:loadActivityView};
- const loader=loaders[appState.view]||loadAttention;
+ const loader=loaders[requestedView]||loadAttention;
  await loader();
- schedulePoll("active-view",appState.view==="overview"?15000:5000,loader);
+ if(appState.viewEpoch!==viewEpoch||appState.view!==requestedView)return;
+ schedulePoll("active-view",requestedView==="overview"?15000:5000,loader);
 }
 function schedulePoll(key,intervalMs,fn){
  if(appState.polling.has(key))clearInterval(appState.polling.get(key));
  let busy=false;
+ const viewEpoch=appState.viewEpoch;
  const id=setInterval(async function(){
   if(busy)return;
   busy=true;
   const y=window.scrollY;
   try{
    await fn();
+   if(appState.viewEpoch!==viewEpoch)return;
    if(Math.abs(window.scrollY-y)>1)window.scrollTo({top:y,behavior:"instant"});
   }finally{
    busy=false;
