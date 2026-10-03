@@ -22,16 +22,20 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-02T23:00:34Z
+Generated: 2026-10-03T10:23:09Z
 
 ### Git
 - Branch: `main`
-- Head: `b8be27a65200`
-- Commit date: 2026-10-03T01:00:24+02:00
-- Commit: fix(dashboard): repair rendered JavaScript syntax
-- Tracked files: 540
+- Head: `c8eb31b585a1`
+- Commit date: 2026-10-03T12:22:59+02:00
+- Commit: fix(dashboard): keep repository catalog during GitHub outages
+- Tracked files: 542
 
 ### Recently changed files
+- `config/repository-catalog.json`
+- `src/production_os/dashboard_service.py`
+- `tests/test_dashboard_launch_ux.py`
+- `tests/test_dashboard_repositories.py`
 - `src/production_os/dashboard_ui.py`
 - `tests/test_dashboard_production_inbox_filters_ui.py`
 - `tests/test_dashboard_ui_v3.py`

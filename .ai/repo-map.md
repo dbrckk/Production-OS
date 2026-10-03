@@ -49,6 +49,7 @@ The content is organized as follows:
 config/
   auth.example.json
   policy.example.json
+  repository-catalog.json
   workflow.example.json
 scripts/
   render-start.py
@@ -256,6 +257,7 @@ tests/
   test_dashboard_remediation_api.py
   test_dashboard_remediation_history.py
   test_dashboard_remediation_metrics.py
+  test_dashboard_repositories.py
   test_dashboard_retention_prune.py
   test_dashboard_security.py
   test_dashboard_store_postgres.py
@@ -683,6 +685,254 @@ initial_prompt: |
     {
       "match": "dbrckk/ai-dev-server",
       "allowed_worker_classes": ["python", "node"]
+    }
+  ]
+}
+````
+
+## File: config/repository-catalog.json
+````json
+{
+  "schema_version": "production-os/repository-catalog/v1",
+  "owner": "dbrckk",
+  "repositories": [
+    {
+      "full_name": "dbrckk/xtts2-hf",
+      "private": false,
+      "archived": false,
+      "default_branch": "main",
+      "pushed_at": null
+    },
+    {
+      "full_name": "dbrckk/coqui-XTTS-colab",
+      "private": false,
+      "archived": false,
+      "default_branch": "main",
+      "pushed_at": null
+    },
+    {
+      "full_name": "dbrckk/TTS",
+      "private": false,
+      "archived": false,
+      "default_branch": "dev",
+      "pushed_at": null
+    },
+    {
+      "full_name": "dbrckk/video-site",
+      "private": false,
+      "archived": false,
+      "default_branch": "main",
+      "pushed_at": null
+    },
+    {
+      "full_name": "dbrckk/Drackkie-artist",
+      "private": false,
+      "archived": false,
+      "default_branch": "main",
+      "pushed_at": null
+    },
+    {
+      "full_name": "dbrckk/Drackkie",
+      "private": false,
+      "archived": false,
+      "default_branch": "main",
+      "pushed_at": null
+    },
+    {
+      "full_name": "dbrckk/deal-finder-backend",
+      "private": false,
+      "archived": false,
+      "default_branch": "main",
+      "pushed_at": null
+    },
+    {
+      "full_name": "dbrckk/glitchprice-finder",
+      "private": false,
+      "archived": false,
+      "default_branch": "main",
+      "pushed_at": null
+    },
+    {
+      "full_name": "dbrckk/Finders",
+      "private": false,
+      "archived": false,
+      "default_branch": "main",
+      "pushed_at": null
+    },
+    {
+      "full_name": "dbrckk/page-agent-mobile",
+      "private": false,
+      "archived": false,
+      "default_branch": "main",
+      "pushed_at": null
+    },
+    {
+      "full_name": "dbrckk/openclaw-render",
+      "private": false,
+      "archived": false,
+      "default_branch": "main",
+      "pushed_at": null
+    },
+    {
+      "full_name": "dbrckk/TrendPulse-",
+      "private": false,
+      "archived": false,
+      "default_branch": "main",
+      "pushed_at": null
+    },
+    {
+      "full_name": "dbrckk/tube",
+      "private": false,
+      "archived": false,
+      "default_branch": "main",
+      "pushed_at": null
+    },
+    {
+      "full_name": "dbrckk/FTMO",
+      "private": false,
+      "archived": false,
+      "default_branch": "main",
+      "pushed_at": null
+    },
+    {
+      "full_name": "dbrckk/personavid-ai",
+      "private": false,
+      "archived": false,
+      "default_branch": "main",
+      "pushed_at": null
+    },
+    {
+      "full_name": "dbrckk/Applio",
+      "private": false,
+      "archived": false,
+      "default_branch": "main",
+      "pushed_at": null
+    },
+    {
+      "full_name": "dbrckk/viral-android-game",
+      "private": false,
+      "archived": false,
+      "default_branch": "main",
+      "pushed_at": null
+    },
+    {
+      "full_name": "dbrckk/deadline-zero",
+      "private": false,
+      "archived": false,
+      "default_branch": "main",
+      "pushed_at": null
+    },
+    {
+      "full_name": "dbrckk/zero-to-empire",
+      "private": false,
+      "archived": false,
+      "default_branch": "main",
+      "pushed_at": null
+    },
+    {
+      "full_name": "dbrckk/Who-are-you",
+      "private": false,
+      "archived": false,
+      "default_branch": "main",
+      "pushed_at": null
+    },
+    {
+      "full_name": "dbrckk/ai-dev-server",
+      "private": false,
+      "archived": false,
+      "default_branch": "main",
+      "pushed_at": null
+    },
+    {
+      "full_name": "dbrckk/Jumpy",
+      "private": false,
+      "archived": false,
+      "default_branch": "main",
+      "pushed_at": null
+    },
+    {
+      "full_name": "dbrckk/xbow-perso",
+      "private": false,
+      "archived": false,
+      "default_branch": "main",
+      "pushed_at": null
+    },
+    {
+      "full_name": "dbrckk/star-list",
+      "private": false,
+      "archived": false,
+      "default_branch": "main",
+      "pushed_at": null
+    },
+    {
+      "full_name": "dbrckk/Ai-trading",
+      "private": false,
+      "archived": false,
+      "default_branch": "main",
+      "pushed_at": null
+    },
+    {
+      "full_name": "dbrckk/Production-OS",
+      "private": false,
+      "archived": false,
+      "default_branch": "main",
+      "pushed_at": null
+    },
+    {
+      "full_name": "dbrckk/zombie-apk",
+      "private": false,
+      "archived": false,
+      "default_branch": "main",
+      "pushed_at": null
+    },
+    {
+      "full_name": "dbrckk/repo-standards",
+      "private": false,
+      "archived": false,
+      "default_branch": "main",
+      "pushed_at": null
+    },
+    {
+      "full_name": "dbrckk/repo-brain",
+      "private": false,
+      "archived": false,
+      "default_branch": "main",
+      "pushed_at": null
+    },
+    {
+      "full_name": "dbrckk/asset-forge",
+      "private": false,
+      "archived": false,
+      "default_branch": "main",
+      "pushed_at": null
+    },
+    {
+      "full_name": "dbrckk/vibecheck-android",
+      "private": false,
+      "archived": false,
+      "default_branch": "main",
+      "pushed_at": null
+    },
+    {
+      "full_name": "dbrckk/alt-other-lives",
+      "private": false,
+      "archived": false,
+      "default_branch": "main",
+      "pushed_at": null
+    },
+    {
+      "full_name": "dbrckk/Colab",
+      "private": false,
+      "archived": false,
+      "default_branch": "main",
+      "pushed_at": null
+    },
+    {
+      "full_name": "dbrckk/chaos-survival-roblox",
+      "private": false,
+      "archived": false,
+      "default_branch": "main",
+      "pushed_at": null
     }
   ]
 }
@@ -5240,19 +5490,39 @@ visible = filtered[:bounded]
 ⋮----
 live_phases = {
 ⋮----
+@staticmethod
+    def _repository_catalog(owner: str) -> list[dict]
+⋮----
+path = Path(
+⋮----
+payload = json.loads(path.read_text(encoding="utf-8"))
+⋮----
+configured_owner = str(payload.get("owner") or "").strip()
+⋮----
+rows = payload.get("repositories")
+⋮----
+prefix = owner.lower() + "/"
+⋮----
 def repositories(self) -> dict
 ⋮----
 owner = str(
-github = GitHubClient()
-source = "github"
+merged: dict[str, dict] = {}
 ⋮----
-rows = github.list_accessible_repositories(owner)
-⋮----
-source = "observed-projects"
-rows = [
-repositories = []
+def add(rows) -> None
 ⋮----
 full_name = str(row.get("full_name") or "").strip()
+⋮----
+catalog = self._repository_catalog(owner)
+⋮----
+source = "catalog" if catalog else "observed-projects"
+⋮----
+live = GitHubClient().list_accessible_repositories(owner)
+⋮----
+live = []
+⋮----
+source = "github"
+⋮----
+repositories = sorted(
 ⋮----
 def projects(self)
 ⋮----
@@ -14061,6 +14331,27 @@ def test_watching_age_is_observed_not_final_durability()
 def test_invalid_durability_timestamps_are_ignored()
 ⋮----
 rows = [{
+````
+
+## File: tests/test_dashboard_repositories.py
+````python
+class FailingGitHub
+⋮----
+def list_accessible_repositories(self, owner)
+⋮----
+class LiveGitHub
+⋮----
+def _service()
+⋮----
+service = DashboardService(SimpleNamespace(dashboard_store=object()))
+⋮----
+def _catalog(tmp_path)
+⋮----
+path = tmp_path / "repository-catalog.json"
+⋮----
+payload = _service().repositories()
+⋮----
+by_name = {item["full_name"]: item for item in payload["repositories"]}
 ````
 
 ## File: tests/test_dashboard_retention_prune.py

@@ -1,8 +1,16 @@
 {
   "files": {
+    "config/repository-catalog.json": {
+      "sha256": "4a6f450af7a41a04eb8195463ddf371d228ef8f5154829cde69920e50a930824",
+      "size": 5531
+    },
     "src/production_os/__init__.py": {
       "sha256": "63c80dc5e078945a2d3488c050f10743b901b9612a70a133175d21ac508bdd5f",
       "size": 68
+    },
+    "src/production_os/api_auth.py": {
+      "sha256": "e711cc224ad17d667bf86cd1b2f9392a303c8199d621d774dbf657408ed2edc1",
+      "size": 1720
     },
     "src/production_os/cli.py": {
       "sha256": "77f1bdfb8d240967b7fe23aba8a958c5dbf6a4d974a4b16346e42ab464af766c",
@@ -12,9 +20,29 @@
       "sha256": "5ceeca8063a5972afafb4e2fdf92ccf9b5dee596bea263a3a397e0ea8c722766",
       "size": 153570
     },
-    "src/production_os/dashboard_ui.py": {
-      "sha256": "8adc236b4150097d7ebcd30d2dd2af0aa12a9d627c09ca6f29e28ca81cf725c2",
-      "size": 127297
+    "src/production_os/dashboard_backups.py": {
+      "sha256": "7e4b92ec54c3869745fd37729edbe8ebfcb200d61b8552cd3198581fd64763fa",
+      "size": 42856
+    },
+    "src/production_os/dashboard_maintenance.py": {
+      "sha256": "f1b5e6bae26122150a427da640ea8478c2d0101716fe6baf079f58dcdd679fdb",
+      "size": 11219
+    },
+    "src/production_os/dashboard_service.py": {
+      "sha256": "50c0bb8548f3bffc0dd70925d1e1311d03bb2210a23d4e4407ddecc7093e9fcf",
+      "size": 64793
+    },
+    "src/production_os/github_client.py": {
+      "sha256": "7abf0962ab507a9c6e98df90fa0b1da23fca3d52602d4f0ee0e8ac10ca301020",
+      "size": 30836
+    },
+    "src/production_os/workers.py": {
+      "sha256": "30e6514ef86731b279648d0aaa54c4cd987309e71c286e5c31c3bbe8dfc1a5d1",
+      "size": 6064
+    },
+    "tests/test_asset_forge.py": {
+      "sha256": "a1c28454a89887eb89d34cca4e3901156ade26ec72107fe6ecf751874b1a90c2",
+      "size": 35251
     },
     "tests/test_control_plane.py": {
       "sha256": "da5beed6ab47064e02a7882181f5d4cdfa6d4bafaad7533ff6dd3579b9e96fdb",
@@ -32,9 +60,17 @@
       "sha256": "d30da86734cd6ec8ffbc49e8ad90178cbb6a8ac780e2be0e829f59f4cf83a195",
       "size": 7606
     },
+    "tests/test_dashboard_alerts.py": {
+      "sha256": "5d8ba3ad514f98ace1dedaa25522224bef49f3ce90f801551d3c192596e912fb",
+      "size": 2733
+    },
     "tests/test_dashboard_api.py": {
       "sha256": "ecbe713625262cd6c95f851fb19b0f04595145e4ae2eb882fbeaaecdf88a5740",
       "size": 25906
+    },
+    "tests/test_dashboard_attention.py": {
+      "sha256": "439b605d6809a34386112060b73ce6983f325c477313999921d19c6c12dd5cee",
+      "size": 8344
     },
     "tests/test_dashboard_backup_api.py": {
       "sha256": "31e733d5e3d6810182471901dcf916847aee0d551af5d1a5bdb7c9faca96be46",
@@ -56,21 +92,21 @@
       "sha256": "986936ab3c73da65d91841e7dfdbfce41e8176d22af73e22e55bc7f32751e8cb",
       "size": 10102
     },
+    "tests/test_dashboard_launch.py": {
+      "sha256": "5b6591aa4ceb3470c8cee6f1befba97821184d2d529176c0dac58f201c8b0fcb",
+      "size": 6272
+    },
     "tests/test_dashboard_launch_readiness.py": {
       "sha256": "fea8acc15c093e1f77121a94d9c8c0684d643ff2a9f590cac7b0d25f3f45500c",
       "size": 4000
     },
     "tests/test_dashboard_launch_ux.py": {
-      "sha256": "eb412ede07983335c855c096d72d460ad751e71163d274015eaab1a6737509ee",
-      "size": 14677
+      "sha256": "e7e3bbb5a279094c98224d4a8a6d67e1fdde001b1a3adc207970f52a5101e21c",
+      "size": 14965
     },
     "tests/test_dashboard_maintenance.py": {
       "sha256": "e64a1eafbf88fecaeb662f0ea9266b36b393bf1dac2ba0cd589cd3dcab3a7c8b",
       "size": 5856
-    },
-    "tests/test_dashboard_mobile_stability.py": {
-      "sha256": "3c4d36e7d11ffffbdb9bf8d75fb978e3434f39f3f098460f1f622d19ec9f9d8d",
-      "size": 1320
     },
     "tests/test_dashboard_observability_e2e.py": {
       "sha256": "5d25c9c9d1ebdf4de43fa56afa0a2cf2fd8071529107c56313f96ef54a7b24f8",
@@ -80,53 +116,17 @@
       "sha256": "e9a3cae3b05f7d5590a950906b8ff562905da56b704c11aa46d7f94c607b3c65",
       "size": 3887
     },
-    "tests/test_dashboard_production_inbox.py": {
-      "sha256": "e5e111b1cb9b4edddfc600e2971335ea3d19e609142d81fa17a6434e70568f68",
-      "size": 8860
-    },
-    "tests/test_dashboard_production_inbox_filters_ui.py": {
-      "sha256": "6548eff850c44c5125e106e5ac1d69e0d3963eaac5e20e782cad9debac7319ef",
-      "size": 4643
-    },
     "tests/test_dashboard_production_status.py": {
       "sha256": "316dcb84b1d27b7b3231a31d4dc2eb1187084de3ecb67e7841d3e27a615c2886",
       "size": 4432
     },
-    "tests/test_dashboard_remediation_api.py": {
-      "sha256": "f2f3b7c754393ae4babc2936a7d51f4d7c6b3eb47e66207a36d7d240672b9f79",
-      "size": 11639
+    "tests/test_dashboard_repositories.py": {
+      "sha256": "f572ac6e0b6b6ce49fa5bb2c97344d94b8349e55a942599700ceb755c0a686cc",
+      "size": 3341
     },
-    "tests/test_dashboard_retention_prune.py": {
-      "sha256": "ca9a68290921734b97de21f5ac12454910ae3bd303ba4d55b84d5f8ca3b15000",
-      "size": 10386
-    },
-    "tests/test_dashboard_store_postgres.py": {
-      "sha256": "330095e829954c2ac18f6e43f169a9f65ae601f84787ce9dcd7db6514c68bb9f",
-      "size": 8090
-    },
-    "tests/test_dashboard_ui_v3.py": {
-      "sha256": "0a2480bbd7ec0a77d628f4d08b326ff5be94108f4e50c145275fab0b4bd9f904",
-      "size": 42061
-    },
-    "tests/test_database_maintenance_lock.py": {
-      "sha256": "c14bc2dd53fface66723191298f201a33a247b6dd9e3b3b01edde22ed8c82b63",
-      "size": 3533
-    },
-    "tests/test_device_pairing.py": {
-      "sha256": "ddbdf419db93f04afe052066c512ec638f403abf56f5b6a0cc8cfae9bc0d2b02",
-      "size": 13177
-    },
-    "tests/test_http_security_headers.py": {
-      "sha256": "9faec9f175fe5c1e22c50521292eb0480bf7f3e5a1f64a2da34785df95fe0113",
-      "size": 3253
-    },
-    "tests/test_managed_projects_http_v4.py": {
-      "sha256": "8467c48fb5706b6410a42f124007f82cb0a13f33e730a986d7f997f63f04f1e6",
-      "size": 8640
-    },
-    "tests/test_native_browser_worker_e2e.py": {
-      "sha256": "3dee8ff19db87d29c2c286936be6d0e7a38edbee8a8205e5deb6d2aa6244b315",
-      "size": 7915
+    "tests/test_fairness.py": {
+      "sha256": "049c558e2f3319632921e7a5a3dcb4422c4586d1787603a0470ce0185dab3950",
+      "size": 512
     }
   },
   "generated_by": "dbrckk/repo-brain-v6",

@@ -1,14 +1,16 @@
 # Change impact
 
-Base: ce51b8f7e24f70e294454a55cf0348b7533c04de
-Head: b8be27a65200629553200f912b0caa9112ff8f4c
+Base: ff78ae966af6c40df27f8abdeca8ef7c412321ff
+Head: c8eb31b585a1484cce2fb79526136b92257a3e51
 
 ## Changed files
-- M src/production_os/dashboard_ui.py
-- M tests/test_dashboard_production_inbox_filters_ui.py
-- M tests/test_dashboard_ui_v3.py
+- A config/repository-catalog.json
+- M src/production_os/dashboard_service.py
+- M tests/test_dashboard_launch_ux.py
+- A tests/test_dashboard_repositories.py
 
 ## Affected areas
+- config
 - src
 - tests
 

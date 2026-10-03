@@ -2,23 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat: add deployable Android emulator specialist",
-      "terms": [
-        "add",
-        "android",
-        "deployable",
-        "emulator",
-        "feat",
-        "specialist"
-      ],
-      "tests": [],
-      "useful": [
-        "tests/test_mobile_worker_image.py",
-        "tests/test_worker_compose_deployment.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat: launch automatic compensating rollback generations",
       "terms": [
         "automatic",
@@ -1293,6 +1276,25 @@
         "tests/test_dashboard_production_inbox_filters_ui.py",
         "tests/test_dashboard_ui_v3.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "fix(dashboard): keep repository catalog during GitHub outages",
+      "terms": [
+        "catalog",
+        "dashboard",
+        "during",
+        "github",
+        "keep",
+        "outages",
+        "repository"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/dashboard_service.py",
+        "tests/test_dashboard_launch_ux.py",
+        "tests/test_dashboard_repositories.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -2279,6 +2281,11 @@
       "src/production_os/asset_forge.py": 4,
       "tests/test_asset_forge.py": 4
     },
+    "catalog": {
+      "src/production_os/dashboard_service.py": 4,
+      "tests/test_dashboard_launch_ux.py": 4,
+      "tests/test_dashboard_repositories.py": 4
+    },
     "center": {
       "src/production_os/control_plane.py": 40,
       "src/production_os/dashboard_alerts.py": 4,
@@ -2619,7 +2626,7 @@
       "src/production_os/dashboard_control.py": 8,
       "src/production_os/dashboard_github.py": 4,
       "src/production_os/dashboard_security.py": 4,
-      "src/production_os/dashboard_service.py": 16,
+      "src/production_os/dashboard_service.py": 20,
       "src/production_os/dashboard_store.py": 12,
       "src/production_os/dashboard_ui.py": 40,
       "src/production_os/dashboard_usage.py": 4,
@@ -2638,10 +2645,11 @@
       "tests/test_dashboard_github.py": 4,
       "tests/test_dashboard_launch.py": 32,
       "tests/test_dashboard_launch_readiness.py": 4,
-      "tests/test_dashboard_launch_ux.py": 4,
+      "tests/test_dashboard_launch_ux.py": 8,
       "tests/test_dashboard_mobile_stability.py": 4,
       "tests/test_dashboard_observability_e2e.py": 4,
       "tests/test_dashboard_production_inbox_filters_ui.py": 4,
+      "tests/test_dashboard_repositories.py": 4,
       "tests/test_dashboard_security.py": 4,
       "tests/test_dashboard_store.py": 4,
       "tests/test_dashboard_store_postgres.py": 4,
@@ -2821,6 +2829,11 @@
       "tests/test_agent_planning_policy.py": 4,
       "tests/test_persistent_agent_runtime.py": 4,
       "tests/test_project_memory.py": 4
+    },
+    "during": {
+      "src/production_os/dashboard_service.py": 4,
+      "tests/test_dashboard_launch_ux.py": 4,
+      "tests/test_dashboard_repositories.py": 4
     },
     "dynamic": {
       "src/production_os/agent_plan.py": 4,
@@ -3174,11 +3187,14 @@
     "github": {
       "scripts/render-start.py": 4,
       "src/production_os/control_plane.py": 4,
+      "src/production_os/dashboard_service.py": 4,
       "src/production_os/managed_projects.py": 4,
       "tests/test_asset_forge.py": 4,
       "tests/test_control_plane.py": 4,
       "tests/test_control_plane_webhook.py": 4,
       "tests/test_cooperative_managed_projects.py": 4,
+      "tests/test_dashboard_launch_ux.py": 4,
+      "tests/test_dashboard_repositories.py": 4,
       "tests/test_github_client_put_file.py": 4,
       "tests/test_managed_github_reconciliation.py": 4,
       "tests/test_render_start.py": 4
@@ -3421,8 +3437,11 @@
       "tests/test_browser_loop.py": 4
     },
     "keep": {
+      "src/production_os/dashboard_service.py": 4,
       "src/production_os/managed_projects.py": 4,
-      "tests/test_cooperative_managed_projects.py": 4
+      "tests/test_cooperative_managed_projects.py": 4,
+      "tests/test_dashboard_launch_ux.py": 4,
+      "tests/test_dashboard_repositories.py": 4
     },
     "launch": {
       "src/production_os/control_plane.py": 16,
@@ -3801,6 +3820,11 @@
     "out": {
       "src/production_os/managed_projects.py": 4,
       "tests/test_cooperative_managed_projects.py": 4
+    },
+    "outages": {
+      "src/production_os/dashboard_service.py": 4,
+      "tests/test_dashboard_launch_ux.py": 4,
+      "tests/test_dashboard_repositories.py": 4
     },
     "outcome": {
       "src/production_os/dashboard_service.py": 4,
@@ -4450,9 +4474,12 @@
       "src/production_os/agent_planning_policy.py": 4,
       "src/production_os/asset_forge.py": 4,
       "src/production_os/control_plane.py": 4,
+      "src/production_os/dashboard_service.py": 4,
       "src/production_os/dashboard_ui.py": 8,
       "src/production_os/fanout_learning.py": 4,
       "tests/test_dashboard_launch.py": 4,
+      "tests/test_dashboard_launch_ux.py": 4,
+      "tests/test_dashboard_repositories.py": 4,
       "tests/test_dashboard_ui_v3.py": 8,
       "tests/test_fanout_learning.py": 4
     },

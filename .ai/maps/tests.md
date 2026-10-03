@@ -102,6 +102,7 @@ test_dashboard_production_status.py
 test_dashboard_remediation_api.py
 test_dashboard_remediation_history.py
 test_dashboard_remediation_metrics.py
+test_dashboard_repositories.py
 test_dashboard_retention_prune.py
 test_dashboard_security.py
 test_dashboard_store_postgres.py
@@ -3145,6 +3146,27 @@ def test_watching_age_is_observed_not_final_durability()
 def test_invalid_durability_timestamps_are_ignored()
 ⋮----
 rows = [{
+```
+
+## File: test_dashboard_repositories.py
+```python
+class FailingGitHub
+⋮----
+def list_accessible_repositories(self, owner)
+⋮----
+class LiveGitHub
+⋮----
+def _service()
+⋮----
+service = DashboardService(SimpleNamespace(dashboard_store=object()))
+⋮----
+def _catalog(tmp_path)
+⋮----
+path = tmp_path / "repository-catalog.json"
+⋮----
+payload = _service().repositories()
+⋮----
+by_name = {item["full_name"]: item for item in payload["repositories"]}
 ```
 
 ## File: test_dashboard_retention_prune.py

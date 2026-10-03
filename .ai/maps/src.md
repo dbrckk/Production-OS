@@ -4629,19 +4629,39 @@ visible = filtered[:bounded]
 ⋮----
 live_phases = {
 ⋮----
+@staticmethod
+    def _repository_catalog(owner: str) -> list[dict]
+⋮----
+path = Path(
+⋮----
+payload = json.loads(path.read_text(encoding="utf-8"))
+⋮----
+configured_owner = str(payload.get("owner") or "").strip()
+⋮----
+rows = payload.get("repositories")
+⋮----
+prefix = owner.lower() + "/"
+⋮----
 def repositories(self) -> dict
 ⋮----
 owner = str(
-github = GitHubClient()
-source = "github"
+merged: dict[str, dict] = {}
 ⋮----
-rows = github.list_accessible_repositories(owner)
-⋮----
-source = "observed-projects"
-rows = [
-repositories = []
+def add(rows) -> None
 ⋮----
 full_name = str(row.get("full_name") or "").strip()
+⋮----
+catalog = self._repository_catalog(owner)
+⋮----
+source = "catalog" if catalog else "observed-projects"
+⋮----
+live = GitHubClient().list_accessible_repositories(owner)
+⋮----
+live = []
+⋮----
+source = "github"
+⋮----
+repositories = sorted(
 ⋮----
 def projects(self)
 ⋮----
