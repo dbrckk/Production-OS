@@ -244,6 +244,7 @@ tests/
   test_dashboard_health.py
   test_dashboard_incident_signals.py
   test_dashboard_incidents.py
+  test_dashboard_launch_freshness.py
   test_dashboard_launch_readiness.py
   test_dashboard_launch_ux.py
   test_dashboard_launch.py
@@ -13769,6 +13770,15 @@ resolved = control.dashboard.incidents(status="resolved")["incidents"][0]
 current = control.dashboard_store.dashboard_incidents(limit=1)[0]
 ⋮----
 def test_stale_incident_age_updates_do_not_create_new_occurrences(tmp_path)
+````
+
+## File: tests/test_dashboard_launch_freshness.py
+````python
+def test_launch_keeps_newer_repository_or_instruction_draft()
+⋮----
+body = DASHBOARD_HTML.split(
+⋮----
+def test_launch_does_not_retarget_dashboard_state_after_repository_change()
 ````
 
 ## File: tests/test_dashboard_launch_readiness.py

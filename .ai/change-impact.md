@@ -1,11 +1,11 @@
 # Change impact
 
-Base: 48fa719ea10830572c99e8d83ad43ccee41db810
-Head: 4d35ba23445e25fdaab827b00977e425ba9ce5ca
+Base: a1c41d1c698d5b583dfd80e1f436e218bf71fd40
+Head: eb893e84437b27fb1fcf4ddc5548e5b713afffc0
 
 ## Changed files
 - M src/production_os/dashboard_ui.py
-- A tests/test_dashboard_async_freshness.py
+- A tests/test_dashboard_launch_freshness.py
 
 ## Affected areas
 - src

@@ -18,10 +18,10 @@
         "dependency-neighbor",
         "impact"
       ],
-      "score": 425
+      "score": 450
     },
     {
-      "path": "tests/test_dashboard_async_freshness.py",
+      "path": "tests/test_dashboard_launch_freshness.py",
       "reasons": [
         "changed",
         "changed-source",
@@ -35,11 +35,12 @@
     {
       "path": "src/production_os/control_plane.py",
       "reasons": [
+        "dependency-neighbor",
         "impact",
         "reverse-dependency-neighbor",
         "symbol-indexed"
       ],
-      "score": 265
+      "score": 290
     },
     {
       "path": "tests/test_dashboard_production_inbox_filters_ui.py",
@@ -62,11 +63,30 @@
       "score": 200
     },
     {
+      "path": "tests/test_dashboard_async_freshness.py",
+      "reasons": [
+        "impact",
+        "reverse-dependency-neighbor",
+        "selected-test",
+        "symbol-indexed"
+      ],
+      "score": 190
+    },
+    {
+      "path": "tests/test_dashboard_launch.py",
+      "reasons": [
+        "reverse-dependency-neighbor",
+        "selected-test",
+        "symbol-indexed"
+      ],
+      "score": 190
+    },
+    {
       "path": "src/production_os/__init__.py",
       "reasons": [
         "dependency-neighbor"
       ],
-      "score": 100
+      "score": 150
     },
     {
       "path": "src/production_os/cli.py",
@@ -224,20 +244,6 @@
     },
     {
       "path": "tests/test_device_pairing.py",
-      "reasons": [
-        "reverse-dependency-neighbor"
-      ],
-      "score": 60
-    },
-    {
-      "path": "tests/test_http_security_headers.py",
-      "reasons": [
-        "reverse-dependency-neighbor"
-      ],
-      "score": 60
-    },
-    {
-      "path": "tests/test_managed_projects_http_v4.py",
       "reasons": [
         "reverse-dependency-neighbor"
       ],
