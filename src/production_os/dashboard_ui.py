@@ -254,6 +254,7 @@ const TOKEN_KEY='production_os_operator_token';
 const LAST_PROJECT_KEY='production_os_last_project_id';
 const LAST_REPOSITORY_KEY='production_os_last_repository';
 const PENDING_LAUNCH_KEY='production_os_pending_launch';
+const PENDING_LAUNCH_TTL_MS=30*60*1000;
 let workerOnline=false;
 let refreshBusy=false;
 let refreshPending=false;
@@ -1084,15 +1085,22 @@ function newLaunchRequestId(){
 }
 function pendingLaunchRequest(repository,task){
  const fingerprint=launchDraftFingerprint(repository,task);
+ const now=Date.now();
  try{
   const raw=localStorage.getItem(PENDING_LAUNCH_KEY);
   const previous=raw?JSON.parse(raw):null;
+  const createdAt=Number(previous&&previous.created_at_ms);
+  const ageMs=now-createdAt;
   if(
    previous
    &&previous.repository===repository
    &&previous.fingerprint===fingerprint
    &&typeof previous.request_id==='string'
    &&previous.request_id
+   &&Number.isFinite(createdAt)
+   &&createdAt>0
+   &&ageMs>=0
+   &&ageMs<=PENDING_LAUNCH_TTL_MS
   ){
    return previous.request_id;
   }
@@ -1101,7 +1109,8 @@ function pendingLaunchRequest(repository,task){
  localStorage.setItem(PENDING_LAUNCH_KEY,JSON.stringify({
   repository:repository,
   fingerprint:fingerprint,
-  request_id:requestId
+  request_id:requestId,
+  created_at_ms:now
  }));
  return requestId;
 }
