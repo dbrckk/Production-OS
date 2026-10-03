@@ -1392,11 +1392,14 @@ async function stageBackupRestore(backupId){
   if(receipt)receipt.textContent=String(e).replace(/^Error:\\s*/,"");
  }
 }
+let overviewLoadSequence=0;
 async function loadOverview(){
  const el=document.getElementById("overview-metrics");
+ const requestSequence=++overviewLoadSequence;
+ const requestedWindow=appState.window;
  try{
   const results=await Promise.all([
-   api("/v1/dashboard/overview?window="+encodeURIComponent(appState.window)),
+   api("/v1/dashboard/overview?window="+encodeURIComponent(requestedWindow)),
    api("/v1/dashboard/health"),
    api("/v1/dashboard/incidents?limit=20"),
    api("/v1/dashboard/maintenance").catch(function(){
@@ -1406,6 +1409,11 @@ async function loadOverview(){
     return {status:"unknown",backend_kind:"unknown",create_supported:false,restore_enabled:false,backups:[]};
    })
   ]);
+  if(
+   requestSequence!==overviewLoadSequence
+   ||appState.view!=="overview"
+   ||appState.window!==requestedWindow
+  )return null;
   const data=results[0],health=results[1]||{},incidentData=results[2]||{},maintenance=results[3]||{},backups=results[4]||{};
   const w=data.workers||{},p=data.productions||{},u=data.usage||{},c=data.commits||{},perf=data.performance||{},alerts=data.alerts||[];
   const healthReasons=health.reasons||[];
@@ -1498,7 +1506,7 @@ async function loadOverview(){
    '<div class="status-grid">'+
    '<div class="status-card"><div class="status-label">Workers en ligne</div><div class="status-value">'+formatNumber(w.online)+' / '+formatNumber(w.total)+'</div></div>'+
    '<div class="status-card"><div class="status-label">Productions actives</div><div class="status-value">'+formatNumber(p.running)+'</div></div>'+
-   '<div class="status-card"><div class="status-label">Tokens · '+esc(appState.window)+'</div><div class="status-value">'+formatNumber(u.tokens)+'</div></div>'+
+   '<div class="status-card"><div class="status-label">Tokens · '+esc(requestedWindow)+'</div><div class="status-value">'+formatNumber(u.tokens)+'</div></div>'+
    '</div>'+
    '<div class="card"><div class="section-head"><h2>Activité mesurée</h2></div>'+
    '<p class="small">API calls : '+formatNumber(u.api_calls)+' · coût estimé : '+formatNumber(u.estimated_cost_usd)+' USD</p>'+
@@ -1509,7 +1517,15 @@ async function loadOverview(){
    backupHtml+
    incidentsHtml+
    alertsHtml;
- }catch(e){el.innerHTML=errorCard(e)}
+ }catch(e){
+  if(
+   requestSequence!==overviewLoadSequence
+   ||appState.view!=="overview"
+   ||appState.window!==requestedWindow
+  )return null;
+  el.innerHTML=errorCard(e);
+  return null;
+ }
 }
 function autopilotWaitLabel(value){
  const labels={
@@ -2430,15 +2446,23 @@ async function loadManagedProjects(){
   }
  }catch(e){el.innerHTML=errorCard(e)}
 }
+let activityLoadSequence=0;
 async function loadActivityView(){
  const el=document.getElementById("activity-list");
+ const requestSequence=++activityLoadSequence;
+ const requestedWindow=appState.window;
  try{
   const results=await Promise.all([
    api("/v1/dashboard/activity?limit=100"),
    api("/v1/dashboard/control-audit?limit=50"),
    api("/v1/dashboard/remediations?limit=50"),
-   api("/v1/dashboard/remediation-analytics?window="+encodeURIComponent(appState.window))
+   api("/v1/dashboard/remediation-analytics?window="+encodeURIComponent(requestedWindow))
   ]);
+  if(
+   requestSequence!==activityLoadSequence
+   ||appState.view!=="activity"
+   ||appState.window!==requestedWindow
+  )return null;
   const data=results[0],audit=results[1],remediation=results[2],analytics=results[3]||{},rows=data.events||[],controls=audit.events||[],remediations=remediation.events||[];
   const remediationSummary=analytics.summary||{};
   const remediationByAction=analytics.by_action||[];
@@ -2452,7 +2476,7 @@ async function loadActivityView(){
    }).join(""):'<div class="empty">Aucune action opérateur enregistrée.</div>')+
    '</div>';
   const remediationAnalyticsHtml=
-   '<div class="card"><div class="section-head"><h2>Analytics des remédiations</h2><span class="badge">'+esc(appState.window)+'</span></div>'+
+   '<div class="card"><div class="section-head"><h2>Analytics des remédiations</h2><span class="badge">'+esc(requestedWindow)+'</span></div>'+
    '<p class="small"><strong>Total :</strong> '+formatNumber(remediationSummary.total)+' · <strong>Résolues :</strong> '+formatNumber(remediationSummary.resolved)+' · <strong>Toujours actives :</strong> '+formatNumber(remediationSummary.still_active)+' · <strong>En attente :</strong> '+formatNumber(remediationSummary.pending)+' · <strong>Non applicables :</strong> '+formatNumber(remediationSummary.not_applicable)+'</p>'+
    '<p class="small"><strong>Taux de résolution observé :</strong> '+(remediationSummary.observed_resolution_rate==null?'Indisponible':formatNumber(remediationSummary.observed_resolution_rate)+' %')+' · <strong>Échantillon d’efficacité :</strong> '+formatNumber(remediationSummary.effectiveness_denominator)+' · <strong>Médiane détection résolution :</strong> '+(remediationSummary.median_resolution_detection_seconds==null?'Indisponible':formatNumber(remediationSummary.median_resolution_detection_seconds)+' s')+'</p>'+
    '<p class="small"><strong>Surveillance de récidive :</strong> '+formatNumber(remediationSummary.watching_recurrence)+' · <strong>Récidives observées :</strong> '+formatNumber(remediationSummary.recurred)+' · <strong>Taux de récidive observé :</strong> '+(remediationSummary.observed_recurrence_rate==null?'Indisponible':formatNumber(remediationSummary.observed_recurrence_rate)+' %')+' · <strong>Échantillon récidive :</strong> '+formatNumber(remediationSummary.recurrence_denominator)+'</p>'+
@@ -2483,7 +2507,15 @@ async function loadActivityView(){
    return '<div class="card"><div class="section-head"><strong>'+esc(String(row.event_type||"événement"))+'</strong><span class="badge">'+esc(String(row.repository||"global"))+'</span></div><div class="small">'+esc(String(row.created_at||""))+'</div></div>';
   }).join(""):'<div class="empty">Aucune activité enregistrée.</div>';
   el.innerHTML=remediationAnalyticsHtml+remediationHtml+auditHtml+activityHtml;
- }catch(e){el.innerHTML=errorCard(e)}
+ }catch(e){
+  if(
+   requestSequence!==activityLoadSequence
+   ||appState.view!=="activity"
+   ||appState.window!==requestedWindow
+  )return null;
+  el.innerHTML=errorCard(e);
+  return null;
+ }
 }
 function navigate(next){
  Object.assign(appState,next||{});
