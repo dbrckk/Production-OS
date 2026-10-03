@@ -2,28 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat(agents): activate adaptive planner in cooperative managed projects",
-      "terms": [
-        "activate",
-        "adaptive",
-        "agents",
-        "cooperative",
-        "feat",
-        "managed",
-        "planner",
-        "projects"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/managed_projects.py",
-        "tests/test_cooperative_managed_projects.py",
-        "tests/test_cooperative_specialist_e2e.py",
-        "tests/test_managed_github_reconciliation.py",
-        "tests/test_release32_one_tap_e2e.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "fix(agents): propagate upstream commit into dependent worktrees",
       "terms": [
         "agents",
@@ -1264,6 +1242,24 @@
         "src/production_os/dashboard_ui.py",
         "tests/test_dashboard_production_inbox_freshness.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "fix(dashboard): keep project detail responses fresh (#238)",
+      "terms": [
+        "238",
+        "dashboard",
+        "detail",
+        "fresh",
+        "keep",
+        "project",
+        "responses"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/dashboard_ui.py",
+        "tests/test_dashboard_project_detail_freshness.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1415,6 +1411,10 @@
     "237": {
       "src/production_os/dashboard_ui.py": 4,
       "tests/test_dashboard_production_inbox_freshness.py": 4
+    },
+    "238": {
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_project_detail_freshness.py": 4
     },
     "24": {
       "src/production_os/dashboard_backups.py": 4,
@@ -2680,6 +2680,7 @@
       "tests/test_dashboard_observability_e2e.py": 4,
       "tests/test_dashboard_production_inbox_filters_ui.py": 4,
       "tests/test_dashboard_production_inbox_freshness.py": 4,
+      "tests/test_dashboard_project_detail_freshness.py": 4,
       "tests/test_dashboard_repositories.py": 4,
       "tests/test_dashboard_security.py": 4,
       "tests/test_dashboard_store.py": 4,
@@ -2772,8 +2773,9 @@
       "tests/test_worker_compose_deployment.py": 4
     },
     "detail": {
-      "src/production_os/dashboard_ui.py": 4,
-      "tests/test_dashboard_production_inbox_filters_ui.py": 4
+      "src/production_os/dashboard_ui.py": 8,
+      "tests/test_dashboard_production_inbox_filters_ui.py": 4,
+      "tests/test_dashboard_project_detail_freshness.py": 4
     },
     "details": {
       "src/production_os/asset_forge.py": 4,
@@ -3170,9 +3172,10 @@
       "tests/test_workflow_engine.py": 4
     },
     "fresh": {
-      "src/production_os/dashboard_ui.py": 8,
+      "src/production_os/dashboard_ui.py": 12,
       "tests/test_dashboard_async_freshness.py": 4,
-      "tests/test_dashboard_production_inbox_freshness.py": 4
+      "tests/test_dashboard_production_inbox_freshness.py": 4,
+      "tests/test_dashboard_project_detail_freshness.py": 4
     },
     "from": {
       "src/production_os/agent_benchmark.py": 4,
@@ -3505,12 +3508,13 @@
     },
     "keep": {
       "src/production_os/dashboard_service.py": 4,
-      "src/production_os/dashboard_ui.py": 8,
+      "src/production_os/dashboard_ui.py": 12,
       "src/production_os/managed_projects.py": 4,
       "tests/test_cooperative_managed_projects.py": 4,
       "tests/test_dashboard_async_freshness.py": 4,
       "tests/test_dashboard_launch_ux.py": 4,
       "tests/test_dashboard_production_inbox_freshness.py": 4,
+      "tests/test_dashboard_project_detail_freshness.py": 4,
       "tests/test_dashboard_repositories.py": 4
     },
     "last": {
@@ -4176,9 +4180,11 @@
       "tests/test_dashboard_ui_v3.py": 4
     },
     "project": {
+      "src/production_os/dashboard_ui.py": 4,
       "src/production_os/managed_projects.py": 4,
       "src/production_os/project_memory.py": 4,
       "src/production_os/workflow_engine.py": 4,
+      "tests/test_dashboard_project_detail_freshness.py": 4,
       "tests/test_project_memory.py": 4
     },
     "projects": {
@@ -4615,9 +4621,10 @@
       "tests/test_controller_daemon_deployment.py": 4
     },
     "responses": {
-      "src/production_os/dashboard_ui.py": 12,
+      "src/production_os/dashboard_ui.py": 16,
       "tests/test_dashboard_async_freshness.py": 4,
       "tests/test_dashboard_production_inbox_freshness.py": 4,
+      "tests/test_dashboard_project_detail_freshness.py": 4,
       "tests/test_dashboard_ui_v3.py": 4
     },
     "restart": {

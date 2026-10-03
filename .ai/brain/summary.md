@@ -1,15 +1,15 @@
 # Repo Brain
 
 - Index mode: incremental
-- Files indexed: 333
+- Files indexed: 334
 - Files reparsed this run: 2
-- Symbols: 3071
-- Internal import edges: 965
-- Impacted files: 8
+- Symbols: 3072
+- Internal import edges: 967
+- Impacted files: 9
 - Selected tests: 7
 
 ## Languages
-- python: 333 files
+- python: 334 files
 
 ## Highest-density symbol files
 - tests/test_dashboard_ui_v3.py: 112 symbols
@@ -43,8 +43,8 @@
 - ast-grep outline: available
 - AST index mode: incremental
 - AST files reparsed this run: 2
-- outline files retained: 333
-- top-level items retained: 3852
+- outline files retained: 334
+- top-level items retained: 3854
 - direct members retained: 1238
 - symbol shards: 25
 - route named symbols via ast-routing.json, then fetch one ast-symbols/<initial>.json shard

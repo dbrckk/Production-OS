@@ -257,6 +257,7 @@ tests/
   test_dashboard_production_inbox_freshness.py
   test_dashboard_production_inbox.py
   test_dashboard_production_status.py
+  test_dashboard_project_detail_freshness.py
   test_dashboard_remediation_api.py
   test_dashboard_remediation_history.py
   test_dashboard_remediation_metrics.py
@@ -14186,6 +14187,17 @@ status = control.dashboard.production_status(project_id)
 cancelled = control.queue.cancel(job["key"], "worker-a")
 ⋮----
 final = control.dashboard.production_status(project_id)
+````
+
+## File: tests/test_dashboard_project_detail_freshness.py
+````python
+def test_project_detail_ignores_stale_project_or_window_responses()
+⋮----
+body = DASHBOARD_HTML.split(
+⋮----
+await_index = body.index("const results=await Promise.all([")
+guard_index = body.index("requestSequence!==projectDetailLoadSequence")
+render_index = body.index("const detail=results[0]")
 ````
 
 ## File: tests/test_dashboard_remediation_api.py
