@@ -81,6 +81,7 @@ test_dashboard_async_freshness.py
 test_dashboard_attention.py
 test_dashboard_backup_api.py
 test_dashboard_backups.py
+test_dashboard_collection_view_freshness.py
 test_dashboard_control_api.py
 test_dashboard_control_audit.py
 test_dashboard_control_e2e.py
@@ -2147,6 +2148,29 @@ rollback_id = "20260925T120000Z-400000000002"
 candidate_id = rows[-2][0]
 ⋮----
 result = prune_expired_verified_backups(
+```
+
+## File: test_dashboard_collection_view_freshness.py
+```python
+def test_project_and_worker_collections_ignore_older_responses()
+⋮----
+projects = DASHBOARD_HTML.split(
+⋮----
+workers = DASHBOARD_HTML.split(
+⋮----
+def test_attention_collection_ignores_older_responses()
+⋮----
+attention = DASHBOARD_HTML.split(
+⋮----
+await_index = attention.index(
+guard_index = attention.index("requestSequence!==attentionLoadSequence")
+render_index = attention.index("count.textContent=")
+⋮----
+def test_autopilot_and_managed_delayed_scrolls_stay_current()
+⋮----
+autopilot = DASHBOARD_HTML.split(
+⋮----
+managed = DASHBOARD_HTML.split(
 ```
 
 ## File: test_dashboard_control_api.py

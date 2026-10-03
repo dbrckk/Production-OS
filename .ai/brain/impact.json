@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "generated_by": "dbrckk/repo-brain",
-  "base": "7fd70d7fee36591f80b8377bc780e5bb38a89dd8",
-  "head": "2e9f2cab5ba2e0af2e1e67c17d94e6c9788c86df",
+  "base": "2e9f2cab5ba2e0af2e1e67c17d94e6c9788c86df",
+  "head": "71387725926289d0dbbabc350cf9204c8ecfda3a",
   "index_mode": "incremental",
   "changed_files": [
     {
@@ -10,18 +10,19 @@
       "status": "M"
     },
     {
-      "path": "tests/test_dashboard_workflow_snapshot_invalidation.py",
+      "path": "tests/test_dashboard_collection_view_freshness.py",
       "status": "A"
     }
   ],
   "changed_source_files": [
     "src/production_os/dashboard_ui.py",
-    "tests/test_dashboard_workflow_snapshot_invalidation.py"
+    "tests/test_dashboard_collection_view_freshness.py"
   ],
   "impacted_files": [
     "src/production_os/control_plane.py",
     "src/production_os/dashboard_ui.py",
     "tests/test_dashboard_async_freshness.py",
+    "tests/test_dashboard_collection_view_freshness.py",
     "tests/test_dashboard_launch_freshness.py",
     "tests/test_dashboard_mobile_stability.py",
     "tests/test_dashboard_production_inbox_filters_ui.py",
@@ -230,6 +231,24 @@
       "kind": "function",
       "file": "tests/test_dashboard_async_freshness.py",
       "line": 25
+    },
+    {
+      "name": "test_project_and_worker_collections_ignore_older_responses",
+      "kind": "function",
+      "file": "tests/test_dashboard_collection_view_freshness.py",
+      "line": 4
+    },
+    {
+      "name": "test_attention_collection_ignores_older_responses",
+      "kind": "function",
+      "file": "tests/test_dashboard_collection_view_freshness.py",
+      "line": 20
+    },
+    {
+      "name": "test_autopilot_and_managed_delayed_scrolls_stay_current",
+      "kind": "function",
+      "file": "tests/test_dashboard_collection_view_freshness.py",
+      "line": 37
     },
     {
       "name": "test_launch_keeps_newer_repository_or_instruction_draft",
@@ -1056,6 +1075,7 @@
   ],
   "selected_tests": [
     "tests/test_dashboard_async_freshness.py",
+    "tests/test_dashboard_collection_view_freshness.py",
     "tests/test_dashboard_launch_freshness.py",
     "tests/test_dashboard_mobile_stability.py",
     "tests/test_dashboard_production_inbox_filters_ui.py",

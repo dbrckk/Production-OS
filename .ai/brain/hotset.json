@@ -18,10 +18,10 @@
         "dependency-neighbor",
         "impact"
       ],
-      "score": 575
+      "score": 600
     },
     {
-      "path": "tests/test_dashboard_workflow_snapshot_invalidation.py",
+      "path": "tests/test_dashboard_collection_view_freshness.py",
       "reasons": [
         "changed",
         "changed-source",
@@ -30,7 +30,14 @@
         "selected-test",
         "symbol-indexed"
       ],
-      "score": 410
+      "score": 415
+    },
+    {
+      "path": "src/production_os/__init__.py",
+      "reasons": [
+        "dependency-neighbor"
+      ],
+      "score": 275
     },
     {
       "path": "src/production_os/control_plane.py",
@@ -40,13 +47,6 @@
         "symbol-indexed"
       ],
       "score": 265
-    },
-    {
-      "path": "src/production_os/__init__.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 250
     },
     {
       "path": "tests/test_dashboard_production_inbox_filters_ui.py",
@@ -100,6 +100,16 @@
     },
     {
       "path": "tests/test_dashboard_windowed_view_freshness.py",
+      "reasons": [
+        "impact",
+        "reverse-dependency-neighbor",
+        "selected-test",
+        "symbol-indexed"
+      ],
+      "score": 190
+    },
+    {
+      "path": "tests/test_dashboard_workflow_snapshot_invalidation.py",
       "reasons": [
         "impact",
         "reverse-dependency-neighbor",
@@ -249,13 +259,6 @@
     },
     {
       "path": "tests/test_dashboard_production_status.py",
-      "reasons": [
-        "reverse-dependency-neighbor"
-      ],
-      "score": 60
-    },
-    {
-      "path": "tests/test_dashboard_remediation_api.py",
       "reasons": [
         "reverse-dependency-neighbor"
       ],

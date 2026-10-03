@@ -2,28 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat(agents): verify git state before accepting worktree success",
-      "terms": [
-        "accepting",
-        "agents",
-        "before",
-        "feat",
-        "git",
-        "state",
-        "success",
-        "verify",
-        "worktree"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/executor_worktree.py",
-        "src/production_os/remote_worker_runner.py",
-        "tests/test_executor_worktree.py",
-        "tests/test_remote_worker_runner.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "fix(runtime): serialize shared git cache and worktree mutations",
       "terms": [
         "cache",
@@ -1252,6 +1230,23 @@
         "src/production_os/dashboard_ui.py",
         "tests/test_dashboard_workflow_snapshot_invalidation.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "fix(dashboard): keep collection views fresh (#243)",
+      "terms": [
+        "243",
+        "collection",
+        "dashboard",
+        "fresh",
+        "keep",
+        "views"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/dashboard_ui.py",
+        "tests/test_dashboard_collection_view_freshness.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1427,6 +1422,10 @@
     "241": {
       "src/production_os/dashboard_ui.py": 4,
       "tests/test_dashboard_workflow_snapshot_invalidation.py": 4
+    },
+    "243": {
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_collection_view_freshness.py": 4
     },
     "24x7": {
       "src/production_os/cli.py": 4,
@@ -2440,6 +2439,10 @@
       "src/production_os/dashboard_ui.py": 4,
       "tests/test_dashboard_ui_v3.py": 4
     },
+    "collection": {
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_collection_view_freshness.py": 4
+    },
     "commit": {
       "src/production_os/workflow_engine.py": 4,
       "tests/test_worktree_contract.py": 4
@@ -2672,6 +2675,7 @@
       "tests/test_dashboard_api.py": 12,
       "tests/test_dashboard_async_freshness.py": 4,
       "tests/test_dashboard_attention.py": 4,
+      "tests/test_dashboard_collection_view_freshness.py": 4,
       "tests/test_dashboard_control.py": 8,
       "tests/test_dashboard_control_api.py": 4,
       "tests/test_dashboard_control_e2e.py": 4,
@@ -3180,8 +3184,9 @@
       "tests/test_workflow_engine.py": 4
     },
     "fresh": {
-      "src/production_os/dashboard_ui.py": 20,
+      "src/production_os/dashboard_ui.py": 24,
       "tests/test_dashboard_async_freshness.py": 4,
+      "tests/test_dashboard_collection_view_freshness.py": 4,
       "tests/test_dashboard_production_inbox_freshness.py": 4,
       "tests/test_dashboard_project_detail_freshness.py": 4,
       "tests/test_dashboard_windowed_view_freshness.py": 4,
@@ -3523,10 +3528,11 @@
     },
     "keep": {
       "src/production_os/dashboard_service.py": 4,
-      "src/production_os/dashboard_ui.py": 20,
+      "src/production_os/dashboard_ui.py": 24,
       "src/production_os/managed_projects.py": 4,
       "tests/test_cooperative_managed_projects.py": 4,
       "tests/test_dashboard_async_freshness.py": 4,
+      "tests/test_dashboard_collection_view_freshness.py": 4,
       "tests/test_dashboard_launch_ux.py": 4,
       "tests/test_dashboard_production_inbox_freshness.py": 4,
       "tests/test_dashboard_project_detail_freshness.py": 4,
@@ -5433,7 +5439,8 @@
       "tests/test_dashboard_ui_v3.py": 4
     },
     "views": {
-      "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/dashboard_ui.py": 8,
+      "tests/test_dashboard_collection_view_freshness.py": 4,
       "tests/test_dashboard_windowed_view_freshness.py": 4
     },
     "visual": {
