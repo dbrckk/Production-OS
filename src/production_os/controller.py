@@ -598,6 +598,14 @@ def run_control_cycle(
         if durable_queue is not None
         else []
     )
+    if queued_for_wake and automatic_wake_control is not None and workflow_engine is not None:
+        queued_for_wake = [
+            job for job in queued_for_wake
+            if automatic_wake_control.job_state(
+                str(job.get("key") or "")
+            ).get("desired_state") != "cancel_requested"
+            and workflow_engine.job_generation_current(job)
+        ]
     if (
         queued_for_wake
         and automatic_wake_store is not None
