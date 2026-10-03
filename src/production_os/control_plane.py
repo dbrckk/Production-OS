@@ -218,7 +218,7 @@ class ControlPlane:
         requested_by: str,
     ) -> dict:
         try:
-            queued = self.queue.peek_candidates(limit=1)
+            queued = self.queue.peek_candidates(limit=1000)
         except Exception:
             return {
                 "status":"failed",
@@ -234,6 +234,7 @@ class ControlPlane:
             dashboard_control=self.dashboard_control,
             store=self.dashboard_store,
             requested_by=requested_by,
+            queued_jobs=queued,
         )
 
     def cooperative_worker_fleet_available(
