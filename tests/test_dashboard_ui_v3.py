@@ -160,7 +160,8 @@ def test_worker_control_tab_has_safe_actions():
 def test_ui_distinguishes_requested_from_acknowledged():
     assert "Action demandée" in DASHBOARD_HTML
     assert "Confirmée par le worker" in DASHBOARD_HTML
-    assert "Réveil automatique prévu ≤ 5 min" in DASHBOARD_HTML
+    assert "réveil GitHub Actions planifié · délai variable" in DASHBOARD_HTML
+    assert "≤ 5 min" not in DASHBOARD_HTML
     assert "Réveil GitHub Actions demandé" in DASHBOARD_HTML
 
 
@@ -919,3 +920,9 @@ def test_dashboard_runtime_javascript_parses(tmp_path):
         check=False,
     )
     assert result.returncode == 0, result.stderr
+
+
+def test_launch_readiness_scheduled_fallback_is_truthful_about_variable_delay():
+    assert "réveil GitHub Actions planifié · délai variable" in DASHBOARD_HTML
+    assert "worker programmé au prochain passage GitHub Actions · délai variable" in DASHBOARD_HTML
+    assert "réveil de secours automatique ≤" not in DASHBOARD_HTML
