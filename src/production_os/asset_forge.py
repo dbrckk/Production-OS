@@ -20,6 +20,22 @@ ASSET_FORGE_WORKFLOW = "production-os-dispatch.yml"
 ASSET_FORGE_BATCH_WORKFLOW = "production-os-batch.yml"
 
 
+def probe_asset_forge_remote_dispatch(
+    *,
+    client: GitHubClient | None = None,
+    repository: str = ASSET_FORGE_REPOSITORY,
+    workflow: str = ASSET_FORGE_BATCH_WORKFLOW,
+) -> dict[str, Any]:
+    gh = client or GitHubClient()
+    ready = gh.can_dispatch_workflow(repository, workflow)
+    return {
+        "schema_version": "production-os/asset-forge-remote-probe/v1",
+        "repository": repository,
+        "workflow": workflow,
+        "ready": bool(ready),
+    }
+
+
 @dataclass(frozen=True)
 class AssetForgeDispatch:
     repository: str

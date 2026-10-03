@@ -37,7 +37,12 @@ from .emergency import clear_emergency_stop, set_emergency_stop
 from .execution_feedback import decide_execution_outcome
 from .feedback import summarize_validation_results
 from .github_client import GitHubAPIError, GitHubClient
-from .asset_forge import build_asset_forge_request, execute_asset_forge, execute_asset_forge_batch
+from .asset_forge import (
+    build_asset_forge_request,
+    execute_asset_forge,
+    execute_asset_forge_batch,
+    probe_asset_forge_remote_dispatch,
+)
 from .github_work_state import fetch_github_work_state, runtime_decision_from_github
 from .graph import build_knowledge_graph
 from .health_server import serve_health
@@ -204,7 +209,12 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         "asset-forge-batch",
         help="Produce and transactionally deliver a batch of visual assets",
     )
-    assetforgebatch.add_argument("--spec", required=True)
+    assetforgebatch.add_argument("--spec")
+    assetforgebatch.add_argument(
+        "--probe",
+        action="store_true",
+        help="Check remote Asset Forge workflow-dispatch readiness without creating a run",
+    )
     assetforgebatch.add_argument("--backend", choices=["auto", "pollinations", "imagen-codex"], default="auto")
     assetforgebatch.add_argument("--model")
     assetforgebatch.add_argument("--mode", choices=["auto", "local", "github"], default="auto")
@@ -1462,6 +1472,20 @@ def run_asset_forge_dispatch(args: argparse.Namespace) -> int:
 
 
 def run_asset_forge_batch(args: argparse.Namespace) -> int:
+    if args.probe:
+        try:
+            result = probe_asset_forge_remote_dispatch()
+        except GitHubAPIError as exc:
+            result = {
+                "schema_version": "production-os/asset-forge-remote-probe/v1",
+                "ready": False,
+                "error": str(exc),
+            }
+        _write_asset_result(args.result_file, result)
+        print(json.dumps(result, indent=2, ensure_ascii=False))
+        return 0 if result.get("ready") is True else 1
+    if not args.spec:
+        raise SystemExit("--spec is required unless --probe is used")
     payload = json.loads(Path(args.spec).read_text(encoding="utf-8"))
     items = payload.get("items", payload) if isinstance(payload, dict) else payload
     if not isinstance(items, list):

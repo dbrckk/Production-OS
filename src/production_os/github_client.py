@@ -268,6 +268,39 @@ class GitHubClient:
             {"ref": ref, "inputs": dict(inputs or {})},
         )
 
+    def can_dispatch_workflow(
+        self,
+        full_name: str,
+        workflow: str,
+    ) -> bool:
+        """Probe Actions write access without creating a workflow run."""
+        if not self.token:
+            return False
+        encoded = urllib.parse.quote(workflow, safe="")
+        try:
+            self._request(
+                "POST",
+                f"/repos/{full_name}/actions/workflows/{encoded}/dispatches",
+                {"ref": "", "inputs": {}},
+            )
+        except GitHubAPIError as exc:
+            detail = str(exc)
+            if "GitHub API 422:" in detail:
+                return True
+            if any(
+                marker in detail
+                for marker in (
+                    "GitHub API 401:",
+                    "GitHub API 403:",
+                    "GitHub API 404:",
+                )
+            ):
+                return False
+            raise
+        raise GitHubAPIError(
+            "GitHub workflow dispatch permission probe unexpectedly succeeded"
+        )
+
 
 
 
