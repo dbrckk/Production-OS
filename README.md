@@ -293,7 +293,7 @@ scheduled_fallback
 failed
 ```
 
-`scheduled_fallback` means no immediate dispatch was possible and the existing five-minute scheduled worker poll remains the next wake-up path. It must not be presented as a started worker.
+`scheduled_fallback` means no immediate dispatch was possible and a scheduled GitHub Actions worker run remains the fallback wake-up path. GitHub scheduling latency is variable, so Production-OS does not promise a fixed wake-up deadline and must not present the worker as started before runtime evidence exists.
 
 Automatic wake-up is queue-driven, not dashboard-only. New managed projects, added instructions, verification runs, operator retries, recovered stuck jobs, direct operator job enqueue, GitHub webhook-dispatched jobs, and durable work discovered by the autonomous controller all reuse the same wake policy. An online worker suppresses extra dispatches, a fleet-wide operator pause/drain is respected, and recent automatic wake attempts are deduplicated with a durable cooldown.
 
@@ -636,6 +636,8 @@ select repository
 enter instruction
 launch production
 ```
+
+The launch form fails closed: no repository is selected implicitly on a fresh device, the last explicitly selected repository is restored only while it remains available, and the launch action stays disabled until both a repository and a non-empty instruction are present.
 
 Opening the Production-OS service root redirects to `/dashboard`. Machine health checks remain available at `/health` and `/healthz`.
 
