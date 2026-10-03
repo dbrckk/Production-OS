@@ -56,3 +56,17 @@ def test_pairing_success_preserves_newer_token_draft():
     assert "const draftStillCurrent=input.value.trim()===value;" in body
     assert "if(draftStillCurrent){" in body
     assert "Appareil appairé. Un nouveau token reste à vérifier." in body
+
+
+
+def test_candidate_token_does_not_overwrite_pairing_changed_during_validation():
+    body = DASHBOARD_HTML.split(
+        "async function savePairing(){", 1
+    )[1].split("async function clearPairing(){", 1)[0]
+
+    assert "if(token()!==previous){" in body
+    assert "nouveau token non appliqué" in body
+    assert (
+        body.index("if(token()!==previous){")
+        < body.index("localStorage.setItem(TOKEN_KEY,value);")
+    )
