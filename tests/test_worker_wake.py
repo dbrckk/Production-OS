@@ -259,3 +259,66 @@ def test_control_plane_wake_checks_all_queued_capability_requirements(
 
     assert result == {"status":"dispatched"}
     assert calls == ["automatic-launch"]
+
+
+
+def test_control_plane_wake_ignores_cancel_requested_jobs(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "wake-cancel-requested.sqlite"))
+    control.queue.enqueue({
+        "idempotency_key":"job-cancelled-logically",
+        "handoff":{"repository":"owner/repo", "task":"visual", "priority":10},
+        "required_capabilities":["visual-asset-production"],
+    })
+    monkeypatch.setattr(
+        control.dashboard_control,
+        "job_state",
+        lambda _key: {"desired_state":"cancel_requested"},
+    )
+    calls = []
+    monkeypatch.setattr(
+        control.dashboard_control,
+        "kick_worker",
+        lambda worker_id: calls.append(worker_id) or {"status":"dispatched"},
+    )
+
+    result = control.ensure_worker_for_queued_work(requested_by="operator:test")
+
+    assert result == {
+        "status":"not_needed",
+        "reason":"no_actionable_queued_work",
+    }
+    assert calls == []
+
+
+def test_control_plane_wake_ignores_stale_workflow_generation(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "wake-stale-generation.sqlite"))
+    control.queue.enqueue({
+        "idempotency_key":"job-stale-generation",
+        "handoff":{"repository":"owner/repo", "task":"visual", "priority":10},
+        "required_capabilities":["visual-asset-production"],
+    })
+    monkeypatch.setattr(
+        control.workflows,
+        "job_generation_current",
+        lambda _job: False,
+    )
+    calls = []
+    monkeypatch.setattr(
+        control.dashboard_control,
+        "kick_worker",
+        lambda worker_id: calls.append(worker_id) or {"status":"dispatched"},
+    )
+
+    result = control.ensure_worker_for_queued_work(requested_by="operator:test")
+
+    assert result == {
+        "status":"not_needed",
+        "reason":"no_actionable_queued_work",
+    }
+    assert calls == []
