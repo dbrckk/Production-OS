@@ -87,6 +87,7 @@ test_dashboard_control_audit.py
 test_dashboard_control_e2e.py
 test_dashboard_control.py
 test_dashboard_github.py
+test_dashboard_global_status_freshness.py
 test_dashboard_health.py
 test_dashboard_incident_signals.py
 test_dashboard_incidents.py
@@ -2494,6 +2495,25 @@ def test_snapshotter_rejects_invalid_repository(tmp_path)
 def test_snapshotter_counts_distinct_production_os_commits(tmp_path)
 ⋮----
 snapshot = RepositorySnapshotter(FakeGitHub(), store).refresh("dbrckk/example")
+```
+
+## File: test_dashboard_global_status_freshness.py
+```python
+def test_worker_status_ignores_stale_request_or_pairing_token()
+⋮----
+body = DASHBOARD_HTML.split(
+⋮----
+await_index = body.index("const data=await api('/v1/workers');")
+guard_index = body.index("requestSequence!==workerStatusLoadSequence")
+mutation_index = body.index("workerOnline=online.length>0;")
+⋮----
+def test_visual_quality_only_latest_request_can_render()
+⋮----
+def test_launch_readiness_only_latest_request_can_render()
+⋮----
+await_index = body.index(
+guard_index = body.index("requestSequence!==launchReadinessLoadSequence")
+state_index = body.index("launchReadiness=data;")
 ```
 
 ## File: test_dashboard_health.py

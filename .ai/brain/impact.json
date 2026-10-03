@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "generated_by": "dbrckk/repo-brain",
-  "base": "2e9f2cab5ba2e0af2e1e67c17d94e6c9788c86df",
-  "head": "71387725926289d0dbbabc350cf9204c8ecfda3a",
+  "base": "71387725926289d0dbbabc350cf9204c8ecfda3a",
+  "head": "290eb380b519cefc7418a4bcd8696db0fabb81ca",
   "index_mode": "incremental",
   "changed_files": [
     {
@@ -10,19 +10,25 @@
       "status": "M"
     },
     {
-      "path": "tests/test_dashboard_collection_view_freshness.py",
+      "path": "tests/test_dashboard_global_status_freshness.py",
       "status": "A"
+    },
+    {
+      "path": "tests/test_dashboard_ui_v3.py",
+      "status": "M"
     }
   ],
   "changed_source_files": [
     "src/production_os/dashboard_ui.py",
-    "tests/test_dashboard_collection_view_freshness.py"
+    "tests/test_dashboard_global_status_freshness.py",
+    "tests/test_dashboard_ui_v3.py"
   ],
   "impacted_files": [
     "src/production_os/control_plane.py",
     "src/production_os/dashboard_ui.py",
     "tests/test_dashboard_async_freshness.py",
     "tests/test_dashboard_collection_view_freshness.py",
+    "tests/test_dashboard_global_status_freshness.py",
     "tests/test_dashboard_launch_freshness.py",
     "tests/test_dashboard_mobile_stability.py",
     "tests/test_dashboard_production_inbox_filters_ui.py",
@@ -249,6 +255,24 @@
       "kind": "function",
       "file": "tests/test_dashboard_collection_view_freshness.py",
       "line": 37
+    },
+    {
+      "name": "test_worker_status_ignores_stale_request_or_pairing_token",
+      "kind": "function",
+      "file": "tests/test_dashboard_global_status_freshness.py",
+      "line": 4
+    },
+    {
+      "name": "test_visual_quality_only_latest_request_can_render",
+      "kind": "function",
+      "file": "tests/test_dashboard_global_status_freshness.py",
+      "line": 22
+    },
+    {
+      "name": "test_launch_readiness_only_latest_request_can_render",
+      "kind": "function",
+      "file": "tests/test_dashboard_global_status_freshness.py",
+      "line": 41
     },
     {
       "name": "test_launch_keeps_newer_repository_or_instruction_draft",
@@ -1076,6 +1100,7 @@
   "selected_tests": [
     "tests/test_dashboard_async_freshness.py",
     "tests/test_dashboard_collection_view_freshness.py",
+    "tests/test_dashboard_global_status_freshness.py",
     "tests/test_dashboard_launch_freshness.py",
     "tests/test_dashboard_mobile_stability.py",
     "tests/test_dashboard_production_inbox_filters_ui.py",

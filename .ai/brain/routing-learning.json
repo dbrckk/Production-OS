@@ -2,27 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "fix(runtime): serialize shared git cache and worktree mutations",
-      "terms": [
-        "cache",
-        "git",
-        "mutations",
-        "runtime",
-        "serialize",
-        "shared",
-        "worktree"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/executor_worktree.py",
-        "src/production_os/filesystem_lock.py",
-        "src/production_os/repository_cache.py",
-        "tests/test_filesystem_lock.py",
-        "tests/test_repository_cache.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat(skills): learn and reuse validated execution skills",
       "terms": [
         "execution",
@@ -1247,6 +1226,25 @@
         "src/production_os/dashboard_ui.py",
         "tests/test_dashboard_collection_view_freshness.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "fix(dashboard): keep global status responses fresh (#242)",
+      "terms": [
+        "242",
+        "dashboard",
+        "fresh",
+        "global",
+        "keep",
+        "responses",
+        "status"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/dashboard_ui.py",
+        "tests/test_dashboard_global_status_freshness.py",
+        "tests/test_dashboard_ui_v3.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1422,6 +1420,11 @@
     "241": {
       "src/production_os/dashboard_ui.py": 4,
       "tests/test_dashboard_workflow_snapshot_invalidation.py": 4
+    },
+    "242": {
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_global_status_freshness.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4
     },
     "243": {
       "src/production_os/dashboard_ui.py": 4,
@@ -2680,6 +2683,7 @@
       "tests/test_dashboard_control_api.py": 4,
       "tests/test_dashboard_control_e2e.py": 4,
       "tests/test_dashboard_github.py": 4,
+      "tests/test_dashboard_global_status_freshness.py": 4,
       "tests/test_dashboard_launch.py": 40,
       "tests/test_dashboard_launch_freshness.py": 4,
       "tests/test_dashboard_launch_readiness.py": 4,
@@ -3184,11 +3188,13 @@
       "tests/test_workflow_engine.py": 4
     },
     "fresh": {
-      "src/production_os/dashboard_ui.py": 24,
+      "src/production_os/dashboard_ui.py": 28,
       "tests/test_dashboard_async_freshness.py": 4,
       "tests/test_dashboard_collection_view_freshness.py": 4,
+      "tests/test_dashboard_global_status_freshness.py": 4,
       "tests/test_dashboard_production_inbox_freshness.py": 4,
       "tests/test_dashboard_project_detail_freshness.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4,
       "tests/test_dashboard_windowed_view_freshness.py": 4,
       "tests/test_dashboard_worker_detail_freshness.py": 4
     },
@@ -3269,9 +3275,10 @@
       "tests/test_render_start.py": 4
     },
     "global": {
-      "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/dashboard_ui.py": 8,
+      "tests/test_dashboard_global_status_freshness.py": 4,
       "tests/test_dashboard_launch.py": 4,
-      "tests/test_dashboard_ui_v3.py": 4
+      "tests/test_dashboard_ui_v3.py": 8
     },
     "goals": {
       "src/production_os/managed_projects.py": 4,
@@ -3528,15 +3535,17 @@
     },
     "keep": {
       "src/production_os/dashboard_service.py": 4,
-      "src/production_os/dashboard_ui.py": 24,
+      "src/production_os/dashboard_ui.py": 28,
       "src/production_os/managed_projects.py": 4,
       "tests/test_cooperative_managed_projects.py": 4,
       "tests/test_dashboard_async_freshness.py": 4,
       "tests/test_dashboard_collection_view_freshness.py": 4,
+      "tests/test_dashboard_global_status_freshness.py": 4,
       "tests/test_dashboard_launch_ux.py": 4,
       "tests/test_dashboard_production_inbox_freshness.py": 4,
       "tests/test_dashboard_project_detail_freshness.py": 4,
       "tests/test_dashboard_repositories.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4,
       "tests/test_dashboard_windowed_view_freshness.py": 4,
       "tests/test_dashboard_worker_detail_freshness.py": 4
     },
@@ -4644,11 +4653,12 @@
       "tests/test_controller_daemon_deployment.py": 4
     },
     "responses": {
-      "src/production_os/dashboard_ui.py": 20,
+      "src/production_os/dashboard_ui.py": 24,
       "tests/test_dashboard_async_freshness.py": 4,
+      "tests/test_dashboard_global_status_freshness.py": 4,
       "tests/test_dashboard_production_inbox_freshness.py": 4,
       "tests/test_dashboard_project_detail_freshness.py": 4,
-      "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_dashboard_ui_v3.py": 8,
       "tests/test_dashboard_worker_detail_freshness.py": 4
     },
     "restart": {
@@ -5095,7 +5105,10 @@
     },
     "status": {
       "src/production_os/control_plane.py": 4,
-      "tests/test_dashboard_launch.py": 4
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_global_status_freshness.py": 4,
+      "tests/test_dashboard_launch.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4
     },
     "storage": {
       "src/production_os/control_plane.py": 4,
