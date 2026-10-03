@@ -2,30 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat(skills): learn and reuse validated execution skills",
-      "terms": [
-        "execution",
-        "feat",
-        "learn",
-        "reuse",
-        "skills",
-        "validated"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/postgres_backend.py",
-        "src/production_os/skill_memory.py",
-        "src/production_os/sqlite_backend.py",
-        "src/production_os/workflow_engine.py",
-        "tests/test_dashboard_control_audit.py",
-        "tests/test_dashboard_remediation_history.py",
-        "tests/test_dashboard_store_postgres.py",
-        "tests/test_postgres_backend.py",
-        "tests/test_skill_memory.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat(browser): add bounded persistent computer-use runtime",
       "terms": [
         "add",
@@ -1245,6 +1221,24 @@
         "tests/test_dashboard_global_status_freshness.py",
         "tests/test_dashboard_ui_v3.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "fix(dashboard): purge local state when unpairing (#244)",
+      "terms": [
+        "244",
+        "dashboard",
+        "local",
+        "purge",
+        "state",
+        "unpairing",
+        "when"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/dashboard_ui.py",
+        "tests/test_dashboard_clear_pairing_state.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1429,6 +1423,10 @@
     "243": {
       "src/production_os/dashboard_ui.py": 4,
       "tests/test_dashboard_collection_view_freshness.py": 4
+    },
+    "244": {
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_clear_pairing_state.py": 4
     },
     "24x7": {
       "src/production_os/cli.py": 4,
@@ -2678,6 +2676,7 @@
       "tests/test_dashboard_api.py": 12,
       "tests/test_dashboard_async_freshness.py": 4,
       "tests/test_dashboard_attention.py": 4,
+      "tests/test_dashboard_clear_pairing_state.py": 4,
       "tests/test_dashboard_collection_view_freshness.py": 4,
       "tests/test_dashboard_control.py": 8,
       "tests/test_dashboard_control_api.py": 4,
@@ -3615,6 +3614,10 @@
       "tests/test_dashboard_ui_v3.py": 4,
       "tests/test_release41_live_production_tracking_e2e.py": 4
     },
+    "local": {
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_clear_pairing_state.py": 4
+    },
     "lock": {
       "src/production_os/control_plane.py": 4,
       "src/production_os/database_maintenance_lock.py": 4,
@@ -4334,6 +4337,10 @@
     "pull": {
       "src/production_os/control_plane.py": 8,
       "tests/test_dashboard_launch.py": 8
+    },
+    "purge": {
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_clear_pairing_state.py": 4
     },
     "python": {
       "src/production_os/asset_forge.py": 4,
@@ -5096,9 +5103,10 @@
       "tests/test_worker_availability_api.py": 4
     },
     "state": {
-      "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/dashboard_ui.py": 8,
       "src/production_os/executor_worktree.py": 4,
       "src/production_os/remote_worker_runner.py": 4,
+      "tests/test_dashboard_clear_pairing_state.py": 4,
       "tests/test_dashboard_ui_v3.py": 4,
       "tests/test_executor_worktree.py": 4,
       "tests/test_remote_worker_runner.py": 4
@@ -5342,6 +5350,10 @@
       "tests/test_dashboard_attention.py": 4,
       "tests/test_dashboard_production_inbox_filters_ui.py": 4
     },
+    "unpairing": {
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_clear_pairing_state.py": 4
+    },
     "upstream": {
       "src/production_os/executor_worktree.py": 4,
       "src/production_os/remote_worker_runner.py": 4,
@@ -5494,7 +5506,8 @@
       "tests/test_dashboard_launch.py": 4
     },
     "when": {
-      "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/dashboard_ui.py": 8,
+      "tests/test_dashboard_clear_pairing_state.py": 4,
       "tests/test_dashboard_ui_v3.py": 4
     },
     "windowed": {

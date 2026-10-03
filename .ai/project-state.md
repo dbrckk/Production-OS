@@ -22,23 +22,23 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-03T16:26:07Z
+Generated: 2026-10-03T16:26:58Z
 
 ### Git
 - Branch: `main`
-- Head: `290eb380b519`
-- Commit date: 2026-10-03T18:25:57+02:00
-- Commit: fix(dashboard): keep global status responses fresh (#242)
-- Tracked files: 552
+- Head: `9f796bdd3e78`
+- Commit date: 2026-10-03T18:26:48+02:00
+- Commit: fix(dashboard): purge local state when unpairing (#244)
+- Tracked files: 553
 
 ### Recently changed files
 - `src/production_os/dashboard_ui.py`
+- `tests/test_dashboard_clear_pairing_state.py`
 - `tests/test_dashboard_global_status_freshness.py`
 - `tests/test_dashboard_ui_v3.py`
 - `tests/test_dashboard_collection_view_freshness.py`
 - `tests/test_dashboard_workflow_snapshot_invalidation.py`
 - `tests/test_dashboard_windowed_view_freshness.py`
-- `tests/test_dashboard_worker_detail_freshness.py`
 
 ### Project signals
 - `pyproject.toml`

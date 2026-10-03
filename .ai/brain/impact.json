@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "generated_by": "dbrckk/repo-brain",
-  "base": "71387725926289d0dbbabc350cf9204c8ecfda3a",
-  "head": "290eb380b519cefc7418a4bcd8696db0fabb81ca",
+  "base": "290eb380b519cefc7418a4bcd8696db0fabb81ca",
+  "head": "9f796bdd3e784fc19f6f3b3bece65eedd5d13c61",
   "index_mode": "incremental",
   "changed_files": [
     {
@@ -10,23 +10,19 @@
       "status": "M"
     },
     {
-      "path": "tests/test_dashboard_global_status_freshness.py",
+      "path": "tests/test_dashboard_clear_pairing_state.py",
       "status": "A"
-    },
-    {
-      "path": "tests/test_dashboard_ui_v3.py",
-      "status": "M"
     }
   ],
   "changed_source_files": [
     "src/production_os/dashboard_ui.py",
-    "tests/test_dashboard_global_status_freshness.py",
-    "tests/test_dashboard_ui_v3.py"
+    "tests/test_dashboard_clear_pairing_state.py"
   ],
   "impacted_files": [
     "src/production_os/control_plane.py",
     "src/production_os/dashboard_ui.py",
     "tests/test_dashboard_async_freshness.py",
+    "tests/test_dashboard_clear_pairing_state.py",
     "tests/test_dashboard_collection_view_freshness.py",
     "tests/test_dashboard_global_status_freshness.py",
     "tests/test_dashboard_launch_freshness.py",
@@ -236,6 +232,18 @@
       "name": "test_missing_last_project_invalidates_older_inflight_request",
       "kind": "function",
       "file": "tests/test_dashboard_async_freshness.py",
+      "line": 25
+    },
+    {
+      "name": "test_clear_pairing_purges_local_operator_state_and_url_context",
+      "kind": "function",
+      "file": "tests/test_dashboard_clear_pairing_state.py",
+      "line": 4
+    },
+    {
+      "name": "test_clear_pairing_does_not_wait_for_remote_revoke_before_local_purge",
+      "kind": "function",
+      "file": "tests/test_dashboard_clear_pairing_state.py",
       "line": 25
     },
     {
@@ -1099,6 +1107,7 @@
   ],
   "selected_tests": [
     "tests/test_dashboard_async_freshness.py",
+    "tests/test_dashboard_clear_pairing_state.py",
     "tests/test_dashboard_collection_view_freshness.py",
     "tests/test_dashboard_global_status_freshness.py",
     "tests/test_dashboard_launch_freshness.py",

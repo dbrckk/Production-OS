@@ -236,6 +236,7 @@ tests/
   test_dashboard_attention.py
   test_dashboard_backup_api.py
   test_dashboard_backups.py
+  test_dashboard_clear_pairing_state.py
   test_dashboard_collection_view_freshness.py
   test_dashboard_control_api.py
   test_dashboard_control_audit.py
@@ -13352,6 +13353,18 @@ rollback_id = "20260925T120000Z-400000000002"
 candidate_id = rows[-2][0]
 ⋮----
 result = prune_expired_verified_backups(
+````
+
+## File: tests/test_dashboard_clear_pairing_state.py
+````python
+def test_clear_pairing_purges_local_operator_state_and_url_context()
+⋮----
+body = DASHBOARD_HTML.split(
+⋮----
+token_remove = body.index("localStorage.removeItem(TOKEN_KEY);")
+reload_index = body.index("window.location.replace(window.location.pathname);")
+⋮----
+def test_clear_pairing_does_not_wait_for_remote_revoke_before_local_purge()
 ````
 
 ## File: tests/test_dashboard_collection_view_freshness.py
