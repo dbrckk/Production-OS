@@ -961,3 +961,25 @@ def test_active_view_poll_is_single_flight():
     assert "busy=true;" in polling
     assert "finally{" in polling
     assert "busy=false;" in polling
+
+
+
+def test_workflow_snapshot_requests_are_shared_and_short_lived():
+    assert "const WORKFLOWS_SNAPSHOT_TTL_MS=2000;" in DASHBOARD_HTML
+    assert "let workflowsSnapshotRequest=null;" in DASHBOARD_HTML
+    assert "if(workflowsSnapshotRequest)return workflowsSnapshotRequest;" in DASHBOARD_HTML
+    assert "workflowsSnapshotCache=data||{workflows:[]};" in DASHBOARD_HTML
+    assert "workflowsSnapshotRequest=null;" in DASHBOARD_HTML
+
+    recent = DASHBOARD_HTML.split("async function loadRecentRuns(){", 1)[1].split("function githubAssetUrls", 1)[0]
+    visual = DASHBOARD_HTML.split("async function loadVisualQuality(){", 1)[1].split("async function loadLaunchReadiness(){", 1)[0]
+    assert "loadWorkflowsSnapshot()" in recent
+    assert "loadWorkflowsSnapshot()" in visual
+    assert "api('/v1/workflows')" not in recent
+    assert "api('/v1/workflows')" not in visual
+
+
+def test_successful_launch_invalidates_workflow_snapshot_before_refresh():
+    launch = DASHBOARD_HTML.split("async function launchWorkflow(){", 1)[1].split("async function refreshDashboard(){", 1)[0]
+    assert "invalidateWorkflowsSnapshot();" in launch
+    assert launch.index("invalidateWorkflowsSnapshot();") < launch.index("await Promise.all([")

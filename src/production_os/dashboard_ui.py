@@ -609,6 +609,31 @@ function workflowState(status){
  return [value||'Inconnu','state-other'];
 }
 
+let workflowsSnapshotCache=null;
+let workflowsSnapshotAt=0;
+let workflowsSnapshotRequest=null;
+const WORKFLOWS_SNAPSHOT_TTL_MS=2000;
+
+function invalidateWorkflowsSnapshot(){
+ workflowsSnapshotCache=null;
+ workflowsSnapshotAt=0;
+}
+async function loadWorkflowsSnapshot(){
+ const now=Date.now();
+ if(workflowsSnapshotCache&&(now-workflowsSnapshotAt)<WORKFLOWS_SNAPSHOT_TTL_MS){
+  return workflowsSnapshotCache;
+ }
+ if(workflowsSnapshotRequest)return workflowsSnapshotRequest;
+ workflowsSnapshotRequest=api('/v1/workflows').then(function(data){
+  workflowsSnapshotCache=data||{workflows:[]};
+  workflowsSnapshotAt=Date.now();
+  return workflowsSnapshotCache;
+ }).finally(function(){
+  workflowsSnapshotRequest=null;
+ });
+ return workflowsSnapshotRequest;
+}
+
 async function loadRecentRuns(){
  const listEl=document.getElementById('recent-runs');
  const countEl=document.getElementById('runs-count');
@@ -618,7 +643,7 @@ async function loadRecentRuns(){
   return;
  }
  try{
-  const list=await api('/v1/workflows');
+  const list=await loadWorkflowsSnapshot();
   const selectedRepository=document.getElementById('repository').value.trim();
   const workflows=(list.workflows||[]).filter(function(item){return !selectedRepository||item.repository===selectedRepository}).slice(0,8);
   countEl.textContent=String(workflows.length);
@@ -672,7 +697,7 @@ async function loadVisualQuality(){
   detail.textContent='Appaire cet appareil via ⚙ pour afficher la qualité des derniers assets.';return;
  }
  try{
-  const list=await api('/v1/workflows');
+  const list=await loadWorkflowsSnapshot();
   const selectedRepository=document.getElementById('repository').value.trim();
   const workflows=(list.workflows||[]).filter(function(item){return item.repository===selectedRepository});
   if(!workflows.length){
@@ -988,6 +1013,7 @@ async function launchWorkflow(){
   const projectId=String(project.project_id||'');
   rememberLastProject(projectId);
   clearPendingLaunchRequest(requestId);
+  invalidateWorkflowsSnapshot();
   const immediate=launchReadiness&&launchReadiness.execution==='immediate';
   const wake=(created.launch&&created.launch.worker_wake)||{};
   const wakeStatus=String(wake.status||'');
