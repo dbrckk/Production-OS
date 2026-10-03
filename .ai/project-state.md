@@ -22,13 +22,13 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-03T13:28:50Z
+Generated: 2026-10-03T13:33:45Z
 
 ### Git
 - Branch: `main`
-- Head: `60fa92fe97bf`
-- Commit date: 2026-10-03T15:28:39+02:00
-- Commit: fix(dashboard): make active polling single-flight (#230)
+- Head: `c161a1a471a4`
+- Commit date: 2026-10-03T15:33:35+02:00
+- Commit: fix(dashboard): dedupe workflow polling requests (#231)
 - Tracked files: 543
 
 ### Recently changed files
@@ -42,9 +42,6 @@ Generated: 2026-10-03T13:28:50Z
 - `src/production_os/dashboard_service.py`
 - `tests/test_dashboard_attention.py`
 - `tests/test_dashboard_launch.py`
-- `config/repository-catalog.json`
-- `tests/test_dashboard_launch_ux.py`
-- `tests/test_dashboard_repositories.py`
 
 ### Project signals
 - `pyproject.toml`

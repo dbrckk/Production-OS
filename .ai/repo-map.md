@@ -14824,6 +14824,13 @@ managed = DASHBOARD_HTML.split("async function loadManagedProjects(){", 1)[1].sp
 def test_active_view_poll_is_single_flight()
 ⋮----
 polling = DASHBOARD_HTML.split("function schedulePoll(key,intervalMs,fn){", 1)[1].split("renderActiveView();", 1)[0]
+⋮----
+def test_workflow_snapshot_requests_are_shared_and_short_lived()
+⋮----
+recent = DASHBOARD_HTML.split("async function loadRecentRuns(){", 1)[1].split("function githubAssetUrls", 1)[0]
+visual = DASHBOARD_HTML.split("async function loadVisualQuality(){", 1)[1].split("async function loadLaunchReadiness(){", 1)[0]
+⋮----
+def test_successful_launch_invalidates_workflow_snapshot_before_refresh()
 ````
 
 ## File: tests/test_dashboard_usage.py
