@@ -45,3 +45,18 @@ def test_authenticated_api_can_verify_ephemeral_token_without_persisting_it():
     assert "const secret=String(explicitToken===undefined?token():explicitToken||'');" in body
     assert "delete requestOptions.authToken;" in body
     assert "localStorage.setItem" not in body
+
+
+
+def test_heavy_maintenance_actions_override_default_timeout():
+    pairs = [
+        ("async function pruneExpiredHistory(", "async function pruneExpiredBackups("),
+        ("async function pruneExpiredBackups(", "async function pruneStaleBackupTemps("),
+        ("async function pruneStaleBackupTemps(", "async function createVerifiedBackup("),
+        ("async function createVerifiedBackup(", "async function verifyBackupReadiness("),
+        ("async function verifyBackupReadiness(", "async function stageBackupRestore("),
+        ("async function stageBackupRestore(", "let overviewLoadSequence="),
+    ]
+    for start, end in pairs:
+        body = DASHBOARD_HTML.split(start, 1)[1].split(end, 1)[0]
+        assert "timeoutMs:120000" in body
