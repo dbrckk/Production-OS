@@ -565,10 +565,13 @@ async function loadRepositories(){
  }
 }
 
+let workerStatusLoadSequence=0;
 async function loadWorkerStatus(){
  const el=document.getElementById('worker-status');
  const warning=document.getElementById('runtime-warning');
- if(!token()){
+ const requestSequence=++workerStatusLoadSequence;
+ const requestToken=token();
+ if(!requestToken){
   setState('pair-state','warn','Non appairé');
   setState('worker-state','warn','Appairage requis');
   el.textContent='Worker : appairage requis via ⚙.';
@@ -579,6 +582,10 @@ async function loadWorkerStatus(){
  setState('pair-state','ok','Appairé');
  try{
   const data=await api('/v1/workers');
+  if(
+   requestSequence!==workerStatusLoadSequence
+   ||token()!==requestToken
+  )return null;
   const online=(data.workers||[]).filter(function(x){return x.status==='online'});
   const capabilities=new Set(online.flatMap(function(x){return x.capabilities||[]}));
   const visual=capabilities.has('visual-asset-production');
@@ -595,6 +602,10 @@ async function loadWorkerStatus(){
    +' · assets 2D/SVG '+(visual?'✓':'—')
    +' · 3D '+(threeD?'✓':'—');
  }catch(e){
+  if(
+   requestSequence!==workerStatusLoadSequence
+   ||token()!==requestToken
+  )return null;
   workerOnline=false;
   const message=String(e).replace(/^Error:\\s*/,'');
   setState('worker-state','bad','Erreur');
@@ -700,6 +711,10 @@ function qualityView(status){
  if(status==='low_quality') return ['Qualité faible','quality-low'];
  return ['Inconnu','quality-unknown'];
 }
+function clearVisualQualityDetails(){
+ document.getElementById('visual-assets-list').innerHTML='';
+ document.getElementById('visual-quality-history').innerHTML='';
+}
 function extractVisualQuality(workflow){
  const tasks=(workflow&&workflow.tasks)||[];
  for(let i=tasks.length-1;i>=0;i--){
@@ -712,29 +727,52 @@ function extractVisualQuality(workflow){
  }
  return null;
 }
+let visualQualityLoadSequence=0;
 async function loadVisualQuality(){
  const badge=document.getElementById('visual-quality');
  const detail=document.getElementById('visual-quality-detail');
- if(!token()){
+ const requestSequence=++visualQualityLoadSequence;
+ const requestToken=token();
+ if(!requestToken){
   const view=qualityView('unknown');badge.textContent=view[0];badge.className='quality-badge '+view[1];
-  detail.textContent='Appaire cet appareil via ⚙ pour afficher la qualité des derniers assets.';return;
+  detail.textContent='Appaire cet appareil via ⚙ pour afficher la qualité des derniers assets.';
+  clearVisualQualityDetails();
+  return;
  }
  const selectedRepository=selectedLaunchRepository();
+ if(!selectedRepository){
+  const view=qualityView('unknown');badge.textContent=view[0];badge.className='quality-badge '+view[1];
+  detail.textContent='Sélectionne un repository pour afficher la qualité visuelle.';
+  clearVisualQualityDetails();
+  return;
+ }
  try{
   const list=await loadWorkflowsSnapshot();
-  if(!repositorySelectionStillCurrent(selectedRepository))return null;
+  if(
+   requestSequence!==visualQualityLoadSequence
+   ||token()!==requestToken
+   ||!repositorySelectionStillCurrent(selectedRepository)
+  )return null;
   const workflows=(list.workflows||[]).filter(function(item){return item.repository===selectedRepository});
   if(!workflows.length){
    const view=qualityView('unknown');badge.textContent=view[0];badge.className='quality-badge '+view[1];
-   detail.textContent='Aucun workflow visuel pour ce repository.';return;
+   detail.textContent='Aucun workflow visuel pour ce repository.';
+   clearVisualQualityDetails();
+   return;
   }
   const recent=await Promise.all(workflows.slice(0,5).map(function(item){return api('/v1/workflows/'+encodeURIComponent(item.id))}));
-  if(!repositorySelectionStillCurrent(selectedRepository))return null;
+  if(
+   requestSequence!==visualQualityLoadSequence
+   ||token()!==requestToken
+   ||!repositorySelectionStillCurrent(selectedRepository)
+  )return null;
   const latest=recent[0];
   const visual=extractVisualQuality(latest.workflow);
   if(!visual){
    const view=qualityView('unknown');badge.textContent=view[0];badge.className='quality-badge '+view[1];
-   detail.textContent='Aucun contrôle visuel sur le dernier workflow.';return;
+   detail.textContent='Aucun contrôle visuel sur le dernier workflow.';
+   clearVisualQualityDetails();
+   return;
   }
   const view=qualityView(visual.quality_status);badge.textContent=view[0];badge.className='quality-badge '+view[1];
   const parts=[];
@@ -774,28 +812,40 @@ async function loadVisualQuality(){
    return '<div class="history-row"><span class="quality-badge '+itemView[1]+'">'+itemView[0]+'</span> '+esc(when)+min+'</div>';
   }).join('');
  }catch(_e){
-  if(!repositorySelectionStillCurrent(selectedRepository))return null;
+  if(
+   requestSequence!==visualQualityLoadSequence
+   ||token()!==requestToken
+   ||!repositorySelectionStillCurrent(selectedRepository)
+  )return null;
   const view=qualityView('unknown');badge.textContent=view[0];badge.className='quality-badge '+view[1];
   detail.textContent='Qualité visuelle indisponible.';
-  document.getElementById('visual-assets-list').innerHTML='';
-  document.getElementById('visual-quality-history').innerHTML='';
+  clearVisualQualityDetails();
  }
 }
 
+let launchReadinessLoadSequence=0;
 async function loadLaunchReadiness(){
  const el=document.getElementById('launch-readiness');
+ const requestSequence=++launchReadinessLoadSequence;
+ const requestToken=token();
  const repository=selectedLaunchRepository();
- if(!token()||!repository){
+ if(!requestToken||!repository){
   launchReadiness=null;
   el.className='launch-readiness';
-  el.textContent='Disponibilité : appairage requis.';
+  el.textContent=requestToken
+   ?'Disponibilité : sélectionne un repository.'
+   :'Disponibilité : appairage requis.';
   return null;
  }
  try{
   const data=await api(
    '/v1/dashboard/launch-readiness?repository='+encodeURIComponent(repository)
   );
-  if(!repositorySelectionStillCurrent(repository))return null;
+  if(
+   requestSequence!==launchReadinessLoadSequence
+   ||token()!==requestToken
+   ||!repositorySelectionStillCurrent(repository)
+  )return null;
   launchReadiness=data;
   const immediate=data.execution==='immediate';
   const wake=(data.worker_wake||{});
@@ -808,7 +858,11 @@ async function loadLaunchReadiness(){
     :'Mise en file sûre · réveil GitHub Actions planifié · délai variable · '+String(data.queued_jobs||0)+' job(s) déjà en attente.';
   return data;
  }catch(e){
-  if(!repositorySelectionStillCurrent(repository))return null;
+  if(
+   requestSequence!==launchReadinessLoadSequence
+   ||token()!==requestToken
+   ||!repositorySelectionStillCurrent(repository)
+  )return null;
   launchReadiness=null;
   el.className='launch-readiness';
   el.textContent='Disponibilité : '+String(e).replace(/^Error:\\s*/,'');
