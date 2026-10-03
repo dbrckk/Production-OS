@@ -281,20 +281,29 @@ async function bootstrapPairingFromFragment(){
  try{code=decodeURIComponent(raw.slice(11)).trim()}catch(_e){code=''}
  history.replaceState(null,'',window.location.pathname+window.location.search);
  if(!code) return false;
+ const controller=new AbortController();
+ const timeoutId=setTimeout(function(){controller.abort()},15000);
  try{
   const r=await fetch('/v1/dashboard/pair',{
    method:'POST',
    headers:{'Content-Type':'application/json'},
-   body:JSON.stringify({code:code,device_name:'mobile-dashboard'})
+   body:JSON.stringify({code:code,device_name:'mobile-dashboard'}),
+   signal:controller.signal
   });
   const payload=await r.json();
   if(!r.ok||!payload.session_token)throw new Error(payload.error||'Appairage refusé');
   localStorage.setItem(TOKEN_KEY,String(payload.session_token));
   setState('pair-state','ok','Appairé');
   return true;
- }catch(_e){
-  setState('pair-state','bad','Lien expiré ou déjà utilisé');
+ }catch(e){
+  if(e&&e.name==='AbortError'){
+   setState('pair-state','warn','Serveur trop lent');
+  }else{
+   setState('pair-state','bad','Lien expiré ou déjà utilisé');
+  }
   return false;
+ }finally{
+  clearTimeout(timeoutId);
  }
 }
 function esc(value){return String(value).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})}
