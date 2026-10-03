@@ -459,19 +459,20 @@ async function clearPairing(){
  const secret=token();
  if(secret){
   try{
-   await fetch('/v1/dashboard/session/revoke',{
+   fetch('/v1/dashboard/session/revoke',{
     method:'POST',
-    headers:{Authorization:'Bearer '+secret}
-   });
+    headers:{Authorization:'Bearer '+secret},
+    keepalive:true
+   }).catch(function(){});
   }catch(_e){}
  }
  localStorage.removeItem(TOKEN_KEY);
- setState('pair-state','warn','Non appairé');
- setState('worker-state','warn','Appairage requis');
- document.getElementById('launch-status').textContent='Appairage supprimé.';
- document.getElementById('worker-status').textContent='Worker : appairage requis via ⚙.';
- document.getElementById('pair-feedback').textContent='';
+ localStorage.removeItem(LAST_PROJECT_KEY);
+ localStorage.removeItem(LAST_REPOSITORY_KEY);
+ localStorage.removeItem(PENDING_LAUNCH_KEY);
  workerOnline=false;
+ launchReadiness=null;
+ window.location.replace(window.location.pathname);
 }
 
 function updateLaunchButtonState(){
