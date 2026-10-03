@@ -256,6 +256,8 @@ const LAST_REPOSITORY_KEY='production_os_last_repository';
 const PENDING_LAUNCH_KEY='production_os_pending_launch';
 let workerOnline=false;
 let refreshBusy=false;
+let refreshPending=false;
+let refreshPromise=null;
 let launchReadiness=null;
 let productionFilter="all";
 let productionSearch="";
@@ -1187,20 +1189,32 @@ async function launchWorkflow(){
 }
 
 async function refreshDashboard(){
- if(refreshBusy) return;
+ if(refreshBusy){
+  refreshPending=true;
+  return refreshPromise;
+ }
  refreshBusy=true;
- try{
-  const serverCheck=checkServer();
-  await loadRepositories();
-  await Promise.all([
-   loadWorkerStatus(),
-   loadRecentRuns(),
-   loadVisualQuality(),
-   loadLaunchReadiness(),
-   loadLastProduction()
-  ]);
-  await serverCheck;
- }finally{refreshBusy=false}
+ refreshPromise=(async function(){
+  try{
+   do{
+    refreshPending=false;
+    const serverCheck=checkServer();
+    await loadRepositories();
+    await Promise.all([
+     loadWorkerStatus(),
+     loadRecentRuns(),
+     loadVisualQuality(),
+     loadLaunchReadiness(),
+     loadLastProduction()
+    ]);
+    await serverCheck;
+   }while(refreshPending);
+  }finally{
+   refreshBusy=false;
+   refreshPromise=null;
+  }
+ })();
+ return refreshPromise;
 }
 
 bootstrapPairingFromFragment().finally(function(){
