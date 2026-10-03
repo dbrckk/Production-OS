@@ -119,3 +119,143 @@ def test_shared_wake_does_not_fail_durable_work_when_audit_write_fails(
         "status":"dispatched",
         "audit_recorded":False,
     }
+
+
+
+def test_shared_wake_dispatches_when_online_worker_lacks_required_capability(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "wake-capability-gap.sqlite"))
+    control.workers.register("worker-python", ["python"], 1)
+    monkeypatch.setattr(control.workers, "detect_dead", lambda *args, **kwargs: [])
+    queued = [{
+        "key":"job-visual",
+        "assigned_worker":None,
+        "payload":{"required_capabilities":["visual-asset-production"]},
+    }]
+    calls = []
+    monkeypatch.setattr(
+        control.dashboard_control,
+        "kick_worker",
+        lambda worker_id: calls.append(worker_id) or {"status":"dispatched"},
+    )
+
+    result = request_automatic_worker_wake(
+        workers=control.workers,
+        dashboard_control=control.dashboard_control,
+        store=control.dashboard_store,
+        requested_by="controller:auto",
+        queued_jobs=queued,
+    )
+
+    assert result == {"status":"dispatched"}
+    assert calls == ["automatic-launch"]
+
+
+def test_shared_wake_skips_when_online_worker_can_claim_all_queued_work(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "wake-compatible.sqlite"))
+    control.workers.register(
+        "worker-visual",
+        ["python", "visual-asset-production"],
+        1,
+    )
+    monkeypatch.setattr(control.workers, "detect_dead", lambda *args, **kwargs: [])
+    queued = [{
+        "key":"job-visual",
+        "assigned_worker":None,
+        "payload":{"required_capabilities":["visual-asset-production"]},
+    }]
+    calls = []
+    monkeypatch.setattr(
+        control.dashboard_control,
+        "kick_worker",
+        lambda worker_id: calls.append(worker_id) or {"status":"dispatched"},
+    )
+
+    result = request_automatic_worker_wake(
+        workers=control.workers,
+        dashboard_control=control.dashboard_control,
+        store=control.dashboard_store,
+        requested_by="controller:auto",
+        queued_jobs=queued,
+    )
+
+    assert result == {"status":"not_needed"}
+    assert calls == []
+
+
+def test_shared_wake_respects_assigned_worker_when_evaluating_compatibility(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "wake-assigned.sqlite"))
+    control.workers.register(
+        "worker-a",
+        ["python", "visual-asset-production"],
+        1,
+    )
+    control.workers.register(
+        "worker-b",
+        ["python", "visual-asset-production"],
+        1,
+    )
+    monkeypatch.setattr(control.workers, "detect_dead", lambda *args, **kwargs: [])
+    control.workers.load()
+    control.workers.workers["worker-b"].status = "dead"
+    control.workers.save()
+    queued = [{
+        "key":"job-assigned",
+        "assigned_worker":"worker-b",
+        "payload":{"required_capabilities":["visual-asset-production"]},
+    }]
+    calls = []
+    monkeypatch.setattr(
+        control.dashboard_control,
+        "kick_worker",
+        lambda worker_id: calls.append(worker_id) or {"status":"dispatched"},
+    )
+
+    result = request_automatic_worker_wake(
+        workers=control.workers,
+        dashboard_control=control.dashboard_control,
+        store=control.dashboard_store,
+        requested_by="controller:auto",
+        queued_jobs=queued,
+    )
+
+    assert result == {"status":"dispatched"}
+    assert calls == ["automatic-launch"]
+
+
+def test_control_plane_wake_checks_all_queued_capability_requirements(
+    tmp_path,
+    monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "wake-control-plane.sqlite"))
+    control.workers.register("worker-python", ["python"], 1)
+    monkeypatch.setattr(control.workers, "detect_dead", lambda *args, **kwargs: [])
+    control.queue.enqueue({
+        "idempotency_key":"job-basic",
+        "handoff":{"repository":"owner/repo", "task":"basic", "priority":100},
+        "required_capabilities":["python"],
+    })
+    control.queue.enqueue({
+        "idempotency_key":"job-visual",
+        "handoff":{"repository":"owner/repo", "task":"visual", "priority":10},
+        "required_capabilities":["visual-asset-production"],
+    })
+    calls = []
+    monkeypatch.setattr(
+        control.dashboard_control,
+        "kick_worker",
+        lambda worker_id: calls.append(worker_id) or {"status":"dispatched"},
+    )
+
+    result = control.ensure_worker_for_queued_work(requested_by="operator:test")
+
+    assert result == {"status":"dispatched"}
+    assert calls == ["automatic-launch"]
