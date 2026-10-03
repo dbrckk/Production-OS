@@ -261,6 +261,8 @@ let productionFilter="all";
 let productionSearch="";
 let productionSort="priority";
 let productionSearchTimer=null;
+let productionInboxLoadSequence=0;
+let productionDetailLoadSequence=0;
 
 function token(){return localStorage.getItem(TOKEN_KEY)||''}
 async function bootstrapPairingFromFragment(){
@@ -2102,6 +2104,7 @@ function closeProductionInboxDetail(){
 }
 async function loadProductionInboxDetail(projectId){
  const detail=document.getElementById("production-detail");
+ const requestSequence=++productionDetailLoadSequence;
  const value=String(projectId||"").trim();
  if(!detail)return null;
  if(!value){
@@ -2115,6 +2118,10 @@ async function loadProductionInboxDetail(projectId){
   const data=await api(
    "/v1/dashboard/production-status?project_id="+encodeURIComponent(value)
   );
+  if(
+   requestSequence!==productionDetailLoadSequence
+   ||appState.focus!==value
+  )return null;
   const project=data.project||{};
   const runtime=data.runtime||{};
   const phase=String(runtime.phase||"preparing");
@@ -2143,6 +2150,10 @@ async function loadProductionInboxDetail(projectId){
    '</div>';
   return data;
  }catch(e){
+  if(
+   requestSequence!==productionDetailLoadSequence
+   ||appState.focus!==value
+  )return null;
   detail.innerHTML=errorCard(e);
   return null;
  }
@@ -2238,9 +2249,11 @@ async function loadProductionInbox(){
  const el=document.getElementById("productions-list");
  const count=document.getElementById("productions-count");
  if(!el||!count)return null;
+ const requestSequence=++productionInboxLoadSequence;
  syncProductionControls();
  try{
   const data=await api("/v1/dashboard/productions?limit=50"+"&filter="+encodeURIComponent(productionFilter)+"&q="+encodeURIComponent(productionSearch)+"&sort="+encodeURIComponent(productionSort));
+  if(requestSequence!==productionInboxLoadSequence)return null;
   const rows=data.items||[];
   const summary=data.summary||{};
   count.textContent=String(summary.visible||rows.length||0);
@@ -2286,13 +2299,18 @@ async function loadProductionInbox(){
   }).join("");
   if(appState.focus){
    const focused=el.querySelector('[data-production-project-id="'+CSS.escape(String(appState.focus))+'"]');
-   if(focused)setTimeout(function(){focused.scrollIntoView({block:"center"})},0);
+   if(focused)setTimeout(function(){
+    if(requestSequence===productionInboxLoadSequence){
+     focused.scrollIntoView({block:"center"});
+    }
+   },0);
    await loadProductionInboxDetail(appState.focus);
   }else{
    await loadProductionInboxDetail(null);
   }
   return data;
  }catch(e){
+  if(requestSequence!==productionInboxLoadSequence)return null;
   count.textContent="!";
   el.innerHTML=errorCard(e);
   return null;
