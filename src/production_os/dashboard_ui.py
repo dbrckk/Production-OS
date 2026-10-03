@@ -1018,8 +1018,11 @@ async function launchWorkflow(){
   setSettingsOpen(true);return;
  }
  const repositorySelect=document.getElementById('repository');
+ const instructionInput=document.getElementById('instruction');
  const repository=repositorySelect.value.trim();
- const task=document.getElementById('instruction').value.trim();
+ const task=instructionInput.value.trim();
+ const launchFingerprint=launchDraftFingerprint(repository,task);
+ const readinessAtLaunch=launchReadiness;
  if(repositorySelect.disabled||!repository){
   status.textContent='Aucun repository disponible. Recharge la liste avant de lancer.';
   return;
@@ -1042,7 +1045,7 @@ async function launchWorkflow(){
   rememberLastProject(projectId);
   clearPendingLaunchRequest(requestId);
   invalidateWorkflowsSnapshot();
-  const immediate=launchReadiness&&launchReadiness.execution==='immediate';
+  const immediate=readinessAtLaunch&&readinessAtLaunch.execution==='immediate';
   const wake=(created.launch&&created.launch.worker_wake)||{};
   const wakeStatus=String(wake.status||'');
   status.textContent=immediate
@@ -1054,7 +1057,12 @@ async function launchWorkflow(){
      :wakeStatus==='cooldown'
       ?'Production persistante créée · réveil automatique déjà demandé récemment · '+projectId.slice(0,12)
       :'Production persistante créée · en attente du worker · mise en file sûre · '+projectId.slice(0,12);
-  document.getElementById('instruction').value='';
+  const draftStillCurrent=
+   launchDraftFingerprint(
+    repositorySelect.value.trim(),
+    instructionInput.value.trim()
+   )===launchFingerprint;
+  if(draftStillCurrent)instructionInput.value='';
   updateLaunchButtonState();
   await Promise.all([
    loadRecentRuns(),
@@ -1064,7 +1072,7 @@ async function launchWorkflow(){
    loadLaunchReadiness(),
    loadProductionInbox()
   ]);
-  if(workflowId) appState.repository=repository;
+  if(workflowId&&repositorySelect.value.trim()===repository) appState.repository=repository;
  }catch(e){
   status.textContent=String(e).replace(/^Error:\\s*/,'');
  }finally{
