@@ -18,10 +18,10 @@
         "dependency-neighbor",
         "impact"
       ],
-      "score": 500
+      "score": 525
     },
     {
-      "path": "tests/test_dashboard_project_detail_freshness.py",
+      "path": "tests/test_dashboard_worker_detail_freshness.py",
       "reasons": [
         "changed",
         "changed-source",
@@ -50,6 +50,13 @@
         "symbol-indexed"
       ],
       "score": 230
+    },
+    {
+      "path": "src/production_os/__init__.py",
+      "reasons": [
+        "dependency-neighbor"
+      ],
+      "score": 200
     },
     {
       "path": "tests/test_dashboard_mobile_stability.py",
@@ -92,11 +99,14 @@
       "score": 190
     },
     {
-      "path": "src/production_os/__init__.py",
+      "path": "tests/test_dashboard_project_detail_freshness.py",
       "reasons": [
-        "dependency-neighbor"
+        "impact",
+        "reverse-dependency-neighbor",
+        "selected-test",
+        "symbol-indexed"
       ],
-      "score": 175
+      "score": 185
     },
     {
       "path": "src/production_os/cli.py",
@@ -240,13 +250,6 @@
     },
     {
       "path": "tests/test_dashboard_store_postgres.py",
-      "reasons": [
-        "reverse-dependency-neighbor"
-      ],
-      "score": 60
-    },
-    {
-      "path": "tests/test_database_maintenance_lock.py",
       "reasons": [
         "reverse-dependency-neighbor"
       ],
