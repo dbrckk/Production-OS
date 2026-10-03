@@ -616,11 +616,14 @@ function workflowState(status){
 let workflowsSnapshotCache=null;
 let workflowsSnapshotAt=0;
 let workflowsSnapshotRequest=null;
+let workflowsSnapshotGeneration=0;
 const WORKFLOWS_SNAPSHOT_TTL_MS=2000;
 
 function invalidateWorkflowsSnapshot(){
+ workflowsSnapshotGeneration+=1;
  workflowsSnapshotCache=null;
  workflowsSnapshotAt=0;
+ workflowsSnapshotRequest=null;
 }
 async function loadWorkflowsSnapshot(){
  const now=Date.now();
@@ -628,14 +631,21 @@ async function loadWorkflowsSnapshot(){
   return workflowsSnapshotCache;
  }
  if(workflowsSnapshotRequest)return workflowsSnapshotRequest;
- workflowsSnapshotRequest=api('/v1/workflows').then(function(data){
+ const requestGeneration=workflowsSnapshotGeneration;
+ const request=api('/v1/workflows').then(function(data){
+  if(requestGeneration!==workflowsSnapshotGeneration){
+   return loadWorkflowsSnapshot();
+  }
   workflowsSnapshotCache=data||{workflows:[]};
   workflowsSnapshotAt=Date.now();
   return workflowsSnapshotCache;
  }).finally(function(){
-  workflowsSnapshotRequest=null;
+  if(workflowsSnapshotRequest===request){
+   workflowsSnapshotRequest=null;
+  }
  });
- return workflowsSnapshotRequest;
+ workflowsSnapshotRequest=request;
+ return request;
 }
 
 function selectedLaunchRepository(){
