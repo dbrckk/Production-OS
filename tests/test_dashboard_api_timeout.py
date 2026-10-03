@@ -33,3 +33,15 @@ def test_authenticated_api_allows_explicit_timeout_disable():
     )[1].split("async function checkServer()", 1)[0]
 
     assert "if(timeoutMs>0){" in body
+
+
+
+def test_authenticated_api_can_verify_ephemeral_token_without_persisting_it():
+    body = DASHBOARD_HTML.split(
+        "async function api(path,options){", 1
+    )[1].split("async function checkServer()", 1)[0]
+
+    assert "const explicitToken=options.authToken;" in body
+    assert "const secret=String(explicitToken===undefined?token():explicitToken||'');" in body
+    assert "delete requestOptions.authToken;" in body
+    assert "localStorage.setItem" not in body
