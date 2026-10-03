@@ -27,12 +27,18 @@ def probe_asset_forge_remote_dispatch(
     workflow: str = ASSET_FORGE_BATCH_WORKFLOW,
 ) -> dict[str, Any]:
     gh = client or GitHubClient()
-    ready = gh.can_dispatch_workflow(repository, workflow)
+    if gh.can_dispatch_workflow(repository, workflow):
+        transport = "workflow_dispatch"
+    elif gh.can_dispatch_repository_event(repository):
+        transport = "repository_dispatch"
+    else:
+        transport = None
     return {
         "schema_version": "production-os/asset-forge-remote-probe/v1",
         "repository": repository,
         "workflow": workflow,
-        "ready": bool(ready),
+        "ready": transport is not None,
+        "transport": transport,
     }
 
 
@@ -546,22 +552,37 @@ def _produce_asset_forge_batch_remote(
 
     correlation = "pos-" + uuid.uuid4().hex
     gh = client or GitHubClient()
-    gh.dispatch_workflow(
-        repository,
-        workflow,
-        ref=ref,
-        inputs={
-            "correlation_id": correlation,
-            "spec_json": spec_json,
-            "backend": backend,
-            "model": model or "",
-        },
-    )
+    dispatch_payload = {
+        "correlation_id": correlation,
+        "spec_json": spec_json,
+        "backend": backend,
+        "model": model or "",
+    }
+    if gh.can_dispatch_workflow(repository, workflow):
+        transport = "workflow_dispatch"
+        gh.dispatch_workflow(
+            repository,
+            workflow,
+            ref=ref,
+            inputs=dispatch_payload,
+        )
+    elif gh.can_dispatch_repository_event(repository):
+        transport = "repository_dispatch"
+        gh.dispatch_repository_event(
+            repository,
+            event_type="production-os-asset-batch",
+            client_payload=dispatch_payload,
+        )
+    else:
+        raise RuntimeError(
+            "asset-forge remote batch dispatch is not authorized"
+        )
     title = f"Asset Forge batch {correlation}"
     run = gh.wait_for_workflow_run(
         repository,
         workflow,
         display_title=title,
+        event=transport,
         timeout_seconds=2100.0,
         poll_seconds=5.0,
     )
