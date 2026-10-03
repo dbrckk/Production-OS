@@ -317,21 +317,55 @@ async function api(path,options){
   options.body?{'Content-Type':'application/json'}:{},
   options.headers||{}
  );
- const r=await fetch(path,Object.assign({},options,{headers:headers}));
- if(!r.ok){
-  let detail='';
-  try{
-   const payload=await r.json();
-   detail=String(payload.error||'');
-  }catch(_e){
-   try{detail=(await r.text()).slice(0,180)}catch(_ignore){}
+ const timeoutValue=Number(options.timeoutMs);
+ const timeoutMs=Number.isFinite(timeoutValue)?Math.max(0,timeoutValue):30000;
+ const requestOptions=Object.assign({},options);
+ delete requestOptions.timeoutMs;
+ const externalSignal=requestOptions.signal||null;
+ const controller=new AbortController();
+ let timedOut=false;
+ let timeoutId=null;
+ let onExternalAbort=null;
+ if(externalSignal){
+  if(externalSignal.aborted) controller.abort();
+  else{
+   onExternalAbort=function(){controller.abort()};
+   externalSignal.addEventListener('abort',onExternalAbort,{once:true});
   }
-  if(r.status===401) throw new Error('Token opérateur refusé par le serveur.');
-  if(r.status===403) throw new Error('Ce token n’a pas le rôle requis.');
-  throw new Error(detail||('Erreur serveur '+r.status));
  }
- if(r.status===204) return {};
- return await r.json();
+ requestOptions.signal=controller.signal;
+ requestOptions.headers=headers;
+ if(timeoutMs>0){
+  timeoutId=setTimeout(function(){
+   timedOut=true;
+   controller.abort();
+  },timeoutMs);
+ }
+ try{
+  const r=await fetch(path,requestOptions);
+  if(!r.ok){
+   let detail='';
+   try{
+    const payload=await r.json();
+    detail=String(payload.error||'');
+   }catch(_e){
+    try{detail=(await r.text()).slice(0,180)}catch(_ignore){}
+   }
+   if(r.status===401) throw new Error('Token opérateur refusé par le serveur.');
+   if(r.status===403) throw new Error('Ce token n’a pas le rôle requis.');
+   throw new Error(detail||('Erreur serveur '+r.status));
+  }
+  if(r.status===204) return {};
+  return await r.json();
+ }catch(e){
+  if(timedOut) throw new Error('Délai réseau dépassé. Réessaie.');
+  throw e;
+ }finally{
+  if(timeoutId!==null)clearTimeout(timeoutId);
+  if(externalSignal&&onExternalAbort){
+   externalSignal.removeEventListener('abort',onExternalAbort);
+  }
+ }
 }
 
 async function checkServer(){
