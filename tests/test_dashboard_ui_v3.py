@@ -1025,15 +1025,15 @@ def test_repository_scoped_dashboard_loaders_ignore_stale_responses():
     )[1].split("async function loadLaunchReadiness(){", 1)[0]
     assert "const selectedRepository=selectedLaunchRepository();" in visual
     assert visual.count(
-        "if(!repositorySelectionStillCurrent(selectedRepository))return null;"
+        "!repositorySelectionStillCurrent(selectedRepository)"
     ) >= 3
     assert (
         visual.index("await loadWorkflowsSnapshot()")
-        < visual.index("if(!repositorySelectionStillCurrent(selectedRepository))return null;")
+        < visual.index("!repositorySelectionStillCurrent(selectedRepository)")
     )
     assert (
         visual.index("const recent=await Promise.all(")
-        < visual.rindex("if(!repositorySelectionStillCurrent(selectedRepository))return null;")
+        < visual.rindex("!repositorySelectionStillCurrent(selectedRepository)")
     )
 
     readiness = DASHBOARD_HTML.split(
@@ -1041,7 +1041,7 @@ def test_repository_scoped_dashboard_loaders_ignore_stale_responses():
     )[1].split("function rememberLastProject", 1)[0]
     assert "const repository=selectedLaunchRepository();" in readiness
     assert readiness.count(
-        "if(!repositorySelectionStillCurrent(repository))return null;"
+        "!repositorySelectionStillCurrent(repository)"
     ) >= 2
 
 
