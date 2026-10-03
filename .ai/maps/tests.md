@@ -3628,6 +3628,10 @@ recent = DASHBOARD_HTML.split("async function loadRecentRuns(){", 1)[1].split("f
 visual = DASHBOARD_HTML.split("async function loadVisualQuality(){", 1)[1].split("async function loadLaunchReadiness(){", 1)[0]
 ⋮----
 def test_successful_launch_invalidates_workflow_snapshot_before_refresh()
+⋮----
+def test_global_dashboard_polls_are_single_flight()
+⋮----
+helper = html.split("function scheduleGlobalPoll(intervalMs,fn){", 1)[1].split("const appState=", 1)[0]
 ```
 
 ## File: test_dashboard_usage.py

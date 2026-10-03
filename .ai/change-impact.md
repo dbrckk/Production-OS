@@ -1,10 +1,11 @@
 # Change impact
 
-Base: d79419d5aafdb684503a0cad08b3485b15e01cb4
-Head: c161a1a471a4c2965193a90872e247de89e2e8b7
+Base: 22c99baa54be420f63f05a92d50a88848e981d1c
+Head: 2fd9f5e760ff9c91220f33cfe5875d7a292170ce
 
 ## Changed files
 - M src/production_os/dashboard_ui.py
+- M tests/test_dashboard_launch.py
 - M tests/test_dashboard_ui_v3.py
 
 ## Affected areas
