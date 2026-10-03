@@ -1,11 +1,11 @@
 # Change impact
 
-Base: 19f2d4d1917ff6f9d33662f662ee3bb5d65ec24e
-Head: 628ad1f345fb4ccc2a5c8956b12bf2b544882749
+Base: 2ede1f11c27e89b3c96ae554c4f2872051f5754a
+Head: b73970a367b9536bebec58881ca5b8e6cff8d1ee
 
 ## Changed files
 - M src/production_os/dashboard_ui.py
-- A tests/test_dashboard_api_timeout.py
+- A tests/test_dashboard_refresh_coalescing.py
 
 ## Affected areas
 - src

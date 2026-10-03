@@ -18,10 +18,10 @@
         "dependency-neighbor",
         "impact"
       ],
-      "score": 675
+      "score": 700
     },
     {
-      "path": "tests/test_dashboard_api_timeout.py",
+      "path": "tests/test_dashboard_refresh_coalescing.py",
       "reasons": [
         "changed",
         "changed-source",
@@ -30,7 +30,7 @@
         "selected-test",
         "symbol-indexed"
       ],
-      "score": 425
+      "score": 410
     },
     {
       "path": "src/production_os/__init__.py",
@@ -42,21 +42,11 @@
     {
       "path": "src/production_os/control_plane.py",
       "reasons": [
-        "dependency-neighbor",
         "impact",
         "reverse-dependency-neighbor",
         "symbol-indexed"
       ],
-      "score": 315
-    },
-    {
-      "path": "tests/test_dashboard_api.py",
-      "reasons": [
-        "reverse-dependency-neighbor",
-        "selected-test",
-        "symbol-indexed"
-      ],
-      "score": 280
+      "score": 265
     },
     {
       "path": "tests/test_dashboard_production_inbox_filters_ui.py",
@@ -67,6 +57,16 @@
         "symbol-indexed"
       ],
       "score": 230
+    },
+    {
+      "path": "tests/test_dashboard_api_timeout.py",
+      "reasons": [
+        "impact",
+        "reverse-dependency-neighbor",
+        "selected-test",
+        "symbol-indexed"
+      ],
+      "score": 205
     },
     {
       "path": "tests/test_dashboard_mobile_stability.py",
@@ -179,20 +179,6 @@
       "score": 185
     },
     {
-      "path": "src/production_os/api_auth.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 100
-    },
-    {
-      "path": "tests/test_fairness.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 75
-    },
-    {
       "path": "src/production_os/cli.py",
       "reasons": [
         "reverse-dependency-neighbor"
@@ -222,6 +208,13 @@
     },
     {
       "path": "tests/test_control_plane_webhook.py",
+      "reasons": [
+        "reverse-dependency-neighbor"
+      ],
+      "score": 60
+    },
+    {
+      "path": "tests/test_dashboard_api.py",
       "reasons": [
         "reverse-dependency-neighbor"
       ],
@@ -271,6 +264,13 @@
     },
     {
       "path": "tests/test_dashboard_launch_ux.py",
+      "reasons": [
+        "reverse-dependency-neighbor"
+      ],
+      "score": 60
+    },
+    {
+      "path": "tests/test_dashboard_maintenance.py",
       "reasons": [
         "reverse-dependency-neighbor"
       ],

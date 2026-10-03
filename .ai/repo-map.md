@@ -262,6 +262,7 @@ tests/
   test_dashboard_production_inbox.py
   test_dashboard_production_status.py
   test_dashboard_project_detail_freshness.py
+  test_dashboard_refresh_coalescing.py
   test_dashboard_remediation_api.py
   test_dashboard_remediation_history.py
   test_dashboard_remediation_metrics.py
@@ -14278,6 +14279,15 @@ body = DASHBOARD_HTML.split(
 await_index = body.index("const results=await Promise.all([")
 guard_index = body.index("requestSequence!==projectDetailLoadSequence")
 render_index = body.index("const detail=results[0]")
+````
+
+## File: tests/test_dashboard_refresh_coalescing.py
+````python
+def test_full_dashboard_refresh_coalesces_overlapping_requests()
+⋮----
+body = DASHBOARD_HTML.split(
+⋮----
+def test_full_dashboard_refresh_waiters_share_coalesced_cycle()
 ````
 
 ## File: tests/test_dashboard_remediation_api.py

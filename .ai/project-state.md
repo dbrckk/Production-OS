@@ -22,23 +22,23 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-03T16:39:42Z
+Generated: 2026-10-03T16:50:10Z
 
 ### Git
 - Branch: `main`
-- Head: `628ad1f345fb`
-- Commit date: 2026-10-03T18:39:30+02:00
-- Commit: fix(dashboard): bound authenticated API requests (#245)
-- Tracked files: 554
+- Head: `b73970a367b9`
+- Commit date: 2026-10-03T18:49:53+02:00
+- Commit: fix(dashboard): coalesce overlapping full refreshes (#246)
+- Tracked files: 555
 
 ### Recently changed files
 - `src/production_os/dashboard_ui.py`
+- `tests/test_dashboard_refresh_coalescing.py`
 - `tests/test_dashboard_api_timeout.py`
 - `tests/test_dashboard_clear_pairing_state.py`
 - `tests/test_dashboard_global_status_freshness.py`
 - `tests/test_dashboard_ui_v3.py`
 - `tests/test_dashboard_collection_view_freshness.py`
-- `tests/test_dashboard_workflow_snapshot_invalidation.py`
 
 ### Project signals
 - `pyproject.toml`

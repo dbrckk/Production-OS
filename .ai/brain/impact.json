@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "generated_by": "dbrckk/repo-brain",
-  "base": "9f796bdd3e784fc19f6f3b3bece65eedd5d13c61",
-  "head": "628ad1f345fb4ccc2a5c8956b12bf2b544882749",
+  "base": "628ad1f345fb4ccc2a5c8956b12bf2b544882749",
+  "head": "b73970a367b9536bebec58881ca5b8e6cff8d1ee",
   "index_mode": "incremental",
   "changed_files": [
     {
@@ -10,13 +10,13 @@
       "status": "M"
     },
     {
-      "path": "tests/test_dashboard_api_timeout.py",
+      "path": "tests/test_dashboard_refresh_coalescing.py",
       "status": "A"
     }
   ],
   "changed_source_files": [
     "src/production_os/dashboard_ui.py",
-    "tests/test_dashboard_api_timeout.py"
+    "tests/test_dashboard_refresh_coalescing.py"
   ],
   "impacted_files": [
     "src/production_os/control_plane.py",
@@ -31,6 +31,7 @@
     "tests/test_dashboard_production_inbox_filters_ui.py",
     "tests/test_dashboard_production_inbox_freshness.py",
     "tests/test_dashboard_project_detail_freshness.py",
+    "tests/test_dashboard_refresh_coalescing.py",
     "tests/test_dashboard_ui_v3.py",
     "tests/test_dashboard_windowed_view_freshness.py",
     "tests/test_dashboard_worker_detail_freshness.py",
@@ -432,6 +433,18 @@
       "kind": "function",
       "file": "tests/test_dashboard_project_detail_freshness.py",
       "line": 4
+    },
+    {
+      "name": "test_full_dashboard_refresh_coalesces_overlapping_requests",
+      "kind": "function",
+      "file": "tests/test_dashboard_refresh_coalescing.py",
+      "line": 4
+    },
+    {
+      "name": "test_full_dashboard_refresh_waiters_share_coalesced_cycle",
+      "kind": "function",
+      "file": "tests/test_dashboard_refresh_coalescing.py",
+      "line": 23
     },
     {
       "name": "test_dashboard_has_primary_views_and_clickable_entities",
@@ -1137,7 +1150,6 @@
     }
   ],
   "selected_tests": [
-    "tests/test_dashboard_api.py",
     "tests/test_dashboard_api_timeout.py",
     "tests/test_dashboard_async_freshness.py",
     "tests/test_dashboard_clear_pairing_state.py",
@@ -1148,6 +1160,7 @@
     "tests/test_dashboard_production_inbox_filters_ui.py",
     "tests/test_dashboard_production_inbox_freshness.py",
     "tests/test_dashboard_project_detail_freshness.py",
+    "tests/test_dashboard_refresh_coalescing.py",
     "tests/test_dashboard_ui_v3.py",
     "tests/test_dashboard_windowed_view_freshness.py",
     "tests/test_dashboard_worker_detail_freshness.py",
