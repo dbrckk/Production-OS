@@ -2750,6 +2750,16 @@ The service exposes port `8787` and persists the SQLite database in `./artifacts
 
 Production-OS accepts either a SQLite path or a PostgreSQL DSN through the same `--database` option.
 
+PostgreSQL URI and libpq keyword formats are both supported, including
+`host=localhost dbname=production_os user=production_os`. A recognized PostgreSQL
+connection never falls back to SQLite when its configuration or connection fails.
+Controller and server locks use the same backend selection.
+
+PostgreSQL schema version 19 adds the release transparency and trust incident
+ledgers to existing databases without deleting workflow or release history.
+Concurrent promotions and incident snapshots serialize their respective hash
+chains. The production-stack E2E gate asserts that it actually uses PostgreSQL.
+
 Example:
 
 ```bash
@@ -4648,6 +4658,15 @@ until SIGTERM or SIGINT, stops cooperatively, and retries failed control cycles
 with bounded exponential backoff instead of terminating the orchestrator.
 Health and metrics are updated on failed cycles so external supervision can
 distinguish a living-but-degraded controller from a stopped process.
+
+Error reporting is best effort: an unavailable backend, unreadable metrics, or
+failed diagnostic write does not stop daemon retries or replace the original
+cycle error in bounded runs. Health publication is independent of metric
+publication. When runtime state cannot be read, health remains `degraded`,
+reports `runtime_status=unavailable`, and uses `null` runtime counts instead of
+inventing an empty queue. Metric, runtime-state, and health reporting failures
+emit warnings containing only the exception type. Persistent storage failures still require repair;
+the daemon keeps its bounded retry delay and cooperative shutdown behavior.
 
 The Compose deployment exposes an optional profile:
 

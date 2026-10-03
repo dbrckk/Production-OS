@@ -67,7 +67,7 @@ from .reconciliation import reconcile_runtime_state
 from .resources import allocate_resources
 from .runtime_state import RuntimeState
 from .sqlite_migration import import_json_state
-from .storage import job_queue_for, open_backend, worker_registry_for
+from .storage import is_postgres, job_queue_for, open_backend, worker_registry_for
 from .api_auth import token_digest
 from .scheduler import build_schedule
 from .scoring import assess_repository
@@ -1318,7 +1318,7 @@ def run_dispatch(args: argparse.Namespace) -> int:
         job = queue.enqueue(payload)
         backend_name = (
             "postgres"
-            if args.database.startswith(("postgresql://","postgres://"))
+            if is_postgres(args.database)
             else "sqlite"
         )
         print(json.dumps({
@@ -2001,7 +2001,7 @@ def run_db_init(args: argparse.Namespace) -> int:
     backend = open_backend(args.database)
     backend_name = (
         "postgres"
-        if args.database.startswith(("postgresql://","postgres://"))
+        if is_postgres(args.database)
         else "sqlite"
     )
     print(json.dumps({

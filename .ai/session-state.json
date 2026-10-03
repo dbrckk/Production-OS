@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-10-03",
+  "objective": "Improve Production-OS functionality and resilience without duplicating existing dashboard pairing PRs.",
+  "base_commit": "7e0d47a8fd54e7faa3b3947b07259a5e065c3bdb",
+  "branch": "fix/controller-error-recovery",
+  "changes": [
+    "Isolate controller cycle error metrics, runtime-state reads, and health publication from daemon retry and bounded-run error handling.",
+    "Recognize PostgreSQL URI and libpq keyword DSNs consistently for backend selection, locks, and CLI diagnostics.",
+    "Upgrade PostgreSQL to schema 19 with release transparency and trust incident tables.",
+    "Serialize concurrent PostgreSQL ledger appends and support legacy HMAC releases in trust inspection.",
+    "Require the production-stack E2E test to assert its actual PostgreSQL backend."
+  ],
+  "validation": {
+    "controller_regressions_before_fix": "10 failed, 1 passed",
+    "routing_regressions_before_fix": "9 failed, 8 passed",
+    "real_postgres_e2e_before_schema_fix": "failed on missing transparency_log",
+    "final_full_suite_postgres16": "1290 passed, none skipped",
+    "compile": "passed with SyntaxWarning treated as error",
+    "distribution_build": "sdist and wheel passed",
+    "isolated_wheel": "CLI passed; keyword DSN without PostgreSQL extra raises explicit support error and creates no SQLite files"
+  },
+  "remaining": [
+    "Review the pull request for fix/controller-error-recovery and its GitHub CI.",
+    "Verify live deployment and actual worker execution when deployment credentials are available.",
+    "Review existing pairing PRs #247 and #248 separately."
+  ]
+}

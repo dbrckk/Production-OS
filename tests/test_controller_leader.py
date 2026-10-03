@@ -49,6 +49,15 @@ def test_controller_leader_factory_falls_back_to_runtime_state(tmp_path):
     assert lock.path == Path(str(runtime) + ".controller.lock").resolve()
 
 
+def test_controller_leader_factory_routes_keyword_dsn_to_postgres():
+    lock = leader.controller_leader_lock(
+        database_path="host=localhost dbname=production",
+        runtime_state_path=None,
+        journal_path=None,
+    )
+    assert isinstance(lock, leader.PostgresControllerLeaderLock)
+
+
 def test_postgres_controller_leader_lock_holds_session_advisory_lock(monkeypatch):
     calls = []
 
