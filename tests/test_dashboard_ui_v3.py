@@ -1000,3 +1000,46 @@ def test_global_dashboard_polls_are_single_flight():
     assert "return Promise.all([" in helper
     assert "setInterval(loadVisualQuality,10000)" not in html
     assert "setInterval(loadLastProduction,5000)" not in html
+
+
+
+def test_repository_scoped_dashboard_loaders_ignore_stale_responses():
+    assert "function selectedLaunchRepository(){" in DASHBOARD_HTML
+    assert "function repositorySelectionStillCurrent(repository){" in DASHBOARD_HTML
+    assert "return selectedLaunchRepository()===repository;" in DASHBOARD_HTML
+
+    recent = DASHBOARD_HTML.split(
+        "async function loadRecentRuns(){", 1
+    )[1].split("function githubAssetUrls", 1)[0]
+    assert "const selectedRepository=selectedLaunchRepository();" in recent
+    assert (
+        recent.index("const selectedRepository=selectedLaunchRepository();")
+        < recent.index("await loadWorkflowsSnapshot()")
+    )
+    assert recent.count(
+        "if(!repositorySelectionStillCurrent(selectedRepository))return null;"
+    ) >= 2
+
+    visual = DASHBOARD_HTML.split(
+        "async function loadVisualQuality(){", 1
+    )[1].split("async function loadLaunchReadiness(){", 1)[0]
+    assert "const selectedRepository=selectedLaunchRepository();" in visual
+    assert visual.count(
+        "if(!repositorySelectionStillCurrent(selectedRepository))return null;"
+    ) >= 3
+    assert (
+        visual.index("await loadWorkflowsSnapshot()")
+        < visual.index("if(!repositorySelectionStillCurrent(selectedRepository))return null;")
+    )
+    assert (
+        visual.index("const recent=await Promise.all(")
+        < visual.rindex("if(!repositorySelectionStillCurrent(selectedRepository))return null;")
+    )
+
+    readiness = DASHBOARD_HTML.split(
+        "async function loadLaunchReadiness(){", 1
+    )[1].split("function rememberLastProject", 1)[0]
+    assert "const repository=selectedLaunchRepository();" in readiness
+    assert readiness.count(
+        "if(!repositorySelectionStillCurrent(repository))return null;"
+    ) >= 2

@@ -634,6 +634,13 @@ async function loadWorkflowsSnapshot(){
  return workflowsSnapshotRequest;
 }
 
+function selectedLaunchRepository(){
+ return document.getElementById('repository').value.trim();
+}
+function repositorySelectionStillCurrent(repository){
+ return selectedLaunchRepository()===repository;
+}
+
 async function loadRecentRuns(){
  const listEl=document.getElementById('recent-runs');
  const countEl=document.getElementById('runs-count');
@@ -642,9 +649,10 @@ async function loadRecentRuns(){
   countEl.textContent='0';
   return;
  }
+ const selectedRepository=selectedLaunchRepository();
  try{
   const list=await loadWorkflowsSnapshot();
-  const selectedRepository=document.getElementById('repository').value.trim();
+  if(!repositorySelectionStillCurrent(selectedRepository))return null;
   const workflows=(list.workflows||[]).filter(function(item){return !selectedRepository||item.repository===selectedRepository}).slice(0,8);
   countEl.textContent=String(workflows.length);
   if(!workflows.length){
@@ -659,6 +667,7 @@ async function loadRecentRuns(){
     +'<div class="run-state '+state[1]+'">'+state[0]+'</div></div>';
   }).join('');
  }catch(e){
+  if(!repositorySelectionStillCurrent(selectedRepository))return null;
   listEl.innerHTML='<div class="empty">Productions indisponibles · '+esc(String(e).replace(/^Error:\\s*/,''))+'</div>';
  }
 }
@@ -696,15 +705,17 @@ async function loadVisualQuality(){
   const view=qualityView('unknown');badge.textContent=view[0];badge.className='quality-badge '+view[1];
   detail.textContent='Appaire cet appareil via ⚙ pour afficher la qualité des derniers assets.';return;
  }
+ const selectedRepository=selectedLaunchRepository();
  try{
   const list=await loadWorkflowsSnapshot();
-  const selectedRepository=document.getElementById('repository').value.trim();
+  if(!repositorySelectionStillCurrent(selectedRepository))return null;
   const workflows=(list.workflows||[]).filter(function(item){return item.repository===selectedRepository});
   if(!workflows.length){
    const view=qualityView('unknown');badge.textContent=view[0];badge.className='quality-badge '+view[1];
    detail.textContent='Aucun workflow visuel pour ce repository.';return;
   }
   const recent=await Promise.all(workflows.slice(0,5).map(function(item){return api('/v1/workflows/'+encodeURIComponent(item.id))}));
+  if(!repositorySelectionStillCurrent(selectedRepository))return null;
   const latest=recent[0];
   const visual=extractVisualQuality(latest.workflow);
   if(!visual){
@@ -749,6 +760,7 @@ async function loadVisualQuality(){
    return '<div class="history-row"><span class="quality-badge '+itemView[1]+'">'+itemView[0]+'</span> '+esc(when)+min+'</div>';
   }).join('');
  }catch(_e){
+  if(!repositorySelectionStillCurrent(selectedRepository))return null;
   const view=qualityView('unknown');badge.textContent=view[0];badge.className='quality-badge '+view[1];
   detail.textContent='Qualité visuelle indisponible.';
   document.getElementById('visual-assets-list').innerHTML='';
@@ -758,7 +770,7 @@ async function loadVisualQuality(){
 
 async function loadLaunchReadiness(){
  const el=document.getElementById('launch-readiness');
- const repository=document.getElementById('repository').value.trim();
+ const repository=selectedLaunchRepository();
  if(!token()||!repository){
   launchReadiness=null;
   el.className='launch-readiness';
@@ -769,6 +781,7 @@ async function loadLaunchReadiness(){
   const data=await api(
    '/v1/dashboard/launch-readiness?repository='+encodeURIComponent(repository)
   );
+  if(!repositorySelectionStillCurrent(repository))return null;
   launchReadiness=data;
   const immediate=data.execution==='immediate';
   const wake=(data.worker_wake||{});
@@ -781,6 +794,7 @@ async function loadLaunchReadiness(){
     :'Mise en file sûre · réveil GitHub Actions planifié · délai variable · '+String(data.queued_jobs||0)+' job(s) déjà en attente.';
   return data;
  }catch(e){
+  if(!repositorySelectionStillCurrent(repository))return null;
   launchReadiness=null;
   el.className='launch-readiness';
   el.textContent='Disponibilité : '+String(e).replace(/^Error:\\s*/,'');
