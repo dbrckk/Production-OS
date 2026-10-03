@@ -86,6 +86,7 @@
         "tests/test_dashboard_usage.py",
         "tests/test_dashboard_windowed_view_freshness.py",
         "tests/test_dashboard_worker_detail_freshness.py",
+        "tests/test_dashboard_workflow_snapshot_invalidation.py",
         "tests/test_database_maintenance_lock.py",
         "tests/test_deep_fingerprint_starlist.py",
         "tests/test_device_pairing.py",
@@ -204,7 +205,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 192,
+      "in_degree": 193,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -1116,9 +1117,10 @@
         "tests/test_dashboard_project_detail_freshness.py",
         "tests/test_dashboard_ui_v3.py",
         "tests/test_dashboard_windowed_view_freshness.py",
-        "tests/test_dashboard_worker_detail_freshness.py"
+        "tests/test_dashboard_worker_detail_freshness.py",
+        "tests/test_dashboard_workflow_snapshot_invalidation.py"
       ],
-      "in_degree": 10,
+      "in_degree": 11,
       "out_degree": 0
     },
     "src/production_os/dashboard_usage.py": {
@@ -3565,6 +3567,15 @@
       "out_degree": 2
     },
     "tests/test_dashboard_worker_detail_freshness.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/dashboard_ui.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 2
+    },
+    "tests/test_dashboard_workflow_snapshot_invalidation.py": {
       "dependencies": [
         "src/production_os/__init__.py",
         "src/production_os/dashboard_ui.py"

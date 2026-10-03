@@ -2,27 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat(agents): preintegrate upstream commits before integration executors",
-      "terms": [
-        "agents",
-        "before",
-        "commits",
-        "executors",
-        "feat",
-        "integration",
-        "preintegrate",
-        "upstream"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/executor_worktree.py",
-        "src/production_os/remote_worker_runner.py",
-        "tests/test_executor_worktree.py",
-        "tests/test_remote_worker_runner.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat(agents): verify git state before accepting worktree success",
       "terms": [
         "accepting",
@@ -1256,6 +1235,23 @@
         "src/production_os/dashboard_ui.py",
         "tests/test_dashboard_windowed_view_freshness.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "fix(dashboard): invalidate in-flight workflow snapshots (#241)",
+      "terms": [
+        "241",
+        "dashboard",
+        "in-flight",
+        "invalidate",
+        "snapshots",
+        "workflow"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/dashboard_ui.py",
+        "tests/test_dashboard_workflow_snapshot_invalidation.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1427,6 +1423,10 @@
     "240": {
       "src/production_os/dashboard_ui.py": 4,
       "tests/test_dashboard_windowed_view_freshness.py": 4
+    },
+    "241": {
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_workflow_snapshot_invalidation.py": 4
     },
     "24x7": {
       "src/production_os/cli.py": 4,
@@ -2693,6 +2693,7 @@
       "tests/test_dashboard_usage.py": 4,
       "tests/test_dashboard_windowed_view_freshness.py": 4,
       "tests/test_dashboard_worker_detail_freshness.py": 4,
+      "tests/test_dashboard_workflow_snapshot_invalidation.py": 4,
       "tests/test_github_client_pr_files.py": 4,
       "tests/test_portfolio_claim_api.py": 4,
       "tests/test_project_progress.py": 4,
@@ -3377,6 +3378,10 @@
       "tests/test_managed_projects_v4.py": 4,
       "tests/test_workflow_postgres.py": 4
     },
+    "in-flight": {
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_workflow_snapshot_invalidation.py": 4
+    },
     "inbox": {
       "src/production_os/control_plane.py": 12,
       "src/production_os/dashboard_service.py": 12,
@@ -3448,8 +3453,9 @@
       "tests/test_worktree_contract.py": 4
     },
     "invalidate": {
-      "src/production_os/dashboard_ui.py": 4,
-      "tests/test_dashboard_ui_v3.py": 4
+      "src/production_os/dashboard_ui.py": 8,
+      "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_dashboard_workflow_snapshot_invalidation.py": 4
     },
     "inventory": {
       "src/production_os/dashboard_backups.py": 4,
@@ -5015,7 +5021,9 @@
     },
     "snapshots": {
       "src/production_os/browser_computer.py": 4,
-      "tests/test_browser_computer.py": 4
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_browser_computer.py": 4,
+      "tests/test_dashboard_workflow_snapshot_invalidation.py": 4
     },
     "source": {
       "src/production_os/asset_forge.py": 4,
@@ -5567,7 +5575,7 @@
       "src/production_os/agent_benchmark.py": 4,
       "src/production_os/cli.py": 4,
       "src/production_os/controller.py": 4,
-      "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/dashboard_ui.py": 8,
       "src/production_os/executor_worktree.py": 4,
       "src/production_os/github_client.py": 4,
       "src/production_os/remote_worker_runner.py": 4,
@@ -5575,6 +5583,7 @@
       "src/production_os/workflow_engine.py": 4,
       "tests/test_agent_benchmark.py": 4,
       "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_dashboard_workflow_snapshot_invalidation.py": 4,
       "tests/test_executor_worktree.py": 4,
       "tests/test_remote_worker_runner.py": 4,
       "tests/test_workflow_engine.py": 4

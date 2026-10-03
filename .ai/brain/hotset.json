@@ -18,10 +18,10 @@
         "dependency-neighbor",
         "impact"
       ],
-      "score": 550
+      "score": 575
     },
     {
-      "path": "tests/test_dashboard_windowed_view_freshness.py",
+      "path": "tests/test_dashboard_workflow_snapshot_invalidation.py",
       "reasons": [
         "changed",
         "changed-source",
@@ -42,6 +42,13 @@
       "score": 265
     },
     {
+      "path": "src/production_os/__init__.py",
+      "reasons": [
+        "dependency-neighbor"
+      ],
+      "score": 250
+    },
+    {
       "path": "tests/test_dashboard_production_inbox_filters_ui.py",
       "reasons": [
         "impact",
@@ -50,13 +57,6 @@
         "symbol-indexed"
       ],
       "score": 230
-    },
-    {
-      "path": "src/production_os/__init__.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 225
     },
     {
       "path": "tests/test_dashboard_mobile_stability.py",
@@ -90,6 +90,16 @@
     },
     {
       "path": "tests/test_dashboard_launch_freshness.py",
+      "reasons": [
+        "impact",
+        "reverse-dependency-neighbor",
+        "selected-test",
+        "symbol-indexed"
+      ],
+      "score": 190
+    },
+    {
+      "path": "tests/test_dashboard_windowed_view_freshness.py",
       "reasons": [
         "impact",
         "reverse-dependency-neighbor",
@@ -246,13 +256,6 @@
     },
     {
       "path": "tests/test_dashboard_remediation_api.py",
-      "reasons": [
-        "reverse-dependency-neighbor"
-      ],
-      "score": 60
-    },
-    {
-      "path": "tests/test_dashboard_retention_prune.py",
       "reasons": [
         "reverse-dependency-neighbor"
       ],

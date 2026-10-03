@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "generated_by": "dbrckk/repo-brain",
-  "base": "b71918f7373efaedc9522443822dd11804233760",
-  "head": "7fd70d7fee36591f80b8377bc780e5bb38a89dd8",
+  "base": "7fd70d7fee36591f80b8377bc780e5bb38a89dd8",
+  "head": "2e9f2cab5ba2e0af2e1e67c17d94e6c9788c86df",
   "index_mode": "incremental",
   "changed_files": [
     {
@@ -10,13 +10,13 @@
       "status": "M"
     },
     {
-      "path": "tests/test_dashboard_windowed_view_freshness.py",
+      "path": "tests/test_dashboard_workflow_snapshot_invalidation.py",
       "status": "A"
     }
   ],
   "changed_source_files": [
     "src/production_os/dashboard_ui.py",
-    "tests/test_dashboard_windowed_view_freshness.py"
+    "tests/test_dashboard_workflow_snapshot_invalidation.py"
   ],
   "impacted_files": [
     "src/production_os/control_plane.py",
@@ -29,7 +29,8 @@
     "tests/test_dashboard_project_detail_freshness.py",
     "tests/test_dashboard_ui_v3.py",
     "tests/test_dashboard_windowed_view_freshness.py",
-    "tests/test_dashboard_worker_detail_freshness.py"
+    "tests/test_dashboard_worker_detail_freshness.py",
+    "tests/test_dashboard_workflow_snapshot_invalidation.py"
   ],
   "impacted_symbols": [
     {
@@ -1039,6 +1040,18 @@
       "kind": "function",
       "file": "tests/test_dashboard_worker_detail_freshness.py",
       "line": 4
+    },
+    {
+      "name": "test_workflow_snapshot_invalidation_replaces_inflight_generation",
+      "kind": "function",
+      "file": "tests/test_dashboard_workflow_snapshot_invalidation.py",
+      "line": 4
+    },
+    {
+      "name": "test_old_workflow_snapshot_finally_cannot_clear_newer_request",
+      "kind": "function",
+      "file": "tests/test_dashboard_workflow_snapshot_invalidation.py",
+      "line": 28
     }
   ],
   "selected_tests": [
@@ -1050,6 +1063,7 @@
     "tests/test_dashboard_project_detail_freshness.py",
     "tests/test_dashboard_ui_v3.py",
     "tests/test_dashboard_windowed_view_freshness.py",
-    "tests/test_dashboard_worker_detail_freshness.py"
+    "tests/test_dashboard_worker_detail_freshness.py",
+    "tests/test_dashboard_workflow_snapshot_invalidation.py"
   ]
 }

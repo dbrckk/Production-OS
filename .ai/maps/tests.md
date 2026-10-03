@@ -115,6 +115,7 @@ test_dashboard_ui_v3.py
 test_dashboard_usage.py
 test_dashboard_windowed_view_freshness.py
 test_dashboard_worker_detail_freshness.py
+test_dashboard_workflow_snapshot_invalidation.py
 test_database_maintenance_lock.py
 test_deep_fingerprint_starlist.py
 test_device_pairing.py
@@ -3759,6 +3760,19 @@ body = DASHBOARD_HTML.split(
 await_index = body.index("const results=await Promise.all([")
 guard_index = body.index("requestSequence!==workerDetailLoadSequence")
 render_index = body.index("const detail=results[0]")
+```
+
+## File: test_dashboard_workflow_snapshot_invalidation.py
+```python
+def test_workflow_snapshot_invalidation_replaces_inflight_generation()
+⋮----
+block = DASHBOARD_HTML.split(
+⋮----
+invalidate = block.split(
+⋮----
+loader = block.split("async function loadWorkflowsSnapshot(){", 1)[1]
+⋮----
+def test_old_workflow_snapshot_finally_cannot_clear_newer_request()
 ```
 
 ## File: test_database_maintenance_lock.py

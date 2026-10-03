@@ -83,6 +83,7 @@
         "tests/test_dashboard_usage.py",
         "tests/test_dashboard_windowed_view_freshness.py",
         "tests/test_dashboard_worker_detail_freshness.py",
+        "tests/test_dashboard_workflow_snapshot_invalidation.py",
         "tests/test_database_maintenance_lock.py",
         "tests/test_deep_fingerprint_starlist.py",
         "tests/test_device_pairing.py",
@@ -201,7 +202,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 192,
+      "in_degree": 193,
       "out_degree": 0,
       "path": "src/production_os/__init__.py"
     },
@@ -1436,6 +1437,25 @@
       "path": "src/production_os/asymmetric_attestations.py"
     },
     {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/control_plane.py",
+        "tests/test_dashboard_async_freshness.py",
+        "tests/test_dashboard_launch_freshness.py",
+        "tests/test_dashboard_mobile_stability.py",
+        "tests/test_dashboard_production_inbox_filters_ui.py",
+        "tests/test_dashboard_production_inbox_freshness.py",
+        "tests/test_dashboard_project_detail_freshness.py",
+        "tests/test_dashboard_ui_v3.py",
+        "tests/test_dashboard_windowed_view_freshness.py",
+        "tests/test_dashboard_worker_detail_freshness.py",
+        "tests/test_dashboard_workflow_snapshot_invalidation.py"
+      ],
+      "in_degree": 11,
+      "out_degree": 0,
+      "path": "src/production_os/dashboard_ui.py"
+    },
+    {
       "dependencies": [
         "src/production_os/approvals.py"
       ],
@@ -1574,24 +1594,6 @@
       "in_degree": 3,
       "out_degree": 8,
       "path": "src/production_os/scheduler.py"
-    },
-    {
-      "dependencies": [],
-      "dependents": [
-        "src/production_os/control_plane.py",
-        "tests/test_dashboard_async_freshness.py",
-        "tests/test_dashboard_launch_freshness.py",
-        "tests/test_dashboard_mobile_stability.py",
-        "tests/test_dashboard_production_inbox_filters_ui.py",
-        "tests/test_dashboard_production_inbox_freshness.py",
-        "tests/test_dashboard_project_detail_freshness.py",
-        "tests/test_dashboard_ui_v3.py",
-        "tests/test_dashboard_windowed_view_freshness.py",
-        "tests/test_dashboard_worker_detail_freshness.py"
-      ],
-      "in_degree": 10,
-      "out_degree": 0,
-      "path": "src/production_os/dashboard_ui.py"
     },
     {
       "dependencies": [],
@@ -2024,8 +2026,8 @@
       "path": "src/production_os/dashboard_control.py"
     }
   ],
-  "edge_count": 1747,
+  "edge_count": 1749,
   "generated_by": "dbrckk/repo-brain-v7-graph",
-  "node_count": 332,
+  "node_count": 333,
   "schema_version": 1
 }

@@ -22,22 +22,22 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-03T15:49:19Z
+Generated: 2026-10-03T15:56:17Z
 
 ### Git
 - Branch: `main`
-- Head: `7fd70d7fee36`
-- Commit date: 2026-10-03T17:49:07+02:00
-- Commit: fix(dashboard): keep windowed views fresh (#240)
-- Tracked files: 549
+- Head: `2e9f2cab5ba2`
+- Commit date: 2026-10-03T17:56:06+02:00
+- Commit: fix(dashboard): invalidate in-flight workflow snapshots (#241)
+- Tracked files: 550
 
 ### Recently changed files
 - `src/production_os/dashboard_ui.py`
+- `tests/test_dashboard_workflow_snapshot_invalidation.py`
 - `tests/test_dashboard_windowed_view_freshness.py`
 - `tests/test_dashboard_worker_detail_freshness.py`
 - `tests/test_dashboard_project_detail_freshness.py`
 - `tests/test_dashboard_production_inbox_freshness.py`
-- `tests/test_dashboard_launch_freshness.py`
 
 ### Project signals
 - `pyproject.toml`

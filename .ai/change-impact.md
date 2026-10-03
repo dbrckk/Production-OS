@@ -1,11 +1,11 @@
 # Change impact
 
-Base: 457f97d8dc878ba54af437b4be3c32c01a168913
-Head: 7fd70d7fee36591f80b8377bc780e5bb38a89dd8
+Base: a74c990190b32421a170a13263c35ed77d802f12
+Head: 2e9f2cab5ba2e0af2e1e67c17d94e6c9788c86df
 
 ## Changed files
 - M src/production_os/dashboard_ui.py
-- A tests/test_dashboard_windowed_view_freshness.py
+- A tests/test_dashboard_workflow_snapshot_invalidation.py
 
 ## Affected areas
 - src
