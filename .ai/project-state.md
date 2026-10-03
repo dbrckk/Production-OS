@@ -22,17 +22,18 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-03T14:03:47Z
+Generated: 2026-10-03T14:12:56Z
 
 ### Git
 - Branch: `main`
-- Head: `5d066c2dce24`
-- Commit date: 2026-10-03T16:03:37+02:00
-- Commit: fix(dashboard): invalidate stale view polls (#234)
-- Tracked files: 543
+- Head: `4d35ba23445e`
+- Commit date: 2026-10-03T16:12:45+02:00
+- Commit: fix(dashboard): keep last production responses fresh (#235)
+- Tracked files: 544
 
 ### Recently changed files
 - `src/production_os/dashboard_ui.py`
+- `tests/test_dashboard_async_freshness.py`
 - `tests/test_dashboard_ui_v3.py`
 - `tests/test_dashboard_launch.py`
 

@@ -2,25 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat(agents): add bounded dynamic agent plan contract",
-      "terms": [
-        "add",
-        "agent",
-        "agents",
-        "bounded",
-        "contract",
-        "dynamic",
-        "feat",
-        "plan"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/agent_plan.py",
-        "tests/test_agent_plan.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat(agents): expand planner results into dynamic parallel DAGs",
       "terms": [
         "agents",
@@ -1268,6 +1249,24 @@
         "src/production_os/dashboard_ui.py",
         "tests/test_dashboard_ui_v3.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "fix(dashboard): keep last production responses fresh (#235)",
+      "terms": [
+        "235",
+        "dashboard",
+        "fresh",
+        "keep",
+        "last",
+        "production",
+        "responses"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/dashboard_ui.py",
+        "tests/test_dashboard_async_freshness.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1407,6 +1406,10 @@
     "234": {
       "src/production_os/dashboard_ui.py": 4,
       "tests/test_dashboard_ui_v3.py": 4
+    },
+    "235": {
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_async_freshness.py": 4
     },
     "24": {
       "src/production_os/dashboard_backups.py": 4,
@@ -2658,6 +2661,7 @@
       "tests/test_asset_forge.py": 8,
       "tests/test_dashboard_alerts.py": 4,
       "tests/test_dashboard_api.py": 12,
+      "tests/test_dashboard_async_freshness.py": 4,
       "tests/test_dashboard_attention.py": 4,
       "tests/test_dashboard_control.py": 8,
       "tests/test_dashboard_control_api.py": 4,
@@ -3154,6 +3158,10 @@
       "tests/test_controller_asset_capabilities.py": 4,
       "tests/test_workflow_engine.py": 4
     },
+    "fresh": {
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_async_freshness.py": 4
+    },
     "from": {
       "src/production_os/agent_benchmark.py": 4,
       "src/production_os/agent_planning_policy.py": 8,
@@ -3484,10 +3492,16 @@
     },
     "keep": {
       "src/production_os/dashboard_service.py": 4,
+      "src/production_os/dashboard_ui.py": 4,
       "src/production_os/managed_projects.py": 4,
       "tests/test_cooperative_managed_projects.py": 4,
+      "tests/test_dashboard_async_freshness.py": 4,
       "tests/test_dashboard_launch_ux.py": 4,
       "tests/test_dashboard_repositories.py": 4
+    },
+    "last": {
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_async_freshness.py": 4
     },
     "launch": {
       "src/production_os/control_plane.py": 16,
@@ -4102,7 +4116,7 @@
       "src/production_os/cli.py": 4,
       "src/production_os/control_plane.py": 24,
       "src/production_os/dashboard_service.py": 28,
-      "src/production_os/dashboard_ui.py": 36,
+      "src/production_os/dashboard_ui.py": 40,
       "src/production_os/github_client.py": 4,
       "src/production_os/managed_projects.py": 4,
       "src/production_os/postgres_backend.py": 4,
@@ -4112,6 +4126,7 @@
       "tests/test_capabilities_graph.py": 4,
       "tests/test_classification_history_reuse.py": 8,
       "tests/test_dashboard_api.py": 20,
+      "tests/test_dashboard_async_freshness.py": 4,
       "tests/test_dashboard_attention.py": 8,
       "tests/test_dashboard_launch.py": 4,
       "tests/test_dashboard_production_inbox.py": 12,
@@ -4578,7 +4593,8 @@
       "tests/test_controller_daemon_deployment.py": 4
     },
     "responses": {
-      "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/dashboard_ui.py": 8,
+      "tests/test_dashboard_async_freshness.py": 4,
       "tests/test_dashboard_ui_v3.py": 4
     },
     "restart": {

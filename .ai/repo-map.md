@@ -232,6 +232,7 @@ tests/
   test_cooperative_specialist_e2e.py
   test_dashboard_alerts.py
   test_dashboard_api.py
+  test_dashboard_async_freshness.py
   test_dashboard_attention.py
   test_dashboard_backup_api.py
   test_dashboard_backups.py
@@ -13018,6 +13019,23 @@ project_id = project["project_id"]
 audit = control.dashboard_store.control_audit_events(limit=10)
 ⋮----
 def test_production_inbox_rejects_invalid_sort_over_http(running_control_plane)
+````
+
+## File: tests/test_dashboard_async_freshness.py
+````python
+def test_last_production_only_latest_request_can_render()
+⋮----
+body = DASHBOARD_HTML.split(
+⋮----
+await_index = body.index(
+guard_index = body.index("requestSequence!==lastProductionLoadSequence")
+render_index = body.index("el.hidden=false;")
+⋮----
+def test_missing_last_project_invalidates_older_inflight_request()
+⋮----
+sequence_index = body.index(
+project_index = body.index("const projectId=currentLastProjectId();")
+empty_index = body.index("if(!token()||!projectId){")
 ````
 
 ## File: tests/test_dashboard_attention.py
