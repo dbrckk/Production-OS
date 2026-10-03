@@ -261,6 +261,7 @@ let productionFilter="all";
 let productionSearch="";
 let productionSort="priority";
 let productionSearchTimer=null;
+let workerDetailLoadSequence=0;
 let productionInboxLoadSequence=0;
 let productionDetailLoadSequence=0;
 let projectDetailLoadSequence=0;
@@ -1726,13 +1727,21 @@ async function runWorkerControl(workerId,action,jobKey=null,incidentId=null){
 }
 async function loadWorkerDetail(workerId){
  const el=document.getElementById("worker-detail");
+ const requestSequence=++workerDetailLoadSequence;
+ const requestedWindow=appState.window;
  try{
   const base="/v1/dashboard/workers/"+encodeURIComponent(workerId);
   const results=await Promise.all([
    api(base),
    api(base+"/logs?limit=50"),
-   api(base+"/usage?window="+encodeURIComponent(appState.window))
+   api(base+"/usage?window="+encodeURIComponent(requestedWindow))
   ]);
+  if(
+   requestSequence!==workerDetailLoadSequence
+   ||appState.view!=="workers"
+   ||appState.workerId!==workerId
+   ||appState.window!==requestedWindow
+  )return null;
   const detail=results[0],logs=results[1],usage=results[2],worker=detail.worker||{},totals=usage.totals||{};
   const executions=detail.executions||[];
   const recoverableJobs=detail.recoverable_jobs||[];
@@ -1777,7 +1786,16 @@ async function loadWorkerDetail(workerId){
    '<h3 style="font-size:.85rem;margin:15px 0 6px">Historique d’exécution</h3>'+
    (executions.length?executions.slice(0,8).map(function(row){return '<div class="small"><strong>Résultat :</strong> '+esc(String(row.status||"inconnu"))+' · '+esc(String(row.started_at||""))+' · <strong>Durée :</strong> '+(row.duration_seconds==null?'—':formatNumber(row.duration_seconds)+' s')+'</div>'}).join(""):'<div class="empty">Aucune exécution enregistrée.</div>')+
    '</div>';
- }catch(e){el.innerHTML=errorCard(e)}
+ }catch(e){
+  if(
+   requestSequence!==workerDetailLoadSequence
+   ||appState.view!=="workers"
+   ||appState.workerId!==workerId
+   ||appState.window!==requestedWindow
+  )return null;
+  el.innerHTML=errorCard(e);
+  return null;
+ }
 }
 async function createManagedProject(){
  const repository=document.getElementById("managed-create-repository").value.trim();
