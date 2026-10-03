@@ -3640,6 +3640,14 @@ recent = DASHBOARD_HTML.split(
 visual = DASHBOARD_HTML.split(
 ⋮----
 readiness = DASHBOARD_HTML.split(
+⋮----
+def test_active_view_navigation_invalidates_stale_render_and_poll_work()
+⋮----
+clear = DASHBOARD_HTML.split(
+⋮----
+render = DASHBOARD_HTML.split(
+⋮----
+polling = DASHBOARD_HTML.split(
 ```
 
 ## File: test_dashboard_usage.py
