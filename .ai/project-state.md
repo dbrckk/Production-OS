@@ -22,19 +22,19 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-03T13:48:45Z
+Generated: 2026-10-03T13:55:25Z
 
 ### Git
 - Branch: `main`
-- Head: `2fd9f5e760ff`
-- Commit date: 2026-10-03T15:48:34+02:00
-- Commit: fix(dashboard): prevent overlapping global polls (#232)
+- Head: `e0263cd51c55`
+- Commit date: 2026-10-03T15:55:13+02:00
+- Commit: fix(dashboard): ignore stale repository responses (#233)
 - Tracked files: 543
 
 ### Recently changed files
 - `src/production_os/dashboard_ui.py`
-- `tests/test_dashboard_launch.py`
 - `tests/test_dashboard_ui_v3.py`
+- `tests/test_dashboard_launch.py`
 - `README.md`
 - `src/production_os/control_plane.py`
 - `src/production_os/controller.py`

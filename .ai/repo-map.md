@@ -14835,6 +14835,14 @@ def test_successful_launch_invalidates_workflow_snapshot_before_refresh()
 def test_global_dashboard_polls_are_single_flight()
 ⋮----
 helper = html.split("function scheduleGlobalPoll(intervalMs,fn){", 1)[1].split("const appState=", 1)[0]
+⋮----
+def test_repository_scoped_dashboard_loaders_ignore_stale_responses()
+⋮----
+recent = DASHBOARD_HTML.split(
+⋮----
+visual = DASHBOARD_HTML.split(
+⋮----
+readiness = DASHBOARD_HTML.split(
 ````
 
 ## File: tests/test_dashboard_usage.py
