@@ -22,23 +22,26 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-03T16:50:10Z
+Generated: 2026-10-03T18:51:37Z
 
 ### Git
 - Branch: `main`
-- Head: `b73970a367b9`
-- Commit date: 2026-10-03T18:49:53+02:00
-- Commit: fix(dashboard): coalesce overlapping full refreshes (#246)
-- Tracked files: 555
+- Head: `2afeb07fa0d1`
+- Commit date: 2026-10-03T20:51:23+02:00
+- Commit: feat(asset-forge): probe remote workflow dispatch readiness (#249)
+- Tracked files: 556
 
 ### Recently changed files
+- `src/production_os/asset_forge.py`
+- `src/production_os/cli.py`
+- `src/production_os/github_client.py`
+- `tests/test_asset_forge_dispatch_probe.py`
 - `src/production_os/dashboard_ui.py`
 - `tests/test_dashboard_refresh_coalescing.py`
 - `tests/test_dashboard_api_timeout.py`
 - `tests/test_dashboard_clear_pairing_state.py`
 - `tests/test_dashboard_global_status_freshness.py`
 - `tests/test_dashboard_ui_v3.py`
-- `tests/test_dashboard_collection_view_freshness.py`
 
 ### Project signals
 - `pyproject.toml`

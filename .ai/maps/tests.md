@@ -45,6 +45,7 @@ test_agent_plan.py
 test_agent_planning_policy.py
 test_api_auth.py
 test_approvals_migrations.py
+test_asset_forge_dispatch_probe.py
 test_asset_forge.py
 test_asymmetric_attestations.py
 test_attestations.py
@@ -419,6 +420,40 @@ def test_runtime_state_v1_migration(tmp_path)
 path=tmp_path/"state.json"
 ⋮----
 result=migrate_state_file(path)
+```
+
+## File: test_asset_forge_dispatch_probe.py
+```python
+class FakeProbeClient(GitHubClient)
+⋮----
+def __init__(self, outcome, *, token="test-token")
+⋮----
+def _request(self, method, path, payload=None)
+⋮----
+def test_workflow_dispatch_probe_treats_422_as_authorized_without_run()
+⋮----
+client = FakeProbeClient(
+⋮----
+@pytest.mark.parametrize("code", [401, 403, 404])
+def test_workflow_dispatch_probe_fails_closed_without_permission(code)
+⋮----
+def test_workflow_dispatch_probe_requires_token()
+⋮----
+client = FakeProbeClient(None, token="")
+⋮----
+def test_workflow_dispatch_probe_propagates_unexpected_api_failure()
+⋮----
+def test_asset_forge_remote_probe_has_stable_contract()
+⋮----
+result = probe_asset_forge_remote_dispatch(client=client)
+⋮----
+def test_asset_forge_batch_probe_does_not_require_spec()
+⋮----
+args = _parse_args(["asset-forge-batch", "--probe"])
+⋮----
+def test_asset_forge_batch_probe_exit_code_reflects_readiness()
+⋮----
+args = Namespace(probe=True, result_file=None, spec=None)
 ```
 
 ## File: test_asset_forge.py

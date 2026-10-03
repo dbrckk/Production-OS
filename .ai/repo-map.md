@@ -200,6 +200,7 @@ tests/
   test_agent_planning_policy.py
   test_api_auth.py
   test_approvals_migrations.py
+  test_asset_forge_dispatch_probe.py
   test_asset_forge.py
   test_asymmetric_attestations.py
   test_attestations.py
@@ -1604,6 +1605,9 @@ ASSET_FORGE_REPOSITORY = "dbrckk/asset-forge"
 ASSET_FORGE_WORKFLOW = "production-os-dispatch.yml"
 ASSET_FORGE_BATCH_WORKFLOW = "production-os-batch.yml"
 ⋮----
+gh = client or GitHubClient()
+ready = gh.can_dispatch_workflow(repository, workflow)
+⋮----
 @dataclass(frozen=True)
 class AssetForgeDispatch
 ⋮----
@@ -1676,8 +1680,6 @@ resolved_artifact = artifact.resolve()
 ⋮----
 root = Path(target_worktree).resolve()
 destination = (root / normalized).resolve()
-⋮----
-gh = client or GitHubClient()
 ⋮----
 local_cli = shutil.which("asset-forge")
 effective = mode
@@ -3093,6 +3095,8 @@ visual = generation.get("visualSimilarity") if isinstance(generation, dict) else
 attempts = visual.get("attempts") if isinstance(visual.get("attempts"), list) else []
 ⋮----
 def run_asset_forge_batch(args: argparse.Namespace) -> int
+⋮----
+result = probe_asset_forge_remote_dispatch()
 ⋮----
 payload = json.loads(Path(args.spec).read_text(encoding="utf-8"))
 items = payload.get("items", payload) if isinstance(payload, dict) else payload
@@ -6636,6 +6640,10 @@ payload: dict[str, Any] = {
 result = self._request(
 ⋮----
 encoded = urllib.parse.quote(workflow, safe="")
+⋮----
+"""Probe Actions write access without creating a workflow run."""
+⋮----
+detail = str(exc)
 ⋮----
 payload = self._get(
 runs = payload.get("workflow_runs", []) if isinstance(payload, dict) else []
@@ -11622,6 +11630,40 @@ def test_runtime_state_v1_migration(tmp_path)
 path=tmp_path/"state.json"
 ⋮----
 result=migrate_state_file(path)
+````
+
+## File: tests/test_asset_forge_dispatch_probe.py
+````python
+class FakeProbeClient(GitHubClient)
+⋮----
+def __init__(self, outcome, *, token="test-token")
+⋮----
+def _request(self, method, path, payload=None)
+⋮----
+def test_workflow_dispatch_probe_treats_422_as_authorized_without_run()
+⋮----
+client = FakeProbeClient(
+⋮----
+@pytest.mark.parametrize("code", [401, 403, 404])
+def test_workflow_dispatch_probe_fails_closed_without_permission(code)
+⋮----
+def test_workflow_dispatch_probe_requires_token()
+⋮----
+client = FakeProbeClient(None, token="")
+⋮----
+def test_workflow_dispatch_probe_propagates_unexpected_api_failure()
+⋮----
+def test_asset_forge_remote_probe_has_stable_contract()
+⋮----
+result = probe_asset_forge_remote_dispatch(client=client)
+⋮----
+def test_asset_forge_batch_probe_does_not_require_spec()
+⋮----
+args = _parse_args(["asset-forge-batch", "--probe"])
+⋮----
+def test_asset_forge_batch_probe_exit_code_reflects_readiness()
+⋮----
+args = Namespace(probe=True, result_file=None, spec=None)
 ````
 
 ## File: tests/test_asset_forge.py

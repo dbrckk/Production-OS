@@ -731,6 +731,9 @@ ASSET_FORGE_REPOSITORY = "dbrckk/asset-forge"
 ASSET_FORGE_WORKFLOW = "production-os-dispatch.yml"
 ASSET_FORGE_BATCH_WORKFLOW = "production-os-batch.yml"
 ⋮----
+gh = client or GitHubClient()
+ready = gh.can_dispatch_workflow(repository, workflow)
+⋮----
 @dataclass(frozen=True)
 class AssetForgeDispatch
 ⋮----
@@ -803,8 +806,6 @@ resolved_artifact = artifact.resolve()
 ⋮----
 root = Path(target_worktree).resolve()
 destination = (root / normalized).resolve()
-⋮----
-gh = client or GitHubClient()
 ⋮----
 local_cli = shutil.which("asset-forge")
 effective = mode
@@ -2220,6 +2221,8 @@ visual = generation.get("visualSimilarity") if isinstance(generation, dict) else
 attempts = visual.get("attempts") if isinstance(visual.get("attempts"), list) else []
 ⋮----
 def run_asset_forge_batch(args: argparse.Namespace) -> int
+⋮----
+result = probe_asset_forge_remote_dispatch()
 ⋮----
 payload = json.loads(Path(args.spec).read_text(encoding="utf-8"))
 items = payload.get("items", payload) if isinstance(payload, dict) else payload
@@ -5763,6 +5766,10 @@ payload: dict[str, Any] = {
 result = self._request(
 ⋮----
 encoded = urllib.parse.quote(workflow, safe="")
+⋮----
+"""Probe Actions write access without creating a workflow run."""
+⋮----
+detail = str(exc)
 ⋮----
 payload = self._get(
 runs = payload.get("workflow_runs", []) if isinstance(payload, dict) else []

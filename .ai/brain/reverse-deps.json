@@ -19,6 +19,7 @@
         "tests/test_api_auth.py",
         "tests/test_approvals_migrations.py",
         "tests/test_asset_forge.py",
+        "tests/test_asset_forge_dispatch_probe.py",
         "tests/test_asymmetric_attestations.py",
         "tests/test_attestations.py",
         "tests/test_autonomous_admission.py",
@@ -210,7 +211,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 198,
+      "in_degree": 199,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -385,9 +386,10 @@
       ],
       "dependents": [
         "src/production_os/cli.py",
-        "tests/test_asset_forge.py"
+        "tests/test_asset_forge.py",
+        "tests/test_asset_forge_dispatch_probe.py"
       ],
-      "in_degree": 2,
+      "in_degree": 3,
       "out_degree": 3
     },
     "src/production_os/asymmetric_attestations.py": {
@@ -729,6 +731,7 @@
       ],
       "dependents": [
         "tests/test_agent_benchmark.py",
+        "tests/test_asset_forge_dispatch_probe.py",
         "tests/test_browser_computer.py",
         "tests/test_browser_loop.py",
         "tests/test_cli.py",
@@ -740,7 +743,7 @@
         "tests/test_release21_offline_restore_e2e.py",
         "tests/test_remote_worker_runner.py"
       ],
-      "in_degree": 11,
+      "in_degree": 12,
       "out_degree": 71
     },
     "src/production_os/compatibility.py": {
@@ -1348,6 +1351,7 @@
         "src/production_os/dashboard_service.py",
         "src/production_os/github_work_state.py",
         "src/production_os/managed_projects.py",
+        "tests/test_asset_forge_dispatch_probe.py",
         "tests/test_control_plane_pr_impact.py",
         "tests/test_control_plane_webhook.py",
         "tests/test_controller_managed_projects.py",
@@ -1357,7 +1361,7 @@
         "tests/test_github_client_pr_files.py",
         "tests/test_github_client_put_file.py"
       ],
-      "in_degree": 15,
+      "in_degree": 16,
       "out_degree": 2
     },
     "src/production_os/github_webhook.py": {
@@ -2783,6 +2787,18 @@
       "in_degree": 63,
       "out_degree": 3
     },
+    "tests/test_asset_forge_dispatch_probe.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/asset_forge.py",
+        "src/production_os/cli.py",
+        "src/production_os/github_client.py",
+        "tests/test_github_automerge.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 5
+    },
     "tests/test_asymmetric_attestations.py": {
       "dependencies": [
         "src/production_os/__init__.py",
@@ -3843,6 +3859,7 @@
         "src/production_os/remote_worker_runner.py",
         "src/production_os/vault_auth.py",
         "tests/test_asset_forge.py",
+        "tests/test_asset_forge_dispatch_probe.py",
         "tests/test_components.py",
         "tests/test_dynamic_agent_fanout.py",
         "tests/test_github_client_pr_files.py",
@@ -3855,7 +3872,7 @@
         "tests/test_remote_worker.py",
         "tests/test_remote_worker_runner.py"
       ],
-      "in_degree": 20,
+      "in_degree": 21,
       "out_degree": 2
     },
     "tests/test_github_change_review.py": {

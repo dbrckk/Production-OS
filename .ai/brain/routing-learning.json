@@ -2,26 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat(runtime): prune integrated workflow branches safely",
-      "terms": [
-        "branches",
-        "feat",
-        "integrated",
-        "prune",
-        "runtime",
-        "safely",
-        "workflow"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/executor_worktree.py",
-        "src/production_os/remote_worker_runner.py",
-        "tests/test_executor_worktree.py",
-        "tests/test_remote_worker_runner.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat(runtime): run the autonomous controller as a resilient 24x7 daemon",
       "terms": [
         "24x7",
@@ -1225,6 +1205,27 @@
         "src/production_os/dashboard_ui.py",
         "tests/test_dashboard_refresh_coalescing.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "feat(asset-forge): probe remote workflow dispatch readiness (#249)",
+      "terms": [
+        "249",
+        "asset-forge",
+        "dispatch",
+        "feat",
+        "probe",
+        "readiness",
+        "remote",
+        "workflow"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/asset_forge.py",
+        "src/production_os/cli.py",
+        "src/production_os/github_client.py",
+        "tests/test_asset_forge_dispatch_probe.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1421,6 +1422,12 @@
     "246": {
       "src/production_os/dashboard_ui.py": 4,
       "tests/test_dashboard_refresh_coalescing.py": 4
+    },
+    "249": {
+      "src/production_os/asset_forge.py": 4,
+      "src/production_os/cli.py": 4,
+      "src/production_os/github_client.py": 4,
+      "tests/test_asset_forge_dispatch_probe.py": 4
     },
     "24x7": {
       "src/production_os/cli.py": 4,
@@ -1928,10 +1935,11 @@
       "tests/test_workflow_engine.py": 4
     },
     "asset-forge": {
-      "src/production_os/asset_forge.py": 12,
-      "src/production_os/cli.py": 12,
-      "src/production_os/github_client.py": 4,
+      "src/production_os/asset_forge.py": 16,
+      "src/production_os/cli.py": 16,
+      "src/production_os/github_client.py": 8,
       "tests/test_asset_forge.py": 12,
+      "tests/test_asset_forge_dispatch_probe.py": 4,
       "tests/test_cli.py": 4
     },
     "assets": {
@@ -2864,10 +2872,11 @@
       "tests/test_remote_worker.py": 4
     },
     "dispatch": {
-      "src/production_os/asset_forge.py": 8,
-      "src/production_os/cli.py": 8,
-      "src/production_os/github_client.py": 4,
-      "tests/test_asset_forge.py": 8
+      "src/production_os/asset_forge.py": 12,
+      "src/production_os/cli.py": 12,
+      "src/production_os/github_client.py": 8,
+      "tests/test_asset_forge.py": 8,
+      "tests/test_asset_forge_dispatch_probe.py": 4
     },
     "dom": {
       "src/production_os/browser_computer.py": 4,
@@ -3093,7 +3102,7 @@
       "src/production_os/agent_plan.py": 4,
       "src/production_os/agent_planning_policy.py": 8,
       "src/production_os/agent_runtime.py": 8,
-      "src/production_os/asset_forge.py": 24,
+      "src/production_os/asset_forge.py": 28,
       "src/production_os/autonomous_admission.py": 4,
       "src/production_os/autonomous_projects.py": 4,
       "src/production_os/browser_computer.py": 32,
@@ -3116,7 +3125,7 @@
       "src/production_os/dashboard_ui.py": 40,
       "src/production_os/executor_worktree.py": 16,
       "src/production_os/github_change_review.py": 8,
-      "src/production_os/github_client.py": 28,
+      "src/production_os/github_client.py": 32,
       "src/production_os/github_work_state.py": 12,
       "src/production_os/managed_projects.py": 40,
       "src/production_os/model_router.py": 8,
@@ -4178,7 +4187,11 @@
       "tests/test_dashboard_launch.py": 4
     },
     "probe": {
+      "src/production_os/asset_forge.py": 4,
+      "src/production_os/cli.py": 4,
       "src/production_os/control_plane.py": 4,
+      "src/production_os/github_client.py": 4,
+      "tests/test_asset_forge_dispatch_probe.py": 4,
       "tests/test_worker_availability_api.py": 4
     },
     "production": {
@@ -4402,11 +4415,15 @@
       "tests/test_asset_forge.py": 4
     },
     "readiness": {
+      "src/production_os/asset_forge.py": 4,
+      "src/production_os/cli.py": 4,
       "src/production_os/control_plane.py": 16,
       "src/production_os/dashboard_backups.py": 8,
       "src/production_os/dashboard_control.py": 4,
       "src/production_os/dashboard_service.py": 16,
       "src/production_os/dashboard_ui.py": 16,
+      "src/production_os/github_client.py": 4,
+      "tests/test_asset_forge_dispatch_probe.py": 4,
       "tests/test_dashboard_api.py": 4,
       "tests/test_dashboard_backup_api.py": 8,
       "tests/test_dashboard_backups.py": 8,
@@ -4586,13 +4603,15 @@
       "tests/test_dashboard_ui_v3.py": 16
     },
     "remote": {
-      "src/production_os/asset_forge.py": 4,
-      "src/production_os/cli.py": 8,
+      "src/production_os/asset_forge.py": 8,
+      "src/production_os/cli.py": 12,
       "src/production_os/control_plane.py": 4,
       "src/production_os/executor_worktree.py": 4,
+      "src/production_os/github_client.py": 4,
       "src/production_os/remote_worker.py": 4,
       "src/production_os/remote_worker_runner.py": 12,
       "tests/test_asset_forge.py": 4,
+      "tests/test_asset_forge_dispatch_probe.py": 4,
       "tests/test_cli.py": 4,
       "tests/test_executor_worktree.py": 4,
       "tests/test_remote_worker_runner.py": 12,
@@ -5623,15 +5642,17 @@
     },
     "workflow": {
       "src/production_os/agent_benchmark.py": 4,
-      "src/production_os/cli.py": 4,
+      "src/production_os/asset_forge.py": 4,
+      "src/production_os/cli.py": 8,
       "src/production_os/controller.py": 4,
       "src/production_os/dashboard_ui.py": 8,
       "src/production_os/executor_worktree.py": 4,
-      "src/production_os/github_client.py": 4,
+      "src/production_os/github_client.py": 8,
       "src/production_os/remote_worker_runner.py": 4,
       "src/production_os/task_capabilities.py": 4,
       "src/production_os/workflow_engine.py": 4,
       "tests/test_agent_benchmark.py": 4,
+      "tests/test_asset_forge_dispatch_probe.py": 4,
       "tests/test_dashboard_ui_v3.py": 4,
       "tests/test_dashboard_workflow_snapshot_invalidation.py": 4,
       "tests/test_executor_worktree.py": 4,
