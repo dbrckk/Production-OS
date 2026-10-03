@@ -263,6 +263,7 @@ let productionSort="priority";
 let productionSearchTimer=null;
 let productionInboxLoadSequence=0;
 let productionDetailLoadSequence=0;
+let projectDetailLoadSequence=0;
 
 function token(){return localStorage.getItem(TOKEN_KEY)||''}
 async function bootstrapPairingFromFragment(){
@@ -1597,16 +1598,24 @@ async function loadProjectsView(){
 }
 async function loadProjectDetail(repository){
  const el=document.getElementById("project-detail");
+ const requestSequence=++projectDetailLoadSequence;
+ const requestedWindow=appState.window;
  try{
   const base="/v1/dashboard/projects/"+repoApiPath(repository);
   const results=await Promise.all([
    api(base),
    api(base+"/progress"),
-   api(base+"/commits?window="+encodeURIComponent(appState.window)),
-   api(base+"/usage?window="+encodeURIComponent(appState.window)),
+   api(base+"/commits?window="+encodeURIComponent(requestedWindow)),
+   api(base+"/usage?window="+encodeURIComponent(requestedWindow)),
    api(base+"/workflows"),
    api(base+"/history")
   ]);
+  if(
+   requestSequence!==projectDetailLoadSequence
+   ||appState.view!=="projects"
+   ||appState.repository!==repository
+   ||appState.window!==requestedWindow
+  )return null;
   const detail=results[0],progress=results[1],commits=results[2],usage=results[3],workflows=results[4],history=results[5];
   const production=progress.production||{},estimate=progress.estimate||{},totals=usage.totals||{};
   const usageProviders=usage.providers||[],usageTimeline=usage.timeline||[];
@@ -1650,7 +1659,16 @@ async function loadProjectDetail(repository){
    (usageProviders.length?usageProviders.map(function(row){return '<div class="small"><strong>Fournisseur :</strong> '+esc(String(row.provider||"inconnu"))+' · <strong>Modèle :</strong> '+esc(String(row.model||"inconnu"))+' · '+formatNumber(row.api_calls)+' appels · '+formatNumber(row.total_tokens)+' tokens</div>'}).join(""):'<div class="empty">Aucune consommation API détaillée.</div>')+
    '<p class="small">Points de tendance : '+formatNumber(usageTimeline.length)+'</p>'+
    '<p class="small">Workflows : '+formatNumber((workflows.workflows||[]).length)+' · exécutions récentes : '+formatNumber((history.executions||[]).length)+' · couverture historique : '+esc(String(history.history_coverage||"complète"))+'</p></div>';
- }catch(e){el.innerHTML=errorCard(e)}
+ }catch(e){
+  if(
+   requestSequence!==projectDetailLoadSequence
+   ||appState.view!=="projects"
+   ||appState.repository!==repository
+   ||appState.window!==requestedWindow
+  )return null;
+  el.innerHTML=errorCard(e);
+  return null;
+ }
 }
 function openWorker(encoded){
  navigate({view:"workers",workerId:decodeURIComponent(encoded),repository:null,tab:"overview"});
