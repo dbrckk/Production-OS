@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import io
 import json
+import os
 import shutil
 import subprocess
 import tempfile
@@ -20,13 +21,19 @@ ASSET_FORGE_WORKFLOW = "production-os-dispatch.yml"
 ASSET_FORGE_BATCH_WORKFLOW = "production-os-batch.yml"
 
 
+def _remote_github_client(client: GitHubClient | None) -> GitHubClient:
+    if client is not None:
+        return client
+    return GitHubClient(token=os.getenv("ASSET_FORGE_GITHUB_TOKEN") or None)
+
+
 def probe_asset_forge_remote_dispatch(
     *,
     client: GitHubClient | None = None,
     repository: str = ASSET_FORGE_REPOSITORY,
     workflow: str = ASSET_FORGE_BATCH_WORKFLOW,
 ) -> dict[str, Any]:
-    gh = client or GitHubClient()
+    gh = _remote_github_client(client)
     ready = gh.can_dispatch_workflow(repository, workflow)
     return {
         "schema_version": "production-os/asset-forge-remote-probe/v1",
@@ -545,7 +552,7 @@ def _produce_asset_forge_batch_remote(
         raise RuntimeError("asset-forge remote batch spec exceeds workflow input limit")
 
     correlation = "pos-" + uuid.uuid4().hex
-    gh = client or GitHubClient()
+    gh = _remote_github_client(client)
     gh.dispatch_workflow(
         repository,
         workflow,
@@ -1143,7 +1150,7 @@ def dispatch_asset_forge(
         "backend": backend,
         "model": model or "",
     }
-    (client or GitHubClient()).dispatch_workflow(
+    _remote_github_client(client).dispatch_workflow(
         repository,
         workflow,
         ref=ref,

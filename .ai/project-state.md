@@ -15,6 +15,7 @@ Status: active
 - Dashboard pairing fixes remain in existing PRs #247 and #248; this change does not duplicate them.
 
 ## Current priority
+- Qualify a dedicated Asset Forge dispatch credential and a successful live visual job. The Actions worker now has a separate token path; repository permissions still need live verification.
 - Merge the dashboard scroll fix and verify the deployed page. Continue the worker's remote persistence diagnosis and a successful real coding run.
 - Deploy worker queue diagnostics, identify the actual live queue blocker and validate a real coding job.
 

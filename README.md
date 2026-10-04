@@ -1607,6 +1607,8 @@ No new mutation endpoint or browser-side workflow authority is introduced. Advan
 
 Production-OS can now run a persistent remote worker that actually executes claimed jobs through an external process instead of only polling the queue.
 
+For a GitHub Actions worker producing visual assets, set `ASSET_FORGE_GITHUB_TOKEN` to a credential with Actions write access to `dbrckk/asset-forge`. The `asset-forge-batch --probe` command checks dispatch permission before the worker advertises `visual-asset-production`; remote Asset Forge dispatch uses the same credential. When this variable is unset, the command uses `GITHUB_TOKEN`. Target repository delivery continues to use the normal GitHub credential.
+
 A worker opens an identity-bound session with:
 
 ```text
