@@ -267,6 +267,9 @@ let workerDetailLoadSequence=0;
 let productionInboxLoadSequence=0;
 let productionDetailLoadSequence=0;
 let projectDetailLoadSequence=0;
+let deviceSessionsLoadSequence=0;
+let pairingLinkBusy=false;
+let pairingSaveBusy=false;
 
 function token(){return localStorage.getItem(TOKEN_KEY)||''}
 async function bootstrapPairingFromFragment(){
@@ -395,12 +398,18 @@ async function checkServer(){
 async function loadDeviceSessions(){
  const el=document.getElementById('device-sessions');
  if(!el)return;
- if(!token()){
+ const requestSequence=++deviceSessionsLoadSequence;
+ const requestToken=token();
+ if(!requestToken){
   el.innerHTML='<div class="small">Aucun appareil authentifié.</div>';
   return;
  }
  try{
   const data=await api('/v1/dashboard/device-sessions');
+  if(
+   requestSequence!==deviceSessionsLoadSequence
+   ||token()!==requestToken
+  )return null;
   const sessions=data.sessions||[];
   if(!sessions.length){
    el.innerHTML='<div class="small">Aucune session appareil active.</div>';
@@ -419,7 +428,12 @@ async function loadDeviceSessions(){
      esc(id)+'" onclick="revokeDeviceSession(this.dataset.sessionId)">Révoquer</button></div>';
    }).join('');
  }catch(e){
+  if(
+   requestSequence!==deviceSessionsLoadSequence
+   ||token()!==requestToken
+  )return null;
   el.textContent='Sessions indisponibles : '+String(e).replace(/^Error:\\s*/,'');
+  return null;
  }
 }
 
@@ -443,13 +457,20 @@ async function revokeDeviceSession(sessionId){
 
 async function createPairingLink(){
  const feedback=document.getElementById('pair-feedback');
- if(!token()){
+ const requestToken=token();
+ if(!requestToken){
   feedback.textContent='Appaire d’abord cet appareil avec le token opérateur de secours.';
   return;
  }
+ if(pairingLinkBusy){
+  feedback.textContent='Création du lien déjà en cours...';
+  return;
+ }
+ pairingLinkBusy=true;
  feedback.textContent='Création du lien à usage unique...';
  try{
   const data=await api('/v1/dashboard/pairing-codes',{method:'POST'});
+  if(token()!==requestToken)return null;
   const link=window.location.origin+window.location.pathname+
    '#pair-code='+encodeURIComponent(String(data.code||''));
   let copied=false;
@@ -459,11 +480,15 @@ async function createPairingLink(){
     copied=true;
    }
   }catch(_e){}
+  if(token()!==requestToken)return null;
   feedback.textContent=copied
    ?'Lien copié · valable 10 min · utilisable une seule fois.'
    :'Lien 10 min : '+link;
  }catch(e){
+  if(token()!==requestToken)return null;
   feedback.textContent=String(e).replace(/^Error:\\s*/,'');
+ }finally{
+  pairingLinkBusy=false;
  }
 }
 
@@ -473,23 +498,43 @@ async function savePairing(){
  const feedback=document.getElementById('pair-feedback');
  const status=document.getElementById('launch-status');
  if(!value){feedback.textContent='Entre le token opérateur.';return}
+ if(pairingSaveBusy){
+  feedback.textContent='Vérification déjà en cours...';
+  return;
+ }
+ pairingSaveBusy=true;
  const previous=token();
- localStorage.setItem(TOKEN_KEY,value);
  feedback.textContent='Vérification de l’appairage...';
  status.textContent='Vérification de l’appairage...';
  try{
-  await api('/v1/workers');
-  input.value='';
-  feedback.textContent='';
-  setSettingsOpen(false);
+  await api('/v1/workers',{authToken:value});
+  if(token()!==previous){
+   feedback.textContent='Appairage modifié pendant la vérification · nouveau token non appliqué.';
+   return null;
+  }
+  localStorage.setItem(TOKEN_KEY,value);
+  const draftStillCurrent=input.value.trim()===value;
+  if(draftStillCurrent){
+   input.value='';
+   feedback.textContent='';
+   setSettingsOpen(false);
+  }else{
+   feedback.textContent='Appareil appairé. Un nouveau token reste à vérifier.';
+  }
   setState('pair-state','ok','Appairé');
   status.textContent='Appareil appairé.';
   await refreshDashboard();
  }catch(e){
-  if(previous) localStorage.setItem(TOKEN_KEY,previous); else localStorage.removeItem(TOKEN_KEY);
-  setState('pair-state','bad','Token refusé');
+  if(previous){
+   setState('pair-state','ok','Appairé');
+   status.textContent='Nouveau token refusé · appairage actuel conservé.';
+  }else{
+   setState('pair-state','bad','Token refusé');
+   status.textContent='Token opérateur invalide. Vérifie le token puis réessaie.';
+  }
   feedback.textContent=String(e).replace(/^Error:\\s*/,'');
-  status.textContent='Token opérateur invalide. Vérifie le token puis réessaie.';
+ }finally{
+  pairingSaveBusy=false;
  }
 }
 
