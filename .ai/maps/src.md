@@ -3350,6 +3350,8 @@ anchor = (
 
 ## File: production_os/controller.py
 ```python
+_LOGGER = logging.getLogger(__name__)
+⋮----
 def _rank_actions(assessments)
 ⋮----
 actions = [action for assessment in assessments for action in assessment.actions]
@@ -3499,12 +3501,21 @@ observability = build_observability_payload(
 ⋮----
 def _record_controller_error(exc: Exception, kwargs: dict) -> None
 ⋮----
+"""Publish independent best-effort diagnostics without masking a cycle error."""
 metrics_path = kwargs.get("metrics_path")
 health_path = kwargs.get("health_path")
 runtime_state_path = kwargs.get("runtime_state_path")
 database_path = kwargs.get("database_path")
+metrics = {"last_error": str(exc)}
+⋮----
+metrics = metrics_store.metrics.to_dict()
+⋮----
+# Exception text may contain paths or backend credentials.
+⋮----
+health = {
 ⋮----
 state = (
+health = build_health(state, metrics)
 ⋮----
 """Run autonomous control cycles until a cooperative stop is requested.
 
@@ -7367,7 +7378,7 @@ def _utcnow() -> str
 ⋮----
 class PostgresBackend
 ⋮----
-SCHEMA_VERSION = 18
+SCHEMA_VERSION = 19
 CONNECT_TIMEOUT_SECONDS = 10
 ⋮----
 def __init__(self, dsn: str)
@@ -8244,8 +8255,14 @@ statement = dict(slsa.get("statement") or {})
 predicate = dict(statement.get("predicate") or {})
 run_details = dict(predicate.get("runDetails") or {})
 builder = dict(run_details.get("builder") or {})
-attestation_signature = dict(
-slsa_signature = dict(slsa.get("signature") or {})
+# Legacy HMAC attestations store a string signature and have no
+# asymmetric key ID. Verification below still checks their HMAC.
+attestation_signature = attestation.get("signature")
+⋮----
+attestation_signature = {}
+slsa_signature = slsa.get("signature")
+⋮----
+slsa_signature = {}
 ⋮----
 release_validator = str(
 release_builder = str(builder.get("id") or "")
@@ -8274,6 +8291,8 @@ now = _now()
 stable_report = dict(report)
 ⋮----
 report_state_hash = _canonical_sha256(stable_report)
+⋮----
+# Also serialize the empty-ledger case, where no row can be locked.
 ⋮----
 latest = _execute(
 ⋮----
@@ -8350,6 +8369,8 @@ signed_statement = sign_slsa_statement(
 ⋮----
 provenance = create_release_provenance(
 release_metadata = {
+⋮----
+# Promotions from different workflows share one global hash chain.
 ⋮----
 previous_row = _execute(
 sequence = (
@@ -9566,7 +9587,16 @@ ref = ExternalReference(
 
 ## File: production_os/storage.py
 ```python
+# Recognize libpq's reserved connection keywords without requiring the optional
+# PostgreSQL driver. Parsing and validation remain the driver's responsibility;
+# malformed connection strings must never become SQLite filenames.
+_POSTGRES_CONNINFO_KEYS = frozenset("""
+⋮----
 def is_postgres(location: str) -> bool
+⋮----
+location = str(location).strip()
+⋮----
+keyword = re.match(r"([a-z_]+)\s*=", location)
 ⋮----
 def open_backend(location: str)
 ⋮----

@@ -1,15 +1,15 @@
 # Repo Brain
 
 - Index mode: incremental
-- Files indexed: 343
-- Files reparsed this run: 4
-- Symbols: 3104
-- Internal import edges: 987
-- Impacted files: 26
-- Selected tests: 22
+- Files indexed: 346
+- Files reparsed this run: 13
+- Symbols: 3139
+- Internal import edges: 1003
+- Impacted files: 38
+- Selected tests: 37
 
 ## Languages
-- python: 343 files
+- python: 346 files
 
 ## Highest-density symbol files
 - tests/test_dashboard_ui_v3.py: 112 symbols
@@ -31,7 +31,7 @@
 - tests/test_dashboard_api.py: 30 symbols
 - tests/test_transparency_receipts.py: 29 symbols
 - src/production_os/dashboard_backups.py: 25 symbols
-- tests/test_controller_leader.py: 24 symbols
+- tests/test_controller_leader.py: 25 symbols
 
 ## Agent routing
 - Read impact.json first after project/change context.
@@ -42,10 +42,10 @@
 ## ast-grep enrichment
 - ast-grep outline: available
 - AST index mode: incremental
-- AST files reparsed this run: 4
-- outline files retained: 343
-- top-level items retained: 3896
-- direct members retained: 1241
+- AST files reparsed this run: 13
+- outline files retained: 346
+- top-level items retained: 3949
+- direct members retained: 1244
 - symbol shards: 25
 - route named symbols via ast-routing.json, then fetch one ast-symbols/<initial>.json shard
 

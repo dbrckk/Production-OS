@@ -5,27 +5,36 @@
     "example_count": 64,
     "rejected_count": 0,
     "terms": [
-      "249",
-      "asset-forge",
-      "dispatch",
-      "feat",
-      "probe",
-      "readiness",
-      "remote",
-      "workflow"
+      "250",
+      "controller",
+      "pipeline",
+      "postgresql",
+      "recovery",
+      "release",
+      "resilient",
+      "restore"
     ],
     "test_count": 0,
-    "useful_count": 4
+    "useful_count": 13
   },
   "note": "Selected tests are routing hints; this artifact does not claim they executed successfully.",
   "rejected": [],
   "schema_version": 1,
-  "task": "feat(asset-forge): probe remote workflow dispatch readiness (#249)",
+  "task": "fix: restore PostgreSQL release pipeline and resilient controller recovery (#250)",
   "tests_selected": [],
   "useful": [
-    "src/production_os/asset_forge.py",
     "src/production_os/cli.py",
-    "src/production_os/github_client.py",
-    "tests/test_asset_forge_dispatch_probe.py"
+    "src/production_os/controller.py",
+    "src/production_os/postgres_backend.py",
+    "src/production_os/release_ledger.py",
+    "src/production_os/storage.py",
+    "tests/test_controller_error_recovery.py",
+    "tests/test_controller_leader.py",
+    "tests/test_dashboard_store_postgres.py",
+    "tests/test_database_maintenance_lock.py",
+    "tests/test_production_stack_e2e.py",
+    "tests/test_release_postgres.py",
+    "tests/test_storage_routing.py",
+    "tests/test_trust_status_summary.py"
   ]
 }

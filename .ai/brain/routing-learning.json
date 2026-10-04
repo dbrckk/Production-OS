@@ -2,28 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat(runtime): run the autonomous controller as a resilient 24x7 daemon",
-      "terms": [
-        "24x7",
-        "as",
-        "autonomous",
-        "controller",
-        "daemon",
-        "feat",
-        "resilient",
-        "run",
-        "runtime"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/cli.py",
-        "src/production_os/controller.py",
-        "tests/test_controller_daemon.py",
-        "tests/test_controller_daemon_deployment.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat(runtime): fence concurrent autonomous controllers",
       "terms": [
         "autonomous",
@@ -1226,6 +1204,36 @@
         "src/production_os/github_client.py",
         "tests/test_asset_forge_dispatch_probe.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "fix: restore PostgreSQL release pipeline and resilient controller recovery (#250)",
+      "terms": [
+        "250",
+        "controller",
+        "pipeline",
+        "postgresql",
+        "recovery",
+        "release",
+        "resilient",
+        "restore"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/cli.py",
+        "src/production_os/controller.py",
+        "src/production_os/postgres_backend.py",
+        "src/production_os/release_ledger.py",
+        "src/production_os/storage.py",
+        "tests/test_controller_error_recovery.py",
+        "tests/test_controller_leader.py",
+        "tests/test_dashboard_store_postgres.py",
+        "tests/test_database_maintenance_lock.py",
+        "tests/test_production_stack_e2e.py",
+        "tests/test_release_postgres.py",
+        "tests/test_storage_routing.py",
+        "tests/test_trust_status_summary.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1443,6 +1451,21 @@
       "tests/test_dashboard_backup_api.py": 4,
       "tests/test_dashboard_backups.py": 4,
       "tests/test_dashboard_ui_v3.py": 4
+    },
+    "250": {
+      "src/production_os/cli.py": 4,
+      "src/production_os/controller.py": 4,
+      "src/production_os/postgres_backend.py": 4,
+      "src/production_os/release_ledger.py": 4,
+      "src/production_os/storage.py": 4,
+      "tests/test_controller_error_recovery.py": 4,
+      "tests/test_controller_leader.py": 4,
+      "tests/test_dashboard_store_postgres.py": 4,
+      "tests/test_database_maintenance_lock.py": 4,
+      "tests/test_production_stack_e2e.py": 4,
+      "tests/test_release_postgres.py": 4,
+      "tests/test_storage_routing.py": 4,
+      "tests/test_trust_status_summary.py": 4
     },
     "26": {
       "src/production_os/dashboard_backups.py": 4,
@@ -2578,17 +2601,28 @@
       "src/production_os/autonomous_admission.py": 4,
       "src/production_os/autonomous_projects.py": 4,
       "src/production_os/budgets.py": 4,
-      "src/production_os/cli.py": 8,
-      "src/production_os/controller.py": 8,
+      "src/production_os/cli.py": 12,
+      "src/production_os/controller.py": 12,
       "src/production_os/dispatch.py": 4,
+      "src/production_os/postgres_backend.py": 4,
       "src/production_os/rate_limit.py": 4,
+      "src/production_os/release_ledger.py": 4,
+      "src/production_os/storage.py": 4,
       "src/production_os/workers.py": 4,
       "tests/test_autonomous_admission.py": 4,
       "tests/test_autonomous_projects.py": 4,
       "tests/test_controller_daemon.py": 4,
       "tests/test_controller_daemon_deployment.py": 8,
+      "tests/test_controller_error_recovery.py": 4,
+      "tests/test_controller_leader.py": 4,
       "tests/test_controller_managed_projects.py": 4,
+      "tests/test_dashboard_store_postgres.py": 4,
+      "tests/test_database_maintenance_lock.py": 4,
       "tests/test_policy_budgets.py": 4,
+      "tests/test_production_stack_e2e.py": 4,
+      "tests/test_release_postgres.py": 4,
+      "tests/test_storage_routing.py": 4,
+      "tests/test_trust_status_summary.py": 4,
       "tests/test_workers.py": 4
     },
     "controllers": {
@@ -4055,11 +4089,24 @@
       "tests/test_runtime_contract.py": 4
     },
     "pipeline": {
+      "src/production_os/cli.py": 4,
+      "src/production_os/controller.py": 4,
       "src/production_os/dashboard_ui.py": 4,
       "src/production_os/managed_projects.py": 4,
+      "src/production_os/postgres_backend.py": 4,
+      "src/production_os/release_ledger.py": 4,
+      "src/production_os/storage.py": 4,
+      "tests/test_controller_error_recovery.py": 4,
+      "tests/test_controller_leader.py": 4,
       "tests/test_cooperative_specialist_e2e.py": 4,
+      "tests/test_dashboard_store_postgres.py": 4,
       "tests/test_dashboard_ui_v3.py": 4,
-      "tests/test_managed_project_outcome.py": 4
+      "tests/test_database_maintenance_lock.py": 4,
+      "tests/test_managed_project_outcome.py": 4,
+      "tests/test_production_stack_e2e.py": 4,
+      "tests/test_release_postgres.py": 4,
+      "tests/test_storage_routing.py": 4,
+      "tests/test_trust_status_summary.py": 4
     },
     "plan": {
       "src/production_os/agent_plan.py": 4,
@@ -4138,6 +4185,21 @@
     "postgres": {
       "src/production_os/postgres_backend.py": 4,
       "tests/test_postgres_connect_timeout_unit.py": 4
+    },
+    "postgresql": {
+      "src/production_os/cli.py": 4,
+      "src/production_os/controller.py": 4,
+      "src/production_os/postgres_backend.py": 4,
+      "src/production_os/release_ledger.py": 4,
+      "src/production_os/storage.py": 4,
+      "tests/test_controller_error_recovery.py": 4,
+      "tests/test_controller_leader.py": 4,
+      "tests/test_dashboard_store_postgres.py": 4,
+      "tests/test_database_maintenance_lock.py": 4,
+      "tests/test_production_stack_e2e.py": 4,
+      "tests/test_release_postgres.py": 4,
+      "tests/test_storage_routing.py": 4,
+      "tests/test_trust_status_summary.py": 4
     },
     "pr": {
       "src/production_os/managed_projects.py": 4,
@@ -4463,12 +4525,25 @@
       "tests/test_browser_computer.py": 4
     },
     "recovery": {
+      "src/production_os/cli.py": 4,
       "src/production_os/control_plane.py": 8,
+      "src/production_os/controller.py": 4,
       "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/postgres_backend.py": 4,
+      "src/production_os/release_ledger.py": 4,
+      "src/production_os/storage.py": 4,
+      "tests/test_controller_error_recovery.py": 4,
+      "tests/test_controller_leader.py": 4,
+      "tests/test_dashboard_store_postgres.py": 4,
       "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_database_maintenance_lock.py": 4,
+      "tests/test_production_stack_e2e.py": 4,
       "tests/test_release33_auto_worker_recovery_e2e.py": 4,
       "tests/test_release34_safe_running_recovery_e2e.py": 4,
-      "tests/test_release44_one_tap_recovery_actions_e2e.py": 4
+      "tests/test_release44_one_tap_recovery_actions_e2e.py": 4,
+      "tests/test_release_postgres.py": 4,
+      "tests/test_storage_routing.py": 4,
+      "tests/test_trust_status_summary.py": 4
     },
     "recurrence": {
       "src/production_os/dashboard_remediation_metrics.py": 4,
@@ -4506,8 +4581,9 @@
       "tests/test_regression_bisect.py": 4
     },
     "release": {
-      "src/production_os/cli.py": 12,
+      "src/production_os/cli.py": 16,
       "src/production_os/control_plane.py": 40,
+      "src/production_os/controller.py": 4,
       "src/production_os/dashboard_alerts.py": 4,
       "src/production_os/dashboard_backups.py": 40,
       "src/production_os/dashboard_control.py": 4,
@@ -4525,13 +4601,17 @@
       "src/production_os/database_maintenance_lock.py": 4,
       "src/production_os/github_client.py": 8,
       "src/production_os/managed_projects.py": 8,
-      "src/production_os/postgres_backend.py": 32,
+      "src/production_os/postgres_backend.py": 36,
       "src/production_os/project_progress.py": 4,
+      "src/production_os/release_ledger.py": 4,
       "src/production_os/remote_worker.py": 8,
       "src/production_os/remote_worker_runner.py": 12,
       "src/production_os/sqlite_backend.py": 32,
+      "src/production_os/storage.py": 4,
       "src/production_os/workflow_engine.py": 4,
       "tests/test_cli.py": 12,
+      "tests/test_controller_error_recovery.py": 4,
+      "tests/test_controller_leader.py": 4,
       "tests/test_dashboard_alerts.py": 4,
       "tests/test_dashboard_api.py": 40,
       "tests/test_dashboard_attention.py": 16,
@@ -4561,14 +4641,9 @@
       "tests/test_dashboard_retention_prune.py": 4,
       "tests/test_dashboard_security.py": 4,
       "tests/test_dashboard_store.py": 4,
-      "tests/test_dashboard_store_postgres.py": 32,
+      "tests/test_dashboard_store_postgres.py": 36,
       "tests/test_dashboard_ui_v3.py": 40,
-      "tests/test_dashboard_usage.py": 4,
-      "tests/test_database_maintenance_lock.py": 4,
-      "tests/test_github_client_pr_files.py": 4,
-      "tests/test_managed_project_outcome.py": 4,
-      "tests/test_managed_projects_v4.py": 4,
-      "tests/test_portfolio_claim_api.py": 4,
+      "tests/test_database_maintenance_lock.py": 8,
       "tests/test_release32_one_tap_e2e.py": 8
     },
     "reliability": {
@@ -4690,10 +4765,21 @@
       "tests/test_task_capabilities.py": 4
     },
     "resilient": {
-      "src/production_os/cli.py": 4,
-      "src/production_os/controller.py": 4,
+      "src/production_os/cli.py": 8,
+      "src/production_os/controller.py": 8,
+      "src/production_os/postgres_backend.py": 4,
+      "src/production_os/release_ledger.py": 4,
+      "src/production_os/storage.py": 4,
       "tests/test_controller_daemon.py": 4,
-      "tests/test_controller_daemon_deployment.py": 4
+      "tests/test_controller_daemon_deployment.py": 4,
+      "tests/test_controller_error_recovery.py": 4,
+      "tests/test_controller_leader.py": 4,
+      "tests/test_dashboard_store_postgres.py": 4,
+      "tests/test_database_maintenance_lock.py": 4,
+      "tests/test_production_stack_e2e.py": 4,
+      "tests/test_release_postgres.py": 4,
+      "tests/test_storage_routing.py": 4,
+      "tests/test_trust_status_summary.py": 4
     },
     "responses": {
       "src/production_os/dashboard_ui.py": 24,
@@ -4713,17 +4799,29 @@
       "tests/test_browser_computer.py": 4
     },
     "restore": {
-      "src/production_os/cli.py": 4,
+      "src/production_os/cli.py": 8,
       "src/production_os/control_plane.py": 8,
+      "src/production_os/controller.py": 4,
       "src/production_os/dashboard_backups.py": 20,
       "src/production_os/dashboard_service.py": 12,
       "src/production_os/dashboard_ui.py": 12,
+      "src/production_os/postgres_backend.py": 4,
+      "src/production_os/release_ledger.py": 4,
+      "src/production_os/storage.py": 4,
       "tests/test_cli.py": 4,
+      "tests/test_controller_error_recovery.py": 4,
+      "tests/test_controller_leader.py": 4,
       "tests/test_dashboard_backup_api.py": 12,
       "tests/test_dashboard_backups.py": 20,
+      "tests/test_dashboard_store_postgres.py": 4,
       "tests/test_dashboard_ui_v3.py": 12,
+      "tests/test_database_maintenance_lock.py": 4,
+      "tests/test_production_stack_e2e.py": 4,
       "tests/test_release19_restore_staging_e2e.py": 4,
-      "tests/test_release21_offline_restore_e2e.py": 4
+      "tests/test_release21_offline_restore_e2e.py": 4,
+      "tests/test_release_postgres.py": 4,
+      "tests/test_storage_routing.py": 4,
+      "tests/test_trust_status_summary.py": 4
     },
     "results": {
       "src/production_os/workflow_engine.py": 4,

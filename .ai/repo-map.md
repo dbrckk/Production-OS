@@ -227,6 +227,7 @@ tests/
   test_controller_asset_capabilities.py
   test_controller_daemon_deployment.py
   test_controller_daemon.py
+  test_controller_error_recovery.py
   test_controller_leader.py
   test_controller_managed_projects.py
   test_cooperative_managed_projects.py
@@ -340,6 +341,7 @@ tests/
   test_rekor_witness_quorum_cli.py
   test_rekor_witness_quorum.py
   test_release_ledger.py
+  test_release_postgres.py
   test_release16_operations_e2e.py
   test_release18_managed_projects_e2e.py
   test_release19_restore_staging_e2e.py
@@ -377,6 +379,7 @@ tests/
   test_speculation.py
   test_sqlite_backend.py
   test_sqlite_migration.py
+  test_storage_routing.py
   test_stragglers.py
   test_supply_chain.py
   test_task_capabilities.py
@@ -4224,6 +4227,8 @@ anchor = (
 
 ## File: src/production_os/controller.py
 ````python
+_LOGGER = logging.getLogger(__name__)
+⋮----
 def _rank_actions(assessments)
 ⋮----
 actions = [action for assessment in assessments for action in assessment.actions]
@@ -4373,12 +4378,21 @@ observability = build_observability_payload(
 ⋮----
 def _record_controller_error(exc: Exception, kwargs: dict) -> None
 ⋮----
+"""Publish independent best-effort diagnostics without masking a cycle error."""
 metrics_path = kwargs.get("metrics_path")
 health_path = kwargs.get("health_path")
 runtime_state_path = kwargs.get("runtime_state_path")
 database_path = kwargs.get("database_path")
+metrics = {"last_error": str(exc)}
+⋮----
+metrics = metrics_store.metrics.to_dict()
+⋮----
+# Exception text may contain paths or backend credentials.
+⋮----
+health = {
 ⋮----
 state = (
+health = build_health(state, metrics)
 ⋮----
 """Run autonomous control cycles until a cooperative stop is requested.
 
@@ -8241,7 +8255,7 @@ def _utcnow() -> str
 ⋮----
 class PostgresBackend
 ⋮----
-SCHEMA_VERSION = 18
+SCHEMA_VERSION = 19
 CONNECT_TIMEOUT_SECONDS = 10
 ⋮----
 def __init__(self, dsn: str)
@@ -9118,8 +9132,14 @@ statement = dict(slsa.get("statement") or {})
 predicate = dict(statement.get("predicate") or {})
 run_details = dict(predicate.get("runDetails") or {})
 builder = dict(run_details.get("builder") or {})
-attestation_signature = dict(
-slsa_signature = dict(slsa.get("signature") or {})
+# Legacy HMAC attestations store a string signature and have no
+# asymmetric key ID. Verification below still checks their HMAC.
+attestation_signature = attestation.get("signature")
+⋮----
+attestation_signature = {}
+slsa_signature = slsa.get("signature")
+⋮----
+slsa_signature = {}
 ⋮----
 release_validator = str(
 release_builder = str(builder.get("id") or "")
@@ -9148,6 +9168,8 @@ now = _now()
 stable_report = dict(report)
 ⋮----
 report_state_hash = _canonical_sha256(stable_report)
+⋮----
+# Also serialize the empty-ledger case, where no row can be locked.
 ⋮----
 latest = _execute(
 ⋮----
@@ -9224,6 +9246,8 @@ signed_statement = sign_slsa_statement(
 ⋮----
 provenance = create_release_provenance(
 release_metadata = {
+⋮----
+# Promotions from different workflows share one global hash chain.
 ⋮----
 previous_row = _execute(
 sequence = (
@@ -10440,7 +10464,16 @@ ref = ExternalReference(
 
 ## File: src/production_os/storage.py
 ````python
+# Recognize libpq's reserved connection keywords without requiring the optional
+# PostgreSQL driver. Parsing and validation remain the driver's responsibility;
+# malformed connection strings must never become SQLite filenames.
+_POSTGRES_CONNINFO_KEYS = frozenset("""
+⋮----
 def is_postgres(location: str) -> bool
+⋮----
+location = str(location).strip()
+⋮----
+keyword = re.match(r"([a-z_]+)\s*=", location)
 ⋮----
 def open_backend(location: str)
 ⋮----
@@ -12674,6 +12707,70 @@ def test_controller_cli_exposes_daemon_controls()
 args = _parse_args([
 ````
 
+## File: tests/test_controller_error_recovery.py
+````python
+class StopAfterWaits
+⋮----
+def __init__(self, count)
+⋮----
+def is_set(self)
+⋮----
+def wait(self, seconds)
+⋮----
+def paths(tmp_path)
+⋮----
+@pytest.mark.parametrize("state_source", ["database", "runtime-file"])
+def test_unavailable_state_still_publishes_degraded_health(tmp_path, monkeypatch, state_source)
+⋮----
+config = paths(tmp_path)
+⋮----
+def unavailable(_path)
+⋮----
+health = json.loads((tmp_path / "health.json").read_text())
+⋮----
+@pytest.mark.parametrize("metrics_failure", ["corrupt", "unwritable", "missing-config"])
+def test_metrics_failure_does_not_prevent_health_publication(tmp_path, metrics_failure)
+⋮----
+@pytest.mark.parametrize("failed_output", ["metrics_path", "health_path", "journal_path", "all"])
+def test_daemon_recovers_when_error_reporting_storage_fails(tmp_path, monkeypatch, failed_output)
+⋮----
+# A directory at a file destination fails even when tests run as root.
+⋮----
+attempts = []
+⋮----
+def cycle(**_kwargs)
+⋮----
+stop = StopAfterWaits(3)
+⋮----
+summary = controller.run_controller_daemon(
+⋮----
+def test_bounded_controller_preserves_original_error_when_reporting_fails(tmp_path, monkeypatch)
+⋮----
+primary = RuntimeError("primary cycle failure")
+⋮----
+def test_metrics_can_be_recorded_without_runtime_configuration(tmp_path)
+⋮----
+config = {"metrics_path": str(tmp_path / "metrics.json")}
+⋮----
+def test_readable_state_preserves_metrics_and_runtime_counts(tmp_path)
+⋮----
+metrics = MetricsStore(config["metrics_path"])
+⋮----
+state = RuntimeState(config["runtime_state_path"])
+⋮----
+stored_metrics = MetricsStore(config["metrics_path"]).metrics.to_dict()
+⋮----
+def test_metrics_save_failure_keeps_health_and_redacts_secondary_exception(tmp_path, monkeypatch, caplog)
+⋮----
+def fail_save(_self)
+⋮----
+def test_daemon_stops_cooperatively_during_persistent_reporting_failure(tmp_path, monkeypatch)
+⋮----
+stop = StopAfterWaits(2)
+⋮----
+summary = controller.run_controller_daemon(interval_seconds=1, stop_event=stop, **config)
+````
+
 ## File: tests/test_controller_leader.py
 ````python
 def test_filesystem_controller_leader_lock_is_exclusive_and_releasable(tmp_path)
@@ -12690,6 +12787,8 @@ lock = leader.controller_leader_lock(
 def test_controller_leader_factory_falls_back_to_runtime_state(tmp_path)
 ⋮----
 runtime = tmp_path / "runtime.json"
+⋮----
+def test_controller_leader_factory_routes_keyword_dsn_to_postgres()
 ⋮----
 def test_postgres_controller_leader_lock_holds_session_advisory_lock(monkeypatch)
 ⋮----
@@ -14648,7 +14747,7 @@ pytestmark = pytest.mark.skipif(
 ⋮----
 REQUIRED_EXECUTION_COLUMNS = {
 ⋮----
-def test_postgres_schema_v18_has_managed_project_and_pairing_tables()
+def test_postgres_schema_v19_has_managed_project_and_pairing_tables()
 ⋮----
 backend = PostgresBackend(DSN)
 ⋮----
@@ -15128,6 +15227,8 @@ lock = SQLiteDatabaseProcessLock(str(database))
 metadata = json.loads(path.read_text())
 ⋮----
 def test_postgres_database_server_lock_is_noop()
+⋮----
+def test_keyword_dsn_does_not_create_sqlite_maintenance_lock(tmp_path, monkeypatch)
 ⋮----
 events = []
 ⋮----
@@ -16665,6 +16766,7 @@ provenance_secret = f"provenance-secret-{run_id}"
 auth = TokenAuthorizer(
 ⋮----
 control = ControlPlane(
+⋮----
 server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
 thread = threading.Thread(target=server.serve_forever, daemon=True)
 ⋮----
@@ -17277,6 +17379,53 @@ builder_id="https://builder.example/prod"
 def test_release_verify_rejects_untrusted_builder_repository(tmp_path)
 ⋮----
 def test_trusted_builder_requires_dedicated_signing_key(tmp_path)
+````
+
+## File: tests/test_release_postgres.py
+````python
+pytestmark = pytest.mark.e2e
+⋮----
+@pytest.fixture
+def ledger()
+⋮----
+dsn = os.getenv("PRODUCTION_OS_TEST_POSTGRES")
+⋮----
+backend = PostgresBackend(database)
+workflows = WorkflowEngine(backend, PostgresJobQueue(backend))
+releases = ReleaseLedger(
+⋮----
+def prepared_release(workflows)
+⋮----
+workflow = workflows.create(
+⋮----
+artifact = workflows.add_artifact(
+⋮----
+def test_postgres_upgrade_restores_missing_ledgers_without_losing_workflows(ledger)
+⋮----
+prepared = prepared_release(workflows)
+⋮----
+release = releases.promote(**prepared)
+⋮----
+snapshot = releases.record_incident_report()
+⋮----
+def test_concurrent_postgres_promotions_keep_one_valid_transparency_chain(ledger)
+⋮----
+prepared = [prepared_release(workflows) for _ in range(4)]
+barrier = threading.Barrier(4)
+⋮----
+def promote(payload)
+⋮----
+results = list(pool.map(promote, prepared))
+⋮----
+def test_concurrent_postgres_incident_snapshots_keep_one_valid_hash_chain(ledger)
+⋮----
+def snapshot(scope)
+⋮----
+results = list(pool.map(snapshot, ["one", "two", "three", "four"]))
+⋮----
+def test_keyword_dsn_cli_reports_postgres_backend(ledger, tmp_path, capsys)
+⋮----
+handoff = tmp_path / "handoff.json"
 ````
 
 ## File: tests/test_release16_operations_e2e.py
@@ -18805,6 +18954,26 @@ result=import_json_state(backend,runtime_state=str(source))
 state=SQLiteRuntimeState(backend)
 ````
 
+## File: tests/test_storage_routing.py
+````python
+def test_postgres_locations_use_postgres(location)
+⋮----
+def test_sqlite_paths_keep_sqlite_routing(location)
+⋮----
+def test_keyword_dsn_never_creates_sqlite_on_postgres_failure(monkeypatch, tmp_path)
+⋮----
+location = "host=localhost dbname=production"
+⋮----
+def postgres(_location)
+⋮----
+def sqlite(_location)
+⋮----
+def test_malformed_keyword_dsn_is_handled_by_postgres(monkeypatch)
+⋮----
+location = "host='unterminated"
+seen = []
+````
+
 ## File: tests/test_stragglers.py
 ````python
 def test_straggler_detection_with_alternate_worker(tmp_path)
@@ -19062,6 +19231,10 @@ def test_witness_cannot_reuse_builder_key()
 
 ## File: tests/test_trust_status_summary.py
 ````python
+def test_legacy_hmac_release_can_be_inspected_and_snapshotted(tmp_path)
+⋮----
+status = ledger.trust_status(validator_id="validator-1")
+⋮----
 def test_trust_status_aggregates_affected_entities_and_reasons(monkeypatch)
 ⋮----
 ledger = object.__new__(ReleaseLedger)
@@ -22938,6 +23111,16 @@ The service exposes port `8787` and persists the SQLite database in `./artifacts
 
 Production-OS accepts either a SQLite path or a PostgreSQL DSN through the same `--database` option.
 
+PostgreSQL URI and libpq keyword formats are both supported, including
+`host=localhost dbname=production_os user=production_os`. A recognized PostgreSQL
+connection never falls back to SQLite when its configuration or connection fails.
+Controller and server locks use the same backend selection.
+
+PostgreSQL schema version 19 adds the release transparency and trust incident
+ledgers to existing databases without deleting workflow or release history.
+Concurrent promotions and incident snapshots serialize their respective hash
+chains. The production-stack E2E gate asserts that it actually uses PostgreSQL.
+
 Example:
 
 ```bash
@@ -24836,6 +25019,15 @@ until SIGTERM or SIGINT, stops cooperatively, and retries failed control cycles
 with bounded exponential backoff instead of terminating the orchestrator.
 Health and metrics are updated on failed cycles so external supervision can
 distinguish a living-but-degraded controller from a stopped process.
+
+Error reporting is best effort: an unavailable backend, unreadable metrics, or
+failed diagnostic write does not stop daemon retries or replace the original
+cycle error in bounded runs. Health publication is independent of metric
+publication. When runtime state cannot be read, health remains `degraded`,
+reports `runtime_status=unavailable`, and uses `null` runtime counts instead of
+inventing an empty queue. Metric, runtime-state, and health reporting failures
+emit warnings containing only the exception type. Persistent storage failures still require repair;
+the daemon keeps its bounded retry delay and cooperative shutdown behavior.
 
 The Compose deployment exposes an optional profile:
 

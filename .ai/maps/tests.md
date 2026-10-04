@@ -72,6 +72,7 @@ test_control_plane.py
 test_controller_asset_capabilities.py
 test_controller_daemon_deployment.py
 test_controller_daemon.py
+test_controller_error_recovery.py
 test_controller_leader.py
 test_controller_managed_projects.py
 test_cooperative_managed_projects.py
@@ -185,6 +186,7 @@ test_rekor_v1_key_compatibility.py
 test_rekor_witness_quorum_cli.py
 test_rekor_witness_quorum.py
 test_release_ledger.py
+test_release_postgres.py
 test_release16_operations_e2e.py
 test_release18_managed_projects_e2e.py
 test_release19_restore_staging_e2e.py
@@ -222,6 +224,7 @@ test_speculation_api.py
 test_speculation.py
 test_sqlite_backend.py
 test_sqlite_migration.py
+test_storage_routing.py
 test_stragglers.py
 test_supply_chain.py
 test_task_capabilities.py
@@ -1464,6 +1467,70 @@ def test_controller_cli_exposes_daemon_controls()
 args = _parse_args([
 ```
 
+## File: test_controller_error_recovery.py
+```python
+class StopAfterWaits
+⋮----
+def __init__(self, count)
+⋮----
+def is_set(self)
+⋮----
+def wait(self, seconds)
+⋮----
+def paths(tmp_path)
+⋮----
+@pytest.mark.parametrize("state_source", ["database", "runtime-file"])
+def test_unavailable_state_still_publishes_degraded_health(tmp_path, monkeypatch, state_source)
+⋮----
+config = paths(tmp_path)
+⋮----
+def unavailable(_path)
+⋮----
+health = json.loads((tmp_path / "health.json").read_text())
+⋮----
+@pytest.mark.parametrize("metrics_failure", ["corrupt", "unwritable", "missing-config"])
+def test_metrics_failure_does_not_prevent_health_publication(tmp_path, metrics_failure)
+⋮----
+@pytest.mark.parametrize("failed_output", ["metrics_path", "health_path", "journal_path", "all"])
+def test_daemon_recovers_when_error_reporting_storage_fails(tmp_path, monkeypatch, failed_output)
+⋮----
+# A directory at a file destination fails even when tests run as root.
+⋮----
+attempts = []
+⋮----
+def cycle(**_kwargs)
+⋮----
+stop = StopAfterWaits(3)
+⋮----
+summary = controller.run_controller_daemon(
+⋮----
+def test_bounded_controller_preserves_original_error_when_reporting_fails(tmp_path, monkeypatch)
+⋮----
+primary = RuntimeError("primary cycle failure")
+⋮----
+def test_metrics_can_be_recorded_without_runtime_configuration(tmp_path)
+⋮----
+config = {"metrics_path": str(tmp_path / "metrics.json")}
+⋮----
+def test_readable_state_preserves_metrics_and_runtime_counts(tmp_path)
+⋮----
+metrics = MetricsStore(config["metrics_path"])
+⋮----
+state = RuntimeState(config["runtime_state_path"])
+⋮----
+stored_metrics = MetricsStore(config["metrics_path"]).metrics.to_dict()
+⋮----
+def test_metrics_save_failure_keeps_health_and_redacts_secondary_exception(tmp_path, monkeypatch, caplog)
+⋮----
+def fail_save(_self)
+⋮----
+def test_daemon_stops_cooperatively_during_persistent_reporting_failure(tmp_path, monkeypatch)
+⋮----
+stop = StopAfterWaits(2)
+⋮----
+summary = controller.run_controller_daemon(interval_seconds=1, stop_event=stop, **config)
+```
+
 ## File: test_controller_leader.py
 ```python
 def test_filesystem_controller_leader_lock_is_exclusive_and_releasable(tmp_path)
@@ -1480,6 +1547,8 @@ lock = leader.controller_leader_lock(
 def test_controller_leader_factory_falls_back_to_runtime_state(tmp_path)
 ⋮----
 runtime = tmp_path / "runtime.json"
+⋮----
+def test_controller_leader_factory_routes_keyword_dsn_to_postgres()
 ⋮----
 def test_postgres_controller_leader_lock_holds_session_advisory_lock(monkeypatch)
 ⋮----
@@ -3438,7 +3507,7 @@ pytestmark = pytest.mark.skipif(
 ⋮----
 REQUIRED_EXECUTION_COLUMNS = {
 ⋮----
-def test_postgres_schema_v18_has_managed_project_and_pairing_tables()
+def test_postgres_schema_v19_has_managed_project_and_pairing_tables()
 ⋮----
 backend = PostgresBackend(DSN)
 ⋮----
@@ -3918,6 +3987,8 @@ lock = SQLiteDatabaseProcessLock(str(database))
 metadata = json.loads(path.read_text())
 ⋮----
 def test_postgres_database_server_lock_is_noop()
+⋮----
+def test_keyword_dsn_does_not_create_sqlite_maintenance_lock(tmp_path, monkeypatch)
 ⋮----
 events = []
 ⋮----
@@ -5455,6 +5526,7 @@ provenance_secret = f"provenance-secret-{run_id}"
 auth = TokenAuthorizer(
 ⋮----
 control = ControlPlane(
+⋮----
 server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
 thread = threading.Thread(target=server.serve_forever, daemon=True)
 ⋮----
@@ -6067,6 +6139,53 @@ builder_id="https://builder.example/prod"
 def test_release_verify_rejects_untrusted_builder_repository(tmp_path)
 ⋮----
 def test_trusted_builder_requires_dedicated_signing_key(tmp_path)
+```
+
+## File: test_release_postgres.py
+```python
+pytestmark = pytest.mark.e2e
+⋮----
+@pytest.fixture
+def ledger()
+⋮----
+dsn = os.getenv("PRODUCTION_OS_TEST_POSTGRES")
+⋮----
+backend = PostgresBackend(database)
+workflows = WorkflowEngine(backend, PostgresJobQueue(backend))
+releases = ReleaseLedger(
+⋮----
+def prepared_release(workflows)
+⋮----
+workflow = workflows.create(
+⋮----
+artifact = workflows.add_artifact(
+⋮----
+def test_postgres_upgrade_restores_missing_ledgers_without_losing_workflows(ledger)
+⋮----
+prepared = prepared_release(workflows)
+⋮----
+release = releases.promote(**prepared)
+⋮----
+snapshot = releases.record_incident_report()
+⋮----
+def test_concurrent_postgres_promotions_keep_one_valid_transparency_chain(ledger)
+⋮----
+prepared = [prepared_release(workflows) for _ in range(4)]
+barrier = threading.Barrier(4)
+⋮----
+def promote(payload)
+⋮----
+results = list(pool.map(promote, prepared))
+⋮----
+def test_concurrent_postgres_incident_snapshots_keep_one_valid_hash_chain(ledger)
+⋮----
+def snapshot(scope)
+⋮----
+results = list(pool.map(snapshot, ["one", "two", "three", "four"]))
+⋮----
+def test_keyword_dsn_cli_reports_postgres_backend(ledger, tmp_path, capsys)
+⋮----
+handoff = tmp_path / "handoff.json"
 ```
 
 ## File: test_release16_operations_e2e.py
@@ -7595,6 +7714,26 @@ result=import_json_state(backend,runtime_state=str(source))
 state=SQLiteRuntimeState(backend)
 ```
 
+## File: test_storage_routing.py
+```python
+def test_postgres_locations_use_postgres(location)
+⋮----
+def test_sqlite_paths_keep_sqlite_routing(location)
+⋮----
+def test_keyword_dsn_never_creates_sqlite_on_postgres_failure(monkeypatch, tmp_path)
+⋮----
+location = "host=localhost dbname=production"
+⋮----
+def postgres(_location)
+⋮----
+def sqlite(_location)
+⋮----
+def test_malformed_keyword_dsn_is_handled_by_postgres(monkeypatch)
+⋮----
+location = "host='unterminated"
+seen = []
+```
+
 ## File: test_stragglers.py
 ```python
 def test_straggler_detection_with_alternate_worker(tmp_path)
@@ -7852,6 +7991,10 @@ def test_witness_cannot_reuse_builder_key()
 
 ## File: test_trust_status_summary.py
 ```python
+def test_legacy_hmac_release_can_be_inspected_and_snapshotted(tmp_path)
+⋮----
+status = ledger.trust_status(validator_id="validator-1")
+⋮----
 def test_trust_status_aggregates_affected_entities_and_reasons(monkeypatch)
 ⋮----
 ledger = object.__new__(ReleaseLedger)

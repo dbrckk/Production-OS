@@ -29,26 +29,36 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-03T18:51:37Z
+Generated: 2026-10-04T05:51:30Z
 
 ### Git
 - Branch: `main`
-- Head: `2afeb07fa0d1`
-- Commit date: 2026-10-03T20:51:23+02:00
-- Commit: feat(asset-forge): probe remote workflow dispatch readiness (#249)
-- Tracked files: 556
+- Head: `4f547bed6c97`
+- Commit date: 2026-10-04T07:50:58+02:00
+- Commit: fix: restore PostgreSQL release pipeline and resilient controller recovery (#250)
+- Tracked files: 560
 
 ### Recently changed files
-- `src/production_os/asset_forge.py`
+- `README.md`
 - `src/production_os/cli.py`
+- `src/production_os/controller.py`
+- `src/production_os/postgres_backend.py`
+- `src/production_os/release_ledger.py`
+- `src/production_os/storage.py`
+- `tests/test_controller_error_recovery.py`
+- `tests/test_controller_leader.py`
+- `tests/test_dashboard_store_postgres.py`
+- `tests/test_database_maintenance_lock.py`
+- `tests/test_production_stack_e2e.py`
+- `tests/test_release_postgres.py`
+- `tests/test_storage_routing.py`
+- `tests/test_trust_status_summary.py`
+- `src/production_os/asset_forge.py`
 - `src/production_os/github_client.py`
 - `tests/test_asset_forge_dispatch_probe.py`
 - `src/production_os/dashboard_ui.py`
 - `tests/test_dashboard_refresh_coalescing.py`
 - `tests/test_dashboard_api_timeout.py`
-- `tests/test_dashboard_clear_pairing_state.py`
-- `tests/test_dashboard_global_status_freshness.py`
-- `tests/test_dashboard_ui_v3.py`
 
 ### Project signals
 - `pyproject.toml`

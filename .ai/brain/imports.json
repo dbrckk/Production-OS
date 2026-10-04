@@ -374,6 +374,7 @@
       "history",
       "journal",
       "json",
+      "logging",
       "managed_projects",
       "metrics",
       "observability",
@@ -1070,6 +1071,7 @@
     "src/production_os/storage.py": [
       "__future__",
       "postgres_backend",
+      "re",
       "sqlite_backend"
     ],
     "src/production_os/supply_chain.py": [
@@ -1415,6 +1417,16 @@
     ],
     "tests/test_controller_daemon_deployment.py": [
       "pathlib"
+    ],
+    "tests/test_controller_error_recovery.py": [
+      "contextlib",
+      "json",
+      "pathlib",
+      "production_os.controller",
+      "production_os.journal",
+      "production_os.metrics",
+      "production_os.runtime_state",
+      "pytest"
     ],
     "tests/test_controller_leader.py": [
       "__future__",
@@ -2008,6 +2020,7 @@
       "production_os.api_auth",
       "production_os.attestations",
       "production_os.control_plane",
+      "production_os.postgres_backend",
       "production_os.remote_worker",
       "psycopg",
       "psycopg.conninfo",
@@ -2321,6 +2334,21 @@
       "production_os.workflow_engine",
       "pytest"
     ],
+    "tests/test_release_postgres.py": [
+      "argparse",
+      "concurrent.futures",
+      "json",
+      "os",
+      "production_os.cli",
+      "production_os.postgres_backend",
+      "production_os.release_ledger",
+      "production_os.workflow_engine",
+      "pytest",
+      "test_production_stack_e2e",
+      "test_release_ledger",
+      "threading",
+      "uuid"
+    ],
     "tests/test_remote_worker.py": [
       "http.server",
       "json",
@@ -2447,6 +2475,10 @@
       "production_os.sqlite_backend",
       "production_os.sqlite_migration"
     ],
+    "tests/test_storage_routing.py": [
+      "production_os.storage",
+      "pytest"
+    ],
     "tests/test_stragglers.py": [
       "datetime",
       "production_os.execution_optimizer",
@@ -2490,7 +2522,8 @@
       "pytest"
     ],
     "tests/test_trust_status_summary.py": [
-      "production_os.release_ledger"
+      "production_os.release_ledger",
+      "test_release_ledger"
     ],
     "tests/test_vault_auth.py": [
       "production_os.signer_factory",
