@@ -10,11 +10,11 @@ Status: active
 - Trust inspection and incident snapshots support existing legacy HMAC releases.
 
 ## Broken / blockers
-- Live deployment and external worker credentials were not available in this session; repository checks do not establish live production readiness.
+- Server fix #250 is deployed and healthy; worker fix #240 is merged. Live run 37181156718 authenticated but found no compatible jobs. Queue diagnostics now distinguish empty queues, controls and capability/generation filters.
 - Dashboard pairing fixes remain in existing PRs #247 and #248; this change does not duplicate them.
 
 ## Current priority
-- Review and integrate backend and controller resilience corrections, then verify the deployed control plane and worker fleet with actual deployment credentials.
+- Deploy worker queue diagnostics, identify the actual live queue blocker and validate a real coding job.
 
 ## Validation
 - Standards workflow: configured.
@@ -24,7 +24,7 @@ Status: active
 - Final full suite with PostgreSQL 16: 1290 passed, none skipped. Compilation, distribution build, and isolated wheel CLI installation passed; missing PostgreSQL extras fail explicitly without a SQLite fallback.
 
 ## Last verified
-- 2026-10-03
+- 2026-10-04
 
 <!-- AUTO:START -->
 ## Automatic repository state
