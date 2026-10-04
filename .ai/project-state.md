@@ -29,16 +29,19 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-04T05:51:30Z
+Generated: 2026-10-04T06:14:41Z
 
 ### Git
 - Branch: `main`
-- Head: `4f547bed6c97`
-- Commit date: 2026-10-04T07:50:58+02:00
-- Commit: fix: restore PostgreSQL release pipeline and resilient controller recovery (#250)
-- Tracked files: 560
+- Head: `8bda2e5139d5`
+- Commit date: 2026-10-04T08:14:27+02:00
+- Commit: fix(dashboard): bound pairing link exchange (#248)
+- Tracked files: 562
 
 ### Recently changed files
+- `src/production_os/dashboard_ui.py`
+- `tests/test_dashboard_pair_link_timeout.py`
+- `tests/test_dashboard_pairing_freshness.py`
 - `README.md`
 - `src/production_os/cli.py`
 - `src/production_os/controller.py`
@@ -56,9 +59,6 @@ Generated: 2026-10-04T05:51:30Z
 - `src/production_os/asset_forge.py`
 - `src/production_os/github_client.py`
 - `tests/test_asset_forge_dispatch_probe.py`
-- `src/production_os/dashboard_ui.py`
-- `tests/test_dashboard_refresh_coalescing.py`
-- `tests/test_dashboard_api_timeout.py`
 
 ### Project signals
 - `pyproject.toml`

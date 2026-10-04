@@ -70,6 +70,8 @@
         "tests/test_dashboard_maintenance.py",
         "tests/test_dashboard_mobile_stability.py",
         "tests/test_dashboard_observability_e2e.py",
+        "tests/test_dashboard_pair_link_timeout.py",
+        "tests/test_dashboard_pairing_freshness.py",
         "tests/test_dashboard_playbook_api.py",
         "tests/test_dashboard_playbooks.py",
         "tests/test_dashboard_production_inbox.py",
@@ -211,7 +213,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 202,
+      "in_degree": 204,
       "out_degree": 0,
       "path": "src/production_os/__init__.py"
     },
@@ -1210,6 +1212,32 @@
       "path": "src/production_os/dashboard_service.py"
     },
     {
+      "dependencies": [],
+      "dependents": [
+        "src/production_os/control_plane.py",
+        "tests/test_dashboard_api_timeout.py",
+        "tests/test_dashboard_async_freshness.py",
+        "tests/test_dashboard_clear_pairing_state.py",
+        "tests/test_dashboard_collection_view_freshness.py",
+        "tests/test_dashboard_global_status_freshness.py",
+        "tests/test_dashboard_launch_freshness.py",
+        "tests/test_dashboard_mobile_stability.py",
+        "tests/test_dashboard_pair_link_timeout.py",
+        "tests/test_dashboard_pairing_freshness.py",
+        "tests/test_dashboard_production_inbox_filters_ui.py",
+        "tests/test_dashboard_production_inbox_freshness.py",
+        "tests/test_dashboard_project_detail_freshness.py",
+        "tests/test_dashboard_refresh_coalescing.py",
+        "tests/test_dashboard_ui_v3.py",
+        "tests/test_dashboard_windowed_view_freshness.py",
+        "tests/test_dashboard_worker_detail_freshness.py",
+        "tests/test_dashboard_workflow_snapshot_invalidation.py"
+      ],
+      "in_degree": 18,
+      "out_degree": 0,
+      "path": "src/production_os/dashboard_ui.py"
+    },
+    {
       "dependencies": [
         "src/production_os/models.py",
         "src/production_os/source_tree.py"
@@ -1366,30 +1394,6 @@
       "in_degree": 7,
       "out_degree": 10,
       "path": "src/production_os/release_ledger.py"
-    },
-    {
-      "dependencies": [],
-      "dependents": [
-        "src/production_os/control_plane.py",
-        "tests/test_dashboard_api_timeout.py",
-        "tests/test_dashboard_async_freshness.py",
-        "tests/test_dashboard_clear_pairing_state.py",
-        "tests/test_dashboard_collection_view_freshness.py",
-        "tests/test_dashboard_global_status_freshness.py",
-        "tests/test_dashboard_launch_freshness.py",
-        "tests/test_dashboard_mobile_stability.py",
-        "tests/test_dashboard_production_inbox_filters_ui.py",
-        "tests/test_dashboard_production_inbox_freshness.py",
-        "tests/test_dashboard_project_detail_freshness.py",
-        "tests/test_dashboard_refresh_coalescing.py",
-        "tests/test_dashboard_ui_v3.py",
-        "tests/test_dashboard_windowed_view_freshness.py",
-        "tests/test_dashboard_worker_detail_freshness.py",
-        "tests/test_dashboard_workflow_snapshot_invalidation.py"
-      ],
-      "in_degree": 16,
-      "out_degree": 0,
-      "path": "src/production_os/dashboard_ui.py"
     },
     {
       "dependencies": [
@@ -2060,8 +2064,8 @@
       "path": "src/production_os/rekor_checkpoint_state.py"
     }
   ],
-  "edge_count": 1792,
+  "edge_count": 1796,
   "generated_by": "dbrckk/repo-brain-v7-graph",
-  "node_count": 342,
+  "node_count": 344,
   "schema_version": 1
 }

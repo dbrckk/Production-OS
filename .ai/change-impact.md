@@ -1,33 +1,18 @@
 # Change impact
 
-Base: 7e0d47a8fd54e7faa3b3947b07259a5e065c3bdb
-Head: 4f547bed6c97c7c2a024400af0c604ae854da75d
+Base: a4fd326215b810959401e0fa177ca7d772750eb3
+Head: 8bda2e5139d5d218baf0e55e82aa16422b19c271
 
 ## Changed files
-- M README.md
-- M src/production_os/cli.py
-- M src/production_os/controller.py
-- M src/production_os/postgres_backend.py
-- M src/production_os/release_ledger.py
-- M src/production_os/storage.py
-- A tests/test_controller_error_recovery.py
-- M tests/test_controller_leader.py
-- M tests/test_dashboard_store_postgres.py
-- M tests/test_database_maintenance_lock.py
-- M tests/test_production_stack_e2e.py
-- A tests/test_release_postgres.py
-- A tests/test_storage_routing.py
-- M tests/test_trust_status_summary.py
+- M src/production_os/dashboard_ui.py
+- A tests/test_dashboard_pair_link_timeout.py
 
 ## Affected areas
-- (root)
 - src
 - tests
 
 ## Related test candidates
-- tests/test_cli.py
-- tests/test_postgres_backend.py
-- tests/test_release_ledger.py
+- No direct filename-based test match detected.
 
 ## Agent guidance
 - Read this file before broad repository exploration.

@@ -257,6 +257,8 @@ tests/
   test_dashboard_maintenance.py
   test_dashboard_mobile_stability.py
   test_dashboard_observability_e2e.py
+  test_dashboard_pair_link_timeout.py
+  test_dashboard_pairing_freshness.py
   test_dashboard_playbook_api.py
   test_dashboard_playbooks.py
   test_dashboard_production_inbox_filters_ui.py
@@ -14186,6 +14188,30 @@ after=control.dashboard_store.progress_history("dbrckk/example")
 def test_project_progress_snapshot_persists_selected_profile(tmp_path)
 ⋮----
 snapshot=control.dashboard_store.latest_progress_snapshot("dbrckk/example")
+````
+
+## File: tests/test_dashboard_pair_link_timeout.py
+````python
+def test_pairing_fragment_exchange_has_network_timeout()
+⋮----
+body = DASHBOARD_HTML.split(
+⋮----
+def test_pairing_fragment_still_persists_only_server_minted_token()
+````
+
+## File: tests/test_dashboard_pairing_freshness.py
+````python
+def test_device_session_list_ignores_stale_token_or_request()
+⋮----
+body = DASHBOARD_HTML.split(
+⋮----
+def test_pairing_link_creation_is_single_flight_and_token_scoped()
+⋮----
+def test_candidate_pairing_token_is_verified_before_persistence()
+⋮----
+def test_pairing_success_preserves_newer_token_draft()
+⋮----
+def test_candidate_token_does_not_overwrite_pairing_changed_during_validation()
 ````
 
 ## File: tests/test_dashboard_playbook_api.py
