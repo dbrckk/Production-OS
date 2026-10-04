@@ -1302,7 +1302,7 @@ scheduleGlobalPoll(10000,function(){
 });
 scheduleGlobalPoll(5000,loadLastProduction);
 
-const appState={view:"attention",workerId:null,repository:null,tab:null,focus:null,window:"7d",polling:new Map(),viewEpoch:0};
+const appState={view:"attention",workerId:null,repository:null,tab:null,focus:null,focusScrollKey:null,window:"7d",polling:new Map(),viewEpoch:0};
 (function restoreNavigation(){
  const q=new URLSearchParams(window.location.search);
  const view=q.get("view");
@@ -1321,6 +1321,20 @@ const appState={view:"attention",workerId:null,repository:null,tab:null,focus:nu
   productionSort=restoredProductionSort;
  }
 })();
+
+function scrollToFocusedItemOnce(container,selector,requestSequence,currentSequence){
+ if(!appState.focus)return;
+ const key=appState.view+"|"+appState.focus;
+ if(appState.focusScrollKey===key)return;
+ const focused=container.querySelector(selector);
+ if(!focused)return;
+ setTimeout(function(){
+  if(requestSequence!==currentSequence()||appState.view+"|"+appState.focus!==key||!focused.isConnected)return;
+  if(appState.focusScrollKey===key)return;
+  appState.focusScrollKey=key;
+  focused.scrollIntoView({block:"center"});
+ },0);
+}
 
 function clearViewPolls(){
  appState.viewEpoch+=1;
@@ -1752,12 +1766,7 @@ async function loadAutopilot(){
     '</div>';
   }).join("");
   if(appState.focus){
-   const focused=el.querySelector('[data-job-key="'+CSS.escape(String(appState.focus))+'"]');
-   if(focused)setTimeout(function(){
-    if(requestSequence===autopilotLoadSequence){
-     focused.scrollIntoView({block:"center"});
-    }
-   },0);
+   scrollToFocusedItemOnce(el,'[data-job-key="'+CSS.escape(String(appState.focus))+'"]',requestSequence,function(){return autopilotLoadSequence});
   }
  }catch(e){
   if(requestSequence!==autopilotLoadSequence)return null;
@@ -2548,12 +2557,7 @@ async function loadProductionInbox(){
     '</div>';
   }).join("");
   if(appState.focus){
-   const focused=el.querySelector('[data-production-project-id="'+CSS.escape(String(appState.focus))+'"]');
-   if(focused)setTimeout(function(){
-    if(requestSequence===productionInboxLoadSequence){
-     focused.scrollIntoView({block:"center"});
-    }
-   },0);
+   scrollToFocusedItemOnce(el,'[data-production-project-id="'+CSS.escape(String(appState.focus))+'"]',requestSequence,function(){return productionInboxLoadSequence});
    await loadProductionInboxDetail(appState.focus);
   }else{
    await loadProductionInboxDetail(null);
@@ -2647,12 +2651,7 @@ async function loadManagedProjects(){
     history+actions+'</div>';
   }).join(""):'<div class="empty">Aucun projet managé.</div>';
   if(appState.focus){
-   const focused=el.querySelector('[data-managed-project-id="'+CSS.escape(String(appState.focus))+'"]');
-   if(focused)setTimeout(function(){
-    if(requestSequence===managedProjectsLoadSequence){
-     focused.scrollIntoView({block:"center"});
-    }
-   },0);
+   scrollToFocusedItemOnce(el,'[data-managed-project-id="'+CSS.escape(String(appState.focus))+'"]',requestSequence,function(){return managedProjectsLoadSequence});
   }
  }catch(e){
   if(requestSequence!==managedProjectsLoadSequence)return null;
@@ -2732,6 +2731,7 @@ async function loadActivityView(){
  }
 }
 function navigate(next){
+ appState.focusScrollKey=null;
  Object.assign(appState,next||{});
  updateDashboardUrl();
  renderActiveView();
@@ -2757,16 +2757,21 @@ function schedulePoll(key,intervalMs,fn){
   if(busy)return;
   busy=true;
   const y=window.scrollY;
+  const scrollRevision=userScrollRevision;
   try{
    await fn();
    if(appState.viewEpoch!==viewEpoch)return;
-   if(Math.abs(window.scrollY-y)>1)window.scrollTo({top:y,behavior:"instant"});
+   if(userScrollRevision===scrollRevision&&Math.abs(window.scrollY-y)>1)window.scrollTo({top:y,behavior:"instant"});
   }finally{
    busy=false;
   }
  },intervalMs);
  appState.polling.set(key,id);
 }
+let userScrollRevision=0;
+["wheel","touchmove","keydown","pointerdown"].forEach(function(eventName){
+ window.addEventListener(eventName,function(){userScrollRevision+=1},{passive:true});
+});
 renderActiveView();
 </script>
 </body>

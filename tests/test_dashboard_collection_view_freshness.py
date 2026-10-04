@@ -35,17 +35,25 @@ def test_attention_collection_ignores_older_responses():
 
 
 def test_autopilot_and_managed_delayed_scrolls_stay_current():
+    focused_scroll = DASHBOARD_HTML.split(
+        "function scrollToFocusedItemOnce(", 1
+    )[1].split("function clearViewPolls(){", 1)[0]
+    assert "requestSequence!==currentSequence()" in focused_scroll
+    assert "appState.focusScrollKey===key" in focused_scroll
+    assert "!focused.isConnected" in focused_scroll
+    assert (
+        focused_scroll.index("requestSequence!==currentSequence()")
+        < focused_scroll.index("focused.scrollIntoView(")
+    )
+
     autopilot = DASHBOARD_HTML.split(
         "async function loadAutopilot(){", 1
     )[1].split("async function acknowledgeIncident", 1)[0]
     assert "let autopilotLoadSequence=0;" in DASHBOARD_HTML
     assert "const requestSequence=++autopilotLoadSequence;" in autopilot
     assert autopilot.count("requestSequence!==autopilotLoadSequence") >= 2
-    assert "if(requestSequence===autopilotLoadSequence){" in autopilot
-    assert (
-        autopilot.index("if(requestSequence===autopilotLoadSequence){")
-        < autopilot.index("focused.scrollIntoView(")
-    )
+    assert "scrollToFocusedItemOnce(el," in autopilot
+    assert "function(){return autopilotLoadSequence}" in autopilot
 
     managed = DASHBOARD_HTML.split(
         "async function loadManagedProjects(){", 1
@@ -53,8 +61,5 @@ def test_autopilot_and_managed_delayed_scrolls_stay_current():
     assert "let managedProjectsLoadSequence=0;" in DASHBOARD_HTML
     assert "const requestSequence=++managedProjectsLoadSequence;" in managed
     assert managed.count("requestSequence!==managedProjectsLoadSequence") >= 2
-    assert "if(requestSequence===managedProjectsLoadSequence){" in managed
-    assert (
-        managed.index("if(requestSequence===managedProjectsLoadSequence){")
-        < managed.index("focused.scrollIntoView(")
-    )
+    assert "scrollToFocusedItemOnce(el," in managed
+    assert "function(){return managedProjectsLoadSequence}" in managed
