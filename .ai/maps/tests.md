@@ -8128,6 +8128,22 @@ compatible = control.queue.enqueue({
 result = control.worker_queue_availability(
 ⋮----
 claimed = control.queue.claim_next(
+⋮----
+def test_worker_availability_diagnoses_empty_and_stale_queue_without_mutation(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "diagnostics.sqlite"), authorizer=_auth())
+empty = control.worker_queue_availability(worker_id="w", capabilities=["python"])
+⋮----
+job = control.queue.enqueue({
+⋮----
+stale = control.worker_queue_availability(worker_id="w", capabilities=["python"])
+⋮----
+def test_worker_availability_reports_unique_missing_capabilities_without_job_data(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "missing-caps.sqlite"), authorizer=_auth())
+⋮----
+result = control.worker_queue_availability(worker_id="w", capabilities=["python"])
+diagnostics = result["queue_diagnostics"]
 ```
 
 ## File: test_worker_compose_deployment.py

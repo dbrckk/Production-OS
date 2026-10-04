@@ -3638,12 +3638,22 @@ capability_set = set(normalized)
 compatible = 0
 mobile = 0
 browser = 0
+examined = cancelled = stale = incompatible = 0
+missing_capabilities = set()
 ⋮----
 key = str(queued.get("key") or "")
 ⋮----
 job_control = self.dashboard_control.job_state(key)
 ⋮----
 required = {
+⋮----
+reason = None
+⋮----
+reason = "queue_empty"
+⋮----
+reason = "missing_capabilities"
+⋮----
+reason = "no_actionable_jobs"
 ⋮----
 queued = self.queue.peek_candidates(limit=1000)
 ⋮----
@@ -19368,6 +19378,22 @@ compatible = control.queue.enqueue({
 result = control.worker_queue_availability(
 ⋮----
 claimed = control.queue.claim_next(
+⋮----
+def test_worker_availability_diagnoses_empty_and_stale_queue_without_mutation(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "diagnostics.sqlite"), authorizer=_auth())
+empty = control.worker_queue_availability(worker_id="w", capabilities=["python"])
+⋮----
+job = control.queue.enqueue({
+⋮----
+stale = control.worker_queue_availability(worker_id="w", capabilities=["python"])
+⋮----
+def test_worker_availability_reports_unique_missing_capabilities_without_job_data(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "missing-caps.sqlite"), authorizer=_auth())
+⋮----
+result = control.worker_queue_availability(worker_id="w", capabilities=["python"])
+diagnostics = result["queue_diagnostics"]
 ````
 
 ## File: tests/test_worker_compose_deployment.py

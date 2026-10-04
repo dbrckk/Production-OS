@@ -2759,12 +2759,22 @@ capability_set = set(normalized)
 compatible = 0
 mobile = 0
 browser = 0
+examined = cancelled = stale = incompatible = 0
+missing_capabilities = set()
 ⋮----
 key = str(queued.get("key") or "")
 ⋮----
 job_control = self.dashboard_control.job_state(key)
 ⋮----
 required = {
+⋮----
+reason = None
+⋮----
+reason = "queue_empty"
+⋮----
+reason = "missing_capabilities"
+⋮----
+reason = "no_actionable_jobs"
 ⋮----
 queued = self.queue.peek_candidates(limit=1000)
 ⋮----

@@ -1,18 +1,18 @@
 # Change impact
 
-Base: a4fd326215b810959401e0fa177ca7d772750eb3
-Head: 8bda2e5139d5d218baf0e55e82aa16422b19c271
+Base: 96b43e7f4409b0ca71b5def85a3e4912af3258a6
+Head: de6ba0fa48319bc54cc5e4fde4cc2bf966e186bd
 
 ## Changed files
-- M src/production_os/dashboard_ui.py
-- A tests/test_dashboard_pair_link_timeout.py
+- M src/production_os/control_plane.py
+- M tests/test_worker_availability_api.py
 
 ## Affected areas
 - src
 - tests
 
 ## Related test candidates
-- No direct filename-based test match detected.
+- tests/test_control_plane.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

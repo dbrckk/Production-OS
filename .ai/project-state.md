@@ -29,16 +29,18 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-04T06:14:41Z
+Generated: 2026-10-04T06:16:47Z
 
 ### Git
 - Branch: `main`
-- Head: `8bda2e5139d5`
-- Commit date: 2026-10-04T08:14:27+02:00
-- Commit: fix(dashboard): bound pairing link exchange (#248)
+- Head: `de6ba0fa4831`
+- Commit date: 2026-10-04T08:16:25+02:00
+- Commit: fix(worker): explain queue availability without claiming jobs (#251)
 - Tracked files: 562
 
 ### Recently changed files
+- `src/production_os/control_plane.py`
+- `tests/test_worker_availability_api.py`
 - `src/production_os/dashboard_ui.py`
 - `tests/test_dashboard_pair_link_timeout.py`
 - `tests/test_dashboard_pairing_freshness.py`
@@ -57,8 +59,6 @@ Generated: 2026-10-04T06:14:41Z
 - `tests/test_storage_routing.py`
 - `tests/test_trust_status_summary.py`
 - `src/production_os/asset_forge.py`
-- `src/production_os/github_client.py`
-- `tests/test_asset_forge_dispatch_probe.py`
 
 ### Project signals
 - `pyproject.toml`

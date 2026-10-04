@@ -2,22 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "fix(usage): persist execution provider/model telemetry",
-      "terms": [
-        "execution",
-        "persist",
-        "provider/model",
-        "telemetry",
-        "usage"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/dashboard_store.py",
-        "tests/test_dashboard_store.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat(models): add evidence-aware multi-provider routing",
       "terms": [
         "add",
@@ -1233,6 +1217,25 @@
         "tests/test_dashboard_pair_link_timeout.py",
         "tests/test_dashboard_pairing_freshness.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "fix(worker): explain queue availability without claiming jobs (#251)",
+      "terms": [
+        "251",
+        "availability",
+        "claiming",
+        "explain",
+        "jobs",
+        "queue",
+        "without",
+        "worker"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/control_plane.py",
+        "tests/test_worker_availability_api.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1470,6 +1473,10 @@
       "tests/test_release_postgres.py": 4,
       "tests/test_storage_routing.py": 4,
       "tests/test_trust_status_summary.py": 4
+    },
+    "251": {
+      "src/production_os/control_plane.py": 4,
+      "tests/test_worker_availability_api.py": 4
     },
     "26": {
       "src/production_os/dashboard_backups.py": 4,
@@ -2122,8 +2129,8 @@
       "tests/test_dashboard_ui_v3.py": 8
     },
     "availability": {
-      "src/production_os/control_plane.py": 4,
-      "tests/test_worker_availability_api.py": 4
+      "src/production_os/control_plane.py": 8,
+      "tests/test_worker_availability_api.py": 8
     },
     "avds": {
       "src/production_os/managed_projects.py": 4
@@ -2411,6 +2418,10 @@
       "tests/test_managed_project_outcome.py": 4,
       "tests/test_release51_one_tap_runner_e2e.py": 4,
       "tests/test_workflow_engine.py": 4
+    },
+    "claiming": {
+      "src/production_os/control_plane.py": 4,
+      "tests/test_worker_availability_api.py": 4
     },
     "clarify": {
       "src/production_os/dashboard_service.py": 4,
@@ -3082,6 +3093,10 @@
       "src/production_os/workflow_engine.py": 4,
       "tests/test_dynamic_agent_fanout.py": 4
     },
+    "explain": {
+      "src/production_os/control_plane.py": 4,
+      "tests/test_worker_availability_api.py": 4
+    },
     "explicit": {
       "src/production_os/browser_computer.py": 4,
       "src/production_os/cli.py": 4,
@@ -3578,7 +3593,7 @@
       "tests/test_dashboard_ui_v3.py": 4
     },
     "jobs": {
-      "src/production_os/control_plane.py": 12,
+      "src/production_os/control_plane.py": 16,
       "src/production_os/controller.py": 8,
       "src/production_os/postgres_backend.py": 4,
       "src/production_os/sqlite_backend.py": 4,
@@ -3590,7 +3605,7 @@
       "tests/test_postgres_backend.py": 4,
       "tests/test_sqlite_backend.py": 4,
       "tests/test_task_capabilities.py": 4,
-      "tests/test_worker_availability_api.py": 4,
+      "tests/test_worker_availability_api.py": 8,
       "tests/test_worker_wake.py": 4,
       "tests/test_workflow_engine.py": 4
     },
@@ -4467,7 +4482,7 @@
       "tests/test_dashboard_launch.py": 8
     },
     "queue": {
-      "src/production_os/control_plane.py": 8,
+      "src/production_os/control_plane.py": 12,
       "src/production_os/dashboard_service.py": 4,
       "src/production_os/dashboard_ui.py": 4,
       "src/production_os/postgres_backend.py": 4,
@@ -4476,7 +4491,7 @@
       "tests/test_dashboard_ui_v3.py": 4,
       "tests/test_postgres_backend.py": 4,
       "tests/test_sqlite_backend.py": 4,
-      "tests/test_worker_availability_api.py": 4
+      "tests/test_worker_availability_api.py": 8
     },
     "queue-driven": {
       "src/production_os/control_plane.py": 4,
@@ -5669,6 +5684,7 @@
       "tests/test_dashboard_windowed_view_freshness.py": 4
     },
     "without": {
+      "src/production_os/control_plane.py": 4,
       "src/production_os/postgres_backend.py": 4,
       "src/production_os/remote_worker_runner.py": 4,
       "src/production_os/skill_memory.py": 4,
@@ -5678,7 +5694,8 @@
       "tests/test_dashboard_remediation_history.py": 4,
       "tests/test_dashboard_store_postgres.py": 4,
       "tests/test_remote_worker_runner.py": 4,
-      "tests/test_skill_memory.py": 4
+      "tests/test_skill_memory.py": 4,
+      "tests/test_worker_availability_api.py": 4
     },
     "work": {
       "src/production_os/autonomous_admission.py": 4,
@@ -5700,7 +5717,7 @@
       "scripts/render-start.py": 4,
       "src/production_os/browser_computer.py": 4,
       "src/production_os/cli.py": 8,
-      "src/production_os/control_plane.py": 36,
+      "src/production_os/control_plane.py": 40,
       "src/production_os/controller.py": 12,
       "src/production_os/dashboard_control.py": 4,
       "src/production_os/dashboard_service.py": 8,
@@ -5737,7 +5754,7 @@
       "tests/test_render_start.py": 4,
       "tests/test_specialist_job_preferences.py": 4,
       "tests/test_task_capabilities.py": 4,
-      "tests/test_worker_availability_api.py": 4,
+      "tests/test_worker_availability_api.py": 8,
       "tests/test_worker_compose_deployment.py": 12,
       "tests/test_worker_wake.py": 8,
       "tests/test_workflow_engine.py": 4
