@@ -19,7 +19,7 @@ Status: active
 - Deploy worker queue diagnostics, identify the actual live queue blocker and validate a real coding job.
 
 ## Validation
-- Dashboard scroll and refresh regression checks: 121 selected tests passed, including JavaScript behavior in a Node VM.
+- Dashboard scroll and refresh regression checks: 124 selected tests passed, including JavaScript behavior in a Node VM.
 - Standards workflow: configured.
 - Tests/build: use this repository's existing validation commands.
 - Controller, health, and CLI regression checks passed (65 tests), including 14 fault-injection cases.

@@ -11,7 +11,8 @@ def test_production_inbox_only_latest_request_can_render():
     assert "const requestSequence=++productionInboxLoadSequence;" in body
     assert "if(requestSequence!==productionInboxLoadSequence)return null;" in body
     assert body.count("requestSequence!==productionInboxLoadSequence") >= 2
-    assert "if(requestSequence===productionInboxLoadSequence){" in body
+    assert "scrollToFocusedItemOnce(el," in body
+    assert "function(){return productionInboxLoadSequence}" in body
     assert (
         body.index("if(requestSequence!==productionInboxLoadSequence)return null;")
         < body.index("count.textContent=String(")
