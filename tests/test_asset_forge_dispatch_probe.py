@@ -88,6 +88,24 @@ def test_asset_forge_remote_probe_has_stable_contract():
     }
 
 
+def test_asset_forge_remote_probe_uses_dedicated_dispatch_token(monkeypatch):
+    seen = []
+
+    class DispatchClient:
+        def __init__(self, token=None):
+            seen.append(token)
+
+        def can_dispatch_workflow(self, repository, workflow):
+            return True
+
+    monkeypatch.setenv("GITHUB_TOKEN", "repository-token")
+    monkeypatch.setenv("ASSET_FORGE_GITHUB_TOKEN", "dispatch-token")
+    monkeypatch.setattr("production_os.asset_forge.GitHubClient", DispatchClient)
+
+    assert probe_asset_forge_remote_dispatch()["ready"] is True
+    assert seen == ["dispatch-token"]
+
+
 def test_asset_forge_batch_probe_does_not_require_spec():
     args = _parse_args(["asset-forge-batch", "--probe"])
 
