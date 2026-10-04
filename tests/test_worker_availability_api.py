@@ -68,6 +68,15 @@ def test_worker_availability_is_non_destructive_and_capability_aware(tmp_path):
             "mobile_jobs":0,
             "browser_jobs":0,
             "worker_state":"active",
+            "queue_diagnostics": {
+                "reason":"missing_capabilities",
+                "examined_jobs":1,
+                "scan_performed":True,
+                "cancelled_jobs":0,
+                "stale_jobs":0,
+                "incompatible_jobs":1,
+                "missing_capabilities":["mobile-ui-validation"],
+            },
         }
 
         status, mobile = _post(
@@ -84,6 +93,8 @@ def test_worker_availability_is_non_destructive_and_capability_aware(tmp_path):
         assert mobile["mobile_jobs"] == 1
         assert mobile["browser_jobs"] == 0
         assert mobile["worker_state"] == "active"
+        assert mobile["queue_diagnostics"]["reason"] is None
+        assert mobile["queue_diagnostics"]["incompatible_jobs"] == 0
 
         # Availability must never claim or mutate queued work.
         persisted = control.queue.get(queued["key"])
@@ -123,6 +134,8 @@ def test_worker_availability_skips_cancelled_and_stale_work(tmp_path):
         assert status == 200
         assert payload["available"] is False
         assert payload["compatible_jobs"] == 0
+        assert payload["queue_diagnostics"]["reason"] == "no_actionable_jobs"
+        assert payload["queue_diagnostics"]["cancelled_jobs"] == 1
         assert control.queue.get(cancelled["key"])["status"] == "queued"
     finally:
         server.shutdown()
@@ -161,6 +174,8 @@ def test_worker_availability_respects_pause_and_drain(tmp_path):
             assert status == 200
             assert payload["available"] is False
             assert payload["worker_state"] == state
+            assert payload["queue_diagnostics"]["reason"] == "worker_" + state
+            assert payload["queue_diagnostics"]["scan_performed"] is False
     finally:
         server.shutdown()
         server.server_close()
@@ -266,3 +281,34 @@ def test_worker_availability_matches_deep_claim_window(tmp_path):
     )
     assert claimed is not None
     assert claimed["key"] == compatible["key"]
+
+
+def test_worker_availability_diagnoses_empty_and_stale_queue_without_mutation(tmp_path):
+    from unittest.mock import patch
+    control = ControlPlane(str(tmp_path / "diagnostics.sqlite"), authorizer=_auth())
+    empty = control.worker_queue_availability(worker_id="w", capabilities=["python"])
+    assert empty["queue_diagnostics"]["reason"] == "queue_empty"
+    assert empty["queue_diagnostics"]["examined_jobs"] == 0
+    job = control.queue.enqueue({
+        "handoff":{"repository":"owner/repo", "task":"Obsolete generation"},
+        "required_capabilities":["python"],
+    })
+    with patch.object(control.workflows, "job_generation_current", return_value=False):
+        stale = control.worker_queue_availability(worker_id="w", capabilities=["python"])
+    assert stale["available"] is False
+    assert stale["queue_diagnostics"]["reason"] == "no_actionable_jobs"
+    assert stale["queue_diagnostics"]["stale_jobs"] == 1
+    assert control.queue.get(job["key"])["status"] == "queued"
+
+
+def test_worker_availability_reports_unique_missing_capabilities_without_job_data(tmp_path):
+    control = ControlPlane(str(tmp_path / "missing-caps.sqlite"), authorizer=_auth())
+    for task, capabilities in (("private-brief-a", ["python", "visual-asset-production"]),
+                               ("private-brief-b", ["browser-ui-validation", "visual-asset-production"])):
+        control.queue.enqueue({"handoff":{"repository":"private/repo", "task":task},
+                               "required_capabilities":capabilities})
+    result = control.worker_queue_availability(worker_id="w", capabilities=["python"])
+    diagnostics = result["queue_diagnostics"]
+    assert diagnostics["incompatible_jobs"] == 2
+    assert diagnostics["missing_capabilities"] == ["browser-ui-validation", "visual-asset-production"]
+    assert "private" not in json.dumps(result)

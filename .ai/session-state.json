@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-03",
+  "updated_at": "2026-10-04",
   "objective": "Improve Production-OS functionality and resilience without duplicating existing dashboard pairing PRs.",
   "base_commit": "7e0d47a8fd54e7faa3b3947b07259a5e065c3bdb",
-  "branch": "fix/controller-error-recovery",
+  "branch": "fix/worker-queue-diagnostics",
   "changes": [
     "Isolate controller cycle error metrics, runtime-state reads, and health publication from daemon retry and bounded-run error handling.",
     "Recognize PostgreSQL URI and libpq keyword DSNs consistently for backend selection, locks, and CLI diagnostics.",
@@ -18,11 +18,29 @@
     "final_full_suite_postgres16": "1290 passed, none skipped",
     "compile": "passed with SyntaxWarning treated as error",
     "distribution_build": "sdist and wheel passed",
-    "isolated_wheel": "CLI passed; keyword DSN without PostgreSQL extra raises explicit support error and creates no SQLite files"
+    "isolated_wheel": "CLI passed; keyword DSN without PostgreSQL extra raises explicit support error and creates no SQLite files",
+    "queue_diagnostics": "7 availability API tests passed; broader selected server tests recorded in /tmp/server-queue-validation.log"
   },
   "remaining": [
-    "Review the pull request for fix/controller-error-recovery and its GitHub CI.",
-    "Verify live deployment and actual worker execution when deployment credentials are available.",
-    "Review existing pairing PRs #247 and #248 separately."
+    "Live worker run 37181156718 authenticated and found no eligible base/mobile jobs; real agent execution still unverified",
+    "Remote Asset Forge Actions dispatch probe fails; visual capability disabled",
+    "Render database connector blocked by empty external IP allowlist",
+    "Review existing pairing PRs #247 and #248 separately"
+  ],
+  "merged_pr": {
+    "number": 250,
+    "commit": "4f547bed6c97c7c2a024400af0c604ae854da75d"
+  },
+  "deployment": {
+    "service": "production-os1",
+    "id": "dep-db0uihnf3r2c73berho0",
+    "status": "live",
+    "healthz": 200,
+    "readyz": 200,
+    "database": "reachable"
+  },
+  "current_work": [
+    "Add non-mutating, aggregate-only queue diagnostics to authenticated availability API",
+    "Expose the diagnostic reasons in ai-dev-server base/mobile queue probes"
   ]
 }

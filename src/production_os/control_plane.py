@@ -169,23 +169,37 @@ class ControlPlane:
                 "mobile_jobs":0,
                 "browser_jobs":0,
                 "worker_state":desired.get("desired_state"),
+                "queue_diagnostics": {
+                    "reason": "worker_" + desired["desired_state"],
+                    "examined_jobs": 0,
+                    "scan_performed": False,
+                    "cancelled_jobs": 0,
+                    "stale_jobs": 0,
+                    "incompatible_jobs": 0,
+                    "missing_capabilities": [],
+                },
             }
 
         capability_set = set(normalized)
         compatible = 0
         mobile = 0
         browser = 0
+        examined = cancelled = stale = incompatible = 0
+        missing_capabilities = set()
         for queued in self.queue.peek_candidates(
             worker_id=worker,
             limit=max(1, min(1000, int(limit))),
         ):
+            examined += 1
             key = str(queued.get("key") or "")
             if not key:
                 continue
             job_control = self.dashboard_control.job_state(key)
             if job_control.get("desired_state") == "cancel_requested":
+                cancelled += 1
                 continue
             if not self.workflows.job_generation_current(queued):
+                stale += 1
                 continue
             required = {
                 str(item).strip()
@@ -196,12 +210,23 @@ class ControlPlane:
                 if str(item).strip()
             }
             if not required.issubset(capability_set):
+                incompatible += 1
+                missing_capabilities.update(required.difference(capability_set))
                 continue
             compatible += 1
             if "mobile-ui-validation" in required:
                 mobile += 1
             if "browser-ui-validation" in required:
                 browser += 1
+
+        reason = None
+        if compatible == 0:
+            if examined == 0:
+                reason = "queue_empty"
+            elif incompatible:
+                reason = "missing_capabilities"
+            else:
+                reason = "no_actionable_jobs"
 
         return {
             "schema_version":"production-os/job-availability/v1",
@@ -210,6 +235,15 @@ class ControlPlane:
             "mobile_jobs":mobile,
             "browser_jobs":browser,
             "worker_state":"active",
+            "queue_diagnostics": {
+                "reason": reason,
+                "examined_jobs": examined,
+                "scan_performed": True,
+                "cancelled_jobs": cancelled,
+                "stale_jobs": stale,
+                "incompatible_jobs": incompatible,
+                "missing_capabilities": sorted(missing_capabilities),
+            },
         }
 
     def ensure_worker_for_queued_work(
