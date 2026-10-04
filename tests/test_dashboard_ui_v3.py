@@ -1074,3 +1074,88 @@ def test_active_view_navigation_invalidates_stale_render_and_poll_work():
         polling.index("if(appState.viewEpoch!==viewEpoch)return;")
         < polling.index("window.scrollTo(")
     )
+
+
+def test_focused_card_scrolls_once_and_ignores_stale_refresh():
+    helper = "function scrollToFocusedItemOnce(" + DASHBOARD_HTML.split(
+        "function scrollToFocusedItemOnce(", 1
+    )[1].split("\nfunction clearViewPolls(){", 1)[0]
+    script = r"""
+const vm = require('node:vm');
+const assert = require('node:assert/strict');
+const source = require('node:fs').readFileSync(0, 'utf8');
+const pending = [];
+const state = {view:'managed', focus:'project-1', focusScrollKey:null};
+const context = {appState:state, setTimeout:fn=>pending.push(fn)};
+vm.runInNewContext(source, context);
+let calls = 0;
+const card = {isConnected:true, scrollIntoView:()=>{calls++}};
+const container = {querySelector:()=>card};
+const flush = ()=>{while(pending.length)pending.shift()()};
+let sequence = 1;
+context.scrollToFocusedItemOnce(container, '.focused', sequence, ()=>sequence);
+flush();
+assert.equal(calls, 1);
+context.scrollToFocusedItemOnce(container, '.focused', sequence, ()=>sequence);
+flush();
+assert.equal(calls, 1);
+state.focus = 'project-2';
+context.scrollToFocusedItemOnce(container, '.focused', sequence, ()=>sequence);
+sequence++;
+flush();
+assert.equal(calls, 1);
+context.scrollToFocusedItemOnce(container, '.focused', sequence, ()=>sequence);
+flush();
+assert.equal(calls, 2);
+state.focusScrollKey = null;
+context.scrollToFocusedItemOnce(container, '.focused', sequence, ()=>sequence);
+card.isConnected = false;
+flush();
+assert.equal(calls, 2);
+"""
+    result = subprocess.run(
+        [shutil.which("node"), "-e", script],
+        input=helper,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+
+
+def test_polling_does_not_restore_scroll_after_user_input():
+    polling = "function schedulePoll(key,intervalMs,fn){" + DASHBOARD_HTML.split(
+        "function schedulePoll(key,intervalMs,fn){", 1
+    )[1].split("\nlet userScrollRevision=0;", 1)[0]
+    script = r"""
+const vm = require('node:vm');
+const assert = require('node:assert/strict');
+const source = require('node:fs').readFileSync(0, 'utf8');
+let tick;
+let scrollCalls = 0;
+const context = {
+  appState:{viewEpoch:0, polling:new Map()},
+  window:{scrollY:100, scrollTo:()=>{scrollCalls++}},
+  setInterval:fn=>{tick=fn;return 1}, clearInterval:()=>{}
+};
+vm.runInNewContext('let userScrollRevision=0;'+source, context);
+context.schedulePoll('view', 5000, async()=>{
+  context.window.scrollY=180;
+  vm.runInNewContext('userScrollRevision+=1', context);
+});
+(async()=>{
+  await tick();
+  assert.equal(scrollCalls, 0);
+  context.schedulePoll('view', 5000, async()=>{context.window.scrollY=200});
+  await tick();
+  assert.equal(scrollCalls, 1);
+})().catch(error=>{console.error(error);process.exitCode=1});
+"""
+    result = subprocess.run(
+        [shutil.which("node"), "-e", script],
+        input=polling,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr

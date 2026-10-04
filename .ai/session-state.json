@@ -1,15 +1,16 @@
 {
   "schema_version": 1,
   "updated_at": "2026-10-04",
-  "objective": "Improve Production-OS functionality and resilience without duplicating existing dashboard pairing PRs.",
-  "base_commit": "7e0d47a8fd54e7faa3b3947b07259a5e065c3bdb",
-  "branch": "fix/worker-queue-diagnostics",
+  "objective": "Make the Production-OS dashboard keep the user’s scroll position during refresh while the worker is stabilized.",
+  "base_commit": "0cd540d4",
+  "branch": "fix/dashboard-scroll",
   "changes": [
     "Isolate controller cycle error metrics, runtime-state reads, and health publication from daemon retry and bounded-run error handling.",
     "Recognize PostgreSQL URI and libpq keyword DSNs consistently for backend selection, locks, and CLI diagnostics.",
     "Upgrade PostgreSQL to schema 19 with release transparency and trust incident tables.",
     "Serialize concurrent PostgreSQL ledger appends and support legacy HMAC releases in trust inspection.",
-    "Require the production-stack E2E test to assert its actual PostgreSQL backend."
+    "Require the production-stack E2E test to assert its actual PostgreSQL backend.",
+    "Scroll to a focused production, managed project, or job only once per navigation; do not force scroll restoration if the user moved during a fetch."
   ],
   "validation": {
     "controller_regressions_before_fix": "10 failed, 1 passed",
@@ -19,13 +20,13 @@
     "compile": "passed with SyntaxWarning treated as error",
     "distribution_build": "sdist and wheel passed",
     "isolated_wheel": "CLI passed; keyword DSN without PostgreSQL extra raises explicit support error and creates no SQLite files",
-    "queue_diagnostics": "7 availability API tests passed; broader selected server tests recorded in /tmp/server-queue-validation.log"
+    "queue_diagnostics": "7 availability API tests passed; broader selected server tests recorded in /tmp/server-queue-validation.log",
+    "dashboard_scroll": "121 selected dashboard tests passed, including Node VM behavior for one-time focus and user scrolling during polling"
   },
   "remaining": [
-    "Live worker run 37181156718 authenticated and found no eligible base/mobile jobs; real agent execution still unverified",
-    "Remote Asset Forge Actions dispatch probe fails; visual capability disabled",
-    "Render database connector blocked by empty external IP allowlist",
-    "Review existing pairing PRs #247 and #248 separately"
+    "Verify deployment of dashboard scroll fix after merge",
+    "Verify a successful real coding worker run after remote persistence diagnosis",
+    "Remote Asset Forge Actions dispatch authorization unavailable"
   ],
   "merged_pr": {
     "number": 250,
@@ -40,7 +41,6 @@
     "database": "reachable"
   },
   "current_work": [
-    "Add non-mutating, aggregate-only queue diagnostics to authenticated availability API",
-    "Expose the diagnostic reasons in ai-dev-server base/mobile queue probes"
+    "Dashboard focus scroll and asynchronous polling scroll regression fix"
   ]
 }

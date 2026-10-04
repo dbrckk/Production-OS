@@ -3,6 +3,7 @@
 Status: active
 
 ## Working
+- Dashboard focused items now scroll into view once per navigation instead of every five-second refresh. Polling leaves the viewport alone when the user scrolls during a pending request.
 - Central repository standards are configured.
 - Compact AI context is generated through dbrckk/repo-standards.
 - Controller cycle error reporting tolerates unavailable state and failed diagnostic storage without stopping daemon retries or masking the original bounded-run exception.
@@ -14,9 +15,11 @@ Status: active
 - Dashboard pairing fixes remain in existing PRs #247 and #248; this change does not duplicate them.
 
 ## Current priority
+- Merge the dashboard scroll fix and verify the deployed page. Continue the worker's remote persistence diagnosis and a successful real coding run.
 - Deploy worker queue diagnostics, identify the actual live queue blocker and validate a real coding job.
 
 ## Validation
+- Dashboard scroll and refresh regression checks: 121 selected tests passed, including JavaScript behavior in a Node VM.
 - Standards workflow: configured.
 - Tests/build: use this repository's existing validation commands.
 - Controller, health, and CLI regression checks passed (65 tests), including 14 fault-injection cases.
