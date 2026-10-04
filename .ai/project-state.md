@@ -32,19 +32,22 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-04T06:16:47Z
+Generated: 2026-10-04T14:08:58Z
 
 ### Git
 - Branch: `main`
-- Head: `de6ba0fa4831`
-- Commit date: 2026-10-04T08:16:25+02:00
-- Commit: fix(worker): explain queue availability without claiming jobs (#251)
+- Head: `8448003192b2`
+- Commit date: 2026-10-04T13:18:53+02:00
+- Commit: fix(dashboard): stop automatic jumps during refresh (#252)
 - Tracked files: 562
 
 ### Recently changed files
+- `src/production_os/dashboard_ui.py`
+- `tests/test_dashboard_collection_view_freshness.py`
+- `tests/test_dashboard_production_inbox_freshness.py`
+- `tests/test_dashboard_ui_v3.py`
 - `src/production_os/control_plane.py`
 - `tests/test_worker_availability_api.py`
-- `src/production_os/dashboard_ui.py`
 - `tests/test_dashboard_pair_link_timeout.py`
 - `tests/test_dashboard_pairing_freshness.py`
 - `README.md`
@@ -59,9 +62,6 @@ Generated: 2026-10-04T06:16:47Z
 - `tests/test_database_maintenance_lock.py`
 - `tests/test_production_stack_e2e.py`
 - `tests/test_release_postgres.py`
-- `tests/test_storage_routing.py`
-- `tests/test_trust_status_summary.py`
-- `src/production_os/asset_forge.py`
 
 ### Project signals
 - `pyproject.toml`

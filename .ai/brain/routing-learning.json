@@ -2,24 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat(models): add evidence-aware multi-provider routing",
-      "terms": [
-        "add",
-        "evidence-aware",
-        "feat",
-        "models",
-        "multi-provider",
-        "routing"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/model_router.py",
-        "src/production_os/workflow_engine.py",
-        "tests/test_model_router.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat(benchmark): measure autonomous workflow performance from durable history",
       "terms": [
         "autonomous",
@@ -1236,6 +1218,26 @@
         "src/production_os/control_plane.py",
         "tests/test_worker_availability_api.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "fix(dashboard): stop automatic jumps during refresh (#252)",
+      "terms": [
+        "252",
+        "automatic",
+        "dashboard",
+        "during",
+        "jumps",
+        "refresh",
+        "stop"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/dashboard_ui.py",
+        "tests/test_dashboard_collection_view_freshness.py",
+        "tests/test_dashboard_production_inbox_freshness.py",
+        "tests/test_dashboard_ui_v3.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1477,6 +1479,12 @@
     "251": {
       "src/production_os/control_plane.py": 4,
       "tests/test_worker_availability_api.py": 4
+    },
+    "252": {
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_collection_view_freshness.py": 4,
+      "tests/test_dashboard_production_inbox_freshness.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4
     },
     "26": {
       "src/production_os/dashboard_backups.py": 4,
@@ -2066,12 +2074,16 @@
       "src/production_os/cli.py": 4,
       "src/production_os/control_plane.py": 8,
       "src/production_os/controller.py": 4,
+      "src/production_os/dashboard_ui.py": 4,
       "src/production_os/github_client.py": 4,
       "src/production_os/managed_projects.py": 4,
       "src/production_os/worker_wake.py": 4,
       "tests/test_asset_forge.py": 4,
       "tests/test_controller_managed_projects.py": 4,
+      "tests/test_dashboard_collection_view_freshness.py": 4,
       "tests/test_dashboard_launch_ux.py": 4,
+      "tests/test_dashboard_production_inbox_freshness.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4,
       "tests/test_managed_github_reconciliation.py": 4,
       "tests/test_release33_auto_worker_recovery_e2e.py": 4,
       "tests/test_worker_wake.py": 4
@@ -2742,7 +2754,7 @@
       "tests/test_dashboard_async_freshness.py": 4,
       "tests/test_dashboard_attention.py": 4,
       "tests/test_dashboard_clear_pairing_state.py": 4,
-      "tests/test_dashboard_collection_view_freshness.py": 4,
+      "tests/test_dashboard_collection_view_freshness.py": 8,
       "tests/test_dashboard_control.py": 8,
       "tests/test_dashboard_control_api.py": 4,
       "tests/test_dashboard_control_e2e.py": 4,
@@ -2757,7 +2769,7 @@
       "tests/test_dashboard_pair_link_timeout.py": 4,
       "tests/test_dashboard_pairing_freshness.py": 4,
       "tests/test_dashboard_production_inbox_filters_ui.py": 4,
-      "tests/test_dashboard_production_inbox_freshness.py": 4,
+      "tests/test_dashboard_production_inbox_freshness.py": 8,
       "tests/test_dashboard_project_detail_freshness.py": 4,
       "tests/test_dashboard_refresh_coalescing.py": 4,
       "tests/test_dashboard_repositories.py": 4,
@@ -2964,8 +2976,12 @@
     },
     "during": {
       "src/production_os/dashboard_service.py": 4,
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_collection_view_freshness.py": 4,
       "tests/test_dashboard_launch_ux.py": 4,
-      "tests/test_dashboard_repositories.py": 4
+      "tests/test_dashboard_production_inbox_freshness.py": 4,
+      "tests/test_dashboard_repositories.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4
     },
     "dynamic": {
       "src/production_os/agent_plan.py": 4,
@@ -3613,6 +3629,12 @@
       "src/production_os/browser_loop.py": 4,
       "src/production_os/cli.py": 4,
       "tests/test_browser_loop.py": 4
+    },
+    "jumps": {
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_collection_view_freshness.py": 4,
+      "tests/test_dashboard_production_inbox_freshness.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4
     },
     "keep": {
       "src/production_os/dashboard_service.py": 4,
@@ -4598,8 +4620,10 @@
       "tests/test_asset_forge.py": 4
     },
     "refresh": {
-      "src/production_os/dashboard_ui.py": 4,
-      "tests/test_dashboard_ui_v3.py": 4
+      "src/production_os/dashboard_ui.py": 8,
+      "tests/test_dashboard_collection_view_freshness.py": 4,
+      "tests/test_dashboard_production_inbox_freshness.py": 4,
+      "tests/test_dashboard_ui_v3.py": 8
     },
     "refreshes": {
       "src/production_os/dashboard_ui.py": 4,
@@ -5285,6 +5309,12 @@
       "src/production_os/dashboard_ui.py": 4,
       "tests/test_dashboard_global_status_freshness.py": 4,
       "tests/test_dashboard_launch.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4
+    },
+    "stop": {
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_collection_view_freshness.py": 4,
+      "tests/test_dashboard_production_inbox_freshness.py": 4,
       "tests/test_dashboard_ui_v3.py": 4
     },
     "storage": {

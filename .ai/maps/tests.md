@@ -2309,6 +2309,8 @@ render_index = attention.index("count.textContent=")
 ⋮----
 def test_autopilot_and_managed_delayed_scrolls_stay_current()
 ⋮----
+focused_scroll = DASHBOARD_HTML.split(
+⋮----
 autopilot = DASHBOARD_HTML.split(
 ⋮----
 managed = DASHBOARD_HTML.split(
@@ -3927,6 +3929,15 @@ clear = DASHBOARD_HTML.split(
 render = DASHBOARD_HTML.split(
 ⋮----
 polling = DASHBOARD_HTML.split(
+⋮----
+def test_focused_card_scrolls_once_and_ignores_stale_refresh()
+⋮----
+helper = "function scrollToFocusedItemOnce(" + DASHBOARD_HTML.split(
+script = r"""
+⋮----
+def test_polling_does_not_restore_scroll_after_user_input()
+⋮----
+polling = "function schedulePoll(key,intervalMs,fn){" + DASHBOARD_HTML.split(
 ```
 
 ## File: test_dashboard_usage.py

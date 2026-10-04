@@ -1,18 +1,20 @@
 # Change impact
 
-Base: 96b43e7f4409b0ca71b5def85a3e4912af3258a6
-Head: de6ba0fa48319bc54cc5e4fde4cc2bf966e186bd
+Base: 0cd540d4205dd00cab8a7b23897333438aab617f
+Head: 8448003192b2655219a1f7091c264492d62750c0
 
 ## Changed files
-- M src/production_os/control_plane.py
-- M tests/test_worker_availability_api.py
+- M src/production_os/dashboard_ui.py
+- M tests/test_dashboard_collection_view_freshness.py
+- M tests/test_dashboard_production_inbox_freshness.py
+- M tests/test_dashboard_ui_v3.py
 
 ## Affected areas
 - src
 - tests
 
 ## Related test candidates
-- tests/test_control_plane.py
+- No direct filename-based test match detected.
 
 ## Agent guidance
 - Read this file before broad repository exploration.
