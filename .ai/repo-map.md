@@ -1610,7 +1610,9 @@ ASSET_FORGE_REPOSITORY = "dbrckk/asset-forge"
 ASSET_FORGE_WORKFLOW = "production-os-dispatch.yml"
 ASSET_FORGE_BATCH_WORKFLOW = "production-os-batch.yml"
 ⋮----
-gh = client or GitHubClient()
+def _remote_github_client(client: GitHubClient | None) -> GitHubClient
+⋮----
+gh = _remote_github_client(client)
 ready = gh.can_dispatch_workflow(repository, workflow)
 ⋮----
 @dataclass(frozen=True)
@@ -1685,6 +1687,8 @@ resolved_artifact = artifact.resolve()
 ⋮----
 root = Path(target_worktree).resolve()
 destination = (root / normalized).resolve()
+⋮----
+gh = client or GitHubClient()
 ⋮----
 local_cli = shutil.which("asset-forge")
 effective = mode
@@ -11701,6 +11705,16 @@ def test_workflow_dispatch_probe_propagates_unexpected_api_failure()
 def test_asset_forge_remote_probe_has_stable_contract()
 ⋮----
 result = probe_asset_forge_remote_dispatch(client=client)
+⋮----
+def test_asset_forge_remote_probe_uses_dedicated_dispatch_token(monkeypatch)
+⋮----
+seen = []
+⋮----
+class DispatchClient
+⋮----
+def __init__(self, token=None)
+⋮----
+def can_dispatch_workflow(self, repository, workflow)
 ⋮----
 def test_asset_forge_batch_probe_does_not_require_spec()
 ⋮----
@@ -22030,6 +22044,8 @@ No new mutation endpoint or browser-side workflow authority is introduced. Advan
 ## Release 50 — Real remote worker runner
 
 Production-OS can now run a persistent remote worker that actually executes claimed jobs through an external process instead of only polling the queue.
+
+For a GitHub Actions worker producing visual assets, set `ASSET_FORGE_GITHUB_TOKEN` to a credential with Actions write access to `dbrckk/asset-forge`. The `asset-forge-batch --probe` command checks dispatch permission before the worker advertises `visual-asset-production`; remote Asset Forge dispatch uses the same credential. When this variable is unset, the command uses `GITHUB_TOKEN`. Target repository delivery continues to use the normal GitHub credential.
 
 A worker opens an identity-bound session with:
 

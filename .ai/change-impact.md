@@ -1,20 +1,20 @@
 # Change impact
 
-Base: 0cd540d4205dd00cab8a7b23897333438aab617f
-Head: 8448003192b2655219a1f7091c264492d62750c0
+Base: 0a54ea699dfe07a72a49d203155c9a3b9a768c94
+Head: 1e53d83fb16a84182dfb492b73330182101fdcaf
 
 ## Changed files
-- M src/production_os/dashboard_ui.py
-- M tests/test_dashboard_collection_view_freshness.py
-- M tests/test_dashboard_production_inbox_freshness.py
-- M tests/test_dashboard_ui_v3.py
+- M README.md
+- M src/production_os/asset_forge.py
+- M tests/test_asset_forge_dispatch_probe.py
 
 ## Affected areas
+- (root)
 - src
 - tests
 
 ## Related test candidates
-- No direct filename-based test match detected.
+- tests/test_asset_forge.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

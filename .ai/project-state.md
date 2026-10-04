@@ -33,16 +33,19 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-04T14:08:58Z
+Generated: 2026-10-04T20:25:21Z
 
 ### Git
 - Branch: `main`
-- Head: `8448003192b2`
-- Commit date: 2026-10-04T13:18:53+02:00
-- Commit: fix(dashboard): stop automatic jumps during refresh (#252)
+- Head: `1e53d83fb16a`
+- Commit date: 2026-10-04T22:25:10+02:00
+- Commit: fix(asset-forge): use dedicated token for remote dispatch (#253)
 - Tracked files: 562
 
 ### Recently changed files
+- `README.md`
+- `src/production_os/asset_forge.py`
+- `tests/test_asset_forge_dispatch_probe.py`
 - `src/production_os/dashboard_ui.py`
 - `tests/test_dashboard_collection_view_freshness.py`
 - `tests/test_dashboard_production_inbox_freshness.py`
@@ -51,18 +54,6 @@ Generated: 2026-10-04T14:08:58Z
 - `tests/test_worker_availability_api.py`
 - `tests/test_dashboard_pair_link_timeout.py`
 - `tests/test_dashboard_pairing_freshness.py`
-- `README.md`
-- `src/production_os/cli.py`
-- `src/production_os/controller.py`
-- `src/production_os/postgres_backend.py`
-- `src/production_os/release_ledger.py`
-- `src/production_os/storage.py`
-- `tests/test_controller_error_recovery.py`
-- `tests/test_controller_leader.py`
-- `tests/test_dashboard_store_postgres.py`
-- `tests/test_database_maintenance_lock.py`
-- `tests/test_production_stack_e2e.py`
-- `tests/test_release_postgres.py`
 
 ### Project signals
 - `pyproject.toml`

@@ -731,7 +731,9 @@ ASSET_FORGE_REPOSITORY = "dbrckk/asset-forge"
 ASSET_FORGE_WORKFLOW = "production-os-dispatch.yml"
 ASSET_FORGE_BATCH_WORKFLOW = "production-os-batch.yml"
 ⋮----
-gh = client or GitHubClient()
+def _remote_github_client(client: GitHubClient | None) -> GitHubClient
+⋮----
+gh = _remote_github_client(client)
 ready = gh.can_dispatch_workflow(repository, workflow)
 ⋮----
 @dataclass(frozen=True)
@@ -806,6 +808,8 @@ resolved_artifact = artifact.resolve()
 ⋮----
 root = Path(target_worktree).resolve()
 destination = (root / normalized).resolve()
+⋮----
+gh = client or GitHubClient()
 ⋮----
 local_cli = shutil.which("asset-forge")
 effective = mode

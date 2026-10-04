@@ -452,6 +452,16 @@ def test_asset_forge_remote_probe_has_stable_contract()
 ⋮----
 result = probe_asset_forge_remote_dispatch(client=client)
 ⋮----
+def test_asset_forge_remote_probe_uses_dedicated_dispatch_token(monkeypatch)
+⋮----
+seen = []
+⋮----
+class DispatchClient
+⋮----
+def __init__(self, token=None)
+⋮----
+def can_dispatch_workflow(self, repository, workflow)
+⋮----
 def test_asset_forge_batch_probe_does_not_require_spec()
 ⋮----
 args = _parse_args(["asset-forge-batch", "--probe"])
