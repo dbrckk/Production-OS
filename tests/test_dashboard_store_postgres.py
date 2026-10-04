@@ -27,7 +27,7 @@ REQUIRED_EXECUTION_COLUMNS = {
 }
 
 
-def test_postgres_schema_v18_has_managed_project_and_pairing_tables():
+def test_postgres_schema_v19_has_managed_project_and_pairing_tables():
     backend = PostgresBackend(DSN)
     with backend.connect() as db:
         with db.cursor() as cur:
@@ -41,7 +41,7 @@ def test_postgres_schema_v18_has_managed_project_and_pairing_tables():
             )
             columns = {row["column_name"] for row in cur.fetchall()}
 
-    assert backend.SCHEMA_VERSION == 18
+    assert backend.SCHEMA_VERSION == 19
     assert REQUIRED_EXECUTION_COLUMNS <= columns
     with backend.connect() as db:
         with db.cursor() as cur:

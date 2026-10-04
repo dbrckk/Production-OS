@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import time
 import threading
@@ -47,6 +48,7 @@ from .reuse import detect_reuse
 from .runtime_state import RuntimeState
 from .storage import (
     claim_store_for,
+    is_postgres,
     job_queue_for,
     open_backend,
     runtime_state_for,
@@ -59,6 +61,9 @@ from .workers import WorkerRegistry, cooperative_worker_fleet_available
 from .workflow_engine import WorkflowEngine
 from .controller_leader import controller_leader_lock
 from .task_capabilities import asset_forge_tool_contract, inferred_required_capabilities
+
+
+_LOGGER = logging.getLogger(__name__)
 
 
 def _rank_actions(assessments):
@@ -659,31 +664,71 @@ def run_control_cycle(
         "delivery_recovery":delivery_recovery,
         "automatic_worker_wake":automatic_worker_wake,
         "emergency_stop":emergency_stopped,
-        "backend":"sqlite" if backend is not None else "json-files",
+        "backend": (
+            "postgres" if database_path and is_postgres(database_path)
+            else "sqlite" if backend is not None else "json-files"
+        ),
         "health":health,
         "observability":observability,
     }
 
 
 def _record_controller_error(exc: Exception, kwargs: dict) -> None:
+    """Publish independent best-effort diagnostics without masking a cycle error."""
     metrics_path = kwargs.get("metrics_path")
     health_path = kwargs.get("health_path")
     runtime_state_path = kwargs.get("runtime_state_path")
     database_path = kwargs.get("database_path")
-    if metrics_path and (runtime_state_path or database_path):
-        metrics_store = MetricsStore(metrics_path)
-        metrics_store.metrics.last_error = str(exc)
-        metrics_store.metrics.cycles += 1
-        metrics_store.save()
-        if health_path:
+    metrics = {"last_error": str(exc)}
+    if metrics_path:
+        try:
+            metrics_store = MetricsStore(metrics_path)
+            metrics_store.metrics.last_error = str(exc)
+            metrics_store.metrics.cycles += 1
+            metrics = metrics_store.metrics.to_dict()
+            metrics_store.save()
+            metrics = metrics_store.metrics.to_dict()
+        except Exception as reporting_error:
+            # Exception text may contain paths or backend credentials.
+            _LOGGER.warning(
+                "Controller error metrics unavailable (%s)",
+                type(reporting_error).__name__,
+            )
+
+    if health_path:
+        health = {
+            "schema_version": "production-os/health/v1",
+            "status": "degraded",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "runtime_status": "unavailable",
+            "runtime": {
+                "records": None,
+                "running": None,
+                "circuit_open": None,
+                "failed": None,
+            },
+            "metrics": metrics,
+        }
+        try:
+            if not (runtime_state_path or database_path):
+                raise ValueError("runtime state is not configured")
             state = (
                 runtime_state_for(open_backend(database_path))
                 if database_path
                 else RuntimeState(runtime_state_path)
             )
-            write_health(
-                build_health(state, metrics_store.metrics.to_dict()),
-                health_path,
+            health = build_health(state, metrics)
+        except Exception as reporting_error:
+            _LOGGER.warning(
+                "Controller error runtime state unavailable (%s)",
+                type(reporting_error).__name__,
+            )
+        try:
+            write_health(health, health_path)
+        except Exception as reporting_error:
+            _LOGGER.warning(
+                "Controller error health publication failed (%s)",
+                type(reporting_error).__name__,
             )
 
 

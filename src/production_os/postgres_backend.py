@@ -22,7 +22,7 @@ def _utcnow() -> str:
 
 
 class PostgresBackend:
-    SCHEMA_VERSION = 18
+    SCHEMA_VERSION = 19
     CONNECT_TIMEOUT_SECONDS = 10
 
     def __init__(self, dsn: str):
@@ -232,6 +232,35 @@ class PostgresBackend:
                 cur.execute("""
                     CREATE INDEX IF NOT EXISTS idx_releases_workflow
                     ON releases(workflow_id, created_at)
+                """)
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS transparency_log (
+                        sequence BIGINT PRIMARY KEY,
+                        release_id TEXT NOT NULL UNIQUE REFERENCES releases(id)
+                            ON DELETE RESTRICT,
+                        entry_json TEXT NOT NULL,
+                        entry_hash TEXT NOT NULL UNIQUE,
+                        previous_hash TEXT NOT NULL,
+                        created_at TEXT NOT NULL
+                    )
+                """)
+                cur.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_transparency_release
+                    ON transparency_log(release_id)
+                """)
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS trust_incident_reports (
+                        sequence BIGSERIAL PRIMARY KEY,
+                        incident_id TEXT NOT NULL,
+                        report_json TEXT NOT NULL,
+                        report_hash TEXT NOT NULL UNIQUE,
+                        previous_hash TEXT NOT NULL,
+                        created_at TEXT NOT NULL
+                    )
+                """)
+                cur.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_trust_incident_id
+                    ON trust_incident_reports(incident_id, sequence)
                 """)
                 cur.execute("""
                     CREATE UNIQUE INDEX IF NOT EXISTS idx_release_single_rollback

@@ -5,19 +5,26 @@ Status: active
 ## Working
 - Central repository standards are configured.
 - Compact AI context is generated through dbrckk/repo-standards.
+- Controller cycle error reporting tolerates unavailable state and failed diagnostic storage without stopping daemon retries or masking the original bounded-run exception.
+- PostgreSQL keyword DSNs use the PostgreSQL backend and locks. Schema v19 supplies the release transparency and trust incident ledgers; concurrent appends preserve their hash chains.
+- Trust inspection and incident snapshots support existing legacy HMAC releases.
 
 ## Broken / blockers
-- None documented here yet.
+- Live deployment and external worker credentials were not available in this session; repository checks do not establish live production readiness.
+- Dashboard pairing fixes remain in existing PRs #247 and #248; this change does not duplicate them.
 
 ## Current priority
-- Restore task-specific state here when substantial work resumes.
+- Review and integrate backend and controller resilience corrections, then verify the deployed control plane and worker fleet with actual deployment credentials.
 
 ## Validation
 - Standards workflow: configured.
 - Tests/build: use this repository's existing validation commands.
+- Controller, health, and CLI regression checks passed (65 tests), including 14 fault-injection cases.
+- PostgreSQL release migration, concurrent ledger appends, real HTTP worker/release E2E, and legacy trust checks passed (33 targeted tests). The previous production-stack test silently used SQLite; it now asserts PostgreSQL explicitly.
+- Final full suite with PostgreSQL 16: 1290 passed, none skipped. Compilation, distribution build, and isolated wheel CLI installation passed; missing PostgreSQL extras fail explicitly without a SQLite fallback.
 
 ## Last verified
-- 2026-09-18
+- 2026-10-03
 
 <!-- AUTO:START -->
 ## Automatic repository state

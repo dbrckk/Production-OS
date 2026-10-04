@@ -74,6 +74,12 @@ def test_postgres_database_server_lock_is_noop():
         pass
 
 
+def test_keyword_dsn_does_not_create_sqlite_maintenance_lock(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    with database_server_lock("host=localhost dbname=production"):
+        assert list(tmp_path.iterdir()) == []
+
+
 def test_serve_control_plane_holds_lock_for_server_lifetime(
     tmp_path,
     monkeypatch,

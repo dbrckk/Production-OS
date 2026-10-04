@@ -1,4 +1,20 @@
 from production_os.release_ledger import ReleaseLedger
+from test_release_ledger import setup_release, passed_validation, signed_attestation, approval
+
+
+def test_legacy_hmac_release_can_be_inspected_and_snapshotted(tmp_path):
+    _, _, ledger, workflow, artifact = setup_release(tmp_path)
+    ledger.promote(
+        workflow_id=workflow["id"], artifact_id=artifact["id"],
+        validation=passed_validation(), attestation=signed_attestation(workflow, artifact),
+        approval=approval(),
+    )
+    status = ledger.trust_status(validator_id="validator-1")
+    assert status["matched_releases"] == 1
+    assert status["valid"]
+    assert ledger.trust_status(key_id="sha256:unrelated")["matched_releases"] == 0
+    assert ledger.record_incident_report()["recorded"]
+    assert ledger.verify_incident_history()["valid"]
 
 
 def test_trust_status_aggregates_affected_entities_and_reasons(monkeypatch):
