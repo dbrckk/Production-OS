@@ -1613,7 +1613,7 @@ ASSET_FORGE_BATCH_WORKFLOW = "production-os-batch.yml"
 def _remote_github_client(client: GitHubClient | None) -> GitHubClient
 ⋮----
 gh = _remote_github_client(client)
-ready = gh.can_dispatch_workflow(repository, workflow)
+ready = gh.can_dispatch_workflow(repository, workflow) or gh.can_write_contents(repository)
 ⋮----
 @dataclass(frozen=True)
 class AssetForgeDispatch
@@ -1773,6 +1773,10 @@ serializable_items = []
 spec_json = json.dumps(
 ⋮----
 correlation = "pos-" + uuid.uuid4().hex
+⋮----
+event = "workflow_dispatch"
+⋮----
+event = "push"
 ⋮----
 title = f"Asset Forge batch {correlation}"
 run = gh.wait_for_workflow_run(
@@ -6674,6 +6678,10 @@ encoded = urllib.parse.quote(workflow, safe="")
 """Probe Actions write access without creating a workflow run."""
 ⋮----
 detail = str(exc)
+⋮----
+def can_write_contents(self, full_name: str) -> bool
+⋮----
+"""Check cross-repository contents write without creating a commit."""
 ⋮----
 payload = self._get(
 runs = payload.get("workflow_runs", []) if isinstance(payload, dict) else []
@@ -11696,6 +11704,16 @@ client = FakeProbeClient(
 @pytest.mark.parametrize("code", [401, 403, 404])
 def test_workflow_dispatch_probe_fails_closed_without_permission(code)
 ⋮----
+def test_contents_probe_accepts_rejected_invalid_base64_without_commit()
+⋮----
+def test_remote_probe_falls_back_to_contents_write()
+⋮----
+class ContentsClient
+⋮----
+def can_dispatch_workflow(self, repository, workflow)
+⋮----
+def can_write_contents(self, repository)
+⋮----
 def test_workflow_dispatch_probe_requires_token()
 ⋮----
 client = FakeProbeClient(None, token="")
@@ -11714,8 +11732,6 @@ class DispatchClient
 ⋮----
 def __init__(self, token=None)
 ⋮----
-def can_dispatch_workflow(self, repository, workflow)
-⋮----
 def test_asset_forge_batch_probe_does_not_require_spec()
 ⋮----
 args = _parse_args(["asset-forge-batch", "--probe"])
@@ -11729,13 +11745,19 @@ args = Namespace(probe=True, result_file=None, spec=None)
 ````python
 class FakeGitHub
 ⋮----
-def __init__(self)
+def __init__(self, *, dispatch_allowed=True)
+⋮----
+def can_dispatch_workflow(self, repository, workflow)
+⋮----
+def can_write_contents(self, repository)
 ⋮----
 def dispatch_workflow(self, repository, workflow, *, ref, inputs)
 ⋮----
-def wait_for_workflow_run(self, repository, workflow, *, display_title, timeout_seconds, poll_seconds)
+def wait_for_workflow_run(self, repository, workflow, *, display_title, event, timeout_seconds, poll_seconds)
 ⋮----
 def workflow_run_artifacts(self, repository, run_id)
+⋮----
+correlation = next(
 ⋮----
 def download_workflow_artifact(self, repository, artifact_id)
 ⋮----
@@ -11849,7 +11871,10 @@ def test_batch_receipt_surfaces_visual_similarity_quality_summary(tmp_path)
 ⋮----
 artifact = output / "character.png"
 ⋮----
-def test_execute_asset_forge_batch_remote_fallback_downloads_and_delivers(tmp_path)
+@pytest.mark.parametrize("dispatch_allowed", [True, False])
+def test_execute_asset_forge_batch_remote_fallback_downloads_and_delivers(tmp_path, dispatch_allowed)
+⋮----
+fake = FakeGitHub(dispatch_allowed=dispatch_allowed)
 ⋮----
 artifact_bytes = b"remote-png"
 digest = hashlib.sha256(artifact_bytes).hexdigest()
@@ -11859,6 +11884,8 @@ archive = io.BytesIO()
 receipt = execute_asset_forge_batch(
 ⋮----
 dispatch = next(call for call in fake.calls if "inputs" in call)
+⋮----
+submitted = next(call for call in fake.calls if call.get("path", "").startswith(".asset-forge/requests/"))
 ⋮----
 def test_execute_asset_forge_batch_rejects_duplicate_target_paths(tmp_path)
 ⋮----

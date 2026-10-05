@@ -34,19 +34,21 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-04T20:25:21Z
+Generated: 2026-10-05T10:42:14Z
 
 ### Git
 - Branch: `main`
-- Head: `1e53d83fb16a`
-- Commit date: 2026-10-04T22:25:10+02:00
-- Commit: fix(asset-forge): use dedicated token for remote dispatch (#253)
+- Head: `ab7d456d4915`
+- Commit date: 2026-10-05T12:42:02+02:00
+- Commit: Use Asset Forge repository request fallback without Actions write (#254)
 - Tracked files: 562
 
 ### Recently changed files
-- `README.md`
 - `src/production_os/asset_forge.py`
+- `src/production_os/github_client.py`
+- `tests/test_asset_forge.py`
 - `tests/test_asset_forge_dispatch_probe.py`
+- `README.md`
 - `src/production_os/dashboard_ui.py`
 - `tests/test_dashboard_collection_view_freshness.py`
 - `tests/test_dashboard_production_inbox_freshness.py`
@@ -54,7 +56,6 @@ Generated: 2026-10-04T20:25:21Z
 - `src/production_os/control_plane.py`
 - `tests/test_worker_availability_api.py`
 - `tests/test_dashboard_pair_link_timeout.py`
-- `tests/test_dashboard_pairing_freshness.py`
 
 ### Project signals
 - `pyproject.toml`

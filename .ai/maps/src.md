@@ -734,7 +734,7 @@ ASSET_FORGE_BATCH_WORKFLOW = "production-os-batch.yml"
 def _remote_github_client(client: GitHubClient | None) -> GitHubClient
 ⋮----
 gh = _remote_github_client(client)
-ready = gh.can_dispatch_workflow(repository, workflow)
+ready = gh.can_dispatch_workflow(repository, workflow) or gh.can_write_contents(repository)
 ⋮----
 @dataclass(frozen=True)
 class AssetForgeDispatch
@@ -894,6 +894,10 @@ serializable_items = []
 spec_json = json.dumps(
 ⋮----
 correlation = "pos-" + uuid.uuid4().hex
+⋮----
+event = "workflow_dispatch"
+⋮----
+event = "push"
 ⋮----
 title = f"Asset Forge batch {correlation}"
 run = gh.wait_for_workflow_run(
@@ -5795,6 +5799,10 @@ encoded = urllib.parse.quote(workflow, safe="")
 """Probe Actions write access without creating a workflow run."""
 ⋮----
 detail = str(exc)
+⋮----
+def can_write_contents(self, full_name: str) -> bool
+⋮----
+"""Check cross-repository contents write without creating a commit."""
 ⋮----
 payload = self._get(
 runs = payload.get("workflow_runs", []) if isinstance(payload, dict) else []

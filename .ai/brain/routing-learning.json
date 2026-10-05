@@ -2,30 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat(models): discover one-tap model candidates from worker heartbeats",
-      "terms": [
-        "candidates",
-        "discover",
-        "feat",
-        "from",
-        "heartbeats",
-        "model",
-        "models",
-        "one-tap",
-        "worker"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/control_plane.py",
-        "src/production_os/model_router.py",
-        "src/production_os/remote_worker.py",
-        "src/production_os/workflow_engine.py",
-        "tests/test_model_router.py",
-        "tests/test_remote_worker.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat(agents): adapt planner fanout from durable benchmark evidence",
       "terms": [
         "adapt",
@@ -1235,6 +1211,29 @@
         "src/production_os/asset_forge.py",
         "tests/test_asset_forge_dispatch_probe.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "Use Asset Forge repository request fallback without Actions write (#254)",
+      "terms": [
+        "254",
+        "actions",
+        "asset",
+        "fallback",
+        "forge",
+        "repository",
+        "request",
+        "use",
+        "without",
+        "write"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/asset_forge.py",
+        "src/production_os/github_client.py",
+        "tests/test_asset_forge.py",
+        "tests/test_asset_forge_dispatch_probe.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1487,6 +1486,12 @@
       "src/production_os/asset_forge.py": 4,
       "tests/test_asset_forge_dispatch_probe.py": 4
     },
+    "254": {
+      "src/production_os/asset_forge.py": 4,
+      "src/production_os/github_client.py": 4,
+      "tests/test_asset_forge.py": 4,
+      "tests/test_asset_forge_dispatch_probe.py": 4
+    },
     "26": {
       "src/production_os/dashboard_backups.py": 4,
       "src/production_os/dashboard_ui.py": 4,
@@ -1704,10 +1709,14 @@
     },
     "actions": {
       "scripts/render-start.py": 4,
+      "src/production_os/asset_forge.py": 4,
       "src/production_os/browser_computer.py": 4,
       "src/production_os/control_plane.py": 4,
       "src/production_os/dashboard_service.py": 8,
       "src/production_os/dashboard_ui.py": 12,
+      "src/production_os/github_client.py": 4,
+      "tests/test_asset_forge.py": 4,
+      "tests/test_asset_forge_dispatch_probe.py": 4,
       "tests/test_browser_computer.py": 4,
       "tests/test_control_plane.py": 4,
       "tests/test_control_plane_webhook.py": 4,
@@ -1959,17 +1968,18 @@
       "tests/test_controller_daemon_deployment.py": 4
     },
     "asset": {
-      "src/production_os/asset_forge.py": 36,
+      "src/production_os/asset_forge.py": 40,
       "src/production_os/capabilities.py": 4,
       "src/production_os/classification.py": 4,
       "src/production_os/cli.py": 12,
       "src/production_os/control_plane.py": 8,
       "src/production_os/controller.py": 12,
-      "src/production_os/github_client.py": 8,
+      "src/production_os/github_client.py": 12,
       "src/production_os/reuse.py": 4,
       "src/production_os/task_capabilities.py": 4,
       "src/production_os/workflow_engine.py": 4,
-      "tests/test_asset_forge.py": 32,
+      "tests/test_asset_forge.py": 36,
+      "tests/test_asset_forge_dispatch_probe.py": 4,
       "tests/test_capabilities_graph.py": 4,
       "tests/test_classification_history_reuse.py": 8,
       "tests/test_controller_asset_capabilities.py": 8,
@@ -3161,9 +3171,11 @@
       "src/production_os/cli.py": 4
     },
     "fallback": {
-      "src/production_os/asset_forge.py": 4,
+      "src/production_os/asset_forge.py": 8,
+      "src/production_os/github_client.py": 4,
       "src/production_os/workflow_engine.py": 4,
-      "tests/test_asset_forge.py": 4,
+      "tests/test_asset_forge.py": 8,
+      "tests/test_asset_forge_dispatch_probe.py": 4,
       "tests/test_dynamic_agent_fanout.py": 4
     },
     "fanout": {
@@ -3278,10 +3290,13 @@
       "tests/test_release32_one_tap_e2e.py": 4
     },
     "forge": {
-      "src/production_os/asset_forge.py": 4,
+      "src/production_os/asset_forge.py": 8,
       "src/production_os/controller.py": 8,
+      "src/production_os/github_client.py": 4,
       "src/production_os/task_capabilities.py": 4,
       "src/production_os/workflow_engine.py": 4,
+      "tests/test_asset_forge.py": 4,
+      "tests/test_asset_forge_dispatch_probe.py": 4,
       "tests/test_controller_asset_capabilities.py": 4,
       "tests/test_workflow_engine.py": 4
     },
@@ -4799,11 +4814,14 @@
     },
     "repository": {
       "src/production_os/agent_planning_policy.py": 4,
-      "src/production_os/asset_forge.py": 4,
+      "src/production_os/asset_forge.py": 8,
       "src/production_os/control_plane.py": 4,
       "src/production_os/dashboard_service.py": 4,
       "src/production_os/dashboard_ui.py": 16,
       "src/production_os/fanout_learning.py": 4,
+      "src/production_os/github_client.py": 4,
+      "tests/test_asset_forge.py": 4,
+      "tests/test_asset_forge_dispatch_probe.py": 4,
       "tests/test_dashboard_launch.py": 4,
       "tests/test_dashboard_launch_ux.py": 4,
       "tests/test_dashboard_repositories.py": 4,
@@ -4811,7 +4829,11 @@
       "tests/test_fanout_learning.py": 4
     },
     "request": {
+      "src/production_os/asset_forge.py": 4,
       "src/production_os/control_plane.py": 8,
+      "src/production_os/github_client.py": 4,
+      "tests/test_asset_forge.py": 4,
+      "tests/test_asset_forge_dispatch_probe.py": 4,
       "tests/test_dashboard_launch.py": 8
     },
     "requests": {
@@ -5575,8 +5597,10 @@
       "tests/test_dashboard_store.py": 4
     },
     "use": {
-      "src/production_os/asset_forge.py": 4,
-      "tests/test_asset_forge_dispatch_probe.py": 4
+      "src/production_os/asset_forge.py": 8,
+      "src/production_os/github_client.py": 4,
+      "tests/test_asset_forge.py": 4,
+      "tests/test_asset_forge_dispatch_probe.py": 8
     },
     "ux": {
       "src/production_os/control_plane.py": 4,
@@ -5727,12 +5751,16 @@
       "tests/test_dashboard_windowed_view_freshness.py": 4
     },
     "without": {
+      "src/production_os/asset_forge.py": 4,
       "src/production_os/control_plane.py": 4,
+      "src/production_os/github_client.py": 4,
       "src/production_os/postgres_backend.py": 4,
       "src/production_os/remote_worker_runner.py": 4,
       "src/production_os/skill_memory.py": 4,
       "src/production_os/sqlite_backend.py": 4,
       "src/production_os/workflow_engine.py": 4,
+      "tests/test_asset_forge.py": 4,
+      "tests/test_asset_forge_dispatch_probe.py": 4,
       "tests/test_dashboard_control_audit.py": 4,
       "tests/test_dashboard_remediation_history.py": 4,
       "tests/test_dashboard_store_postgres.py": 4,
@@ -5879,6 +5907,12 @@
       "tests/test_skill_memory.py": 4,
       "tests/test_worker_compose_deployment.py": 4,
       "tests/test_worktree_contract.py": 8
+    },
+    "write": {
+      "src/production_os/asset_forge.py": 4,
+      "src/production_os/github_client.py": 4,
+      "tests/test_asset_forge.py": 4,
+      "tests/test_asset_forge_dispatch_probe.py": 4
     }
   },
   "term_test_scores": {}

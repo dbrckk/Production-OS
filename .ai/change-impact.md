@@ -1,15 +1,15 @@
 # Change impact
 
-Base: 0a54ea699dfe07a72a49d203155c9a3b9a768c94
-Head: 1e53d83fb16a84182dfb492b73330182101fdcaf
+Base: 16f61b49dd6d662d1d1255cfacd145a510280b65
+Head: ab7d456d49154cc3d6c3a2d1d988190103c07598
 
 ## Changed files
-- M README.md
 - M src/production_os/asset_forge.py
+- M src/production_os/github_client.py
+- M tests/test_asset_forge.py
 - M tests/test_asset_forge_dispatch_probe.py
 
 ## Affected areas
-- (root)
 - src
 - tests
 
