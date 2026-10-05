@@ -11,6 +11,7 @@ Status: active
 - Trust inspection and incident snapshots support existing legacy HMAC releases.
 
 ## Broken / blockers
+- Asset Forge remote batch now falls back to a correlated request commit when cross-repository Actions write is unavailable; live worker and artifact verification remain pending.
 - Server fix #250 is deployed and healthy; worker fix #240 is merged. Live run 37181156718 authenticated but found no compatible jobs. Queue diagnostics now distinguish empty queues, controls and capability/generation filters.
 - Dashboard pairing fixes remain in existing PRs #247 and #248; this change does not duplicate them.
 
