@@ -34,7 +34,7 @@ def probe_asset_forge_remote_dispatch(
     workflow: str = ASSET_FORGE_BATCH_WORKFLOW,
 ) -> dict[str, Any]:
     gh = _remote_github_client(client)
-    ready = gh.can_dispatch_workflow(repository, workflow)
+    ready = gh.can_dispatch_workflow(repository, workflow) or gh.can_write_contents(repository)
     return {
         "schema_version": "production-os/asset-forge-remote-probe/v1",
         "repository": repository,
@@ -553,22 +553,37 @@ def _produce_asset_forge_batch_remote(
 
     correlation = "pos-" + uuid.uuid4().hex
     gh = _remote_github_client(client)
-    gh.dispatch_workflow(
-        repository,
-        workflow,
-        ref=ref,
-        inputs={
-            "correlation_id": correlation,
-            "spec_json": spec_json,
-            "backend": backend,
-            "model": model or "",
-        },
-    )
+    event = "workflow_dispatch"
+    if gh.can_dispatch_workflow(repository, workflow):
+        gh.dispatch_workflow(
+            repository,
+            workflow,
+            ref=ref,
+            inputs={
+                "correlation_id": correlation,
+                "spec_json": spec_json,
+                "backend": backend,
+                "model": model or "",
+            },
+        )
+    elif gh.can_write_contents(repository):
+        event = "push"
+        gh.put_file(
+            repository,
+            f".asset-forge/requests/{correlation}.json",
+            json.dumps({"spec": json.loads(spec_json), "backend": backend, "model": model or ""},
+                       separators=(",", ":"), sort_keys=True).encode("utf-8"),
+            message=correlation,
+            branch=ref,
+        )
+    else:
+        raise RuntimeError("asset-forge remote batch requires Actions or Contents write access")
     title = f"Asset Forge batch {correlation}"
     run = gh.wait_for_workflow_run(
         repository,
         workflow,
         display_title=title,
+        event=event,
         timeout_seconds=2100.0,
         poll_seconds=5.0,
     )
