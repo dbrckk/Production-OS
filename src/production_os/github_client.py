@@ -301,6 +301,25 @@ class GitHubClient:
             "GitHub workflow dispatch permission probe unexpectedly succeeded"
         )
 
+    def can_write_contents(self, full_name: str) -> bool:
+        """Check cross-repository contents write without creating a commit."""
+        if not self.token:
+            return False
+        try:
+            self._request(
+                "PUT",
+                f"/repos/{full_name}/contents/.asset-forge/requests/permission-probe.json",
+                {"message": "permission probe", "content": "!"},
+            )
+        except GitHubAPIError as exc:
+            detail = str(exc)
+            if "GitHub API 422:" in detail and "not valid Base64" in detail:
+                return True
+            if any(f"GitHub API {code}:" in detail for code in (401, 403, 404)):
+                return False
+            raise
+        raise GitHubAPIError("GitHub contents permission probe unexpectedly succeeded")
+
 
 
 
@@ -326,6 +345,7 @@ class GitHubClient:
         workflow: str,
         *,
         display_title: str,
+        event: str = "workflow_dispatch",
         timeout_seconds: float = 2100.0,
         poll_seconds: float = 5.0,
         sleeper=time.sleep,
@@ -333,7 +353,7 @@ class GitHubClient:
     ) -> dict[str, Any]:
         deadline = clock() + float(timeout_seconds)
         while clock() < deadline:
-            for run in self.workflow_runs(full_name, workflow):
+            for run in self.workflow_runs(full_name, workflow, event=event):
                 if str(run.get("display_title") or "") != display_title:
                     continue
                 status = str(run.get("status") or "")

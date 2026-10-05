@@ -51,6 +51,26 @@ def test_workflow_dispatch_probe_fails_closed_without_permission(code):
     ) is False
 
 
+def test_contents_probe_accepts_rejected_invalid_base64_without_commit():
+    client = FakeProbeClient(
+        GitHubAPIError('GitHub API 422: {"message":"content is not valid Base64"}')
+    )
+    assert client.can_write_contents("dbrckk/asset-forge") is True
+    assert client.calls[0][0] == "PUT"
+    assert client.calls[0][2]["content"] == "!"
+
+
+def test_remote_probe_falls_back_to_contents_write():
+    class ContentsClient:
+        def can_dispatch_workflow(self, repository, workflow):
+            return False
+
+        def can_write_contents(self, repository):
+            return True
+
+    assert probe_asset_forge_remote_dispatch(client=ContentsClient())["ready"] is True
+
+
 def test_workflow_dispatch_probe_requires_token():
     client = FakeProbeClient(None, token="")
 

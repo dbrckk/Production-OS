@@ -5,13 +5,22 @@ import zipfile
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
+
 from production_os.asset_forge import _dedup_summary, build_asset_forge_request, dispatch_asset_forge, execute_asset_forge, execute_asset_forge_batch
 
 
 class FakeGitHub:
-    def __init__(self):
+    def __init__(self, *, dispatch_allowed=True):
         self.calls = []
         self.remote_zip = None
+        self.dispatch_allowed = dispatch_allowed
+
+    def can_dispatch_workflow(self, repository, workflow):
+        return self.dispatch_allowed
+
+    def can_write_contents(self, repository):
+        return True
 
     def dispatch_workflow(self, repository, workflow, *, ref, inputs):
         self.calls.append({
@@ -22,7 +31,7 @@ class FakeGitHub:
         })
 
 
-    def wait_for_workflow_run(self, repository, workflow, *, display_title, timeout_seconds, poll_seconds):
+    def wait_for_workflow_run(self, repository, workflow, *, display_title, event, timeout_seconds, poll_seconds):
         self.calls.append({
             "repository": repository,
             "workflow": workflow,
@@ -31,11 +40,12 @@ class FakeGitHub:
         return {"id": 77, "status": "completed", "conclusion": "success"}
 
     def workflow_run_artifacts(self, repository, run_id):
-        return [{"id": 88, "name": "asset-forge-batch-" + next(
-            call["inputs"]["correlation_id"]
-            for call in self.calls
-            if "inputs" in call and "correlation_id" in call["inputs"]
-        ), "expired": False}]
+        correlation = next(
+            (call["inputs"]["correlation_id"] for call in self.calls
+             if "inputs" in call and "correlation_id" in call["inputs"]),
+            None,
+        ) or next(call["message"] for call in self.calls if call.get("path", "").startswith(".asset-forge/requests/"))
+        return [{"id": 88, "name": "asset-forge-batch-" + correlation, "expired": False}]
 
     def download_workflow_artifact(self, repository, artifact_id):
         if self.remote_zip is None:
@@ -683,8 +693,9 @@ def test_batch_receipt_surfaces_visual_similarity_quality_summary(tmp_path):
     assert result["items"][0]["visual_similarity"]["passed"] is True
 
 
-def test_execute_asset_forge_batch_remote_fallback_downloads_and_delivers(tmp_path):
-    fake = FakeGitHub()
+@pytest.mark.parametrize("dispatch_allowed", [True, False])
+def test_execute_asset_forge_batch_remote_fallback_downloads_and_delivers(tmp_path, dispatch_allowed):
+    fake = FakeGitHub(dispatch_allowed=dispatch_allowed)
     request = build_asset_forge_request(
         request_id="remote-a",
         project="deadline-zero",
@@ -737,9 +748,14 @@ def test_execute_asset_forge_batch_remote_fallback_downloads_and_delivers(tmp_pa
 
     assert receipt["delivery_mode"] == "worktree"
     assert (worktree / "assets/art/remote-a.png").read_bytes() == artifact_bytes
-    dispatch = next(call for call in fake.calls if "inputs" in call)
-    assert dispatch["workflow"] == "production-os-batch.yml"
-    assert dispatch["inputs"]["correlation_id"].startswith("pos-")
+    if dispatch_allowed:
+        dispatch = next(call for call in fake.calls if "inputs" in call)
+        assert dispatch["workflow"] == "production-os-batch.yml"
+        assert dispatch["inputs"]["correlation_id"].startswith("pos-")
+    else:
+        submitted = next(call for call in fake.calls if call.get("path", "").startswith(".asset-forge/requests/"))
+        assert submitted["message"].startswith("pos-")
+        assert json.loads(submitted["content"])["spec"]["items"][0]["id"] == "remote-a"
 
 
 def test_execute_asset_forge_batch_rejects_duplicate_target_paths(tmp_path):
