@@ -44,10 +44,33 @@ Configure the GitHub credential as a secret, never in source code. On
 `PRODUCTION_OS_WORKER_TOKEN` and Studio provider credentials. The server's
 worker-token identity must match the Actions worker ID.
 
-Without a valid dispatch credential and workflow configuration,
-`worker_wake_mode()` reports `scheduled_fallback` rather than immediate
-dispatch. GitHub scheduled workflows are best-effort and may run late;
+If the configured GitHub token lacks Actions:write (HTTP 403/404),
+Production-OS now uses the already-declared **push** trigger in
+`dbrckk/ai-dev-server/.github/workflows/production-os-actions-worker.yml`.
+It writes a non-secret, unique wake request to
+`control/production-os-worker-kick.json` on `main`. This requires
+**Contents:write** on the AI Dev Server repository instead. The fallback
+applies only to `production-os-actions-worker.yml` on `main`, so arbitrary
+workflows and non-main refs cannot be falsely reported as woken.
+
+A successful request returns `{"status":"dispatched","method":"repository_push"}`.
+This means that GitHub accepted the repository update; it does **not** mean
+that a runner has started or that a job has completed. A failed Actions call
+followed by a failed repository write returns `github_dispatch_and_push_failed`
+without printing credentials. Transport failures are not automatically
+converted into commits.
+
+Without a configured GitHub credential and workflow,
+`worker_wake_mode()` reports `scheduled_fallback`. With a configured
+credential lacking both permissions, immediate wake fails; the independent
+five-minute scheduled Actions workflow remains the last-resort trigger.
+GitHub schedules are best-effort and may run late.
 `scheduled_fallback` is **not** evidence that a runner has started.
+
+The dashboard excludes configured one-shot worker IDs from its count of
+**immediately available** workers even if their last heartbeat still reads
+`online`. This avoids promising an available slot after an Actions process
+has exited; it does not exclude those workers from normal queue claims.
 
 ## Verification
 
