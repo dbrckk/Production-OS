@@ -10564,11 +10564,17 @@ preflight_payload = json.loads(
 ⋮----
 dynamic_specs = self._dynamic_agent_specs(
 ⋮----
+# Retry a bounded continuation or transient provider failure,
+# but never spend another worker execution on an explicitly
+# exhausted project capacity envelope. Inspect only the worker's
+# structured status: generic error text is not a quota signal.
+capacity_exhausted = (
+⋮----
 status = "succeeded"
 ⋮----
-status = "ready"
-⋮----
 status = "failed"
+⋮----
+status = "ready"
 ⋮----
 task_payload = json.loads(row["payload_json"])
 ⋮----

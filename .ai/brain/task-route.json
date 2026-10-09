@@ -4,15 +4,15 @@
     "expand_to": 12,
     "max_files": 3,
     "requested_max_files": 12,
-    "score_margin": 10,
+    "score_margin": 19,
     "tier": "narrow",
-    "top_score": 39
+    "top_score": 48
   },
   "cache": {
-    "fingerprint": "a643b5b26c2efb3f029e50b50d61b972988b1a0a9608b0fc644a03ac0c84ef8a",
+    "fingerprint": "bc0a53045277f2b4c06635dd0a826a2bfabb377114005950ecb8b0c0f40b8ad0",
     "hit": false
   },
-  "candidate_count": 82,
+  "candidate_count": 51,
   "fallback": "If bounded context is insufficient, expand only to budget.expand_to, then use architecture/segmented maps and targeted source search.",
   "files": [
     {
@@ -23,11 +23,14 @@
       ],
       "path": "tests/test_workflow_engine.py",
       "reasons": [
+        "impact",
+        "recently-changed",
         "search-index"
       ],
-      "score": 39,
+      "score": 48,
       "symbols": [
         "engine",
+        "test_bounded_session_or_transient_runner_error_still_auto_retries",
         "test_change_impact_can_be_recomputed_before_execution",
         "test_change_impact_recompute_rejected_after_dispatch",
         "test_create_unseen_pr_from_repository_template",
@@ -37,16 +40,15 @@
         "test_downstream_job_receives_bounded_upstream_context",
         "test_find_workflows_bound_to_github_pr",
         "test_find_workflows_bound_to_github_pr_accepts_string_metadata",
+        "test_operator_may_relaunch_budget_blocked_task_with_spare_attempts",
         "test_pr_artifact_requires_current_revision_and_generation",
         "test_pr_generation_binds_initial_head_in_place",
         "test_pr_generation_reuses_same_workflow_for_same_head_sha",
         "test_pr_generation_supersedes_old_workflow_and_jobs",
+        "test_structured_capacity_exhaustion_stops_unproductive_auto_retries",
         "test_superseded_pr_rejects_artifact_promotion",
-        "test_workflow_add_task_validates_dependencies_and_becomes_dispatchable",
-        "test_workflow_dispatch_infers_visual_worker_requirement",
-        "test_workflow_fanout_fanin",
-        "test_workflow_metadata_can_be_updated_without_recreating_workflow",
-        "test_workflow_rejects_cycle"
+        "test_unstructured_quota_word_does_not_override_worker_status",
+        "test_workflow_add_task_validates_dependencies_and_becomes_dispatchable"
       ]
     },
     {

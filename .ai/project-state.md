@@ -34,18 +34,21 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-09T03:51:29Z
+Generated: 2026-10-09T09:29:13Z
 
 ### Git
 - Branch: `main`
-- Head: `1e4aaa490272`
-- Commit date: 2026-10-09T05:51:17+02:00
-- Commit: fix(worker): auto-wake retries and downstream tasks after job completion (#256)
+- Head: `199d843b7ce5`
+- Commit date: 2026-10-09T11:29:03+02:00
+- Commit: fix(workflows): stop automatic task retries when worker capacity is exhausted (#257)
 - Tracked files: 564
 
 ### Recently changed files
-- `src/production_os/control_plane.py`
+- `README.md`
+- `src/production_os/workflow_engine.py`
 - `tests/test_workflow_auto_wake_api.py`
+- `tests/test_workflow_engine.py`
+- `src/production_os/control_plane.py`
 - `docs/worker-wake.md`
 - `src/production_os/worker_wake.py`
 - `tests/test_worker_wake.py`
@@ -53,11 +56,6 @@ Generated: 2026-10-09T03:51:29Z
 - `src/production_os/github_client.py`
 - `tests/test_asset_forge.py`
 - `tests/test_asset_forge_dispatch_probe.py`
-- `README.md`
-- `src/production_os/dashboard_ui.py`
-- `tests/test_dashboard_collection_view_freshness.py`
-- `tests/test_dashboard_production_inbox_freshness.py`
-- `tests/test_dashboard_ui_v3.py`
 
 ### Project signals
 - `pyproject.toml`

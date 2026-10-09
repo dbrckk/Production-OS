@@ -1,7 +1,7 @@
 {
   "files": [
     {
-      "path": "src/production_os/control_plane.py",
+      "path": "src/production_os/workflow_engine.py",
       "reasons": [
         "changed",
         "changed-source",
@@ -9,24 +9,27 @@
         "impact",
         "symbol-indexed"
       ],
-      "score": 3030
+      "score": 2255
     },
     {
-      "path": "src/production_os/api_auth.py",
+      "path": "src/production_os/sqlite_backend.py",
       "reasons": [
         "dependency-neighbor"
       ],
-      "score": 2275
+      "score": 1100
+    },
+    {
+      "path": "src/production_os/managed_projects.py",
+      "reasons": [
+        "dependency-neighbor",
+        "impact",
+        "reverse-dependency-neighbor",
+        "symbol-indexed"
+      ],
+      "score": 860
     },
     {
       "path": "src/production_os/__init__.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 1275
-    },
-    {
-      "path": "src/production_os/remote_worker.py",
       "reasons": [
         "dependency-neighbor"
       ],
@@ -40,38 +43,49 @@
         "reverse-dependency-neighbor",
         "symbol-indexed"
       ],
-      "score": 650
+      "score": 790
     },
     {
-      "path": "src/production_os/workers.py",
+      "path": "src/production_os/control_plane.py",
       "reasons": [
-        "dependency-neighbor"
+        "dependency-neighbor",
+        "impact",
+        "reverse-dependency-neighbor",
+        "symbol-indexed"
       ],
-      "score": 500
+      "score": 755
     },
     {
-      "path": "tests/test_remote_worker_runner.py",
+      "path": "tests/test_workflow_engine.py",
+      "reasons": [
+        "changed",
+        "changed-source",
+        "impact",
+        "reverse-dependency-neighbor",
+        "selected-test",
+        "symbol-indexed"
+      ],
+      "score": 560
+    },
+    {
+      "path": "tests/test_controller_managed_projects.py",
       "reasons": [
         "impact",
         "reverse-dependency-neighbor",
         "selected-test",
         "symbol-indexed"
       ],
-      "score": 490
+      "score": 515
     },
     {
-      "path": "src/production_os/workflow_engine.py",
+      "path": "tests/test_browser_computer.py",
       "reasons": [
-        "dependency-neighbor"
+        "impact",
+        "reverse-dependency-neighbor",
+        "selected-test",
+        "symbol-indexed"
       ],
-      "score": 475
-    },
-    {
-      "path": "tests/test_fairness.py",
-      "reasons": [
-        "dependency-neighbor"
-      ],
-      "score": 475
+      "score": 485
     },
     {
       "path": "tests/test_workflow_auto_wake_api.py",
@@ -83,27 +97,14 @@
         "selected-test",
         "symbol-indexed"
       ],
-      "score": 465
+      "score": 470
     },
     {
-      "path": "tests/test_dashboard_api.py",
+      "path": "src/production_os/api_auth.py",
       "reasons": [
-        "impact",
-        "reverse-dependency-neighbor",
-        "selected-test",
-        "symbol-indexed"
+        "dependency-neighbor"
       ],
-      "score": 360
-    },
-    {
-      "path": "tests/test_dashboard_launch_ux.py",
-      "reasons": [
-        "impact",
-        "reverse-dependency-neighbor",
-        "selected-test",
-        "symbol-indexed"
-      ],
-      "score": 320
+      "score": 375
     },
     {
       "path": "tests/test_dashboard_control_api.py",
@@ -113,85 +114,52 @@
         "selected-test",
         "symbol-indexed"
       ],
-      "score": 305
+      "score": 365
     },
     {
-      "path": "tests/test_dashboard_backup_api.py",
+      "path": "tests/test_managed_github_reconciliation.py",
       "reasons": [
         "impact",
         "reverse-dependency-neighbor",
         "selected-test",
         "symbol-indexed"
       ],
-      "score": 295
+      "score": 365
     },
     {
-      "path": "tests/test_worker_wake.py",
+      "path": "tests/test_autonomous_projects.py",
       "reasons": [
         "impact",
         "reverse-dependency-neighbor",
         "selected-test",
         "symbol-indexed"
       ],
-      "score": 285
+      "score": 355
     },
     {
-      "path": "src/production_os/remote_worker_runner.py",
+      "path": "tests/test_release_ledger.py",
       "reasons": [
         "dependency-neighbor",
-        "reverse-dependency-neighbor"
-      ],
-      "score": 280
-    },
-    {
-      "path": "tests/test_dashboard_remediation_api.py",
-      "reasons": [
         "impact",
         "reverse-dependency-neighbor",
         "selected-test",
         "symbol-indexed"
       ],
-      "score": 280
+      "score": 345
     },
     {
-      "path": "tests/test_control_plane.py",
+      "path": "src/production_os/workers.py",
       "reasons": [
-        "impact",
-        "reverse-dependency-neighbor",
-        "selected-test",
-        "symbol-indexed"
+        "dependency-neighbor"
       ],
-      "score": 275
+      "score": 325
     },
     {
-      "path": "tests/test_device_pairing.py",
+      "path": "tests/test_asset_forge.py",
       "reasons": [
-        "impact",
-        "reverse-dependency-neighbor",
-        "selected-test",
-        "symbol-indexed"
+        "dependency-neighbor"
       ],
-      "score": 275
-    },
-    {
-      "path": "tests/test_dashboard_incidents.py",
-      "reasons": [
-        "impact",
-        "reverse-dependency-neighbor",
-        "selected-test",
-        "symbol-indexed"
-      ],
-      "score": 270
-    },
-    {
-      "path": "tests/test_dashboard_launch.py",
-      "reasons": [
-        "impact",
-        "reverse-dependency-neighbor",
-        "selected-test",
-        "symbol-indexed"
-      ],
-      "score": 270
+      "score": 325
     },
     {
       "path": "tests/test_dashboard_observability_e2e.py",
@@ -201,57 +169,27 @@
         "selected-test",
         "symbol-indexed"
       ],
-      "score": 265
+      "score": 325
     },
     {
-      "path": "tests/test_dashboard_control_audit.py",
+      "path": "tests/test_managed_projects_v4.py",
       "reasons": [
         "impact",
         "reverse-dependency-neighbor",
         "selected-test",
         "symbol-indexed"
       ],
-      "score": 260
+      "score": 325
     },
     {
-      "path": "tests/test_dashboard_production_inbox.py",
+      "path": "tests/test_cooperative_managed_projects.py",
       "reasons": [
         "impact",
         "reverse-dependency-neighbor",
         "selected-test",
         "symbol-indexed"
       ],
-      "score": 260
-    },
-    {
-      "path": "tests/test_dashboard_retention_prune.py",
-      "reasons": [
-        "impact",
-        "reverse-dependency-neighbor",
-        "selected-test",
-        "symbol-indexed"
-      ],
-      "score": 260
-    },
-    {
-      "path": "tests/test_database_maintenance_lock.py",
-      "reasons": [
-        "impact",
-        "reverse-dependency-neighbor",
-        "selected-test",
-        "symbol-indexed"
-      ],
-      "score": 260
-    },
-    {
-      "path": "tests/test_native_browser_worker_e2e.py",
-      "reasons": [
-        "impact",
-        "reverse-dependency-neighbor",
-        "selected-test",
-        "symbol-indexed"
-      ],
-      "score": 260
+      "score": 320
     },
     {
       "path": "tests/test_dashboard_control_e2e.py",
@@ -261,44 +199,114 @@
         "selected-test",
         "symbol-indexed"
       ],
-      "score": 255
+      "score": 315
     },
     {
-      "path": "tests/test_release32_one_tap_e2e.py",
+      "path": "tests/test_release_postgres.py",
       "reasons": [
         "impact",
         "reverse-dependency-neighbor",
         "selected-test",
         "symbol-indexed"
       ],
-      "score": 255
+      "score": 310
     },
     {
-      "path": "src/production_os/sqlite_backend.py",
+      "path": "tests/test_agent_planning_policy.py",
+      "reasons": [
+        "impact",
+        "reverse-dependency-neighbor",
+        "selected-test",
+        "symbol-indexed"
+      ],
+      "score": 305
+    },
+    {
+      "path": "src/production_os/controller.py",
+      "reasons": [
+        "dependency-neighbor",
+        "impact",
+        "reverse-dependency-neighbor",
+        "symbol-indexed"
+      ],
+      "score": 300
+    },
+    {
+      "path": "src/production_os/release_ledger.py",
       "reasons": [
         "dependency-neighbor"
       ],
-      "score": 250
+      "score": 300
     },
     {
-      "path": "tests/test_control_plane_webhook.py",
+      "path": "tests/test_project_memory.py",
       "reasons": [
         "impact",
         "reverse-dependency-neighbor",
         "selected-test",
         "symbol-indexed"
       ],
-      "score": 250
+      "score": 300
     },
     {
-      "path": "tests/test_managed_projects_http_v4.py",
+      "path": "tests/test_dashboard_store_postgres.py",
       "reasons": [
         "impact",
         "reverse-dependency-neighbor",
         "selected-test",
         "symbol-indexed"
       ],
-      "score": 250
+      "score": 290
+    },
+    {
+      "path": "tests/test_portfolio_claim_api.py",
+      "reasons": [
+        "impact",
+        "reverse-dependency-neighbor",
+        "selected-test",
+        "symbol-indexed"
+      ],
+      "score": 290
+    },
+    {
+      "path": "tests/test_agent_benchmark.py",
+      "reasons": [
+        "impact",
+        "reverse-dependency-neighbor",
+        "selected-test",
+        "symbol-indexed"
+      ],
+      "score": 285
+    },
+    {
+      "path": "tests/test_control_plane_release.py",
+      "reasons": [
+        "impact",
+        "reverse-dependency-neighbor",
+        "selected-test",
+        "symbol-indexed"
+      ],
+      "score": 285
+    },
+    {
+      "path": "tests/test_cooperative_specialist_e2e.py",
+      "reasons": [
+        "impact",
+        "reverse-dependency-neighbor",
+        "selected-test",
+        "symbol-indexed"
+      ],
+      "score": 285
+    },
+    {
+      "path": "tests/test_incident_history.py",
+      "reasons": [
+        "impact",
+        "reverse-dependency-neighbor",
+        "selected-test",
+        "symbol-indexed"
+      ],
+      "score": 280
     }
   ],
   "generated_by": "dbrckk/repo-brain-v6",

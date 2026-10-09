@@ -5,26 +5,29 @@
     "example_count": 64,
     "rejected_count": 0,
     "terms": [
-      "256",
-      "after",
-      "auto-wake",
-      "completion",
-      "downstream",
-      "job",
+      "257",
+      "automatic",
+      "capacity",
+      "exhausted",
+      "is",
       "retries",
-      "tasks",
-      "worker"
+      "stop",
+      "task",
+      "when",
+      "worker",
+      "workflows"
     ],
     "test_count": 0,
-    "useful_count": 2
+    "useful_count": 3
   },
   "note": "Selected tests are routing hints; this artifact does not claim they executed successfully.",
   "rejected": [],
   "schema_version": 1,
-  "task": "fix(worker): auto-wake retries and downstream tasks after job completion (#256)",
+  "task": "fix(workflows): stop automatic task retries when worker capacity is exhausted (#257)",
   "tests_selected": [],
   "useful": [
-    "src/production_os/control_plane.py",
-    "tests/test_workflow_auto_wake_api.py"
+    "src/production_os/workflow_engine.py",
+    "tests/test_workflow_auto_wake_api.py",
+    "tests/test_workflow_engine.py"
   ]
 }

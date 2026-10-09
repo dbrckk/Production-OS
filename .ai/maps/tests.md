@@ -8371,6 +8371,13 @@ task = next(t for t in workflow["tasks"] if t["task_id"] == "build")
 ⋮----
 retry_job = control.queue.get(task["claimed_job_key"])
 ⋮----
+def test_worker_quota_exhaustion_marks_terminal_and_does_not_wake_retry(running_control)
+⋮----
+workflow=control.workflows.get(workflow_id)
+⋮----
+build=next(t for t in workflow["tasks"] if t["task_id"]=="build")
+review=next(t for t in workflow["tasks"] if t["task_id"]=="review")
+⋮----
 def test_downstream_task_wakes_after_success(running_control)
 ⋮----
 result = _post(base, "/v1/jobs/complete", "worker", {
@@ -8439,9 +8446,25 @@ def test_workflow_retry_budget(tmp_path)
 ⋮----
 current=wf.get(created["id"])["tasks"][0]
 ⋮----
-def test_downstream_job_receives_bounded_upstream_context(tmp_path)
+@pytest.mark.parametrize("raw_status", ["capacity_exhausted", " Capacity_Exhausted "])
+def test_structured_capacity_exhaustion_stops_unproductive_auto_retries(tmp_path, raw_status)
 ⋮----
 first=wf.dispatch_ready(created["id"])
+⋮----
+failed=wf.record_result(
+task=wf.get(created["id"])["tasks"][0]
+⋮----
+def test_bounded_session_or_transient_runner_error_still_auto_retries(tmp_path,status)
+⋮----
+old=wf.dispatch_ready(created["id"])
+⋮----
+def test_unstructured_quota_word_does_not_override_worker_status(tmp_path)
+⋮----
+def test_operator_may_relaunch_budget_blocked_task_with_spare_attempts(tmp_path)
+⋮----
+resumed=wf.retry_task(created["id"],"build")
+⋮----
+def test_downstream_job_receives_bounded_upstream_context(tmp_path)
 ⋮----
 review=next(
 ⋮----
