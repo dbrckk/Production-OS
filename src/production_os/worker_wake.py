@@ -1,9 +1,22 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import os
 
 AUTOMATIC_WAKE_WORKER_ID = "automatic-launch"
 DEFAULT_WAKE_COOLDOWN_SECONDS = 60
+
+# GitHub Actions workers exit after processing a bounded job. Their last
+# heartbeat may still be marked online for the registry timeout even though
+# no process remains to claim a newly queued task.
+DEFAULT_EPHEMERAL_WORKER_IDS = frozenset({"github-actions-worker"})
+
+
+def _ephemeral_worker_ids() -> set[str]:
+    configured = os.getenv("PRODUCTION_OS_EPHEMERAL_WORKER_IDS")
+    if configured is None:
+        return set(DEFAULT_EPHEMERAL_WORKER_IDS)
+    return {name.strip() for name in configured.split(",") if name.strip()}
 
 
 def _parse_timestamp(value):
@@ -73,6 +86,10 @@ def automatic_worker_wake_needed(
     if queued_jobs is None:
         return False
 
+    # Only *persistent workers with free slots* can be trusted to claim a
+    # future queued job without another dispatch. An Actions worker may have
+    # finished its one-shot process while its heartbeat remains "online".
+    ephemeral_worker_ids = _ephemeral_worker_ids()
     for job in queued_jobs:
         payload = job.get("payload") if isinstance(job, dict) else None
         if not isinstance(payload, dict):
@@ -89,6 +106,12 @@ def automatic_worker_wake_needed(
         for worker in online_workers:
             worker_id = str(getattr(worker, "worker_id", "") or "").strip()
             if assigned_worker and worker_id != assigned_worker:
+                continue
+            if worker_id in ephemeral_worker_ids:
+                continue
+            if int(getattr(worker, "active_tasks", 0) or 0) >= max(
+                1, int(getattr(worker, "max_concurrency", 1) or 1)
+            ):
                 continue
             capabilities = {
                 str(item).strip()
