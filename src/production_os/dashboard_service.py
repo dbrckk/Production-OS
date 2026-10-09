@@ -18,6 +18,7 @@ from .dashboard_maintenance import prune_expired_history, storage_maintenance_sn
 from .dashboard_backups import backup_readiness, backup_storage_inventory, create_verified_sqlite_backup, prune_expired_verified_backups, prune_stale_backup_temps, restore_activation_history, stage_verified_sqlite_restore, verify_backup_for_restore
 from .project_progress import ProjectProgressEngine, build_project_evidence, workflow_progress
 from .github_client import GitHubAPIError, GitHubClient
+from .worker_wake import _ephemeral_worker_ids
 
 
 class DashboardNotFound(KeyError):
@@ -861,10 +862,15 @@ class DashboardService:
             for worker in workers
             if worker.get("status") == "online"
         ]
+        # An Actions runner exits after its one-shot job, but its last
+        # heartbeat can remain "online" in the registry. It must not make
+        # launch readiness promise an immediate execution slot.
+        ephemeral_ids = _ephemeral_worker_ids()
         available = [
             worker
             for worker in online
-            if worker.get("desired_state") == "active"
+            if str(worker.get("worker_id") or "") not in ephemeral_ids
+            and worker.get("desired_state") == "active"
             and int(worker.get("active_tasks") or 0)
                 < int(worker.get("max_concurrency") or 0)
         ]

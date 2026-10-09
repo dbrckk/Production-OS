@@ -3,6 +3,8 @@
 Status: active
 
 ## Working
+- 2026-10-09 (branch `fix/actions-worker-push-fallback-readiness`): added a constrained Contents:write fallback for GitHub Actions 403/404 when waking `production-os-actions-worker.yml` on `main`. It writes a unique, non-secret request to the workflow's existing push trigger; success only confirms a GitHub commit, not a running worker.
+- Dashboard launch readiness now excludes configured ephemeral worker IDs from immediately available slots to avoid treating stale Actions heartbeats as active capacity.
 - Dashboard focused items now scroll into view once per navigation instead of every five-second refresh. Polling leaves the viewport alone when the user scrolls during a pending request.
 - Central repository standards are configured.
 - Compact AI context is generated through dbrckk/repo-standards.
@@ -16,6 +18,7 @@ Status: active
 - Dashboard pairing fixes remain in existing PRs #247 and #248; this change does not duplicate them.
 
 ## Current priority
+- Qualify the wake push fallback through canonical CI and a real remote canary; verify the token has Contents:write and confirm the worker completes a task. Do not claim remote execution success before observing it.
 - Qualify a dedicated Asset Forge dispatch credential and a successful live visual job. The Actions worker now has a separate token path; repository permissions still need live verification.
 - Merge the dashboard scroll fix and verify the deployed page. Continue the worker's remote persistence diagnosis and a successful real coding run.
 - Deploy worker queue diagnostics, identify the actual live queue blocker and validate a real coding job.

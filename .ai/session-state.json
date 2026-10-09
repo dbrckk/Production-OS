@@ -1,46 +1,27 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-04",
-  "objective": "Make the Production-OS worker and production chain functional, including cross-repository Asset Forge dispatch.",
-  "base_commit": "0cd540d4",
-  "branch": "fix/dashboard-scroll",
+  "updated_at": "2026-10-09",
+  "objective": "Make Production-OS production launches reliably dispatch real AI Dev Server work using free/available GitHub permissions, with honest readiness reporting.",
+  "base_commit": "c0e9d6c64929424de46f13ffcb9ae0c8e6b623a4",
+  "branch": "fix/actions-worker-push-fallback-readiness",
   "changes": [
-    "Isolate controller cycle error metrics, runtime-state reads, and health publication from daemon retry and bounded-run error handling.",
-    "Recognize PostgreSQL URI and libpq keyword DSNs consistently for backend selection, locks, and CLI diagnostics.",
-    "Upgrade PostgreSQL to schema 19 with release transparency and trust incident tables.",
-    "Serialize concurrent PostgreSQL ledger appends and support legacy HMAC releases in trust inspection.",
-    "Require the production-stack E2E test to assert its actual PostgreSQL backend.",
-    "Scroll to a focused production, managed project, or job only once per navigation; do not force scroll restoration if the user moved during a fetch."
+    "Handle GitHub Actions 403/404 by committing a unique, non-secret wake request to the AI Dev Server workflow's existing main-branch push trigger when Contents:write is available.",
+    "Do not count ephemeral GitHub Actions workers as immediately available in launch readiness.",
+    "Document exact permissions, status semantics, and real canary requirement."
   ],
   "validation": {
-    "controller_regressions_before_fix": "10 failed, 1 passed",
-    "routing_regressions_before_fix": "9 failed, 8 passed",
-    "real_postgres_e2e_before_schema_fix": "failed on missing transparency_log",
-    "final_full_suite_postgres16": "1290 passed, none skipped",
-    "compile": "passed with SyntaxWarning treated as error",
-    "distribution_build": "sdist and wheel passed",
-    "isolated_wheel": "CLI passed; keyword DSN without PostgreSQL extra raises explicit support error and creates no SQLite files",
-    "queue_diagnostics": "7 availability API tests passed; broader selected server tests recorded in /tmp/server-queue-validation.log",
-    "dashboard_scroll": "124 selected dashboard tests passed, including Node VM behavior for one-time focus and user scrolling during polling; all three CI jobs required a legacy static assertion update"
+    "main_head_ci": "success on c0e9d6c64929424de46f13ffcb9ae0c8e6b623a4, before this branch",
+    "branch_ci": "pending",
+    "real_push_fallback": "not yet verified",
+    "real_coding_canary": "not yet verified"
   },
   "remaining": [
-    "Verify deployment of dashboard scroll fix after merge",
-    "Verify a successful real coding worker run after remote persistence diagnosis",
-    "Remote Asset Forge Actions dispatch authorization unavailable"
+    "Open PR; verify canonical CI on branch and exact merged head before release.",
+    "Verify a real worker canary and production deployment after merge; credentials are not readable via repository.",
+    "Confirm Github token grants Contents:write to dbrckk/ai-dev-server when Actions:write is missing.",
+    "Confirm Asset Forge live generation and artifact delivery."
   ],
-  "merged_pr": {
-    "number": 250,
-    "commit": "4f547bed6c97c7c2a024400af0c604ae854da75d"
-  },
-  "deployment": {
-    "service": "production-os1",
-    "id": "dep-db0uihnf3r2c73berho0",
-    "status": "live",
-    "healthz": 200,
-    "readyz": 200,
-    "database": "reachable"
-  },
   "current_work": [
-    "Route remote Asset Forge probes and dispatches through an optional dedicated GitHub token while retaining the ordinary token for target repository delivery."
+    "Complete review and CI of Actions Contents:write fallback and truthful launch readiness."
   ]
 }
