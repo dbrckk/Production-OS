@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 import json
+import re
+from urllib.parse import urlsplit
 from uuid import uuid4
 
 from .workflow_engine import WorkflowEngine, WorkflowTaskSpec, _execute
@@ -191,6 +193,29 @@ def _result_evidence(result: dict) -> dict:
     return evidence if isinstance(evidence, dict) else {}
 
 
+def _safe_github_review_url(value) -> str | None:
+    """Only expose real GitHub compare pages; treat worker evidence as untrusted."""
+    if not isinstance(value, str) or len(value) > 2048:
+        return None
+    try:
+        parsed = urlsplit(value)
+    except ValueError:
+        return None
+    if (
+        parsed.scheme != "https"
+        or parsed.netloc != "github.com"
+        or parsed.fragment
+        or parsed.query not in {"", "expand=1"}
+        or not re.fullmatch(
+            r"/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/compare/"
+            r"[A-Za-z0-9_.%-]+\.\.\.[A-Za-z0-9_./%-]+",
+            parsed.path,
+        )
+    ):
+        return None
+    return value
+
+
 def _outcome_from_workflow(workflow: dict | None) -> dict:
     if not isinstance(workflow, dict):
         return {
@@ -348,6 +373,26 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
         number = None
     if number is not None or state is not None:
         pull_request = {"number":number, "state":state}
+        if isinstance(pr, dict) and state == "unavailable":
+            reason = str(pr.get("reason") or "").strip()
+            if reason in {"pull_request_write_denied", "pull_request_unavailable"}:
+                pull_request["reason"] = reason
+            review_url = _safe_github_review_url(pr.get("compare_url"))
+            if review_url is not None:
+                pull_request["compare_url"] = review_url
+
+    delivery_status = None
+    release_status = None
+    for item in reversed(results):
+        item_evidence = _result_evidence(item)
+        if delivery_status is None:
+            candidate = item_evidence.get("delivery_status") or item.get("delivery_status")
+            if candidate in {"review_blocked", "pull_request_open"}:
+                delivery_status = candidate
+        if release_status is None:
+            candidate = item_evidence.get("release_status") or item.get("release_status")
+            if candidate in {"verified_branch_review_blocked", "verified_project_complete"}:
+                release_status = candidate
 
     raw_ci = None
     for item in reversed(results):
@@ -585,6 +630,8 @@ def _outcome_from_workflow(workflow: dict | None) -> dict:
         "artifact_names":artifact_names,
         "changed_file_count":changed_file_count,
         "pull_request":pull_request,
+        **({"delivery_status":delivery_status} if delivery_status is not None else {}),
+        **({"release_status":release_status} if release_status is not None else {}),
         "ci":ci,
         "browser_validation":browser_validation,
         "mobile_validation":mobile_validation,

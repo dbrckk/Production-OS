@@ -1,19 +1,21 @@
 {
   "schema_version": 1,
   "updated_at": "2026-10-09",
-  "objective": "Make Production-OS production launches reliably dispatch real AI Dev Server work using free/available GitHub permissions, with honest readiness reporting.",
-  "base_commit": "c0e9d6c64929424de46f13ffcb9ae0c8e6b623a4",
-  "branch": "fix/actions-worker-push-fallback-readiness",
+  "objective": "Expose successful but not fully delivered AI Dev Server coding checkpoints when GitHub target PR creation fails.",
+  "base_commit": "5c7acfcf6946584d054c7fca0d5fe81de40f6408",
+  "branch": "fix/dashboard-pr-review-recovery-link",
   "changes": [
-    "Handle GitHub Actions 403/404 by committing a unique, non-secret wake request to the AI Dev Server workflow's existing main-branch push trigger when Contents:write is available.",
-    "Do not count ephemeral GitHub Actions workers as immediately available in launch readiness.",
-    "Document exact permissions, status semantics, and real canary requirement."
+    "Allowlist GitHub compare URLs in PR evidence and surface structured review recovery links",
+    "Render blocked-PR warning and a manual review link in the production outcome dashboard",
+    "Document that implementation completion does not certify release or merge"
   ],
   "validation": {
     "main_head_ci": "success on c0e9d6c64929424de46f13ffcb9ae0c8e6b623a4, before this branch",
     "branch_ci": "pending",
     "real_push_fallback": "not yet verified",
-    "real_coding_canary": "not yet verified"
+    "real_coding_canary": "not yet verified",
+    "review_link_ui": "pending GitHub CI",
+    "canary17": "real successful checkpoint, PR HTTP 403"
   },
   "remaining": [
     "Open PR; verify canonical CI on branch and exact merged head before release.",
@@ -22,6 +24,7 @@
     "Confirm Asset Forge live generation and artifact delivery."
   ],
   "current_work": [
-    "Complete review and CI of Actions Contents:write fallback and truthful launch readiness."
+    "Validate and merge companion AI Dev Server PR #278, then Production-OS dashboard PR and qualify merged-head CI",
+    "Confirm GitHub Pull requests:write on target repositories before expecting automatic delivery"
   ]
 }

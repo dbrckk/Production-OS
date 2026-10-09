@@ -3,6 +3,7 @@
 Status: active
 
 ## Working
+- 2026-10-09: live AI Dev Server canary 17 finished and published commit `b82a9e2` in `dbrckk/repo-standards`, but PR creation returned HTTP 403. Dashboard outcome now preserves only a validated GitHub compare URL and a clear review-blocked delivery warning when available. Matching worker result contract is in `dbrckk/ai-dev-server` PR #278; these branches still require passing CI before release.
 - 2026-10-09 (branch `fix/actions-worker-push-fallback-readiness`): added a constrained Contents:write fallback for GitHub Actions 403/404 when waking `production-os-actions-worker.yml` on `main`. It writes a unique, non-secret request to the workflow's existing push trigger; success only confirms a GitHub commit, not a running worker.
 - Dashboard launch readiness now excludes configured ephemeral worker IDs from immediately available slots to avoid treating stale Actions heartbeats as active capacity.
 - Dashboard focused items now scroll into view once per navigation instead of every five-second refresh. Polling leaves the viewport alone when the user scrolls during a pending request.
