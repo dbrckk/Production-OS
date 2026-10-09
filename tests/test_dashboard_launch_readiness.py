@@ -28,6 +28,11 @@ def test_launch_readiness_distinguishes_immediate_execution_from_safe_queue(tmp_
     assert queued["worker_wake"] == {
         "mode":"scheduled_fallback",
         "poll_interval_seconds":300,
+        "missing_configuration":[
+            "GITHUB_TOKEN",
+            "PRODUCTION_OS_ACTIONS_REPOSITORY",
+            "PRODUCTION_OS_ACTIONS_WORKFLOW",
+        ],
     }
 
     service.workers = lambda: {
@@ -118,4 +123,5 @@ def test_launch_readiness_reports_immediate_worker_wake_configuration(tmp_path):
     assert result["worker_wake"] == {
         "mode":"immediate",
         "poll_interval_seconds":None,
+        "missing_configuration":[],
     }
