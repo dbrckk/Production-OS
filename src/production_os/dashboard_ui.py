@@ -2149,11 +2149,19 @@ function renderProductionOutcome(outcome,includeSummary){
  );
  const pr=value.pull_request||null;
  if(pr&&(pr.number!=null||pr.state)){
+  const blocked=pr.state==="unavailable";
+  const reviewLink=blocked&&typeof pr.compare_url==="string"
+   ?'<a href="'+esc(pr.compare_url)+'" target="_blank" rel="noopener noreferrer">Ouvrir la comparaison GitHub et créer la PR</a>'
+   :"";
   parts.push(
    "<strong>PR :</strong> "+
    (pr.number!=null?"#"+esc(String(pr.number)):"")+
-   (pr.state?" · "+esc(String(pr.state)):"")
+   (blocked?" · revue non créée (autorisation GitHub manquante)":pr.state?" · "+esc(String(pr.state)):"")+
+   (reviewLink?" · "+reviewLink:"")
   );
+ }
+ if(value.delivery_status==="review_blocked"){
+  parts.push("<strong>Livraison :</strong> code vérifié sur une branche, PR à créer avant toute fusion.");
  }
  const ci=value.ci||null;
  if(ci){
