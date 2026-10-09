@@ -5,3564 +5,59 @@
   "semantic": false,
   "note": "Dependencies are known symbol names lexically present inside the symbol's AST/source range.",
   "symbols": {
-    "_remote_github_client": {
+    "_ephemeral_worker_ids": {
       "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 24,
-        "end": 27
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubClient",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 21,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "probe_asset_forge_remote_dispatch": {
-      "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 30,
-        "end": 43
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubClient",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 21,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_remote_github_client",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 24,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "can_dispatch_workflow",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 271,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "can_write_contents",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 304,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "repository",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 83,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 5
-    },
-    "AssetForgeDispatch": {
-      "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 47,
-        "end": 70
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "repository",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 83,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "to_dict",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 58,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "to_dict": {
-      "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 58,
-        "end": 178
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_request_fingerprint",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 152,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "build_asset_forge_request",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 73,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "repository",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 83,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "build_asset_forge_request": {
-      "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 73,
-        "end": 147
+        "file": "src/production_os/worker_wake.py",
+        "start": 15,
+        "end": 19
       },
       "symbol_dependencies": [],
       "dependency_count": 0
     },
-    "_request_fingerprint": {
+    "_parse_timestamp": {
       "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 152,
-        "end": 178
+        "file": "src/production_os/worker_wake.py",
+        "start": 22,
+        "end": 29
       },
       "symbol_dependencies": [],
       "dependency_count": 0
     },
-    "_sidecar_relative_path": {
+    "automatic_worker_wake_allowed": {
       "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 181,
-        "end": 182
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "_cached_worktree_asset": {
-      "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 185,
-        "end": 213
+        "file": "src/production_os/worker_wake.py",
+        "start": 32,
+        "end": 50
       },
       "symbol_dependencies": [
         {
-          "symbol": "_sidecar_relative_path",
+          "symbol": "_parse_timestamp",
           "definitions": [
             {
-              "file": "src/production_os/asset_forge.py",
-              "line": 181,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "_version_sidecar": {
-      "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 216,
-        "end": 253
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "_validated_artifact": {
-      "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 256,
-        "end": 271
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "_deliver_artifact": {
-      "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 274,
-        "end": 307
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubClient",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 21,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "put_file",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 213,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "repository",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 83,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "execute_asset_forge": {
-      "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 310,
-        "end": 421
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "AssetForgeDispatch",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 47,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "GitHubClient",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 21,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_deliver_artifact",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 274,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_validated_artifact",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 256,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "dispatch_asset_forge",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 1145,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "repository",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 83,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 6
-    },
-    "_batch_item_id": {
-      "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 423,
-        "end": 430
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "_order_asset_batch": {
-      "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 433,
-        "end": 486
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_batch_item_id",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 423,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "_extract_remote_batch_bundle": {
-      "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 490,
-        "end": 519
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "_produce_asset_forge_batch_remote": {
-      "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 522,
-        "end": 719
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubClient",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 21,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_extract_remote_batch_bundle",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 490,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_remote_github_client",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 24,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request_fingerprint",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 152,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "can_dispatch_workflow",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 271,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "can_write_contents",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 304,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "dispatch_workflow",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 254,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "download_workflow_artifact",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 378,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "put_file",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 213,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "repository",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 83,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "wait_for_workflow_run",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 342,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "workflow_run_artifacts",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 367,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 12
-    },
-    "_hex_hash_similarity": {
-      "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 723,
-        "end": 735
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "_rgb_distance": {
-      "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 738,
-        "end": 747
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "_asset_ancestors": {
-      "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 750,
-        "end": 768
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "visit",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 757,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "visit": {
-      "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 757,
-        "end": 877
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubClient",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 21,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_asset_ancestors",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 750,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_dedup_summary",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 771,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_hex_hash_similarity",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 723,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_order_asset_batch",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 433,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_produce_asset_forge_batch_remote",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 522,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_rgb_distance",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 738,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "execute_asset_forge_batch",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 832,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 8
-    },
-    "_dedup_summary": {
-      "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 771,
-        "end": 829
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_asset_ancestors",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 750,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_hex_hash_similarity",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 723,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_rgb_distance",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 738,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "execute_asset_forge_batch": {
-      "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 832,
-        "end": 1142
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubClient",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 21,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_cached_worktree_asset",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 185,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_dedup_summary",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 771,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_order_asset_batch",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 433,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_produce_asset_forge_batch_remote",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 522,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request_fingerprint",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 152,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_sidecar_relative_path",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 181,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_validated_artifact",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 256,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_version_sidecar",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 216,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "commit_files",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 128,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "execute_asset_forge",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 310,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "read_json_file",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 707,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 12
-    },
-    "dispatch_asset_forge": {
-      "source": {
-        "file": "src/production_os/asset_forge.py",
-        "start": 1145,
-        "end": 1180
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "AssetForgeDispatch",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 47,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "GitHubClient",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 21,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_remote_github_client",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 24,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "dispatch_workflow",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 254,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "repository",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 83,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 5
-    },
-    "GitHubAPIError": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 17,
-        "end": 18
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "GitHubClient": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 21,
-        "end": 866
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "RepoEvidence",
-          "definitions": [
-            {
-              "file": "src/production_os/models.py",
-              "line": 8,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "StripCredentialRedirect",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 397,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "TreeSamplePolicy",
-          "definitions": [
-            {
-              "file": "src/production_os/source_tree.py",
-              "line": 18,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_collect_source_documents",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 742,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_contents",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 680,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_headers",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 28,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_latest_workflow_run",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 717,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_read_text",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 691,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_recursive_tree_paths",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 728,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 57,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request_json_with_headers",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "can_dispatch_workflow",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 271,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "can_write_contents",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 304,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "collect_evidence",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 789,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "commit_files",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 128,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "default_branch_commit_count",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 89,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "dispatch_workflow",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 254,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "download_workflow_artifact",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 378,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_branch_protection",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 425,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_branch_required_checks",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 441,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_commit_check_runs",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 616,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_commit_statuses",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 604,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_commit_workflow_runs",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 592,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_issue",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 473,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_pull_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 480,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_pull_request_file_details",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 533,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_pull_request_reviews",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 487,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "is_candidate_file",
-          "definitions": [
-            {
-              "file": "src/production_os/source_tree.py",
-              "line": 24,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "latest_ci_status",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 122,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "latest_commit",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 117,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "latest_release",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 108,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "list_accessible_repositories",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 628,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "list_pull_request_files",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 577,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "list_repositories",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 664,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "merge_pull_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 495,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "open_pull_request_count",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 102,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "path_priority",
-          "definitions": [
-            {
-              "file": "src/production_os/source_tree.py",
-              "line": 39,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "put_file",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 213,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 40
-    },
-    "__init__": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 24,
-        "end": 144
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_headers",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 28,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_latest_workflow_run",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 717,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 57,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request_json_with_headers",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "commit_files",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 128,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "default_branch_commit_count",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 89,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "latest_ci_status",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 122,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "latest_commit",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 117,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "latest_release",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 108,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "open_pull_request_count",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 102,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "repository",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 83,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 13
-    },
-    "_headers": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 28,
-        "end": 34
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "_request_json_with_headers": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 36,
-        "end": 51
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_headers",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 28,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "_get": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 53,
-        "end": 55
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_headers",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 28,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request_json_with_headers",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "_request": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 57,
-        "end": 81
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "repository": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 83,
-        "end": 87
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "default_branch_commit_count": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 89,
-        "end": 100
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request_json_with_headers",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 36,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "open_pull_request_count": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 102,
-        "end": 106
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "latest_release": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 108,
-        "end": 115
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "latest_commit": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 117,
-        "end": 120
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "latest_ci_status": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 122,
-        "end": 126
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_latest_workflow_run",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 717,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "commit_files": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 128,
-        "end": 210
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 57,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "repository",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 83,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "put_file": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 213,
-        "end": 251
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 57,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "repository",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 83,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 4
-    },
-    "dispatch_workflow": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 254,
-        "end": 269
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 57,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "can_dispatch_workflow": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 271,
-        "end": 302
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 57,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "can_write_contents": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 304,
-        "end": 321
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 57,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "repository",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 83,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "workflow_runs": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 326,
-        "end": 340
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "wait_for_workflow_run": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 342,
-        "end": 365
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "workflow_runs",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 326,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "workflow_run_artifacts": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 367,
-        "end": 376
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "download_workflow_artifact": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 378,
-        "end": 423
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "StripCredentialRedirect",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 397,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "redirect_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 398,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "StripCredentialRedirect": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 397,
-        "end": 517
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_branch_protection",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 425,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_branch_required_checks",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 441,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_issue",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 473,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_pull_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 480,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_pull_request_reviews",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 487,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "merge_pull_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 495,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "redirect_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 398,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 9
-    },
-    "redirect_request": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 398,
-        "end": 518
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "StripCredentialRedirect",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 397,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_branch_protection",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 425,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_branch_required_checks",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 441,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_issue",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 473,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_pull_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 480,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "get_pull_request_reviews",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 487,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "merge_pull_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 495,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 9
-    },
-    "get_branch_protection": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 425,
-        "end": 439
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "get_branch_required_checks": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 441,
-        "end": 471
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "get_issue": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 473,
-        "end": 478
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "get_pull_request": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 480,
-        "end": 485
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "get_pull_request_reviews": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 487,
-        "end": 492
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "merge_pull_request": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 495,
-        "end": 530
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_request",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 57,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "get_pull_request_file_details": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 533,
-        "end": 575
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "list_pull_request_files": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 577,
-        "end": 590
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "get_pull_request_file_details",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 533,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "get_commit_workflow_runs": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 592,
-        "end": 602
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "workflow_runs",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 326,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "get_commit_statuses": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 604,
-        "end": 614
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "get_commit_check_runs": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 616,
-        "end": 626
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "list_accessible_repositories": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 628,
-        "end": 662
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "list_repositories",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 664,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "list_repositories": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 664,
-        "end": 678
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "_contents": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 680,
-        "end": 689
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "_read_text": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 691,
-        "end": 705
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "read_json_file": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 707,
-        "end": 715
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "_read_text",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 691,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "_latest_workflow_run": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 717,
-        "end": 726
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "workflow_runs",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 326,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "_recursive_tree_paths": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 728,
-        "end": 740
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "GitHubAPIError",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 17,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_get",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 53,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "_collect_source_documents": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 742,
-        "end": 787
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "TreeSamplePolicy",
-          "definitions": [
-            {
-              "file": "src/production_os/source_tree.py",
-              "line": 18,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_read_text",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 691,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_recursive_tree_paths",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 728,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "is_candidate_file",
-          "definitions": [
-            {
-              "file": "src/production_os/source_tree.py",
-              "line": 24,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "path_priority",
-          "definitions": [
-            {
-              "file": "src/production_os/source_tree.py",
-              "line": 39,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 5
-    },
-    "collect_evidence": {
-      "source": {
-        "file": "src/production_os/github_client.py",
-        "start": 789,
-        "end": 866
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "RepoEvidence",
-          "definitions": [
-            {
-              "file": "src/production_os/models.py",
-              "line": 8,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "_collect_source_documents",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 742,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_contents",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 680,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_latest_workflow_run",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 717,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "_read_text",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 691,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "latest_ci_status",
-          "definitions": [
-            {
-              "file": "src/production_os/github_client.py",
-              "line": 122,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 6
-    },
-    "FakeGitHub": {
-      "source": {
-        "file": "tests/test_asset_forge.py",
-        "start": 13,
-        "end": 75
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "can_dispatch_workflow",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 19,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "can_write_contents",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
+              "file": "src/production_os/worker_wake.py",
               "line": 22,
               "kind": "function",
               "language": "python"
             }
           ],
           "relation": "same_file"
-        },
-        {
-          "symbol": "commit_files",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 68,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "dispatch_workflow",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 25,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "download_workflow_artifact",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 50,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "put_file",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 55,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "read_json_file",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 65,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "wait_for_workflow_run",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 34,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "workflow_run_artifacts",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 42,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 9
-    },
-    "test_build_asset_forge_request": {
-      "source": {
-        "file": "tests/test_asset_forge.py",
-        "start": 78,
-        "end": 91
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "build_asset_forge_request",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 73,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
         }
       ],
       "dependency_count": 1
     },
-    "test_dispatch_asset_forge_uses_existing_workflow_contract": {
+    "automatic_worker_wake_needed": {
       "source": {
-        "file": "tests/test_asset_forge.py",
-        "start": 94,
-        "end": 111
+        "file": "src/production_os/worker_wake.py",
+        "start": 53,
+        "end": 127
       },
       "symbol_dependencies": [
         {
-          "symbol": "FakeGitHub",
+          "symbol": "_ephemeral_worker_ids",
           "definitions": [
             {
-              "file": "tests/test_asset_forge.py",
-              "line": 13,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "build_asset_forge_request",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 73,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "dispatch_asset_forge",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 1145,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 3
-    },
-    "test_execute_asset_forge_auto_prefers_local_cli": {
-      "source": {
-        "file": "tests/test_asset_forge.py",
-        "start": 114,
-        "end": 145
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "Result",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 133,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 184,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 225,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 287,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 354,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "build_asset_forge_request",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 73,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "execute_asset_forge",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 310,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "fake_run",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 125,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 176,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 217,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 276,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 339,
+              "file": "src/production_os/worker_wake.py",
+              "line": 15,
               "kind": "function",
               "language": "python"
             }
@@ -3570,293 +65,203 @@
           "relation": "same_file"
         }
       ],
-      "dependency_count": 4
+      "dependency_count": 1
     },
-    "fake_run": {
+    "request_automatic_worker_wake": {
       "source": {
-        "file": "tests/test_asset_forge.py",
+        "file": "src/production_os/worker_wake.py",
+        "start": 130,
+        "end": 179
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "automatic_worker_wake_allowed",
+          "definitions": [
+            {
+              "file": "src/production_os/worker_wake.py",
+              "line": 32,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "automatic_worker_wake_needed",
+          "definitions": [
+            {
+              "file": "src/production_os/worker_wake.py",
+              "line": 53,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "test_shared_wake_dispatches_and_audits_when_no_worker_is_registered": {
+      "source": {
+        "file": "tests/test_worker_wake.py",
+        "start": 5,
+        "end": 31
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ControlPlane",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "request_automatic_worker_wake",
+          "definitions": [
+            {
+              "file": "src/production_os/worker_wake.py",
+              "line": 130,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "test_shared_wake_respects_online_worker_and_operator_pause": {
+      "source": {
+        "file": "tests/test_worker_wake.py",
+        "start": 34,
+        "end": 63
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ControlPlane",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "request_automatic_worker_wake",
+          "definitions": [
+            {
+              "file": "src/production_os/worker_wake.py",
+              "line": 130,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "test_shared_wake_uses_durable_cooldown": {
+      "source": {
+        "file": "tests/test_worker_wake.py",
+        "start": 66,
+        "end": 92
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ControlPlane",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "request_automatic_worker_wake",
+          "definitions": [
+            {
+              "file": "src/production_os/worker_wake.py",
+              "line": 130,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "test_shared_wake_does_not_fail_durable_work_when_audit_write_fails": {
+      "source": {
+        "file": "tests/test_worker_wake.py",
+        "start": 95,
+        "end": 121
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ControlPlane",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "request_automatic_worker_wake",
+          "definitions": [
+            {
+              "file": "src/production_os/worker_wake.py",
+              "line": 130,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "test_shared_wake_dispatches_when_online_worker_lacks_required_capability": {
+      "source": {
+        "file": "tests/test_worker_wake.py",
         "start": 125,
-        "end": 245
+        "end": 153
       },
       "symbol_dependencies": [
         {
-          "symbol": "FakeGitHub",
+          "symbol": "ControlPlane",
           "definitions": [
             {
-              "file": "tests/test_asset_forge.py",
-              "line": 13,
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
               "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "Result",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 133,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 184,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 225,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 287,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 354,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "build_asset_forge_request",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 73,
-              "kind": "function",
               "language": "python"
             }
           ],
           "relation": "imported_module"
         },
         {
-          "symbol": "execute_asset_forge",
+          "symbol": "request_automatic_worker_wake",
           "definitions": [
             {
-              "file": "src/production_os/asset_forge.py",
-              "line": 310,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "test_execute_asset_forge_auto_falls_back_to_github",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 148,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "test_execute_asset_forge_delivers_to_worktree",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 164,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "test_execute_asset_forge_delivers_with_existing_github_client",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 205,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 7
-    },
-    "Result": {
-      "source": {
-        "file": "tests/test_asset_forge.py",
-        "start": 133,
-        "end": 253
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "FakeGitHub",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 13,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "build_asset_forge_request",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 73,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "execute_asset_forge",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 310,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "fake_run",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 125,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 176,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 217,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 276,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 339,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "test_execute_asset_forge_auto_falls_back_to_github",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 148,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "test_execute_asset_forge_batch_delivers_only_after_all_validate",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 248,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "test_execute_asset_forge_delivers_to_worktree",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 164,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "test_execute_asset_forge_delivers_with_existing_github_client",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 205,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 8
-    },
-    "test_execute_asset_forge_auto_falls_back_to_github": {
-      "source": {
-        "file": "tests/test_asset_forge.py",
-        "start": 148,
-        "end": 161
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "FakeGitHub",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 13,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "build_asset_forge_request",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 73,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "execute_asset_forge",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 310,
+              "file": "src/production_os/worker_wake.py",
+              "line": 130,
               "kind": "function",
               "language": "python"
             }
@@ -3864,715 +269,347 @@
           "relation": "imported_module"
         }
       ],
-      "dependency_count": 3
+      "dependency_count": 2
     },
-    "test_execute_asset_forge_delivers_to_worktree": {
+    "test_shared_wake_skips_when_online_worker_can_claim_all_queued_work": {
       "source": {
-        "file": "tests/test_asset_forge.py",
-        "start": 164,
-        "end": 202
+        "file": "tests/test_worker_wake.py",
+        "start": 156,
+        "end": 188
       },
       "symbol_dependencies": [
         {
-          "symbol": "Result",
+          "symbol": "ControlPlane",
           "definitions": [
             {
-              "file": "tests/test_asset_forge.py",
-              "line": 133,
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
               "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 184,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 225,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 287,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 354,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "build_asset_forge_request",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 73,
-              "kind": "function",
               "language": "python"
             }
           ],
           "relation": "imported_module"
         },
         {
-          "symbol": "execute_asset_forge",
+          "symbol": "request_automatic_worker_wake",
           "definitions": [
             {
-              "file": "src/production_os/asset_forge.py",
-              "line": 310,
+              "file": "src/production_os/worker_wake.py",
+              "line": 130,
               "kind": "function",
               "language": "python"
             }
           ],
           "relation": "imported_module"
-        },
-        {
-          "symbol": "fake_run",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 125,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 176,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 217,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 276,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 339,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
         }
       ],
-      "dependency_count": 4
+      "dependency_count": 2
     },
-    "test_execute_asset_forge_delivers_with_existing_github_client": {
+    "test_shared_wake_respects_assigned_worker_when_evaluating_compatibility": {
       "source": {
-        "file": "tests/test_asset_forge.py",
-        "start": 205,
-        "end": 245
+        "file": "tests/test_worker_wake.py",
+        "start": 191,
+        "end": 231
       },
       "symbol_dependencies": [
         {
-          "symbol": "FakeGitHub",
+          "symbol": "ControlPlane",
           "definitions": [
             {
-              "file": "tests/test_asset_forge.py",
-              "line": 13,
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
               "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "Result",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 133,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 184,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 225,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 287,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 354,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "build_asset_forge_request",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 73,
-              "kind": "function",
               "language": "python"
             }
           ],
           "relation": "imported_module"
         },
         {
-          "symbol": "execute_asset_forge",
+          "symbol": "request_automatic_worker_wake",
           "definitions": [
             {
-              "file": "src/production_os/asset_forge.py",
-              "line": 310,
+              "file": "src/production_os/worker_wake.py",
+              "line": 130,
               "kind": "function",
               "language": "python"
             }
           ],
           "relation": "imported_module"
-        },
-        {
-          "symbol": "fake_run",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 125,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 176,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 217,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 276,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 339,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
         }
       ],
-      "dependency_count": 5
+      "dependency_count": 2
     },
-    "test_execute_asset_forge_batch_delivers_only_after_all_validate": {
+    "test_control_plane_wake_checks_all_queued_capability_requirements": {
       "source": {
-        "file": "tests/test_asset_forge.py",
-        "start": 248,
-        "end": 304
+        "file": "tests/test_worker_wake.py",
+        "start": 234,
+        "end": 261
       },
       "symbol_dependencies": [
         {
-          "symbol": "Result",
+          "symbol": "ControlPlane",
           "definitions": [
             {
-              "file": "tests/test_asset_forge.py",
-              "line": 133,
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
               "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 184,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 225,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 287,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 354,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "build_asset_forge_request",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 73,
-              "kind": "function",
               "language": "python"
             }
           ],
           "relation": "imported_module"
         },
         {
-          "symbol": "execute_asset_forge_batch",
+          "symbol": "ensure_worker_for_queued_work",
           "definitions": [
             {
-              "file": "src/production_os/asset_forge.py",
-              "line": 832,
+              "file": "src/production_os/control_plane.py",
+              "line": 249,
               "kind": "function",
               "language": "python"
             }
           ],
           "relation": "imported_module"
-        },
-        {
-          "symbol": "fake_run",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 125,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 176,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 217,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 276,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 339,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
         }
       ],
-      "dependency_count": 4
+      "dependency_count": 2
     },
-    "test_execute_asset_forge_batch_aborts_delivery_when_one_asset_fails": {
+    "test_control_plane_wake_ignores_cancel_requested_jobs": {
       "source": {
-        "file": "tests/test_asset_forge.py",
-        "start": 307,
+        "file": "tests/test_worker_wake.py",
+        "start": 265,
+        "end": 293
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ControlPlane",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "ensure_worker_for_queued_work",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 249,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "test_control_plane_wake_ignores_stale_workflow_generation": {
+      "source": {
+        "file": "tests/test_worker_wake.py",
+        "start": 296,
+        "end": 324
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ControlPlane",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "ensure_worker_for_queued_work",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 249,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "test_queued_job_wakes_short_lived_actions_worker_despite_online_heartbeat": {
+      "source": {
+        "file": "tests/test_worker_wake.py",
+        "start": 327,
+        "end": 352
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ControlPlane",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "request_automatic_worker_wake",
+          "definitions": [
+            {
+              "file": "src/production_os/worker_wake.py",
+              "line": 130,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "test_actions_worker_with_no_queued_work_needs_no_wake": {
+      "source": {
+        "file": "tests/test_worker_wake.py",
+        "start": 355,
         "end": 374
       },
       "symbol_dependencies": [
         {
-          "symbol": "Failed",
+          "symbol": "ControlPlane",
           "definitions": [
             {
-              "file": "tests/test_asset_forge.py",
-              "line": 345,
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
               "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "Result",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 133,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 184,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 225,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 287,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 354,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "build_asset_forge_request",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 73,
-              "kind": "function",
               "language": "python"
             }
           ],
           "relation": "imported_module"
         },
         {
-          "symbol": "execute_asset_forge_batch",
+          "symbol": "request_automatic_worker_wake",
           "definitions": [
             {
-              "file": "src/production_os/asset_forge.py",
-              "line": 832,
+              "file": "src/production_os/worker_wake.py",
+              "line": 130,
               "kind": "function",
               "language": "python"
             }
           ],
           "relation": "imported_module"
-        },
-        {
-          "symbol": "fake_run",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 125,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 176,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 217,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 276,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 339,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
         }
       ],
-      "dependency_count": 5
+      "dependency_count": 2
     },
-    "Failed": {
+    "test_busy_persistent_worker_cannot_suppress_queued_work_wake": {
       "source": {
-        "file": "tests/test_asset_forge.py",
-        "start": 345,
-        "end": 465
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "FakeGitHub",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 13,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "Result",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 133,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 184,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 225,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 287,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 354,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "build_asset_forge_request",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 73,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "execute_asset_forge_batch",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 832,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "fake_run",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 125,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 176,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 217,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 276,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 339,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "test_execute_asset_forge_batch_respects_dependency_order",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 434,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "test_execute_asset_forge_batch_uses_single_github_commit",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 377,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 7
-    },
-    "test_execute_asset_forge_batch_uses_single_github_commit": {
-      "source": {
-        "file": "tests/test_asset_forge.py",
+        "file": "tests/test_worker_wake.py",
         "start": 377,
-        "end": 431
+        "end": 402
       },
       "symbol_dependencies": [
         {
-          "symbol": "FakeGitHub",
+          "symbol": "ControlPlane",
           "definitions": [
             {
-              "file": "tests/test_asset_forge.py",
-              "line": 13,
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
               "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "Result",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 133,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 184,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 225,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 287,
-              "kind": "class",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 354,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
-        },
-        {
-          "symbol": "build_asset_forge_request",
-          "definitions": [
-            {
-              "file": "src/production_os/asset_forge.py",
-              "line": 73,
-              "kind": "function",
               "language": "python"
             }
           ],
           "relation": "imported_module"
         },
         {
-          "symbol": "execute_asset_forge_batch",
+          "symbol": "request_automatic_worker_wake",
           "definitions": [
             {
-              "file": "src/production_os/asset_forge.py",
-              "line": 832,
+              "file": "src/production_os/worker_wake.py",
+              "line": 130,
               "kind": "function",
               "language": "python"
             }
           ],
           "relation": "imported_module"
-        },
-        {
-          "symbol": "fake_run",
-          "definitions": [
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 125,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 176,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 217,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 276,
-              "kind": "function",
-              "language": "python"
-            },
-            {
-              "file": "tests/test_asset_forge.py",
-              "line": 339,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "same_file"
         }
       ],
-      "dependency_count": 5
+      "dependency_count": 2
+    },
+    "test_available_persistent_worker_prevents_unnecessary_actions_dispatch": {
+      "source": {
+        "file": "tests/test_worker_wake.py",
+        "start": 405,
+        "end": 430
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ControlPlane",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "request_automatic_worker_wake",
+          "definitions": [
+            {
+              "file": "src/production_os/worker_wake.py",
+              "line": 130,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
+    },
+    "test_custom_ephemeral_worker_ids_are_configurable": {
+      "source": {
+        "file": "tests/test_worker_wake.py",
+        "start": 433,
+        "end": 456
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ControlPlane",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "request_automatic_worker_wake",
+          "definitions": [
+            {
+              "file": "src/production_os/worker_wake.py",
+              "line": 130,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 2
     }
   }
 }

@@ -34,16 +34,19 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-05T10:42:14Z
+Generated: 2026-10-09T01:13:08Z
 
 ### Git
 - Branch: `main`
-- Head: `ab7d456d4915`
-- Commit date: 2026-10-05T12:42:02+02:00
-- Commit: Use Asset Forge repository request fallback without Actions write (#254)
-- Tracked files: 562
+- Head: `982ddbca76ba`
+- Commit date: 2026-10-09T03:12:58+02:00
+- Commit: fix(worker): wake GitHub Actions even when stale one-shot heartbeat is online (#255)
+- Tracked files: 563
 
 ### Recently changed files
+- `docs/worker-wake.md`
+- `src/production_os/worker_wake.py`
+- `tests/test_worker_wake.py`
 - `src/production_os/asset_forge.py`
 - `src/production_os/github_client.py`
 - `tests/test_asset_forge.py`
@@ -55,7 +58,6 @@ Generated: 2026-10-05T10:42:14Z
 - `tests/test_dashboard_ui_v3.py`
 - `src/production_os/control_plane.py`
 - `tests/test_worker_availability_api.py`
-- `tests/test_dashboard_pair_link_timeout.py`
 
 ### Project signals
 - `pyproject.toml`

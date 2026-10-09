@@ -1,20 +1,20 @@
 # Change impact
 
-Base: 16f61b49dd6d662d1d1255cfacd145a510280b65
-Head: ab7d456d49154cc3d6c3a2d1d988190103c07598
+Base: a2fe4bcdb213d85f24889213920eca23a05cbf1e
+Head: 982ddbca76baac956ec093c62e2a68c73b934fdd
 
 ## Changed files
-- M src/production_os/asset_forge.py
-- M src/production_os/github_client.py
-- M tests/test_asset_forge.py
-- M tests/test_asset_forge_dispatch_probe.py
+- A docs/worker-wake.md
+- M src/production_os/worker_wake.py
+- M tests/test_worker_wake.py
 
 ## Affected areas
+- docs
 - src
 - tests
 
 ## Related test candidates
-- tests/test_asset_forge.py
+- tests/test_worker_wake.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

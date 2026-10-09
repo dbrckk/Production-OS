@@ -10970,6 +10970,15 @@ payload = json.loads(raw)
 AUTOMATIC_WAKE_WORKER_ID = "automatic-launch"
 DEFAULT_WAKE_COOLDOWN_SECONDS = 60
 ⋮----
+# GitHub Actions workers exit after processing a bounded job. Their last
+# heartbeat may still be marked online for the registry timeout even though
+# no process remains to claim a newly queued task.
+DEFAULT_EPHEMERAL_WORKER_IDS = frozenset({"github-actions-worker"})
+⋮----
+def _ephemeral_worker_ids() -> set[str]
+⋮----
+configured = os.getenv("PRODUCTION_OS_EPHEMERAL_WORKER_IDS")
+⋮----
 def _parse_timestamp(value)
 ⋮----
 parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
@@ -10988,6 +10997,11 @@ desired = dashboard_control.worker_state(worker_id)
 # Respect an intentional fleet-wide pause/drain.
 ⋮----
 online_workers = [
+⋮----
+# Only *persistent workers with free slots* can be trusted to claim a
+# future queued job without another dispatch. An Actions worker may have
+# finished its one-shot process while its heartbeat remains "online".
+ephemeral_worker_ids = _ephemeral_worker_ids()
 ⋮----
 payload = job.get("payload") if isinstance(job, dict) else None
 ⋮----
@@ -19517,6 +19531,22 @@ result = control.ensure_worker_for_queued_work(requested_by="operator:test")
 control = ControlPlane(str(tmp_path / "wake-cancel-requested.sqlite"))
 ⋮----
 control = ControlPlane(str(tmp_path / "wake-stale-generation.sqlite"))
+⋮----
+control = ControlPlane(str(tmp_path / "ephemeral-online.sqlite"))
+⋮----
+response = request_automatic_worker_wake(
+⋮----
+def test_actions_worker_with_no_queued_work_needs_no_wake(tmp_path, monkeypatch)
+⋮----
+control = ControlPlane(str(tmp_path / "ephemeral-idle.sqlite"))
+⋮----
+control = ControlPlane(str(tmp_path / "busy-worker.sqlite"))
+⋮----
+control = ControlPlane(str(tmp_path / "persistent-available.sqlite"))
+⋮----
+def test_custom_ephemeral_worker_ids_are_configurable(tmp_path, monkeypatch)
+⋮----
+control = ControlPlane(str(tmp_path / "custom-ephemeral.sqlite"))
 ````
 
 ## File: tests/test_workers.py

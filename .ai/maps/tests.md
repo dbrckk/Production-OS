@@ -8255,6 +8255,22 @@ result = control.ensure_worker_for_queued_work(requested_by="operator:test")
 control = ControlPlane(str(tmp_path / "wake-cancel-requested.sqlite"))
 ⋮----
 control = ControlPlane(str(tmp_path / "wake-stale-generation.sqlite"))
+⋮----
+control = ControlPlane(str(tmp_path / "ephemeral-online.sqlite"))
+⋮----
+response = request_automatic_worker_wake(
+⋮----
+def test_actions_worker_with_no_queued_work_needs_no_wake(tmp_path, monkeypatch)
+⋮----
+control = ControlPlane(str(tmp_path / "ephemeral-idle.sqlite"))
+⋮----
+control = ControlPlane(str(tmp_path / "busy-worker.sqlite"))
+⋮----
+control = ControlPlane(str(tmp_path / "persistent-available.sqlite"))
+⋮----
+def test_custom_ephemeral_worker_ids_are_configurable(tmp_path, monkeypatch)
+⋮----
+control = ControlPlane(str(tmp_path / "custom-ephemeral.sqlite"))
 ```
 
 ## File: test_workers.py
