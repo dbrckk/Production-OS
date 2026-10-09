@@ -2,7 +2,10 @@
 
 Production-OS 1.0 is qualified as a stable release when the canonical CI workflow is green on the exact release commit.
 
-## Release gate
+## GitHub review delivery versus coding completion
+
+A worker may successfully verify and publish a coding checkpoint while its GitHub credential lacks target-repository **Pull requests: write** permission. That implementation must not be presented as a merged or deployed release. New AI Dev Server result evidence reports `delivery_status=review_blocked`, `release_status=verified_branch_review_blocked` and a restricted, non-secret `pull_request.compare_url` when GitHub returns PR HTTP 403. The Production-OS dashboard labels the missing PR and offers a manually actionable GitHub comparison link. Always verify the target branch, pull-request review and CI separately before promoting a release.
+
 
 The release commit must pass all of the following on GitHub Actions:
 
