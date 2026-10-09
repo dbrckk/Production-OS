@@ -108,6 +108,35 @@ def test_failure_automatically_wakes_next_workflow_attempt(running_control):
     assert retry_job["payload"]["workflow_attempt"] == 2
 
 
+
+def test_worker_quota_exhaustion_marks_terminal_and_does_not_wake_retry(running_control):
+    control, base, dispatches = running_control
+    workflow_id, job = _create_and_claim(
+        base, task_attempts=3, downstream=True,
+    )
+    result = _post(base, "/v1/jobs/fail", "worker", {
+        "worker_id":"github-actions-worker",
+        "key":job["key"],
+        "reason":"capacity_exhausted",
+        "result":{
+            "ai_dev_server_status":"capacity_exhausted",
+            "pipeline_status":"capacity_exhausted",
+        },
+    })
+    assert result["worker_wake"]["status"]=="not_needed"
+    assert dispatches==[]
+    workflow=control.workflows.get(workflow_id)
+    assert workflow["status"]=="failed"
+    build=next(t for t in workflow["tasks"] if t["task_id"]=="build")
+    review=next(t for t in workflow["tasks"] if t["task_id"]=="review")
+    assert build["status"]=="failed"
+    assert build["attempts"]==1
+    assert build["claimed_job_key"] is None
+    assert build["result"]["ai_dev_server_status"]=="capacity_exhausted"
+    assert review["status"] not in {"queued", "running", "succeeded"}
+
+
+
 def test_downstream_task_wakes_after_success(running_control):
     control, base, dispatches = running_control
     workflow_id, job = _create_and_claim(base, task_attempts=1, downstream=True)

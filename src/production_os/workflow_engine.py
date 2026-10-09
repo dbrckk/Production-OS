@@ -1847,8 +1847,20 @@ class WorkflowEngine:
             if row is None:
                 raise KeyError(f"{workflow_id}/{task_id}")
 
+            # Retry a bounded continuation or transient provider failure,
+            # but never spend another worker execution on an explicitly
+            # exhausted project capacity envelope. Inspect only the worker's
+            # structured status: generic error text is not a quota signal.
+            capacity_exhausted = (
+                not succeeded
+                and isinstance(result, dict)
+                and str(result.get("ai_dev_server_status") or "").strip().lower()
+                == "capacity_exhausted"
+            )
             if succeeded:
                 status = "succeeded"
+            elif capacity_exhausted:
+                status = "failed"
             elif int(row["attempts"]) < int(row["max_attempts"]):
                 status = "ready"
             else:
@@ -1879,6 +1891,7 @@ class WorkflowEngine:
                     "task_id":task_id,
                     "succeeded":succeeded,
                     "status":status,
+                    "retry_suppressed":"capacity_exhausted" if capacity_exhausted else None,
                 },
                 task_key_value=row["claimed_job_key"],
             )
