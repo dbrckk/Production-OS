@@ -285,6 +285,8 @@ Cancellation is job-scoped rather than worker-wide. A cancellation request is no
 
 Retries preserve lineage. The previous failed or cancelled execution remains immutable, the replacement receives a new idempotency/job key, workflow generation checks still apply, and `max_attempts` cannot be bypassed by repeated control requests.
 
+Automatic workflow retries continue for bounded `continuation_limit`, `runtime_limit` and transient runner failures while attempts remain. An explicit **structured** AI Dev Server result `ai_dev_server_status=capacity_exhausted` instead marks the task failed without scheduling another attempt or waking a fresh worker: replaying the same exhausted capacity envelope cannot add inference budget. Free-form error text alone is not interpreted as proof of quota exhaustion. The failed result and suppression reason remain auditable; an operator can explicitly retry after restoring capacity while the configured attempt budget permits it.
+
 GitHub Actions kick outcomes are reported honestly:
 
 ```text
