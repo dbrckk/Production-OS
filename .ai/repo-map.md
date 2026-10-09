@@ -7405,6 +7405,12 @@ value = 0 if not deps else 1 + max(
 ⋮----
 def _result_evidence(result: dict) -> dict
 ⋮----
+def _safe_github_review_url(value) -> str | None
+⋮----
+"""Only expose real GitHub compare pages; treat worker evidence as untrusted."""
+⋮----
+parsed = urlsplit(value)
+⋮----
 def _outcome_from_workflow(workflow: dict | None) -> dict
 ⋮----
 result_tasks = _result_tasks_by_depth(workflow)
@@ -7468,6 +7474,21 @@ number = int(number) if number is not None else None
 number = None
 ⋮----
 pull_request = {"number":number, "state":state}
+⋮----
+reason = str(pr.get("reason") or "").strip()
+⋮----
+review_url = _safe_github_review_url(pr.get("compare_url"))
+⋮----
+delivery_status = None
+release_status = None
+⋮----
+candidate = item_evidence.get("delivery_status") or item.get("delivery_status")
+⋮----
+delivery_status = candidate
+⋮----
+candidate = item_evidence.get("release_status") or item.get("release_status")
+⋮----
+release_status = candidate
 ⋮----
 raw_ci = None
 ⋮----

@@ -38,16 +38,19 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-09T17:00:24Z
+Generated: 2026-10-09T18:33:53Z
 
 ### Git
 - Branch: `main`
-- Head: `336519aa07b7`
-- Commit date: 2026-10-09T19:00:10+02:00
-- Commit: fix(worker): Contents-write fallback and truthful launch readiness (#259)
+- Head: `c007fb9bfcd5`
+- Commit date: 2026-10-09T20:33:41+02:00
+- Commit: fix(dashboard): show review-blocked GitHub delivery (#260)
 - Tracked files: 564
 
 ### Recently changed files
+- `docs/production-readiness.md`
+- `src/production_os/dashboard_ui.py`
+- `src/production_os/managed_projects.py`
 - `docs/worker-wake.md`
 - `src/production_os/dashboard_control.py`
 - `src/production_os/dashboard_service.py`
@@ -58,7 +61,6 @@ Generated: 2026-10-09T17:00:24Z
 - `src/production_os/workflow_engine.py`
 - `tests/test_workflow_auto_wake_api.py`
 - `tests/test_workflow_engine.py`
-- `src/production_os/control_plane.py`
 
 ### Project signals
 - `pyproject.toml`

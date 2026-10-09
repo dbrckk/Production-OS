@@ -426,6 +426,7 @@
         "src/production_os/delivery.py",
         "src/production_os/dispatch.py",
         "src/production_os/execution_optimizer.py",
+        "src/production_os/managed_projects.py",
         "src/production_os/model_router.py",
         "src/production_os/postgres_backend.py",
         "src/production_os/preemption.py",
@@ -470,7 +471,6 @@
         "tests/test_dashboard_remediation_history.py",
         "tests/test_dashboard_retention_prune.py",
         "tests/test_dashboard_store.py",
-        "tests/test_dashboard_store_postgres.py",
         "tests/test_execution_optimizer.py",
         "tests/test_execution_optimizer_postgres.py",
         "tests/test_preemption.py",
@@ -1009,6 +1009,39 @@
     },
     {
       "dependencies": [
+        "src/production_os/agent_planning_policy.py",
+        "src/production_os/github_client.py",
+        "src/production_os/github_work_state.py",
+        "src/production_os/history.py",
+        "src/production_os/project_memory.py",
+        "src/production_os/rollback_plan.py",
+        "src/production_os/workers.py",
+        "src/production_os/workflow_engine.py",
+        "tests/test_asset_forge.py",
+        "tests/test_github_automerge.py"
+      ],
+      "dependents": [
+        "src/production_os/autonomous_projects.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/controller.py",
+        "tests/test_agent_planning_policy.py",
+        "tests/test_autonomous_projects.py",
+        "tests/test_controller_managed_projects.py",
+        "tests/test_cooperative_managed_projects.py",
+        "tests/test_cooperative_specialist_e2e.py",
+        "tests/test_managed_dynamic_plan_outcome.py",
+        "tests/test_managed_github_reconciliation.py",
+        "tests/test_managed_project_outcome.py",
+        "tests/test_managed_projects_v4.py",
+        "tests/test_project_memory.py",
+        "tests/test_workflow_postgres.py"
+      ],
+      "in_degree": 14,
+      "out_degree": 10,
+      "path": "src/production_os/managed_projects.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/__init__.py",
         "src/production_os/github_client.py"
       ],
@@ -1038,38 +1071,6 @@
       "in_degree": 21,
       "out_degree": 2,
       "path": "tests/test_github_automerge.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/agent_planning_policy.py",
-        "src/production_os/github_client.py",
-        "src/production_os/github_work_state.py",
-        "src/production_os/history.py",
-        "src/production_os/project_memory.py",
-        "src/production_os/rollback_plan.py",
-        "src/production_os/workflow_engine.py",
-        "tests/test_asset_forge.py",
-        "tests/test_github_automerge.py"
-      ],
-      "dependents": [
-        "src/production_os/autonomous_projects.py",
-        "src/production_os/control_plane.py",
-        "src/production_os/controller.py",
-        "tests/test_agent_planning_policy.py",
-        "tests/test_autonomous_projects.py",
-        "tests/test_controller_managed_projects.py",
-        "tests/test_cooperative_managed_projects.py",
-        "tests/test_cooperative_specialist_e2e.py",
-        "tests/test_managed_dynamic_plan_outcome.py",
-        "tests/test_managed_github_reconciliation.py",
-        "tests/test_managed_project_outcome.py",
-        "tests/test_managed_projects_v4.py",
-        "tests/test_project_memory.py",
-        "tests/test_workflow_postgres.py"
-      ],
-      "in_degree": 14,
-      "out_degree": 9,
-      "path": "src/production_os/managed_projects.py"
     },
     {
       "dependencies": [

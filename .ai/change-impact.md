@@ -1,19 +1,19 @@
 # Change impact
 
-Base: c0e9d6c64929424de46f13ffcb9ae0c8e6b623a4
-Head: 336519aa07b7e705cc93596d0851a06fb6364e1d
+Base: 5c7acfcf6946584d054c7fca0d5fe81de40f6408
+Head: c007fb9bfcd518dd26f649ed7256c2136e7fb707
 
 ## Changed files
-- M docs/worker-wake.md
-- M src/production_os/dashboard_control.py
-- M src/production_os/dashboard_service.py
+- M docs/production-readiness.md
+- M src/production_os/dashboard_ui.py
+- M src/production_os/managed_projects.py
 
 ## Affected areas
 - docs
 - src
 
 ## Related test candidates
-- tests/test_dashboard_control.py
+- No direct filename-based test match detected.
 
 ## Agent guidance
 - Read this file before broad repository exploration.
