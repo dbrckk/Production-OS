@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
   "generated_by": "dbrckk/repo-brain",
-  "base": "1b84c10778a8571ba244238047218c0b008b71e2",
-  "head": "acc47d7f12e1646633f05de70ef5e8a8e455cf52",
+  "base": "acc47d7f12e1646633f05de70ef5e8a8e455cf52",
+  "head": "336519aa07b7e705cc93596d0851a06fb6364e1d",
   "index_mode": "incremental",
   "changed_files": [
     {
-      "path": "README.md",
+      "path": "docs/worker-wake.md",
       "status": "M"
     },
     {
@@ -16,21 +16,11 @@
     {
       "path": "src/production_os/dashboard_service.py",
       "status": "M"
-    },
-    {
-      "path": "tests/test_dashboard_control.py",
-      "status": "M"
-    },
-    {
-      "path": "tests/test_dashboard_launch_readiness.py",
-      "status": "M"
     }
   ],
   "changed_source_files": [
     "src/production_os/dashboard_control.py",
-    "src/production_os/dashboard_service.py",
-    "tests/test_dashboard_control.py",
-    "tests/test_dashboard_launch_readiness.py"
+    "src/production_os/dashboard_service.py"
   ],
   "impacted_files": [
     "src/production_os/control_plane.py",
@@ -41,7 +31,6 @@
     "tests/test_dashboard_alerts.py",
     "tests/test_dashboard_attention.py",
     "tests/test_dashboard_control.py",
-    "tests/test_dashboard_launch_readiness.py",
     "tests/test_dashboard_production_status.py",
     "tests/test_dashboard_repositories.py"
   ],
@@ -296,415 +285,415 @@
       "name": "DashboardControlError",
       "kind": "class",
       "file": "src/production_os/dashboard_control.py",
-      "line": 9
+      "line": 13
     },
     {
       "name": "DashboardControl",
       "kind": "class",
       "file": "src/production_os/dashboard_control.py",
-      "line": 13
+      "line": 17
     },
     {
       "name": "__init__",
       "kind": "function",
       "file": "src/production_os/dashboard_control.py",
-      "line": 14
+      "line": 18
     },
     {
       "name": "_worker_view",
       "kind": "function",
       "file": "src/production_os/dashboard_control.py",
-      "line": 34
+      "line": 38
     },
     {
       "name": "_job_view",
       "kind": "function",
       "file": "src/production_os/dashboard_control.py",
-      "line": 54
+      "line": 58
     },
     {
       "name": "worker_state",
       "kind": "function",
       "file": "src/production_os/dashboard_control.py",
-      "line": 70
+      "line": 74
     },
     {
       "name": "set_worker_state",
       "kind": "function",
       "file": "src/production_os/dashboard_control.py",
-      "line": 73
+      "line": 77
     },
     {
       "name": "acknowledge_worker_state",
       "kind": "function",
       "file": "src/production_os/dashboard_control.py",
-      "line": 91
+      "line": 95
     },
     {
       "name": "job_state",
       "kind": "function",
       "file": "src/production_os/dashboard_control.py",
-      "line": 108
+      "line": 112
     },
     {
       "name": "request_job_cancel",
       "kind": "function",
       "file": "src/production_os/dashboard_control.py",
-      "line": 111
+      "line": 115
     },
     {
       "name": "acknowledge_job_cancel",
       "kind": "function",
       "file": "src/production_os/dashboard_control.py",
-      "line": 126
+      "line": 130
     },
     {
       "name": "worker_wake_missing_configuration",
       "kind": "function",
       "file": "src/production_os/dashboard_control.py",
-      "line": 130
+      "line": 134
     },
     {
       "name": "worker_wake_mode",
       "kind": "function",
       "file": "src/production_os/dashboard_control.py",
-      "line": 141
+      "line": 145
     },
     {
       "name": "kick_worker",
       "kind": "function",
       "file": "src/production_os/dashboard_control.py",
-      "line": 148
+      "line": 152
     },
     {
       "name": "retry_job",
       "kind": "function",
       "file": "src/production_os/dashboard_control.py",
-      "line": 170
+      "line": 205
     },
     {
       "name": "DashboardNotFound",
       "kind": "class",
       "file": "src/production_os/dashboard_service.py",
-      "line": 23
+      "line": 24
     },
     {
       "name": "_now",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 27
+      "line": 28
     },
     {
       "name": "_is_postgres",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 31
+      "line": 32
     },
     {
       "name": "_execute",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 35
+      "line": 36
     },
     {
       "name": "DashboardService",
       "kind": "class",
       "file": "src/production_os/dashboard_service.py",
-      "line": 40
+      "line": 41
     },
     {
       "name": "__init__",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 41
+      "line": 42
     },
     {
       "name": "_worker_rows",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 47
+      "line": 48
     },
     {
       "name": "_distinct_commit_shas",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 53
+      "line": 54
     },
     {
       "name": "_window_cutoff",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 63
+      "line": 64
     },
     {
       "name": "_executions_in_window",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 70
+      "line": 71
     },
     {
       "name": "_previous_window_cost",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 90
+      "line": 91
     },
     {
       "name": "overview",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 117
+      "line": 118
     },
     {
       "name": "_worker_capabilities",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 171
+      "line": 172
     },
     {
       "name": "autopilot_queue",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 185
+      "line": 186
     },
     {
       "name": "attention",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 342
+      "line": 343
     },
     {
       "name": "health",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 574
+      "line": 575
     },
     {
       "name": "incidents",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 606
+      "line": 607
     },
     {
       "name": "remediation_history",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 672
+      "line": 673
     },
     {
       "name": "remediation_analytics",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 689
+      "line": 690
     },
     {
       "name": "backups",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 700
+      "line": 701
     },
     {
       "name": "prune_backup_temps",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 713
+      "line": 714
     },
     {
       "name": "prune_expired_backups",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 722
+      "line": 723
     },
     {
       "name": "create_verified_backup",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 733
+      "line": 734
     },
     {
       "name": "verify_backup_restore_readiness",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 739
+      "line": 740
     },
     {
       "name": "stage_backup_restore",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 745
+      "line": 746
     },
     {
       "name": "control_audit",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 751
+      "line": 752
     },
     {
       "name": "workers",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 757
+      "line": 758
     },
     {
       "name": "worker_detail",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 770
+      "line": 771
     },
     {
       "name": "worker_logs",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 799
+      "line": 800
     },
     {
       "name": "worker_usage",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 804
+      "line": 805
     },
     {
       "name": "_repositories",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 809
+      "line": 810
     },
     {
       "name": "maintenance",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 820
+      "line": 821
     },
     {
       "name": "prune_maintenance",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 832
+      "line": 833
     },
     {
       "name": "launch_readiness",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 844
+      "line": 845
     },
     {
       "name": "finalize_queued_cancel",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 908
+      "line": 914
     },
     {
       "name": "cancel_production",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 939
+      "line": 945
     },
     {
       "name": "production_status",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1061
+      "line": 1067
     },
     {
       "name": "production_inbox",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1222
+      "line": 1228
     },
     {
       "name": "group",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1275
+      "line": 1281
     },
     {
       "name": "matches_search",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1294
+      "line": 1300
     },
     {
       "name": "_repository_catalog",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1355
+      "line": 1361
     },
     {
       "name": "repositories",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1383
+      "line": 1389
     },
     {
       "name": "add",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1389
+      "line": 1395
     },
     {
       "name": "projects",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1436
+      "line": 1442
     },
     {
       "name": "_require_project",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1441
+      "line": 1447
     },
     {
       "name": "project_detail",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1444
+      "line": 1450
     },
     {
       "name": "_progress_snapshot_state",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1450
+      "line": 1456
     },
     {
       "name": "project_progress",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1470
+      "line": 1476
     },
     {
       "name": "project_commits",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1533
+      "line": 1539
     },
     {
       "name": "_legacy_workflow_usage_rows",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1541
+      "line": 1547
     },
     {
       "name": "project_usage",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1590
+      "line": 1596
     },
     {
       "name": "project_workflows",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1599
+      "line": 1605
     },
     {
       "name": "project_history",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1605
+      "line": 1611
     },
     {
       "name": "activity",
       "kind": "function",
       "file": "src/production_os/dashboard_service.py",
-      "line": 1627
+      "line": 1633
     },
     {
       "name": "_cycle_kwargs",
@@ -1103,36 +1092,6 @@
       "line": 144
     },
     {
-      "name": "test_launch_readiness_distinguishes_immediate_execution_from_safe_queue",
-      "kind": "function",
-      "file": "tests/test_dashboard_launch_readiness.py",
-      "line": 4
-    },
-    {
-      "name": "test_launch_readiness_does_not_count_paused_or_saturated_workers",
-      "kind": "function",
-      "file": "tests/test_dashboard_launch_readiness.py",
-      "line": 56
-    },
-    {
-      "name": "test_launch_readiness_validates_repository_shape",
-      "kind": "function",
-      "file": "tests/test_dashboard_launch_readiness.py",
-      "line": 92
-    },
-    {
-      "name": "test_launch_readiness_reports_immediate_worker_wake_configuration",
-      "kind": "function",
-      "file": "tests/test_dashboard_launch_readiness.py",
-      "line": 103
-    },
-    {
-      "name": "test_launch_readiness_identifies_missing_dispatch_credential_by_name",
-      "kind": "function",
-      "file": "tests/test_dashboard_launch_readiness.py",
-      "line": 130
-    },
-    {
       "name": "test_production_status_tracks_queue_claim_ack_and_live_telemetry",
       "kind": "function",
       "file": "tests/test_dashboard_production_status.py",
@@ -1207,8 +1166,6 @@
     "tests/test_dashboard_control_api.py",
     "tests/test_dashboard_control_audit.py",
     "tests/test_dashboard_control_e2e.py",
-    "tests/test_dashboard_launch.py",
-    "tests/test_dashboard_launch_readiness.py",
     "tests/test_dashboard_production_status.py",
     "tests/test_dashboard_repositories.py"
   ]

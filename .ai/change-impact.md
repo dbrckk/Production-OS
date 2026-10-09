@@ -1,19 +1,16 @@
 # Change impact
 
-Base: ae80d85ada9e4609d81f2884307a6a948b8671e1
-Head: acc47d7f12e1646633f05de70ef5e8a8e455cf52
+Base: c0e9d6c64929424de46f13ffcb9ae0c8e6b623a4
+Head: 336519aa07b7e705cc93596d0851a06fb6364e1d
 
 ## Changed files
-- M README.md
+- M docs/worker-wake.md
 - M src/production_os/dashboard_control.py
 - M src/production_os/dashboard_service.py
-- M tests/test_dashboard_control.py
-- M tests/test_dashboard_launch_readiness.py
 
 ## Affected areas
-- (root)
+- docs
 - src
-- tests
 
 ## Related test candidates
 - tests/test_dashboard_control.py

@@ -1132,6 +1132,35 @@
     },
     {
       "dependencies": [
+        "src/production_os/dashboard_alerts.py",
+        "src/production_os/dashboard_backups.py",
+        "src/production_os/dashboard_health.py",
+        "src/production_os/dashboard_incidents.py",
+        "src/production_os/dashboard_maintenance.py",
+        "src/production_os/dashboard_playbooks.py",
+        "src/production_os/dashboard_remediation_metrics.py",
+        "src/production_os/dashboard_usage.py",
+        "src/production_os/github_client.py",
+        "src/production_os/project_progress.py",
+        "src/production_os/worker_wake.py",
+        "src/production_os/workers.py",
+        "tests/test_asset_forge.py",
+        "tests/test_fairness.py"
+      ],
+      "dependents": [
+        "src/production_os/control_plane.py",
+        "tests/test_dashboard_alerts.py",
+        "tests/test_dashboard_attention.py",
+        "tests/test_dashboard_launch_ux.py",
+        "tests/test_dashboard_production_status.py",
+        "tests/test_dashboard_repositories.py"
+      ],
+      "in_degree": 6,
+      "out_degree": 14,
+      "path": "src/production_os/dashboard_service.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/models.py",
         "src/production_os/workers.py"
       ],
@@ -1157,6 +1186,34 @@
       "in_degree": 17,
       "out_degree": 2,
       "path": "src/production_os/capabilities.py"
+    },
+    {
+      "dependencies": [
+        "src/production_os/models.py",
+        "src/production_os/source_tree.py"
+      ],
+      "dependents": [
+        "src/production_os/asset_forge.py",
+        "src/production_os/cli.py",
+        "src/production_os/control_plane.py",
+        "src/production_os/controller.py",
+        "src/production_os/dashboard_control.py",
+        "src/production_os/dashboard_service.py",
+        "src/production_os/github_work_state.py",
+        "src/production_os/managed_projects.py",
+        "tests/test_asset_forge_dispatch_probe.py",
+        "tests/test_control_plane_pr_impact.py",
+        "tests/test_control_plane_webhook.py",
+        "tests/test_controller_managed_projects.py",
+        "tests/test_dashboard_launch_ux.py",
+        "tests/test_dashboard_repositories.py",
+        "tests/test_github_automerge.py",
+        "tests/test_github_client_pr_files.py",
+        "tests/test_github_client_put_file.py"
+      ],
+      "in_degree": 17,
+      "out_degree": 2,
+      "path": "src/production_os/github_client.py"
     },
     {
       "dependencies": [
@@ -1187,34 +1244,6 @@
       "path": "src/production_os/postgres_backend.py"
     },
     {
-      "dependencies": [
-        "src/production_os/dashboard_alerts.py",
-        "src/production_os/dashboard_backups.py",
-        "src/production_os/dashboard_health.py",
-        "src/production_os/dashboard_incidents.py",
-        "src/production_os/dashboard_maintenance.py",
-        "src/production_os/dashboard_playbooks.py",
-        "src/production_os/dashboard_remediation_metrics.py",
-        "src/production_os/dashboard_usage.py",
-        "src/production_os/github_client.py",
-        "src/production_os/project_progress.py",
-        "src/production_os/workers.py",
-        "tests/test_asset_forge.py",
-        "tests/test_fairness.py"
-      ],
-      "dependents": [
-        "src/production_os/control_plane.py",
-        "tests/test_dashboard_alerts.py",
-        "tests/test_dashboard_attention.py",
-        "tests/test_dashboard_launch_ux.py",
-        "tests/test_dashboard_production_status.py",
-        "tests/test_dashboard_repositories.py"
-      ],
-      "in_degree": 6,
-      "out_degree": 13,
-      "path": "src/production_os/dashboard_service.py"
-    },
-    {
       "dependencies": [],
       "dependents": [
         "src/production_os/control_plane.py",
@@ -1239,33 +1268,6 @@
       "in_degree": 18,
       "out_degree": 0,
       "path": "src/production_os/dashboard_ui.py"
-    },
-    {
-      "dependencies": [
-        "src/production_os/models.py",
-        "src/production_os/source_tree.py"
-      ],
-      "dependents": [
-        "src/production_os/asset_forge.py",
-        "src/production_os/cli.py",
-        "src/production_os/control_plane.py",
-        "src/production_os/controller.py",
-        "src/production_os/dashboard_service.py",
-        "src/production_os/github_work_state.py",
-        "src/production_os/managed_projects.py",
-        "tests/test_asset_forge_dispatch_probe.py",
-        "tests/test_control_plane_pr_impact.py",
-        "tests/test_control_plane_webhook.py",
-        "tests/test_controller_managed_projects.py",
-        "tests/test_dashboard_launch_ux.py",
-        "tests/test_dashboard_repositories.py",
-        "tests/test_github_automerge.py",
-        "tests/test_github_client_pr_files.py",
-        "tests/test_github_client_put_file.py"
-      ],
-      "in_degree": 16,
-      "out_degree": 2,
-      "path": "src/production_os/github_client.py"
     },
     {
       "dependencies": [
@@ -1923,6 +1925,23 @@
     },
     {
       "dependencies": [
+        "src/production_os/dashboard_store.py",
+        "src/production_os/github_client.py",
+        "src/production_os/workers.py",
+        "tests/test_asset_forge.py"
+      ],
+      "dependents": [
+        "src/production_os/control_plane.py",
+        "src/production_os/controller.py",
+        "tests/test_controller_managed_projects.py",
+        "tests/test_dashboard_control.py"
+      ],
+      "in_degree": 4,
+      "out_degree": 4,
+      "path": "src/production_os/dashboard_control.py"
+    },
+    {
+      "dependencies": [
         "src/production_os/signers.py",
         "src/production_os/vault_auth.py",
         "src/production_os/vault_signer.py",
@@ -2049,25 +2068,9 @@
       "in_degree": 6,
       "out_degree": 1,
       "path": "src/production_os/execution_optimizer.py"
-    },
-    {
-      "dependencies": [
-        "tests/test_asset_forge.py"
-      ],
-      "dependents": [
-        "src/production_os/cli.py",
-        "tests/test_rekor_checkpoint_state.py",
-        "tests/test_rekor_checkpoint_state_cli.py",
-        "tests/test_rekor_checkpoint_state_concurrency.py",
-        "tests/test_rekor_checkpoint_state_postgres.py",
-        "tests/test_rekor_consistency_client.py"
-      ],
-      "in_degree": 6,
-      "out_degree": 1,
-      "path": "src/production_os/rekor_checkpoint_state.py"
     }
   ],
-  "edge_count": 1801,
+  "edge_count": 1804,
   "generated_by": "dbrckk/repo-brain-v7-graph",
   "node_count": 345,
   "schema_version": 1

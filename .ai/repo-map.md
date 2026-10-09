@@ -4846,6 +4846,14 @@ def worker_wake_mode(self) -> str
 ⋮----
 def kick_worker(self, worker_id: str) -> dict
 ⋮----
+# The AI Dev Server Actions worker also listens for changes to
+# control/production-os-worker-kick.json on main. Use that
+# pre-existing trigger when this token cannot dispatch Actions,
+# but can write repository contents. Do not treat network/server
+# failures or unrelated workflows as permission failures.
+unauthorized_actions = any(
+push_supported = (
+⋮----
 def retry_job(self, job_key: str, *, requested_by: str) -> dict
 ⋮----
 job = self.queue.get(job_key)
@@ -5423,6 +5431,10 @@ catalog = self.repositories()
 known = any(
 workers = self.workers().get("workers", [])
 online = [
+# An Actions runner exits after its one-shot job, but its last
+# heartbeat can remain "online" in the registry. It must not make
+# launch readiness promise an immediate execution slot.
+ephemeral_ids = _ephemeral_worker_ids()
 available = [
 ⋮----
 queued_row = db.execute(

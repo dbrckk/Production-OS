@@ -984,6 +984,7 @@
     "src/production_os/dashboard_control.py": {
       "dependencies": [
         "src/production_os/dashboard_store.py",
+        "src/production_os/github_client.py",
         "src/production_os/workers.py",
         "tests/test_asset_forge.py"
       ],
@@ -994,7 +995,7 @@
         "tests/test_dashboard_control.py"
       ],
       "in_degree": 4,
-      "out_degree": 3
+      "out_degree": 4
     },
     "src/production_os/dashboard_github.py": {
       "dependencies": [],
@@ -1085,6 +1086,7 @@
         "src/production_os/dashboard_usage.py",
         "src/production_os/github_client.py",
         "src/production_os/project_progress.py",
+        "src/production_os/worker_wake.py",
         "src/production_os/workers.py",
         "tests/test_asset_forge.py",
         "tests/test_fairness.py"
@@ -1098,7 +1100,7 @@
         "tests/test_dashboard_repositories.py"
       ],
       "in_degree": 6,
-      "out_degree": 13
+      "out_degree": 14
     },
     "src/production_os/dashboard_store.py": {
       "dependencies": [
@@ -1362,6 +1364,7 @@
         "src/production_os/cli.py",
         "src/production_os/control_plane.py",
         "src/production_os/controller.py",
+        "src/production_os/dashboard_control.py",
         "src/production_os/dashboard_service.py",
         "src/production_os/github_work_state.py",
         "src/production_os/managed_projects.py",
@@ -1375,7 +1378,7 @@
         "tests/test_github_client_pr_files.py",
         "tests/test_github_client_put_file.py"
       ],
-      "in_degree": 16,
+      "in_degree": 17,
       "out_degree": 2
     },
     "src/production_os/github_webhook.py": {
@@ -2504,9 +2507,10 @@
       "dependents": [
         "src/production_os/control_plane.py",
         "src/production_os/controller.py",
+        "src/production_os/dashboard_service.py",
         "tests/test_worker_wake.py"
       ],
-      "in_degree": 3,
+      "in_degree": 4,
       "out_degree": 3
     },
     "src/production_os/workers.py": {
