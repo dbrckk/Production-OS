@@ -118,6 +118,92 @@ def test_workflow_retry_budget(tmp_path):
     assert wf.get(created["id"])["status"]=="failed"
 
 
+
+@pytest.mark.parametrize("raw_status", ["capacity_exhausted", " Capacity_Exhausted "])
+def test_structured_capacity_exhaustion_stops_unproductive_auto_retries(tmp_path, raw_status):
+    wf=engine(tmp_path)
+    created=wf.create(
+        name="budget-capped",
+        repository="o/example",
+        tasks=[WorkflowTaskSpec(
+            "build", "Build project", {"handoff":{"task":"Build"}},
+            max_attempts=3,
+        )],
+    )
+    first=wf.dispatch_ready(created["id"])
+    assert len(first)==1
+    failed=wf.record_result(
+        created["id"], "build", succeeded=False,
+        result={
+            "reason":"capacity_exhausted: quota",
+            "ai_dev_server_status":raw_status,
+            "summary":"Verified work is checkpointed but capacity is exhausted",
+        },
+    )
+    task=wf.get(created["id"])["tasks"][0]
+    assert failed["status"]=="failed"
+    assert task["status"]=="failed"
+    assert task["attempts"]==1
+    assert task["claimed_job_key"] is None
+    assert task["result"]["ai_dev_server_status"]==raw_status
+    assert wf.get(created["id"])["status"]=="failed"
+
+
+@pytest.mark.parametrize("status", [
+    "continuation_limit", "runtime_limit", "runner_error",
+])
+def test_bounded_session_or_transient_runner_error_still_auto_retries(tmp_path,status):
+    wf=engine(tmp_path)
+    created=wf.create(
+        name="resumable",
+        repository="o/example",
+        tasks=[WorkflowTaskSpec("build","Build",{},max_attempts=2)],
+    )
+    old=wf.dispatch_ready(created["id"])
+    assert len(old)==1
+    wf.record_result(
+        created["id"], "build", succeeded=False,
+        result={"ai_dev_server_status":status,"reason":status},
+    )
+    task=wf.get(created["id"])["tasks"][0]
+    assert task["status"]=="queued"
+    assert task["attempts"]==2
+    assert task["claimed_job_key"]!=old[0]["key"]
+
+
+def test_unstructured_quota_word_does_not_override_worker_status(tmp_path):
+    wf=engine(tmp_path)
+    created=wf.create(
+        name="unstructured",
+        repository="o/example",
+        tasks=[WorkflowTaskSpec("build","Build",{},max_attempts=2)],
+    )
+    wf.dispatch_ready(created["id"])
+    wf.record_result(
+        created["id"], "build", succeeded=False,
+        result={"reason":"capacity_exhausted", "ai_dev_server_status":"runner_error"},
+    )
+    assert wf.get(created["id"])["tasks"][0]["status"]=="queued"
+
+
+def test_operator_may_relaunch_budget_blocked_task_with_spare_attempts(tmp_path):
+    wf=engine(tmp_path)
+    created=wf.create(
+        name="quota-remediated",
+        repository="o/example",
+        tasks=[WorkflowTaskSpec("build","Build",{},max_attempts=2)],
+    )
+    first=wf.dispatch_ready(created["id"])
+    wf.record_result(
+        created["id"], "build", succeeded=False,
+        result={"ai_dev_server_status":"capacity_exhausted"},
+    )
+    resumed=wf.retry_task(created["id"],"build")
+    assert resumed["key"]!=first[0]["key"]
+    task=wf.get(created["id"])["tasks"][0]
+    assert task["status"]=="queued"
+    assert task["attempts"]==2
+
 def test_downstream_job_receives_bounded_upstream_context(tmp_path):
     wf=engine(tmp_path)
     created=wf.create(
