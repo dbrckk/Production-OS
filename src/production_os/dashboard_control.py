@@ -127,14 +127,23 @@ class DashboardControl:
         row = self.store.acknowledge_job_control(job_key, at=at)
         return self._job_view(row, job_key)
 
+    def worker_wake_missing_configuration(self) -> list[str]:
+        """Report only names of absent dispatch settings, never token values."""
+        missing = []
+        if self.github is None:
+            missing.append("GITHUB_TOKEN")
+        if not self.actions_repository:
+            missing.append("PRODUCTION_OS_ACTIONS_REPOSITORY")
+        if not self.actions_workflow:
+            missing.append("PRODUCTION_OS_ACTIONS_WORKFLOW")
+        return missing
+
     def worker_wake_mode(self) -> str:
-        if (
-            self.github is not None
-            and self.actions_repository
-            and self.actions_workflow
-        ):
-            return "immediate"
-        return "scheduled_fallback"
+        return (
+            "scheduled_fallback"
+            if self.worker_wake_missing_configuration()
+            else "immediate"
+        )
 
     def kick_worker(self, worker_id: str) -> dict:
         del worker_id
