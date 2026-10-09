@@ -322,3 +322,135 @@ def test_control_plane_wake_ignores_stale_workflow_generation(
         "reason":"no_actionable_queued_work",
     }
     assert calls == []
+
+
+def test_queued_job_wakes_short_lived_actions_worker_despite_online_heartbeat(
+    tmp_path, monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "ephemeral-online.sqlite"))
+    control.workers.register("github-actions-worker", ["python"], 1)
+    monkeypatch.setattr(control.workers, "detect_dead", lambda *a, **kw: [])
+    calls = []
+    monkeypatch.setattr(
+        control.dashboard_control, "kick_worker",
+        lambda worker_id: calls.append(worker_id) or {"status": "dispatched"},
+    )
+    queued = [{
+        "key": "new-task",
+        "payload": {"required_capabilities": ["python"]},
+    }]
+
+    response = request_automatic_worker_wake(
+        workers=control.workers,
+        dashboard_control=control.dashboard_control,
+        store=control.dashboard_store,
+        requested_by="dashboard:launch",
+        queued_jobs=queued,
+    )
+
+    assert response == {"status": "dispatched"}
+    assert calls == ["automatic-launch"]
+
+
+def test_actions_worker_with_no_queued_work_needs_no_wake(tmp_path, monkeypatch):
+    control = ControlPlane(str(tmp_path / "ephemeral-idle.sqlite"))
+    control.workers.register("github-actions-worker", ["python"], 1)
+    monkeypatch.setattr(control.workers, "detect_dead", lambda *a, **kw: [])
+    calls = []
+    monkeypatch.setattr(
+        control.dashboard_control, "kick_worker",
+        lambda worker_id: calls.append(worker_id) or {"status": "dispatched"},
+    )
+
+    response = request_automatic_worker_wake(
+        workers=control.workers,
+        dashboard_control=control.dashboard_control,
+        store=control.dashboard_store,
+        requested_by="controller:auto",
+        queued_jobs=[],
+    )
+
+    assert response == {"status": "not_needed"}
+    assert calls == []
+
+
+def test_busy_persistent_worker_cannot_suppress_queued_work_wake(
+    tmp_path, monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "busy-worker.sqlite"))
+    control.workers.register("worker-persistent", ["python"], 1)
+    control.workers.heartbeat("worker-persistent", active_tasks=1)
+    monkeypatch.setattr(control.workers, "detect_dead", lambda *a, **kw: [])
+    calls = []
+    monkeypatch.setattr(
+        control.dashboard_control, "kick_worker",
+        lambda worker_id: calls.append(worker_id) or {"status": "dispatched"},
+    )
+
+    result = request_automatic_worker_wake(
+        workers=control.workers,
+        dashboard_control=control.dashboard_control,
+        store=control.dashboard_store,
+        requested_by="controller:auto",
+        queued_jobs=[{
+            "key": "queued",
+            "payload": {"required_capabilities": ["python"]},
+        }],
+    )
+
+    assert result == {"status": "dispatched"}
+    assert calls == ["automatic-launch"]
+
+
+def test_available_persistent_worker_prevents_unnecessary_actions_dispatch(
+    tmp_path, monkeypatch,
+):
+    control = ControlPlane(str(tmp_path / "persistent-available.sqlite"))
+    control.workers.register("github-actions-worker", ["python"], 1)
+    control.workers.register("worker-persistent", ["python"], 1)
+    monkeypatch.setattr(control.workers, "detect_dead", lambda *a, **kw: [])
+    calls = []
+    monkeypatch.setattr(
+        control.dashboard_control, "kick_worker",
+        lambda worker_id: calls.append(worker_id) or {"status": "dispatched"},
+    )
+
+    result = request_automatic_worker_wake(
+        workers=control.workers,
+        dashboard_control=control.dashboard_control,
+        store=control.dashboard_store,
+        requested_by="controller:auto",
+        queued_jobs=[{
+            "key": "queued",
+            "payload": {"required_capabilities": ["python"]},
+        }],
+    )
+
+    assert result == {"status": "not_needed"}
+    assert calls == []
+
+
+def test_custom_ephemeral_worker_ids_are_configurable(tmp_path, monkeypatch):
+    control = ControlPlane(str(tmp_path / "custom-ephemeral.sqlite"))
+    control.workers.register("actions-custom", ["python"], 1)
+    monkeypatch.setenv("PRODUCTION_OS_EPHEMERAL_WORKER_IDS", "actions-custom")
+    monkeypatch.setattr(control.workers, "detect_dead", lambda *a, **kw: [])
+    calls = []
+    monkeypatch.setattr(
+        control.dashboard_control, "kick_worker",
+        lambda worker_id: calls.append(worker_id) or {"status": "dispatched"},
+    )
+
+    result = request_automatic_worker_wake(
+        workers=control.workers,
+        dashboard_control=control.dashboard_control,
+        store=control.dashboard_store,
+        requested_by="controller:auto",
+        queued_jobs=[{
+            "key": "queued",
+            "payload": {"required_capabilities": ["python"]},
+        }],
+    )
+
+    assert result == {"status": "dispatched"}
+    assert calls == ["automatic-launch"]
