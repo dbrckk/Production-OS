@@ -34,16 +34,17 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-09T09:29:13Z
+Generated: 2026-10-09T11:21:58Z
 
 ### Git
 - Branch: `main`
-- Head: `199d843b7ce5`
-- Commit date: 2026-10-09T11:29:03+02:00
-- Commit: fix(workflows): stop automatic task retries when worker capacity is exhausted (#257)
+- Head: `1b84c10778a8`
+- Commit date: 2026-10-09T13:21:03+02:00
+- Commit: docs(agents): adopt pinned 88-rule development standard
 - Tracked files: 564
 
 ### Recently changed files
+- `AGENTS.md`
 - `README.md`
 - `src/production_os/workflow_engine.py`
 - `tests/test_workflow_auto_wake_api.py`

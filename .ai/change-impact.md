@@ -1,21 +1,16 @@
 # Change impact
 
-Base: cc208a8412bf7ce20820e3bffc2d20b056a48b74
-Head: 199d843b7ce5379ea361d6a7b411dcf93305df30
+Base: ac2fb60d3a2b23d6dfd46386f417b0785d627960
+Head: 1b84c10778a8571ba244238047218c0b008b71e2
 
 ## Changed files
-- M README.md
-- M src/production_os/workflow_engine.py
-- M tests/test_workflow_auto_wake_api.py
-- M tests/test_workflow_engine.py
+- M AGENTS.md
 
 ## Affected areas
 - (root)
-- src
-- tests
 
 ## Related test candidates
-- tests/test_workflow_engine.py
+- No direct filename-based test match detected.
 
 ## Agent guidance
 - Read this file before broad repository exploration.
