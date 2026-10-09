@@ -39,16 +39,17 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-09T18:33:53Z
+Generated: 2026-10-09T19:51:37Z
 
 ### Git
 - Branch: `main`
-- Head: `c007fb9bfcd5`
-- Commit date: 2026-10-09T20:33:41+02:00
-- Commit: fix(dashboard): show review-blocked GitHub delivery (#260)
+- Head: `2752685edd0e`
+- Commit date: 2026-10-09T21:51:27+02:00
+- Commit: fix(workers): require persistent active specialists for cooperative launch (#261)
 - Tracked files: 564
 
 ### Recently changed files
+- `src/production_os/control_plane.py`
 - `docs/production-readiness.md`
 - `src/production_os/dashboard_ui.py`
 - `src/production_os/managed_projects.py`
@@ -59,9 +60,6 @@ Generated: 2026-10-09T18:33:53Z
 - `tests/test_dashboard_control.py`
 - `tests/test_dashboard_launch_readiness.py`
 - `AGENTS.md`
-- `src/production_os/workflow_engine.py`
-- `tests/test_workflow_auto_wake_api.py`
-- `tests/test_workflow_engine.py`
 
 ### Project signals
 - `pyproject.toml`

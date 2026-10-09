@@ -2796,7 +2796,18 @@ required = {"browser-ui-validation"}
 ⋮----
 required = set()
 ⋮----
+# A one-shot Actions worker leaves a transient "online" heartbeat.
+# It is not a persistent specialist fleet for multi-stage workflows.
+ephemeral_ids = _ephemeral_worker_ids()
+now = datetime.now(timezone.utc)
+⋮----
+worker_id = str(getattr(worker, "worker_id", "") or "").strip()
+⋮----
 status = str(getattr(worker, "status", "") or "").lower()
+⋮----
+heartbeat = self._parse_timestamp(
+⋮----
+desired = self.dashboard_control.worker_state(worker_id)
 ⋮----
 capabilities = {
 ⋮----
@@ -2806,8 +2817,6 @@ capabilities = {
 parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
 ⋮----
 def recover_abandoned_acked_jobs(self) -> list[dict]
-⋮----
-now = datetime.now(timezone.utc)
 ⋮----
 cursor = db.cursor()
 ⋮----

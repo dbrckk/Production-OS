@@ -1,19 +1,16 @@
 # Change impact
 
-Base: 5c7acfcf6946584d054c7fca0d5fe81de40f6408
-Head: c007fb9bfcd518dd26f649ed7256c2136e7fb707
+Base: 8e5522029fb4244e7f8a6c5fc26ade3208697aa4
+Head: 2752685edd0e172bb7133262d648e5dceb8e6116
 
 ## Changed files
-- M docs/production-readiness.md
-- M src/production_os/dashboard_ui.py
-- M src/production_os/managed_projects.py
+- M src/production_os/control_plane.py
 
 ## Affected areas
-- docs
 - src
 
 ## Related test candidates
-- No direct filename-based test match detected.
+- tests/test_control_plane.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.
