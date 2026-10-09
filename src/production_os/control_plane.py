@@ -32,6 +32,7 @@ from .worker_wake import (
     automatic_worker_wake_allowed as wake_allowed,
     automatic_worker_wake_needed as wake_needed,
     request_automatic_worker_wake,
+    _ephemeral_worker_ids,
 )
 from .database_maintenance_lock import database_server_lock
 from .github_webhook import (
@@ -304,9 +305,27 @@ class ControlPlane:
             self.workers.load()
         except Exception:
             return False
+        # A one-shot Actions worker leaves a transient "online" heartbeat.
+        # It is not a persistent specialist fleet for multi-stage workflows.
+        ephemeral_ids = _ephemeral_worker_ids()
+        now = datetime.now(timezone.utc)
         for worker in self.workers.workers.values():
+            worker_id = str(getattr(worker, "worker_id", "") or "").strip()
+            if not worker_id or worker_id in ephemeral_ids:
+                continue
             status = str(getattr(worker, "status", "") or "").lower()
             if status != "online":
+                continue
+            heartbeat = self._parse_timestamp(
+                getattr(worker, "last_heartbeat", None)
+            )
+            if heartbeat is None or (now - heartbeat).total_seconds() > STALE_BUSY_WORKER_SECONDS:
+                continue
+            try:
+                desired = self.dashboard_control.worker_state(worker_id)
+            except Exception:
+                continue
+            if desired.get("desired_state") != "active":
                 continue
             capabilities = {
                 str(item).strip()

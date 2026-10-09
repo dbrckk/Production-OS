@@ -3,6 +3,7 @@
 Status: active
 
 ## Working
+- 2026-10-09: live canary #19 succeeded on Render with commit `0faf6bf`, structural verification and structured `delivery_status=review_blocked` (PR permission HTTP 403). The read-only Render warmup PR #279 in ai-dev-server is merged and verified. Current fix excludes ephemeral, stale and paused workers from automatic cooperative specialist-mode selection; the one-shot Actions worker must not impersonate a durable specialist fleet.
 - 2026-10-09: live AI Dev Server canary 17 finished and published commit `b82a9e2` in `dbrckk/repo-standards`, but PR creation returned HTTP 403. Dashboard outcome now preserves only a validated GitHub compare URL and a clear review-blocked delivery warning when available. Matching worker result contract is in `dbrckk/ai-dev-server` PR #278; these branches still require passing CI before release.
 - 2026-10-09 (branch `fix/actions-worker-push-fallback-readiness`): added a constrained Contents:write fallback for GitHub Actions 403/404 when waking `production-os-actions-worker.yml` on `main`. It writes a unique, non-secret request to the workflow's existing push trigger; success only confirms a GitHub commit, not a running worker.
 - Dashboard launch readiness now excludes configured ephemeral worker IDs from immediately available slots to avoid treating stale Actions heartbeats as active capacity.
