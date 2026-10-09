@@ -3448,6 +3448,7 @@ def make_handler(control: ControlPlane):
                         "workflow_task_id"
                     )
                     workflow = None
+                    worker_wake = None
                     if workflow_id and workflow_task_id:
                         workflow = control.workflows.record_result(
                             str(workflow_id),
@@ -3455,12 +3456,25 @@ def make_handler(control: ControlPlane):
                             succeeded=True,
                             result=dict(body.get("result") or {}),
                         )
+                        # The workflow engine can enqueue downstream work.
+                        # A one-shot Actions worker exits after this claim;
+                        # durable queue state alone does not wake the next run.
+                        try:
+                            worker_wake = control.ensure_worker_for_queued_work(
+                                requested_by="worker:workflow-complete",
+                            )
+                        except Exception:
+                            worker_wake = {
+                                "status":"failed",
+                                "error":"workflow_wake_failed",
+                            }
 
                     self._send(
                         HTTPStatus.OK,
                         {
                             "job":job,
                             "workflow":workflow,
+                            "worker_wake":worker_wake,
                             "speculation":{
                                 "group_id":group_id,
                                 "winner":True,
@@ -3547,6 +3561,7 @@ def make_handler(control: ControlPlane):
                         "workflow_task_id"
                     )
                     workflow = None
+                    worker_wake = None
                     if workflow_id and workflow_task_id:
                         workflow = control.workflows.record_result(
                             str(workflow_id),
@@ -3557,12 +3572,24 @@ def make_handler(control: ControlPlane):
                                 **dict(body.get("result") or {}),
                             },
                         )
+                        # A retry uses a new queue key, but the worker for
+                        # the previous attempt may already be terminating.
+                        try:
+                            worker_wake = control.ensure_worker_for_queued_work(
+                                requested_by="worker:workflow-fail",
+                            )
+                        except Exception:
+                            worker_wake = {
+                                "status":"failed",
+                                "error":"workflow_wake_failed",
+                            }
 
                     self._send(
                         HTTPStatus.OK,
                         {
                             "job":job,
                             "workflow":workflow,
+                            "worker_wake":worker_wake,
                             "speculation":{
                                 "group_id":group_id,
                                 "terminal_failure":True,
