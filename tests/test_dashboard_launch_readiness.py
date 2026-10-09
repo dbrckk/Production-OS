@@ -125,3 +125,20 @@ def test_launch_readiness_reports_immediate_worker_wake_configuration(tmp_path):
         "poll_interval_seconds":None,
         "missing_configuration":[],
     }
+
+
+def test_launch_readiness_identifies_missing_dispatch_credential_by_name(tmp_path):
+    control = ControlPlane(str(tmp_path / "readiness-dispatch.sqlite"))
+    service = control.dashboard
+    service.repositories = lambda: {"source": "test", "repositories": []}
+    service.workers = lambda: {"workers": []}
+    control.dashboard_control.github = None
+    control.dashboard_control.actions_repository = "dbrckk/ai-dev-server"
+    control.dashboard_control.actions_workflow = "production-os-actions-worker.yml"
+
+    status = service.launch_readiness("dbrckk/example")
+    assert status["worker_wake"] == {
+        "mode": "scheduled_fallback",
+        "poll_interval_seconds": 300,
+        "missing_configuration": ["GITHUB_TOKEN"],
+    }
