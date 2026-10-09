@@ -5,81 +5,235 @@
   "semantic": false,
   "note": "Dependencies are known symbol names lexically present inside the symbol's AST/source range.",
   "symbols": {
-    "_ephemeral_worker_ids": {
+    "ControlPlane": {
       "source": {
-        "file": "src/production_os/worker_wake.py",
-        "start": 15,
-        "end": 19
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "_parse_timestamp": {
-      "source": {
-        "file": "src/production_os/worker_wake.py",
-        "start": 22,
-        "end": 29
-      },
-      "symbol_dependencies": [],
-      "dependency_count": 0
-    },
-    "automatic_worker_wake_allowed": {
-      "source": {
-        "file": "src/production_os/worker_wake.py",
-        "start": 32,
-        "end": 50
+        "file": "src/production_os/control_plane.py",
+        "start": 46,
+        "end": 545
       },
       "symbol_dependencies": [
+        {
+          "symbol": "DashboardControl",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_control.py",
+              "line": 13,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "DashboardService",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 40,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "DashboardStore",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 176,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "DevicePairingManager",
+          "definitions": [
+            {
+              "file": "src/production_os/device_pairing.py",
+              "line": 43,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "ExecutionOptimizer",
+          "definitions": [
+            {
+              "file": "src/production_os/execution_optimizer.py",
+              "line": 33,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "GitHubClient",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 21,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "ManagedProjectService",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 596,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "PortfolioOptimizer",
+          "definitions": [
+            {
+              "file": "src/production_os/portfolio_optimizer.py",
+              "line": 6,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "ReleaseLedger",
+          "definitions": [
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 81,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "SpeculationManager",
+          "definitions": [
+            {
+              "file": "src/production_os/speculation.py",
+              "line": 25,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "TokenAuthorizer",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 31,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "WebhookDeliveryStore",
+          "definitions": [
+            {
+              "file": "src/production_os/github_webhook.py",
+              "line": 95,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "WorkflowEngine",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 245,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "__init__",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 47,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_needs_browser_validation",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 636,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_needs_mobile_ui_validation",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 646,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
         {
           "symbol": "_parse_timestamp",
           "definitions": [
             {
-              "file": "src/production_os/worker_wake.py",
-              "line": 22,
+              "file": "src/production_os/control_plane.py",
+              "line": 325,
               "kind": "function",
               "language": "python"
             }
           ],
           "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "automatic_worker_wake_needed": {
-      "source": {
-        "file": "src/production_os/worker_wake.py",
-        "start": 53,
-        "end": 127
-      },
-      "symbol_dependencies": [
+        },
         {
-          "symbol": "_ephemeral_worker_ids",
+          "symbol": "add",
           "definitions": [
             {
-              "file": "src/production_os/worker_wake.py",
-              "line": 15,
+              "file": "src/production_os/dashboard_service.py",
+              "line": 1386,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "same_file"
-        }
-      ],
-      "dependency_count": 1
-    },
-    "request_automatic_worker_wake": {
-      "source": {
-        "file": "src/production_os/worker_wake.py",
-        "start": 130,
-        "end": 179
-      },
-      "symbol_dependencies": [
+          "relation": "imported_module"
+        },
         {
           "symbol": "automatic_worker_wake_allowed",
           "definitions": [
             {
-              "file": "src/production_os/worker_wake.py",
-              "line": 32,
+              "file": "src/production_os/control_plane.py",
+              "line": 120,
               "kind": "function",
               "language": "python"
             }
@@ -90,8 +244,1839 @@
           "symbol": "automatic_worker_wake_needed",
           "definitions": [
             {
+              "file": "src/production_os/control_plane.py",
+              "line": 130,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "cooperative_worker_fleet_available",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 286,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "ensure_worker_for_queued_work",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 249,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "finish_execution",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 226,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1885,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "job_generation_current",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 2200,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "job_queue_for",
+          "definitions": [
+            {
+              "file": "src/production_os/storage.py",
+              "line": 69,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "job_state",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_control.py",
+              "line": 108,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "latest_execution",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 208,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "list",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1937,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "load",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 36,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "open_backend",
+          "definitions": [
+            {
+              "file": "src/production_os/storage.py",
+              "line": 45,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "reconcile_worker_registration",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 440,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "recover_abandoned_acked_jobs",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 334,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "repository",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 83,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "request_automatic_worker_wake",
+          "definitions": [
+            {
               "file": "src/production_os/worker_wake.py",
-              "line": 53,
+              "line": 130,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "worker_queue_availability",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 136,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "worker_registry_for",
+          "definitions": [
+            {
+              "file": "src/production_os/storage.py",
+              "line": 57,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "worker_state",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_control.py",
+              "line": 70,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "workers",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 757,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 39
+    },
+    "__init__": {
+      "source": {
+        "file": "src/production_os/control_plane.py",
+        "start": 47,
+        "end": 167
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "DashboardControl",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_control.py",
+              "line": 13,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "DashboardService",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 40,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "DashboardStore",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 176,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "DevicePairingManager",
+          "definitions": [
+            {
+              "file": "src/production_os/device_pairing.py",
+              "line": 43,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "ExecutionOptimizer",
+          "definitions": [
+            {
+              "file": "src/production_os/execution_optimizer.py",
+              "line": 33,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "GitHubClient",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 21,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "ManagedProjectService",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 596,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "PortfolioOptimizer",
+          "definitions": [
+            {
+              "file": "src/production_os/portfolio_optimizer.py",
+              "line": 6,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "ReleaseLedger",
+          "definitions": [
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 81,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "SpeculationManager",
+          "definitions": [
+            {
+              "file": "src/production_os/speculation.py",
+              "line": 25,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "TokenAuthorizer",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 31,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "WebhookDeliveryStore",
+          "definitions": [
+            {
+              "file": "src/production_os/github_webhook.py",
+              "line": 95,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "WorkflowEngine",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 245,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "add",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 1386,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "automatic_worker_wake_allowed",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 120,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "automatic_worker_wake_needed",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 130,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1885,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "job_queue_for",
+          "definitions": [
+            {
+              "file": "src/production_os/storage.py",
+              "line": 69,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "list",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1937,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "open_backend",
+          "definitions": [
+            {
+              "file": "src/production_os/storage.py",
+              "line": 45,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "worker_queue_availability",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 136,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "worker_registry_for",
+          "definitions": [
+            {
+              "file": "src/production_os/storage.py",
+              "line": 57,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "worker_state",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_control.py",
+              "line": 70,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "workers",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 757,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 24
+    },
+    "automatic_worker_wake_allowed": {
+      "source": {
+        "file": "src/production_os/control_plane.py",
+        "start": 120,
+        "end": 128
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "automatic_worker_wake_needed": {
+      "source": {
+        "file": "src/production_os/control_plane.py",
+        "start": 130,
+        "end": 134
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "workers",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 757,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "worker_queue_availability": {
+      "source": {
+        "file": "src/production_os/control_plane.py",
+        "start": 136,
+        "end": 247
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "add",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 1386,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1885,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "job_generation_current",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 2200,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "job_state",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_control.py",
+              "line": 108,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "list",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1937,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "worker_state",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_control.py",
+              "line": 70,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 6
+    },
+    "ensure_worker_for_queued_work": {
+      "source": {
+        "file": "src/production_os/control_plane.py",
+        "start": 249,
+        "end": 284
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1885,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "job_generation_current",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 2200,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "job_state",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_control.py",
+              "line": 108,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "request_automatic_worker_wake",
+          "definitions": [
+            {
+              "file": "src/production_os/worker_wake.py",
+              "line": 130,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "workers",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 757,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 5
+    },
+    "cooperative_worker_fleet_available": {
+      "source": {
+        "file": "src/production_os/control_plane.py",
+        "start": 286,
+        "end": 322
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ManagedProjectService",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 596,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_needs_browser_validation",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 636,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_needs_mobile_ui_validation",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 646,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "load",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 36,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "workers",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 757,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 5
+    },
+    "_parse_timestamp": {
+      "source": {
+        "file": "src/production_os/control_plane.py",
+        "start": 325,
+        "end": 332
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "recover_abandoned_acked_jobs": {
+      "source": {
+        "file": "src/production_os/control_plane.py",
+        "start": 334,
+        "end": 437
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_parse_timestamp",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 325,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "finish_execution",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 226,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1885,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "latest_execution",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 208,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "list",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1937,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "load",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 36,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "repository",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 83,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "workers",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 757,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 8
+    },
+    "reconcile_worker_registration": {
+      "source": {
+        "file": "src/production_os/control_plane.py",
+        "start": 440,
+        "end": 545
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "finish_execution",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 226,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1885,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "latest_execution",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 208,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "list",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1937,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "repository",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 83,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 5
+    },
+    "_json_bytes": {
+      "source": {
+        "file": "src/production_os/control_plane.py",
+        "start": 548,
+        "end": 553
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "list",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1937,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 1
+    },
+    "RequestBodyTooLarge": {
+      "source": {
+        "file": "src/production_os/control_plane.py",
+        "start": 559,
+        "end": 560
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "make_handler": {
+      "source": {
+        "file": "src/production_os/control_plane.py",
+        "start": 563,
+        "end": 3626
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "BackupError",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_backups.py",
+              "line": 19,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "BackupRetentionCandidateConflict",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_backups.py",
+              "line": 32,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "BackupTempCandidateConflict",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_backups.py",
+              "line": 23,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "ControlPlane",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "DashboardNotFound",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 23,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "DevicePairingLimitError",
+          "definitions": [
+            {
+              "file": "src/production_os/device_pairing.py",
+              "line": 32,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "GitHubClient",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 21,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "Handler",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 564,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "Principal",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 23,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "RequestBodyTooLarge",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 559,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "RetentionCandidateConflict",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_maintenance.py",
+              "line": 85,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "WebhookError",
+          "definitions": [
+            {
+              "file": "src/production_os/github_webhook.py",
+              "line": 17,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "WorkflowTaskSpec",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 218,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_bearer_token",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 659,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_json_bytes",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 548,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_method_not_allowed",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 612,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_principal",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 667,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_read_body",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 628,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_read_json",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 647,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_require",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 674,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_send",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 588,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_send_html",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 573,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "acknowledge_dashboard_incident",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 372,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "acknowledge_job_cancel",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_control.py",
+              "line": 126,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "acknowledge_worker_state",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_control.py",
+              "line": 91,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "activity",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 1624,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "add_artifact",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 2217,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "add_instruction",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 2082,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "allows",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 27,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "append_control_audit",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 883,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "append_logs",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 1126,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "append_remediation_event",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 406,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "apply_change_impact",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 454,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "attention",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 342,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "audit_control",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 2272,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "authenticate",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 48,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/device_pairing.py",
+              "line": 112,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "autopilot_queue",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 185,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "backups",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 700,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "cancel",
+          "definitions": [
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 2122,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "cancel_job",
+          "definitions": [
+            {
+              "file": "src/production_os/speculation.py",
+              "line": 294,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 40
+    },
+    "Handler": {
+      "source": {
+        "file": "src/production_os/control_plane.py",
+        "start": 564,
+        "end": 684
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "Principal",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 23,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "RequestBodyTooLarge",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 559,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_bearer_token",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 659,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_json_bytes",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 548,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_method_not_allowed",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 612,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_principal",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 667,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_read_body",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 628,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_read_json",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 647,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_require",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 674,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_send",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 588,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_send_html",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 573,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "allows",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 27,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "authenticate",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 48,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/device_pairing.py",
+              "line": 112,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "do_DELETE",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 625,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "do_PATCH",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 622,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "do_PUT",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 619,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1885,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "list",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1937,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "log_message",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 570,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "version_string",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 567,
               "kind": "function",
               "language": "python"
             }
@@ -99,21 +2084,21 @@
           "relation": "same_file"
         }
       ],
-      "dependency_count": 2
+      "dependency_count": 20
     },
-    "test_shared_wake_dispatches_and_audits_when_no_worker_is_registered": {
+    "version_string": {
       "source": {
-        "file": "tests/test_worker_wake.py",
-        "start": 5,
-        "end": 31
+        "file": "src/production_os/control_plane.py",
+        "start": 567,
+        "end": 687
       },
       "symbol_dependencies": [
         {
-          "symbol": "ControlPlane",
+          "symbol": "Principal",
           "definitions": [
             {
-              "file": "src/production_os/control_plane.py",
-              "line": 46,
+              "file": "src/production_os/api_auth.py",
+              "line": 23,
               "kind": "class",
               "language": "python"
             }
@@ -121,33 +2106,255 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "request_automatic_worker_wake",
+          "symbol": "RequestBodyTooLarge",
           "definitions": [
             {
-              "file": "src/production_os/worker_wake.py",
-              "line": 130,
+              "file": "src/production_os/control_plane.py",
+              "line": 559,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_bearer_token",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 659,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_json_bytes",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 548,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_method_not_allowed",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 612,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_principal",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 667,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_read_body",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 628,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_read_json",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 647,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_require",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 674,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_send",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 588,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_send_html",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 573,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "allows",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 27,
               "kind": "function",
               "language": "python"
             }
           ],
           "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "test_shared_wake_respects_online_worker_and_operator_pause": {
-      "source": {
-        "file": "tests/test_worker_wake.py",
-        "start": 34,
-        "end": 63
-      },
-      "symbol_dependencies": [
+        },
         {
-          "symbol": "ControlPlane",
+          "symbol": "authenticate",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 48,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/device_pairing.py",
+              "line": 112,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "do_DELETE",
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 46,
+              "line": 625,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "do_PATCH",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 622,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "do_PUT",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 619,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1885,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "list",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1937,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "log_message",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 570,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 19
+    },
+    "log_message": {
+      "source": {
+        "file": "src/production_os/control_plane.py",
+        "start": 570,
+        "end": 690
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "Principal",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 23,
               "kind": "class",
               "language": "python"
             }
@@ -155,11 +2362,221 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "request_automatic_worker_wake",
+          "symbol": "RequestBodyTooLarge",
           "definitions": [
             {
-              "file": "src/production_os/worker_wake.py",
-              "line": 130,
+              "file": "src/production_os/control_plane.py",
+              "line": 559,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_bearer_token",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 659,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_json_bytes",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 548,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_method_not_allowed",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 612,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_principal",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 667,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_read_body",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 628,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_read_json",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 647,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_require",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 674,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_send",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 588,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_send_html",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 573,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "allows",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 27,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "authenticate",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 48,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/device_pairing.py",
+              "line": 112,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "do_DELETE",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 625,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "do_PATCH",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 622,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "do_PUT",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 619,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1885,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "list",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1937,
               "kind": "function",
               "language": "python"
             }
@@ -167,21 +2584,21 @@
           "relation": "imported_module"
         }
       ],
-      "dependency_count": 2
+      "dependency_count": 18
     },
-    "test_shared_wake_uses_durable_cooldown": {
+    "_send_html": {
       "source": {
-        "file": "tests/test_worker_wake.py",
-        "start": 66,
-        "end": 92
+        "file": "src/production_os/control_plane.py",
+        "start": 573,
+        "end": 693
       },
       "symbol_dependencies": [
         {
-          "symbol": "ControlPlane",
+          "symbol": "Principal",
           "definitions": [
             {
-              "file": "src/production_os/control_plane.py",
-              "line": 46,
+              "file": "src/production_os/api_auth.py",
+              "line": 23,
               "kind": "class",
               "language": "python"
             }
@@ -189,11 +2606,209 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "request_automatic_worker_wake",
+          "symbol": "RequestBodyTooLarge",
           "definitions": [
             {
-              "file": "src/production_os/worker_wake.py",
-              "line": 130,
+              "file": "src/production_os/control_plane.py",
+              "line": 559,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_bearer_token",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 659,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_json_bytes",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 548,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_method_not_allowed",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 612,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_principal",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 667,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_read_body",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 628,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_read_json",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 647,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_require",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 674,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_send",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 588,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "allows",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 27,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "authenticate",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 48,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/device_pairing.py",
+              "line": 112,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "do_DELETE",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 625,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "do_PATCH",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 622,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "do_PUT",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 619,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1885,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "list",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1937,
               "kind": "function",
               "language": "python"
             }
@@ -201,21 +2816,21 @@
           "relation": "imported_module"
         }
       ],
-      "dependency_count": 2
+      "dependency_count": 17
     },
-    "test_shared_wake_does_not_fail_durable_work_when_audit_write_fails": {
+    "_send": {
       "source": {
-        "file": "tests/test_worker_wake.py",
-        "start": 95,
-        "end": 121
+        "file": "src/production_os/control_plane.py",
+        "start": 588,
+        "end": 708
       },
       "symbol_dependencies": [
         {
-          "symbol": "ControlPlane",
+          "symbol": "Principal",
           "definitions": [
             {
-              "file": "src/production_os/control_plane.py",
-              "line": 46,
+              "file": "src/production_os/api_auth.py",
+              "line": 23,
               "kind": "class",
               "language": "python"
             }
@@ -223,11 +2838,233 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "request_automatic_worker_wake",
+          "symbol": "RequestBodyTooLarge",
           "definitions": [
             {
-              "file": "src/production_os/worker_wake.py",
-              "line": 130,
+              "file": "src/production_os/control_plane.py",
+              "line": 559,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_bearer_token",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 659,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_json_bytes",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 548,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_method_not_allowed",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 612,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_principal",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 667,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_read_body",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 628,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_read_json",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 647,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_require",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 674,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_send_html",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 573,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "allows",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 27,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "authenticate",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 48,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/device_pairing.py",
+              "line": 112,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "do_DELETE",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 625,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "do_GET",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 694,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "do_PATCH",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 622,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "do_PUT",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 619,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1885,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "health",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 574,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "list",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1937,
               "kind": "function",
               "language": "python"
             }
@@ -235,21 +3072,21 @@
           "relation": "imported_module"
         }
       ],
-      "dependency_count": 2
+      "dependency_count": 19
     },
-    "test_shared_wake_dispatches_when_online_worker_lacks_required_capability": {
+    "_method_not_allowed": {
       "source": {
-        "file": "tests/test_worker_wake.py",
-        "start": 125,
-        "end": 153
+        "file": "src/production_os/control_plane.py",
+        "start": 612,
+        "end": 732
       },
       "symbol_dependencies": [
         {
-          "symbol": "ControlPlane",
+          "symbol": "Principal",
           "definitions": [
             {
-              "file": "src/production_os/control_plane.py",
-              "line": 46,
+              "file": "src/production_os/api_auth.py",
+              "line": 23,
               "kind": "class",
               "language": "python"
             }
@@ -257,11 +3094,209 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "request_automatic_worker_wake",
+          "symbol": "RequestBodyTooLarge",
           "definitions": [
             {
-              "file": "src/production_os/worker_wake.py",
-              "line": 130,
+              "file": "src/production_os/control_plane.py",
+              "line": 559,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_bearer_token",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 659,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_principal",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 667,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_read_body",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 628,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_read_json",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 647,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_require",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 674,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_send",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 588,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_send_html",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 573,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "allows",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 27,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "authenticate",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 48,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/device_pairing.py",
+              "line": 112,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "do_DELETE",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 625,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "do_GET",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 694,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "do_PATCH",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 622,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "do_PUT",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 619,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1885,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "health",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 574,
               "kind": "function",
               "language": "python"
             }
@@ -269,21 +3304,21 @@
           "relation": "imported_module"
         }
       ],
-      "dependency_count": 2
+      "dependency_count": 17
     },
-    "test_shared_wake_skips_when_online_worker_can_claim_all_queued_work": {
+    "do_PUT": {
       "source": {
-        "file": "tests/test_worker_wake.py",
-        "start": 156,
-        "end": 188
+        "file": "src/production_os/control_plane.py",
+        "start": 619,
+        "end": 739
       },
       "symbol_dependencies": [
         {
-          "symbol": "ControlPlane",
+          "symbol": "Principal",
           "definitions": [
             {
-              "file": "src/production_os/control_plane.py",
-              "line": 46,
+              "file": "src/production_os/api_auth.py",
+              "line": 23,
               "kind": "class",
               "language": "python"
             }
@@ -291,11 +3326,209 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "request_automatic_worker_wake",
+          "symbol": "RequestBodyTooLarge",
           "definitions": [
             {
-              "file": "src/production_os/worker_wake.py",
-              "line": 130,
+              "file": "src/production_os/control_plane.py",
+              "line": 559,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_bearer_token",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 659,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_method_not_allowed",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 612,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_principal",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 667,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_read_body",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 628,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_read_json",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 647,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_require",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 674,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_send",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 588,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_send_html",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 573,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "allows",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 27,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "authenticate",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 48,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/device_pairing.py",
+              "line": 112,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "do_DELETE",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 625,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "do_GET",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 694,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "do_PATCH",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 622,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1885,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "health",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 574,
               "kind": "function",
               "language": "python"
             }
@@ -303,21 +3536,21 @@
           "relation": "imported_module"
         }
       ],
-      "dependency_count": 2
+      "dependency_count": 17
     },
-    "test_shared_wake_respects_assigned_worker_when_evaluating_compatibility": {
+    "do_PATCH": {
       "source": {
-        "file": "tests/test_worker_wake.py",
-        "start": 191,
-        "end": 231
+        "file": "src/production_os/control_plane.py",
+        "start": 622,
+        "end": 742
       },
       "symbol_dependencies": [
         {
-          "symbol": "ControlPlane",
+          "symbol": "Principal",
           "definitions": [
             {
-              "file": "src/production_os/control_plane.py",
-              "line": 46,
+              "file": "src/production_os/api_auth.py",
+              "line": 23,
               "kind": "class",
               "language": "python"
             }
@@ -325,11 +3558,197 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "request_automatic_worker_wake",
+          "symbol": "RequestBodyTooLarge",
           "definitions": [
             {
-              "file": "src/production_os/worker_wake.py",
-              "line": 130,
+              "file": "src/production_os/control_plane.py",
+              "line": 559,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_bearer_token",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 659,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_method_not_allowed",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 612,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_principal",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 667,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_read_body",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 628,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_read_json",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 647,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_require",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 674,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_send",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 588,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_send_html",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 573,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "allows",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 27,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "authenticate",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 48,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/device_pairing.py",
+              "line": 112,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "do_DELETE",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 625,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "do_GET",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 694,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1885,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "health",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 574,
               "kind": "function",
               "language": "python"
             }
@@ -337,26 +3756,1540 @@
           "relation": "imported_module"
         }
       ],
-      "dependency_count": 2
+      "dependency_count": 16
     },
-    "test_control_plane_wake_checks_all_queued_capability_requirements": {
+    "do_DELETE": {
       "source": {
-        "file": "tests/test_worker_wake.py",
-        "start": 234,
-        "end": 261
+        "file": "src/production_os/control_plane.py",
+        "start": 625,
+        "end": 745
       },
       "symbol_dependencies": [
         {
-          "symbol": "ControlPlane",
+          "symbol": "Principal",
           "definitions": [
             {
-              "file": "src/production_os/control_plane.py",
-              "line": 46,
+              "file": "src/production_os/api_auth.py",
+              "line": 23,
               "kind": "class",
               "language": "python"
             }
           ],
           "relation": "imported_module"
+        },
+        {
+          "symbol": "RequestBodyTooLarge",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 559,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_bearer_token",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 659,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_method_not_allowed",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 612,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_principal",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 667,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_read_body",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 628,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_read_json",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 647,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_require",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 674,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_send",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 588,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_send_html",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 573,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "allows",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 27,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "authenticate",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 48,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/device_pairing.py",
+              "line": 112,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "do_GET",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 694,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1885,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "health",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 574,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 15
+    },
+    "_read_body": {
+      "source": {
+        "file": "src/production_os/control_plane.py",
+        "start": 628,
+        "end": 748
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "Principal",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 23,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "RequestBodyTooLarge",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 559,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_bearer_token",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 659,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_principal",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 667,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_read_json",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 647,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_require",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 674,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_send",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 588,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_send_html",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 573,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "allows",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 27,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "authenticate",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 48,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/device_pairing.py",
+              "line": 112,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "do_GET",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 694,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1885,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "health",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 574,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 13
+    },
+    "_read_json": {
+      "source": {
+        "file": "src/production_os/control_plane.py",
+        "start": 647,
+        "end": 767
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "Principal",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 23,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_bearer_token",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 659,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_principal",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 667,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_read_body",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 628,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_require",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 674,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_send",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 588,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_send_html",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 573,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "allows",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 27,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "authenticate",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 48,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/device_pairing.py",
+              "line": 112,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "do_GET",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 694,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1885,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "health",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 574,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "sessions",
+          "definitions": [
+            {
+              "file": "src/production_os/device_pairing.py",
+              "line": 171,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 13
+    },
+    "_bearer_token": {
+      "source": {
+        "file": "src/production_os/control_plane.py",
+        "start": 659,
+        "end": 779
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "Principal",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 23,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_principal",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 667,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_require",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 674,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_send",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 588,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_send_html",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 573,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "allows",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 27,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "authenticate",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 48,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/device_pairing.py",
+              "line": 112,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "do_GET",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 694,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1885,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "health",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 574,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "sessions",
+          "definitions": [
+            {
+              "file": "src/production_os/device_pairing.py",
+              "line": 171,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 11
+    },
+    "_principal": {
+      "source": {
+        "file": "src/production_os/control_plane.py",
+        "start": 667,
+        "end": 787
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "Principal",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 23,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_bearer_token",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 659,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_require",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 674,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_send",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 588,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_send_html",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 573,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "allows",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 27,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "authenticate",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 48,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/device_pairing.py",
+              "line": 112,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "do_GET",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 694,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1885,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "health",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 574,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "launch_readiness",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 844,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "overview",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 117,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "production_status",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 1058,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "repository",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 83,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "sessions",
+          "definitions": [
+            {
+              "file": "src/production_os/device_pairing.py",
+              "line": 171,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 15
+    },
+    "_require": {
+      "source": {
+        "file": "src/production_os/control_plane.py",
+        "start": 674,
+        "end": 794
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "Principal",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 23,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_principal",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 667,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_send",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 588,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_send_html",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 573,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "allows",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 27,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "do_GET",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 694,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1885,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "health",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 574,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "launch_readiness",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 844,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "overview",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 117,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "production_inbox",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 1219,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "production_status",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 1058,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "repository",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 83,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "sessions",
+          "definitions": [
+            {
+              "file": "src/production_os/device_pairing.py",
+              "line": 171,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 14
+    },
+    "do_GET": {
+      "source": {
+        "file": "src/production_os/control_plane.py",
+        "start": 694,
+        "end": 814
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_require",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 674,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_send",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 588,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_send_html",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 573,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "allows",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 27,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "attention",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 342,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "autopilot_queue",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 185,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1885,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "health",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 574,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "launch_readiness",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 844,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "overview",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 117,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "production_inbox",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 1219,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "production_status",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 1058,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "repository",
+          "definitions": [
+            {
+              "file": "src/production_os/github_client.py",
+              "line": 83,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "sessions",
+          "definitions": [
+            {
+              "file": "src/production_os/device_pairing.py",
+              "line": 171,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "worker_detail",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 770,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "worker_logs",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 799,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "workers",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_service.py",
+              "line": 757,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 17
+    },
+    "do_POST": {
+      "source": {
+        "file": "src/production_os/control_plane.py",
+        "start": 1191,
+        "end": 1311
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "DevicePairingLimitError",
+          "definitions": [
+            {
+              "file": "src/production_os/device_pairing.py",
+              "line": 32,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "_bearer_token",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 659,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_read_json",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 647,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_require",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 674,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_send",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 588,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "exchange",
+          "definitions": [
+            {
+              "file": "src/production_os/device_pairing.py",
+              "line": 77,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1885,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "issue_pairing_code",
+          "definitions": [
+            {
+              "file": "src/production_os/device_pairing.py",
+              "line": 47,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "revoke",
+          "definitions": [
+            {
+              "file": "src/production_os/device_pairing.py",
+              "line": 148,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "revoke_session",
+          "definitions": [
+            {
+              "file": "src/production_os/device_pairing.py",
+              "line": 157,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "sessions",
+          "definitions": [
+            {
+              "file": "src/production_os/device_pairing.py",
+              "line": 171,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        }
+      ],
+      "dependency_count": 11
+    },
+    "audit_control": {
+      "source": {
+        "file": "src/production_os/control_plane.py",
+        "start": 2272,
+        "end": 2392
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_send",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 588,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
         },
         {
           "symbol": "ensure_worker_for_queued_work",
@@ -368,16 +5301,155 @@
               "language": "python"
             }
           ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "get",
+          "definitions": [
+            {
+              "file": "src/production_os/managed_projects.py",
+              "line": 1885,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/release_ledger.py",
+              "line": 192,
+              "kind": "function",
+              "language": "python"
+            },
+            {
+              "file": "src/production_os/workflow_engine.py",
+              "line": 919,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "kick_worker",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_control.py",
+              "line": 139,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "update_control_audit",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 921,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "update_remediation_event",
+          "definitions": [
+            {
+              "file": "src/production_os/dashboard_store.py",
+              "line": 454,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
           "relation": "imported_module"
         }
       ],
-      "dependency_count": 2
+      "dependency_count": 6
     },
-    "test_control_plane_wake_ignores_cancel_requested_jobs": {
+    "serve_control_plane": {
       "source": {
-        "file": "tests/test_worker_wake.py",
-        "start": 265,
-        "end": 293
+        "file": "src/production_os/control_plane.py",
+        "start": 3629,
+        "end": 3668
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "ControlPlane",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 46,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "TokenAuthorizer",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 31,
+              "kind": "class",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "database_server_lock",
+          "definitions": [
+            {
+              "file": "src/production_os/database_maintenance_lock.py",
+              "line": 102,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "load",
+          "definitions": [
+            {
+              "file": "src/production_os/api_auth.py",
+              "line": 36,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "imported_module"
+        },
+        {
+          "symbol": "make_handler",
+          "definitions": [
+            {
+              "file": "src/production_os/control_plane.py",
+              "line": 563,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 5
+    },
+    "_post": {
+      "source": {
+        "file": "tests/test_workflow_auto_wake_api.py",
+        "start": 15,
+        "end": 26
+      },
+      "symbol_dependencies": [],
+      "dependency_count": 0
+    },
+    "running_control": {
+      "source": {
+        "file": "tests/test_workflow_auto_wake_api.py",
+        "start": 30,
+        "end": 54
       },
       "symbol_dependencies": [
         {
@@ -393,33 +5465,11 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "ensure_worker_for_queued_work",
+          "symbol": "TokenAuthorizer",
           "definitions": [
             {
-              "file": "src/production_os/control_plane.py",
-              "line": 249,
-              "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "test_control_plane_wake_ignores_stale_workflow_generation": {
-      "source": {
-        "file": "tests/test_worker_wake.py",
-        "start": 296,
-        "end": 324
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ControlPlane",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 46,
+              "file": "src/production_os/api_auth.py",
+              "line": 31,
               "kind": "class",
               "language": "python"
             }
@@ -427,45 +5477,23 @@
           "relation": "imported_module"
         },
         {
-          "symbol": "ensure_worker_for_queued_work",
+          "symbol": "make_handler",
           "definitions": [
             {
               "file": "src/production_os/control_plane.py",
-              "line": 249,
+              "line": 563,
               "kind": "function",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        }
-      ],
-      "dependency_count": 2
-    },
-    "test_queued_job_wakes_short_lived_actions_worker_despite_online_heartbeat": {
-      "source": {
-        "file": "tests/test_worker_wake.py",
-        "start": 327,
-        "end": 352
-      },
-      "symbol_dependencies": [
-        {
-          "symbol": "ControlPlane",
-          "definitions": [
-            {
-              "file": "src/production_os/control_plane.py",
-              "line": 46,
-              "kind": "class",
               "language": "python"
             }
           ],
           "relation": "imported_module"
         },
         {
-          "symbol": "request_automatic_worker_wake",
+          "symbol": "token_digest",
           "definitions": [
             {
-              "file": "src/production_os/worker_wake.py",
-              "line": 130,
+              "file": "src/production_os/api_auth.py",
+              "line": 18,
               "kind": "function",
               "language": "python"
             }
@@ -473,143 +5501,213 @@
           "relation": "imported_module"
         }
       ],
-      "dependency_count": 2
+      "dependency_count": 4
     },
-    "test_actions_worker_with_no_queued_work_needs_no_wake": {
+    "_create_and_claim": {
       "source": {
-        "file": "tests/test_worker_wake.py",
-        "start": 355,
-        "end": 374
+        "file": "tests/test_workflow_auto_wake_api.py",
+        "start": 57,
+        "end": 88
       },
       "symbol_dependencies": [
         {
-          "symbol": "ControlPlane",
+          "symbol": "_post",
           "definitions": [
             {
-              "file": "src/production_os/control_plane.py",
-              "line": 46,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "request_automatic_worker_wake",
-          "definitions": [
-            {
-              "file": "src/production_os/worker_wake.py",
-              "line": 130,
+              "file": "tests/test_workflow_auto_wake_api.py",
+              "line": 15,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
+          "relation": "same_file"
         }
       ],
-      "dependency_count": 2
+      "dependency_count": 1
     },
-    "test_busy_persistent_worker_cannot_suppress_queued_work_wake": {
+    "test_failure_automatically_wakes_next_workflow_attempt": {
       "source": {
-        "file": "tests/test_worker_wake.py",
-        "start": 377,
-        "end": 402
+        "file": "tests/test_workflow_auto_wake_api.py",
+        "start": 91,
+        "end": 108
       },
       "symbol_dependencies": [
         {
-          "symbol": "ControlPlane",
+          "symbol": "_create_and_claim",
           "definitions": [
             {
-              "file": "src/production_os/control_plane.py",
-              "line": 46,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "request_automatic_worker_wake",
-          "definitions": [
-            {
-              "file": "src/production_os/worker_wake.py",
-              "line": 130,
+              "file": "tests/test_workflow_auto_wake_api.py",
+              "line": 57,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_post",
+          "definitions": [
+            {
+              "file": "tests/test_workflow_auto_wake_api.py",
+              "line": 15,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "running_control",
+          "definitions": [
+            {
+              "file": "tests/test_workflow_auto_wake_api.py",
+              "line": 30,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
         }
       ],
-      "dependency_count": 2
+      "dependency_count": 3
     },
-    "test_available_persistent_worker_prevents_unnecessary_actions_dispatch": {
+    "test_downstream_task_wakes_after_success": {
       "source": {
-        "file": "tests/test_worker_wake.py",
-        "start": 405,
-        "end": 430
+        "file": "tests/test_workflow_auto_wake_api.py",
+        "start": 111,
+        "end": 124
       },
       "symbol_dependencies": [
         {
-          "symbol": "ControlPlane",
+          "symbol": "_create_and_claim",
           "definitions": [
             {
-              "file": "src/production_os/control_plane.py",
-              "line": 46,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "request_automatic_worker_wake",
-          "definitions": [
-            {
-              "file": "src/production_os/worker_wake.py",
-              "line": 130,
+              "file": "tests/test_workflow_auto_wake_api.py",
+              "line": 57,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_post",
+          "definitions": [
+            {
+              "file": "tests/test_workflow_auto_wake_api.py",
+              "line": 15,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "running_control",
+          "definitions": [
+            {
+              "file": "tests/test_workflow_auto_wake_api.py",
+              "line": 30,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
         }
       ],
-      "dependency_count": 2
+      "dependency_count": 3
     },
-    "test_custom_ephemeral_worker_ids_are_configurable": {
+    "test_terminal_failure_without_new_work_does_not_dispatch": {
       "source": {
-        "file": "tests/test_worker_wake.py",
-        "start": 433,
-        "end": 456
+        "file": "tests/test_workflow_auto_wake_api.py",
+        "start": 127,
+        "end": 136
       },
       "symbol_dependencies": [
         {
-          "symbol": "ControlPlane",
+          "symbol": "_create_and_claim",
           "definitions": [
             {
-              "file": "src/production_os/control_plane.py",
-              "line": 46,
-              "kind": "class",
-              "language": "python"
-            }
-          ],
-          "relation": "imported_module"
-        },
-        {
-          "symbol": "request_automatic_worker_wake",
-          "definitions": [
-            {
-              "file": "src/production_os/worker_wake.py",
-              "line": 130,
+              "file": "tests/test_workflow_auto_wake_api.py",
+              "line": 57,
               "kind": "function",
               "language": "python"
             }
           ],
-          "relation": "imported_module"
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_post",
+          "definitions": [
+            {
+              "file": "tests/test_workflow_auto_wake_api.py",
+              "line": 15,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "running_control",
+          "definitions": [
+            {
+              "file": "tests/test_workflow_auto_wake_api.py",
+              "line": 30,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
         }
       ],
-      "dependency_count": 2
+      "dependency_count": 3
+    },
+    "test_wake_dispatch_error_does_not_erase_durable_retry": {
+      "source": {
+        "file": "tests/test_workflow_auto_wake_api.py",
+        "start": 139,
+        "end": 155
+      },
+      "symbol_dependencies": [
+        {
+          "symbol": "_create_and_claim",
+          "definitions": [
+            {
+              "file": "tests/test_workflow_auto_wake_api.py",
+              "line": 57,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "_post",
+          "definitions": [
+            {
+              "file": "tests/test_workflow_auto_wake_api.py",
+              "line": 15,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        },
+        {
+          "symbol": "running_control",
+          "definitions": [
+            {
+              "file": "tests/test_workflow_auto_wake_api.py",
+              "line": 30,
+              "kind": "function",
+              "language": "python"
+            }
+          ],
+          "relation": "same_file"
+        }
+      ],
+      "dependency_count": 3
     }
   }
 }

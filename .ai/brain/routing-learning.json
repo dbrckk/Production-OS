@@ -2,25 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat(benchmark): expose adaptive planner policy and actual fanout",
-      "terms": [
-        "actual",
-        "adaptive",
-        "benchmark",
-        "expose",
-        "fanout",
-        "feat",
-        "planner",
-        "policy"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/agent_benchmark.py",
-        "tests/test_agent_benchmark.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat(agents): learn safe fanout from repository history",
       "terms": [
         "agents",
@@ -1236,6 +1217,26 @@
         "src/production_os/worker_wake.py",
         "tests/test_worker_wake.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "fix(worker): auto-wake retries and downstream tasks after job completion (#256)",
+      "terms": [
+        "256",
+        "after",
+        "auto-wake",
+        "completion",
+        "downstream",
+        "job",
+        "retries",
+        "tasks",
+        "worker"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/control_plane.py",
+        "tests/test_workflow_auto_wake_api.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1497,6 +1498,10 @@
     "255": {
       "src/production_os/worker_wake.py": 4,
       "tests/test_worker_wake.py": 4
+    },
+    "256": {
+      "src/production_os/control_plane.py": 4,
+      "tests/test_workflow_auto_wake_api.py": 4
     },
     "26": {
       "src/production_os/dashboard_backups.py": 4,
@@ -1858,13 +1863,14 @@
       "tests/test_browser_loop.py": 4
     },
     "after": {
-      "src/production_os/control_plane.py": 4,
+      "src/production_os/control_plane.py": 8,
       "src/production_os/dashboard_store.py": 4,
       "src/production_os/dashboard_ui.py": 4,
       "tests/test_dashboard_api.py": 4,
       "tests/test_dashboard_launch.py": 4,
       "tests/test_dashboard_launch_ux.py": 4,
-      "tests/test_release32_one_tap_e2e.py": 4
+      "tests/test_release32_one_tap_e2e.py": 4,
+      "tests/test_workflow_auto_wake_api.py": 4
     },
     "against": {
       "src/production_os/managed_projects.py": 4,
@@ -2080,13 +2086,14 @@
       "tests/test_managed_github_reconciliation.py": 4
     },
     "auto-wake": {
-      "src/production_os/control_plane.py": 4,
+      "src/production_os/control_plane.py": 8,
       "src/production_os/dashboard_store.py": 4,
       "src/production_os/dashboard_ui.py": 4,
       "tests/test_dashboard_api.py": 4,
       "tests/test_dashboard_launch.py": 4,
       "tests/test_dashboard_launch_ux.py": 4,
-      "tests/test_release32_one_tap_e2e.py": 4
+      "tests/test_release32_one_tap_e2e.py": 4,
+      "tests/test_workflow_auto_wake_api.py": 4
     },
     "automatic": {
       "src/production_os/asset_forge.py": 4,
@@ -2546,6 +2553,10 @@
       "src/production_os/managed_projects.py": 4,
       "tests/test_managed_github_reconciliation.py": 4
     },
+    "completion": {
+      "src/production_os/control_plane.py": 4,
+      "tests/test_workflow_auto_wake_api.py": 4
+    },
     "computer-use": {
       "src/production_os/browser_computer.py": 4,
       "src/production_os/cli.py": 4,
@@ -2969,6 +2980,10 @@
     "dom": {
       "src/production_os/browser_computer.py": 4,
       "tests/test_browser_computer.py": 4
+    },
+    "downstream": {
+      "src/production_os/control_plane.py": 4,
+      "tests/test_workflow_auto_wake_api.py": 4
     },
     "drafts": {
       "src/production_os/dashboard_ui.py": 4,
@@ -3647,6 +3662,10 @@
       "tests/test_dashboard_launch.py": 4,
       "tests/test_dashboard_production_inbox_filters_ui.py": 4,
       "tests/test_dashboard_ui_v3.py": 4
+    },
+    "job": {
+      "src/production_os/control_plane.py": 4,
+      "tests/test_workflow_auto_wake_api.py": 4
     },
     "jobs": {
       "src/production_os/control_plane.py": 16,
@@ -4966,6 +4985,10 @@
       "tests/test_dashboard_store_postgres.py": 4,
       "tests/test_dashboard_ui_v3.py": 12
     },
+    "retries": {
+      "src/production_os/control_plane.py": 4,
+      "tests/test_workflow_auto_wake_api.py": 4
+    },
     "retrieve": {
       "src/production_os/github_client.py": 4
     },
@@ -5459,8 +5482,10 @@
       "tests/test_asset_forge.py": 4
     },
     "tasks": {
+      "src/production_os/control_plane.py": 4,
       "src/production_os/workflow_engine.py": 4,
-      "tests/test_browser_computer.py": 4
+      "tests/test_browser_computer.py": 4,
+      "tests/test_workflow_auto_wake_api.py": 4
     },
     "telemetry": {
       "src/production_os/dashboard_store.py": 4,
@@ -5860,6 +5885,7 @@
       "tests/test_worker_availability_api.py": 8,
       "tests/test_worker_compose_deployment.py": 12,
       "tests/test_worker_wake.py": 12,
+      "tests/test_workflow_auto_wake_api.py": 4,
       "tests/test_workflow_engine.py": 4
     },
     "workers": {

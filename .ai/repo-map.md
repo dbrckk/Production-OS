@@ -397,6 +397,7 @@ tests/
   test_worker_wake.py
   test_workers.py
   test_workflow_api.py
+  test_workflow_auto_wake_api.py
   test_workflow_cache.py
   test_workflow_change_impact.py
   test_workflow_engine.py
@@ -4168,12 +4169,23 @@ cancelled = control.speculation.cancel_losers(
 workflow_id = before["payload"].get("workflow_id")
 workflow_task_id = before["payload"].get(
 workflow = None
+worker_wake = None
 ⋮----
 workflow = control.workflows.record_result(
+# The workflow engine can enqueue downstream work.
+# A one-shot Actions worker exits after this claim;
+# durable queue state alone does not wake the next run.
+⋮----
+worker_wake = control.ensure_worker_for_queued_work(
+⋮----
+worker_wake = {
 ⋮----
 reason = str(body.get("reason", "worker failure"))
 ⋮----
 job = control.queue.fail(
+⋮----
+# A retry uses a new queue key, but the worker for
+# the previous attempt may already be terminating.
 ⋮----
 actions = control.queue.recover_expired(
 ⋮----
@@ -19602,6 +19614,59 @@ workflow_id=created["workflow"]["id"]
 first_key=claimed["job"]["key"]
 ⋮----
 second_key=claimed2["job"]["key"]
+````
+
+## File: tests/test_workflow_auto_wake_api.py
+````python
+"""End-to-end verification that workflow transitions wake bounded workers."""
+⋮----
+def _post(base, path, token, payload)
+⋮----
+request = urllib.request.Request(
+⋮----
+@pytest.fixture
+def running_control(tmp_path, monkeypatch)
+⋮----
+auth = TokenAuthorizer([
+control = ControlPlane(str(tmp_path / "wake-api.sqlite"), authorizer=auth)
+⋮----
+# Keep the short-lived runner's registry heartbeat online, as it would be
+# briefly after its process exited.
+⋮----
+dispatches = []
+⋮----
+server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(control))
+thread = threading.Thread(target=server.serve_forever, daemon=True)
+⋮----
+def _create_and_claim(base, *, task_attempts=2, downstream=False)
+⋮----
+tasks = [{
+⋮----
+created = _post(base, "/v1/workflows", "op", {
+workflow_id = created["workflow"]["id"]
+dispatched = _post(base, f"/v1/workflows/{workflow_id}/dispatch", "op", {})
+⋮----
+claimed = _post(base, "/v1/jobs/claim", "worker", {
+job = claimed["job"]
+⋮----
+def test_failure_automatically_wakes_next_workflow_attempt(running_control)
+⋮----
+result = _post(base, "/v1/jobs/fail", "worker", {
+⋮----
+workflow = control.workflows.get(workflow_id)
+task = next(t for t in workflow["tasks"] if t["task_id"] == "build")
+⋮----
+retry_job = control.queue.get(task["claimed_job_key"])
+⋮----
+def test_downstream_task_wakes_after_success(running_control)
+⋮----
+result = _post(base, "/v1/jobs/complete", "worker", {
+⋮----
+review = next(t for t in workflow["tasks"] if t["task_id"] == "review")
+⋮----
+def test_terminal_failure_without_new_work_does_not_dispatch(running_control)
+⋮----
+def test_wake_dispatch_error_does_not_erase_durable_retry(running_control, monkeypatch)
 ````
 
 ## File: tests/test_workflow_cache.py

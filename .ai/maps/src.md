@@ -3289,12 +3289,23 @@ cancelled = control.speculation.cancel_losers(
 workflow_id = before["payload"].get("workflow_id")
 workflow_task_id = before["payload"].get(
 workflow = None
+worker_wake = None
 ⋮----
 workflow = control.workflows.record_result(
+# The workflow engine can enqueue downstream work.
+# A one-shot Actions worker exits after this claim;
+# durable queue state alone does not wake the next run.
+⋮----
+worker_wake = control.ensure_worker_for_queued_work(
+⋮----
+worker_wake = {
 ⋮----
 reason = str(body.get("reason", "worker failure"))
 ⋮----
 job = control.queue.fail(
+⋮----
+# A retry uses a new queue key, but the worker for
+# the previous attempt may already be terminating.
 ⋮----
 actions = control.queue.recover_expired(
 ⋮----

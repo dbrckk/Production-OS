@@ -5,80 +5,1364 @@
   "semantic": false,
   "note": "Occurrences are lexical word matches; verify source/LSP/compiler data before relying on them.",
   "symbols": {
-    "_ephemeral_worker_ids": {
+    "ControlPlane": {
       "definition": {
-        "file": "src/production_os/worker_wake.py",
-        "line": 15,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "src/production_os/worker_wake.py",
-          "line": 15,
-          "preview": "def _ephemeral_worker_ids() -> set[str]:",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/worker_wake.py",
-          "line": 92,
-          "preview": "ephemeral_worker_ids = _ephemeral_worker_ids()",
-          "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 2
-    },
-    "_parse_timestamp": {
-      "definition": {
-        "file": "src/production_os/worker_wake.py",
-        "line": 22,
-        "kind": "function",
+        "file": "src/production_os/control_plane.py",
+        "line": 46,
+        "kind": "class",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/control_plane.py",
-          "line": 325,
-          "preview": "def _parse_timestamp(value):",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/control_plane.py",
-          "line": 370,
-          "preview": "last_activity = self._parse_timestamp(",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/device_pairing.py",
-          "line": 22,
-          "preview": "def _parse_timestamp(value) -> datetime | None:",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/device_pairing.py",
-          "line": 130,
-          "preview": "last_used = _parse_timestamp(session.get(\"last_used_at\"))",
-          "definition_candidate": false
-        },
-        {
-          "file": "src/production_os/worker_wake.py",
-          "line": 22,
-          "preview": "def _parse_timestamp(value):",
-          "definition_candidate": true
-        },
-        {
-          "file": "src/production_os/worker_wake.py",
           "line": 46,
-          "preview": "requested_at = _parse_timestamp(latest.get(\"requested_at\"))",
+          "preview": "class ControlPlane:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 563,
+          "preview": "def make_handler(control: ControlPlane):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 3651,
+          "preview": "control = ControlPlane(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane.py",
+          "line": 8,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane.py",
+          "line": 32,
+          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane.py",
+          "line": 81,
+          "preview": "control=ControlPlane(str(tmp_path/\"wake-enqueue.sqlite\"),authorizer=auth)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane.py",
+          "line": 110,
+          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane.py",
+          "line": 164,
+          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane.py",
+          "line": 213,
+          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane.py",
+          "line": 302,
+          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane.py",
+          "line": 345,
+          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane.py",
+          "line": 388,
+          "preview": "control=ControlPlane(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane.py",
+          "line": 420,
+          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane_pr_impact.py",
+          "line": 8,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane_pr_impact.py",
+          "line": 37,
+          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=auth)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane_release.py",
+          "line": 8,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane_release.py",
+          "line": 43,
+          "preview": "control=ControlPlane(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane_webhook.py",
+          "line": 11,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane_webhook.py",
+          "line": 48,
+          "preview": "control=ControlPlane(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane_webhook.py",
+          "line": 151,
+          "preview": "control=ControlPlane(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane_webhook.py",
+          "line": 196,
+          "preview": "control=ControlPlane(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_api.py",
+          "line": 12,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_api.py",
+          "line": 26,
+          "preview": "control = ControlPlane(str(tmp_path / \"db.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_backup_api.py",
+          "line": 13,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_backup_api.py",
+          "line": 52,
+          "preview": "control = ControlPlane(str(tmp_path / \"control.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_backup_api.py",
+          "line": 81,
+          "preview": "control = ControlPlane(str(tmp_path / \"control.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_backup_api.py",
+          "line": 129,
+          "preview": "control = ControlPlane(str(tmp_path / \"control.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_backup_api.py",
+          "line": 158,
+          "preview": "control = ControlPlane(str(tmp_path / \"control.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_backup_api.py",
+          "line": 210,
+          "preview": "control = ControlPlane(str(tmp_path / \"control.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_backup_api.py",
+          "line": 243,
+          "preview": "control = ControlPlane(str(tmp_path / \"control.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_backup_api.py",
+          "line": 301,
+          "preview": "control = ControlPlane(str(tmp_path / \"control.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_backup_api.py",
+          "line": 339,
+          "preview": "control = ControlPlane(str(tmp_path / \"control.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_backup_api.py",
+          "line": 377,
+          "preview": "control = ControlPlane(str(tmp_path / \"control.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_backup_api.py",
+          "line": 401,
+          "preview": "control = ControlPlane(str(tmp_path / \"control.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_backup_api.py",
+          "line": 436,
+          "preview": "control = ControlPlane(str(tmp_path / \"control.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_backup_api.py",
+          "line": 521,
+          "preview": "control = ControlPlane(str(tmp_path / \"control.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_backup_api.py",
+          "line": 561,
+          "preview": "control = ControlPlane(str(tmp_path / \"control.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_backup_api.py",
+          "line": 590,
+          "preview": "control = ControlPlane(str(tmp_path / \"control.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 10,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 39,
+          "preview": "control = ControlPlane(str(tmp_path / \"db.sqlite\"), authorizer=auth)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_audit.py",
+          "line": 10,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_audit.py",
+          "line": 96,
+          "preview": "control = ControlPlane(str(tmp_path / \"api.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_audit.py",
+          "line": 193,
+          "preview": "control = ControlPlane(str(tmp_path / \"audit-failure.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_audit.py",
+          "line": 225,
+          "preview": "control = ControlPlane(str(tmp_path / \"secret-audit.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 10,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 57,
+          "preview": "first = ControlPlane(database, authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 64,
+          "preview": "second = ControlPlane(database, authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 69,
+          "preview": "control = ControlPlane(str(tmp_path / \"production.db\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 252,
+          "preview": "first = ControlPlane(database, authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 277,
+          "preview": "second = ControlPlane(database, authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 308,
+          "preview": "first = ControlPlane(database, authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 320,
+          "preview": "second = ControlPlane(database, authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 332,
+          "preview": "third = ControlPlane(database, authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 10,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 106,
+          "preview": "control = ControlPlane(str(tmp_path / \"api-incidents.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 173,
+          "preview": "control = ControlPlane(str(tmp_path / \"polling-incidents.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 220,
+          "preview": "control = ControlPlane(str(tmp_path / \"bad-status.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 239,
+          "preview": "control = ControlPlane(str(tmp_path / \"resolved-ack.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_launch_readiness.py",
+          "line": 1,
+          "preview": "from production_os.control_plane import ControlPlane",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_launch_readiness.py",
+          "line": 5,
+          "preview": "control = ControlPlane(str(tmp_path / \"readiness.sqlite\"))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_launch_readiness.py",
+          "line": 52,
+          "preview": "control = ControlPlane(str(tmp_path / \"readiness-workers.sqlite\"))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_launch_readiness.py",
+          "line": 88,
+          "preview": "control = ControlPlane(str(tmp_path / \"readiness-invalid.sqlite\"))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_launch_readiness.py",
+          "line": 99,
+          "preview": "control = ControlPlane(str(tmp_path / \"readiness-wake.sqlite\"))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_launch_ux.py",
+          "line": 10,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_launch_ux.py",
+          "line": 79,
+          "preview": "control = ControlPlane(str(tmp_path / \"launch-ux.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_launch_ux.py",
+          "line": 108,
+          "preview": "control = ControlPlane(str(tmp_path / \"repos.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_launch_ux.py",
+          "line": 175,
+          "preview": "control = ControlPlane(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_launch_ux.py",
+          "line": 223,
+          "preview": "control = ControlPlane(str(tmp_path / \"auto-wake.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_launch_ux.py",
+          "line": 264,
+          "preview": "control = ControlPlane(str(tmp_path / \"no-auto-wake.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_launch_ux.py",
+          "line": 300,
+          "preview": "control = ControlPlane(str(tmp_path / \"wake-saturated.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_launch_ux.py",
+          "line": 311,
+          "preview": "control = ControlPlane(str(tmp_path / \"wake-paused.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_launch_ux.py",
+          "line": 326,
+          "preview": "control = ControlPlane(str(tmp_path / \"wake-offline.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_launch_ux.py",
+          "line": 336,
+          "preview": "control = ControlPlane(str(tmp_path / \"wake-cooldown.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_launch_ux.py",
+          "line": 350,
+          "preview": "control = ControlPlane(str(tmp_path / \"wake-dedupe.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_launch_ux.py",
+          "line": 391,
+          "preview": "control = ControlPlane(str(tmp_path / \"wake-failed-retry.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_launch_ux.py",
+          "line": 406,
+          "preview": "control = ControlPlane(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_launch_ux.py",
+          "line": 448,
+          "preview": "control = ControlPlane(str(tmp_path / \"readiness-http.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_maintenance.py",
+          "line": 11,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_maintenance.py",
+          "line": 107,
+          "preview": "control = ControlPlane(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_maintenance.py",
+          "line": 143,
+          "preview": "control = ControlPlane(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_observability_e2e.py",
+          "line": 6,
+          "preview": "from production_os.control_plane import ControlPlane",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_observability_e2e.py",
+          "line": 18,
+          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_observability_e2e.py",
+          "line": 37,
+          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=_auth()); store=control.dashboard_store",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_observability_e2e.py",
+          "line": 46,
+          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_observability_e2e.py",
+          "line": 55,
+          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_observability_e2e.py",
+          "line": 66,
+          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_observability_e2e.py",
+          "line": 75,
+          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_observability_e2e.py",
+          "line": 84,
+          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_observability_e2e.py",
+          "line": 95,
+          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_observability_e2e.py",
+          "line": 111,
+          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_observability_e2e.py",
+          "line": 124,
+          "preview": "control=ControlPlane(str(tmp_path/\"db.sqlite\"),authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_playbook_api.py",
+          "line": 4,
+          "preview": "from production_os.control_plane import ControlPlane",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_playbook_api.py",
+          "line": 8,
+          "preview": "return ControlPlane(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_production_inbox.py",
+          "line": 3,
+          "preview": "from production_os.control_plane import ControlPlane",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_production_inbox.py",
+          "line": 7,
+          "preview": "control = ControlPlane(str(tmp_path / \"production-inbox.sqlite\"))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_production_inbox.py",
+          "line": 83,
+          "preview": "control = ControlPlane(str(tmp_path / \"production-inbox-filter.sqlite\"))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_production_inbox.py",
+          "line": 100,
+          "preview": "control = ControlPlane(str(tmp_path / \"production-inbox-limit.sqlite\"))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_production_inbox.py",
+          "line": 113,
+          "preview": "control = ControlPlane(str(tmp_path / \"production-inbox-recency.sqlite\"))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_production_inbox.py",
+          "line": 214,
+          "preview": "control = ControlPlane(str(tmp_path / \"production-inbox-sort.sqlite\"))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_production_status.py",
+          "line": 5,
+          "preview": "from production_os.control_plane import ControlPlane",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_production_status.py",
+          "line": 10,
+          "preview": "control = ControlPlane(str(tmp_path / \"live-status.sqlite\"))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_production_status.py",
+          "line": 62,
+          "preview": "control = ControlPlane(str(tmp_path / \"live-status-errors.sqlite\"))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_production_status.py",
+          "line": 71,
+          "preview": "control = ControlPlane(str(tmp_path / \"cancel-status.sqlite\"))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_remediation_api.py",
+          "line": 10,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_remediation_api.py",
+          "line": 60,
+          "preview": "control = ControlPlane(str(tmp_path / \"remediation-api.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_remediation_api.py",
+          "line": 86,
+          "preview": "control = ControlPlane(str(tmp_path / \"remediation-reject.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_remediation_api.py",
+          "line": 111,
+          "preview": "control = ControlPlane(str(tmp_path / \"remediation-target.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_remediation_api.py",
+          "line": 130,
+          "preview": "control = ControlPlane(str(tmp_path / \"direct-control.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_remediation_api.py",
+          "line": 152,
+          "preview": "control = ControlPlane(str(tmp_path / \"remediation-read.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_remediation_api.py",
+          "line": 187,
+          "preview": "control = ControlPlane(str(tmp_path / \"remediation-filter.sqlite\"), authorizer=_auth())",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_remediation_api.py",
+          "line": 228,
+          "preview": "control = ControlPlane(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_remediation_api.py",
+          "line": 256,
+          "preview": "control = ControlPlane(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_remediation_api.py",
+          "line": 275,
+          "preview": "control = ControlPlane(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_remediation_api.py",
+          "line": 321,
+          "preview": "control = ControlPlane(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_retention_prune.py",
+          "line": 10,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_retention_prune.py",
+          "line": 128,
+          "preview": "control = ControlPlane(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_retention_prune.py",
+          "line": 145,
+          "preview": "control = ControlPlane(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_retention_prune.py",
+          "line": 222,
+          "preview": "control = ControlPlane(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_retention_prune.py",
+          "line": 278,
+          "preview": "control = ControlPlane(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_store_postgres.py",
+          "line": 135,
+          "preview": "from production_os.control_plane import ControlPlane",
           "definition_candidate": false
         }
       ],
-      "occurrence_count": 6
+      "occurrence_count": 120
+    },
+    "__init__": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 47,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/agent_benchmark.py",
+          "line": 109,
+          "preview": "def __init__(self, backend):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/agent_runtime.py",
+          "line": 111,
+          "preview": "def __init__(self, root: str | os.PathLike[str]):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/api_auth.py",
+          "line": 32,
+          "preview": "def __init__(self, entries: list[dict]):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/approvals.py",
+          "line": 31,
+          "preview": "def __init__(self, path: str | Path):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/budgets.py",
+          "line": 29,
+          "preview": "def __init__(self, path: str | Path):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/builder_identity.py",
+          "line": 77,
+          "preview": "def __init__(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/claims.py",
+          "line": 30,
+          "preview": "def __init__(self, path: str | Path):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 47,
+          "preview": "def __init__(",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/controller_leader.py",
+          "line": 27,
+          "preview": "def __init__(self, path: str | os.PathLike[str]):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/controller_leader.py",
+          "line": 94,
+          "preview": "def __init__(self, dsn: str):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_backups.py",
+          "line": 24,
+          "preview": "def __init__(self, expected: int, actual: int):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_backups.py",
+          "line": 25,
+          "preview": "super().__init__(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_backups.py",
+          "line": 33,
+          "preview": "def __init__(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_backups.py",
+          "line": 40,
+          "preview": "super().__init__(\"backup retention candidate set changed\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_control.py",
+          "line": 14,
+          "preview": "def __init__(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_github.py",
+          "line": 18,
+          "preview": "def __init__(self, github, store):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_maintenance.py",
+          "line": 86,
+          "preview": "def __init__(self, expected: int, actual: int):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_maintenance.py",
+          "line": 87,
+          "preview": "super().__init__(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_service.py",
+          "line": 41,
+          "preview": "def __init__(self, control):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_store.py",
+          "line": 177,
+          "preview": "def __init__(self, backend):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/dashboard_usage.py",
+          "line": 31,
+          "preview": "def __init__(self, version, rules):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/database_maintenance_lock.py",
+          "line": 22,
+          "preview": "def __init__(self, database: str):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/device_pairing.py",
+          "line": 44,
+          "preview": "def __init__(self, store):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/execution_optimizer.py",
+          "line": 36,
+          "preview": "def __init__(self, backend):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_client.py",
+          "line": 24,
+          "preview": "def __init__(self, token: str | None = None, timeout: float = 20.0):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/github_webhook.py",
+          "line": 96,
+          "preview": "def __init__(self, backend):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/journal.py",
+          "line": 12,
+          "preview": "def __init__(self, path: str | Path):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/key_registry.py",
+          "line": 96,
+          "preview": "def __init__(self, entries: dict[str, Any] | None = None):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/locks.py",
+          "line": 11,
+          "preview": "def __init__(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/managed_projects.py",
+          "line": 597,
+          "preview": "def __init__(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/metrics.py",
+          "line": 27,
+          "preview": "def __init__(self, path: str | Path):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/model_router.py",
+          "line": 114,
+          "preview": "def __init__(self, backend):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/policy.py",
+          "line": 38,
+          "preview": "def __init__(self, payload: dict[str, Any]):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/portfolio_optimizer.py",
+          "line": 7,
+          "preview": "def __init__(self, workflow_engine, execution_optimizer):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/postgres_backend.py",
+          "line": 28,
+          "preview": "def __init__(self, dsn: str):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/postgres_backend.py",
+          "line": 667,
+          "preview": "def __init__(self, backend: PostgresBackend):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/postgres_backend.py",
+          "line": 995,
+          "preview": "def __init__(self, backend: PostgresBackend):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/postgres_backend.py",
+          "line": 1177,
+          "preview": "def __init__(self, backend: PostgresBackend):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/postgres_backend.py",
+          "line": 1355,
+          "preview": "def __init__(self, backend: PostgresBackend):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/project_memory.py",
+          "line": 107,
+          "preview": "def __init__(self, backend):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/quarantine.py",
+          "line": 12,
+          "preview": "def __init__(self, path: str | Path):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/rate_limit.py",
+          "line": 53,
+          "preview": "def __init__(self, path: str | Path):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/rekor_checkpoint_state.py",
+          "line": 126,
+          "preview": "def __init__(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/rekor_checkpoint_state.py",
+          "line": 203,
+          "preview": "def __init__(self, backend: Any) -> None:",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/rekor_checkpoint_state.py",
+          "line": 425,
+          "preview": "def __init__(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/rekor_witness_quorum.py",
+          "line": 27,
+          "preview": "def __init__(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/rekor_witness_quorum.py",
+          "line": 92,
+          "preview": "def __init__(self, backend: Any) -> None:",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/release_ledger.py",
+          "line": 82,
+          "preview": "def __init__(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/remote_worker.py",
+          "line": 23,
+          "preview": "def __init__(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/remote_worker_runner.py",
+          "line": 32,
+          "preview": "def __init__(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/repository_cache.py",
+          "line": 78,
+          "preview": "def __init__(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/result_cache.py",
+          "line": 44,
+          "preview": "def __init__(self, backend):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/runtime_state.py",
+          "line": 44,
+          "preview": "def __init__(self, path: str | Path):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/signer_factory.py",
+          "line": 24,
+          "preview": "def __init__(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/signers.py",
+          "line": 21,
+          "preview": "def __init__(self, private_key_pem: str):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/skill_memory.py",
+          "line": 80,
+          "preview": "def __init__(self, backend):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/speculation.py",
+          "line": 26,
+          "preview": "def __init__(self, backend, queue):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/sqlite_backend.py",
+          "line": 23,
+          "preview": "def __init__(self, path: str | Path):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/sqlite_backend.py",
+          "line": 652,
+          "preview": "def __init__(self, backend: SQLiteBackend):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/sqlite_backend.py",
+          "line": 978,
+          "preview": "def __init__(self, backend: SQLiteBackend):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/sqlite_backend.py",
+          "line": 1150,
+          "preview": "def __init__(self, backend: SQLiteBackend):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/sqlite_backend.py",
+          "line": 1294,
+          "preview": "def __init__(self, backend: SQLiteBackend):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/transparency_receipts.py",
+          "line": 490,
+          "preview": "def __init__(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/vault_signer.py",
+          "line": 20,
+          "preview": "def __init__(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/workers.py",
+          "line": 28,
+          "preview": "def __init__(self, path: str | Path):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/workflow_engine.py",
+          "line": 319,
+          "preview": "def __init__(self, backend, queue):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_asset_forge.py",
+          "line": 14,
+          "preview": "def __init__(self, *, dispatch_allowed=True):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_asset_forge_dispatch_probe.py",
+          "line": 12,
+          "preview": "def __init__(self, outcome, *, token=\"test-token\"):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_asset_forge_dispatch_probe.py",
+          "line": 13,
+          "preview": "super().__init__(token=token)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_asset_forge_dispatch_probe.py",
+          "line": 115,
+          "preview": "def __init__(self, token=None):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_browser_computer.py",
+          "line": 654,
+          "preview": "def __init__(self, *, attached=True, text=\"\"):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_browser_computer.py",
+          "line": 673,
+          "preview": "def __init__(self, locator):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_browser_computer.py",
+          "line": 745,
+          "preview": "def __init__(self, *, visible=True, text=\"\", attributes=None):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_browser_computer.py",
+          "line": 761,
+          "preview": "def __init__(self, elements):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_browser_computer.py",
+          "line": 772,
+          "preview": "def __init__(self, text):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_browser_computer.py",
+          "line": 780,
+          "preview": "def __init__(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_cli.py",
+          "line": 278,
+          "preview": "def __init__(self, *_args, **_kwargs):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_cli.py",
+          "line": 292,
+          "preview": "def __init__(self, *_args, **_kwargs):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_controller_daemon.py",
+          "line": 10,
+          "preview": "def __init__(self, stop_after_waits: int):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_controller_error_recovery.py",
+          "line": 14,
+          "preview": "def __init__(self, count):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_controller_leader.py",
+          "line": 65,
+          "preview": "def __init__(self, row):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_controller_leader.py",
+          "line": 72,
+          "preview": "def __init__(self):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_controller_leader.py",
+          "line": 87,
+          "preview": "def __init__(self, dsn):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_controller_leader.py",
+          "line": 116,
+          "preview": "def __init__(self):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_controller_leader.py",
+          "line": 128,
+          "preview": "def __init__(self, _dsn):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_attention.py",
+          "line": 7,
+          "preview": "def __init__(self, rows):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control.py",
+          "line": 72,
+          "preview": "def __init__(self, fail=False):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 41,
+          "preview": "def __init__(self):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_github.py",
+          "line": 16,
+          "preview": "def __init__(self):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_database_maintenance_lock.py",
+          "line": 98,
+          "preview": "def __init__(self, address, handler):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_fairness.py",
+          "line": 5,
+          "preview": "def __init__(self, repository, task):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_github_automerge.py",
+          "line": 7,
+          "preview": "def __init__(self, token=\"token\"):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_github_automerge.py",
+          "line": 8,
+          "preview": "super().__init__(token=token)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_github_client_pr_files.py",
+          "line": 5,
+          "preview": "def __init__(self, pages):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_github_client_pr_files.py",
+          "line": 6,
+          "preview": "super().__init__(token=\"test\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_github_client_put_file.py",
+          "line": 5,
+          "preview": "def __init__(self, existing=None):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_github_client_put_file.py",
+          "line": 6,
+          "preview": "super().__init__(token=\"test-token\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_managed_github_reconciliation.py",
+          "line": 19,
+          "preview": "def __init__(self, merge=None, error=None):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_persistent_agent_runtime.py",
+          "line": 14,
+          "preview": "def __init__(self, jobs, *, stale=False):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_rekor_checkpoint_state_cli.py",
+          "line": 40,
+          "preview": "def __init__(self):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_rekor_witness_quorum_cli.py",
+          "line": 62,
+          "preview": "def __init__(self):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_transparency_receipts.py",
+          "line": 320,
+          "preview": "def __init__(self, payload):",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 102
     },
     "automatic_worker_wake_allowed": {
       "definition": {
-        "file": "src/production_os/worker_wake.py",
-        "line": 32,
+        "file": "src/production_os/control_plane.py",
+        "line": 120,
         "kind": "function",
         "language": "python"
       },
@@ -93,13 +1377,13 @@
           "file": "src/production_os/control_plane.py",
           "line": 120,
           "preview": "def automatic_worker_wake_allowed(",
-          "definition_candidate": false
+          "definition_candidate": true
         },
         {
           "file": "src/production_os/worker_wake.py",
           "line": 32,
           "preview": "def automatic_worker_wake_allowed(",
-          "definition_candidate": true
+          "definition_candidate": false
         },
         {
           "file": "src/production_os/worker_wake.py",
@@ -124,8 +1408,8 @@
     },
     "automatic_worker_wake_needed": {
       "definition": {
-        "file": "src/production_os/worker_wake.py",
-        "line": 53,
+        "file": "src/production_os/control_plane.py",
+        "line": 130,
         "kind": "function",
         "language": "python"
       },
@@ -140,13 +1424,13 @@
           "file": "src/production_os/control_plane.py",
           "line": 130,
           "preview": "def automatic_worker_wake_needed(self) -> bool:",
-          "definition_candidate": false
+          "definition_candidate": true
         },
         {
           "file": "src/production_os/worker_wake.py",
           "line": 53,
           "preview": "def automatic_worker_wake_needed(",
-          "definition_candidate": true
+          "definition_candidate": false
         },
         {
           "file": "src/production_os/worker_wake.py",
@@ -175,381 +1459,3267 @@
       ],
       "occurrence_count": 7
     },
-    "request_automatic_worker_wake": {
+    "worker_queue_availability": {
       "definition": {
-        "file": "src/production_os/worker_wake.py",
-        "line": 130,
+        "file": "src/production_os/control_plane.py",
+        "line": 136,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/control_plane.py",
-          "line": 34,
-          "preview": "request_automatic_worker_wake,",
+          "line": 136,
+          "preview": "def worker_queue_availability(",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1320,
+          "preview": "availability = control.worker_queue_availability(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_worker_availability_api.py",
+          "line": 271,
+          "preview": "result = control.worker_queue_availability(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_worker_availability_api.py",
+          "line": 289,
+          "preview": "empty = control.worker_queue_availability(worker_id=\"w\", capabilities=[\"python\"])",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_worker_availability_api.py",
+          "line": 297,
+          "preview": "stale = control.worker_queue_availability(worker_id=\"w\", capabilities=[\"python\"])",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_worker_availability_api.py",
+          "line": 310,
+          "preview": "result = control.worker_queue_availability(worker_id=\"w\", capabilities=[\"python\"])",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 6
+    },
+    "ensure_worker_for_queued_work": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 249,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 249,
+          "preview": "def ensure_worker_for_queued_work(",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1377,
+          "preview": "wake = control.ensure_worker_for_queued_work(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/control_plane.py",
-          "line": 278,
-          "preview": "return request_automatic_worker_wake(",
+          "line": 1432,
+          "preview": "control.ensure_worker_for_queued_work(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1462,
+          "preview": "control.ensure_worker_for_queued_work(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1474,
+          "preview": "control.ensure_worker_for_queued_work(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1697,
+          "preview": "control.ensure_worker_for_queued_work(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2354,
+          "preview": "control.ensure_worker_for_queued_work(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2414,
+          "preview": "control.ensure_worker_for_queued_work(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 3121,
+          "preview": "wake = control.ensure_worker_for_queued_work(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 3463,
+          "preview": "worker_wake = control.ensure_worker_for_queued_work(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 3578,
+          "preview": "worker_wake = control.ensure_worker_for_queued_work(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_worker_wake.py",
+          "line": 258,
+          "preview": "result = control.ensure_worker_for_queued_work(requested_by=\"operator:test\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_worker_wake.py",
+          "line": 287,
+          "preview": "result = control.ensure_worker_for_queued_work(requested_by=\"operator:test\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_worker_wake.py",
+          "line": 318,
+          "preview": "result = control.ensure_worker_for_queued_work(requested_by=\"operator:test\")",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 14
+    },
+    "cooperative_worker_fleet_available": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 286,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 286,
+          "preview": "def cooperative_worker_fleet_available(",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1372,
+          "preview": "control.cooperative_worker_fleet_available(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/controller.py",
-          "line": 40,
-          "preview": "from .worker_wake import request_automatic_worker_wake",
+          "line": 60,
+          "preview": "from .workers import WorkerRegistry, cooperative_worker_fleet_available",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/controller.py",
-          "line": 619,
-          "preview": "automatic_worker_wake = request_automatic_worker_wake(",
+          "line": 495,
+          "preview": "and cooperative_worker_fleet_available(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/workers.py",
+          "line": 154,
+          "preview": "def cooperative_worker_fleet_available(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release32_one_tap_e2e.py",
+          "line": 286,
+          "preview": "assert control.cooperative_worker_fleet_available() is True",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release32_one_tap_e2e.py",
+          "line": 291,
+          "preview": "assert control.cooperative_worker_fleet_available() is False",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release32_one_tap_e2e.py",
+          "line": 306,
+          "preview": "assert control.cooperative_worker_fleet_available(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release32_one_tap_e2e.py",
+          "line": 316,
+          "preview": "assert control.cooperative_worker_fleet_available(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release32_one_tap_e2e.py",
+          "line": 333,
+          "preview": "assert control.cooperative_worker_fleet_available(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release32_one_tap_e2e.py",
+          "line": 336,
+          "preview": "assert control.cooperative_worker_fleet_available(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release32_one_tap_e2e.py",
+          "line": 346,
+          "preview": "assert control.cooperative_worker_fleet_available(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release32_one_tap_e2e.py",
+          "line": 349,
+          "preview": "assert control.cooperative_worker_fleet_available(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release32_one_tap_e2e.py",
+          "line": 364,
+          "preview": "assert control.cooperative_worker_fleet_available(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workers.py",
+          "line": 3,
+          "preview": "cooperative_worker_fleet_available,",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workers.py",
+          "line": 29,
+          "preview": "assert cooperative_worker_fleet_available(registry) is True",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workers.py",
+          "line": 36,
+          "preview": "assert cooperative_worker_fleet_available(registry) is False",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workers.py",
+          "line": 43,
+          "preview": "assert cooperative_worker_fleet_available(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workers.py",
+          "line": 49,
+          "preview": "assert cooperative_worker_fleet_available(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workers.py",
+          "line": 59,
+          "preview": "assert cooperative_worker_fleet_available(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workers.py",
+          "line": 65,
+          "preview": "assert cooperative_worker_fleet_available(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workers.py",
+          "line": 77,
+          "preview": "assert cooperative_worker_fleet_available(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workers.py",
+          "line": 88,
+          "preview": "assert cooperative_worker_fleet_available(",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 23
+    },
+    "_parse_timestamp": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 325,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 325,
+          "preview": "def _parse_timestamp(value):",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 370,
+          "preview": "last_activity = self._parse_timestamp(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/device_pairing.py",
+          "line": 22,
+          "preview": "def _parse_timestamp(value) -> datetime | None:",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/device_pairing.py",
+          "line": 130,
+          "preview": "last_used = _parse_timestamp(session.get(\"last_used_at\"))",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/worker_wake.py",
-          "line": 130,
-          "preview": "def request_automatic_worker_wake(",
+          "line": 22,
+          "preview": "def _parse_timestamp(value):",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/worker_wake.py",
+          "line": 46,
+          "preview": "requested_at = _parse_timestamp(latest.get(\"requested_at\"))",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 6
+    },
+    "recover_abandoned_acked_jobs": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 334,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 334,
+          "preview": "def recover_abandoned_acked_jobs(self) -> list[dict]:",
           "definition_candidate": true
         },
         {
-          "file": "tests/test_worker_wake.py",
-          "line": 2,
-          "preview": "from production_os.worker_wake import request_automatic_worker_wake",
+          "file": "src/production_os/control_plane.py",
+          "line": 3139,
+          "preview": "control.recover_abandoned_acked_jobs()",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "reconcile_worker_registration": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 440,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 440,
+          "preview": "def reconcile_worker_registration(",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2831,
+          "preview": "recovered = control.reconcile_worker_registration(",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_worker_wake.py",
-          "line": 20,
-          "preview": "result = request_automatic_worker_wake(",
+          "file": "src/production_os/control_plane.py",
+          "line": 2871,
+          "preview": "recovered = control.reconcile_worker_registration(",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 3
+    },
+    "_json_bytes": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 548,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 548,
+          "preview": "def _json_bytes(payload: dict | list) -> bytes:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 595,
+          "preview": "body = _json_bytes(payload)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "RequestBodyTooLarge": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 559,
+        "kind": "class",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 559,
+          "preview": "class RequestBodyTooLarge(ValueError):",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 639,
+          "preview": "raise RequestBodyTooLarge(\"request body too large\")",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_worker_wake.py",
-          "line": 42,
-          "preview": "assert request_automatic_worker_wake(",
+          "file": "src/production_os/control_plane.py",
+          "line": 1546,
+          "preview": "except RequestBodyTooLarge as exc:",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_worker_wake.py",
-          "line": 58,
-          "preview": "assert request_automatic_worker_wake(",
+          "file": "src/production_os/control_plane.py",
+          "line": 1735,
+          "preview": "except RequestBodyTooLarge as exc:",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 4
+    },
+    "make_handler": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 563,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 563,
+          "preview": "def make_handler(control: ControlPlane):",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 3663,
+          "preview": "make_handler(control),",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_worker_wake.py",
-          "line": 81,
-          "preview": "result = request_automatic_worker_wake(",
+          "file": "tests/test_control_plane.py",
+          "line": 8,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_worker_wake.py",
+          "file": "tests/test_control_plane.py",
+          "line": 33,
+          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane.py",
+          "line": 82,
+          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane.py",
+          "line": 126,
+          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane.py",
+          "line": 173,
+          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane.py",
+          "line": 225,
+          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane.py",
+          "line": 305,
+          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane.py",
+          "line": 346,
+          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane.py",
+          "line": 392,
+          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane.py",
+          "line": 421,
+          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane_pr_impact.py",
+          "line": 8,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane_pr_impact.py",
+          "line": 67,
+          "preview": "make_handler(control),",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane_release.py",
+          "line": 8,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane_release.py",
+          "line": 80,
+          "preview": "make_handler(control),",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane_webhook.py",
+          "line": 11,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane_webhook.py",
+          "line": 87,
+          "preview": "make_handler(control),",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane_webhook.py",
+          "line": 158,
+          "preview": "make_handler(control),",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_control_plane_webhook.py",
+          "line": 221,
+          "preview": "make_handler(control),",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_api.py",
+          "line": 12,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_api.py",
+          "line": 27,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_backup_api.py",
+          "line": 13,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_backup_api.py",
+          "line": 43,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 10,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 41,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_audit.py",
+          "line": 10,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_audit.py",
+          "line": 98,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_audit.py",
+          "line": 201,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_audit.py",
+          "line": 227,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 10,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 49,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 10,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_incidents.py",
           "line": 111,
-          "preview": "result = request_automatic_worker_wake(",
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_worker_wake.py",
-          "line": 144,
-          "preview": "result = request_automatic_worker_wake(",
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 221,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_worker_wake.py",
-          "line": 179,
-          "preview": "result = request_automatic_worker_wake(",
+          "file": "tests/test_dashboard_incidents.py",
+          "line": 250,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_worker_wake.py",
-          "line": 222,
-          "preview": "result = request_automatic_worker_wake(",
+          "file": "tests/test_dashboard_launch_ux.py",
+          "line": 10,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_worker_wake.py",
-          "line": 343,
-          "preview": "response = request_automatic_worker_wake(",
+          "file": "tests/test_dashboard_launch_ux.py",
+          "line": 23,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_worker_wake.py",
-          "line": 365,
-          "preview": "response = request_automatic_worker_wake(",
+          "file": "tests/test_dashboard_maintenance.py",
+          "line": 11,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_worker_wake.py",
-          "line": 390,
-          "preview": "result = request_automatic_worker_wake(",
+          "file": "tests/test_dashboard_maintenance.py",
+          "line": 111,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_worker_wake.py",
-          "line": 418,
-          "preview": "result = request_automatic_worker_wake(",
+          "file": "tests/test_dashboard_remediation_api.py",
+          "line": 10,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
           "definition_candidate": false
         },
         {
-          "file": "tests/test_worker_wake.py",
-          "line": 444,
-          "preview": "result = request_automatic_worker_wake(",
+          "file": "tests/test_dashboard_remediation_api.py",
+          "line": 42,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
           "definition_candidate": false
-        }
-      ],
-      "occurrence_count": 19
-    },
-    "test_shared_wake_dispatches_and_audits_when_no_worker_is_registered": {
-      "definition": {
-        "file": "tests/test_worker_wake.py",
-        "line": 5,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
+        },
         {
-          "file": "tests/test_worker_wake.py",
-          "line": 5,
-          "preview": "def test_shared_wake_dispatches_and_audits_when_no_worker_is_registered(",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "test_shared_wake_respects_online_worker_and_operator_pause": {
-      "definition": {
-        "file": "tests/test_worker_wake.py",
-        "line": 34,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
+          "file": "tests/test_dashboard_retention_prune.py",
+          "line": 10,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
         {
-          "file": "tests/test_worker_wake.py",
+          "file": "tests/test_dashboard_retention_prune.py",
+          "line": 48,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_device_pairing.py",
+          "line": 13,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_device_pairing.py",
+          "line": 24,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_http_security_headers.py",
+          "line": 7,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_http_security_headers.py",
+          "line": 25,
+          "preview": "make_handler(control),",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_managed_projects_http_v4.py",
+          "line": 8,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_managed_projects_http_v4.py",
+          "line": 40,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_native_browser_worker_e2e.py",
+          "line": 10,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_native_browser_worker_e2e.py",
+          "line": 26,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_portfolio_claim_api.py",
+          "line": 7,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_portfolio_claim_api.py",
+          "line": 71,
+          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_portfolio_claim_api.py",
+          "line": 103,
+          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_portfolio_claim_api.py",
+          "line": 138,
+          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_production_stack_e2e.py",
+          "line": 17,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_production_stack_e2e.py",
+          "line": 100,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release16_operations_e2e.py",
+          "line": 10,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release16_operations_e2e.py",
+          "line": 41,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release18_managed_projects_e2e.py",
+          "line": 10,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release18_managed_projects_e2e.py",
+          "line": 42,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release19_restore_staging_e2e.py",
+          "line": 11,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release19_restore_staging_e2e.py",
+          "line": 41,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release32_one_tap_e2e.py",
+          "line": 12,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release32_one_tap_e2e.py",
+          "line": 45,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release33_auto_worker_recovery_e2e.py",
+          "line": 12,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release33_auto_worker_recovery_e2e.py",
+          "line": 46,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release34_safe_running_recovery_e2e.py",
+          "line": 12,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release34_safe_running_recovery_e2e.py",
+          "line": 46,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release35_control_plane_restart_e2e.py",
+          "line": 12,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release35_control_plane_restart_e2e.py",
+          "line": 46,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release36_worker_session_reconciliation_e2e.py",
+          "line": 12,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release36_worker_session_reconciliation_e2e.py",
+          "line": 46,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release41_live_production_tracking_e2e.py",
+          "line": 12,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release41_live_production_tracking_e2e.py",
+          "line": 45,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release42_idempotent_launch_e2e.py",
+          "line": 12,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release42_idempotent_launch_e2e.py",
+          "line": 43,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release43_safe_production_cancel_e2e.py",
+          "line": 12,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release43_safe_production_cancel_e2e.py",
+          "line": 46,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release44_one_tap_recovery_actions_e2e.py",
+          "line": 12,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release44_one_tap_recovery_actions_e2e.py",
+          "line": 45,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release45_production_inbox_e2e.py",
+          "line": 12,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release45_production_inbox_e2e.py",
+          "line": 45,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release51_one_tap_runner_e2e.py",
+          "line": 13,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release51_one_tap_runner_e2e.py",
+          "line": 46,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release55_worker_operations.py",
+          "line": 10,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_release55_worker_operations.py",
+          "line": 26,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_remote_worker.py",
+          "line": 7,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_remote_worker.py",
+          "line": 23,
+          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_remote_worker.py",
+          "line": 70,
+          "preview": "make_handler(control),",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_remote_worker.py",
+          "line": 138,
+          "preview": "make_handler(control),",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_remote_worker.py",
+          "line": 207,
+          "preview": "make_handler(control),",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_remote_worker_runner.py",
+          "line": 11,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_remote_worker_runner.py",
+          "line": 19,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_speculation_api.py",
+          "line": 7,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_speculation_api.py",
+          "line": 49,
+          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_worker_availability_api.py",
+          "line": 8,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_worker_availability_api.py",
+          "line": 19,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workflow_api.py",
+          "line": 7,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workflow_api.py",
           "line": 34,
-          "preview": "def test_shared_wake_respects_online_worker_and_operator_pause(",
-          "definition_candidate": true
+          "preview": "server=ThreadingHTTPServer((\"127.0.0.1\",0),make_handler(control))",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workflow_auto_wake_api.py",
+          "line": 12,
+          "preview": "from production_os.control_plane import ControlPlane, make_handler",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workflow_auto_wake_api.py",
+          "line": 46,
+          "preview": "server = ThreadingHTTPServer((\"127.0.0.1\", 0), make_handler(control))",
+          "definition_candidate": false
         }
       ],
-      "occurrence_count": 1
+      "occurrence_count": 103
     },
-    "test_shared_wake_uses_durable_cooldown": {
+    "Handler": {
       "definition": {
-        "file": "tests/test_worker_wake.py",
-        "line": 66,
+        "file": "src/production_os/control_plane.py",
+        "line": 564,
+        "kind": "class",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 564,
+          "preview": "class Handler(BaseHTTPRequestHandler):",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 3626,
+          "preview": "return Handler",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "version_string": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 567,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "tests/test_worker_wake.py",
-          "line": 66,
-          "preview": "def test_shared_wake_uses_durable_cooldown(tmp_path, monkeypatch):",
+          "file": "src/production_os/control_plane.py",
+          "line": 567,
+          "preview": "def version_string(self) -> str:",
           "definition_candidate": true
         }
       ],
       "occurrence_count": 1
     },
-    "test_shared_wake_does_not_fail_durable_work_when_audit_write_fails": {
+    "log_message": {
       "definition": {
-        "file": "tests/test_worker_wake.py",
-        "line": 95,
+        "file": "src/production_os/control_plane.py",
+        "line": 570,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "tests/test_worker_wake.py",
+          "file": "src/production_os/control_plane.py",
+          "line": 570,
+          "preview": "def log_message(self, format: str, *args) -> None:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/health_server.py",
+          "line": 35,
+          "preview": "def log_message(self, format: str, *args) -> None:",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "_send_html": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 573,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 573,
+          "preview": "def _send_html(self, status: int, html: str) -> None:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 697,
+          "preview": "self._send_html(HTTPStatus.OK, DASHBOARD_HTML)",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "_send": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 588,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 588,
+          "preview": "def _send(",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 613,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 677,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 683,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 708,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 729,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 738,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 753,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 767,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 875,
+          "preview": "self._send(HTTPStatus.OK, payload)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 877,
+          "preview": "self._send(HTTPStatus.NOT_FOUND, {\"error\":\"dashboard resource not found\"})",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 879,
+          "preview": "self._send(HTTPStatus.BAD_REQUEST, {\"error\":\"invalid dashboard query\"})",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 893,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 908,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 930,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 954,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 959,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 972,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 977,
+          "preview": "self._send(HTTPStatus.OK, {\"job\":job})",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 987,
+          "preview": "self._send(HTTPStatus.OK, payload)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 992,
+          "preview": "self._send(HTTPStatus.OK, payload)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 995,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1007,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1013,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1020,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1035,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1055,
+          "preview": "self._send(HTTPStatus.OK, report)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1065,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1076,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1103,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1108,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1117,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1122,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1133,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1142,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1153,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1167,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1172,
+          "preview": "self._send(HTTPStatus.OK, {\"project\":project})",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1178,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1189,
+          "preview": "self._send(HTTPStatus.NOT_FOUND, {\"error\":\"not found\"})",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1211,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1216,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1237,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1243,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1248,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1264,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1286,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1293,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1325,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1330,
+          "preview": "self._send(HTTPStatus.OK, availability)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1381,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1387,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1392,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1436,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1441,
+          "preview": "self._send(HTTPStatus.CREATED, {\"project\":project})",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1479,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1492,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1503,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1511,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1517,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1523,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1529,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1534,
+          "preview": "self._send(HTTPStatus.OK, {\"project\":project})",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1539,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1547,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1553,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1564,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1585,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1599,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1606,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1617,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1707,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1736,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1742,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1761,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1784,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1800,
+          "preview": "self._send(HTTPStatus.CREATED, result)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1814,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1839,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1855,
+          "preview": "self._send(HTTPStatus.OK, result)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1866,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1880,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1897,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1925,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1943,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1959,
+          "preview": "self._send(HTTPStatus.OK, result)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1970,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1981,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2008,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2025,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2041,
+          "preview": "self._send(HTTPStatus.OK, result)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2049,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2069,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2085,
+          "preview": "self._send(HTTPStatus.CREATED, result)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2093,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2104,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2124,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2145,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2176,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2181,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2224,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2249,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2308,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2321,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2332,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2357,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2382,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2396,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2417,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2433,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2446,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2457,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2470,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2485,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2505,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2521,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2578,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2598,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2627,
+          "preview": "self._send(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2658,
+          "preview": "self._send(",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 120
+    },
+    "_method_not_allowed": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 612,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 612,
+          "preview": "def _method_not_allowed(self) -> None:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 620,
+          "preview": "self._method_not_allowed()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 623,
+          "preview": "self._method_not_allowed()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 626,
+          "preview": "self._method_not_allowed()",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 4
+    },
+    "do_PUT": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 619,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 619,
+          "preview": "def do_PUT(self) -> None:",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 1
+    },
+    "do_PATCH": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 622,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 622,
+          "preview": "def do_PATCH(self) -> None:",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 1
+    },
+    "do_DELETE": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 625,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 625,
+          "preview": "def do_DELETE(self) -> None:",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 1
+    },
+    "_read_body": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 628,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 628,
+          "preview": "def _read_body(self) -> bytes:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 648,
+          "preview": "raw = self._read_body()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1545,
+          "preview": "raw = self._read_body()",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 3
+    },
+    "_read_json": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 647,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/agent_runtime.py",
+          "line": 128,
+          "preview": "def _read_json(path: Path) -> dict[str, Any]:",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/agent_runtime.py",
+          "line": 200,
+          "preview": "state = self._read_json(state_path)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/agent_runtime.py",
+          "line": 259,
+          "preview": "previous = self._read_json(state_path)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/agent_runtime.py",
+          "line": 319,
+          "preview": "state = self._read_json(state_path)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/agent_runtime.py",
+          "line": 357,
+          "preview": "return self._read_json(workspace / \"runtime-state.json\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 647,
+          "preview": "def _read_json(self) -> dict:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1196,
+          "preview": "body = self._read_json()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1230,
+          "preview": "body = self._read_json()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1308,
+          "preview": "body = self._read_json()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1338,
+          "preview": "body = self._read_json()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1420,
+          "preview": "body = self._read_json()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1453,
+          "preview": "body = self._read_json()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1734,
+          "preview": "body = self._read_json()",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 13
+    },
+    "_bearer_token": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 659,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 659,
+          "preview": "def _bearer_token(self) -> str | None:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 668,
+          "preview": "token = self._bearer_token()",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1262,
+          "preview": "self._bearer_token(),",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 3
+    },
+    "_principal": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 667,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 667,
+          "preview": "def _principal(self) -> Principal | None:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 675,
+          "preview": "principal = self._principal()",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "_require": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 674,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 674,
+          "preview": "def _require(self, role: str) -> Principal | None:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 748,
+          "preview": "principal = self._require(\"viewer\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1129,
+          "preview": "principal = self._require(\"viewer\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1149,
+          "preview": "principal = self._require(\"viewer\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1226,
+          "preview": "principal = self._require(\"operator\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1258,
+          "preview": "principal = self._require(\"operator\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1277,
+          "preview": "principal = self._require(\"operator\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1304,
+          "preview": "principal = self._require(\"worker\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1334,
+          "preview": "principal = self._require(\"operator\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1416,
+          "preview": "principal = self._require(\"operator\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1445,
+          "preview": "principal = self._require(\"operator\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1757,
+          "preview": "principal = self._require(\"operator\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1810,
+          "preview": "principal = self._require(\"operator\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1859,
+          "preview": "principal = self._require(\"operator\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1963,
+          "preview": "principal = self._require(\"operator\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2045,
+          "preview": "principal = self._require(\"operator\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2089,
+          "preview": "principal = self._require(\"operator\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2166,
+          "preview": "principal = self._require(\"operator\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2194,
+          "preview": "principal = self._require(\"operator\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2535,
+          "preview": "principal = self._require(\"operator\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2588,
+          "preview": "principal = self._require(\"operator\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2640,
+          "preview": "principal = self._require(\"operator\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2667,
+          "preview": "principal = self._require(\"operator\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2799,
+          "preview": "principal = self._require(\"worker\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2852,
+          "preview": "principal = self._require(\"operator\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2893,
+          "preview": "principal = self._require(\"worker\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 3037,
+          "preview": "principal = self._require(\"operator\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 3100,
+          "preview": "principal = self._require(\"operator\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 3117,
+          "preview": "principal = self._require(\"operator\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 3134,
+          "preview": "principal = self._require(\"worker\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 3257,
+          "preview": "principal = self._require(\"worker\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 3283,
+          "preview": "principal = self._require(\"worker\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 3320,
+          "preview": "principal = self._require(\"worker\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 3373,
+          "preview": "principal = self._require(\"worker\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 3488,
+          "preview": "principal = self._require(\"worker\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 3602,
+          "preview": "principal = self._require(\"operator\")",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 36
+    },
+    "do_GET": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 694,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 694,
+          "preview": "def do_GET(self) -> None:",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/health_server.py",
+          "line": 11,
+          "preview": "def do_GET(self) -> None:",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 2
+    },
+    "do_POST": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 1191,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 1191,
+          "preview": "def do_POST(self) -> None:",
+          "definition_candidate": true
+        }
+      ],
+      "occurrence_count": 1
+    },
+    "audit_control": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 2272,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2272,
+          "preview": "def audit_control(",
+          "definition_candidate": true
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2304,
+          "preview": "audit_control(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2316,
+          "preview": "audit_control(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2327,
+          "preview": "audit_control(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2343,
+          "preview": "audit_control(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2349,
+          "preview": "audit_control(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2374,
+          "preview": "audit_control(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2395,
+          "preview": "audit_control(\"failed\", error_code=\"job_key_required\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2407,
+          "preview": "audit_control(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2413,
+          "preview": "audit_control(\"accepted\", job_key=job_key)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2432,
+          "preview": "audit_control(\"failed\", error_code=\"job_key_required\")",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2441,
+          "preview": "audit_control(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2452,
+          "preview": "audit_control(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2465,
+          "preview": "audit_control(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2484,
+          "preview": "audit_control(\"accepted\", job_key=job_key)",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2501,
+          "preview": "audit_control(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 2520,
+          "preview": "audit_control(\"accepted\")",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 17
+    },
+    "serve_control_plane": {
+      "definition": {
+        "file": "src/production_os/control_plane.py",
+        "line": 3629,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/cli.py",
+          "line": 31,
+          "preview": "from .control_plane import serve_control_plane",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/cli.py",
+          "line": 2053,
+          "preview": "serve_control_plane(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/control_plane.py",
+          "line": 3629,
+          "preview": "def serve_control_plane(",
+          "definition_candidate": true
+        },
+        {
+          "file": "tests/test_database_maintenance_lock.py",
+          "line": 10,
+          "preview": "from production_os.control_plane import serve_control_plane",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_database_maintenance_lock.py",
+          "line": 122,
+          "preview": "serve_control_plane(",
+          "definition_candidate": false
+        }
+      ],
+      "occurrence_count": 5
+    },
+    "_post": {
+      "definition": {
+        "file": "tests/test_workflow_auto_wake_api.py",
+        "line": 15,
+        "kind": "function",
+        "language": "python"
+      },
+      "occurrences": [
+        {
+          "file": "src/production_os/vault_auth.py",
+          "line": 22,
+          "preview": "def _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/vault_auth.py",
+          "line": 87,
+          "preview": "return _token(_post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "src/production_os/vault_auth.py",
+          "line": 109,
+          "preview": "return _token(_post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 14,
+          "preview": "def _post(base, path, token, payload):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 50,
+          "preview": "status, payload = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 65,
+          "preview": "status, payload = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 83,
+          "preview": "status, resumed = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 92,
+          "preview": "status, draining = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 107,
+          "preview": "status, payload = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 122,
+          "preview": "status, payload = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 148,
+          "preview": "status, payload = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 174,
+          "preview": "status, requested = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 183,
+          "preview": "status, heartbeat = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 212,
+          "preview": "status, _ = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 219,
+          "preview": "status, _ = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 233,
+          "preview": "status, payload = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 260,
+          "preview": "status, payload = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 294,
+          "preview": "status, _ = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 302,
+          "preview": "status, _ = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 345,
+          "preview": "status, _ = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 352,
+          "preview": "status, _ = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 367,
+          "preview": "status, retried = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 382,
+          "preview": "status, payload = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 414,
+          "preview": "status, _ = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 421,
+          "preview": "status, _ = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 434,
+          "preview": "status, payload = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 465,
+          "preview": "status, _ = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 472,
+          "preview": "status, _ = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 494,
+          "preview": "status, payload = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 537,
+          "preview": "status, _ = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 544,
+          "preview": "status, _ = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 557,
+          "preview": "status, retried = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 596,
+          "preview": "status, _ = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 603,
+          "preview": "status, _ = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 621,
+          "preview": "status, retried = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 652,
+          "preview": "status, payload = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 671,
+          "preview": "status, recovered = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_api.py",
+          "line": 702,
+          "preview": "status, recovered = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 21,
+          "preview": "def _post(base, path, token, payload):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 86,
+          "preview": "status, paused = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
           "line": 95,
-          "preview": "def test_shared_wake_does_not_fail_durable_work_when_audit_write_fails(",
+          "preview": "status, _ = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 103,
+          "preview": "status, resumed = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 112,
+          "preview": "status, claimed = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 120,
+          "preview": "status, _ = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 128,
+          "preview": "status, draining = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 138,
+          "preview": "status, _ = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 146,
+          "preview": "status, _ = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 155,
+          "preview": "status, requested = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 164,
+          "preview": "status, _ = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 179,
+          "preview": "status, retried = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 189,
+          "preview": "status, claimed_retry = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 197,
+          "preview": "status, _ = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 206,
+          "preview": "status, completed = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 232,
+          "preview": "status, kicked = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 266,
+          "preview": "status, _ = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_control_e2e.py",
+          "line": 288,
+          "preview": "status, recovered = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_launch_ux.py",
+          "line": 62,
+          "preview": "def _post(url, token, payload):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_launch_ux.py",
+          "line": 236,
+          "preview": "status, payload = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_launch_ux.py",
+          "line": 278,
+          "preview": "status, payload = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_launch_ux.py",
+          "line": 369,
+          "preview": "status, payload = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_launch_ux.py",
+          "line": 423,
+          "preview": "status, payload = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_retention_prune.py",
+          "line": 30,
+          "preview": "def _post(base, path, token, body):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_retention_prune.py",
+          "line": 232,
+          "preview": "status, _ = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_retention_prune.py",
+          "line": 243,
+          "preview": "status, _ = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_retention_prune.py",
+          "line": 255,
+          "preview": "status, payload = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_dashboard_retention_prune.py",
+          "line": 297,
+          "preview": "status, payload = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_worker_availability_api.py",
+          "line": 25,
+          "preview": "def _post(base, token, payload):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_worker_availability_api.py",
+          "line": 55,
+          "preview": "status, base_only = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_worker_availability_api.py",
+          "line": 82,
+          "preview": "status, mobile = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_worker_availability_api.py",
+          "line": 126,
+          "preview": "status, payload = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_worker_availability_api.py",
+          "line": 166,
+          "preview": "status, payload = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_worker_availability_api.py",
+          "line": 189,
+          "preview": "status, payload = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_worker_availability_api.py",
+          "line": 200,
+          "preview": "status, payload = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_worker_availability_api.py",
+          "line": 211,
+          "preview": "status, payload = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_worker_availability_api.py",
+          "line": 222,
+          "preview": "status, payload = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_worker_availability_api.py",
+          "line": 233,
+          "preview": "status, payload = _post(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workflow_auto_wake_api.py",
+          "line": 15,
+          "preview": "def _post(base, path, token, payload):",
           "definition_candidate": true
+        },
+        {
+          "file": "tests/test_workflow_auto_wake_api.py",
+          "line": 71,
+          "preview": "created = _post(base, \"/v1/workflows\", \"op\", {",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workflow_auto_wake_api.py",
+          "line": 77,
+          "preview": "dispatched = _post(base, f\"/v1/workflows/{workflow_id}/dispatch\", \"op\", {})",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workflow_auto_wake_api.py",
+          "line": 79,
+          "preview": "claimed = _post(base, \"/v1/jobs/claim\", \"worker\", {",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workflow_auto_wake_api.py",
+          "line": 84,
+          "preview": "_post(base, \"/v1/jobs/ack\", \"worker\", {",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workflow_auto_wake_api.py",
+          "line": 94,
+          "preview": "result = _post(base, \"/v1/jobs/fail\", \"worker\", {",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workflow_auto_wake_api.py",
+          "line": 114,
+          "preview": "result = _post(base, \"/v1/jobs/complete\", \"worker\", {",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workflow_auto_wake_api.py",
+          "line": 130,
+          "preview": "result = _post(base, \"/v1/jobs/fail\", \"worker\", {",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workflow_auto_wake_api.py",
+          "line": 146,
+          "preview": "result = _post(base, \"/v1/jobs/fail\", \"worker\", {",
+          "definition_candidate": false
         }
       ],
-      "occurrence_count": 1
+      "occurrence_count": 85
     },
-    "test_shared_wake_dispatches_when_online_worker_lacks_required_capability": {
+    "running_control": {
       "definition": {
-        "file": "tests/test_worker_wake.py",
-        "line": 125,
+        "file": "tests/test_workflow_auto_wake_api.py",
+        "line": 30,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "tests/test_worker_wake.py",
-          "line": 125,
-          "preview": "def test_shared_wake_dispatches_when_online_worker_lacks_required_capability(",
+          "file": "tests/test_workflow_auto_wake_api.py",
+          "line": 30,
+          "preview": "def running_control(tmp_path, monkeypatch):",
           "definition_candidate": true
+        },
+        {
+          "file": "tests/test_workflow_auto_wake_api.py",
+          "line": 91,
+          "preview": "def test_failure_automatically_wakes_next_workflow_attempt(running_control):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workflow_auto_wake_api.py",
+          "line": 92,
+          "preview": "control, base, dispatches = running_control",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workflow_auto_wake_api.py",
+          "line": 111,
+          "preview": "def test_downstream_task_wakes_after_success(running_control):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workflow_auto_wake_api.py",
+          "line": 112,
+          "preview": "control, base, dispatches = running_control",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workflow_auto_wake_api.py",
+          "line": 127,
+          "preview": "def test_terminal_failure_without_new_work_does_not_dispatch(running_control):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workflow_auto_wake_api.py",
+          "line": 128,
+          "preview": "_control, base, dispatches = running_control",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workflow_auto_wake_api.py",
+          "line": 139,
+          "preview": "def test_wake_dispatch_error_does_not_erase_durable_retry(running_control, monkeypatch):",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workflow_auto_wake_api.py",
+          "line": 140,
+          "preview": "control, base, _dispatches = running_control",
+          "definition_candidate": false
         }
       ],
-      "occurrence_count": 1
+      "occurrence_count": 9
     },
-    "test_shared_wake_skips_when_online_worker_can_claim_all_queued_work": {
+    "_create_and_claim": {
       "definition": {
-        "file": "tests/test_worker_wake.py",
-        "line": 156,
+        "file": "tests/test_workflow_auto_wake_api.py",
+        "line": 57,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "tests/test_worker_wake.py",
-          "line": 156,
-          "preview": "def test_shared_wake_skips_when_online_worker_can_claim_all_queued_work(",
+          "file": "tests/test_workflow_auto_wake_api.py",
+          "line": 57,
+          "preview": "def _create_and_claim(base, *, task_attempts=2, downstream=False):",
           "definition_candidate": true
+        },
+        {
+          "file": "tests/test_workflow_auto_wake_api.py",
+          "line": 93,
+          "preview": "workflow_id, job = _create_and_claim(base, task_attempts=2)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workflow_auto_wake_api.py",
+          "line": 113,
+          "preview": "workflow_id, job = _create_and_claim(base, task_attempts=1, downstream=True)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workflow_auto_wake_api.py",
+          "line": 129,
+          "preview": "_workflow_id, job = _create_and_claim(base, task_attempts=1)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_workflow_auto_wake_api.py",
+          "line": 145,
+          "preview": "workflow_id, job = _create_and_claim(base, task_attempts=2)",
+          "definition_candidate": false
         }
       ],
-      "occurrence_count": 1
+      "occurrence_count": 5
     },
-    "test_shared_wake_respects_assigned_worker_when_evaluating_compatibility": {
+    "test_failure_automatically_wakes_next_workflow_attempt": {
       "definition": {
-        "file": "tests/test_worker_wake.py",
-        "line": 191,
+        "file": "tests/test_workflow_auto_wake_api.py",
+        "line": 91,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "tests/test_worker_wake.py",
-          "line": 191,
-          "preview": "def test_shared_wake_respects_assigned_worker_when_evaluating_compatibility(",
+          "file": "tests/test_workflow_auto_wake_api.py",
+          "line": 91,
+          "preview": "def test_failure_automatically_wakes_next_workflow_attempt(running_control):",
           "definition_candidate": true
         }
       ],
       "occurrence_count": 1
     },
-    "test_control_plane_wake_checks_all_queued_capability_requirements": {
+    "test_downstream_task_wakes_after_success": {
       "definition": {
-        "file": "tests/test_worker_wake.py",
-        "line": 234,
+        "file": "tests/test_workflow_auto_wake_api.py",
+        "line": 111,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "tests/test_worker_wake.py",
-          "line": 234,
-          "preview": "def test_control_plane_wake_checks_all_queued_capability_requirements(",
+          "file": "tests/test_workflow_auto_wake_api.py",
+          "line": 111,
+          "preview": "def test_downstream_task_wakes_after_success(running_control):",
           "definition_candidate": true
         }
       ],
       "occurrence_count": 1
     },
-    "test_control_plane_wake_ignores_cancel_requested_jobs": {
+    "test_terminal_failure_without_new_work_does_not_dispatch": {
       "definition": {
-        "file": "tests/test_worker_wake.py",
-        "line": 265,
+        "file": "tests/test_workflow_auto_wake_api.py",
+        "line": 127,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "tests/test_worker_wake.py",
-          "line": 265,
-          "preview": "def test_control_plane_wake_ignores_cancel_requested_jobs(",
+          "file": "tests/test_workflow_auto_wake_api.py",
+          "line": 127,
+          "preview": "def test_terminal_failure_without_new_work_does_not_dispatch(running_control):",
           "definition_candidate": true
         }
       ],
       "occurrence_count": 1
     },
-    "test_control_plane_wake_ignores_stale_workflow_generation": {
+    "test_wake_dispatch_error_does_not_erase_durable_retry": {
       "definition": {
-        "file": "tests/test_worker_wake.py",
-        "line": 296,
+        "file": "tests/test_workflow_auto_wake_api.py",
+        "line": 139,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
-          "file": "tests/test_worker_wake.py",
-          "line": 296,
-          "preview": "def test_control_plane_wake_ignores_stale_workflow_generation(",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "test_queued_job_wakes_short_lived_actions_worker_despite_online_heartbeat": {
-      "definition": {
-        "file": "tests/test_worker_wake.py",
-        "line": 327,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_worker_wake.py",
-          "line": 327,
-          "preview": "def test_queued_job_wakes_short_lived_actions_worker_despite_online_heartbeat(",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "test_actions_worker_with_no_queued_work_needs_no_wake": {
-      "definition": {
-        "file": "tests/test_worker_wake.py",
-        "line": 355,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_worker_wake.py",
-          "line": 355,
-          "preview": "def test_actions_worker_with_no_queued_work_needs_no_wake(tmp_path, monkeypatch):",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "test_busy_persistent_worker_cannot_suppress_queued_work_wake": {
-      "definition": {
-        "file": "tests/test_worker_wake.py",
-        "line": 377,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_worker_wake.py",
-          "line": 377,
-          "preview": "def test_busy_persistent_worker_cannot_suppress_queued_work_wake(",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "test_available_persistent_worker_prevents_unnecessary_actions_dispatch": {
-      "definition": {
-        "file": "tests/test_worker_wake.py",
-        "line": 405,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_worker_wake.py",
-          "line": 405,
-          "preview": "def test_available_persistent_worker_prevents_unnecessary_actions_dispatch(",
-          "definition_candidate": true
-        }
-      ],
-      "occurrence_count": 1
-    },
-    "test_custom_ephemeral_worker_ids_are_configurable": {
-      "definition": {
-        "file": "tests/test_worker_wake.py",
-        "line": 433,
-        "kind": "function",
-        "language": "python"
-      },
-      "occurrences": [
-        {
-          "file": "tests/test_worker_wake.py",
-          "line": 433,
-          "preview": "def test_custom_ephemeral_worker_ids_are_configurable(tmp_path, monkeypatch):",
+          "file": "tests/test_workflow_auto_wake_api.py",
+          "line": 139,
+          "preview": "def test_wake_dispatch_error_does_not_erase_durable_retry(running_control, monkeypatch):",
           "definition_candidate": true
         }
       ],

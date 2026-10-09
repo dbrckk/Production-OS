@@ -1,20 +1,18 @@
 # Change impact
 
-Base: a2fe4bcdb213d85f24889213920eca23a05cbf1e
-Head: 982ddbca76baac956ec093c62e2a68c73b934fdd
+Base: 572fa837b30612e114425db08d0230894b8c9d28
+Head: 1e4aaa490272775afd4b0a4bc460223acb8d8dcc
 
 ## Changed files
-- A docs/worker-wake.md
-- M src/production_os/worker_wake.py
-- M tests/test_worker_wake.py
+- M src/production_os/control_plane.py
+- A tests/test_workflow_auto_wake_api.py
 
 ## Affected areas
-- docs
 - src
 - tests
 
 ## Related test candidates
-- tests/test_worker_wake.py
+- tests/test_control_plane.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

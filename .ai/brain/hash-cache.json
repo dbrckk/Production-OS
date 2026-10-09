@@ -1,44 +1,32 @@
 {
   "files": {
-    "docs/worker-wake.md": {
-      "sha256": "6e09848f86f4860f9f1d081c75ff8ac3fa26be0d66cca7a79209f52b7198ac32",
-      "size": 2999
+    "src/production_os/__init__.py": {
+      "sha256": "63c80dc5e078945a2d3488c050f10743b901b9612a70a133175d21ac508bdd5f",
+      "size": 68
     },
-    "src/production_os/approvals.py": {
-      "sha256": "a574002934c4d28499ddbd108a373e7d78dc68d15740bd8801f9e15c0a3a0f5a",
-      "size": 2131
+    "src/production_os/api_auth.py": {
+      "sha256": "e711cc224ad17d667bf86cd1b2f9392a303c8199d621d774dbf657408ed2edc1",
+      "size": 1720
     },
     "src/production_os/cli.py": {
       "sha256": "824816cc65a0915ecc2ff1e208fba4048e98175c6a5a9d12faafe3c58bcb44b5",
       "size": 118023
     },
     "src/production_os/control_plane.py": {
-      "sha256": "6684156de32803559c6e6197a6ef4656a689f36ea76d702f75bff666bbd46f7f",
-      "size": 155332
+      "sha256": "9294244d607ffbb2deb35d10217ac090910994ab1e94f8afc8ca40e9fa233d28",
+      "size": 156785
     },
-    "src/production_os/controller.py": {
-      "sha256": "cab8f7cbdb490b11a6eaa15fadf2cf2a571754614c2a060221bb7d9226fbbda9",
-      "size": 30575
+    "src/production_os/remote_worker.py": {
+      "sha256": "491c13a2f19d6b740e613febbba02b122f482ea4f837cdd6657c048614c6c879",
+      "size": 7332
     },
-    "src/production_os/dashboard_control.py": {
-      "sha256": "8cea7ce005009d27693057f14a218689732e9d4c36aad5a2c82a2ddd8c913d0a",
-      "size": 6452
+    "src/production_os/remote_worker_runner.py": {
+      "sha256": "0e3033e3612b2931d069a22cde1e752ad77cfe01b86deebce416ffd2662e9047",
+      "size": 35554
     },
-    "src/production_os/dashboard_store.py": {
-      "sha256": "fa5d9d95ccaa99f9fa3ae6158685f762c793d39681216e99b52a77021e7bc5c9",
-      "size": 46405
-    },
-    "src/production_os/github_client.py": {
-      "sha256": "f3aed268e814dd619aa9dd903e0286e96b8202748c2eb9de532dfd5fbf64b742",
-      "size": 32734
-    },
-    "src/production_os/managed_projects.py": {
-      "sha256": "551cbdd052aa51979068b1dad0d19425f9b9117da5714287d07a925f525e8e2c",
-      "size": 77195
-    },
-    "src/production_os/worker_wake.py": {
-      "sha256": "75298af252a26da267cac570f791b8469e47da325c711bf29da522e35c0838a0",
-      "size": 5537
+    "src/production_os/sqlite_backend.py": {
+      "sha256": "3819ae23b6c1f1dc9ebfbcd345c2fbdebd522d5684fd7bf8db071350008b91c6",
+      "size": 69357
     },
     "src/production_os/workers.py": {
       "sha256": "30e6514ef86731b279648d0aaa54c4cd987309e71c286e5c31c3bbe8dfc1a5d1",
@@ -48,21 +36,9 @@
       "sha256": "7af7e8519c2cd96609ea971dba9ba74b8561e80cc39ad2d6781a06e23a10a85d",
       "size": 81597
     },
-    "tests/test_asset_forge.py": {
-      "sha256": "16160f0d3f925f1d988f4ebf808ff3f15762adc883bbcbffcf5ee0d7efc29059",
-      "size": 36081
-    },
     "tests/test_control_plane.py": {
       "sha256": "da5beed6ab47064e02a7882181f5d4cdfa6d4bafaad7533ff6dd3579b9e96fdb",
       "size": 15756
-    },
-    "tests/test_control_plane_pr_impact.py": {
-      "sha256": "1f64eddde4cb2e0c30bae4257e0df5a76deca4de0cd615c4c750721e6640e2f8",
-      "size": 2797
-    },
-    "tests/test_control_plane_release.py": {
-      "sha256": "54ecfc57c9be037148183f06c1662593d15a477e35628c50587b81ce0f1a6fba",
-      "size": 4667
     },
     "tests/test_control_plane_webhook.py": {
       "sha256": "d30da86734cd6ec8ffbc49e8ad90178cbb6a8ac780e2be0e829f59f4cf83a195",
@@ -92,41 +68,65 @@
       "sha256": "986936ab3c73da65d91841e7dfdbfce41e8176d22af73e22e55bc7f32751e8cb",
       "size": 10102
     },
-    "tests/test_dashboard_launch_readiness.py": {
-      "sha256": "fea8acc15c093e1f77121a94d9c8c0684d643ff2a9f590cac7b0d25f3f45500c",
-      "size": 4000
+    "tests/test_dashboard_launch.py": {
+      "sha256": "8c24f3078f3f4b989a05cbdbdb29abf0c24a83eeb53cd305cae5c6a024d8da1a",
+      "size": 6379
     },
     "tests/test_dashboard_launch_ux.py": {
       "sha256": "e7e3bbb5a279094c98224d4a8a6d67e1fdde001b1a3adc207970f52a5101e21c",
       "size": 14965
     },
-    "tests/test_dashboard_maintenance.py": {
-      "sha256": "e64a1eafbf88fecaeb662f0ea9266b36b393bf1dac2ba0cd589cd3dcab3a7c8b",
-      "size": 5856
-    },
     "tests/test_dashboard_observability_e2e.py": {
       "sha256": "5d25c9c9d1ebdf4de43fa56afa0a2cf2fd8071529107c56313f96ef54a7b24f8",
       "size": 8669
-    },
-    "tests/test_dashboard_playbook_api.py": {
-      "sha256": "e9a3cae3b05f7d5590a950906b8ff562905da56b704c11aa46d7f94c607b3c65",
-      "size": 3887
     },
     "tests/test_dashboard_production_inbox.py": {
       "sha256": "e5e111b1cb9b4edddfc600e2971335ea3d19e609142d81fa17a6434e70568f68",
       "size": 8860
     },
-    "tests/test_dashboard_production_status.py": {
-      "sha256": "316dcb84b1d27b7b3231a31d4dc2eb1187084de3ecb67e7841d3e27a615c2886",
-      "size": 4432
+    "tests/test_dashboard_remediation_api.py": {
+      "sha256": "f2f3b7c754393ae4babc2936a7d51f4d7c6b3eb47e66207a36d7d240672b9f79",
+      "size": 11639
+    },
+    "tests/test_dashboard_retention_prune.py": {
+      "sha256": "ca9a68290921734b97de21f5ac12454910ae3bd303ba4d55b84d5f8ca3b15000",
+      "size": 10386
+    },
+    "tests/test_database_maintenance_lock.py": {
+      "sha256": "a5fd720aa998cca76733375c51b15616228fa321c87b96e02d35d17bdb857191",
+      "size": 3765
+    },
+    "tests/test_device_pairing.py": {
+      "sha256": "ddbdf419db93f04afe052066c512ec638f403abf56f5b6a0cc8cfae9bc0d2b02",
+      "size": 13177
     },
     "tests/test_fairness.py": {
       "sha256": "049c558e2f3319632921e7a5a3dcb4422c4586d1787603a0470ce0185dab3950",
       "size": 512
     },
+    "tests/test_managed_projects_http_v4.py": {
+      "sha256": "8467c48fb5706b6410a42f124007f82cb0a13f33e730a986d7f997f63f04f1e6",
+      "size": 8640
+    },
+    "tests/test_native_browser_worker_e2e.py": {
+      "sha256": "3dee8ff19db87d29c2c286936be6d0e7a38edbee8a8205e5deb6d2aa6244b315",
+      "size": 7915
+    },
+    "tests/test_release32_one_tap_e2e.py": {
+      "sha256": "670c438c6cfda1de2c81e301b3cf5c1ab4403691d00cb73638d4403156f0854b",
+      "size": 11757
+    },
+    "tests/test_remote_worker_runner.py": {
+      "sha256": "f79fe71173b4ae6a5966e9fbe24031d8acb69aab35840e120fce23861a646a9d",
+      "size": 63771
+    },
     "tests/test_worker_wake.py": {
       "sha256": "7e1f5e398b111a87a83615236560e02b982a81a8a0f2d11df22b8fe9eab24630",
       "size": 14580
+    },
+    "tests/test_workflow_auto_wake_api.py": {
+      "sha256": "1fe4c0415c26ee40a9964351c385a16a1c93f94a86dbb5f31cc32bcf951c24aa",
+      "size": 5896
     }
   },
   "generated_by": "dbrckk/repo-brain-v6",

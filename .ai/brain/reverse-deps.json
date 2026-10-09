@@ -209,6 +209,7 @@
         "tests/test_worker_wake.py",
         "tests/test_workers.py",
         "tests/test_workflow_api.py",
+        "tests/test_workflow_auto_wake_api.py",
         "tests/test_workflow_cache.py",
         "tests/test_workflow_change_impact.py",
         "tests/test_workflow_engine.py",
@@ -216,7 +217,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 204,
+      "in_degree": 205,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -346,9 +347,10 @@
         "tests/test_remote_worker_runner.py",
         "tests/test_speculation_api.py",
         "tests/test_worker_availability_api.py",
-        "tests/test_workflow_api.py"
+        "tests/test_workflow_api.py",
+        "tests/test_workflow_auto_wake_api.py"
       ],
-      "in_degree": 47,
+      "in_degree": 48,
       "out_degree": 1
     },
     "src/production_os/approvals.py": {
@@ -872,9 +874,10 @@
         "tests/test_speculation_api.py",
         "tests/test_worker_availability_api.py",
         "tests/test_worker_wake.py",
-        "tests/test_workflow_api.py"
+        "tests/test_workflow_api.py",
+        "tests/test_workflow_auto_wake_api.py"
       ],
-      "in_degree": 54,
+      "in_degree": 55,
       "out_degree": 25
     },
     "src/production_os/control_surface.py": {
@@ -5032,6 +5035,16 @@
       "out_degree": 2
     },
     "tests/test_workflow_api.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/api_auth.py",
+        "src/production_os/control_plane.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 3
+    },
+    "tests/test_workflow_auto_wake_api.py": {
       "dependencies": [
         "src/production_os/__init__.py",
         "src/production_os/api_auth.py",

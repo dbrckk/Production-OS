@@ -5,17 +5,14 @@
     "example_count": 64,
     "rejected_count": 0,
     "terms": [
-      "255",
-      "actions",
-      "even",
-      "github",
-      "heartbeat",
-      "is",
-      "one-shot",
-      "online",
-      "stale",
-      "wake",
-      "when",
+      "256",
+      "after",
+      "auto-wake",
+      "completion",
+      "downstream",
+      "job",
+      "retries",
+      "tasks",
       "worker"
     ],
     "test_count": 0,
@@ -24,10 +21,10 @@
   "note": "Selected tests are routing hints; this artifact does not claim they executed successfully.",
   "rejected": [],
   "schema_version": 1,
-  "task": "fix(worker): wake GitHub Actions even when stale one-shot heartbeat is online (#255)",
+  "task": "fix(worker): auto-wake retries and downstream tasks after job completion (#256)",
   "tests_selected": [],
   "useful": [
-    "src/production_os/worker_wake.py",
-    "tests/test_worker_wake.py"
+    "src/production_os/control_plane.py",
+    "tests/test_workflow_auto_wake_api.py"
   ]
 }

@@ -34,16 +34,18 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-09T01:13:08Z
+Generated: 2026-10-09T03:51:29Z
 
 ### Git
 - Branch: `main`
-- Head: `982ddbca76ba`
-- Commit date: 2026-10-09T03:12:58+02:00
-- Commit: fix(worker): wake GitHub Actions even when stale one-shot heartbeat is online (#255)
-- Tracked files: 563
+- Head: `1e4aaa490272`
+- Commit date: 2026-10-09T05:51:17+02:00
+- Commit: fix(worker): auto-wake retries and downstream tasks after job completion (#256)
+- Tracked files: 564
 
 ### Recently changed files
+- `src/production_os/control_plane.py`
+- `tests/test_workflow_auto_wake_api.py`
 - `docs/worker-wake.md`
 - `src/production_os/worker_wake.py`
 - `tests/test_worker_wake.py`
@@ -56,8 +58,6 @@ Generated: 2026-10-09T01:13:08Z
 - `tests/test_dashboard_collection_view_freshness.py`
 - `tests/test_dashboard_production_inbox_freshness.py`
 - `tests/test_dashboard_ui_v3.py`
-- `src/production_os/control_plane.py`
-- `tests/test_worker_availability_api.py`
 
 ### Project signals
 - `pyproject.toml`
