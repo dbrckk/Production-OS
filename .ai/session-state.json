@@ -1,13 +1,14 @@
 {
   "schema_version": 1,
   "updated_at": "2026-10-09",
-  "objective": "Expose successful but not fully delivered AI Dev Server coding checkpoints when GitHub target PR creation fails.",
-  "base_commit": "5c7acfcf6946584d054c7fca0d5fe81de40f6408",
-  "branch": "fix/dashboard-pr-review-recovery-link",
+  "objective": "Avoid selecting cooperative specialist workflows based on ephemeral/stale/paused workers; qualify Render canary 19.",
+  "base_commit": "8e5522029fb4244e7f8a6c5fc26ade3208697aa4",
+  "branch": "fix/cooperative-specialist-worker-readiness",
   "changes": [
     "Allowlist GitHub compare URLs in PR evidence and surface structured review recovery links",
     "Render blocked-PR warning and a manual review link in the production outcome dashboard",
-    "Document that implementation completion does not certify release or merge"
+    "Document that implementation completion does not certify release or merge",
+    "Reject ephemeral GitHub Actions workers, stale heartbeats and paused specialist registrations during cooperative workflow auto-selection"
   ],
   "validation": {
     "main_head_ci": "success on c0e9d6c64929424de46f13ffcb9ae0c8e6b623a4, before this branch",
@@ -15,7 +16,9 @@
     "real_push_fallback": "not yet verified",
     "real_coding_canary": "not yet verified",
     "review_link_ui": "pending GitHub CI",
-    "canary17": "real successful checkpoint, PR HTTP 403"
+    "canary17": "real successful checkpoint, PR HTTP 403",
+    "canary19": "Success; worker 37977605357 and canary 37977605461; committed 0faf6bfc; review PR blocked HTTP 403",
+    "specialist_mode_ci": "pending"
   },
   "remaining": [
     "Open PR; verify canonical CI on branch and exact merged head before release.",
@@ -24,7 +27,9 @@
     "Confirm Asset Forge live generation and artifact delivery."
   ],
   "current_work": [
-    "Validate and merge companion AI Dev Server PR #278, then Production-OS dashboard PR and qualify merged-head CI",
-    "Confirm GitHub Pull requests:write on target repositories before expecting automatic delivery"
+    "Run existing CI and end-to-end checks on cooperative specialist detection; no new unit tests",
+    "Qualify PR and merge only after CI",
+    "Confirm Render auto-deployment and exact merged-main CI",
+    "Grant target repository Pull requests:write to worker credentials externally"
   ]
 }
