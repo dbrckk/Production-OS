@@ -316,15 +316,30 @@ Confirmée par le worker
 
 so operator intent is never displayed as runtime acknowledgement before heartbeat evidence exists.
 
-Optional server-side configuration:
+Optional server-side configuration (Render service environment):
 
 ```text
 PRODUCTION_OS_ACTIONS_REPOSITORY=dbrckk/ai-dev-server
 PRODUCTION_OS_ACTIONS_WORKFLOW=production-os-actions-worker.yml
 PRODUCTION_OS_ACTIONS_REF=main
+GITHUB_TOKEN=<secure credential stored only on Render>
 ```
 
-The GitHub token remains server-side and is never returned to dashboard JavaScript.
+The GitHub credential must be authorized to dispatch Actions workflows on
+`dbrckk/ai-dev-server` (fine-grained token: repository **Actions: write**
+permission). Store it as a secret in Render's environment settings rather
+than in GitHub-tracked files, workflow inputs, chat messages or browser code.
+The Actions runner's own `GITHUB_TOKEN` is scoped to the runner and is **not**
+automatically available to the Render service.
+
+The authenticated `/v1/dashboard/launch-readiness?repository=owner/name`
+response now returns `worker_wake.missing_configuration` containing **only
+environment variable names**, never token values. `GITHUB_TOKEN` in this
+list means the server cannot initialize its dispatch client; an empty list
+with `mode=immediate` means dispatch is **configured**, not that an actual
+GitHub API request has succeeded. Confirm successful `dispatched` status on
+a subsequent controlled test. The five-minute scheduled Actions fallback
+remains active when immediate dispatch is unavailable.
 
 ## Dashboard Control Center Release 3
 

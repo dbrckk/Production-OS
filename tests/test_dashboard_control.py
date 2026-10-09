@@ -139,3 +139,29 @@ def test_worker_wake_mode_matches_dispatch_configuration(tmp_path):
         actions_workflow="production-os-actions-worker.yml",
     )
     assert immediate.worker_wake_mode() == "immediate"
+
+
+def test_missing_dispatch_configuration_reports_names_only(tmp_path):
+    fallback = DashboardControl(_store(tmp_path), None, None)
+    assert fallback.worker_wake_missing_configuration() == [
+        "GITHUB_TOKEN",
+        "PRODUCTION_OS_ACTIONS_REPOSITORY",
+        "PRODUCTION_OS_ACTIONS_WORKFLOW",
+    ]
+
+    target_only = DashboardControl(
+        _store(tmp_path), None, None,
+        actions_repository="dbrckk/ai-dev-server",
+        actions_workflow="production-os-actions-worker.yml",
+    )
+    assert target_only.worker_wake_missing_configuration() == ["GITHUB_TOKEN"]
+    assert target_only.worker_wake_mode() == "scheduled_fallback"
+
+    configured = DashboardControl(
+        _store(tmp_path), None, None,
+        github=_FakeGitHub(),
+        actions_repository="dbrckk/ai-dev-server",
+        actions_workflow="production-os-actions-worker.yml",
+    )
+    assert configured.worker_wake_missing_configuration() == []
+    assert configured.worker_wake_mode() == "immediate"

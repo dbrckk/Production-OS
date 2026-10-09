@@ -897,6 +897,9 @@ class DashboardService:
                 "poll_interval_seconds":(
                     300 if wake_mode == "scheduled_fallback" else None
                 ),
+                "missing_configuration":(
+                    self.control.dashboard_control.worker_wake_missing_configuration()
+                ),
             },
             "message":message,
             "generated_at":_now(),
