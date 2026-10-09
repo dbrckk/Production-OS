@@ -3957,6 +3957,11 @@ def acknowledge_job_cancel(self, job_key: str, *, at: str | None = None) -> dict
 ⋮----
 row = self.store.acknowledge_job_control(job_key, at=at)
 ⋮----
+def worker_wake_missing_configuration(self) -> list[str]
+⋮----
+"""Report only names of absent dispatch settings, never token values."""
+missing = []
+⋮----
 def worker_wake_mode(self) -> str
 ⋮----
 def kick_worker(self, worker_id: str) -> dict

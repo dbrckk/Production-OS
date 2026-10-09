@@ -34,18 +34,22 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-09T11:21:58Z
+Generated: 2026-10-09T11:45:11Z
 
 ### Git
 - Branch: `main`
-- Head: `1b84c10778a8`
-- Commit date: 2026-10-09T13:21:03+02:00
-- Commit: docs(agents): adopt pinned 88-rule development standard
+- Head: `acc47d7f12e1`
+- Commit date: 2026-10-09T13:44:59+02:00
+- Commit: feat(worker): diagnose missing immediate Actions dispatch settings safely (#258)
 - Tracked files: 564
 
 ### Recently changed files
-- `AGENTS.md`
 - `README.md`
+- `src/production_os/dashboard_control.py`
+- `src/production_os/dashboard_service.py`
+- `tests/test_dashboard_control.py`
+- `tests/test_dashboard_launch_readiness.py`
+- `AGENTS.md`
 - `src/production_os/workflow_engine.py`
 - `tests/test_workflow_auto_wake_api.py`
 - `tests/test_workflow_engine.py`
@@ -53,10 +57,6 @@ Generated: 2026-10-09T11:21:58Z
 - `docs/worker-wake.md`
 - `src/production_os/worker_wake.py`
 - `tests/test_worker_wake.py`
-- `src/production_os/asset_forge.py`
-- `src/production_os/github_client.py`
-- `tests/test_asset_forge.py`
-- `tests/test_asset_forge_dispatch_probe.py`
 
 ### Project signals
 - `pyproject.toml`

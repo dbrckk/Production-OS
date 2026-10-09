@@ -4837,6 +4837,11 @@ def acknowledge_job_cancel(self, job_key: str, *, at: str | None = None) -> dict
 ⋮----
 row = self.store.acknowledge_job_control(job_key, at=at)
 ⋮----
+def worker_wake_missing_configuration(self) -> list[str]
+⋮----
+"""Report only names of absent dispatch settings, never token values."""
+missing = []
+⋮----
 def worker_wake_mode(self) -> str
 ⋮----
 def kick_worker(self, worker_id: str) -> dict
@@ -13928,6 +13933,12 @@ def test_worker_wake_mode_matches_dispatch_configuration(tmp_path)
 fallback = DashboardControl(_store(tmp_path), None, None)
 ⋮----
 immediate = DashboardControl(
+⋮----
+def test_missing_dispatch_configuration_reports_names_only(tmp_path)
+⋮----
+target_only = DashboardControl(
+⋮----
+configured = DashboardControl(
 ````
 
 ## File: tests/test_dashboard_github.py
@@ -14116,6 +14127,12 @@ control = ControlPlane(str(tmp_path / "readiness-invalid.sqlite"))
 def test_launch_readiness_reports_immediate_worker_wake_configuration(tmp_path)
 ⋮----
 control = ControlPlane(str(tmp_path / "readiness-wake.sqlite"))
+⋮----
+def test_launch_readiness_identifies_missing_dispatch_credential_by_name(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "readiness-dispatch.sqlite"))
+⋮----
+status = service.launch_readiness("dbrckk/example")
 ````
 
 ## File: tests/test_dashboard_launch.py
@@ -20914,15 +20931,30 @@ Confirmée par le worker
 
 so operator intent is never displayed as runtime acknowledgement before heartbeat evidence exists.
 
-Optional server-side configuration:
+Optional server-side configuration (Render service environment):
 
 ```text
 PRODUCTION_OS_ACTIONS_REPOSITORY=dbrckk/ai-dev-server
 PRODUCTION_OS_ACTIONS_WORKFLOW=production-os-actions-worker.yml
 PRODUCTION_OS_ACTIONS_REF=main
+GITHUB_TOKEN=<secure credential stored only on Render>
 ```
 
-The GitHub token remains server-side and is never returned to dashboard JavaScript.
+The GitHub credential must be authorized to dispatch Actions workflows on
+`dbrckk/ai-dev-server` (fine-grained token: repository **Actions: write**
+permission). Store it as a secret in Render's environment settings rather
+than in GitHub-tracked files, workflow inputs, chat messages or browser code.
+The Actions runner's own `GITHUB_TOKEN` is scoped to the runner and is **not**
+automatically available to the Render service.
+
+The authenticated `/v1/dashboard/launch-readiness?repository=owner/name`
+response now returns `worker_wake.missing_configuration` containing **only
+environment variable names**, never token values. `GITHUB_TOKEN` in this
+list means the server cannot initialize its dispatch client; an empty list
+with `mode=immediate` means dispatch is **configured**, not that an actual
+GitHub API request has succeeded. Confirm successful `dispatched` status on
+a subsequent controlled test. The five-minute scheduled Actions fallback
+remains active when immediate dispatch is unavailable.
 
 ## Dashboard Control Center Release 3
 

@@ -1,16 +1,22 @@
 # Change impact
 
-Base: ac2fb60d3a2b23d6dfd46386f417b0785d627960
-Head: 1b84c10778a8571ba244238047218c0b008b71e2
+Base: ae80d85ada9e4609d81f2884307a6a948b8671e1
+Head: acc47d7f12e1646633f05de70ef5e8a8e455cf52
 
 ## Changed files
-- M AGENTS.md
+- M README.md
+- M src/production_os/dashboard_control.py
+- M src/production_os/dashboard_service.py
+- M tests/test_dashboard_control.py
+- M tests/test_dashboard_launch_readiness.py
 
 ## Affected areas
 - (root)
+- src
+- tests
 
 ## Related test candidates
-- No direct filename-based test match detected.
+- tests/test_dashboard_control.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

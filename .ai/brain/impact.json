@@ -1,17 +1,1215 @@
 {
   "schema_version": 1,
   "generated_by": "dbrckk/repo-brain",
-  "base": "199d843b7ce5379ea361d6a7b411dcf93305df30",
-  "head": "1b84c10778a8571ba244238047218c0b008b71e2",
+  "base": "1b84c10778a8571ba244238047218c0b008b71e2",
+  "head": "acc47d7f12e1646633f05de70ef5e8a8e455cf52",
   "index_mode": "incremental",
   "changed_files": [
     {
-      "path": "AGENTS.md",
+      "path": "README.md",
+      "status": "M"
+    },
+    {
+      "path": "src/production_os/dashboard_control.py",
+      "status": "M"
+    },
+    {
+      "path": "src/production_os/dashboard_service.py",
+      "status": "M"
+    },
+    {
+      "path": "tests/test_dashboard_control.py",
+      "status": "M"
+    },
+    {
+      "path": "tests/test_dashboard_launch_readiness.py",
       "status": "M"
     }
   ],
-  "changed_source_files": [],
-  "impacted_files": [],
-  "impacted_symbols": [],
-  "selected_tests": []
+  "changed_source_files": [
+    "src/production_os/dashboard_control.py",
+    "src/production_os/dashboard_service.py",
+    "tests/test_dashboard_control.py",
+    "tests/test_dashboard_launch_readiness.py"
+  ],
+  "impacted_files": [
+    "src/production_os/control_plane.py",
+    "src/production_os/controller.py",
+    "src/production_os/dashboard_control.py",
+    "src/production_os/dashboard_service.py",
+    "tests/test_controller_managed_projects.py",
+    "tests/test_dashboard_alerts.py",
+    "tests/test_dashboard_attention.py",
+    "tests/test_dashboard_control.py",
+    "tests/test_dashboard_launch_readiness.py",
+    "tests/test_dashboard_production_status.py",
+    "tests/test_dashboard_repositories.py"
+  ],
+  "impacted_symbols": [
+    {
+      "name": "ControlPlane",
+      "kind": "class",
+      "file": "src/production_os/control_plane.py",
+      "line": 46
+    },
+    {
+      "name": "__init__",
+      "kind": "function",
+      "file": "src/production_os/control_plane.py",
+      "line": 47
+    },
+    {
+      "name": "automatic_worker_wake_allowed",
+      "kind": "function",
+      "file": "src/production_os/control_plane.py",
+      "line": 120
+    },
+    {
+      "name": "automatic_worker_wake_needed",
+      "kind": "function",
+      "file": "src/production_os/control_plane.py",
+      "line": 130
+    },
+    {
+      "name": "worker_queue_availability",
+      "kind": "function",
+      "file": "src/production_os/control_plane.py",
+      "line": 136
+    },
+    {
+      "name": "ensure_worker_for_queued_work",
+      "kind": "function",
+      "file": "src/production_os/control_plane.py",
+      "line": 249
+    },
+    {
+      "name": "cooperative_worker_fleet_available",
+      "kind": "function",
+      "file": "src/production_os/control_plane.py",
+      "line": 286
+    },
+    {
+      "name": "_parse_timestamp",
+      "kind": "function",
+      "file": "src/production_os/control_plane.py",
+      "line": 325
+    },
+    {
+      "name": "recover_abandoned_acked_jobs",
+      "kind": "function",
+      "file": "src/production_os/control_plane.py",
+      "line": 334
+    },
+    {
+      "name": "reconcile_worker_registration",
+      "kind": "function",
+      "file": "src/production_os/control_plane.py",
+      "line": 440
+    },
+    {
+      "name": "_json_bytes",
+      "kind": "function",
+      "file": "src/production_os/control_plane.py",
+      "line": 548
+    },
+    {
+      "name": "RequestBodyTooLarge",
+      "kind": "class",
+      "file": "src/production_os/control_plane.py",
+      "line": 559
+    },
+    {
+      "name": "make_handler",
+      "kind": "function",
+      "file": "src/production_os/control_plane.py",
+      "line": 563
+    },
+    {
+      "name": "Handler",
+      "kind": "class",
+      "file": "src/production_os/control_plane.py",
+      "line": 564
+    },
+    {
+      "name": "version_string",
+      "kind": "function",
+      "file": "src/production_os/control_plane.py",
+      "line": 567
+    },
+    {
+      "name": "log_message",
+      "kind": "function",
+      "file": "src/production_os/control_plane.py",
+      "line": 570
+    },
+    {
+      "name": "_send_html",
+      "kind": "function",
+      "file": "src/production_os/control_plane.py",
+      "line": 573
+    },
+    {
+      "name": "_send",
+      "kind": "function",
+      "file": "src/production_os/control_plane.py",
+      "line": 588
+    },
+    {
+      "name": "_method_not_allowed",
+      "kind": "function",
+      "file": "src/production_os/control_plane.py",
+      "line": 612
+    },
+    {
+      "name": "do_PUT",
+      "kind": "function",
+      "file": "src/production_os/control_plane.py",
+      "line": 619
+    },
+    {
+      "name": "do_PATCH",
+      "kind": "function",
+      "file": "src/production_os/control_plane.py",
+      "line": 622
+    },
+    {
+      "name": "do_DELETE",
+      "kind": "function",
+      "file": "src/production_os/control_plane.py",
+      "line": 625
+    },
+    {
+      "name": "_read_body",
+      "kind": "function",
+      "file": "src/production_os/control_plane.py",
+      "line": 628
+    },
+    {
+      "name": "_read_json",
+      "kind": "function",
+      "file": "src/production_os/control_plane.py",
+      "line": 647
+    },
+    {
+      "name": "_bearer_token",
+      "kind": "function",
+      "file": "src/production_os/control_plane.py",
+      "line": 659
+    },
+    {
+      "name": "_principal",
+      "kind": "function",
+      "file": "src/production_os/control_plane.py",
+      "line": 667
+    },
+    {
+      "name": "_require",
+      "kind": "function",
+      "file": "src/production_os/control_plane.py",
+      "line": 674
+    },
+    {
+      "name": "do_GET",
+      "kind": "function",
+      "file": "src/production_os/control_plane.py",
+      "line": 694
+    },
+    {
+      "name": "do_POST",
+      "kind": "function",
+      "file": "src/production_os/control_plane.py",
+      "line": 1191
+    },
+    {
+      "name": "audit_control",
+      "kind": "function",
+      "file": "src/production_os/control_plane.py",
+      "line": 2272
+    },
+    {
+      "name": "serve_control_plane",
+      "kind": "function",
+      "file": "src/production_os/control_plane.py",
+      "line": 3629
+    },
+    {
+      "name": "_rank_actions",
+      "kind": "function",
+      "file": "src/production_os/controller.py",
+      "line": 69
+    },
+    {
+      "name": "_handoff_for_action",
+      "kind": "function",
+      "file": "src/production_os/controller.py",
+      "line": 74
+    },
+    {
+      "name": "_required_capabilities_for",
+      "kind": "function",
+      "file": "src/production_os/controller.py",
+      "line": 100
+    },
+    {
+      "name": "_recover_managed_project_accounting",
+      "kind": "function",
+      "file": "src/production_os/controller.py",
+      "line": 116
+    },
+    {
+      "name": "_load_github_mappings",
+      "kind": "function",
+      "file": "src/production_os/controller.py",
+      "line": 152
+    },
+    {
+      "name": "_reconcile_github",
+      "kind": "function",
+      "file": "src/production_os/controller.py",
+      "line": 163
+    },
+    {
+      "name": "run_control_cycle",
+      "kind": "function",
+      "file": "src/production_os/controller.py",
+      "line": 202
+    },
+    {
+      "name": "_record_controller_error",
+      "kind": "function",
+      "file": "src/production_os/controller.py",
+      "line": 676
+    },
+    {
+      "name": "run_controller",
+      "kind": "function",
+      "file": "src/production_os/controller.py",
+      "line": 735
+    },
+    {
+      "name": "run_controller_daemon",
+      "kind": "function",
+      "file": "src/production_os/controller.py",
+      "line": 755
+    },
+    {
+      "name": "DashboardControlError",
+      "kind": "class",
+      "file": "src/production_os/dashboard_control.py",
+      "line": 9
+    },
+    {
+      "name": "DashboardControl",
+      "kind": "class",
+      "file": "src/production_os/dashboard_control.py",
+      "line": 13
+    },
+    {
+      "name": "__init__",
+      "kind": "function",
+      "file": "src/production_os/dashboard_control.py",
+      "line": 14
+    },
+    {
+      "name": "_worker_view",
+      "kind": "function",
+      "file": "src/production_os/dashboard_control.py",
+      "line": 34
+    },
+    {
+      "name": "_job_view",
+      "kind": "function",
+      "file": "src/production_os/dashboard_control.py",
+      "line": 54
+    },
+    {
+      "name": "worker_state",
+      "kind": "function",
+      "file": "src/production_os/dashboard_control.py",
+      "line": 70
+    },
+    {
+      "name": "set_worker_state",
+      "kind": "function",
+      "file": "src/production_os/dashboard_control.py",
+      "line": 73
+    },
+    {
+      "name": "acknowledge_worker_state",
+      "kind": "function",
+      "file": "src/production_os/dashboard_control.py",
+      "line": 91
+    },
+    {
+      "name": "job_state",
+      "kind": "function",
+      "file": "src/production_os/dashboard_control.py",
+      "line": 108
+    },
+    {
+      "name": "request_job_cancel",
+      "kind": "function",
+      "file": "src/production_os/dashboard_control.py",
+      "line": 111
+    },
+    {
+      "name": "acknowledge_job_cancel",
+      "kind": "function",
+      "file": "src/production_os/dashboard_control.py",
+      "line": 126
+    },
+    {
+      "name": "worker_wake_missing_configuration",
+      "kind": "function",
+      "file": "src/production_os/dashboard_control.py",
+      "line": 130
+    },
+    {
+      "name": "worker_wake_mode",
+      "kind": "function",
+      "file": "src/production_os/dashboard_control.py",
+      "line": 141
+    },
+    {
+      "name": "kick_worker",
+      "kind": "function",
+      "file": "src/production_os/dashboard_control.py",
+      "line": 148
+    },
+    {
+      "name": "retry_job",
+      "kind": "function",
+      "file": "src/production_os/dashboard_control.py",
+      "line": 170
+    },
+    {
+      "name": "DashboardNotFound",
+      "kind": "class",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 23
+    },
+    {
+      "name": "_now",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 27
+    },
+    {
+      "name": "_is_postgres",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 31
+    },
+    {
+      "name": "_execute",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 35
+    },
+    {
+      "name": "DashboardService",
+      "kind": "class",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 40
+    },
+    {
+      "name": "__init__",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 41
+    },
+    {
+      "name": "_worker_rows",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 47
+    },
+    {
+      "name": "_distinct_commit_shas",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 53
+    },
+    {
+      "name": "_window_cutoff",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 63
+    },
+    {
+      "name": "_executions_in_window",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 70
+    },
+    {
+      "name": "_previous_window_cost",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 90
+    },
+    {
+      "name": "overview",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 117
+    },
+    {
+      "name": "_worker_capabilities",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 171
+    },
+    {
+      "name": "autopilot_queue",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 185
+    },
+    {
+      "name": "attention",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 342
+    },
+    {
+      "name": "health",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 574
+    },
+    {
+      "name": "incidents",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 606
+    },
+    {
+      "name": "remediation_history",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 672
+    },
+    {
+      "name": "remediation_analytics",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 689
+    },
+    {
+      "name": "backups",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 700
+    },
+    {
+      "name": "prune_backup_temps",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 713
+    },
+    {
+      "name": "prune_expired_backups",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 722
+    },
+    {
+      "name": "create_verified_backup",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 733
+    },
+    {
+      "name": "verify_backup_restore_readiness",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 739
+    },
+    {
+      "name": "stage_backup_restore",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 745
+    },
+    {
+      "name": "control_audit",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 751
+    },
+    {
+      "name": "workers",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 757
+    },
+    {
+      "name": "worker_detail",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 770
+    },
+    {
+      "name": "worker_logs",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 799
+    },
+    {
+      "name": "worker_usage",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 804
+    },
+    {
+      "name": "_repositories",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 809
+    },
+    {
+      "name": "maintenance",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 820
+    },
+    {
+      "name": "prune_maintenance",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 832
+    },
+    {
+      "name": "launch_readiness",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 844
+    },
+    {
+      "name": "finalize_queued_cancel",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 908
+    },
+    {
+      "name": "cancel_production",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 939
+    },
+    {
+      "name": "production_status",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 1061
+    },
+    {
+      "name": "production_inbox",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 1222
+    },
+    {
+      "name": "group",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 1275
+    },
+    {
+      "name": "matches_search",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 1294
+    },
+    {
+      "name": "_repository_catalog",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 1355
+    },
+    {
+      "name": "repositories",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 1383
+    },
+    {
+      "name": "add",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 1389
+    },
+    {
+      "name": "projects",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 1436
+    },
+    {
+      "name": "_require_project",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 1441
+    },
+    {
+      "name": "project_detail",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 1444
+    },
+    {
+      "name": "_progress_snapshot_state",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 1450
+    },
+    {
+      "name": "project_progress",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 1470
+    },
+    {
+      "name": "project_commits",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 1533
+    },
+    {
+      "name": "_legacy_workflow_usage_rows",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 1541
+    },
+    {
+      "name": "project_usage",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 1590
+    },
+    {
+      "name": "project_workflows",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 1599
+    },
+    {
+      "name": "project_history",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 1605
+    },
+    {
+      "name": "activity",
+      "kind": "function",
+      "file": "src/production_os/dashboard_service.py",
+      "line": 1627
+    },
+    {
+      "name": "_cycle_kwargs",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 28
+    },
+    {
+      "name": "test_controller_defaults_execution_mode_to_managed_after_parity",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 40
+    },
+    {
+      "name": "test_controller_cli_defaults_to_managed_execution",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 47
+    },
+    {
+      "name": "test_explicit_legacy_mode_remains_supported",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 61
+    },
+    {
+      "name": "test_controller_cli_accepts_managed_execution_mode",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 76
+    },
+    {
+      "name": "test_controller_managed_mode_requires_database_path",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 93
+    },
+    {
+      "name": "test_controller_rejects_unknown_execution_mode",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 104
+    },
+    {
+      "name": "test_controller_rejects_nonpositive_project_token_budget",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 112
+    },
+    {
+      "name": "_FakeGitHub",
+      "kind": "class",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 121
+    },
+    {
+      "name": "list_repositories",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 122
+    },
+    {
+      "name": "collect_evidence",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 129
+    },
+    {
+      "name": "_managed_cycle_setup",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 133
+    },
+    {
+      "name": "test_managed_mode_action_creates_managed_project",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 209
+    },
+    {
+      "name": "test_second_cycle_reuses_same_project_without_duplicate_workflow",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 243
+    },
+    {
+      "name": "test_managed_mode_never_calls_dispatch_handoff",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 265
+    },
+    {
+      "name": "forbidden",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 269
+    },
+    {
+      "name": "test_managed_launch_failure_never_falls_back_to_legacy",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 280
+    },
+    {
+      "name": "test_legacy_mode_still_calls_dispatch_handoff",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 307
+    },
+    {
+      "name": "_Dispatch",
+      "kind": "class",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 312
+    },
+    {
+      "name": "to_dict",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 313
+    },
+    {
+      "name": "fake_dispatch",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 320
+    },
+    {
+      "name": "test_managed_cycle_response_contains_managed_projects_and_empty_dispatches",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 333
+    },
+    {
+      "name": "_project_service",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 346
+    },
+    {
+      "name": "_with_resource_request",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 352
+    },
+    {
+      "name": "wrapped",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 355
+    },
+    {
+      "name": "test_managed_safety_gate_blocks_before_project_creation",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 367
+    },
+    {
+      "name": "test_managed_backpressure_blocks_before_project_creation",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 428
+    },
+    {
+      "name": "test_successful_project_accounting_is_idempotent_across_cycles",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 444
+    },
+    {
+      "name": "test_accounting_recovers_after_post_creation_commit_failure",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 467
+    },
+    {
+      "name": "crash_once",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 481
+    },
+    {
+      "name": "test_controller_restart_reuses_active_managed_project",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 504
+    },
+    {
+      "name": "test_terminal_same_fingerprint_is_skipped_but_new_evidence_creates_project",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 523
+    },
+    {
+      "name": "test_controller_globally_wakes_worker_for_preexisting_queued_work",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 556
+    },
+    {
+      "name": "WakeGitHub",
+      "kind": "class",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 576
+    },
+    {
+      "name": "dispatch_workflow",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 579
+    },
+    {
+      "name": "test_controller_global_wake_respects_intentional_worker_pause",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 626
+    },
+    {
+      "name": "WakeGitHub",
+      "kind": "class",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 650
+    },
+    {
+      "name": "dispatch_workflow",
+      "kind": "function",
+      "file": "tests/test_controller_managed_projects.py",
+      "line": 653
+    },
+    {
+      "name": "test_offline_worker_with_queued_work_is_high_alert",
+      "kind": "function",
+      "file": "tests/test_dashboard_alerts.py",
+      "line": 6
+    },
+    {
+      "name": "test_three_consecutive_failures_are_high_alert",
+      "kind": "function",
+      "file": "tests/test_dashboard_alerts.py",
+      "line": 17
+    },
+    {
+      "name": "test_cost_spike_requires_real_baseline",
+      "kind": "function",
+      "file": "tests/test_dashboard_alerts.py",
+      "line": 28
+    },
+    {
+      "name": "test_stale_busy_worker_is_medium_alert",
+      "kind": "function",
+      "file": "tests/test_dashboard_alerts.py",
+      "line": 48
+    },
+    {
+      "name": "test_previous_window_cost_uses_observed_historical_cost_only",
+      "kind": "function",
+      "file": "tests/test_dashboard_alerts.py",
+      "line": 65
+    },
+    {
+      "name": "ManagedProjects",
+      "kind": "class",
+      "file": "tests/test_dashboard_attention.py",
+      "line": 6
+    },
+    {
+      "name": "__init__",
+      "kind": "function",
+      "file": "tests/test_dashboard_attention.py",
+      "line": 7
+    },
+    {
+      "name": "list",
+      "kind": "function",
+      "file": "tests/test_dashboard_attention.py",
+      "line": 10
+    },
+    {
+      "name": "test_attention_prioritizes_failures_reviews_blocked_jobs_and_incidents",
+      "kind": "function",
+      "file": "tests/test_dashboard_attention.py",
+      "line": 14
+    },
+    {
+      "name": "test_attention_limit_is_bounded_and_completed_items_are_informational",
+      "kind": "function",
+      "file": "tests/test_dashboard_attention.py",
+      "line": 137
+    },
+    {
+      "name": "test_attention_caps_blocked_job_cards_but_preserves_total_count",
+      "kind": "function",
+      "file": "tests/test_dashboard_attention.py",
+      "line": 165
+    },
+    {
+      "name": "test_attention_managed_projects_open_unified_productions_surface",
+      "kind": "function",
+      "file": "tests/test_dashboard_attention.py",
+      "line": 193
+    },
+    {
+      "name": "test_attention_explains_missing_worker_capability",
+      "kind": "function",
+      "file": "tests/test_dashboard_attention.py",
+      "line": 238
+    },
+    {
+      "name": "_store",
+      "kind": "function",
+      "file": "tests/test_dashboard_control.py",
+      "line": 10
+    },
+    {
+      "name": "test_missing_worker_control_row_defaults_to_active",
+      "kind": "function",
+      "file": "tests/test_dashboard_control.py",
+      "line": 14
+    },
+    {
+      "name": "test_pause_and_drain_are_durable",
+      "kind": "function",
+      "file": "tests/test_dashboard_control.py",
+      "line": 22
+    },
+    {
+      "name": "test_invalid_worker_desired_state_is_rejected",
+      "kind": "function",
+      "file": "tests/test_dashboard_control.py",
+      "line": 38
+    },
+    {
+      "name": "test_worker_acknowledgement_requires_current_desired_state",
+      "kind": "function",
+      "file": "tests/test_dashboard_control.py",
+      "line": 44
+    },
+    {
+      "name": "test_missing_job_control_row_defaults_to_active",
+      "kind": "function",
+      "file": "tests/test_dashboard_control.py",
+      "line": 53
+    },
+    {
+      "name": "test_job_cancel_request_and_acknowledgement_are_durable",
+      "kind": "function",
+      "file": "tests/test_dashboard_control.py",
+      "line": 60
+    },
+    {
+      "name": "_FakeGitHub",
+      "kind": "class",
+      "file": "tests/test_dashboard_control.py",
+      "line": 71
+    },
+    {
+      "name": "__init__",
+      "kind": "function",
+      "file": "tests/test_dashboard_control.py",
+      "line": 72
+    },
+    {
+      "name": "dispatch_workflow",
+      "kind": "function",
+      "file": "tests/test_dashboard_control.py",
+      "line": 76
+    },
+    {
+      "name": "test_kick_dispatches_actions_worker_when_configured",
+      "kind": "function",
+      "file": "tests/test_dashboard_control.py",
+      "line": 82
+    },
+    {
+      "name": "test_kick_reports_scheduled_fallback_without_dispatch_credentials",
+      "kind": "function",
+      "file": "tests/test_dashboard_control.py",
+      "line": 102
+    },
+    {
+      "name": "test_kick_reports_failed_when_dispatch_errors",
+      "kind": "function",
+      "file": "tests/test_dashboard_control.py",
+      "line": 114
+    },
+    {
+      "name": "test_worker_wake_mode_matches_dispatch_configuration",
+      "kind": "function",
+      "file": "tests/test_dashboard_control.py",
+      "line": 129
+    },
+    {
+      "name": "test_missing_dispatch_configuration_reports_names_only",
+      "kind": "function",
+      "file": "tests/test_dashboard_control.py",
+      "line": 144
+    },
+    {
+      "name": "test_launch_readiness_distinguishes_immediate_execution_from_safe_queue",
+      "kind": "function",
+      "file": "tests/test_dashboard_launch_readiness.py",
+      "line": 4
+    },
+    {
+      "name": "test_launch_readiness_does_not_count_paused_or_saturated_workers",
+      "kind": "function",
+      "file": "tests/test_dashboard_launch_readiness.py",
+      "line": 56
+    },
+    {
+      "name": "test_launch_readiness_validates_repository_shape",
+      "kind": "function",
+      "file": "tests/test_dashboard_launch_readiness.py",
+      "line": 92
+    },
+    {
+      "name": "test_launch_readiness_reports_immediate_worker_wake_configuration",
+      "kind": "function",
+      "file": "tests/test_dashboard_launch_readiness.py",
+      "line": 103
+    },
+    {
+      "name": "test_launch_readiness_identifies_missing_dispatch_credential_by_name",
+      "kind": "function",
+      "file": "tests/test_dashboard_launch_readiness.py",
+      "line": 130
+    },
+    {
+      "name": "test_production_status_tracks_queue_claim_ack_and_live_telemetry",
+      "kind": "function",
+      "file": "tests/test_dashboard_production_status.py",
+      "line": 9
+    },
+    {
+      "name": "test_production_status_validates_and_reports_missing_project",
+      "kind": "function",
+      "file": "tests/test_dashboard_production_status.py",
+      "line": 61
+    },
+    {
+      "name": "test_production_status_reports_cancelling_until_worker_acknowledges",
+      "kind": "function",
+      "file": "tests/test_dashboard_production_status.py",
+      "line": 70
+    },
+    {
+      "name": "FailingGitHub",
+      "kind": "class",
+      "file": "tests/test_dashboard_repositories.py",
+      "line": 11
+    },
+    {
+      "name": "list_accessible_repositories",
+      "kind": "function",
+      "file": "tests/test_dashboard_repositories.py",
+      "line": 12
+    },
+    {
+      "name": "LiveGitHub",
+      "kind": "class",
+      "file": "tests/test_dashboard_repositories.py",
+      "line": 16
+    },
+    {
+      "name": "list_accessible_repositories",
+      "kind": "function",
+      "file": "tests/test_dashboard_repositories.py",
+      "line": 17
+    },
+    {
+      "name": "_service",
+      "kind": "function",
+      "file": "tests/test_dashboard_repositories.py",
+      "line": 36
+    },
+    {
+      "name": "_catalog",
+      "kind": "function",
+      "file": "tests/test_dashboard_repositories.py",
+      "line": 46
+    },
+    {
+      "name": "test_repositories_keep_catalog_and_observed_projects_when_github_fails",
+      "kind": "function",
+      "file": "tests/test_dashboard_repositories.py",
+      "line": 76
+    },
+    {
+      "name": "test_repositories_merge_live_github_over_catalog_metadata",
+      "kind": "function",
+      "file": "tests/test_dashboard_repositories.py",
+      "line": 93
+    }
+  ],
+  "selected_tests": [
+    "tests/test_controller_managed_projects.py",
+    "tests/test_dashboard_alerts.py",
+    "tests/test_dashboard_attention.py",
+    "tests/test_dashboard_control.py",
+    "tests/test_dashboard_control_api.py",
+    "tests/test_dashboard_control_audit.py",
+    "tests/test_dashboard_control_e2e.py",
+    "tests/test_dashboard_launch.py",
+    "tests/test_dashboard_launch_readiness.py",
+    "tests/test_dashboard_production_status.py",
+    "tests/test_dashboard_repositories.py"
+  ]
 }

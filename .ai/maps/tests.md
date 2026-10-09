@@ -2635,6 +2635,12 @@ def test_worker_wake_mode_matches_dispatch_configuration(tmp_path)
 fallback = DashboardControl(_store(tmp_path), None, None)
 ⋮----
 immediate = DashboardControl(
+⋮----
+def test_missing_dispatch_configuration_reports_names_only(tmp_path)
+⋮----
+target_only = DashboardControl(
+⋮----
+configured = DashboardControl(
 ```
 
 ## File: test_dashboard_github.py
@@ -2823,6 +2829,12 @@ control = ControlPlane(str(tmp_path / "readiness-invalid.sqlite"))
 def test_launch_readiness_reports_immediate_worker_wake_configuration(tmp_path)
 ⋮----
 control = ControlPlane(str(tmp_path / "readiness-wake.sqlite"))
+⋮----
+def test_launch_readiness_identifies_missing_dispatch_credential_by_name(tmp_path)
+⋮----
+control = ControlPlane(str(tmp_path / "readiness-dispatch.sqlite"))
+⋮----
+status = service.launch_readiness("dbrckk/example")
 ```
 
 ## File: test_dashboard_launch.py
