@@ -182,6 +182,22 @@ def _sidecar_relative_path(target_path: str) -> str:
     return target_path.strip().replace("\\", "/").lstrip("/") + ".asset-forge.json"
 
 
+def _validated_target_path(value: Any) -> str:
+    """Keep delivery paths canonical before generation, dispatch or writes."""
+    if not isinstance(value, str) or not value or value != value.strip():
+        raise ValueError("asset-forge target_path must be a nonempty relative path")
+    normalized = value.replace("\\", "/")
+    parts = normalized.split("/")
+    if (
+        normalized.startswith("/")
+        or any(part in {"", ".", ".."} for part in parts)
+        or ":" in parts[0]
+        or any(ord(character) < 32 or ord(character) == 127 for character in normalized)
+    ):
+        raise ValueError("asset-forge target_path must be a safe canonical relative path")
+    return normalized
+
+
 
 def _is_godot_sprite_sheet(request: dict[str, Any]) -> bool:
     manifest = request.get("manifest")
@@ -416,7 +432,7 @@ def _deliver_produced_assets(
             *(extra["target_path"] for extra in companion_files),
         ]
         for name in names:
-            key = unicodedata.normalize("NFC", name.replace("\\", "/")).casefold()
+            key = unicodedata.normalize("NFC", _validated_target_path(name)).casefold()
             if key in delivery_names:
                 raise RuntimeError(f"asset-forge batch delivery path collision: {name}")
             delivery_names.add(key)
@@ -548,12 +564,7 @@ def execute_asset_forge(
         if destination_requested:
             if not isinstance(target_path, str) or not target_path.strip():
                 raise ValueError("remote single-asset delivery requires target_path")
-            normalized_target = target_path.strip().replace("\\", "/").lstrip("/")
-            if (
-                normalized_target in {"", ".", ".."}
-                or any(part in {"", ".", ".."} for part in normalized_target.split("/"))
-            ):
-                raise ValueError("target_path must be a safe repository-relative path")
+            normalized_target = _validated_target_path(target_path)
             if not (target_worktree or target_repository):
                 raise ValueError("remote delivery requires target_worktree or target_repository")
             if source_path or reference_paths:
@@ -665,13 +676,7 @@ def execute_asset_forge(
     delivery_mode = None
     delivered_to = None
     if target_path:
-        normalized_target = target_path.strip().replace("\\", "/").lstrip("/")
-        if (
-            not normalized_target
-            or normalized_target in {".", ".."}
-            or any(part in {"", ".", ".."} for part in normalized_target.split("/"))
-        ):
-            raise ValueError("target_path must be a safe repository-relative path")
+        normalized_target = _validated_target_path(target_path)
         if _is_godot_sprite_sheet(request):
             companions = _local_godot_spriteframes_companions(
                 destination, report, normalized_target
@@ -1371,18 +1376,21 @@ def execute_asset_forge_batch(
     if not items:
         raise ValueError("asset-forge batch requires at least one item")
 
+    # Reject unsafe paths and case/Unicode-equivalent aliases before a remote
+    # dispatch or an expensive local generation can be started.
+    import unicodedata
+    ordered_items = _order_asset_batch(items)
+    for item in ordered_items:
+        item["target_path"] = _validated_target_path(item.get("target_path"))
+    target_paths = [item["target_path"] for item in ordered_items]
+    keys = {unicodedata.normalize("NFC", path).casefold() for path in target_paths}
+    if len(target_paths) != len(keys):
+        raise ValueError("asset-forge batch target_path values must be unique")
+
     root = Path(output_root)
     root.mkdir(parents=True, exist_ok=True)
     produced: list[dict[str, Any]] = []
     produced_by_id: dict[str, dict[str, Any]] = {}
-    ordered_items = _order_asset_batch(items)
-
-    target_paths = [
-        str(item.get("target_path") or "").strip().replace("\\", "/").lstrip("/")
-        for item in ordered_items
-    ]
-    if len(target_paths) != len(set(target_paths)):
-        raise ValueError("asset-forge batch target_path values must be unique")
 
     effective_mode = mode
     if mode == "auto":
