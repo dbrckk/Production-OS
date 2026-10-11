@@ -158,7 +158,7 @@ def main() -> None:
             if entry.get("role") == "godot-spriteframes"
         )
         tampered_zip = io.BytesIO()
-        with zipfile.ZipFile(source_archive, "r") as genuine:
+        with zipfile.ZipFile(io.BytesIO(source_archive), "r") as genuine:
             with zipfile.ZipFile(tampered_zip, "w", zipfile.ZIP_DEFLATED) as corrupted:
                 for member in genuine.infolist():
                     content = genuine.read(member.filename)

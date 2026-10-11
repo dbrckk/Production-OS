@@ -10,14 +10,15 @@
     "Real Godot integration smoke expanded to local CLI and cache repair",
     "Direct local Godot single-asset delivery shares batch transaction and validates SpriteFrames/atlas companions",
     "Real Godot integration smoke exercises direct single-asset import",
-    "Native pinned Asset Forge remote_batch output -> actual zipped receipt -> Production-OS consumer -> Godot import with genuine tampered-ZIP refusal"
+    "Native pinned Asset Forge remote_batch output -> actual zipped receipt -> Production-OS consumer -> Godot import with genuine tampered-ZIP refusal",
+    "Correct smoke fixture ZIP reopen via io.BytesIO rather than raw bytes (CI 38155804378 diagnosis)"
   ],
   "validation": {
     "baseline_remote_godot_ci": "38136230642 COMPLETED SUCCESS on 35d92a99041858fe3b93efc000711c05068e1df0",
     "local_cache_ci": "38137130685 COMPLETED SUCCESS 4/4 jobs on ba534b05ea53b4e2363809e1325c31fe66e7dbcf",
     "docs_head_ci": "38137419357 COMPLETED SUCCESS 4/4 on c77860dc860c64249a50bf46e3a756454e236d7b",
     "single_asset_ci": "38154300786 COMPLETED SUCCESS 4/4 jobs on bcee95a31c2fe286e6cf08a7348a7f15389d3f5d (Python 3.11/3.12, integration/build/Docker, real CLI and Godot 4.4.1 import)",
-    "cross_repo_genuine_producer_ci": "pending new HEAD"
+    "cross_repo_genuine_producer_ci": "38155804378 FAILED Godot smoke at ZIP corruption fixture (raw bytes without BytesIO); corrective commit pending exact-head CI"
   },
   "remaining": [
     "Live worker-to-PR and consuming game release not verified",
