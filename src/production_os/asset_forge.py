@@ -1188,7 +1188,7 @@ def execute_asset_forge_batch(
             *(extra["target_path"] for extra in companion_files),
         ]
         for name in names:
-            key = unicodedata.normalize("NFC", name.replace("\\\\", "/")).casefold()
+            key = unicodedata.normalize("NFC", name.replace("\\", "/")).casefold()
             if key in delivery_names:
                 raise RuntimeError(f"asset-forge batch delivery path collision: {name}")
             delivery_names.add(key)
