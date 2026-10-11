@@ -182,10 +182,94 @@ def _sidecar_relative_path(target_path: str) -> str:
     return target_path.strip().replace("\\", "/").lstrip("/") + ".asset-forge.json"
 
 
+def _validated_target_path(value: Any) -> str:
+    """Keep delivery paths canonical before generation, dispatch or writes."""
+    if not isinstance(value, str) or not value or value != value.strip():
+        raise ValueError("asset-forge target_path must be a nonempty relative path")
+    normalized = value.replace("\\", "/")
+    parts = normalized.split("/")
+    if (
+        normalized.startswith("/")
+        or any(part in {"", ".", ".."} for part in parts)
+        or ":" in parts[0]
+        or any(ord(character) < 32 or ord(character) == 127 for character in normalized)
+    ):
+        raise ValueError("asset-forge target_path must be a safe canonical relative path")
+    return normalized
+
+
+
+def _is_godot_sprite_sheet(request: dict[str, Any]) -> bool:
+    manifest = request.get("manifest")
+    if not isinstance(manifest, dict) or manifest.get("type") != "sprite-sheet":
+        return False
+    target = manifest.get("target")
+    return (
+        isinstance(target, dict)
+        and str(target.get("engine") or "").lower() in {"godot", "godot4", "godot-4"}
+    )
+
+
+def _cached_godot_companions(
+    root: Path,
+    target_path: str,
+    metadata: dict[str, Any],
+) -> list[dict[str, Any]] | None:
+    """A Godot cache hit requires verified PNG, SpriteFrames and atlas JSON."""
+    expected = {
+        str(Path(target_path).with_suffix(".tres")),
+        str(Path(target_path).with_suffix(".atlas-metadata.json")),
+    }
+    records = metadata.get("companions")
+    if not isinstance(records, list) or len(records) != len(expected):
+        return None
+    found: dict[str, bytes] = {}
+    for record in records:
+        if not isinstance(record, dict):
+            return None
+        rel = record.get("target_path")
+        digest = record.get("sha256")
+        if not isinstance(rel, str) or rel not in expected or rel in found:
+            return None
+        if not isinstance(digest, str) or len(digest) != 64:
+            return None
+        candidate = (root / rel).resolve()
+        if not candidate.is_relative_to(root) or not candidate.is_file():
+            return None
+        if not 0 < candidate.stat().st_size <= 4 * 1024 * 1024:
+            return None
+        content = candidate.read_bytes()
+        if hashlib.sha256(content).hexdigest() != digest:
+            return None
+        found[rel] = content
+    if set(found) != expected:
+        return None
+    try:
+        tres = found[str(Path(target_path).with_suffix(".tres"))].decode("utf-8")
+        atlas = json.loads(
+            found[str(Path(target_path).with_suffix(".atlas-metadata.json"))].decode("utf-8")
+        )
+    except (UnicodeError, json.JSONDecodeError):
+        return None
+    reference = 'path=' + json.dumps("res://" + target_path, ensure_ascii=False)
+    if (
+        tres.count(reference) != 1
+        or '[gd_resource type="SpriteFrames"' not in tres
+        or not isinstance(atlas, dict)
+        or atlas.get("image") != Path(target_path).name
+        or not isinstance(atlas.get("frames"), list)
+        or not atlas["frames"]
+    ):
+        return None
+    return [{"target_path": path, "content": found[path]} for path in sorted(expected)]
+
+
 def _cached_worktree_asset(
     worktree: str | None,
     target_path: str,
     fingerprint: str,
+    *,
+    godot_required: bool = False,
 ) -> tuple[Path, dict[str, Any]] | None:
     if not worktree:
         return None
@@ -210,6 +294,11 @@ def _cached_worktree_asset(
     digest = hashlib.sha256(artifact.read_bytes()).hexdigest()
     if digest != str(metadata.get("sha256") or ""):
         return None
+    if godot_required:
+        companions = _cached_godot_companions(root, normalized, metadata)
+        if companions is None:
+            return None
+        metadata = {**metadata, "_verified_companions": companions}
     return artifact, metadata
 
 
@@ -221,7 +310,17 @@ def _version_sidecar(
     existing = existing if isinstance(existing, dict) else {}
     prior_sha = str(existing.get("sha256") or "")
     prior_version = int(existing.get("version") or 0)
-    same = prior_sha == item["sha256"] and prior_version > 0
+    companions = [
+        {"target_path": extra["target_path"],
+         "sha256": hashlib.sha256(extra["content"]).hexdigest()}
+        for extra in item.get("companion_files") or []
+    ]
+    companions.sort(key=lambda entry: entry["target_path"])
+    same = (
+        prior_sha == item["sha256"]
+        and prior_version > 0
+        and (existing.get("companions") or []) == companions
+    )
     version = prior_version if same else prior_version + 1
     history = list(existing.get("history") or []) if isinstance(existing.get("history"), list) else []
     if prior_version > 0 and not same:
@@ -238,6 +337,7 @@ def _version_sidecar(
         "target_path": item["target_path"],
         "version": version,
         "sha256": item["sha256"],
+        "companions": companions,
         "request_fingerprint": item["request_fingerprint"],
         "depends_on": item["depends_on"],
         "dependency_sha256": {
@@ -307,6 +407,127 @@ def _deliver_artifact(
     return "github", f"{target_repository}:{normalized}@{target_ref}"
 
 
+def _deliver_produced_assets(
+    produced: list[dict[str, Any]],
+    *,
+    target_repository: str | None,
+    target_worktree: str | None,
+    target_ref: str,
+    client: GitHubClient | None,
+) -> tuple[str, list[str]]:
+    """Preflight and transactionally deliver validated assets and sidecars."""
+
+    delivery_mode = None
+    delivered_to: list[str] = []
+
+    # Validate all destinations before touching either a worktree or GitHub.
+    # Include metadata sidecars and companion files in the collision ledger.
+    import unicodedata
+    delivery_names: set[str] = set()
+    for produced_item in produced:
+        companion_files = produced_item.get("companion_files") or []
+        names = [
+            produced_item["target_path"],
+            _sidecar_relative_path(produced_item["target_path"]),
+            *(extra["target_path"] for extra in companion_files),
+        ]
+        for name in names:
+            key = unicodedata.normalize("NFC", _validated_target_path(name)).casefold()
+            if key in delivery_names:
+                raise RuntimeError(f"asset-forge batch delivery path collision: {name}")
+            delivery_names.add(key)
+
+    if target_worktree:
+        root_worktree = Path(target_worktree).resolve()
+        staged = []
+        for item in produced:
+            normalized = item["target_path"].replace("\\", "/").lstrip("/")
+            destination = (root_worktree / normalized).resolve()
+            if not destination.is_relative_to(root_worktree):
+                raise ValueError("target_path escapes target worktree")
+            sidecar_destination = (
+                root_worktree / _sidecar_relative_path(normalized)
+            ).resolve()
+            if not sidecar_destination.is_relative_to(root_worktree):
+                raise ValueError("asset sidecar escapes target worktree")
+            existing = None
+            if sidecar_destination.is_file():
+                try:
+                    value = json.loads(sidecar_destination.read_text(encoding="utf-8"))
+                    existing = value if isinstance(value, dict) else None
+                except (OSError, UnicodeError, json.JSONDecodeError):
+                    existing = None
+            sidecar = _version_sidecar(item, existing=existing)
+            staged.append((destination, item["artifact"]))
+            for extra in item.get("companion_files") or []:
+                extra_destination = (root_worktree / extra["target_path"]).resolve()
+                if not extra_destination.is_relative_to(root_worktree):
+                    raise ValueError("Godot companion escapes target worktree")
+                staged.append((extra_destination, extra["content"]))
+            staged.append((
+                sidecar_destination,
+                json.dumps(sidecar, indent=2, sort_keys=True).encode("utf-8"),
+            ))
+
+        backup_root = Path(tempfile.mkdtemp(prefix="production-os-asset-batch-backup-"))
+        backups: list[tuple[Path, Path | None]] = []
+        try:
+            for destination, artifact in staged:
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                backup = None
+                if destination.exists():
+                    backup = backup_root / str(len(backups))
+                    backup.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copyfile(destination, backup)
+                backups.append((destination, backup))
+                if isinstance(artifact, (bytes, bytearray)):
+                    destination.write_bytes(bytes(artifact))
+                elif Path(artifact).resolve() != destination.resolve():
+                    shutil.copyfile(artifact, destination)
+                if not destination.name.endswith(".asset-forge.json"):
+                    delivered_to.append(str(destination))
+        except Exception:
+            for destination, backup in reversed(backups):
+                if backup and backup.exists():
+                    shutil.copyfile(backup, destination)
+                elif destination.exists():
+                    destination.unlink()
+            raise
+        finally:
+            shutil.rmtree(backup_root, ignore_errors=True)
+        delivery_mode = "worktree"
+
+    elif target_repository:
+        gh = client or GitHubClient()
+        payload: dict[str, bytes] = {}
+        for item in produced:
+            payload[item["target_path"]] = item["artifact"].read_bytes()
+            for extra in item.get("companion_files") or []:
+                payload[extra["target_path"]] = extra["content"]
+            sidecar_path = _sidecar_relative_path(item["target_path"])
+            existing = gh.read_json_file(target_repository, sidecar_path)
+            sidecar = _version_sidecar(item, existing=existing)
+            payload[sidecar_path] = (
+                json.dumps(sidecar, indent=2, sort_keys=True) + "\n"
+            ).encode("utf-8")
+        result = gh.commit_files(
+            target_repository,
+            payload,
+            message="assets: deliver validated asset batch",
+            branch=target_ref,
+        )
+        delivered_to = [
+            f"{target_repository}:{path}@{target_ref}"
+            for path in result["files"]
+            if not path.endswith(".asset-forge.json")
+        ]
+        delivery_mode = "github"
+    else:
+        raise ValueError("target_worktree or target_repository is required for batch delivery")
+
+    return delivery_mode, delivered_to
+
+
 def execute_asset_forge(
     request: dict[str, Any],
     *,
@@ -334,6 +555,63 @@ def execute_asset_forge(
         effective = "local" if local_cli else "github"
 
     if effective == "github":
+        # Fire-and-forget dispatch remains available only when no delivery
+        # destination was requested. Otherwise, the one-item batch must
+        # verify and download a correlated artifact before reporting delivery.
+        destination_requested = any(
+            value is not None for value in (target_path, target_worktree, target_repository)
+        )
+        if destination_requested:
+            if not isinstance(target_path, str) or not target_path.strip():
+                raise ValueError("remote single-asset delivery requires target_path")
+            normalized_target = _validated_target_path(target_path)
+            if not (target_worktree or target_repository):
+                raise ValueError("remote delivery requires target_worktree or target_repository")
+            if source_path or reference_paths:
+                raise ValueError("remote single-asset delivery cannot access local source/reference files")
+            if target_repository and not target_worktree and (
+                target_ref.removeprefix("refs/heads/") in {"main", "master"}
+            ):
+                raise ValueError("remote repository delivery requires an explicit non-default review branch")
+            if workflow != ASSET_FORGE_WORKFLOW:
+                raise ValueError("remote single-asset delivery requires the standard batch workflow")
+            if request.get("schema") != "asset-forge/production-request/v1":
+                raise ValueError("unsupported asset-forge production request schema")
+            request_id = str(request.get("requestId") or "").strip()
+            if not request_id:
+                raise ValueError("asset-forge requestId is required")
+            manifest = request.get("manifest")
+            asset_id = str(manifest.get("id") or "").strip() if isinstance(manifest, dict) else ""
+            result = execute_asset_forge_batch(
+                [{"id": asset_id or request_id, "request": request, "target_path": normalized_target}],
+                backend=backend,
+                model=model,
+                mode="github",
+                output_root=output_dir or f"build/asset-forge/{request_id}",
+                target_repository=target_repository,
+                target_worktree=target_worktree,
+                target_ref=target_ref,
+                client=client,
+                remote_repository=repository,
+                remote_ref=ref,
+            )
+            if result.get("success") is not True:
+                raise RuntimeError("remote single-asset batch delivery was not successful")
+            delivered_to = (
+                str((Path(target_worktree).resolve() / normalized_target).resolve())
+                if target_worktree
+                else f"{target_repository}:{normalized_target}@{target_ref}"
+            )
+            return AssetForgeDispatch(
+                repository=repository,
+                workflow=ASSET_FORGE_BATCH_WORKFLOW,
+                ref=ref,
+                request_id=request_id,
+                backend=backend,
+                mode="github",
+                delivery_mode=str(result["delivery_mode"]),
+                delivered_to=delivered_to,
+            )
         return dispatch_asset_forge(
             request,
             client=client,
@@ -398,15 +676,58 @@ def execute_asset_forge(
     delivery_mode = None
     delivered_to = None
     if target_path:
-        delivery_mode, delivered_to = _deliver_artifact(
-            artifact,
-            target_path=target_path,
-            target_repository=target_repository,
-            target_worktree=target_worktree,
-            target_ref=target_ref,
-            client=client,
-            request_id=request_id,
-        )
+        normalized_target = _validated_target_path(target_path)
+        if _is_godot_sprite_sheet(request):
+            companions = _local_godot_spriteframes_companions(
+                destination, report, normalized_target
+            )
+            generation = report.get("generation")
+            validation = report.get("validation")
+            generation = generation if isinstance(generation, dict) else {}
+            validation = validation if isinstance(validation, dict) else {}
+            single_item = {
+                "batch_id": str(request["manifest"].get("id") or request_id),
+                "request_id": request_id,
+                "target_path": normalized_target,
+                "artifact": artifact,
+                "sha256": hashlib.sha256(artifact.read_bytes()).hexdigest(),
+                "companion_files": companions,
+                "request_fingerprint": _request_fingerprint(
+                    request, [], source_path=source_path
+                ),
+                "depends_on": [],
+                "dependency_artifacts": [],
+                "cache_hit": False,
+                "visual_similarity": generation.get("visualSimilarity"),
+                "technical_art": validation.get("technicalArt"),
+                "semantic_art": validation.get("semanticArt"),
+                "library": report.get("library"),
+            }
+            delivery_mode, _delivered_files = _deliver_produced_assets(
+                [single_item],
+                target_repository=target_repository,
+                target_worktree=target_worktree,
+                target_ref=target_ref,
+                client=client,
+            )
+            if delivery_mode == "worktree":
+                delivered_to = str(
+                    (Path(target_worktree).resolve() / normalized_target).resolve()
+                )
+            else:
+                delivered_to = (
+                    f"{target_repository}:{normalized_target}@{target_ref}"
+                )
+        else:
+            delivery_mode, delivered_to = _deliver_artifact(
+                artifact,
+                target_path=normalized_target,
+                target_repository=target_repository,
+                target_worktree=target_worktree,
+                target_ref=target_ref,
+                client=client,
+                request_id=request_id,
+            )
 
     return AssetForgeDispatch(
         repository=repository,
@@ -517,6 +838,154 @@ def _extract_remote_batch_bundle(data: bytes, destination: Path) -> Path:
             with archive.open(info) as source, target.open("wb") as output:
                 shutil.copyfileobj(source, output)
     return root
+
+
+
+def _godot_spriteframes_companions(
+    bundle_root: Path,
+    additional_rows: Any,
+    production_report: dict[str, Any],
+    target_path: str,
+) -> list[dict[str, Any]]:
+    """Verify Godot sidecars and relocate the atlas URI for the consumer.
+
+    Bundle paths and checksums are untrusted until checked against the
+    extracted checkout; no sidecar content is written before all checks pass.
+    """
+    handoff = production_report.get("engineHandoff")
+    if (
+        not isinstance(handoff, dict)
+        or handoff.get("engine") != "godot4"
+        or handoff.get("type") != "spriteframes"
+        or handoff.get("ready") is not True
+        or not isinstance(additional_rows, list)
+    ):
+        raise RuntimeError("required Godot SpriteFrames handoff is incomplete")
+
+    target = target_path.replace("\\", "/")
+    if (
+        not target or target.startswith("/") or '"' in target
+        or any(part in {"", ".", ".."} for part in target.split("/"))
+        or Path(target).suffix.lower() not in {".png", ".webp"}
+    ):
+        raise RuntimeError("unsafe Godot SpriteFrames delivery target")
+    root = bundle_root.resolve()
+    roles: dict[str, bytes] = {}
+    fields = {
+        "godot-spriteframes": "spriteFrames",
+        "godot-atlas-metadata": "atlasMetadata",
+    }
+    for row in additional_rows:
+        if not isinstance(row, dict):
+            raise RuntimeError("invalid remote Godot companion record")
+        role = row.get("role")
+        if role not in fields:
+            continue
+        if role in roles:
+            raise RuntimeError("duplicate remote Godot companion role")
+        relative = Path(str(row.get("artifact") or ""))
+        if relative.is_absolute() or ".." in relative.parts:
+            raise RuntimeError("unsafe remote Godot companion path")
+        candidate = (root / relative).resolve()
+        if not candidate.is_relative_to(root) or not candidate.is_file():
+            raise RuntimeError("remote Godot companion escapes bundle or is missing")
+        if candidate.stat().st_size <= 0 or candidate.stat().st_size > 4 * 1024 * 1024:
+            raise RuntimeError("remote Godot companion size outside safe bounds")
+        content = candidate.read_bytes()
+        if hashlib.sha256(content).hexdigest() != row.get("sha256"):
+            raise RuntimeError("remote Godot companion sha256 mismatch")
+        recorded_name = handoff.get(fields[role])
+        if (
+            not isinstance(recorded_name, str)
+            or Path(recorded_name).name != row.get("source_name")
+        ):
+            raise RuntimeError("remote Godot companion source identity mismatch")
+        roles[role] = content
+    if set(roles) != set(fields):
+        raise RuntimeError("remote Godot SpriteFrames delivery lacks required sidecars")
+
+    source_name = Path(str(production_report.get("artifact") or "")).name
+    original_atlas_ref = "res://" + source_name
+    if (
+        not source_name
+        or handoff.get("atlasResourcePath") != original_atlas_ref
+    ):
+        raise RuntimeError("remote Godot atlas resource identity mismatch")
+    try:
+        spriteframes = roles["godot-spriteframes"].decode("utf-8")
+        metadata = json.loads(roles["godot-atlas-metadata"].decode("utf-8"))
+    except (UnicodeError, json.JSONDecodeError) as exc:
+        raise RuntimeError("remote Godot companion format invalid") from exc
+    old_reference = 'path=' + json.dumps(original_atlas_ref, ensure_ascii=False)
+    if (
+        spriteframes.count(old_reference) != 1
+        or '[gd_resource type="SpriteFrames"' not in spriteframes
+        or not isinstance(metadata, dict)
+        or metadata.get("image") != source_name
+        or not isinstance(metadata.get("frames"), list)
+        or not metadata["frames"]
+    ):
+        raise RuntimeError("remote Godot companions do not match the produced atlas")
+    new_reference = 'path=' + json.dumps("res://" + target, ensure_ascii=False)
+    rewritten = spriteframes.replace(old_reference, new_reference, 1).encode("utf-8")
+    metadata["image"] = Path(target).name
+    updated_metadata = (json.dumps(metadata, indent=2, sort_keys=True) + "\n").encode("utf-8")
+    return [
+        {
+            "target_path": str(Path(target).with_suffix(".tres")),
+            "content": rewritten,
+        },
+        {
+            "target_path": str(Path(target).with_suffix(".atlas-metadata.json")),
+            "content": updated_metadata,
+        },
+    ]
+
+
+
+
+def _local_godot_spriteframes_companions(
+    output_root: Path,
+    production_report: dict[str, Any],
+    target_path: str,
+) -> list[dict[str, Any]]:
+    """Validate genuine local CLI sidecars with the remote Godot handoff contract."""
+    root = output_root.resolve()
+    handoff = production_report.get("engineHandoff")
+    raw_additional = production_report.get("additionalArtifacts")
+    if not isinstance(handoff, dict) or not isinstance(raw_additional, list):
+        raise RuntimeError("local Godot production report lacks required sidecars")
+
+    def inside(value: Any) -> Path:
+        if not isinstance(value, str) or not value.strip():
+            raise RuntimeError("local Godot companion path is invalid")
+        candidate = Path(value)
+        if not candidate.is_absolute() and not candidate.is_file():
+            candidate = root / candidate
+        candidate = candidate.resolve()
+        if not candidate.is_relative_to(root) or not candidate.is_file():
+            raise RuntimeError("local Godot companion escapes output or is missing")
+        return candidate
+
+    listed = [inside(value) for value in raw_additional]
+    if len(set(listed)) != len(listed):
+        raise RuntimeError("local Godot report lists duplicate companions")
+    rows: list[dict[str, Any]] = []
+    for field, role in (
+        ("spriteFrames", "godot-spriteframes"),
+        ("atlasMetadata", "godot-atlas-metadata"),
+    ):
+        path = inside(handoff.get(field))
+        if listed.count(path) != 1:
+            raise RuntimeError("local Godot handoff sidecar missing from report")
+        if not 0 < path.stat().st_size <= 4 * 1024 * 1024:
+            raise RuntimeError("local Godot sidecar size outside safe bounds")
+        rows.append({
+            "role": role, "artifact": path.relative_to(root).as_posix(),
+            "source_name": path.name,
+            "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+        })
+    return _godot_spriteframes_companions(root, rows, production_report, target_path)
 
 
 def _produce_asset_forge_batch_remote(
@@ -636,6 +1105,9 @@ def _produce_asset_forge_batch_remote(
     }
     produced: list[dict[str, Any]] = []
     produced_by_id: dict[str, dict[str, Any]] = {}
+    # A matching item count is insufficient: duplicate rows can hide missing
+    # assets and cause the caller to report a partial batch as delivered.
+    seen_ids: set[str] = set()
     for row in rows:
         if not isinstance(row, dict):
             raise RuntimeError("asset-forge remote batch item is invalid")
@@ -643,6 +1115,9 @@ def _produce_asset_forge_batch_remote(
         expected = expected_by_id.get(item_id)
         if expected is None:
             raise RuntimeError(f"unexpected remote batch item: {item_id}")
+        if item_id in seen_ids:
+            raise RuntimeError(f"duplicate remote batch item: {item_id}")
+        seen_ids.add(item_id)
         target_path = str(row.get("target_path") or "")
         if target_path != str(expected.get("target_path") or ""):
             raise RuntimeError(f"remote batch target mismatch for {item_id}")
@@ -677,8 +1152,61 @@ def _produce_asset_forge_batch_remote(
             in {".png", ".webp", ".jpg", ".jpeg"}
         ][:4]
         request_id = str(row.get("request_id") or "")
+        expected_request = expected.get("request")
+        expected_request_id = (
+            str(expected_request.get("requestId") or item_id)
+            if isinstance(expected_request, dict)
+            else item_id
+        )
+        if request_id != expected_request_id:
+            raise RuntimeError(f"remote batch request id mismatch for {item_id}")
+        if (
+            not request_id
+            or request_id in {".", ".."}
+            or len(request_id) > 128
+            or not request_id[0].isascii()
+            or not request_id[0].isalnum()
+            or any(ch not in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_.-" for ch in request_id)
+        ):
+            raise RuntimeError(f"unsafe remote batch request id for {item_id}")
         report_path = remote_root / "jobs" / request_id / "production-report.json"
+        if not report_path.is_file():
+            raise RuntimeError(f"remote batch production report missing for {item_id}")
+        try:
+            production_report = json.loads(report_path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+            raise RuntimeError(
+                f"remote batch production report is unreadable for {item_id}"
+            ) from exc
+        manifest = (
+            expected_request.get("manifest")
+            if isinstance(expected_request, dict)
+            else None
+        )
+        if (
+            not isinstance(production_report, dict)
+            or not isinstance(manifest, dict)
+            or production_report.get("schema") != "asset-forge/production-report/v1"
+            or production_report.get("success") is not True
+            or production_report.get("requestId") != request_id
+            or production_report.get("assetId") != manifest.get("id")
+            or production_report.get("assetType") != manifest.get("type")
+        ):
+            raise RuntimeError(
+                f"remote batch production report identity mismatch for {item_id}"
+            )
+        request_target = manifest.get("target") if isinstance(manifest, dict) else None
+        expected_engine = (
+            str(request_target.get("engine") or "").lower()
+            if isinstance(request_target, dict) else ""
+        )
+        companion_files: list[dict[str, Any]] = []
+        if manifest.get("type") == "sprite-sheet" and expected_engine in {"godot", "godot4", "godot-4"}:
+            companion_files = _godot_spriteframes_companions(
+                remote_root, row.get("additional_artifacts"), production_report, target_path
+            )
         produced_item = {
+            "companion_files": companion_files,
             "batch_id": item_id,
             "depends_on": dependencies,
             "dependency_artifacts": dependency_artifacts,
@@ -716,6 +1244,8 @@ def _produce_asset_forge_batch_remote(
         }
         produced.append(produced_item)
         produced_by_id[item_id] = produced_item
+    if seen_ids != set(expected_by_id):
+        raise RuntimeError("remote batch result is missing expected items")
     return produced
 
 
@@ -840,22 +1370,27 @@ def execute_asset_forge_batch(
     target_worktree: str | None = None,
     target_ref: str = "main",
     client: GitHubClient | None = None,
+    remote_repository: str = ASSET_FORGE_REPOSITORY,
+    remote_ref: str = "main",
 ) -> dict[str, Any]:
     if not items:
         raise ValueError("asset-forge batch requires at least one item")
+
+    # Reject unsafe paths and case/Unicode-equivalent aliases before a remote
+    # dispatch or an expensive local generation can be started.
+    import unicodedata
+    ordered_items = _order_asset_batch(items)
+    for item in ordered_items:
+        item["target_path"] = _validated_target_path(item.get("target_path"))
+    target_paths = [item["target_path"] for item in ordered_items]
+    keys = {unicodedata.normalize("NFC", path).casefold() for path in target_paths}
+    if len(target_paths) != len(keys):
+        raise ValueError("asset-forge batch target_path values must be unique")
 
     root = Path(output_root)
     root.mkdir(parents=True, exist_ok=True)
     produced: list[dict[str, Any]] = []
     produced_by_id: dict[str, dict[str, Any]] = {}
-    ordered_items = _order_asset_batch(items)
-
-    target_paths = [
-        str(item.get("target_path") or "").strip().replace("\\", "/").lstrip("/")
-        for item in ordered_items
-    ]
-    if len(target_paths) != len(set(target_paths)):
-        raise ValueError("asset-forge batch target_path values must be unique")
 
     effective_mode = mode
     if mode == "auto":
@@ -867,6 +1402,8 @@ def execute_asset_forge_batch(
             backend=backend,
             model=model,
             client=client,
+            repository=remote_repository,
+            ref=remote_ref,
         )
         produced_by_id = {
             item["batch_id"]: item
@@ -909,10 +1446,12 @@ def execute_asset_forge_batch(
                 dependency_artifacts,
                 source_path=source_path,
             )
+            godot_required = _is_godot_sprite_sheet(request)
             cached = _cached_worktree_asset(
                 target_worktree,
                 target_path,
                 request_fingerprint,
+                godot_required=godot_required,
             )
             if cached is not None:
                 cached_artifact, cached_metadata = cached
@@ -935,6 +1474,7 @@ def execute_asset_forge_batch(
                     "artifact": cached_artifact,
                     "sha256": str(cached_metadata["sha256"]),
                     "report_path": out / "cache-hit.json",
+                    "companion_files": cached_metadata.get("_verified_companions") or [],
                     "request_fingerprint": request_fingerprint,
                     "cache_hit": True,
                 }
@@ -970,6 +1510,10 @@ def execute_asset_forge_batch(
             report_path = Path(str(receipt.report_path))
             report = json.loads(report_path.read_text(encoding="utf-8"))
             artifact = _validated_artifact(report, out)
+            companion_files = (
+                _local_godot_spriteframes_companions(out, report, target_path)
+                if godot_required else []
+            )
             generation = report.get("generation") if isinstance(report.get("generation"), dict) else {}
             validation = report.get("validation") if isinstance(report.get("validation"), dict) else {}
             visual_similarity = (
@@ -1003,95 +1547,20 @@ def execute_asset_forge_batch(
                 "artifact": artifact,
                 "sha256": hashlib.sha256(artifact.read_bytes()).hexdigest(),
                 "report_path": report_path,
+                "companion_files": companion_files,
                 "request_fingerprint": request_fingerprint,
                 "cache_hit": False,
             }
             produced.append(produced_item)
             produced_by_id[item["_batch_id"]] = produced_item
 
-    delivery_mode = None
-    delivered_to: list[str] = []
-
-    if target_worktree:
-        root_worktree = Path(target_worktree).resolve()
-        staged = []
-        for item in produced:
-            normalized = item["target_path"].replace("\\", "/").lstrip("/")
-            destination = (root_worktree / normalized).resolve()
-            if not destination.is_relative_to(root_worktree):
-                raise ValueError("target_path escapes target worktree")
-            sidecar_destination = (
-                root_worktree / _sidecar_relative_path(normalized)
-            ).resolve()
-            if not sidecar_destination.is_relative_to(root_worktree):
-                raise ValueError("asset sidecar escapes target worktree")
-            existing = None
-            if sidecar_destination.is_file():
-                try:
-                    value = json.loads(sidecar_destination.read_text(encoding="utf-8"))
-                    existing = value if isinstance(value, dict) else None
-                except (OSError, UnicodeError, json.JSONDecodeError):
-                    existing = None
-            sidecar = _version_sidecar(item, existing=existing)
-            staged.append((destination, item["artifact"]))
-            staged.append((
-                sidecar_destination,
-                json.dumps(sidecar, indent=2, sort_keys=True).encode("utf-8"),
-            ))
-
-        backup_root = Path(tempfile.mkdtemp(prefix="production-os-asset-batch-backup-"))
-        backups: list[tuple[Path, Path | None]] = []
-        try:
-            for destination, artifact in staged:
-                destination.parent.mkdir(parents=True, exist_ok=True)
-                backup = None
-                if destination.exists():
-                    backup = backup_root / str(len(backups))
-                    backup.parent.mkdir(parents=True, exist_ok=True)
-                    shutil.copyfile(destination, backup)
-                backups.append((destination, backup))
-                if isinstance(artifact, (bytes, bytearray)):
-                    destination.write_bytes(bytes(artifact))
-                elif Path(artifact).resolve() != destination.resolve():
-                    shutil.copyfile(artifact, destination)
-                if not destination.name.endswith(".asset-forge.json"):
-                    delivered_to.append(str(destination))
-        except Exception:
-            for destination, backup in reversed(backups):
-                if backup and backup.exists():
-                    shutil.copyfile(backup, destination)
-                elif destination.exists():
-                    destination.unlink()
-            raise
-        finally:
-            shutil.rmtree(backup_root, ignore_errors=True)
-        delivery_mode = "worktree"
-
-    elif target_repository:
-        gh = client or GitHubClient()
-        payload: dict[str, bytes] = {}
-        for item in produced:
-            payload[item["target_path"]] = item["artifact"].read_bytes()
-            sidecar_path = _sidecar_relative_path(item["target_path"])
-            existing = gh.read_json_file(target_repository, sidecar_path)
-            sidecar = _version_sidecar(item, existing=existing)
-            payload[sidecar_path] = (
-                json.dumps(sidecar, indent=2, sort_keys=True) + "\n"
-            ).encode("utf-8")
-        result = gh.commit_files(
-            target_repository,
-            payload,
-            message="assets: deliver validated asset batch",
-            branch=target_ref,
-        )
-        delivered_to = [
-            f"{target_repository}:{path}@{target_ref}"
-            for path in result["files"]
-            if not path.endswith(".asset-forge.json")
-        ]
-        delivery_mode = "github"
-    else:
-        raise ValueError("target_worktree or target_repository is required for batch delivery")
+    delivery_mode, delivered_to = _deliver_produced_assets(
+        produced,
+        target_repository=target_repository,
+        target_worktree=target_worktree,
+        target_ref=target_ref,
+        client=client,
+    )
 
     return {
         "schema_version": "production-os/asset-forge-batch/v1",

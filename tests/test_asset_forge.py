@@ -728,7 +728,14 @@ def test_execute_asset_forge_batch_remote_fallback_downloads_and_delivers(tmp_pa
         zf.writestr("bundle/remote-a.png", artifact_bytes)
         zf.writestr(
             "jobs/remote-a/production-report.json",
-            json.dumps({"success": True, "artifact": "unused"}),
+            json.dumps({
+                "schema": "asset-forge/production-report/v1",
+                "requestId": "remote-a",
+                "assetId": "remote-a",
+                "assetType": "sprite-sheet",
+                "success": True,
+                "artifact": "unused",
+            }),
         )
     fake.remote_zip = archive.getvalue()
 

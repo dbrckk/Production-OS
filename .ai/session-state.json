@@ -1,35 +1,37 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-09",
-  "objective": "Avoid selecting cooperative specialist workflows based on ephemeral/stale/paused workers; qualify Render canary 19.",
-  "base_commit": "8e5522029fb4244e7f8a6c5fc26ade3208697aa4",
-  "branch": "fix/cooperative-specialist-worker-readiness",
+  "updated_at": "2026-10-11",
+  "objective": "Qualify remote direct single-asset delivery after explicit destination; preserve draft review and prevent silent dispatch-only successes",
+  "base_commit": "15280278952a9526c5210d74ec19e341777373ae",
+  "branch": "fix/remote-batch-receipt-integrity-20261011",
   "changes": [
-    "Allowlist GitHub compare URLs in PR evidence and surface structured review recovery links",
-    "Render blocked-PR warning and a manual review link in the production outcome dashboard",
-    "Document that implementation completion does not certify release or merge",
-    "Reject ephemeral GitHub Actions workers, stale heartbeats and paused specialist registrations during cooperative workflow auto-selection"
+    "Real local Asset Forge sidecars validated and delivered transactionally",
+    "Version receipts record companion SHA-256; Godot cache hits require verified companions",
+    "Real Godot integration smoke expanded to local CLI and cache repair",
+    "Direct local Godot single-asset delivery shares batch transaction and validates SpriteFrames/atlas companions",
+    "Real Godot integration smoke exercises direct single-asset import",
+    "Native pinned Asset Forge remote_batch output -> actual zipped receipt -> Production-OS consumer -> Godot import with genuine tampered-ZIP refusal",
+    "Correct smoke fixture ZIP reopen via io.BytesIO rather than raw bytes (CI 38155804378 diagnosis)",
+    "Direct GitHub-mode single-asset destination uses verified one-item batch and native ZIP before reporting delivered",
+    "Implicit remote GitHub main/master delivery rejected before dispatch; no-destination async unchanged"
   ],
   "validation": {
-    "main_head_ci": "success on c0e9d6c64929424de46f13ffcb9ae0c8e6b623a4, before this branch",
-    "branch_ci": "pending",
-    "real_push_fallback": "not yet verified",
-    "real_coding_canary": "not yet verified",
-    "review_link_ui": "pending GitHub CI",
-    "canary17": "real successful checkpoint, PR HTTP 403",
-    "canary19": "Success; worker 37977605357 and canary 37977605461; committed 0faf6bfc; review PR blocked HTTP 403",
-    "specialist_mode_ci": "pending"
+    "baseline_remote_godot_ci": "38136230642 COMPLETED SUCCESS on 35d92a99041858fe3b93efc000711c05068e1df0",
+    "local_cache_ci": "38137130685 COMPLETED SUCCESS 4/4 jobs on ba534b05ea53b4e2363809e1325c31fe66e7dbcf",
+    "docs_head_ci": "38137419357 COMPLETED SUCCESS 4/4 on c77860dc860c64249a50bf46e3a756454e236d7b",
+    "single_asset_ci": "38154300786 COMPLETED SUCCESS 4/4 jobs on bcee95a31c2fe286e6cf08a7348a7f15389d3f5d (Python 3.11/3.12, integration/build/Docker, real CLI and Godot 4.4.1 import)",
+    "cross_repo_genuine_producer_ci": "38155804378 FAILED (smoke ZIP bytes passed instead of stream), fixed at 02641f4; CI 38155924949 COMPLETED SUCCESS 4/4 exact HEAD, Godot 4 producer ZIP/consumer/negative tamper PASS",
+    "docs_evidence_head_ci": "38156259877 COMPLETED SUCCESS 4/4 on 15280278952a9526c5210d74ec19e341777373ae",
+    "remote_single_delivery_ci": "38156921965 COMPLETED SUCCESS 4/4 on b94069ffa70bd1ac6e7ee5d8ece89a01293c26bc; offline genuine producer receipt and Godot 4 consumer, not hosted cross-workflow"
   },
   "remaining": [
-    "Open PR; verify canonical CI on branch and exact merged head before release.",
-    "Verify a real worker canary and production deployment after merge; credentials are not readable via repository.",
-    "Confirm Github token grants Contents:write to dbrckk/ai-dev-server when Actions:write is missing.",
-    "Confirm Asset Forge live generation and artifact delivery."
+    "Live worker-to-PR and consuming game release not verified",
+    "Commercial model/output rights and semantic fidelity not verified",
+    "Preserve PR #263 and Asset Forge PR #13 as drafts; no merge/deployment",
+    "Hosted cross-repository workflow dispatch, real worker -> PR -> game and commercial/semantic image quality remain unverified",
+    "Direct hosted workflow + worker publication not verified even if offline ZIP/Godot smoke succeeds"
   ],
   "current_work": [
-    "Run existing CI and end-to-end checks on cooperative specialist detection; no new unit tests",
-    "Qualify PR and merge only after CI",
-    "Confirm Render auto-deployment and exact merged-main CI",
-    "Grant target repository Pull requests:write to worker credentials externally"
+    "Offline remote single-asset CI qualified at b94069f; audit isolated hosted cross-workflow dispatch/worker delivery evidence without GPU, no default-main mutation"
   ]
 }
