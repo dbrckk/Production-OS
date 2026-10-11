@@ -34,10 +34,17 @@ must be read from the **same destination branch**, not the default
 branch; otherwise a successful delivery can reset version history.
 `GitHubClient.read_json_file(..., ref=target_ref)` now qualifies the
 GET with an encoded branch ref, retaining backward compatibility for
-default-main lookups. The existing functional integration smoke verifies
+default-main lookups. The destination branch HEAD is captured before reading
+receipts and passed to `GitHubClient.commit_files(expected_sha=...)`. If the
+branch moves, the transaction fails before constructing any Git blob; if it
+moves during the Git commit, GitHub's `force=false` ref update must reject
+the non-fast-forward. No retry is attempted with stale receipt metadata.
+The existing functional integration smoke verifies
 this offline using an instrumented real GitHub client and a simulated
 version 7 → 8 GitHub review-branch transaction; there is no network
-request, hosted dispatch or test-only production implementation.
+request, hosted dispatch or test-only production implementation. It also
+simulates concurrent movement of a review branch between receipt reads and
+commit, requiring a refusal with zero asset writes.
 
 The existing `integration/real_producer_bundle_smoke.py` verifies the
 direct route using a **native pinned Asset Forge ZIP** created from an

@@ -66,7 +66,11 @@ class FakeGitHub:
         # Mirror the production client contract; this fixture represents a missing receipt.
         return None
 
-    def commit_files(self, repository, files, *, message, branch):
+    def branch_head_sha(self, repository, branch):
+        return "a" * 40
+
+    def commit_files(self, repository, files, *, message, branch, expected_sha=None):
+        assert expected_sha == "a" * 40
         self.calls.append({
             "repository": repository,
             "files": dict(files),

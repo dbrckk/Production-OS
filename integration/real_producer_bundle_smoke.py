@@ -229,10 +229,12 @@ def main() -> None:
         # Verify real GitHub Contents ref encoding and branch-specific
         # version continuity using an offline recording client.
         class OfflineReviewBranch(GitHubClient):
-            def __init__(self, receipt=None):
+            def __init__(self, receipt=None, *, move_before_commit=False):
                 self.read_paths = []
                 self.written_files = {}
                 self.written_branch = None
+                self.head_sha = "a" * 40
+                self.move_before_commit = move_before_commit
                 self.receipt = (
                     json.dumps({
                         "schema_version": "production-os/asset-version/v1",
@@ -249,7 +251,14 @@ def main() -> None:
                 self.read_paths.append(path)
                 return {"content": b64encode(self.receipt.encode()).decode()}
 
-            def commit_files(self, repository, files, *, message, branch):
+            def branch_head_sha(self, repository, branch):
+                return self.head_sha
+
+            def commit_files(self, repository, files, *, message, branch, expected_sha=None):
+                if self.move_before_commit:
+                    self.head_sha = "b" * 40
+                if self.head_sha != expected_sha:
+                    raise GitHubAPIError("GitHub target branch changed during asset delivery")
                 self.written_branch = branch
                 self.written_files = dict(files)
                 return {"files": sorted(files)}
@@ -288,6 +297,22 @@ def main() -> None:
         version = json.loads(github.written_files[target + ".asset-forge.json"].decode("utf-8"))
         if version.get("version") != 8 or version.get("history", [{}])[-1].get("version") != 7:
             raise RuntimeError("Review branch asset history did not advance version 7 to 8")
+
+        # Exercise a concurrent branch change after reading the receipt.
+        # No stale version can be committed on top of another writer's HEAD.
+        moved = OfflineReviewBranch(move_before_commit=True)
+        try:
+            _deliver_produced_assets(
+                [review_item], target_repository="dbrckk/consumer",
+                target_worktree=None, target_ref=review_ref, client=moved,
+            )
+        except GitHubAPIError as exc:
+            if "branch changed" not in str(exc):
+                raise
+        else:
+            raise RuntimeError("Concurrent GitHub branch update was ignored")
+        if moved.written_files:
+            raise RuntimeError("Concurrent GitHub update received stale asset files")
 
         # A corrupt existing receipt cannot be silently replaced with version 1.
         # The actual GitHubClient must reject malformed JSON before commit_files.
@@ -366,6 +391,7 @@ def main() -> None:
         print("PASS: Direct GitHub-mode single-asset transaction + Godot import")
         print("PASS: Implicit main-branch remote delivery refused before dispatch")
         print("PASS: Review-branch version lookup/transaction remains on target ref")
+        print("PASS: Concurrent destination HEAD movement refuses stale asset commit")
         print("PASS: Malformed and structurally invalid GitHub/worktree receipts rejected")
         print("PASS: Tampered real producer SpriteFrames rejected before delivery")
 

@@ -517,6 +517,9 @@ def _deliver_produced_assets(
 
     elif target_repository:
         gh = client or GitHubClient()
+        # Bind all receipt reads and the final non-force commit to one branch
+        # revision. A concurrent delivery must abort, never reuse stale versions.
+        expected_head_sha = gh.branch_head_sha(target_repository, target_ref)
         payload: dict[str, bytes] = {}
         for item in produced:
             payload[item["target_path"]] = item["artifact"].read_bytes()
@@ -539,6 +542,7 @@ def _deliver_produced_assets(
             payload,
             message="assets: deliver validated asset batch",
             branch=target_ref,
+            expected_sha=expected_head_sha,
         )
         delivered_to = [
             f"{target_repository}:{path}@{target_ref}"

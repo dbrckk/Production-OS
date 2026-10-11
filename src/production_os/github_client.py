@@ -125,6 +125,19 @@ class GitHubClient:
             return None
         return str(run.get("conclusion") or run.get("status") or "") or None
 
+    def branch_head_sha(self, full_name: str, branch: str) -> str:
+        """Read the destination ref before reading version receipts."""
+        normalized = branch.removeprefix("refs/heads/")
+        if not normalized:
+            raise ValueError("GitHub target branch must be non-empty")
+        ref = self._get(
+            f"/repos/{full_name}/git/ref/heads/{urllib.parse.quote(normalized, safe='')}"
+        )
+        sha = str((ref.get("object") or {}).get("sha") or "").lower()
+        if not re.fullmatch(r"[0-9a-f]{40}", sha):
+            raise GitHubAPIError("GitHub target branch has no valid commit SHA")
+        return sha
+
     def commit_files(
         self,
         full_name: str,
@@ -132,18 +145,18 @@ class GitHubClient:
         *,
         message: str,
         branch: str = "main",
+        expected_sha: str | None = None,
     ) -> dict[str, Any]:
         if not self.token:
             raise GitHubAPIError("GITHUB_TOKEN is required to write repository contents")
         if not files:
             raise ValueError("at least one file is required")
         ref_name = branch.removeprefix("refs/heads/")
-        ref = self._get(
-            f"/repos/{full_name}/git/ref/heads/{urllib.parse.quote(ref_name, safe='')}"
-        )
-        base_commit_sha = str(ref.get("object", {}).get("sha") or "")
-        if not base_commit_sha:
-            raise GitHubAPIError("GitHub branch ref has no commit sha")
+        base_commit_sha = self.branch_head_sha(full_name, ref_name)
+        # A receipt read from an older HEAD must never be written on top of
+        # a newer revision: that silently corrupts asset-version history.
+        if expected_sha is not None and base_commit_sha != expected_sha:
+            raise GitHubAPIError("GitHub target branch changed during asset delivery")
         base_commit = self._get(f"/repos/{full_name}/git/commits/{base_commit_sha}")
         base_tree_sha = str(base_commit.get("tree", {}).get("sha") or "")
         if not base_tree_sha:
