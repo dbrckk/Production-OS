@@ -113,6 +113,31 @@ original local PNG, direct single-asset sidecars and headless editor/runtime imp
 The other jobs passed Python 3.11/3.12, existing integration checks, packaging and Docker. This does not prove worker-to-PR delivery, commercial Qwen model
 rights, semantic image quality or a deployed game.
 
+## Real producer-to-consumer Godot bundle integration (CI)
+
+The existing Godot 4 integration job now additionally executes
+integration/real_producer_bundle_smoke.py. It runs the genuine pinned Asset
+Forge remote_batch.run coordinator on a locally authored original 64x32 PNG,
+with an explicit provided source (no AI generation). The real result tree,
+including batch-result.json, jobs/request/production-report.json, and image
+plus two role-labelled and SHA256-verified Godot sidecars, is zipped exactly
+as a GitHub Actions artifact would be. Production-OS consumes that unmodified
+ZIP with its actual remote-receipt parser and transactional worktree delivery.
+A second consumer Godot 4.4.1 project imports and loads the relocated animation
+and validates both AtlasTexture frames in AnimatedSprite2D.
+
+The integration deliberately changes a .tres payload inside a genuine
+producer ZIP without changing its declared SHA256 and confirms that the
+consumer rejects the archive before writing any asset. The new job must
+pass on the exact PR HEAD before this proof is considered successful.
+
+This is real cross-repository artifact compatibility in ONE isolated CI
+runner, not an actual hosted cross-repository Actions dispatch or a worker
+job. It does not prove secrets or permissions for remote triggering, worker
+claim, PR publication, consuming-game build/deployment, commercial model
+rights, or semantic fidelity of AI images. No new unit tests, old canaries,
+GPU, paid inference, merge or deployment are used.
+
 ## Asset Forge remote batch receipt integrity
 
 The batch download/parser validates identity and content correlation before

@@ -421,4 +421,6 @@ jobs:
         env:
           GODOT_BIN: .ci-tools/Godot_v4.4.1-stable_linux.x86_64
           ASSET_FORGE_SOURCE_DIR: .ci-tools/asset-forge-src
-        run: python integration/godot4_relocated_import_smoke.py
+        run: |
+          python integration/godot4_relocated_import_smoke.py
+          python integration/real_producer_bundle_smoke.py
