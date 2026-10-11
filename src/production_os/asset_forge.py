@@ -519,6 +519,109 @@ def _extract_remote_batch_bundle(data: bytes, destination: Path) -> Path:
     return root
 
 
+
+def _godot_spriteframes_companions(
+    bundle_root: Path,
+    additional_rows: Any,
+    production_report: dict[str, Any],
+    target_path: str,
+) -> list[dict[str, Any]]:
+    """Verify Godot sidecars and relocate the atlas URI for the consumer.
+
+    Bundle paths and checksums are untrusted until checked against the
+    extracted checkout; no sidecar content is written before all checks pass.
+    """
+    handoff = production_report.get("engineHandoff")
+    if (
+        not isinstance(handoff, dict)
+        or handoff.get("engine") != "godot4"
+        or handoff.get("type") != "spriteframes"
+        or handoff.get("ready") is not True
+        or not isinstance(additional_rows, list)
+    ):
+        raise RuntimeError("required Godot SpriteFrames handoff is incomplete")
+
+    target = target_path.replace("\\", "/")
+    if (
+        not target or target.startswith("/") or '"' in target
+        or any(part in {"", ".", ".."} for part in target.split("/"))
+        or Path(target).suffix.lower() not in {".png", ".webp"}
+    ):
+        raise RuntimeError("unsafe Godot SpriteFrames delivery target")
+    root = bundle_root.resolve()
+    roles: dict[str, bytes] = {}
+    fields = {
+        "godot-spriteframes": "spriteFrames",
+        "godot-atlas-metadata": "atlasMetadata",
+    }
+    for row in additional_rows:
+        if not isinstance(row, dict):
+            raise RuntimeError("invalid remote Godot companion record")
+        role = row.get("role")
+        if role not in fields:
+            continue
+        if role in roles:
+            raise RuntimeError("duplicate remote Godot companion role")
+        relative = Path(str(row.get("artifact") or ""))
+        if relative.is_absolute() or ".." in relative.parts:
+            raise RuntimeError("unsafe remote Godot companion path")
+        candidate = (root / relative).resolve()
+        if not candidate.is_relative_to(root) or not candidate.is_file():
+            raise RuntimeError("remote Godot companion escapes bundle or is missing")
+        if candidate.stat().st_size <= 0 or candidate.stat().st_size > 4 * 1024 * 1024:
+            raise RuntimeError("remote Godot companion size outside safe bounds")
+        content = candidate.read_bytes()
+        if hashlib.sha256(content).hexdigest() != row.get("sha256"):
+            raise RuntimeError("remote Godot companion sha256 mismatch")
+        recorded_name = handoff.get(fields[role])
+        if (
+            not isinstance(recorded_name, str)
+            or Path(recorded_name).name != row.get("source_name")
+        ):
+            raise RuntimeError("remote Godot companion source identity mismatch")
+        roles[role] = content
+    if set(roles) != set(fields):
+        raise RuntimeError("remote Godot SpriteFrames delivery lacks required sidecars")
+
+    source_name = Path(str(production_report.get("artifact") or "")).name
+    original_atlas_ref = "res://" + source_name
+    if (
+        not source_name
+        or handoff.get("atlasResourcePath") != original_atlas_ref
+    ):
+        raise RuntimeError("remote Godot atlas resource identity mismatch")
+    try:
+        spriteframes = roles["godot-spriteframes"].decode("utf-8")
+        metadata = json.loads(roles["godot-atlas-metadata"].decode("utf-8"))
+    except (UnicodeError, json.JSONDecodeError) as exc:
+        raise RuntimeError("remote Godot companion format invalid") from exc
+    old_reference = 'path=' + json.dumps(original_atlas_ref, ensure_ascii=False)
+    if (
+        spriteframes.count(old_reference) != 1
+        or '[gd_resource type="SpriteFrames"' not in spriteframes
+        or not isinstance(metadata, dict)
+        or metadata.get("image") != source_name
+        or not isinstance(metadata.get("frames"), list)
+        or not metadata["frames"]
+    ):
+        raise RuntimeError("remote Godot companions do not match the produced atlas")
+    new_reference = 'path=' + json.dumps("res://" + target, ensure_ascii=False)
+    rewritten = spriteframes.replace(old_reference, new_reference, 1).encode("utf-8")
+    metadata["image"] = Path(target).name
+    updated_metadata = (json.dumps(metadata, indent=2, sort_keys=True) + "\n").encode("utf-8")
+    return [
+        {
+            "target_path": str(Path(target).with_suffix(".tres")),
+            "content": rewritten,
+        },
+        {
+            "target_path": str(Path(target).with_suffix(".atlas-metadata.json")),
+            "content": updated_metadata,
+        },
+    ]
+
+
+
 def _produce_asset_forge_batch_remote(
     ordered_items: list[dict[str, Any]],
     *,
@@ -726,7 +829,18 @@ def _produce_asset_forge_batch_remote(
             raise RuntimeError(
                 f"remote batch production report identity mismatch for {item_id}"
             )
+        request_target = manifest.get("target") if isinstance(manifest, dict) else None
+        expected_engine = (
+            str(request_target.get("engine") or "").lower()
+            if isinstance(request_target, dict) else ""
+        )
+        companion_files: list[dict[str, Any]] = []
+        if manifest.get("type") == "sprite-sheet" and expected_engine in {"godot", "godot4", "godot-4"}:
+            companion_files = _godot_spriteframes_companions(
+                remote_root, row.get("additional_artifacts"), production_report, target_path
+            )
         produced_item = {
+            "companion_files": companion_files,
             "batch_id": item_id,
             "depends_on": dependencies,
             "dependency_artifacts": dependency_artifacts,
@@ -1062,6 +1176,23 @@ def execute_asset_forge_batch(
     delivery_mode = None
     delivered_to: list[str] = []
 
+    # Validate all destinations before touching either a worktree or GitHub.
+    # Include metadata sidecars and companion files in the collision ledger.
+    import unicodedata
+    delivery_names: set[str] = set()
+    for produced_item in produced:
+        companion_files = produced_item.get("companion_files") or []
+        names = [
+            produced_item["target_path"],
+            _sidecar_relative_path(produced_item["target_path"]),
+            *(extra["target_path"] for extra in companion_files),
+        ]
+        for name in names:
+            key = unicodedata.normalize("NFC", name.replace("\\\\", "/")).casefold()
+            if key in delivery_names:
+                raise RuntimeError(f"asset-forge batch delivery path collision: {name}")
+            delivery_names.add(key)
+
     if target_worktree:
         root_worktree = Path(target_worktree).resolve()
         staged = []
@@ -1084,6 +1215,11 @@ def execute_asset_forge_batch(
                     existing = None
             sidecar = _version_sidecar(item, existing=existing)
             staged.append((destination, item["artifact"]))
+            for extra in item.get("companion_files") or []:
+                extra_destination = (root_worktree / extra["target_path"]).resolve()
+                if not extra_destination.is_relative_to(root_worktree):
+                    raise ValueError("Godot companion escapes target worktree")
+                staged.append((extra_destination, extra["content"]))
             staged.append((
                 sidecar_destination,
                 json.dumps(sidecar, indent=2, sort_keys=True).encode("utf-8"),
@@ -1122,6 +1258,8 @@ def execute_asset_forge_batch(
         payload: dict[str, bytes] = {}
         for item in produced:
             payload[item["target_path"]] = item["artifact"].read_bytes()
+            for extra in item.get("companion_files") or []:
+                payload[extra["target_path"]] = extra["content"]
             sidecar_path = _sidecar_relative_path(item["target_path"])
             existing = gh.read_json_file(target_repository, sidecar_path)
             sidecar = _version_sidecar(item, existing=existing)

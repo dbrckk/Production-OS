@@ -244,4 +244,114 @@ jobs:
                       assert not (target / "assets/art/remote-a.png").exists()
                       assert not (target / "assets/art/remote-b.png").exists()
           print("PASS: real remote batch parser rejects duplicate/mismatched receipts before delivery")
+
+          # In addition to receipt identity, verify a real Godot bundle
+          # contract with sidecars, relocation and tamper resistance.
+          godot = build_asset_forge_request(
+              request_id="godot-sprite-request",
+              project="offline-smoke",
+              asset_id="player",
+              asset_type="sprite-sheet",
+              instruction="Relocate original Godot 4 SpriteFrames",
+              target_format="png",
+              engine="godot4",
+          )
+          target = "assets/characters/player.png"
+          primary = b"offline-sprite-atlas"
+          original_tres = (
+              '[gd_resource type="SpriteFrames" load_steps=3 format=3]\n'
+              '[ext_resource type="Texture2D" path="res://player.png" id="1_atlas"]\n'
+              '[resource]\n'
+          ).encode()
+          original_meta = json.dumps({
+              "assetId": "player", "image": "player.png",
+              "frames": [{"index": 0, "x": 0, "y": 0, "width": 32, "height": 32}],
+          }).encode()
+          bundles = {
+              "bundle/hero.png": primary,
+              "bundle/hero.tres": original_tres,
+              "bundle/hero.atlas-metadata.json": original_meta,
+          }
+          extras = [
+              {
+                  "artifact": "bundle/hero.tres",
+                  "sha256": hashlib.sha256(original_tres).hexdigest(),
+                  "source_name": "player.tres",
+                  "role": "godot-spriteframes",
+              },
+              {
+                  "artifact": "bundle/hero.atlas-metadata.json",
+                  "sha256": hashlib.sha256(original_meta).hexdigest(),
+                  "source_name": "atlas-metadata.json",
+                  "role": "godot-atlas-metadata",
+              },
+          ]
+          row = {
+              "id": "hero", "request_id": "godot-sprite-request",
+              "target_path": target, "depends_on": [],
+              "artifact": "bundle/hero.png",
+              "sha256": hashlib.sha256(primary).hexdigest(),
+              "additional_artifacts": extras,
+          }
+          report = {
+              "schema": "asset-forge/production-report/v1",
+              "success": True,
+              "requestId": "godot-sprite-request",
+              "assetId": "player", "assetType": "sprite-sheet",
+              "artifact": "jobs/godot-sprite-request/player.png",
+              "engineHandoff": {
+                  "engine": "godot4", "type": "spriteframes", "ready": True,
+                  "spriteFrames": "jobs/godot-sprite-request/player.tres",
+                  "atlasMetadata": "jobs/godot-sprite-request/atlas-metadata.json",
+                  "atlasResourcePath": "res://player.png",
+              },
+          }
+
+          def godot_archive(current_extras):
+              output = io.BytesIO()
+              with zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED) as zf:
+                  zf.writestr("batch-result.json", json.dumps({
+                      "schema_version": "asset-forge/remote-batch-result/v1",
+                      "success": True, "count": 1,
+                      "items": [{**row, "additional_artifacts": current_extras}],
+                  }))
+                  zf.writestr("jobs/godot-sprite-request/production-report.json", json.dumps(report))
+                  for name, content in bundles.items():
+                      zf.writestr(name, content)
+              return output.getvalue()
+
+          with TemporaryDirectory() as temporary:
+              work = Path(temporary)
+              for scenario in ("valid", "missing-companion", "tampered-hash"):
+                  current = list(extras)
+                  if scenario == "missing-companion":
+                      current = current[:1]
+                  if scenario == "tampered-hash":
+                      current = [{**current[0], "sha256": "0" * 64}, current[1]]
+                  destination = work / scenario
+                  fake = OfflineClient(godot_archive(current))
+                  try:
+                      receipt = execute_asset_forge_batch(
+                          [{"id": "hero", "request": godot, "target_path": target}],
+                          mode="github",
+                          output_root=str(work / (scenario + "-cache")),
+                          target_worktree=str(destination),
+                          client=fake,
+                      )
+                  except RuntimeError:
+                      if scenario == "valid":
+                          raise
+                  else:
+                      assert scenario == "valid", "unsafe Godot companions delivered"
+                      assert receipt["success"] is True
+                      assert (destination / target).read_bytes() == primary
+                      tres = (destination / "assets/characters/player.tres").read_text()
+                      assert 'path="res://assets/characters/player.png"' in tres
+                      metadata = json.loads(
+                          (destination / "assets/characters/player.atlas-metadata.json").read_text()
+                      )
+                      assert metadata["image"] == "player.png"
+                  if scenario != "valid":
+                      assert not (destination / target).exists(), "invalid archive reached worktree"
+          print("PASS: hashed Godot SpriteFrames and atlas sidecars delivered with corrected res:// URI")
           PY
