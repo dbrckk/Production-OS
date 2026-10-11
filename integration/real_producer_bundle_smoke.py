@@ -192,6 +192,38 @@ def main() -> None:
         else:
             raise RuntimeError("Remote single-asset attempted implicit main-branch delivery")
 
+        # Existing end-to-end smoke also verifies destination preflight.
+        # None of these cases may dispatch, generate, or create receipt files.
+        bad_receipt = root / "blocked-path-receipt"
+        for unsafe in ("../escape.png", "/absolute.png", "assets/./sprite.png",
+                       "assets//sprite.png", "C:\\\\Windows\\\\sprite.png",
+                       "assets/../sprite.png"):
+            try:
+                execute_asset_forge_batch(
+                    [{"id": "player", "request": request, "target_path": unsafe}],
+                    mode="github", output_root=str(bad_receipt),
+                    target_worktree=str(consumer), client=OfflineClient(source_archive),
+                )
+            except ValueError:
+                pass
+            else:
+                raise RuntimeError(f"Unsafe batch destination was accepted: {unsafe!r}")
+        for second in ("assets/PLAYER.png", "assets/cafe\\u0301.png"):
+            first = "assets/player.png" if "PLAYER" in second else "assets/café.png"
+            try:
+                execute_asset_forge_batch(
+                    [{"id": "first", "request": request, "target_path": first},
+                     {"id": "second", "request": request, "target_path": second}],
+                    mode="github", output_root=str(bad_receipt),
+                    target_worktree=str(consumer), client=OfflineClient(source_archive),
+                )
+            except ValueError:
+                pass
+            else:
+                raise RuntimeError("Equivalent batch destinations bypassed preflight")
+        if bad_receipt.exists():
+            raise RuntimeError("Unsafe target path started a remote batch before preflight")
+
         # Tamper with the REAL producer .tres byte payload but preserve its
         # real declared checksum; fail closed before any consumer file write.
         tres_path = next(
