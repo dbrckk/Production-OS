@@ -36,9 +36,10 @@ original exported resource.
 
 **Limitations:** Both changes are in separate unmerged **draft** PRs
 (Production-OS #263 and Asset Forge #13). The paired tests do not yet prove
-the *relocated* resource loaded inside a consuming game, the local-mode or
-cached-batch sidecar restoration, commercial rights for AI-produced art or
-live Production-OS → worker → GitHub PR → game release. No deployment,
+a **published consuming game**, commercial rights for AI-produced art,
+semantic visual fidelity or live Production-OS → worker → GitHub PR → game release.
+The separate relocated-import and local/cache/direct-single-asset engine
+smokes have passed on their explicitly cited code SHA values. No deployment,
 GPU inference or privileged Render action has been executed.
 
 ## Relocated Godot 4 engine import gate (CI)
@@ -50,8 +51,9 @@ local RGBA atlas, saves a genuine `SpriteFrames` resource via Godot's
 Production-OS offline remote-result parser/worktree transaction, then imports
 and loads the relocated `res://assets/characters/player.tres` in a second
 real Godot 4 project. It verifies both AtlasTexture regions and assignment to
-AnimatedSprite2D. The separate canonical CI job must succeed on the **exact
-PR HEAD** before treating this boundary as verified. There is no new unit test,
+AnimatedSprite2D. The separate canonical CI job succeeded on the **exact code HEAD**
+`bcee95a31c2fe286e6cf08a7348a7f15389d3f5d` in
+[run 38154300786](https://github.com/dbrckk/Production-OS/actions/runs/38154300786). There is no new unit test,
 paid generation, historical canary, remote dispatch or secret inspection.
 
 This checks remote receipt parsing and consumer engine load together, but the
@@ -90,7 +92,7 @@ tests, inference, historic canaries or secrets are involved.
 Still not proved: live worker-to-PR/game release, commercial model/output
 rights, semantic image fidelity or published consumer game integration.
 
-## Direct local single-asset Godot delivery (CI qualification pending)
+## Direct local single-asset Godot delivery (exact-head CI qualified)
 
 The direct `execute_asset_forge(..., mode="local", target_path=...)`
 Godot 4 sprite-sheet path now uses the **same transactional delivery helper**
@@ -104,8 +106,11 @@ single-file behavior.
 The existing `integration/godot4_relocated_import_smoke.py` functional
 smoke now also exercises this direct path with the pinned Asset Forge CLI,
 an original local PNG and a real Godot 4.4.1 editor/runtime import into a
-separate consumer project. Exact-HEAD CI is **pending** at the time of this
-change. This does not prove worker-to-PR delivery, commercial Qwen model
+separate consumer project. Exact-HEAD [CI 38154300786](https://github.com/dbrckk/Production-OS/actions/runs/38154300786)
+COMPLETED SUCCESS 4/4 on `bcee95a31c2fe286e6cf08a7348a7f15389d3f5d`.
+The Godot 4.4.1 job completed successfully with the real pinned Asset Forge CLI,
+original local PNG, direct single-asset sidecars and headless editor/runtime import.
+The other jobs passed Python 3.11/3.12, existing integration checks, packaging and Docker. This does not prove worker-to-PR delivery, commercial Qwen model
 rights, semantic image quality or a deployed game.
 
 ## Asset Forge remote batch receipt integrity
