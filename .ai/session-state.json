@@ -1,35 +1,23 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-09",
-  "objective": "Avoid selecting cooperative specialist workflows based on ephemeral/stale/paused workers; qualify Render canary 19.",
-  "base_commit": "8e5522029fb4244e7f8a6c5fc26ade3208697aa4",
-  "branch": "fix/cooperative-specialist-worker-readiness",
+  "updated_at": "2026-10-11",
+  "objective": "Qualify real local and cached Godot sidecars after verified remote-to-consumer import.",
+  "base_commit": "35d92a99041858fe3b93efc000711c05068e1df0",
+  "branch": "fix/remote-batch-receipt-integrity-20261011",
   "changes": [
-    "Allowlist GitHub compare URLs in PR evidence and surface structured review recovery links",
-    "Render blocked-PR warning and a manual review link in the production outcome dashboard",
-    "Document that implementation completion does not certify release or merge",
-    "Reject ephemeral GitHub Actions workers, stale heartbeats and paused specialist registrations during cooperative workflow auto-selection"
+    "Real local Asset Forge sidecars validated and delivered transactionally",
+    "Version receipts record companion SHA-256; Godot cache hits require verified companions",
+    "Real Godot integration smoke expanded to local CLI and cache repair"
   ],
   "validation": {
-    "main_head_ci": "success on c0e9d6c64929424de46f13ffcb9ae0c8e6b623a4, before this branch",
-    "branch_ci": "pending",
-    "real_push_fallback": "not yet verified",
-    "real_coding_canary": "not yet verified",
-    "review_link_ui": "pending GitHub CI",
-    "canary17": "real successful checkpoint, PR HTTP 403",
-    "canary19": "Success; worker 37977605357 and canary 37977605461; committed 0faf6bfc; review PR blocked HTTP 403",
-    "specialist_mode_ci": "pending"
+    "baseline_ci": "38136230642 COMPLETED SUCCESS on 35d92a99041858fe3b93efc000711c05068e1df0",
+    "new_local_cache_ci": "pending exact next SHA"
   },
   "remaining": [
-    "Open PR; verify canonical CI on branch and exact merged head before release.",
-    "Verify a real worker canary and production deployment after merge; credentials are not readable via repository.",
-    "Confirm Github token grants Contents:write to dbrckk/ai-dev-server when Actions:write is missing.",
-    "Confirm Asset Forge live generation and artifact delivery."
+    "Verify exact-head CI before further writes",
+    "Preserve DRAFT PRs; live E2E and commercial/semantic assets are not qualified"
   ],
   "current_work": [
-    "Run existing CI and end-to-end checks on cooperative specialist detection; no new unit tests",
-    "Qualify PR and merge only after CI",
-    "Confirm Render auto-deployment and exact merged-main CI",
-    "Grant target repository Pull requests:write to worker credentials externally"
+    "Local batch/cache sidecars, real integration job and docs"
   ]
 }

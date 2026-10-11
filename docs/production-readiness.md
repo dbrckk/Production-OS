@@ -59,6 +59,34 @@ archive is created locally; it does **not** establish a live Asset Forge
 workflow, commercial artwork/model rights, semantic visual acceptance,
 actual Production-OS worker → PR publication, or a deployed game.
 
+## Local Godot batch sidecars and verified cache
+
+The local Asset Forge batch now reads the real CLI report and requires
+Godot SpriteFrames and atlas metadata to be declared in additionalArtifacts,
+located within the job output directory, matched to their explicit engine
+handoff roles and validated through the same resource/identity checks as
+remote batch sidecars. The original atlas and both companions participate in
+a single transactional worktree delivery or GitHub multi-file commit.
+
+Version receipts now record each companion's destination and SHA-256. Cache
+reuse checks both companion digests, Godot res:// atlas reference, JSON image
+name and nonempty frame list. Missing, altered or untracked legacy sidecars
+make a cache MISS. If the local CLI is unavailable, the job fails instead of
+returning a broken cache hit. Changes to companions affect versioning even
+when the primary image digest is unchanged.
+
+The existing Godot 4.4.1 integration job now checks out Asset Forge PR #13 at
+pinned SHA 35e0b1289b760c3a84765d0d2d28b86c6f110476. Using only an
+original locally constructed PNG, it runs the genuine Asset Forge CLI through
+Production-OS, imports the locally delivered animation into Godot, verifies
+reuse without a CLI, rejects altered/missing sidecars and regenerates through
+the real local CLI. Exact new-head CI qualification is required; these
+are intended checks, not claims that they have already passed. No new unit
+tests, inference, historic canaries or secrets are involved.
+
+Still not proved: live worker-to-PR/game release, commercial model/output
+rights, semantic image fidelity or published consumer game integration.
+
 ## Asset Forge remote batch receipt integrity
 
 The batch download/parser validates identity and content correlation before

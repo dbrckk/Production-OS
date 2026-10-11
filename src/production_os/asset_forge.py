@@ -182,10 +182,78 @@ def _sidecar_relative_path(target_path: str) -> str:
     return target_path.strip().replace("\\", "/").lstrip("/") + ".asset-forge.json"
 
 
+
+def _is_godot_sprite_sheet(request: dict[str, Any]) -> bool:
+    manifest = request.get("manifest")
+    if not isinstance(manifest, dict) or manifest.get("type") != "sprite-sheet":
+        return False
+    target = manifest.get("target")
+    return (
+        isinstance(target, dict)
+        and str(target.get("engine") or "").lower() in {"godot", "godot4", "godot-4"}
+    )
+
+
+def _cached_godot_companions(
+    root: Path,
+    target_path: str,
+    metadata: dict[str, Any],
+) -> list[dict[str, Any]] | None:
+    """A Godot cache hit requires verified PNG, SpriteFrames and atlas JSON."""
+    expected = {
+        str(Path(target_path).with_suffix(".tres")),
+        str(Path(target_path).with_suffix(".atlas-metadata.json")),
+    }
+    records = metadata.get("companions")
+    if not isinstance(records, list) or len(records) != len(expected):
+        return None
+    found: dict[str, bytes] = {}
+    for record in records:
+        if not isinstance(record, dict):
+            return None
+        rel = record.get("target_path")
+        digest = record.get("sha256")
+        if not isinstance(rel, str) or rel not in expected or rel in found:
+            return None
+        if not isinstance(digest, str) or len(digest) != 64:
+            return None
+        candidate = (root / rel).resolve()
+        if not candidate.is_relative_to(root) or not candidate.is_file():
+            return None
+        if not 0 < candidate.stat().st_size <= 4 * 1024 * 1024:
+            return None
+        content = candidate.read_bytes()
+        if hashlib.sha256(content).hexdigest() != digest:
+            return None
+        found[rel] = content
+    if set(found) != expected:
+        return None
+    try:
+        tres = found[str(Path(target_path).with_suffix(".tres"))].decode("utf-8")
+        atlas = json.loads(
+            found[str(Path(target_path).with_suffix(".atlas-metadata.json"))].decode("utf-8")
+        )
+    except (UnicodeError, json.JSONDecodeError):
+        return None
+    reference = 'path=' + json.dumps("res://" + target_path, ensure_ascii=False)
+    if (
+        tres.count(reference) != 1
+        or '[gd_resource type="SpriteFrames"' not in tres
+        or not isinstance(atlas, dict)
+        or atlas.get("image") != Path(target_path).name
+        or not isinstance(atlas.get("frames"), list)
+        or not atlas["frames"]
+    ):
+        return None
+    return [{"target_path": path, "content": found[path]} for path in sorted(expected)]
+
+
 def _cached_worktree_asset(
     worktree: str | None,
     target_path: str,
     fingerprint: str,
+    *,
+    godot_required: bool = False,
 ) -> tuple[Path, dict[str, Any]] | None:
     if not worktree:
         return None
@@ -210,6 +278,11 @@ def _cached_worktree_asset(
     digest = hashlib.sha256(artifact.read_bytes()).hexdigest()
     if digest != str(metadata.get("sha256") or ""):
         return None
+    if godot_required:
+        companions = _cached_godot_companions(root, normalized, metadata)
+        if companions is None:
+            return None
+        metadata = {**metadata, "_verified_companions": companions}
     return artifact, metadata
 
 
@@ -221,7 +294,17 @@ def _version_sidecar(
     existing = existing if isinstance(existing, dict) else {}
     prior_sha = str(existing.get("sha256") or "")
     prior_version = int(existing.get("version") or 0)
-    same = prior_sha == item["sha256"] and prior_version > 0
+    companions = [
+        {"target_path": extra["target_path"],
+         "sha256": hashlib.sha256(extra["content"]).hexdigest()}
+        for extra in item.get("companion_files") or []
+    ]
+    companions.sort(key=lambda entry: entry["target_path"])
+    same = (
+        prior_sha == item["sha256"]
+        and prior_version > 0
+        and (existing.get("companions") or []) == companions
+    )
     version = prior_version if same else prior_version + 1
     history = list(existing.get("history") or []) if isinstance(existing.get("history"), list) else []
     if prior_version > 0 and not same:
@@ -238,6 +321,7 @@ def _version_sidecar(
         "target_path": item["target_path"],
         "version": version,
         "sha256": item["sha256"],
+        "companions": companions,
         "request_fingerprint": item["request_fingerprint"],
         "depends_on": item["depends_on"],
         "dependency_sha256": {
@@ -620,6 +704,51 @@ def _godot_spriteframes_companions(
         },
     ]
 
+
+
+
+def _local_godot_spriteframes_companions(
+    output_root: Path,
+    production_report: dict[str, Any],
+    target_path: str,
+) -> list[dict[str, Any]]:
+    """Validate genuine local CLI sidecars with the remote Godot handoff contract."""
+    root = output_root.resolve()
+    handoff = production_report.get("engineHandoff")
+    raw_additional = production_report.get("additionalArtifacts")
+    if not isinstance(handoff, dict) or not isinstance(raw_additional, list):
+        raise RuntimeError("local Godot production report lacks required sidecars")
+
+    def inside(value: Any) -> Path:
+        if not isinstance(value, str) or not value.strip():
+            raise RuntimeError("local Godot companion path is invalid")
+        candidate = Path(value)
+        if not candidate.is_absolute() and not candidate.is_file():
+            candidate = root / candidate
+        candidate = candidate.resolve()
+        if not candidate.is_relative_to(root) or not candidate.is_file():
+            raise RuntimeError("local Godot companion escapes output or is missing")
+        return candidate
+
+    listed = [inside(value) for value in raw_additional]
+    if len(set(listed)) != len(listed):
+        raise RuntimeError("local Godot report lists duplicate companions")
+    rows: list[dict[str, Any]] = []
+    for field, role in (
+        ("spriteFrames", "godot-spriteframes"),
+        ("atlasMetadata", "godot-atlas-metadata"),
+    ):
+        path = inside(handoff.get(field))
+        if listed.count(path) != 1:
+            raise RuntimeError("local Godot handoff sidecar missing from report")
+        if not 0 < path.stat().st_size <= 4 * 1024 * 1024:
+            raise RuntimeError("local Godot sidecar size outside safe bounds")
+        rows.append({
+            "role": role, "artifact": path.relative_to(root).as_posix(),
+            "source_name": path.name,
+            "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+        })
+    return _godot_spriteframes_companions(root, rows, production_report, target_path)
 
 
 def _produce_asset_forge_batch_remote(
@@ -1073,10 +1202,12 @@ def execute_asset_forge_batch(
                 dependency_artifacts,
                 source_path=source_path,
             )
+            godot_required = _is_godot_sprite_sheet(request)
             cached = _cached_worktree_asset(
                 target_worktree,
                 target_path,
                 request_fingerprint,
+                godot_required=godot_required,
             )
             if cached is not None:
                 cached_artifact, cached_metadata = cached
@@ -1099,6 +1230,7 @@ def execute_asset_forge_batch(
                     "artifact": cached_artifact,
                     "sha256": str(cached_metadata["sha256"]),
                     "report_path": out / "cache-hit.json",
+                    "companion_files": cached_metadata.get("_verified_companions") or [],
                     "request_fingerprint": request_fingerprint,
                     "cache_hit": True,
                 }
@@ -1134,6 +1266,10 @@ def execute_asset_forge_batch(
             report_path = Path(str(receipt.report_path))
             report = json.loads(report_path.read_text(encoding="utf-8"))
             artifact = _validated_artifact(report, out)
+            companion_files = (
+                _local_godot_spriteframes_companions(out, report, target_path)
+                if godot_required else []
+            )
             generation = report.get("generation") if isinstance(report.get("generation"), dict) else {}
             validation = report.get("validation") if isinstance(report.get("validation"), dict) else {}
             visual_similarity = (
@@ -1167,6 +1303,7 @@ def execute_asset_forge_batch(
                 "artifact": artifact,
                 "sha256": hashlib.sha256(artifact.read_bytes()).hexdigest(),
                 "report_path": report_path,
+                "companion_files": companion_files,
                 "request_fingerprint": request_fingerprint,
                 "cache_hit": False,
             }

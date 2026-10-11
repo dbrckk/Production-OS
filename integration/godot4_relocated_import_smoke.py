@@ -12,8 +12,10 @@ import hashlib
 import io
 import json
 import os
+import shlex
 import struct
 import subprocess
+import sys
 import tempfile
 import zlib
 import zipfile
@@ -242,6 +244,114 @@ def main() -> None:
         print("PASS: actual Godot 4 import of Production-OS relocated SpriteFrames")
         print("PASS: two AtlasTexture regions, 64x32 source, AnimatedSprite2D assignment")
         print("PASS: remote receipt SHA256 and transactional consumer sidecars")
+
+        # Real local Asset Forge CLI, no fake generation, and verified cache repair.
+        source_root = os.environ.get("ASSET_FORGE_SOURCE_DIR", "").strip()
+        if not source_root:
+            raise RuntimeError("ASSET_FORGE_SOURCE_DIR required for local/cache smoke")
+        forge_entry = Path(source_root).resolve(strict=True) / "asset_forge.py"
+        if not forge_entry.is_file():
+            raise RuntimeError("pinned Asset Forge CLI source unavailable")
+        binary_dir = root / "local-cli-bin"
+        binary_dir.mkdir()
+        wrapper = binary_dir / "asset-forge"
+        shell_command = (
+            "#!/bin/sh\nexec " + shlex.quote(sys.executable) + " "
+            + shlex.quote(str(forge_entry)) + ' "$@"\n'
+        )
+        wrapper.write_text(shell_command, encoding="utf-8")
+        wrapper.chmod(0o700)
+        local_request = build_asset_forge_request(
+            request_id="godot-local-cache-smoke", project="original-local-integration",
+            asset_id="player", asset_type="sprite-sheet",
+            instruction="Export two original locally provided SpriteFrames",
+            target_format="png", engine="godot4", source_mode="custom",
+            author="original-ci", license_id="project-owned",
+        )
+        local_request["manifest"]["constraints"] = {
+            "pixelArt": True, "interpolation": "nearest",
+            "frameWidth": 32, "frameHeight": 32,
+            "expectedFrames": 2, "requiresAlpha": True,
+        }
+        local_items = [{
+            "id": "local-hero", "request": local_request, "target_path": target,
+            "source_path": str(original / "player.png"),
+        }]
+        old_path = os.environ.get("PATH", "")
+        os.environ["PATH"] = str(binary_dir) + os.pathsep + old_path
+        try:
+            first = execute_asset_forge_batch(
+                local_items, mode="local", output_root=str(root / "local-production"),
+                target_worktree=str(consumer),
+            )
+            if first["quality_summary"]["cache_hits"] != 0:
+                raise RuntimeError("Initial local production unexpectedly used cache")
+            receipt = json.loads(
+                (consumer / (target + ".asset-forge.json")).read_text(encoding="utf-8")
+            )
+            if len(receipt.get("companions") or []) != 2:
+                raise RuntimeError("Local sidecar hashes missing from version receipt")
+            for record in receipt["companions"]:
+                payload = (consumer / record["target_path"]).read_bytes()
+                if hashlib.sha256(payload).hexdigest() != record["sha256"]:
+                    raise RuntimeError("Local companion digest mismatch")
+            run([godot, "--headless", "--path", str(consumer), "--import"], cwd=root)
+            run([godot, "--headless", "--path", str(consumer), "--script",
+                 "res://verify.gd"], cwd=root, marker="GODOT_RELOCATED_SPRITEFRAMES_OK")
+
+            # A valid cache must work with the CLI removed.
+            wrapper.unlink()
+            cached = execute_asset_forge_batch(
+                local_items, mode="local", output_root=str(root / "cached-production"),
+                target_worktree=str(consumer),
+            )
+            if cached["quality_summary"]["cache_hits"] != 1:
+                raise RuntimeError("Verified Godot cache did not avoid regeneration")
+            tres = consumer / "assets/characters/player.tres"
+            clean = tres.read_bytes()
+            tres.write_bytes(clean + b"\n; altered cached SpriteFrames\n")
+            try:
+                execute_asset_forge_batch(
+                    local_items, mode="local", output_root=str(root / "altered-cache"),
+                    target_worktree=str(consumer),
+                )
+            except RuntimeError as exc:
+                if "CLI is required" not in str(exc):
+                    raise
+            else:
+                raise RuntimeError("Modified Godot sidecar falsely passed cache")
+            if tres.read_bytes() == clean:
+                raise RuntimeError("Cache failure unexpectedly overwrote local worktree")
+            (consumer / "assets/characters/player.atlas-metadata.json").unlink()
+            try:
+                execute_asset_forge_batch(
+                    local_items, mode="local", output_root=str(root / "missing-cache"),
+                    target_worktree=str(consumer),
+                )
+            except RuntimeError as exc:
+                if "CLI is required" not in str(exc):
+                    raise
+            else:
+                raise RuntimeError("Missing Godot sidecar falsely passed cache")
+
+            # A true CLI production repairs both files, then Godot reimports.
+            wrapper.write_text(shell_command, encoding="utf-8")
+            wrapper.chmod(0o700)
+            repaired = execute_asset_forge_batch(
+                local_items, mode="local", output_root=str(root / "repaired-production"),
+                target_worktree=str(consumer),
+            )
+            if repaired["quality_summary"]["cache_hits"] != 0:
+                raise RuntimeError("Corrupted cache was not regenerated")
+            run([godot, "--headless", "--path", str(consumer), "--import"], cwd=root)
+            run([godot, "--headless", "--path", str(consumer), "--script",
+                 "res://verify.gd"], cwd=root, marker="GODOT_RELOCATED_SPRITEFRAMES_OK")
+            print("PASS: real Asset Forge local CLI -> Production-OS -> Godot")
+            print("PASS: valid cache without CLI; altered/missing companions rejected")
+            print("PASS: real local cache repair and Godot engine reimport")
+        finally:
+            os.environ["PATH"] = old_path
+
 
 
 if __name__ == "__main__":
