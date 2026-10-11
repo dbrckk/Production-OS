@@ -196,7 +196,7 @@ def main() -> None:
         # None of these cases may dispatch, generate, or create receipt files.
         bad_receipt = root / "blocked-path-receipt"
         for unsafe in ("../escape.png", "/absolute.png", "assets/./sprite.png",
-                       "assets//sprite.png", "C:\\\\Windows\\\\sprite.png",
+                       "assets//sprite.png", "C:\\Windows\\sprite.png",
                        "assets/../sprite.png"):
             try:
                 execute_asset_forge_batch(
@@ -208,7 +208,7 @@ def main() -> None:
                 pass
             else:
                 raise RuntimeError(f"Unsafe batch destination was accepted: {unsafe!r}")
-        for second in ("assets/PLAYER.png", "assets/cafe\\u0301.png"):
+        for second in ("assets/PLAYER.png", "assets/cafe\u0301.png"):
             first = "assets/player.png" if "PLAYER" in second else "assets/café.png"
             try:
                 execute_asset_forge_batch(
