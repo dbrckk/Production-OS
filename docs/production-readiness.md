@@ -41,6 +41,24 @@ cached-batch sidecar restoration, commercial rights for AI-produced art or
 live Production-OS → worker → GitHub PR → game release. No deployment,
 GPU inference or privileged Render action has been executed.
 
+## Relocated Godot 4 engine import gate (CI)
+
+The optional, original-art, no-inference integration smoke at `integration/godot4_relocated_import_smoke.py`
+uses a SHA512-verified official Godot 4.4.1 editor. It creates an original
+local RGBA atlas, saves a genuine `SpriteFrames` resource via Godot's
+`ResourceSaver`, sends the image and hashed sidecars through the **actual**
+Production-OS offline remote-result parser/worktree transaction, then imports
+and loads the relocated `res://assets/characters/player.tres` in a second
+real Godot 4 project. It verifies both AtlasTexture regions and assignment to
+AnimatedSprite2D. The separate canonical CI job must succeed on the **exact
+PR HEAD** before treating this boundary as verified. There is no new unit test,
+paid generation, historical canary, remote dispatch or secret inspection.
+
+This checks remote receipt parsing and consumer engine load together, but the
+archive is created locally; it does **not** establish a live Asset Forge
+workflow, commercial artwork/model rights, semantic visual acceptance,
+actual Production-OS worker → PR publication, or a deployed game.
+
 ## Asset Forge remote batch receipt integrity
 
 The batch download/parser validates identity and content correlation before
