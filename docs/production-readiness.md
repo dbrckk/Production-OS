@@ -19,6 +19,14 @@ GitHub repository require an **explicit non-default review branch**
 (`--target-ref`); implicit `main`/`master` delivery fails before
 dispatch to avoid modifying released files outside PR review.
 
+The **remote batch API** independently requires a consumer destination and
+refuses implicit `main`/`master` repository writes **before creating its
+output directory or invoking Asset Forge**, not only when called through the
+single-asset wrapper. This closes the direct-batch bypass and prevents an
+otherwise guaranteed failed batch from incurring remote generation cost.
+The existing native producer → Godot functional smoke checks these negative
+batch calls offline, without any hosted dispatch or new unit tests.
+
 Existing `.asset-forge.json` receipts are integrity metadata, not disposable cache.
 An invalid JSON/non-object/invalid-encoding receipt on a GitHub review branch,
 or an unreadable or structurally invalid local/worktree or GitHub receipt,

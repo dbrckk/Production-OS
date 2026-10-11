@@ -225,6 +225,37 @@ def main() -> None:
         else:
             raise RuntimeError("Remote single-asset attempted implicit main-branch delivery")
 
+        # Batch callers previously bypassed the direct API's main-branch
+        # guard, or dispatched generation with no consumer at all. Both must
+        # fail before creating output or reaching a remote workflow.
+        blocked_batch_root = root / "blocked-batch-destination"
+        for ref in ("main", "refs/heads/main", "master", "refs/heads/master"):
+            try:
+                execute_asset_forge_batch(
+                    [dispatch_item], mode="github",
+                    output_root=str(blocked_batch_root),
+                    target_repository="dbrckk/consumer", target_ref=ref,
+                    client=OfflineClient(source_archive),
+                )
+            except ValueError as exc:
+                if "non-default review branch" not in str(exc):
+                    raise
+            else:
+                raise RuntimeError("Remote batch accepted implicit main-branch delivery")
+        try:
+            execute_asset_forge_batch(
+                [dispatch_item], mode="github",
+                output_root=str(blocked_batch_root),
+                client=OfflineClient(source_archive),
+            )
+        except ValueError as exc:
+            if "requires target_worktree or target_repository" not in str(exc):
+                raise
+        else:
+            raise RuntimeError("Remote batch accepted generation without any destination")
+        if blocked_batch_root.exists():
+            raise RuntimeError("Invalid remote batch destination created an output directory")
+
         # Existing end-to-end smoke also verifies destination preflight.
         # None of these cases may dispatch, generate, or create receipt files.
         bad_receipt = root / "blocked-path-receipt"
@@ -442,6 +473,7 @@ def main() -> None:
         print("PASS: Destination paths and nested file conflicts blocked before remote dispatch")
         print("PASS: Direct GitHub-mode single-asset transaction + Godot import")
         print("PASS: Implicit main-branch remote delivery refused before dispatch")
+        print("PASS: Remote batch rejects main/master and missing destination before dispatch")
         print("PASS: Review-branch version lookup/transaction remains on target ref")
         print("PASS: Concurrent destination HEAD movement refuses stale asset commit")
         print("PASS: Malformed and structurally invalid GitHub/worktree receipts rejected")

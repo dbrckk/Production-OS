@@ -1470,6 +1470,15 @@ def execute_asset_forge_batch(
     if _has_file_parent_collision(keys):
         raise ValueError("asset-forge batch target_path has a file/directory conflict")
 
+    # A batch always delivers files. Fail before local generation or a billed
+    # remote workflow if no destination exists or GitHub main is implicit.
+    if not (target_worktree or target_repository):
+        raise ValueError("asset-forge batch requires target_worktree or target_repository before generation")
+    if target_repository and not target_worktree and (
+        target_ref.removeprefix("refs/heads/") in {"main", "master"}
+    ):
+        raise ValueError("asset-forge batch repository delivery requires an explicit non-default review branch")
+
     root = Path(output_root)
     root.mkdir(parents=True, exist_ok=True)
     produced: list[dict[str, Any]] = []

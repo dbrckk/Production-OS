@@ -21,7 +21,8 @@
     "Pin destination GitHub branch HEAD before receipt reads; require same expected SHA at commit, failing on concurrent moves",
     "Preflight entire remote ZIP for Unicode/case/duplicate-path and file/directory collisions before extraction",
     "Reject non-portable Windows ZIP entry paths before remote bundle extraction; extend existing native producer/Godot functional smoke with six invalid archive cases",
-    "Preflight user-selected consumer destinations for Windows reserved names, ADS, wildcards and trailing dot/space before generation, and reject batch file/parent conflicts before dispatch and final delivery"
+    "Preflight user-selected consumer destinations for Windows reserved names, ADS, wildcards and trailing dot/space before generation, and reject batch file/parent conflicts before dispatch and final delivery",
+    "Reject remote batch without a consumer or with implicit GitHub main/master destination before generation/dispatch; extend existing native producer-to-Godot functional smoke"
   ],
   "validation": {
     "baseline_remote_godot_ci": "38136230642 COMPLETED SUCCESS on 35d92a99041858fe3b93efc000711c05068e1df0",
@@ -36,7 +37,8 @@
     "concurrent_delivery_ci": "38171194542 COMPLETED SUCCESS 4/4 on 67f1653b4b301320fed7d9a6c39f4b23400abd8a; Godot real import and existing Python/E2E/Docker",
     "zip_collision_ci": "38173871680 COMPLETED SUCCESS 4/4 on c757c127919572e7391b08373c77f7c16969c4d0 (native Godot 4.4.1, Python 3.11/3.12, existing production E2E/Docker)",
     "portable_zip_ci": "38175697388 COMPLETED SUCCESS 4/4 on 766183d82c149654ddaeef98f68acfbe04020b96 (Godot 4.4.1, Python 3.11/3.12, existing E2E/Docker)",
-    "portable_destination_ci": "pending exact-head CI"
+    "portable_destination_ci": "38178016728 COMPLETED SUCCESS 4/4 on df4a971ce51f8fce02b1dab1eb6f779f3cf263d3 (real Godot, Python 3.11/3.12, existing E2E/Docker)",
+    "batch_delivery_preflight_ci": "pending exact-head CI"
   },
   "remaining": [
     "Live worker-to-PR and consuming game release not verified",
@@ -47,6 +49,6 @@
     "Review-branch version fix remains DRAFT until actual CI and review"
   ],
   "current_work": [
-    "Qualify user destination portability and parent/child preflight on the new exact SHA; preserve DRAFT, no new canary/probe, GPU, Render/deploy or merge"
+    "Qualify direct remote batch missing-destination and implicit-main refusal on exact HEAD; preserve PR DRAFT, no GPU, Render, canary or merge"
   ]
 }
