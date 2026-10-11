@@ -230,7 +230,10 @@ def main() -> None:
         bad_receipt = root / "blocked-path-receipt"
         for unsafe in ("../escape.png", "/absolute.png", "assets/./sprite.png",
                        "assets//sprite.png", "C:\\Windows\\sprite.png",
-                       "assets/../sprite.png"):
+                       "assets/../sprite.png", "assets/CON.png",
+                       "assets/COM¹.png", "assets/atlas:alt.png",
+                       "assets/a?b.png", "assets/dot./sprite.png",
+                       "assets/trail /sprite.png"):
             try:
                 execute_asset_forge_batch(
                     [{"id": "player", "request": request, "target_path": unsafe}],
@@ -254,6 +257,22 @@ def main() -> None:
                 pass
             else:
                 raise RuntimeError("Equivalent batch destinations bypassed preflight")
+        # These distinct strings still conflict as file and parent folder.
+        for first, second in (
+            ("assets/atlas.png", "assets/atlas.png/child.png"),
+            ("assets/PLAYER.PNG", "assets/player.png/child.png"),
+        ):
+            try:
+                execute_asset_forge_batch(
+                    [{"id": "first", "request": request, "target_path": first},
+                     {"id": "second", "request": request, "target_path": second}],
+                    mode="github", output_root=str(bad_receipt),
+                    target_worktree=str(consumer), client=OfflineClient(source_archive),
+                )
+            except ValueError:
+                pass
+            else:
+                raise RuntimeError("Batch file/child destination conflict bypassed preflight")
         if bad_receipt.exists():
             raise RuntimeError("Unsafe target path started a remote batch before preflight")
 
@@ -420,6 +439,7 @@ def main() -> None:
         print("PASS: REAL Asset Forge remote_batch -> Production-OS -> Godot 4")
         print("PASS: Native batch-result/report, sidecar SHA256 and Godot resource load")
         print("PASS: ZIP aliases, Windows reserved names and file/directory conflicts blocked before extraction")
+        print("PASS: Destination paths and nested file conflicts blocked before remote dispatch")
         print("PASS: Direct GitHub-mode single-asset transaction + Godot import")
         print("PASS: Implicit main-branch remote delivery refused before dispatch")
         print("PASS: Review-branch version lookup/transaction remains on target ref")

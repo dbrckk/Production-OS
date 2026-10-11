@@ -59,6 +59,17 @@ accepted on Linux can fail or alias another path on a Windows consumer. The
 existing genuine producer → Godot smoke includes these negative ZIP cases and
 asserts that rejected archives do not create an extraction directory.
 
+The **consumer destination preflight** applies these same portable segment
+rules to user-supplied `target_path` before starting either local asset
+generation or a remote GitHub workflow. It rejects Windows devices, colon/ADS,
+wildcards and trailing dot/space components, and also rejects file-vs-child
+conflicts across requested batch targets (including Unicode/case aliases)
+before creating a batch output directory. The transactional delivery stage
+independently rejects conflicts involving generated metadata sidecars and
+Godot companion files, before any target repository/worktree mutation.
+The existing native producer → Godot functional smoke covers these failures
+offline; it does not prove execution on a physical Windows machine.
+
 The existing `integration/real_producer_bundle_smoke.py` verifies the
 direct route using a **native pinned Asset Forge ZIP** created from an
 original local PNG and consumed by real Godot 4.4.1. It also proves that

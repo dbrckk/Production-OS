@@ -182,6 +182,31 @@ def _sidecar_relative_path(target_path: str) -> str:
     return target_path.strip().replace("\\", "/").lstrip("/") + ".asset-forge.json"
 
 
+def _nonportable_asset_path_component(part: str) -> bool:
+    """Reject destination/ZIP path segments that alias or fail on Windows."""
+    reserved = (
+        {"CON", "PRN", "AUX", "NUL"}
+        | {f"COM{digit}" for digit in "123456789¹²³"}
+        | {f"LPT{digit}" for digit in "123456789¹²³"}
+    )
+    return (
+        part.endswith((".", " "))
+        or any(char in '<>:"|?*' or ord(char) < 32 or ord(char) == 127 for char in part)
+        or part.split(".", 1)[0].rstrip(" ").upper() in reserved
+    )
+
+
+def _has_file_parent_collision(paths: set[str]) -> bool:
+    """Detect file A and file A/child even when both names are unique."""
+    for key in paths:
+        parent = key.rpartition("/")[0]
+        while parent:
+            if parent in paths:
+                return True
+            parent = parent.rpartition("/")[0]
+    return False
+
+
 def _validated_target_path(value: Any) -> str:
     """Keep delivery paths canonical before generation, dispatch or writes."""
     if not isinstance(value, str) or not value or value != value.strip():
@@ -192,7 +217,7 @@ def _validated_target_path(value: Any) -> str:
         normalized.startswith("/")
         or any(part in {"", ".", ".."} for part in parts)
         or ":" in parts[0]
-        or any(ord(character) < 32 or ord(character) == 127 for character in normalized)
+        or any(_nonportable_asset_path_component(part) for part in parts)
     ):
         raise ValueError("asset-forge target_path must be a safe canonical relative path")
     return normalized
@@ -452,6 +477,8 @@ def _deliver_produced_assets(
             if key in delivery_names:
                 raise RuntimeError(f"asset-forge batch delivery path collision: {name}")
             delivery_names.add(key)
+    if _has_file_parent_collision(delivery_names):
+        raise RuntimeError("asset-forge batch delivery file/directory path conflict")
 
     if target_worktree:
         root_worktree = Path(target_worktree).resolve()
@@ -844,13 +871,8 @@ def _extract_remote_batch_bundle(data: bytes, destination: Path) -> Path:
     max_files = 5000
     max_uncompressed = 512 * 1024 * 1024
     total = 0
-    # Path aliases that differ on Linux can overwrite or fail on Windows.
-    # Reject these before any extraction or directory creation.
-    windows_devices = (
-        {"CON", "PRN", "AUX", "NUL"}
-        | {f"COM{digit}" for digit in "123456789¹²³"}
-        | {f"LPT{digit}" for digit in "123456789¹²³"}
-    )
+    # The same cross-platform component validation applies to user-chosen
+    # delivery paths and producer ZIP paths before any disk write.
     with zipfile.ZipFile(io.BytesIO(data)) as archive:
         infos = archive.infolist()
         if len(infos) > max_files:
@@ -864,12 +886,7 @@ def _extract_remote_batch_bundle(data: bytes, destination: Path) -> Path:
             parts = name.split("/")
             if any(part in {"", ".", ".."} for part in parts):
                 raise RuntimeError("asset-forge remote batch artifact contains unsafe path")
-            if any(
-                part.endswith((".", " "))
-                or any(char in '<>:"|?*' or ord(char) < 32 or ord(char) == 127 for char in part)
-                or part.split(".", 1)[0].rstrip(" ").upper() in windows_devices
-                for part in parts
-            ):
+            if any(_nonportable_asset_path_component(part) for part in parts):
                 raise RuntimeError("asset-forge remote batch artifact contains non-portable path")
             mode = (info.external_attr >> 16) & 0o170000
             if mode == 0o120000:
@@ -1450,6 +1467,8 @@ def execute_asset_forge_batch(
     keys = {unicodedata.normalize("NFC", path).casefold() for path in target_paths}
     if len(target_paths) != len(keys):
         raise ValueError("asset-forge batch target_path values must be unique")
+    if _has_file_parent_collision(keys):
+        raise ValueError("asset-forge batch target_path has a file/directory conflict")
 
     root = Path(output_root)
     root.mkdir(parents=True, exist_ok=True)
