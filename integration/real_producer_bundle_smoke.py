@@ -125,6 +125,12 @@ def main() -> None:
             (("jobs/café.png", b"first"), ("jobs/cafe\u0301.png", b"second")),
             (("jobs/a//b.png", b"first"),),
             (("jobs/report", b"first"), ("jobs/report/child.png", b"second")),
+            (("jobs/CON.png", b"reserved-device"),),
+            (("jobs/COM1.png", b"reserved-serial"),),
+            (("jobs/atlas.png.", b"trailing-dot"),),
+            (("jobs/atlas.png ", b"trailing-space"),),
+            (("jobs/atlas:alternate.png", b"alternate-stream"),),
+            (("jobs/preview?.png", b"wildcard"),),
         )
         for index, entries in enumerate(ambiguous_bundles):
             suspicious = io.BytesIO()
@@ -413,7 +419,7 @@ def main() -> None:
 
         print("PASS: REAL Asset Forge remote_batch -> Production-OS -> Godot 4")
         print("PASS: Native batch-result/report, sidecar SHA256 and Godot resource load")
-        print("PASS: ZIP path aliases and file/directory conflicts rejected before extraction")
+        print("PASS: ZIP aliases, Windows reserved names and file/directory conflicts blocked before extraction")
         print("PASS: Direct GitHub-mode single-asset transaction + Godot import")
         print("PASS: Implicit main-branch remote delivery refused before dispatch")
         print("PASS: Review-branch version lookup/transaction remains on target ref")

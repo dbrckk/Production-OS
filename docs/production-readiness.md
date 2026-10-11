@@ -52,6 +52,12 @@ separators, or file/directory parent conflicts are rejected, preventing
 silent overwrites and ambiguous checksums on cross-platform consumers. The
 existing functional Godot smoke exercises the native producer ZIP and negative
 ambiguous-archive cases, without external inference or a new unit-test file.
+The same preflight also rejects Windows-reserved device basenames (including
+`CON`, `COM1`, `LPT1`), alternate-data-stream colons, forbidden characters,
+control bytes and segments ending in a dot or space. Without this guard, a ZIP
+accepted on Linux can fail or alias another path on a Windows consumer. The
+existing genuine producer → Godot smoke includes these negative ZIP cases and
+asserts that rejected archives do not create an extraction directory.
 
 The existing `integration/real_producer_bundle_smoke.py` verifies the
 direct route using a **native pinned Asset Forge ZIP** created from an
