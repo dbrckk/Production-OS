@@ -688,10 +688,15 @@ class GitHubClient:
             raise
         return payload if isinstance(payload, list) else [payload]
 
-    def _read_text(self, full_name: str, path: str) -> str:
+    def _read_text(self, full_name: str, path: str, *, ref: str | None = None) -> str:
         encoded_path = "/".join(urllib.parse.quote(part) for part in path.split("/") if part)
+        endpoint = f"/repos/{full_name}/contents/{encoded_path}"
+        if ref is not None:
+            if not isinstance(ref, str) or not ref.strip():
+                raise ValueError("GitHub read ref must be non-empty")
+            endpoint += "?ref=" + urllib.parse.quote(ref, safe="")
         try:
-            payload = self._get(f"/repos/{full_name}/contents/{encoded_path}")
+            payload = self._get(endpoint)
         except GitHubAPIError as exc:
             if "404" in str(exc):
                 return ""
@@ -704,8 +709,8 @@ class GitHubClient:
         except Exception:
             return ""
 
-    def read_json_file(self, full_name: str, path: str) -> dict[str, Any] | None:
-        text = self._read_text(full_name, path)
+    def read_json_file(self, full_name: str, path: str, *, ref: str | None = None) -> dict[str, Any] | None:
+        text = self._read_text(full_name, path) if ref is None else self._read_text(full_name, path, ref=ref)
         if not text:
             return None
         try:

@@ -505,7 +505,13 @@ def _deliver_produced_assets(
             for extra in item.get("companion_files") or []:
                 payload[extra["target_path"]] = extra["content"]
             sidecar_path = _sidecar_relative_path(item["target_path"])
-            existing = gh.read_json_file(target_repository, sidecar_path)
+            # Read the existing receipt on the destination review branch,
+            # not the unrelated repository default branch.
+            existing = (
+                gh.read_json_file(target_repository, sidecar_path)
+                if target_ref in {"main", "refs/heads/main"}
+                else gh.read_json_file(target_repository, sidecar_path, ref=target_ref)
+            )
             sidecar = _version_sidecar(item, existing=existing)
             payload[sidecar_path] = (
                 json.dumps(sidecar, indent=2, sort_keys=True) + "\n"

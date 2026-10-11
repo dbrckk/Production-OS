@@ -19,6 +19,16 @@ GitHub repository require an **explicit non-default review branch**
 (`--target-ref`); implicit `main`/`master` delivery fails before
 dispatch to avoid modifying released files outside PR review.
 
+For GitHub review branches, the previous `.asset-forge.json` receipt
+must be read from the **same destination branch**, not the default
+branch; otherwise a successful delivery can reset version history.
+`GitHubClient.read_json_file(..., ref=target_ref)` now qualifies the
+GET with an encoded branch ref, retaining backward compatibility for
+default-main lookups. The existing functional integration smoke verifies
+this offline using an instrumented real GitHub client and a simulated
+version 7 → 8 GitHub review-branch transaction; there is no network
+request, hosted dispatch or test-only production implementation.
+
 The existing `integration/real_producer_bundle_smoke.py` verifies the
 direct route using a **native pinned Asset Forge ZIP** created from an
 original local PNG and consumed by real Godot 4.4.1. It also proves that

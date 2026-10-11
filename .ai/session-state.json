@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "updated_at": "2026-10-11",
-  "objective": "Qualify remote direct single-asset delivery after explicit destination; preserve draft review and prevent silent dispatch-only successes",
-  "base_commit": "15280278952a9526c5210d74ec19e341777373ae",
-  "branch": "fix/remote-batch-receipt-integrity-20261011",
+  "objective": "Preserve actual review-branch asset version receipts in GitHub delivery",
+  "base_commit": "f7325526e47310f5d79412a089361b0cf06d81fd",
+  "branch": "fix/asset-review-branch-versioning-20261011",
   "changes": [
     "Real local Asset Forge sidecars validated and delivered transactionally",
     "Version receipts record companion SHA-256; Godot cache hits require verified companions",
@@ -13,7 +13,9 @@
     "Native pinned Asset Forge remote_batch output -> actual zipped receipt -> Production-OS consumer -> Godot import with genuine tampered-ZIP refusal",
     "Correct smoke fixture ZIP reopen via io.BytesIO rather than raw bytes (CI 38155804378 diagnosis)",
     "Direct GitHub-mode single-asset destination uses verified one-item batch and native ZIP before reporting delivered",
-    "Implicit remote GitHub main/master delivery rejected before dispatch; no-destination async unchanged"
+    "Implicit remote GitHub main/master delivery rejected before dispatch; no-destination async unchanged",
+    "GitHub JSON receipt reads accept explicit destination branch ref",
+    "Existing offline Godot smoke verifies review-branch version 7→8 and preserves history"
   ],
   "validation": {
     "baseline_remote_godot_ci": "38136230642 COMPLETED SUCCESS on 35d92a99041858fe3b93efc000711c05068e1df0",
@@ -22,16 +24,18 @@
     "single_asset_ci": "38154300786 COMPLETED SUCCESS 4/4 jobs on bcee95a31c2fe286e6cf08a7348a7f15389d3f5d (Python 3.11/3.12, integration/build/Docker, real CLI and Godot 4.4.1 import)",
     "cross_repo_genuine_producer_ci": "38155804378 FAILED (smoke ZIP bytes passed instead of stream), fixed at 02641f4; CI 38155924949 COMPLETED SUCCESS 4/4 exact HEAD, Godot 4 producer ZIP/consumer/negative tamper PASS",
     "docs_evidence_head_ci": "38156259877 COMPLETED SUCCESS 4/4 on 15280278952a9526c5210d74ec19e341777373ae",
-    "remote_single_delivery_ci": "38156921965 COMPLETED SUCCESS 4/4 on b94069ffa70bd1ac6e7ee5d8ece89a01293c26bc; offline genuine producer receipt and Godot 4 consumer, not hosted cross-workflow"
+    "remote_single_delivery_ci": "38156921965 COMPLETED SUCCESS 4/4 on b94069ffa70bd1ac6e7ee5d8ece89a01293c26bc; offline genuine producer receipt and Godot 4 consumer, not hosted cross-workflow",
+    "review_branch_receipt_ci": "pending exact-HEAD CI"
   },
   "remaining": [
     "Live worker-to-PR and consuming game release not verified",
     "Commercial model/output rights and semantic fidelity not verified",
     "Preserve PR #263 and Asset Forge PR #13 as drafts; no merge/deployment",
     "Hosted cross-repository workflow dispatch, real worker -> PR -> game and commercial/semantic image quality remain unverified",
-    "Direct hosted workflow + worker publication not verified even if offline ZIP/Godot smoke succeeds"
+    "Direct hosted workflow + worker publication not verified even if offline ZIP/Godot smoke succeeds",
+    "Review-branch version fix remains DRAFT until actual CI and review"
   ],
   "current_work": [
-    "Offline remote single-asset CI qualified at b94069f; audit isolated hosted cross-workflow dispatch/worker delivery evidence without GPU, no default-main mutation"
+    "Check exact PR-head CI and the existing real Godot 4 import; avoid live dispatch/GPU/deployment"
   ]
 }

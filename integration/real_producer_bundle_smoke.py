@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import io
+from base64 import b64encode
 import json
 import os
 import shlex
@@ -17,7 +18,8 @@ import tempfile
 import zipfile
 from pathlib import Path
 
-from production_os.asset_forge import build_asset_forge_request, execute_asset_forge, execute_asset_forge_batch
+from production_os.asset_forge import _deliver_produced_assets, build_asset_forge_request, execute_asset_forge, execute_asset_forge_batch
+from production_os.github_client import GitHubClient
 from godot4_relocated_import_smoke import (
     OfflineClient,
     VALIDATOR,
@@ -224,6 +226,58 @@ def main() -> None:
         if bad_receipt.exists():
             raise RuntimeError("Unsafe target path started a remote batch before preflight")
 
+        # Verify real GitHub Contents ref encoding and branch-specific
+        # version continuity using an offline recording client.
+        class OfflineReviewBranch(GitHubClient):
+            def __init__(self):
+                self.read_paths = []
+                self.written_files = {}
+                self.written_branch = None
+
+            def _get(self, path):
+                self.read_paths.append(path)
+                receipt = {"version": 7, "sha256": "previous-image-digest"}
+                return {"content": b64encode(json.dumps(receipt).encode()).decode()}
+
+            def commit_files(self, repository, files, *, message, branch):
+                self.written_branch = branch
+                self.written_files = dict(files)
+                return {"files": sorted(files)}
+
+        review_ref = "review/asset-handoff"
+        github = OfflineReviewBranch()
+        delivery_mode, delivered_files = _deliver_produced_assets(
+            [{
+                "batch_id": "player",
+                "request_id": request["requestId"],
+                "target_path": target,
+                "artifact": image,
+                "sha256": hashlib.sha256(image_bytes).hexdigest(),
+                "request_fingerprint": "original-review-branch-smoke",
+                "depends_on": [],
+                "dependency_artifacts": [],
+                "companion_files": [],
+                "cache_hit": False,
+            }],
+            target_repository="dbrckk/consumer",
+            target_worktree=None,
+            target_ref=review_ref,
+            client=github,
+        )
+        expected_url = (
+            "/repos/dbrckk/consumer/contents/"
+            + target + ".asset-forge.json?ref=review%2Fasset-handoff"
+        )
+        if github.read_paths != [expected_url]:
+            raise RuntimeError("GitHub version lookup ignored review branch ref")
+        if delivery_mode != "github" or github.written_branch != review_ref:
+            raise RuntimeError("Asset delivery wrote to an unexpected GitHub branch")
+        if not delivered_files or not github.written_files:
+            raise RuntimeError("Review branch delivery did not prepare atomic GitHub payload")
+        version = json.loads(github.written_files[target + ".asset-forge.json"].decode("utf-8"))
+        if version.get("version") != 8 or version.get("history", [{}])[-1].get("version") != 7:
+            raise RuntimeError("Review branch asset history did not advance version 7 to 8")
+
         # Tamper with the REAL producer .tres byte payload but preserve its
         # real declared checksum; fail closed before any consumer file write.
         tres_path = next(
@@ -259,6 +313,7 @@ def main() -> None:
         print("PASS: Native batch-result/report, sidecar SHA256 and Godot resource load")
         print("PASS: Direct GitHub-mode single-asset transaction + Godot import")
         print("PASS: Implicit main-branch remote delivery refused before dispatch")
+        print("PASS: Review-branch version lookup/transaction remains on target ref")
         print("PASS: Tampered real producer SpriteFrames rejected before delivery")
 
 
