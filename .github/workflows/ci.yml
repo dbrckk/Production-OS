@@ -173,7 +173,7 @@ jobs:
                   "sha256": hashlib.sha256(payload).hexdigest(),
               })
 
-          def archive_for(receipts):
+          def archive_for(receipts, *, scenario="valid"):
               report = {
                   "schema_version": "asset-forge/remote-batch-result/v1",
                   "success": True,
@@ -186,8 +186,23 @@ jobs:
                   for name in ("a", "b"):
                       zf.writestr("bundle/" + name + ".png",
                                   ("fake-byte-content-" + name).encode())
-                      zf.writestr("jobs/remote-" + name + "/production-report.json",
-                                  json.dumps({"success": True}))
+                      if scenario == "missing-report" and name == "b":
+                          continue
+                      reported_request = (
+                          "remote-a"
+                          if scenario == "wrong-report-id" and name == "b"
+                          else "remote-" + name
+                      )
+                      zf.writestr(
+                          "jobs/remote-" + name + "/production-report.json",
+                          json.dumps({
+                              "schema": "asset-forge/production-report/v1",
+                              "requestId": reported_request,
+                              "assetId": "remote-" + name,
+                              "assetType": "sprite-sheet",
+                              "success": True,
+                          }),
+                      )
               return output.getvalue()
 
           with TemporaryDirectory() as temporary:
@@ -201,10 +216,12 @@ jobs:
                   ("unknown-item", [
                       rows[0], {**rows[1], "id": "other"},
                   ], False),
+                  ("missing-report", rows, False),
+                  ("wrong-report-id", rows, False),
               ]
               for name, receipts, allowed in cases:
                   target = root / (name + "-worktree")
-                  client = OfflineClient(archive_for(receipts))
+                  client = OfflineClient(archive_for(receipts, scenario=name))
                   try:
                       result = execute_asset_forge_batch(
                           items,

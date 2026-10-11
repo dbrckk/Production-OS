@@ -703,6 +703,29 @@ def _produce_asset_forge_batch_remote(
         report_path = remote_root / "jobs" / request_id / "production-report.json"
         if not report_path.is_file():
             raise RuntimeError(f"remote batch production report missing for {item_id}")
+        try:
+            production_report = json.loads(report_path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+            raise RuntimeError(
+                f"remote batch production report is unreadable for {item_id}"
+            ) from exc
+        manifest = (
+            expected_request.get("manifest")
+            if isinstance(expected_request, dict)
+            else None
+        )
+        if (
+            not isinstance(production_report, dict)
+            or not isinstance(manifest, dict)
+            or production_report.get("schema") != "asset-forge/production-report/v1"
+            or production_report.get("success") is not True
+            or production_report.get("requestId") != request_id
+            or production_report.get("assetId") != manifest.get("id")
+            or production_report.get("assetType") != manifest.get("type")
+        ):
+            raise RuntimeError(
+                f"remote batch production report identity mismatch for {item_id}"
+            )
         produced_item = {
             "batch_id": item_id,
             "depends_on": dependencies,

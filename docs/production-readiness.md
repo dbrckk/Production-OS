@@ -1,5 +1,34 @@
 # Production readiness
 
+## Asset Forge remote batch receipt integrity
+
+The batch download/parser validates identity and content correlation before
+committing assets into a worktree or target GitHub repository. In addition to
+artifact SHA256 and target/dependency checks, it refuses duplicate or
+unexpected item IDs, missing expected items, mismatched request IDs and
+missing per-item production reports. The report must be a successful
+`asset-forge/production-report/v1` object matching the original request ID,
+asset ID and asset type. A matching row count alone is not sufficient.
+
+The existing CI includes an offline functional smoke using the actual remote
+batch parser and transactional worktree delivery, a local ZIP containing
+simulated bytes, and an in-memory GitHub Actions client. Cases include a
+valid two-item delivery, duplicate/unknown items, mismatched request ID,
+missing production report and mismatched report identity. This executes no
+remote action, GPU inference or network call.
+
+[Production-OS PR #263](https://github.com/dbrckk/Production-OS/pull/263)
+is **draft and unmerged**. Initial code-head
+[CI 38132465112](https://github.com/dbrckk/Production-OS/actions/runs/38132465112)
+passed 3/3; later report-validation changes require separate exact-head
+qualification. This smoke does **not** establish deployed worker E2E,
+commercial model/output rights, independent semantic fidelity, or complete
+Godot asset sidecar delivery. The Production-OS batch consumer currently
+writes primary artifacts and version metadata, but does not deliver
+generated SpriteFrames `.tres` or atlas-metadata sidecars to the consuming
+project. Address that as an independent handoff contract before calling
+Godot batch delivery complete.
+
 Production-OS 1.0 is qualified as a stable release when the canonical CI workflow is green on the exact release commit.
 
 ## GitHub review delivery versus coding completion
