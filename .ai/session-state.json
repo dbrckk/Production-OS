@@ -22,7 +22,8 @@
     "Preflight entire remote ZIP for Unicode/case/duplicate-path and file/directory collisions before extraction",
     "Reject non-portable Windows ZIP entry paths before remote bundle extraction; extend existing native producer/Godot functional smoke with six invalid archive cases",
     "Preflight user-selected consumer destinations for Windows reserved names, ADS, wildcards and trailing dot/space before generation, and reject batch file/parent conflicts before dispatch and final delivery",
-    "Reject remote batch without a consumer or with implicit GitHub main/master destination before generation/dispatch; extend existing native producer-to-Godot functional smoke"
+    "Reject remote batch without a consumer or with implicit GitHub main/master destination before generation/dispatch; extend existing native producer-to-Godot functional smoke",
+    "Update existing atomic-GitHub-batch fixture to explicitly target a review branch after repository-main batch delivery became fail-closed; preserve the production guard"
   ],
   "validation": {
     "baseline_remote_godot_ci": "38136230642 COMPLETED SUCCESS on 35d92a99041858fe3b93efc000711c05068e1df0",
@@ -38,7 +39,9 @@
     "zip_collision_ci": "38173871680 COMPLETED SUCCESS 4/4 on c757c127919572e7391b08373c77f7c16969c4d0 (native Godot 4.4.1, Python 3.11/3.12, existing production E2E/Docker)",
     "portable_zip_ci": "38175697388 COMPLETED SUCCESS 4/4 on 766183d82c149654ddaeef98f68acfbe04020b96 (Godot 4.4.1, Python 3.11/3.12, existing E2E/Docker)",
     "portable_destination_ci": "38178016728 COMPLETED SUCCESS 4/4 on df4a971ce51f8fce02b1dab1eb6f779f3cf263d3 (real Godot, Python 3.11/3.12, existing E2E/Docker)",
-    "batch_delivery_preflight_ci": "pending exact-head CI"
+    "batch_delivery_preflight_ci": "pending exact-head CI",
+    "batch_review_branch_guard_ci": "38178337634 FAILED on 38a0de3191dd416293663455b2fa88b827112c76: three Python jobs fail on pre-existing main-target fixture, Godot job SUCCESS",
+    "batch_review_fixture_fix_ci": "pending exact-head CI"
   },
   "remaining": [
     "Live worker-to-PR and consuming game release not verified",
@@ -49,6 +52,6 @@
     "Review-branch version fix remains DRAFT until actual CI and review"
   ],
   "current_work": [
-    "Qualify direct remote batch missing-destination and implicit-main refusal on exact HEAD; preserve PR DRAFT, no GPU, Render, canary or merge"
+    "Verify exact-head CI for review-branch fixture compatibility fix; keep PR DRAFT; no canary, GPU, Render, merge"
   ]
 }

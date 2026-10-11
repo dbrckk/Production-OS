@@ -420,7 +420,7 @@ def test_execute_asset_forge_batch_uses_single_github_commit(tmp_path):
             requests,
             output_root=str(out),
             target_repository="dbrckk/deadline-zero",
-            target_ref="main",
+            target_ref="review/asset-handoff",
             client=fake,
             mode="local",
         )
