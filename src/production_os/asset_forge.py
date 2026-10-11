@@ -837,7 +837,9 @@ def _order_asset_batch(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 def _extract_remote_batch_bundle(data: bytes, destination: Path) -> Path:
-    destination.mkdir(parents=True, exist_ok=True)
+    """Preflight a remote ZIP before extracting any files into the workspace."""
+    import unicodedata
+
     root = destination.resolve()
     max_files = 5000
     max_uncompressed = 512 * 1024 * 1024
@@ -846,12 +848,14 @@ def _extract_remote_batch_bundle(data: bytes, destination: Path) -> Path:
         infos = archive.infolist()
         if len(infos) > max_files:
             raise RuntimeError("asset-forge remote batch artifact has too many files")
+        pending: list[tuple[zipfile.ZipInfo, Path]] = []
+        file_keys: set[str] = set()
         for info in infos:
             name = info.filename.replace("\\", "/")
             if not name or name.endswith("/"):
                 continue
-            parts = [part for part in name.split("/") if part]
-            if not parts or any(part in {".", ".."} for part in parts):
+            parts = name.split("/")
+            if any(part in {"", ".", ".."} for part in parts):
                 raise RuntimeError("asset-forge remote batch artifact contains unsafe path")
             mode = (info.external_attr >> 16) & 0o170000
             if mode == 0o120000:
@@ -862,6 +866,24 @@ def _extract_remote_batch_bundle(data: bytes, destination: Path) -> Path:
             target = (root / "/".join(parts)).resolve()
             if not target.is_relative_to(root):
                 raise RuntimeError("asset-forge remote batch artifact escapes extraction root")
+            # GitHub bundles can be extracted on multiple OS/filesystems. A
+            # repeated path, Unicode alias or case alias must not overwrite an
+            # earlier entry and make its final provenance ambiguous.
+            key = unicodedata.normalize("NFC", "/".join(parts)).casefold()
+            if key in file_keys:
+                raise RuntimeError("asset-forge remote batch artifact contains colliding files")
+            file_keys.add(key)
+            pending.append((info, target))
+        for key in file_keys:
+            parent = key.rpartition("/")[0]
+            while parent:
+                if parent in file_keys:
+                    raise RuntimeError("asset-forge remote batch artifact has file/directory conflict")
+                parent = parent.rpartition("/")[0]
+
+        # No output directory is created until all entries are preflighted.
+        root.mkdir(parents=True, exist_ok=True)
+        for info, target in pending:
             target.parent.mkdir(parents=True, exist_ok=True)
             with archive.open(info) as source, target.open("wb") as output:
                 shutil.copyfileobj(source, output)

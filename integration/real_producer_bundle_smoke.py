@@ -18,7 +18,7 @@ import tempfile
 import zipfile
 from pathlib import Path
 
-from production_os.asset_forge import _deliver_produced_assets, build_asset_forge_request, execute_asset_forge, execute_asset_forge_batch
+from production_os.asset_forge import _deliver_produced_assets, _extract_remote_batch_bundle, build_asset_forge_request, execute_asset_forge, execute_asset_forge_batch
 from production_os.github_client import GitHubAPIError, GitHubClient
 from godot4_relocated_import_smoke import (
     OfflineClient,
@@ -116,6 +116,31 @@ def main() -> None:
                         path, arcname=path.relative_to(produced_root).as_posix()
                     )
         source_archive = archive_bytes.getvalue()
+
+        # An untrusted ZIP must be fully preflighted before any extraction:
+        # aliases, Unicode NFC names, duplicate separators and parent/file
+        # conflicts all risk overwriting earlier bundle entries.
+        ambiguous_bundles = (
+            (("jobs/A.png", b"first"), ("jobs/a.png", b"second")),
+            (("jobs/café.png", b"first"), ("jobs/cafe\u0301.png", b"second")),
+            (("jobs/a//b.png", b"first"),),
+            (("jobs/report", b"first"), ("jobs/report/child.png", b"second")),
+        )
+        for index, entries in enumerate(ambiguous_bundles):
+            suspicious = io.BytesIO()
+            with zipfile.ZipFile(suspicious, "w", zipfile.ZIP_DEFLATED) as archive:
+                for name, content in entries:
+                    archive.writestr(name, content)
+            should_not_exist = root / f"unsafe-zip-preflight-{index}"
+            try:
+                _extract_remote_batch_bundle(suspicious.getvalue(), should_not_exist)
+            except RuntimeError:
+                pass
+            else:
+                raise RuntimeError("Ambiguous remote ZIP entry passed preflight")
+            if should_not_exist.exists():
+                raise RuntimeError("Rejected remote ZIP created an output directory")
+
         dispatch_item = {"id": item["id"], "request": request, "target_path": target}
 
         consumer = root / "verified-consumer"
@@ -388,6 +413,7 @@ def main() -> None:
 
         print("PASS: REAL Asset Forge remote_batch -> Production-OS -> Godot 4")
         print("PASS: Native batch-result/report, sidecar SHA256 and Godot resource load")
+        print("PASS: ZIP path aliases and file/directory conflicts rejected before extraction")
         print("PASS: Direct GitHub-mode single-asset transaction + Godot import")
         print("PASS: Implicit main-branch remote delivery refused before dispatch")
         print("PASS: Review-branch version lookup/transaction remains on target ref")

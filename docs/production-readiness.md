@@ -46,6 +46,13 @@ request, hosted dispatch or test-only production implementation. It also
 simulates concurrent movement of a review branch between receipt reads and
 commit, requiring a refusal with zero asset writes.
 
+Hosted ZIP bundles are preflighted **before creating an extraction directory**.
+File entries that collide after casefold + Unicode NFC normalization, repeated
+separators, or file/directory parent conflicts are rejected, preventing
+silent overwrites and ambiguous checksums on cross-platform consumers. The
+existing functional Godot smoke exercises the native producer ZIP and negative
+ambiguous-archive cases, without external inference or a new unit-test file.
+
 The existing `integration/real_producer_bundle_smoke.py` verifies the
 direct route using a **native pinned Asset Forge ZIP** created from an
 original local PNG and consumed by real Godot 4.4.1. It also proves that

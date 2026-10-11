@@ -18,7 +18,8 @@
     "Existing offline Godot smoke verifies review-branch version 7→8 and preserves history",
     "Refuse malformed existing GitHub/worktree version receipts before any delivery",
     "Align existing FakeGitHub read_json_file fixture with strict/ref production interface; reject structurally invalid prior version receipts",
-    "Pin destination GitHub branch HEAD before receipt reads; require same expected SHA at commit, failing on concurrent moves"
+    "Pin destination GitHub branch HEAD before receipt reads; require same expected SHA at commit, failing on concurrent moves",
+    "Preflight entire remote ZIP for Unicode/case/duplicate-path and file/directory collisions before extraction"
   ],
   "validation": {
     "baseline_remote_godot_ci": "38136230642 COMPLETED SUCCESS on 35d92a99041858fe3b93efc000711c05068e1df0",
@@ -30,7 +31,8 @@
     "remote_single_delivery_ci": "38156921965 COMPLETED SUCCESS 4/4 on b94069ffa70bd1ac6e7ee5d8ece89a01293c26bc; offline genuine producer receipt and Godot 4 consumer, not hosted cross-workflow",
     "review_branch_receipt_ci": "38160367874 COMPLETED SUCCESS 4/4 on 72cdd61a4dd7b0be9f0b764bea83820dd88cea54",
     "corrupt_receipt_ci": "38169799012 COMPLETED SUCCESS 4/4 on cc2a2976c535dc82fe2e544144cd26600896d739; real Godot import, Python 3.11/3.12, production tests/E2E/build/Docker",
-    "concurrent_delivery_ci": "pending exact-head CI"
+    "concurrent_delivery_ci": "38171194542 COMPLETED SUCCESS 4/4 on 67f1653b4b301320fed7d9a6c39f4b23400abd8a; Godot real import and existing Python/E2E/Docker",
+    "zip_collision_ci": "pending exact-head CI"
   },
   "remaining": [
     "Live worker-to-PR and consuming game release not verified",
@@ -41,6 +43,6 @@
     "Review-branch version fix remains DRAFT until actual CI and review"
   ],
   "current_work": [
-    "Check exact-head CI for destination branch optimistic concurrency and original Godot smoke race refusal, preserving DRAFT/no canary/GPU/deployment"
+    "Qualify exact-SHA CI for remote ZIP preflight; preserve PR DRAFT; no new canary, GPU, Render or merge"
   ]
 }
