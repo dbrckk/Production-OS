@@ -307,6 +307,22 @@ def _version_sidecar(
     *,
     existing: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    # An existing receipt is integrity metadata. Reject damaged or mismatched
+    # structure before assigning versions, rather than treating it as a new asset.
+    if existing is not None:
+        if (
+            not isinstance(existing, dict)
+            or existing.get("schema_version") != "production-os/asset-version/v1"
+            or existing.get("target_path") != item["target_path"]
+            or type(existing.get("version")) is not int
+            or existing["version"] <= 0
+            or not isinstance(existing.get("sha256"), str)
+            or len(existing["sha256"]) != 64
+            or any(ch not in "0123456789abcdef" for ch in existing["sha256"])
+            or not isinstance(existing.get("history"), list)
+            or not isinstance(existing.get("companions"), list)
+        ):
+            raise RuntimeError("existing asset version receipt has invalid structure")
     existing = existing if isinstance(existing, dict) else {}
     prior_sha = str(existing.get("sha256") or "")
     prior_version = int(existing.get("version") or 0)

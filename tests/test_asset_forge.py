@@ -62,7 +62,8 @@ class FakeGitHub:
         })
         return {"content": {"path": path}}
 
-    def read_json_file(self, repository, path):
+    def read_json_file(self, repository, path, *, ref=None, strict=False):
+        # Mirror the production client contract; this fixture represents a missing receipt.
         return None
 
     def commit_files(self, repository, files, *, message, branch):

@@ -21,8 +21,10 @@ dispatch to avoid modifying released files outside PR review.
 
 Existing `.asset-forge.json` receipts are integrity metadata, not disposable cache.
 An invalid JSON/non-object/invalid-encoding receipt on a GitHub review branch,
-or an unreadable local worktree receipt, **blocks delivery before any asset
-write** instead of silently resetting its version history. A genuinely absent
+or an unreadable or structurally invalid local/worktree or GitHub receipt,
+**blocks delivery before any asset write** instead of silently resetting its
+version history. A prior receipt must have the expected schema, target path,
+positive integer version, SHA-256 digest and list-valued history/companions. A genuinely absent
 receipt still starts at version 1. The existing native Asset Forge → Godot 4
 functional smoke includes both negative delivery cases without invoking GPU,
 network providers or creating unit tests.

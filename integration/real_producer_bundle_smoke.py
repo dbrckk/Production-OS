@@ -234,7 +234,14 @@ def main() -> None:
                 self.written_files = {}
                 self.written_branch = None
                 self.receipt = (
-                    json.dumps({"version": 7, "sha256": "previous-image-digest"})
+                    json.dumps({
+                        "schema_version": "production-os/asset-version/v1",
+                        "target_path": "assets/characters/player.png",
+                        "version": 7,
+                        "sha256": "a" * 64,
+                        "history": [],
+                        "companions": [],
+                    })
                     if receipt is None else receipt
                 )
 
@@ -284,14 +291,14 @@ def main() -> None:
 
         # A corrupt existing receipt cannot be silently replaced with version 1.
         # The actual GitHubClient must reject malformed JSON before commit_files.
-        for malformed in ('{"version":', '[]'):
+        for malformed in ('{"version":', '[]', '{"version": 0}'):
             blocked = OfflineReviewBranch(receipt=malformed)
             try:
                 _deliver_produced_assets(
                     [review_item], target_repository="dbrckk/consumer",
                     target_worktree=None, target_ref=review_ref, client=blocked,
                 )
-            except GitHubAPIError:
+            except (GitHubAPIError, RuntimeError):
                 pass
             else:
                 raise RuntimeError("GitHub delivery silently reset a corrupt version receipt")
@@ -303,22 +310,23 @@ def main() -> None:
         local_sidecar = consumer / (target + ".asset-forge.json")
         original_sidecar = local_sidecar.read_bytes()
         original_artifact = (consumer / target).read_bytes()
-        local_sidecar.write_text('{"version":', encoding="utf-8")
         try:
-            try:
-                _deliver_produced_assets(
-                    [review_item], target_repository=None,
-                    target_worktree=str(consumer), target_ref="main", client=None,
-                )
-            except RuntimeError as exc:
-                if "existing asset version receipt" not in str(exc):
-                    raise
-            else:
-                raise RuntimeError("Worktree delivery silently reset a corrupt receipt")
-            if (consumer / target).read_bytes() != original_artifact:
-                raise RuntimeError("Refused worktree delivery changed the existing asset")
-            if local_sidecar.read_text(encoding="utf-8") != '{"version":':
-                raise RuntimeError("Refused worktree delivery rewrote corrupt metadata")
+            for invalid_content in ('{"version":', '{"version": 0}', '[]'):
+                local_sidecar.write_text(invalid_content, encoding="utf-8")
+                try:
+                    _deliver_produced_assets(
+                        [review_item], target_repository=None,
+                        target_worktree=str(consumer), target_ref="main", client=None,
+                    )
+                except RuntimeError as exc:
+                    if "existing asset version receipt" not in str(exc):
+                        raise
+                else:
+                    raise RuntimeError("Worktree delivery silently reset a corrupt receipt")
+                if (consumer / target).read_bytes() != original_artifact:
+                    raise RuntimeError("Refused worktree delivery changed the existing asset")
+                if local_sidecar.read_text(encoding="utf-8") != invalid_content:
+                    raise RuntimeError("Refused worktree delivery rewrote corrupt metadata")
         finally:
             local_sidecar.write_bytes(original_sidecar)
 
@@ -358,7 +366,7 @@ def main() -> None:
         print("PASS: Direct GitHub-mode single-asset transaction + Godot import")
         print("PASS: Implicit main-branch remote delivery refused before dispatch")
         print("PASS: Review-branch version lookup/transaction remains on target ref")
-        print("PASS: Corrupt existing GitHub/worktree version receipts rejected before delivery")
+        print("PASS: Malformed and structurally invalid GitHub/worktree receipts rejected")
         print("PASS: Tampered real producer SpriteFrames rejected before delivery")
 
 
