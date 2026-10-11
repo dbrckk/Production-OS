@@ -1,6 +1,6 @@
 # Production readiness
 
-## Remote single-asset delivery with an explicit destination (CI pending)
+## Remote single-asset delivery with an explicit destination (offline CI qualified)
 
 Before this correction, `execute_asset_forge(..., mode="github",
 target_path=...)` returned a fire-and-forget dispatch receipt and ignored
@@ -24,7 +24,7 @@ direct route using a **native pinned Asset Forge ZIP** created from an
 original local PNG and consumed by real Godot 4.4.1. It also proves that
 an implicit remote `main` write is blocked before triggering an Action.
 No GPU, remote dispatch, secrets, old canaries, new unit tests, merge or
-deployment. **Exact new HEAD CI is pending**; this is still not a live
+deployment. **Exact code HEAD `b94069ffa70bd1ac6e7ee5d8ece89a01293c26bc` CI [38156921965](https://github.com/dbrckk/Production-OS/actions/runs/38156921965) COMPLETED SUCCESS 4/4** (Python 3.11/3.12, real Godot 4.4.1 consumer import, production E2E/build/Docker and remote integrity smoke); this is still not a live
 worker-to-PR/CI/game qualification.
 
 ## Godot 4 remote batch sidecars (offline-verified)
