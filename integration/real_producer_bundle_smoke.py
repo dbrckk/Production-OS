@@ -304,8 +304,49 @@ def main() -> None:
                 pass
             else:
                 raise RuntimeError("Batch file/child destination conflict bypassed preflight")
+        # The consumer must reject producer-incompatible IDs before any
+        # local job directory, remote dispatch, or artifact write.
+        for unsafe_id in ("../escape", "a/b", "..", "bad id", "bad\\\\id"):
+            unsafe_request = dict(request)
+            unsafe_request["requestId"] = unsafe_id
+            try:
+                execute_asset_forge_batch(
+                    [{"id": "unsafe", "request": unsafe_request, "target_path": target}],
+                    mode="github", output_root=str(bad_receipt),
+                    target_worktree=str(consumer), client=OfflineClient(source_archive),
+                )
+            except ValueError:
+                pass
+            else:
+                raise RuntimeError("Unsafe batch requestId passed preflight")
+            try:
+                execute_asset_forge(
+                    unsafe_request, mode="github", output_dir=str(bad_receipt),
+                    target_path=target, target_worktree=str(consumer),
+                    client=OfflineClient(source_archive),
+                )
+            except ValueError:
+                pass
+            else:
+                raise RuntimeError("Unsafe single requestId passed preflight")
+        for left, right in (("shared", "shared"), ("Shared", "shared")):
+            first = dict(request)
+            second = dict(request)
+            first["requestId"] = left
+            second["requestId"] = right
+            try:
+                execute_asset_forge_batch(
+                    [{"id": "first", "request": first, "target_path": "assets/first.png"},
+                     {"id": "second", "request": second, "target_path": "assets/second.png"}],
+                    mode="github", output_root=str(bad_receipt),
+                    target_worktree=str(consumer), client=OfflineClient(source_archive),
+                )
+            except ValueError:
+                pass
+            else:
+                raise RuntimeError("Duplicate physical batch requestId passed preflight")
         if bad_receipt.exists():
-            raise RuntimeError("Unsafe target path started a remote batch before preflight")
+            raise RuntimeError("Unsafe target/request IDs started a remote batch before preflight")
 
         # Verify real GitHub Contents ref encoding and branch-specific
         # version continuity using an offline recording client.
@@ -471,6 +512,7 @@ def main() -> None:
         print("PASS: Native batch-result/report, sidecar SHA256 and Godot resource load")
         print("PASS: ZIP aliases, Windows reserved names and file/directory conflicts blocked before extraction")
         print("PASS: Destination paths and nested file conflicts blocked before remote dispatch")
+        print("PASS: Unsafe/colliding request IDs rejected before batch or single dispatch")
         print("PASS: Direct GitHub-mode single-asset transaction + Godot import")
         print("PASS: Implicit main-branch remote delivery refused before dispatch")
         print("PASS: Remote batch rejects main/master and missing destination before dispatch")

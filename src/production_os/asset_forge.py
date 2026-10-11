@@ -4,6 +4,7 @@ import hashlib
 import io
 import json
 import os
+import re
 import shutil
 import subprocess
 import tempfile
@@ -603,6 +604,9 @@ def execute_asset_forge(
 ) -> AssetForgeDispatch:
     if mode not in {"auto", "local", "github"}:
         raise ValueError("asset-forge mode must be auto, local, or github")
+    if not isinstance(request, dict):
+        raise ValueError("asset-forge request must be an object")
+    request_id = _validated_batch_identifier(request.get("requestId"), field="requestId")
 
     local_cli = shutil.which("asset-forge")
     effective = mode
@@ -796,7 +800,16 @@ def execute_asset_forge(
         delivered_to=delivered_to,
     )
 
+def _validated_batch_identifier(value: Any, *, field: str) -> str:
+    """Match the real Asset Forge producer's safe identifier contract."""
+    if not isinstance(value, str) or re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,127}", value) is None:
+        raise ValueError(f"asset-forge {field} must be a safe ASCII identifier (1-128 characters)")
+    return value
+
+
 def _batch_item_id(item: dict[str, Any], index: int) -> str:
+    if item.get("id") is not None and not isinstance(item["id"], str):
+        raise ValueError("asset-forge batch item id must be a string")
     explicit = str(item.get("id") or "").strip()
     request = item.get("request")
     request_id = str(request.get("requestId") or "").strip() if isinstance(request, dict) else ""
@@ -1461,7 +1474,24 @@ def execute_asset_forge_batch(
     # dispatch or an expensive local generation can be started.
     import unicodedata
     ordered_items = _order_asset_batch(items)
+    # Validate every ID before output directories or hosted dispatch. Local
+    # jobs use requestId as a directory name; duplicates can overwrite reports.
+    seen_item_ids: set[str] = set()
+    seen_request_ids: set[str] = set()
     for item in ordered_items:
+        request = item.get("request")
+        if not isinstance(request, dict):
+            raise ValueError("asset-forge batch item request must be an object")
+        item_id = _validated_batch_identifier(item["_batch_id"], field="batch item id")
+        request_id = _validated_batch_identifier(request.get("requestId"), field="requestId")
+        item_key = item_id.casefold()
+        request_key = request_id.casefold()
+        if item_key in seen_item_ids:
+            raise ValueError("asset-forge batch item ids must be case-insensitively unique")
+        if request_key in seen_request_ids:
+            raise ValueError("asset-forge batch requestId values must be case-insensitively unique")
+        seen_item_ids.add(item_key)
+        seen_request_ids.add(request_key)
         item["target_path"] = _validated_target_path(item.get("target_path"))
     target_paths = [item["target_path"] for item in ordered_items]
     keys = {unicodedata.normalize("NFC", path).casefold() for path in target_paths}
