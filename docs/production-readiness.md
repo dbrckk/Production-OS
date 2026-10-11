@@ -1,5 +1,32 @@
 # Production readiness
 
+## Remote single-asset delivery with an explicit destination (CI pending)
+
+Before this correction, `execute_asset_forge(..., mode="github",
+target_path=...)` returned a fire-and-forget dispatch receipt and ignored
+`target_worktree`, `target_repository` and `target_ref`: the requested
+consumer was never populated. Calls **without** a destination keep the
+existing asynchronous dispatch behavior.
+
+When a delivery destination is supplied, the direct GitHub-mode API now
+uses the existing one-item **remote transactional batch**, waits for
+its correlated workflow and ZIP, validates the native producer report and
+SHA-256 companions, then delivers to the specified worktree or GitHub
+branch before returning `delivery_mode` and `delivered_to`. A direct
+request must include `target_path`; it rejects local file references
+which the hosted workflow cannot access. Direct remote deliveries to a
+GitHub repository require an **explicit non-default review branch**
+(`--target-ref`); implicit `main`/`master` delivery fails before
+dispatch to avoid modifying released files outside PR review.
+
+The existing `integration/real_producer_bundle_smoke.py` verifies the
+direct route using a **native pinned Asset Forge ZIP** created from an
+original local PNG and consumed by real Godot 4.4.1. It also proves that
+an implicit remote `main` write is blocked before triggering an Action.
+No GPU, remote dispatch, secrets, old canaries, new unit tests, merge or
+deployment. **Exact new HEAD CI is pending**; this is still not a live
+worker-to-PR/CI/game qualification.
+
 ## Godot 4 remote batch sidecars (offline-verified)
 
 For remote Asset Forge `sprite-sheet` production targeting Godot 4, the

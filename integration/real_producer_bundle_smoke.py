@@ -17,7 +17,7 @@ import tempfile
 import zipfile
 from pathlib import Path
 
-from production_os.asset_forge import build_asset_forge_request, execute_asset_forge_batch
+from production_os.asset_forge import build_asset_forge_request, execute_asset_forge, execute_asset_forge_batch
 from godot4_relocated_import_smoke import (
     OfflineClient,
     VALIDATOR,
@@ -68,7 +68,7 @@ def main() -> None:
             "requiresAlpha": True,
         }
         target = "assets/characters/player.png"
-        item = {"id": "real-hero", "request": request,
+        item = {"id": "player", "request": request,
                 "target_path": target, "source_path": str(image)}
         spec = root / "producer-spec.json"
         spec.write_text(json.dumps({"items": [item]}), encoding="utf-8")
@@ -151,6 +151,47 @@ def main() -> None:
             cwd=root, marker="GODOT_RELOCATED_SPRITEFRAMES_OK",
         )
 
+        # Direct GitHub-mode single-asset calls must no longer return a mere
+        # dispatch receipt when a consumer delivery was explicitly requested.
+        single = root / "direct-github-consumer"
+        single.mkdir()
+        (single / "project.godot").write_bytes((consumer / "project.godot").read_bytes())
+        (single / "verify.gd").write_text(VALIDATOR, encoding="utf-8")
+        direct = execute_asset_forge(
+            request, mode="github", target_path=target,
+            target_worktree=str(single),
+            output_dir=str(root / "direct-github-receipt"),
+            client=OfflineClient(source_archive),
+        )
+        if direct.delivery_mode != "worktree" or direct.delivered_to != str((single / target).resolve()):
+            raise RuntimeError("Direct remote single-asset delivery returned dispatch-only state")
+        if (single / target).read_bytes() != image_bytes:
+            raise RuntimeError("Direct remote consumer PNG does not match producer")
+        direct_version = json.loads(
+            (single / (target + ".asset-forge.json")).read_text(encoding="utf-8")
+        )
+        if len(direct_version.get("companions") or []) != 2:
+            raise RuntimeError("Direct remote consumer lost Godot SpriteFrames sidecars")
+        run_godot([godot, "--headless", "--path", str(single), "--import"], cwd=root)
+        run_godot(
+            [godot, "--headless", "--path", str(single),
+             "--script", "res://verify.gd"], cwd=root,
+            marker="GODOT_RELOCATED_SPRITEFRAMES_OK",
+        )
+        # Refuse to dispatch a billed remote generation when delivery would
+        # silently write a repository's default branch without PR review.
+        try:
+            execute_asset_forge(
+                request, mode="github", target_path=target,
+                target_repository="dbrckk/consumer",
+                client=OfflineClient(source_archive),
+            )
+        except ValueError as exc:
+            if "non-default review branch" not in str(exc):
+                raise
+        else:
+            raise RuntimeError("Remote single-asset attempted implicit main-branch delivery")
+
         # Tamper with the REAL producer .tres byte payload but preserve its
         # real declared checksum; fail closed before any consumer file write.
         tres_path = next(
@@ -184,6 +225,8 @@ def main() -> None:
 
         print("PASS: REAL Asset Forge remote_batch -> Production-OS -> Godot 4")
         print("PASS: Native batch-result/report, sidecar SHA256 and Godot resource load")
+        print("PASS: Direct GitHub-mode single-asset transaction + Godot import")
+        print("PASS: Implicit main-branch remote delivery refused before dispatch")
         print("PASS: Tampered real producer SpriteFrames rejected before delivery")
 
 

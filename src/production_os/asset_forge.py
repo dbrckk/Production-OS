@@ -539,6 +539,68 @@ def execute_asset_forge(
         effective = "local" if local_cli else "github"
 
     if effective == "github":
+        # Fire-and-forget dispatch remains available only when no delivery
+        # destination was requested. Otherwise, the one-item batch must
+        # verify and download a correlated artifact before reporting delivery.
+        destination_requested = any(
+            value is not None for value in (target_path, target_worktree, target_repository)
+        )
+        if destination_requested:
+            if not isinstance(target_path, str) or not target_path.strip():
+                raise ValueError("remote single-asset delivery requires target_path")
+            normalized_target = target_path.strip().replace("\\", "/").lstrip("/")
+            if (
+                normalized_target in {"", ".", ".."}
+                or any(part in {"", ".", ".."} for part in normalized_target.split("/"))
+            ):
+                raise ValueError("target_path must be a safe repository-relative path")
+            if not (target_worktree or target_repository):
+                raise ValueError("remote delivery requires target_worktree or target_repository")
+            if source_path or reference_paths:
+                raise ValueError("remote single-asset delivery cannot access local source/reference files")
+            if target_repository and not target_worktree and (
+                target_ref.removeprefix("refs/heads/") in {"main", "master"}
+            ):
+                raise ValueError("remote repository delivery requires an explicit non-default review branch")
+            if workflow != ASSET_FORGE_WORKFLOW:
+                raise ValueError("remote single-asset delivery requires the standard batch workflow")
+            if request.get("schema") != "asset-forge/production-request/v1":
+                raise ValueError("unsupported asset-forge production request schema")
+            request_id = str(request.get("requestId") or "").strip()
+            if not request_id:
+                raise ValueError("asset-forge requestId is required")
+            manifest = request.get("manifest")
+            asset_id = str(manifest.get("id") or "").strip() if isinstance(manifest, dict) else ""
+            result = execute_asset_forge_batch(
+                [{"id": asset_id or request_id, "request": request, "target_path": normalized_target}],
+                backend=backend,
+                model=model,
+                mode="github",
+                output_root=output_dir or f"build/asset-forge/{request_id}",
+                target_repository=target_repository,
+                target_worktree=target_worktree,
+                target_ref=target_ref,
+                client=client,
+                remote_repository=repository,
+                remote_ref=ref,
+            )
+            if result.get("success") is not True:
+                raise RuntimeError("remote single-asset batch delivery was not successful")
+            delivered_to = (
+                str((Path(target_worktree).resolve() / normalized_target).resolve())
+                if target_worktree
+                else f"{target_repository}:{normalized_target}@{target_ref}"
+            )
+            return AssetForgeDispatch(
+                repository=repository,
+                workflow=ASSET_FORGE_BATCH_WORKFLOW,
+                ref=ref,
+                request_id=request_id,
+                backend=backend,
+                mode="github",
+                delivery_mode=str(result["delivery_mode"]),
+                delivered_to=delivered_to,
+            )
         return dispatch_asset_forge(
             request,
             client=client,
@@ -1303,6 +1365,8 @@ def execute_asset_forge_batch(
     target_worktree: str | None = None,
     target_ref: str = "main",
     client: GitHubClient | None = None,
+    remote_repository: str = ASSET_FORGE_REPOSITORY,
+    remote_ref: str = "main",
 ) -> dict[str, Any]:
     if not items:
         raise ValueError("asset-forge batch requires at least one item")
@@ -1330,6 +1394,8 @@ def execute_asset_forge_batch(
             backend=backend,
             model=model,
             client=client,
+            repository=remote_repository,
+            ref=remote_ref,
         )
         produced_by_id = {
             item["batch_id"]: item
