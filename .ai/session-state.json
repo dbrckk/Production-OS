@@ -1,26 +1,29 @@
 {
   "schema_version": 1,
   "updated_at": "2026-10-11",
-  "objective": "Qualify real local and cached Godot sidecars after verified remote-to-consumer import.",
-  "base_commit": "35d92a99041858fe3b93efc000711c05068e1df0",
+  "objective": "Qualify direct local Godot single-asset delivery using real CLI and engine import; preserve batch and worker E2E boundaries.",
+  "base_commit": "c77860dc860c64249a50bf46e3a756454e236d7b",
   "branch": "fix/remote-batch-receipt-integrity-20261011",
   "changes": [
     "Real local Asset Forge sidecars validated and delivered transactionally",
     "Version receipts record companion SHA-256; Godot cache hits require verified companions",
-    "Real Godot integration smoke expanded to local CLI and cache repair"
+    "Real Godot integration smoke expanded to local CLI and cache repair",
+    "Direct local Godot single-asset delivery shares batch transaction and validates SpriteFrames/atlas companions",
+    "Real Godot integration smoke exercises direct single-asset import"
   ],
   "validation": {
     "baseline_remote_godot_ci": "38136230642 COMPLETED SUCCESS on 35d92a99041858fe3b93efc000711c05068e1df0",
     "local_cache_ci": "38137130685 COMPLETED SUCCESS 4/4 jobs on ba534b05ea53b4e2363809e1325c31fe66e7dbcf",
-    "docs_head_ci": "pending"
+    "docs_head_ci": "38137419357 COMPLETED SUCCESS 4/4 on c77860dc860c64249a50bf46e3a756454e236d7b",
+    "single_asset_ci": "pending exact-head CI"
   },
   "remaining": [
-    "Qualify exact HEAD CI after evidence-only documentation update",
+    "Qualify direct single-asset code and real Godot import on exact PR HEAD",
     "Live worker-to-PR and consuming game release not verified",
     "Commercial model/output rights and semantic fidelity not verified",
-    "Preserve linked PR #263 and Asset Forge PR #13 as drafts, no merge/deployment"
+    "Preserve PR #263 and Asset Forge PR #13 as drafts; no merge/deployment"
   ],
   "current_work": [
-    "Local batch/cache sidecars, real integration job and docs"
+    "Direct local single-asset Godot transaction and real engine import smoke"
   ]
 }

@@ -21,7 +21,7 @@ import zlib
 import zipfile
 from pathlib import Path
 
-from production_os.asset_forge import build_asset_forge_request, execute_asset_forge_batch
+from production_os.asset_forge import (build_asset_forge_request, execute_asset_forge, execute_asset_forge_batch)
 
 
 GENERATOR = """extends SceneTree
@@ -349,6 +349,42 @@ def main() -> None:
             print("PASS: real Asset Forge local CLI -> Production-OS -> Godot")
             print("PASS: valid cache without CLI; altered/missing companions rejected")
             print("PASS: real local cache repair and Godot engine reimport")
+
+            # Single-asset API must preserve the complete Godot handoff too.
+            single_consumer = root / "single-consumer"
+            single_consumer.mkdir()
+            (single_consumer / "project.godot").write_bytes(
+                (consumer / "project.godot").read_bytes()
+            )
+            (single_consumer / "verify.gd").write_text(VALIDATOR, encoding="utf-8")
+            direct = execute_asset_forge(
+                local_request, mode="local",
+                output_dir=str(root / "single-production"),
+                source_path=str(original / "player.png"),
+                target_path=target, target_worktree=str(single_consumer),
+            )
+            if direct.delivery_mode != "worktree":
+                raise RuntimeError("Single-asset Godot delivery mode missing")
+            if (single_consumer / target).read_bytes() != primary:
+                raise RuntimeError("Single-asset Godot PNG not delivered")
+            single_receipt = json.loads(
+                (single_consumer / (target + ".asset-forge.json")).read_text(
+                    encoding="utf-8"
+                )
+            )
+            if len(single_receipt.get("companions") or []) != 2:
+                raise RuntimeError("Single-asset Godot companion receipt missing")
+            for companion in single_receipt["companions"]:
+                payload = (single_consumer / companion["target_path"]).read_bytes()
+                if hashlib.sha256(payload).hexdigest() != companion["sha256"]:
+                    raise RuntimeError("Single-asset Godot companion digest mismatch")
+            run([godot, "--headless", "--path", str(single_consumer), "--import"],
+                cwd=root)
+            run([godot, "--headless", "--path", str(single_consumer), "--script",
+                 "res://verify.gd"], cwd=root,
+                marker="GODOT_RELOCATED_SPRITEFRAMES_OK")
+            print("PASS: direct single-asset local CLI -> complete Godot 4 import")
+
         finally:
             os.environ["PATH"] = old_path
 

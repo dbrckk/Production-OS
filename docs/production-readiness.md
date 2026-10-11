@@ -90,6 +90,24 @@ tests, inference, historic canaries or secrets are involved.
 Still not proved: live worker-to-PR/game release, commercial model/output
 rights, semantic image fidelity or published consumer game integration.
 
+## Direct local single-asset Godot delivery (CI qualification pending)
+
+The direct `execute_asset_forge(..., mode="local", target_path=...)`
+Godot 4 sprite-sheet path now uses the **same transactional delivery helper**
+as batch mode. The real CLI production report must contain validated
+SpriteFrames and atlas metadata companions. PNG, relocated `.tres`,
+`.atlas-metadata.json`, and the version receipt (including companion
+SHA-256 hashes) are staged together. A failed companion validation occurs
+before any consumer write. Non-Godot direct delivery keeps its prior
+single-file behavior.
+
+The existing `integration/godot4_relocated_import_smoke.py` functional
+smoke now also exercises this direct path with the pinned Asset Forge CLI,
+an original local PNG and a real Godot 4.4.1 editor/runtime import into a
+separate consumer project. Exact-HEAD CI is **pending** at the time of this
+change. This does not prove worker-to-PR delivery, commercial Qwen model
+rights, semantic image quality or a deployed game.
+
 ## Asset Forge remote batch receipt integrity
 
 The batch download/parser validates identity and content correlation before

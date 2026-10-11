@@ -391,6 +391,127 @@ def _deliver_artifact(
     return "github", f"{target_repository}:{normalized}@{target_ref}"
 
 
+def _deliver_produced_assets(
+    produced: list[dict[str, Any]],
+    *,
+    target_repository: str | None,
+    target_worktree: str | None,
+    target_ref: str,
+    client: GitHubClient | None,
+) -> tuple[str, list[str]]:
+    """Preflight and transactionally deliver validated assets and sidecars."""
+
+    delivery_mode = None
+    delivered_to: list[str] = []
+
+    # Validate all destinations before touching either a worktree or GitHub.
+    # Include metadata sidecars and companion files in the collision ledger.
+    import unicodedata
+    delivery_names: set[str] = set()
+    for produced_item in produced:
+        companion_files = produced_item.get("companion_files") or []
+        names = [
+            produced_item["target_path"],
+            _sidecar_relative_path(produced_item["target_path"]),
+            *(extra["target_path"] for extra in companion_files),
+        ]
+        for name in names:
+            key = unicodedata.normalize("NFC", name.replace("\\", "/")).casefold()
+            if key in delivery_names:
+                raise RuntimeError(f"asset-forge batch delivery path collision: {name}")
+            delivery_names.add(key)
+
+    if target_worktree:
+        root_worktree = Path(target_worktree).resolve()
+        staged = []
+        for item in produced:
+            normalized = item["target_path"].replace("\\", "/").lstrip("/")
+            destination = (root_worktree / normalized).resolve()
+            if not destination.is_relative_to(root_worktree):
+                raise ValueError("target_path escapes target worktree")
+            sidecar_destination = (
+                root_worktree / _sidecar_relative_path(normalized)
+            ).resolve()
+            if not sidecar_destination.is_relative_to(root_worktree):
+                raise ValueError("asset sidecar escapes target worktree")
+            existing = None
+            if sidecar_destination.is_file():
+                try:
+                    value = json.loads(sidecar_destination.read_text(encoding="utf-8"))
+                    existing = value if isinstance(value, dict) else None
+                except (OSError, UnicodeError, json.JSONDecodeError):
+                    existing = None
+            sidecar = _version_sidecar(item, existing=existing)
+            staged.append((destination, item["artifact"]))
+            for extra in item.get("companion_files") or []:
+                extra_destination = (root_worktree / extra["target_path"]).resolve()
+                if not extra_destination.is_relative_to(root_worktree):
+                    raise ValueError("Godot companion escapes target worktree")
+                staged.append((extra_destination, extra["content"]))
+            staged.append((
+                sidecar_destination,
+                json.dumps(sidecar, indent=2, sort_keys=True).encode("utf-8"),
+            ))
+
+        backup_root = Path(tempfile.mkdtemp(prefix="production-os-asset-batch-backup-"))
+        backups: list[tuple[Path, Path | None]] = []
+        try:
+            for destination, artifact in staged:
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                backup = None
+                if destination.exists():
+                    backup = backup_root / str(len(backups))
+                    backup.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copyfile(destination, backup)
+                backups.append((destination, backup))
+                if isinstance(artifact, (bytes, bytearray)):
+                    destination.write_bytes(bytes(artifact))
+                elif Path(artifact).resolve() != destination.resolve():
+                    shutil.copyfile(artifact, destination)
+                if not destination.name.endswith(".asset-forge.json"):
+                    delivered_to.append(str(destination))
+        except Exception:
+            for destination, backup in reversed(backups):
+                if backup and backup.exists():
+                    shutil.copyfile(backup, destination)
+                elif destination.exists():
+                    destination.unlink()
+            raise
+        finally:
+            shutil.rmtree(backup_root, ignore_errors=True)
+        delivery_mode = "worktree"
+
+    elif target_repository:
+        gh = client or GitHubClient()
+        payload: dict[str, bytes] = {}
+        for item in produced:
+            payload[item["target_path"]] = item["artifact"].read_bytes()
+            for extra in item.get("companion_files") or []:
+                payload[extra["target_path"]] = extra["content"]
+            sidecar_path = _sidecar_relative_path(item["target_path"])
+            existing = gh.read_json_file(target_repository, sidecar_path)
+            sidecar = _version_sidecar(item, existing=existing)
+            payload[sidecar_path] = (
+                json.dumps(sidecar, indent=2, sort_keys=True) + "\n"
+            ).encode("utf-8")
+        result = gh.commit_files(
+            target_repository,
+            payload,
+            message="assets: deliver validated asset batch",
+            branch=target_ref,
+        )
+        delivered_to = [
+            f"{target_repository}:{path}@{target_ref}"
+            for path in result["files"]
+            if not path.endswith(".asset-forge.json")
+        ]
+        delivery_mode = "github"
+    else:
+        raise ValueError("target_worktree or target_repository is required for batch delivery")
+
+    return delivery_mode, delivered_to
+
+
 def execute_asset_forge(
     request: dict[str, Any],
     *,
@@ -482,15 +603,64 @@ def execute_asset_forge(
     delivery_mode = None
     delivered_to = None
     if target_path:
-        delivery_mode, delivered_to = _deliver_artifact(
-            artifact,
-            target_path=target_path,
-            target_repository=target_repository,
-            target_worktree=target_worktree,
-            target_ref=target_ref,
-            client=client,
-            request_id=request_id,
-        )
+        normalized_target = target_path.strip().replace("\\", "/").lstrip("/")
+        if (
+            not normalized_target
+            or normalized_target in {".", ".."}
+            or any(part in {"", ".", ".."} for part in normalized_target.split("/"))
+        ):
+            raise ValueError("target_path must be a safe repository-relative path")
+        if _is_godot_sprite_sheet(request):
+            companions = _local_godot_spriteframes_companions(
+                destination, report, normalized_target
+            )
+            generation = report.get("generation")
+            validation = report.get("validation")
+            generation = generation if isinstance(generation, dict) else {}
+            validation = validation if isinstance(validation, dict) else {}
+            single_item = {
+                "batch_id": str(request["manifest"].get("id") or request_id),
+                "request_id": request_id,
+                "target_path": normalized_target,
+                "artifact": artifact,
+                "sha256": hashlib.sha256(artifact.read_bytes()).hexdigest(),
+                "companion_files": companions,
+                "request_fingerprint": _request_fingerprint(
+                    request, [], source_path=source_path
+                ),
+                "depends_on": [],
+                "dependency_artifacts": [],
+                "cache_hit": False,
+                "visual_similarity": generation.get("visualSimilarity"),
+                "technical_art": validation.get("technicalArt"),
+                "semantic_art": validation.get("semanticArt"),
+                "library": report.get("library"),
+            }
+            delivery_mode, _delivered_files = _deliver_produced_assets(
+                [single_item],
+                target_repository=target_repository,
+                target_worktree=target_worktree,
+                target_ref=target_ref,
+                client=client,
+            )
+            if delivery_mode == "worktree":
+                delivered_to = str(
+                    (Path(target_worktree).resolve() / normalized_target).resolve()
+                )
+            else:
+                delivered_to = (
+                    f"{target_repository}:{normalized_target}@{target_ref}"
+                )
+        else:
+            delivery_mode, delivered_to = _deliver_artifact(
+                artifact,
+                target_path=normalized_target,
+                target_repository=target_repository,
+                target_worktree=target_worktree,
+                target_ref=target_ref,
+                client=client,
+                request_id=request_id,
+            )
 
     return AssetForgeDispatch(
         repository=repository,
@@ -1310,113 +1480,13 @@ def execute_asset_forge_batch(
             produced.append(produced_item)
             produced_by_id[item["_batch_id"]] = produced_item
 
-    delivery_mode = None
-    delivered_to: list[str] = []
-
-    # Validate all destinations before touching either a worktree or GitHub.
-    # Include metadata sidecars and companion files in the collision ledger.
-    import unicodedata
-    delivery_names: set[str] = set()
-    for produced_item in produced:
-        companion_files = produced_item.get("companion_files") or []
-        names = [
-            produced_item["target_path"],
-            _sidecar_relative_path(produced_item["target_path"]),
-            *(extra["target_path"] for extra in companion_files),
-        ]
-        for name in names:
-            key = unicodedata.normalize("NFC", name.replace("\\", "/")).casefold()
-            if key in delivery_names:
-                raise RuntimeError(f"asset-forge batch delivery path collision: {name}")
-            delivery_names.add(key)
-
-    if target_worktree:
-        root_worktree = Path(target_worktree).resolve()
-        staged = []
-        for item in produced:
-            normalized = item["target_path"].replace("\\", "/").lstrip("/")
-            destination = (root_worktree / normalized).resolve()
-            if not destination.is_relative_to(root_worktree):
-                raise ValueError("target_path escapes target worktree")
-            sidecar_destination = (
-                root_worktree / _sidecar_relative_path(normalized)
-            ).resolve()
-            if not sidecar_destination.is_relative_to(root_worktree):
-                raise ValueError("asset sidecar escapes target worktree")
-            existing = None
-            if sidecar_destination.is_file():
-                try:
-                    value = json.loads(sidecar_destination.read_text(encoding="utf-8"))
-                    existing = value if isinstance(value, dict) else None
-                except (OSError, UnicodeError, json.JSONDecodeError):
-                    existing = None
-            sidecar = _version_sidecar(item, existing=existing)
-            staged.append((destination, item["artifact"]))
-            for extra in item.get("companion_files") or []:
-                extra_destination = (root_worktree / extra["target_path"]).resolve()
-                if not extra_destination.is_relative_to(root_worktree):
-                    raise ValueError("Godot companion escapes target worktree")
-                staged.append((extra_destination, extra["content"]))
-            staged.append((
-                sidecar_destination,
-                json.dumps(sidecar, indent=2, sort_keys=True).encode("utf-8"),
-            ))
-
-        backup_root = Path(tempfile.mkdtemp(prefix="production-os-asset-batch-backup-"))
-        backups: list[tuple[Path, Path | None]] = []
-        try:
-            for destination, artifact in staged:
-                destination.parent.mkdir(parents=True, exist_ok=True)
-                backup = None
-                if destination.exists():
-                    backup = backup_root / str(len(backups))
-                    backup.parent.mkdir(parents=True, exist_ok=True)
-                    shutil.copyfile(destination, backup)
-                backups.append((destination, backup))
-                if isinstance(artifact, (bytes, bytearray)):
-                    destination.write_bytes(bytes(artifact))
-                elif Path(artifact).resolve() != destination.resolve():
-                    shutil.copyfile(artifact, destination)
-                if not destination.name.endswith(".asset-forge.json"):
-                    delivered_to.append(str(destination))
-        except Exception:
-            for destination, backup in reversed(backups):
-                if backup and backup.exists():
-                    shutil.copyfile(backup, destination)
-                elif destination.exists():
-                    destination.unlink()
-            raise
-        finally:
-            shutil.rmtree(backup_root, ignore_errors=True)
-        delivery_mode = "worktree"
-
-    elif target_repository:
-        gh = client or GitHubClient()
-        payload: dict[str, bytes] = {}
-        for item in produced:
-            payload[item["target_path"]] = item["artifact"].read_bytes()
-            for extra in item.get("companion_files") or []:
-                payload[extra["target_path"]] = extra["content"]
-            sidecar_path = _sidecar_relative_path(item["target_path"])
-            existing = gh.read_json_file(target_repository, sidecar_path)
-            sidecar = _version_sidecar(item, existing=existing)
-            payload[sidecar_path] = (
-                json.dumps(sidecar, indent=2, sort_keys=True) + "\n"
-            ).encode("utf-8")
-        result = gh.commit_files(
-            target_repository,
-            payload,
-            message="assets: deliver validated asset batch",
-            branch=target_ref,
-        )
-        delivered_to = [
-            f"{target_repository}:{path}@{target_ref}"
-            for path in result["files"]
-            if not path.endswith(".asset-forge.json")
-        ]
-        delivery_mode = "github"
-    else:
-        raise ValueError("target_worktree or target_repository is required for batch delivery")
+    delivery_mode, delivered_to = _deliver_produced_assets(
+        produced,
+        target_repository=target_repository,
+        target_worktree=target_worktree,
+        target_ref=target_ref,
+        client=client,
+    )
 
     return {
         "schema_version": "production-os/asset-forge-batch/v1",
