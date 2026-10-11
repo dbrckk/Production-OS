@@ -19,7 +19,7 @@ import zipfile
 from pathlib import Path
 
 from production_os.asset_forge import _deliver_produced_assets, build_asset_forge_request, execute_asset_forge, execute_asset_forge_batch
-from production_os.github_client import GitHubClient
+from production_os.github_client import GitHubAPIError, GitHubClient
 from godot4_relocated_import_smoke import (
     OfflineClient,
     VALIDATOR,
@@ -229,15 +229,18 @@ def main() -> None:
         # Verify real GitHub Contents ref encoding and branch-specific
         # version continuity using an offline recording client.
         class OfflineReviewBranch(GitHubClient):
-            def __init__(self):
+            def __init__(self, receipt=None):
                 self.read_paths = []
                 self.written_files = {}
                 self.written_branch = None
+                self.receipt = (
+                    json.dumps({"version": 7, "sha256": "previous-image-digest"})
+                    if receipt is None else receipt
+                )
 
             def _get(self, path):
                 self.read_paths.append(path)
-                receipt = {"version": 7, "sha256": "previous-image-digest"}
-                return {"content": b64encode(json.dumps(receipt).encode()).decode()}
+                return {"content": b64encode(self.receipt.encode()).decode()}
 
             def commit_files(self, repository, files, *, message, branch):
                 self.written_branch = branch
@@ -245,20 +248,21 @@ def main() -> None:
                 return {"files": sorted(files)}
 
         review_ref = "review/asset-handoff"
+        review_item = {
+            "batch_id": "player",
+            "request_id": request["requestId"],
+            "target_path": target,
+            "artifact": image,
+            "sha256": hashlib.sha256(image_bytes).hexdigest(),
+            "request_fingerprint": "original-review-branch-smoke",
+            "depends_on": [],
+            "dependency_artifacts": [],
+            "companion_files": [],
+            "cache_hit": False,
+        }
         github = OfflineReviewBranch()
         delivery_mode, delivered_files = _deliver_produced_assets(
-            [{
-                "batch_id": "player",
-                "request_id": request["requestId"],
-                "target_path": target,
-                "artifact": image,
-                "sha256": hashlib.sha256(image_bytes).hexdigest(),
-                "request_fingerprint": "original-review-branch-smoke",
-                "depends_on": [],
-                "dependency_artifacts": [],
-                "companion_files": [],
-                "cache_hit": False,
-            }],
+            [review_item],
             target_repository="dbrckk/consumer",
             target_worktree=None,
             target_ref=review_ref,
@@ -277,6 +281,46 @@ def main() -> None:
         version = json.loads(github.written_files[target + ".asset-forge.json"].decode("utf-8"))
         if version.get("version") != 8 or version.get("history", [{}])[-1].get("version") != 7:
             raise RuntimeError("Review branch asset history did not advance version 7 to 8")
+
+        # A corrupt existing receipt cannot be silently replaced with version 1.
+        # The actual GitHubClient must reject malformed JSON before commit_files.
+        for malformed in ('{"version":', '[]'):
+            blocked = OfflineReviewBranch(receipt=malformed)
+            try:
+                _deliver_produced_assets(
+                    [review_item], target_repository="dbrckk/consumer",
+                    target_worktree=None, target_ref=review_ref, client=blocked,
+                )
+            except GitHubAPIError:
+                pass
+            else:
+                raise RuntimeError("GitHub delivery silently reset a corrupt version receipt")
+            if blocked.written_files:
+                raise RuntimeError("Corrupt GitHub receipt triggered a commit")
+
+        # The real worktree delivery path must also refuse malformed history
+        # before touching the existing PNG, sidecars or the corrupt metadata.
+        local_sidecar = consumer / (target + ".asset-forge.json")
+        original_sidecar = local_sidecar.read_bytes()
+        original_artifact = (consumer / target).read_bytes()
+        local_sidecar.write_text('{"version":', encoding="utf-8")
+        try:
+            try:
+                _deliver_produced_assets(
+                    [review_item], target_repository=None,
+                    target_worktree=str(consumer), target_ref="main", client=None,
+                )
+            except RuntimeError as exc:
+                if "existing asset version receipt" not in str(exc):
+                    raise
+            else:
+                raise RuntimeError("Worktree delivery silently reset a corrupt receipt")
+            if (consumer / target).read_bytes() != original_artifact:
+                raise RuntimeError("Refused worktree delivery changed the existing asset")
+            if local_sidecar.read_text(encoding="utf-8") != '{"version":':
+                raise RuntimeError("Refused worktree delivery rewrote corrupt metadata")
+        finally:
+            local_sidecar.write_bytes(original_sidecar)
 
         # Tamper with the REAL producer .tres byte payload but preserve its
         # real declared checksum; fail closed before any consumer file write.
@@ -314,6 +358,7 @@ def main() -> None:
         print("PASS: Direct GitHub-mode single-asset transaction + Godot import")
         print("PASS: Implicit main-branch remote delivery refused before dispatch")
         print("PASS: Review-branch version lookup/transaction remains on target ref")
+        print("PASS: Corrupt existing GitHub/worktree version receipts rejected before delivery")
         print("PASS: Tampered real producer SpriteFrames rejected before delivery")
 
 

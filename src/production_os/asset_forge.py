@@ -454,9 +454,11 @@ def _deliver_produced_assets(
             if sidecar_destination.is_file():
                 try:
                     value = json.loads(sidecar_destination.read_text(encoding="utf-8"))
-                    existing = value if isinstance(value, dict) else None
-                except (OSError, UnicodeError, json.JSONDecodeError):
-                    existing = None
+                except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+                    raise RuntimeError("existing asset version receipt is unreadable") from exc
+                if not isinstance(value, dict):
+                    raise RuntimeError("existing asset version receipt must be a JSON object")
+                existing = value
             sidecar = _version_sidecar(item, existing=existing)
             staged.append((destination, item["artifact"]))
             for extra in item.get("companion_files") or []:
@@ -508,9 +510,9 @@ def _deliver_produced_assets(
             # Read the existing receipt on the destination review branch,
             # not the unrelated repository default branch.
             existing = (
-                gh.read_json_file(target_repository, sidecar_path)
+                gh.read_json_file(target_repository, sidecar_path, strict=True)
                 if target_ref in {"main", "refs/heads/main"}
-                else gh.read_json_file(target_repository, sidecar_path, ref=target_ref)
+                else gh.read_json_file(target_repository, sidecar_path, ref=target_ref, strict=True)
             )
             sidecar = _version_sidecar(item, existing=existing)
             payload[sidecar_path] = (

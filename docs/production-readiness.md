@@ -19,6 +19,14 @@ GitHub repository require an **explicit non-default review branch**
 (`--target-ref`); implicit `main`/`master` delivery fails before
 dispatch to avoid modifying released files outside PR review.
 
+Existing `.asset-forge.json` receipts are integrity metadata, not disposable cache.
+An invalid JSON/non-object/invalid-encoding receipt on a GitHub review branch,
+or an unreadable local worktree receipt, **blocks delivery before any asset
+write** instead of silently resetting its version history. A genuinely absent
+receipt still starts at version 1. The existing native Asset Forge → Godot 4
+functional smoke includes both negative delivery cases without invoking GPU,
+network providers or creating unit tests.
+
 For GitHub review branches, the previous `.asset-forge.json` receipt
 must be read from the **same destination branch**, not the default
 branch; otherwise a successful delivery can reset version history.

@@ -688,7 +688,7 @@ class GitHubClient:
             raise
         return payload if isinstance(payload, list) else [payload]
 
-    def _read_text(self, full_name: str, path: str, *, ref: str | None = None) -> str:
+    def _read_text(self, full_name: str, path: str, *, ref: str | None = None, strict: bool = False) -> str:
         encoded_path = "/".join(urllib.parse.quote(part) for part in path.split("/") if part)
         endpoint = f"/repos/{full_name}/contents/{encoded_path}"
         if ref is not None:
@@ -702,22 +702,41 @@ class GitHubClient:
                 return ""
             raise
         encoded = payload.get("content")
-        if not encoded:
+        if not isinstance(encoded, str) or not encoded.strip():
+            if strict:
+                raise GitHubAPIError("existing GitHub asset version receipt has no content")
             return ""
         try:
-            return b64decode(encoded).decode("utf-8", errors="replace")
-        except Exception:
+            # GitHub Contents base64 can contain line breaks.
+            normalized = re.sub(r"\s+", "", encoded) if strict else encoded
+            return b64decode(normalized, validate=strict).decode(
+                "utf-8", errors="strict" if strict else "replace"
+            )
+        except Exception as exc:
+            if strict:
+                raise GitHubAPIError("existing GitHub asset version receipt has invalid encoding") from exc
             return ""
 
-    def read_json_file(self, full_name: str, path: str, *, ref: str | None = None) -> dict[str, Any] | None:
-        text = self._read_text(full_name, path) if ref is None else self._read_text(full_name, path, ref=ref)
+    def read_json_file(
+        self, full_name: str, path: str, *, ref: str | None = None, strict: bool = False
+    ) -> dict[str, Any] | None:
+        if strict:
+            text = self._read_text(full_name, path, ref=ref, strict=True)
+        else:
+            text = self._read_text(full_name, path) if ref is None else self._read_text(full_name, path, ref=ref)
         if not text:
             return None
         try:
             value = json.loads(text)
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as exc:
+            if strict:
+                raise GitHubAPIError("existing GitHub asset version receipt contains invalid JSON") from exc
             return None
-        return value if isinstance(value, dict) else None
+        if not isinstance(value, dict):
+            if strict:
+                raise GitHubAPIError("existing GitHub asset version receipt must be a JSON object")
+            return None
+        return value
 
     def _latest_workflow_run(self, full_name: str, branch: str) -> dict[str, Any] | None:
         try:

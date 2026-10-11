@@ -15,7 +15,8 @@
     "Direct GitHub-mode single-asset destination uses verified one-item batch and native ZIP before reporting delivered",
     "Implicit remote GitHub main/master delivery rejected before dispatch; no-destination async unchanged",
     "GitHub JSON receipt reads accept explicit destination branch ref",
-    "Existing offline Godot smoke verifies review-branch version 7→8 and preserves history"
+    "Existing offline Godot smoke verifies review-branch version 7→8 and preserves history",
+    "Refuse malformed existing GitHub/worktree version receipts before any delivery"
   ],
   "validation": {
     "baseline_remote_godot_ci": "38136230642 COMPLETED SUCCESS on 35d92a99041858fe3b93efc000711c05068e1df0",
@@ -25,7 +26,8 @@
     "cross_repo_genuine_producer_ci": "38155804378 FAILED (smoke ZIP bytes passed instead of stream), fixed at 02641f4; CI 38155924949 COMPLETED SUCCESS 4/4 exact HEAD, Godot 4 producer ZIP/consumer/negative tamper PASS",
     "docs_evidence_head_ci": "38156259877 COMPLETED SUCCESS 4/4 on 15280278952a9526c5210d74ec19e341777373ae",
     "remote_single_delivery_ci": "38156921965 COMPLETED SUCCESS 4/4 on b94069ffa70bd1ac6e7ee5d8ece89a01293c26bc; offline genuine producer receipt and Godot 4 consumer, not hosted cross-workflow",
-    "review_branch_receipt_ci": "pending exact-HEAD CI"
+    "review_branch_receipt_ci": "38160367874 COMPLETED SUCCESS 4/4 on 72cdd61a4dd7b0be9f0b764bea83820dd88cea54",
+    "corrupt_receipt_ci": "pending exact-HEAD CI"
   },
   "remaining": [
     "Live worker-to-PR and consuming game release not verified",
@@ -36,6 +38,6 @@
     "Review-branch version fix remains DRAFT until actual CI and review"
   ],
   "current_work": [
-    "Check exact PR-head CI and the existing real Godot 4 import; avoid live dispatch/GPU/deployment"
+    "Qualify new fail-closed corrupt receipt checks in original Asset Forge/Godot functional smoke and CI; no GPU/hosted canary/deploy"
   ]
 }
