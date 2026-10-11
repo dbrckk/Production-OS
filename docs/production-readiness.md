@@ -1,5 +1,46 @@
 # Production readiness
 
+## Godot 4 remote batch sidecars (offline-verified)
+
+For remote Asset Forge `sprite-sheet` production targeting Godot 4, the
+primary PNG/WebP is not by itself a usable Godot animation resource. The
+remote batch result must include two digest-verified companions identified
+by explicit roles: `godot-spriteframes` (`.tres`) and
+`godot-atlas-metadata` (JSON). Missing, duplicated, oversized, escaping,
+incorrectly attributed or SHA256-mismatched companions abort before
+any destination write. The consumer also checks the `.tres` reference and
+metadata source image against the verified production report before changing
+their references.
+
+Before delivery, Production-OS rewrites only the verified SpriteFrames
+Texture2D external resource path to the final consumer location, for example
+`res://assets/characters/player.png`; it updates the atlas metadata image
+basename. The texture, relocated `player.tres` and
+`player.atlas-metadata.json` then participate in the same transactional
+worktree staging or GitHub multi-file commit as the existing receipt and
+version metadata. A normalized case-insensitive path ledger rejects
+collisions before writing anything.
+
+The existing CI functional smoke uses a local synthetic ZIP and in-memory
+GitHub Actions client to exercise the actual remote receipt parser, including
+a valid relocation, a missing sidecar and a modified SHA. There is **no**
+remote dispatch or expensive inference in that smoke. Production-OS code
+[commit c92f1fd](https://github.com/dbrckk/Production-OS/commit/c92f1fd88c3a65652054d028099569757a0e0425),
+[separator fix 9ed9c14](https://github.com/dbrckk/Production-OS/commit/9ed9c149a9308a0f160f339a0683d0103fff7886),
+[exact-code CI 38133751566](https://github.com/dbrckk/Production-OS/actions/runs/38133751566)
+COMPLETED SUCCESS 3/3 including functional smoke. Provider Asset Forge's
+[CI 38133508643](https://github.com/dbrckk/asset-forge/actions/runs/38133508643)
+COMPLETED SUCCESS 4/4 independently verified real CLI bundling of original
+local PNG plus companions and real Godot 4 editor/runtime import of the
+original exported resource.
+
+**Limitations:** Both changes are in separate unmerged **draft** PRs
+(Production-OS #263 and Asset Forge #13). The paired tests do not yet prove
+the *relocated* resource loaded inside a consuming game, the local-mode or
+cached-batch sidecar restoration, commercial rights for AI-produced art or
+live Production-OS → worker → GitHub PR → game release. No deployment,
+GPU inference or privileged Render action has been executed.
+
 ## Asset Forge remote batch receipt integrity
 
 The batch download/parser validates identity and content correlation before
