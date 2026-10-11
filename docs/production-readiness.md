@@ -128,8 +128,14 @@ and validates both AtlasTexture frames in AnimatedSprite2D.
 
 The integration deliberately changes a .tres payload inside a genuine
 producer ZIP without changing its declared SHA256 and confirms that the
-consumer rejects the archive before writing any asset. The new job must
-pass on the exact PR HEAD before this proof is considered successful.
+consumer rejects the archive before writing any asset. The first CI run
+38155804378 FAILED in the smoke itself because it handed a bytes object
+instead of io.BytesIO to zipfile.ZipFile during tampering; this was corrected
+without changing the production contract. The corrected code on exact HEAD
+02641f4d87b58f1219d41a84367c04d244cfd482 passed CI 38155924949
+COMPLETED SUCCESS (4/4: real Godot 4 integration, Python 3.11/3.12,
+existing E2E/build and Docker). The real producer-to-consumer and negative
+SHA256 scenarios printed PASS in the CI job logs.
 
 This is real cross-repository artifact compatibility in ONE isolated CI
 runner, not an actual hosted cross-repository Actions dispatch or a worker
