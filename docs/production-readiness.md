@@ -80,8 +80,11 @@ pinned SHA 35e0b1289b760c3a84765d0d2d28b86c6f110476. Using only an
 original locally constructed PNG, it runs the genuine Asset Forge CLI through
 Production-OS, imports the locally delivered animation into Godot, verifies
 reuse without a CLI, rejects altered/missing sidecars and regenerates through
-the real local CLI. Exact new-head CI qualification is required; these
-are intended checks, not claims that they have already passed. No new unit
+the real local CLI. Exact code-head CI 38137130685 completed SUCCESS (4/4 jobs) on
+commit ba534b05ea53b4e2363809e1325c31fe66e7dbcf, including the
+real Godot 4 local CLI/cache/tamper/repair import smoke and the canonical
+Python 3.11/3.12, production E2E, packaging and Docker verification.
+This is an offline/locally provided image qualification only. No new unit
 tests, inference, historic canaries or secrets are involved.
 
 Still not proved: live worker-to-PR/game release, commercial model/output
@@ -110,11 +113,10 @@ is **draft and unmerged**. Initial code-head
 passed 3/3; later report-validation changes require separate exact-head
 qualification. This smoke does **not** establish deployed worker E2E,
 commercial model/output rights, independent semantic fidelity, or complete
-Godot asset sidecar delivery. The Production-OS batch consumer currently
-writes primary artifacts and version metadata, but does not deliver
-generated SpriteFrames `.tres` or atlas-metadata sidecars to the consuming
-project. Address that as an independent handoff contract before calling
-Godot batch delivery complete.
+Godot asset sidecar delivery. This was the historical gap at the receipt-integrity-only stage. The
+current draft PR #263 now includes verified sidecar delivery and Godot
+import of both remote-style receipt and local CLI output; the full hosted
+worker-to-consumer E2E remains unverified.
 
 Production-OS 1.0 is qualified as a stable release when the canonical CI workflow is green on the exact release commit.
 
