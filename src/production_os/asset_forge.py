@@ -636,6 +636,9 @@ def _produce_asset_forge_batch_remote(
     }
     produced: list[dict[str, Any]] = []
     produced_by_id: dict[str, dict[str, Any]] = {}
+    # A matching item count is insufficient: duplicate rows can hide missing
+    # assets and cause the caller to report a partial batch as delivered.
+    seen_ids: set[str] = set()
     for row in rows:
         if not isinstance(row, dict):
             raise RuntimeError("asset-forge remote batch item is invalid")
@@ -643,6 +646,9 @@ def _produce_asset_forge_batch_remote(
         expected = expected_by_id.get(item_id)
         if expected is None:
             raise RuntimeError(f"unexpected remote batch item: {item_id}")
+        if item_id in seen_ids:
+            raise RuntimeError(f"duplicate remote batch item: {item_id}")
+        seen_ids.add(item_id)
         target_path = str(row.get("target_path") or "")
         if target_path != str(expected.get("target_path") or ""):
             raise RuntimeError(f"remote batch target mismatch for {item_id}")
@@ -677,7 +683,26 @@ def _produce_asset_forge_batch_remote(
             in {".png", ".webp", ".jpg", ".jpeg"}
         ][:4]
         request_id = str(row.get("request_id") or "")
+        expected_request = expected.get("request")
+        expected_request_id = (
+            str(expected_request.get("requestId") or item_id)
+            if isinstance(expected_request, dict)
+            else item_id
+        )
+        if request_id != expected_request_id:
+            raise RuntimeError(f"remote batch request id mismatch for {item_id}")
+        if (
+            not request_id
+            or request_id in {".", ".."}
+            or len(request_id) > 128
+            or not request_id[0].isascii()
+            or not request_id[0].isalnum()
+            or any(ch not in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_.-" for ch in request_id)
+        ):
+            raise RuntimeError(f"unsafe remote batch request id for {item_id}")
         report_path = remote_root / "jobs" / request_id / "production-report.json"
+        if not report_path.is_file():
+            raise RuntimeError(f"remote batch production report missing for {item_id}")
         produced_item = {
             "batch_id": item_id,
             "depends_on": dependencies,
@@ -716,6 +741,8 @@ def _produce_asset_forge_batch_remote(
         }
         produced.append(produced_item)
         produced_by_id[item_id] = produced_item
+    if seen_ids != set(expected_by_id):
+        raise RuntimeError("remote batch result is missing expected items")
     return produced
 
 

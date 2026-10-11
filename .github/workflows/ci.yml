@@ -108,3 +108,123 @@ jobs:
 
       - name: CLI smoke test
         run: production-os --help
+
+      - name: Smoke-check remote batch receipt integrity offline
+        run: |
+          python - <<'PY'
+          import hashlib
+          import io
+          import json
+          import zipfile
+          from pathlib import Path
+          from tempfile import TemporaryDirectory
+
+          from production_os.asset_forge import (
+              build_asset_forge_request,
+              execute_asset_forge_batch,
+          )
+
+          # Test the real remote batch parser/delivery boundary using a local
+          # ZIP and an in-memory Actions client, without dispatching anything.
+          class OfflineClient:
+              def __init__(self, archive):
+                  self.archive = archive
+                  self.correlation = None
+
+              def can_dispatch_workflow(self, *_args):
+                  return True
+
+              def dispatch_workflow(self, _repository, _workflow, *, ref, inputs):
+                  self.correlation = inputs["correlation_id"]
+
+              def wait_for_workflow_run(self, *_args, **_kwargs):
+                  return {"id": 77, "conclusion": "success"}
+
+              def workflow_run_artifacts(self, *_args):
+                  return [{
+                      "id": 88,
+                      "name": "asset-forge-batch-" + self.correlation,
+                      "expired": False,
+                  }]
+
+              def download_workflow_artifact(self, *_args):
+                  return self.archive
+
+          items = []
+          rows = []
+          for name in ("a", "b"):
+              request = build_asset_forge_request(
+                  request_id="remote-" + name,
+                  project="offline-smoke",
+                  asset_id="remote-" + name,
+                  asset_type="sprite-sheet",
+                  instruction="Verify offline remote batch correlation",
+                  target_format="png",
+              )
+              target = "assets/art/remote-" + name + ".png"
+              items.append({"id": name, "request": request, "target_path": target})
+              payload = ("fake-byte-content-" + name).encode()
+              rows.append({
+                  "id": name,
+                  "depends_on": [],
+                  "request_id": "remote-" + name,
+                  "target_path": target,
+                  "artifact": "bundle/" + name + ".png",
+                  "sha256": hashlib.sha256(payload).hexdigest(),
+              })
+
+          def archive_for(receipts):
+              report = {
+                  "schema_version": "asset-forge/remote-batch-result/v1",
+                  "success": True,
+                  "count": 2,
+                  "items": receipts,
+              }
+              output = io.BytesIO()
+              with zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED) as zf:
+                  zf.writestr("batch-result.json", json.dumps(report))
+                  for name in ("a", "b"):
+                      zf.writestr("bundle/" + name + ".png",
+                                  ("fake-byte-content-" + name).encode())
+                      zf.writestr("jobs/remote-" + name + "/production-report.json",
+                                  json.dumps({"success": True}))
+              return output.getvalue()
+
+          with TemporaryDirectory() as temporary:
+              root = Path(temporary)
+              cases = [
+                  ("valid", rows, True),
+                  ("duplicate", [rows[0], dict(rows[0])], False),
+                  ("wrong-request-id", [
+                      rows[0], {**rows[1], "request_id": "remote-a"},
+                  ], False),
+                  ("unknown-item", [
+                      rows[0], {**rows[1], "id": "other"},
+                  ], False),
+              ]
+              for name, receipts, allowed in cases:
+                  target = root / (name + "-worktree")
+                  client = OfflineClient(archive_for(receipts))
+                  try:
+                      result = execute_asset_forge_batch(
+                          items,
+                          mode="github",
+                          output_root=str(root / (name + "-output")),
+                          target_worktree=str(target),
+                          client=client,
+                      )
+                  except RuntimeError:
+                      if allowed:
+                          raise
+                  else:
+                      if not allowed:
+                          raise AssertionError("invalid remote receipts accepted: " + name)
+                      assert result["success"] is True
+                      assert result["count"] == 2
+                      assert (target / "assets/art/remote-a.png").read_bytes() == b"fake-byte-content-a"
+                      assert (target / "assets/art/remote-b.png").read_bytes() == b"fake-byte-content-b"
+                  if not allowed:
+                      assert not (target / "assets/art/remote-a.png").exists()
+                      assert not (target / "assets/art/remote-b.png").exists()
+          print("PASS: real remote batch parser rejects duplicate/mismatched receipts before delivery")
+          PY
