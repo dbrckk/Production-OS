@@ -497,6 +497,56 @@ def main() -> None:
             "companion_files": [],
             "cache_hit": False,
         }
+        # Refuse same-root aliases before writing any asset or receipt.
+        for alias_case in ("asset", "sidecar", "parent"):
+            worktree = root / f"consumer-symlink-{alias_case}"
+            assets_root = worktree / "assets"
+            assets_root.mkdir(parents=True)
+            if alias_case == "parent":
+                alternate = assets_root / "elsewhere"
+                alternate.mkdir()
+                (assets_root / "characters").symlink_to(
+                    alternate, target_is_directory=True
+                )
+                protected = alternate / "unrelated.bin"
+            else:
+                characters = assets_root / "characters"
+                characters.mkdir()
+                protected = characters / "unrelated.bin"
+                link_name = (
+                    "player.png" if alias_case == "asset"
+                    else "player.png.asset-forge.json"
+                )
+                (characters / link_name).symlink_to(protected)
+            protected.write_bytes(b"original-unrelated-content")
+            try:
+                _deliver_produced_assets(
+                    [review_item],
+                    target_repository=None,
+                    target_worktree=str(worktree),
+                    target_ref="main",
+                    client=None,
+                )
+            except ValueError as exc:
+                if "must not traverse a symlink" not in str(exc):
+                    raise
+            else:
+                raise RuntimeError(
+                    f"Worktree delivery followed a same-root {alias_case} symlink"
+                )
+            if protected.read_bytes() != b"original-unrelated-content":
+                raise RuntimeError("Refused worktree alias modified unrelated content")
+            if alias_case == "asset" and (
+                characters / "player.png.asset-forge.json"
+            ).exists():
+                raise RuntimeError("Refused asset alias wrote a receipt")
+            if alias_case == "sidecar" and (characters / "player.png").exists():
+                raise RuntimeError("Refused receipt alias wrote an asset")
+            if alias_case == "parent" and (
+                alternate / "player.png"
+            ).exists():
+                raise RuntimeError("Refused directory alias wrote an asset")
+
         github = OfflineReviewBranch()
         delivery_mode, delivered_files = _deliver_produced_assets(
             [review_item],
@@ -613,6 +663,7 @@ def main() -> None:
         print("PASS: Destination paths and nested file conflicts blocked before remote dispatch")
         print("PASS: Unsafe/colliding request IDs rejected before batch or single dispatch")
         print("PASS: Local batch refuses escaping or aliasing job symlinks before generator")
+        print("PASS: Worktree asset, receipt and parent symlink aliases fail before writes")
         print("PASS: Windows-reserved batch identifiers rejected before any dispatch")
         print("PASS: Invalid/incomplete local single-asset destinations refused before CLI generation")
         print("PASS: Local single-asset GitHub main/master delivery refused before generation")

@@ -487,17 +487,24 @@ def _deliver_produced_assets(
 
     if target_worktree:
         root_worktree = Path(target_worktree).resolve()
+        def worktree_destination(relative_path: str, label: str) -> Path:
+            candidate = root_worktree
+            for component in _validated_target_path(relative_path).split("/"):
+                candidate = candidate / component
+                if candidate.is_symlink():
+                    raise ValueError(f"{label} must not traverse a symlink")
+            resolved = candidate.resolve()
+            if not resolved.is_relative_to(root_worktree):
+                raise ValueError(f"{label} escapes target worktree")
+            return resolved
+
         staged = []
         for item in produced:
             normalized = item["target_path"].replace("\\", "/").lstrip("/")
-            destination = (root_worktree / normalized).resolve()
-            if not destination.is_relative_to(root_worktree):
-                raise ValueError("target_path escapes target worktree")
-            sidecar_destination = (
-                root_worktree / _sidecar_relative_path(normalized)
-            ).resolve()
-            if not sidecar_destination.is_relative_to(root_worktree):
-                raise ValueError("asset sidecar escapes target worktree")
+            destination = worktree_destination(normalized, "target_path")
+            sidecar_destination = worktree_destination(
+                _sidecar_relative_path(normalized), "asset sidecar"
+            )
             existing = None
             if sidecar_destination.is_file():
                 try:
@@ -510,9 +517,9 @@ def _deliver_produced_assets(
             sidecar = _version_sidecar(item, existing=existing)
             staged.append((destination, item["artifact"]))
             for extra in item.get("companion_files") or []:
-                extra_destination = (root_worktree / extra["target_path"]).resolve()
-                if not extra_destination.is_relative_to(root_worktree):
-                    raise ValueError("Godot companion escapes target worktree")
+                extra_destination = worktree_destination(
+                    extra["target_path"], "Godot companion"
+                )
                 staged.append((extra_destination, extra["content"]))
             staged.append((
                 sidecar_destination,
