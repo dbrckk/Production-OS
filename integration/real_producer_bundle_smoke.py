@@ -148,6 +148,43 @@ def main() -> None:
             if should_not_exist.exists():
                 raise RuntimeError("Rejected remote ZIP created an output directory")
 
+        # A ZIP central directory can have valid paths and declared sizes
+        # while a later stored entry fails its CRC. Without preflight, the
+        # preceding file is written first, including an overwrite of a real
+        # existing file. Test both a new directory and a populated one.
+        corrupt_zip = io.BytesIO()
+        crc_original = b"original-owned-crc-verification-payload"
+        with zipfile.ZipFile(corrupt_zip, "w", zipfile.ZIP_STORED) as archive:
+            archive.writestr("owned-marker.bin", b"must-not-overwrite")
+            archive.writestr("corrupt-last.png", crc_original)
+        corrupted_bytes = bytearray(corrupt_zip.getvalue())
+        corrupt_at = corrupted_bytes.index(crc_original) + 4
+        corrupted_bytes[corrupt_at] ^= 1
+        for existing_destination in (False, True):
+            corrupt_root = root / (
+                "unsafe-zip-crc-existing" if existing_destination
+                else "unsafe-zip-crc-new"
+            )
+            owned_marker = corrupt_root / "owned-marker.bin"
+            if existing_destination:
+                corrupt_root.mkdir()
+                owned_marker.write_bytes(b"original-owned-file-unchanged")
+            try:
+                _extract_remote_batch_bundle(bytes(corrupted_bytes), corrupt_root)
+            except RuntimeError as exc:
+                if "corrupt ZIP payload" not in str(exc):
+                    raise
+            else:
+                raise RuntimeError("CRC-corrupted remote ZIP passed preflight")
+            if existing_destination:
+                if (
+                    owned_marker.read_bytes() != b"original-owned-file-unchanged"
+                    or (corrupt_root / "corrupt-last.png").exists()
+                ):
+                    raise RuntimeError("Corrupt ZIP modified existing extraction contents")
+            elif corrupt_root.exists():
+                raise RuntimeError("Corrupt ZIP created partial output directory")
+
         # A pre-existing directory where the ZIP expects a file, or a
         # regular file where it expects a parent directory, must be refused
         # BEFORE any earlier good ZIP entry is written. Previously the first
@@ -1102,6 +1139,7 @@ def main() -> None:
         print("PASS: REAL Asset Forge remote_batch -> Production-OS -> Godot 4")
         print("PASS: Native batch-result/report, sidecar SHA256 and Godot resource load")
         print("PASS: ZIP aliases, Windows reserved names and file/directory conflicts blocked before extraction")
+        print("PASS: Corrupt ZIP CRC rejected before creating or overwriting any extraction files")
         print("PASS: Existing file/parent symlink ZIP aliases refused before any write")
         print("PASS: Existing ZIP file/directory destination conflicts refuse partial extraction")
         print("PASS: Destination paths and nested file conflicts blocked before remote dispatch")

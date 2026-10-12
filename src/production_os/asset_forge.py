@@ -1094,6 +1094,21 @@ def _extract_remote_batch_bundle(data: bytes, destination: Path) -> Path:
                     raise RuntimeError("asset-forge remote batch artifact has file/directory conflict")
                 parent = parent.rpartition("/")[0]
 
+        # Valid central-directory paths/sizes do not prove that the data is
+        # intact. A broken CRC or truncated compressed stream detected during
+        # extraction could otherwise leave previous files overwritten. Decode
+        # and verify every entry *before* creating any output path. Extraction
+        # still streams rather than retaining a second full bundle in memory.
+        try:
+            for info, _ in pending:
+                with archive.open(info) as source:
+                    while source.read(1024 * 1024):
+                        pass
+        except (zipfile.BadZipFile, EOFError, OSError, RuntimeError) as exc:
+            raise RuntimeError(
+                "asset-forge remote batch artifact has corrupt ZIP payload"
+            ) from exc
+
         # No output directory is created until all entries are preflighted.
         root.mkdir(parents=True, exist_ok=True)
         for info, target in pending:
