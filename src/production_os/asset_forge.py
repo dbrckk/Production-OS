@@ -231,6 +231,35 @@ def _validated_target_path(value: Any) -> str:
 
 
 
+def _preflight_worktree_delivery(
+    worktree: str | None,
+    target_paths: list[str],
+) -> None:
+    """Refuse existing destination aliases before paying for generation.
+
+    The transactional delivery boundary repeats these checks when writing:
+    this preflight protects the caller from needless or billed generation.
+    """
+    if not worktree:
+        return
+    root = Path(worktree).resolve()
+    for relative in target_paths:
+        candidate = root
+        for component in _validated_target_path(relative).split("/"):
+            candidate = candidate / component
+            if candidate.is_symlink():
+                raise ValueError("asset-forge destination must not traverse a symlink")
+        if not candidate.resolve().is_relative_to(root):
+            raise ValueError("asset-forge destination escapes target worktree")
+        if candidate.exists() and not candidate.is_file():
+            raise ValueError("asset-forge destination must be a file")
+        parent = candidate.parent
+        while parent != root:
+            if parent.exists() and not parent.is_dir():
+                raise ValueError("asset-forge destination parent must be a directory")
+            parent = parent.parent
+
+
 def _is_godot_sprite_sheet(request: dict[str, Any]) -> bool:
     manifest = request.get("manifest")
     if not isinstance(manifest, dict) or manifest.get("type") != "sprite-sheet":
@@ -719,6 +748,18 @@ def execute_asset_forge(
         target_ref.removeprefix("refs/heads/") in {"main", "master"}
     ):
         raise ValueError("asset-forge local repository delivery requires an explicit non-default review branch")
+
+    if target_worktree and normalized_target:
+        target_names = [
+            normalized_target,
+            _sidecar_relative_path(normalized_target),
+        ]
+        if _is_godot_sprite_sheet(request):
+            target_names.extend([
+                str(Path(normalized_target).with_suffix(".tres")),
+                str(Path(normalized_target).with_suffix(".atlas-metadata.json")),
+            ])
+        _preflight_worktree_delivery(target_worktree, target_names)
 
     if not local_cli:
         raise RuntimeError("asset-forge CLI is required for local execution")
@@ -1545,6 +1586,18 @@ def execute_asset_forge_batch(
         target_ref.removeprefix("refs/heads/") in {"main", "master"}
     ):
         raise ValueError("asset-forge batch repository delivery requires an explicit non-default review branch")
+
+    if target_worktree:
+        target_names: list[str] = []
+        for item in ordered_items:
+            asset_path = item["target_path"]
+            target_names.extend([asset_path, _sidecar_relative_path(asset_path)])
+            if _is_godot_sprite_sheet(item["request"]):
+                target_names.extend([
+                    str(Path(asset_path).with_suffix(".tres")),
+                    str(Path(asset_path).with_suffix(".atlas-metadata.json")),
+                ])
+        _preflight_worktree_delivery(target_worktree, target_names)
 
     root = Path(output_root)
     root.mkdir(parents=True, exist_ok=True)

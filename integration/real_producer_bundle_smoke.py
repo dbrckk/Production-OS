@@ -403,6 +403,48 @@ def main() -> None:
         if blocked_local_github.exists():
             raise RuntimeError("Refused local main-branch delivery started generation")
 
+        # A destination alias must be blocked *before* local CLI generation
+        # or remote dispatch, not just by the final transactional write.
+        for alias in ("asset", "receipt", "parent"):
+            blocked_root = root / ("preflight-alias-" + alias)
+            characters = blocked_root / "assets" / "characters"
+            characters.mkdir(parents=True)
+            protected = root / ("preflight-protected-" + alias + ".bin")
+            protected.write_bytes(b"unrelated-original-bytes")
+            if alias == "parent":
+                (blocked_root / "assets" / "characters").rmdir()
+                (blocked_root / "assets" / "characters").symlink_to(
+                    root, target_is_directory=True
+                )
+            else:
+                name = "player.png" if alias == "asset" else "player.png.asset-forge.json"
+                (characters / name).symlink_to(protected)
+            for delivery in ("single", "batch"):
+                output = root / ("no-generation-" + alias + "-" + delivery)
+                try:
+                    if delivery == "single":
+                        execute_asset_forge(
+                            request, mode="local", output_dir=str(output),
+                            source_path=str(image), target_path=target,
+                            target_worktree=str(blocked_root),
+                        )
+                    else:
+                        execute_asset_forge_batch(
+                            [{"id": "player", "request": request,
+                              "target_path": target, "source_path": str(image)}],
+                            mode="local", output_root=str(output),
+                            target_worktree=str(blocked_root),
+                        )
+                except ValueError as exc:
+                    if "symlink" not in str(exc):
+                        raise
+                else:
+                    raise RuntimeError("Destination alias reached local generation")
+                if output.exists():
+                    raise RuntimeError("Rejected destination alias created output")
+                if protected.read_bytes() != b"unrelated-original-bytes":
+                    raise RuntimeError("Rejected destination alias mutated unrelated file")
+
         # A pre-existing job directory symlink may escape the batch output
         # root even when requestId is otherwise a safe single component.
         linked_root = root / "linked-local-jobs"
@@ -811,6 +853,7 @@ def main() -> None:
         print("PASS: Unsafe/colliding request IDs rejected before batch or single dispatch")
         print("PASS: Local batch refuses escaping or aliasing job symlinks before generator")
         print("PASS: Worktree asset, receipt and parent symlink aliases fail before writes")
+        print("PASS: Local single and batch aliases rejected before generator/output")
         print("PASS: Windows-reserved batch identifiers rejected before any dispatch")
         print("PASS: Invalid/incomplete local single-asset destinations refused before CLI generation")
         print("PASS: Local single-asset GitHub main/master delivery refused before generation")
