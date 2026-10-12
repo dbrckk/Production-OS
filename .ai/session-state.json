@@ -25,7 +25,8 @@
     "Reject remote batch without a consumer or with implicit GitHub main/master destination before generation/dispatch; extend existing native producer-to-Godot functional smoke",
     "Update existing atomic-GitHub-batch fixture to explicitly target a review branch after repository-main batch delivery became fail-closed; preserve the production guard",
     "Preflight resolved local batch per-request job directories against output_root before any generation, rejecting pre-existing escaping symlinks; extend native Godot/producer smoke",
-    "Reject Windows device names used as request/item IDs, and reject symlink-alias local batch job output directories even when target remains inside output_root; expand existing real producer→Godot functional smoke"
+    "Reject Windows device names used as request/item IDs, and reject symlink-alias local batch job output directories even when target remains inside output_root; expand existing real producer→Godot functional smoke",
+    "Prevalidate local direct single-asset target_path and consumer destination pairing before invoking CLI or creating generation output; extend existing genuine Godot functional smoke with invalid/incomplete local destination refusal"
   ],
   "validation": {
     "baseline_remote_godot_ci": "38136230642 COMPLETED SUCCESS on 35d92a99041858fe3b93efc000711c05068e1df0",
@@ -46,7 +47,8 @@
     "batch_review_fixture_fix_ci": "pending exact-head CI",
     "safe_batch_identifier_ci": "38185770378 COMPLETED SUCCESS 4/4 on 551b8a403eb7ff71968c3bb4bad6028c81a8cb16 (real Godot, Python 3.11/3.12, existing CI)",
     "local_job_symlink_ci": "38201664711 COMPLETED SUCCESS 4/4 on 6741b57de1ae670122a6b30362f6f21484b64723 (Godot 4.4.1, Python 3.11/3.12, existing production CI)",
-    "portable_id_and_internal_alias_ci": "pending exact HEAD CI"
+    "portable_id_and_internal_alias_ci": "38202253894 COMPLETED SUCCESS 4/4 on 521aa9abf7862bca2921b46accaeb3f51715d582 (Godot real import, Python 3.11/3.12, existing E2E)",
+    "direct_local_destination_ci": "pending exact-head CI"
   },
   "remaining": [
     "Live worker-to-PR and consuming game release not verified",
@@ -57,6 +59,6 @@
     "Review-branch version fix remains DRAFT until actual CI and review"
   ],
   "current_work": [
-    "Validate portable request ID and internal symlink alias rejection on new exact SHA; keep PR DRAFT without canary, GPU, Render, merge or deploy"
+    "Qualify local pre-generation consumer destination validation at exact new SHA; preserve PR DRAFT and avoid canary/GPU/Render/merge"
   ]
 }

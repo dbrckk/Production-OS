@@ -94,6 +94,15 @@ Windows names such as `CON`, `AUX.log` and `LPT9.data` in request/item
 identifiers before dispatch. Both cases are exercised by the existing
 functional Godot smoke without introducing new unit tests.
 
+**Direct local single-asset delivery** validates the complete destination
+contract before starting generation: a supplied `target_path` must be
+portable and paired with a consumer worktree or repository, and an explicit
+consumer requires a nonempty target path. This avoids generation cost and
+partially created output folders for invalid local delivery requests. The
+existing native producer → Godot 4 smoke checks invalid paths, Windows
+devices and mismatched destination options offline. No paid provider
+is invoked for these cases.
+
 The existing `integration/real_producer_bundle_smoke.py` verifies the
 direct route using a **native pinned Asset Forge ZIP** created from an
 original local PNG and consumed by real Godot 4.4.1. It also proves that

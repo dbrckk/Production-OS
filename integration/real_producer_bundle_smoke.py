@@ -350,6 +350,39 @@ def main() -> None:
         if bad_receipt.exists():
             raise RuntimeError("Unsafe target/request IDs started a remote batch before preflight")
 
+        # A direct local request formerly checked destination paths only
+        # after generating an asset. Refuse unsafe or missing destinations
+        # before creating even the local output directory or invoking CLI.
+        bad_local_root = root / "blocked-local-single"
+        for invalid_target in ("../escape.png", "assets/CON.png",
+                               "assets/atlas:alternate.png", "assets/dot./x.png",
+                               "assets/player?.png", ""):
+            try:
+                execute_asset_forge(
+                    request, mode="local", output_dir=str(bad_local_root),
+                    source_path=str(image), target_path=invalid_target,
+                    target_worktree=str(consumer),
+                )
+            except ValueError:
+                pass
+            else:
+                raise RuntimeError(f"Unsafe local delivery path reached generation: {invalid_target!r}")
+        for delivery_fields in (
+            {"target_worktree": str(consumer)},
+            {"target_path": target},
+        ):
+            try:
+                execute_asset_forge(
+                    request, mode="local", output_dir=str(bad_local_root),
+                    source_path=str(image), **delivery_fields,
+                )
+            except ValueError:
+                pass
+            else:
+                raise RuntimeError("Incomplete local delivery destination reached generation")
+        if bad_local_root.exists():
+            raise RuntimeError("Refused local asset delivery created output before preflight")
+
         # A pre-existing job directory symlink may escape the batch output
         # root even when requestId is otherwise a safe single component.
         linked_root = root / "linked-local-jobs"
@@ -561,6 +594,7 @@ def main() -> None:
         print("PASS: Unsafe/colliding request IDs rejected before batch or single dispatch")
         print("PASS: Local batch refuses escaping or aliasing job symlinks before generator")
         print("PASS: Windows-reserved batch identifiers rejected before any dispatch")
+        print("PASS: Invalid/incomplete local single-asset destinations refused before CLI generation")
         print("PASS: Direct GitHub-mode single-asset transaction + Godot import")
         print("PASS: Implicit main-branch remote delivery refused before dispatch")
         print("PASS: Remote batch rejects main/master and missing destination before dispatch")

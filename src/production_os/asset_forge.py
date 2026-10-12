@@ -681,6 +681,14 @@ def execute_asset_forge(
             model=model,
         )
 
+    # Local single-asset fulfillment must not generate (or bill) an asset
+    # before rejecting an unsafe/missing consumer delivery destination.
+    normalized_target = _validated_target_path(target_path) if target_path is not None else None
+    if (target_repository or target_worktree) and normalized_target is None:
+        raise ValueError("asset-forge local delivery requires target_path")
+    if normalized_target is not None and not (target_repository or target_worktree):
+        raise ValueError("asset-forge local target_path requires a delivery destination")
+
     if not local_cli:
         raise RuntimeError("asset-forge CLI is required for local execution")
 
@@ -734,8 +742,7 @@ def execute_asset_forge(
 
     delivery_mode = None
     delivered_to = None
-    if target_path:
-        normalized_target = _validated_target_path(target_path)
+    if normalized_target is not None:
         if _is_godot_sprite_sheet(request):
             companions = _local_godot_spriteframes_companions(
                 destination, report, normalized_target
