@@ -240,11 +240,13 @@ def test_execute_asset_forge_delivers_with_existing_github_client(tmp_path):
             mode="local",
             target_repository="dbrckk/deadline-zero",
             target_path="assets/art/hud-icon.svg",
+            target_ref="review/asset-handoff",
             client=fake,
         )
 
     write = [call for call in fake.calls if "path" in call][0]
     assert write["repository"] == "dbrckk/deadline-zero"
+    assert write["branch"] == "review/asset-handoff"
     assert write["path"] == "assets/art/hud-icon.svg"
     assert write["content"] == b"<svg/>"
     assert receipt.delivery_mode == "github"

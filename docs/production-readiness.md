@@ -103,6 +103,14 @@ existing native producer → Godot 4 smoke checks invalid paths, Windows
 devices and mismatched destination options offline. No paid provider
 is invoked for these cases.
 
+For GitHub repository targets, direct local single-asset delivery now requires
+a **non-default review branch**, consistent with remote single-asset and
+transactional batch delivery. `main`, `master` and their explicit
+`refs/heads/` forms are rejected before invoking local generation. Worktree
+delivery remains permitted. The underlying direct artifact delivery helper
+independently refuses default-branch GitHub writes. The existing native
+producer → Godot smoke checks this without dispatch, paid inference or secrets.
+
 The existing `integration/real_producer_bundle_smoke.py` verifies the
 direct route using a **native pinned Asset Forge ZIP** created from an
 original local PNG and consumed by real Godot 4.4.1. It also proves that

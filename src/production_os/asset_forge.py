@@ -438,6 +438,10 @@ def _deliver_artifact(
 
     if not target_repository:
         raise ValueError("target_repository is required when no target_worktree is provided")
+    # Defensive check for direct internal calls: local single-artifact writes
+    # must not bypass the review-branch requirement used by batch delivery.
+    if target_ref.removeprefix("refs/heads/") in {"main", "master"}:
+        raise ValueError("asset-forge local repository delivery requires an explicit non-default review branch")
     gh = client or GitHubClient()
     gh.put_file(
         target_repository,
@@ -688,6 +692,10 @@ def execute_asset_forge(
         raise ValueError("asset-forge local delivery requires target_path")
     if normalized_target is not None and not (target_repository or target_worktree):
         raise ValueError("asset-forge local target_path requires a delivery destination")
+    if target_repository and not target_worktree and (
+        target_ref.removeprefix("refs/heads/") in {"main", "master"}
+    ):
+        raise ValueError("asset-forge local repository delivery requires an explicit non-default review branch")
 
     if not local_cli:
         raise RuntimeError("asset-forge CLI is required for local execution")

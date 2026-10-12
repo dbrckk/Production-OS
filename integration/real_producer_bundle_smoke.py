@@ -383,6 +383,26 @@ def main() -> None:
         if bad_local_root.exists():
             raise RuntimeError("Refused local asset delivery created output before preflight")
 
+        # A locally generated asset must not be pushed directly to GitHub's
+        # default branch without an explicit review branch. This is refused
+        # before any CLI or expensive generation.
+        blocked_local_github = root / "blocked-local-main-delivery"
+        for default_branch in ("main", "master", "refs/heads/main"):
+            try:
+                execute_asset_forge(
+                    request, mode="local", output_dir=str(blocked_local_github),
+                    source_path=str(image), target_path=target,
+                    target_repository="dbrckk/consumer",
+                    target_ref=default_branch,
+                )
+            except ValueError as exc:
+                if "non-default review branch" not in str(exc):
+                    raise
+            else:
+                raise RuntimeError("Local single asset allowed direct GitHub main delivery")
+        if blocked_local_github.exists():
+            raise RuntimeError("Refused local main-branch delivery started generation")
+
         # A pre-existing job directory symlink may escape the batch output
         # root even when requestId is otherwise a safe single component.
         linked_root = root / "linked-local-jobs"
@@ -595,6 +615,7 @@ def main() -> None:
         print("PASS: Local batch refuses escaping or aliasing job symlinks before generator")
         print("PASS: Windows-reserved batch identifiers rejected before any dispatch")
         print("PASS: Invalid/incomplete local single-asset destinations refused before CLI generation")
+        print("PASS: Local single-asset GitHub main/master delivery refused before generation")
         print("PASS: Direct GitHub-mode single-asset transaction + Godot import")
         print("PASS: Implicit main-branch remote delivery refused before dispatch")
         print("PASS: Remote batch rejects main/master and missing destination before dispatch")
