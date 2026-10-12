@@ -167,8 +167,9 @@ def _request_fingerprint(
     source_sha256 = None
     if source_path:
         source = Path(source_path)
-        if source.is_file():
-            source_sha256 = hashlib.sha256(source.read_bytes()).hexdigest()
+        if not source.is_file():
+            raise ValueError("asset-forge explicit local source_path must be an existing file")
+        source_sha256 = hashlib.sha256(source.read_bytes()).hexdigest()
     payload = {
         "request": canonical_request,
         "dependencies": [
@@ -768,6 +769,11 @@ def execute_asset_forge(
                 str(Path(normalized_target).with_suffix(".atlas-metadata.json")),
             ])
         _preflight_worktree_delivery(target_worktree, target_names)
+
+    # An explicit source is a required generator input. Reject its absence
+    # even if no consumer destination/receipt was requested, before output.
+    if source_path and not Path(source_path).is_file():
+        raise ValueError("asset-forge explicit local source_path must be an existing file")
 
     if not local_cli:
         raise RuntimeError("asset-forge CLI is required for local execution")
@@ -1628,14 +1634,25 @@ def execute_asset_forge_batch(
     if target_worktree:
         _preflight_worktree_delivery(target_worktree, target_names)
 
+    effective_mode = mode
+    if mode == "auto":
+        effective_mode = "local" if shutil.which("asset-forge") else "github"
+    if effective_mode == "local":
+        # Reject *every* absent explicit source before creating a batch
+        # output directory, running providers, or making a cache decision.
+        for item in ordered_items:
+            source_path = item.get("source_path")
+            if source_path is not None and (
+                not isinstance(source_path, str)
+                or not source_path.strip()
+                or not Path(source_path.strip()).is_file()
+            ):
+                raise ValueError("asset-forge batch explicit source_path must be an existing file")
     root = Path(output_root)
     root.mkdir(parents=True, exist_ok=True)
     produced: list[dict[str, Any]] = []
     produced_by_id: dict[str, dict[str, Any]] = {}
 
-    effective_mode = mode
-    if mode == "auto":
-        effective_mode = "local" if shutil.which("asset-forge") else "github"
     if effective_mode == "github":
         produced = _produce_asset_forge_batch_remote(
             ordered_items,

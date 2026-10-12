@@ -421,6 +421,53 @@ def main() -> None:
         if bad_local_root.exists():
             raise RuntimeError("Refused local asset delivery created output before preflight")
 
+        # A missing explicit source must never become an implicit no-source
+        # fingerprint, reuse a cache entry, or start generator work.
+        absent_source = root / "missing-owned-source.png"
+        direct_absent = root / "blocked-missing-direct-source"
+        for destination_fields in (
+            {},
+            {"target_path": target, "target_worktree": str(consumer)},
+        ):
+            try:
+                execute_asset_forge(
+                    request, mode="local", output_dir=str(direct_absent),
+                    source_path=str(absent_source), **destination_fields,
+                )
+            except ValueError as exc:
+                if "source_path must be an existing file" not in str(exc):
+                    raise
+            else:
+                raise RuntimeError("Missing explicit local source reached generator")
+        if direct_absent.exists():
+            raise RuntimeError("Missing direct source created output directory")
+
+        # Validate *all* source paths before creating output even if another
+        # item in the batch has a valid, cacheable target.
+        for batch_mode in ("local", "auto"):
+            absent_batch = root / ("blocked-missing-batch-" + batch_mode)
+            try:
+                execute_asset_forge_batch(
+                    [
+                        {"id": "valid-owned", "request": request,
+                         "target_path": target, "source_path": str(image)},
+                        {"id": "missing-owned", "request": {
+                            **request, "requestId": "missing-owned",
+                            "manifest": {**request["manifest"], "id": "missing-owned"},
+                         }, "target_path": "assets/characters/missing.png",
+                         "source_path": str(absent_source)},
+                    ],
+                    mode=batch_mode, output_root=str(absent_batch),
+                    target_worktree=str(consumer),
+                )
+            except ValueError as exc:
+                if "source_path must be an existing file" not in str(exc):
+                    raise
+            else:
+                raise RuntimeError("Missing source in batch reached generator")
+            if absent_batch.exists():
+                raise RuntimeError("Missing batch source created output directory")
+
         # A locally generated asset must not be pushed directly to GitHub's
         # default branch without an explicit review branch. This is refused
         # before any CLI or expensive generation.
@@ -895,6 +942,7 @@ def main() -> None:
         print("PASS: Local single and batch aliases rejected before generator/output")
         print("PASS: Windows-reserved batch identifiers rejected before any dispatch")
         print("PASS: Invalid/incomplete local single-asset destinations refused before CLI generation")
+        print("PASS: Missing direct/batch explicit source files refused before generation or cache reuse")
         print("PASS: Local single-asset GitHub main/master delivery refused before generation")
         print("PASS: Direct GitHub-mode single-asset transaction + Godot import")
         print("PASS: Implicit main-branch remote delivery refused before dispatch")
