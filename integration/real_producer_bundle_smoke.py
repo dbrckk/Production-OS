@@ -875,13 +875,59 @@ def main() -> None:
             if blocked.written_files:
                 raise RuntimeError("Corrupt GitHub receipt triggered a commit")
 
+        # A list-typed history/companion field with corrupt *entries* must
+        # never propagate into a new GitHub version receipt.
+        good_history = {
+            "version": 7, "sha256": "a" * 64,
+            "request_fingerprint": None,
+        }
+        invalid_nested_receipts = (
+            {**source_version, "history": ["not-an-entry"]},
+            {**source_version, "history": [
+                {**good_history, "version": True}]},
+            {**source_version, "history": [
+                {**good_history, "version": source_version["version"]}]},
+            {**source_version, "history": [
+                {**good_history, "sha256": "invalid-sha"}]},
+            {**source_version, "history": [good_history, good_history]},
+            {**source_version, "companions": [
+                {"target_path": "../outside.tres", "sha256": "b" * 64}]},
+            {**source_version, "companions": [
+                {"target_path": target, "sha256": "b" * 64}]},
+            {**source_version, "companions": [
+                {"target_path": "assets/characters/frame.tres", "sha256": "b" * 64},
+                {"target_path": "assets/characters/FRAME.tres", "sha256": "c" * 64}]},
+            {**source_version, "companions": [
+                {"target_path": "assets/characters/frame.tres", "sha256": "bad"}]},
+            {**source_version, "companions": [
+                {"target_path": "assets/characters/frame.tres", "sha256": "b" * 64},
+                {"target_path": "assets/characters/frame.tres/nested", "sha256": "c" * 64}]},
+        )
+        for invalid in invalid_nested_receipts:
+            blocked = OfflineReviewBranch(receipt=json.dumps(invalid))
+            try:
+                _deliver_produced_assets(
+                    [review_item], target_repository="dbrckk/consumer",
+                    target_worktree=None, target_ref=review_ref, client=blocked,
+                )
+            except RuntimeError as exc:
+                if "existing asset version receipt" not in str(exc):
+                    raise
+            else:
+                raise RuntimeError("Nested malformed GitHub receipt was accepted")
+            if blocked.written_files:
+                raise RuntimeError("Nested malformed receipt triggered a GitHub commit")
+
         # The real worktree delivery path must also refuse malformed history
         # before touching the existing PNG, sidecars or the corrupt metadata.
         local_sidecar = consumer / (target + ".asset-forge.json")
         original_sidecar = local_sidecar.read_bytes()
         original_artifact = (consumer / target).read_bytes()
         try:
-            for invalid_content in ('{"version":', '{"version": 0}', '[]'):
+            for invalid_content in (
+                '{"version":', '{"version": 0}', '[]',
+                *(json.dumps(value) for value in invalid_nested_receipts),
+            ):
                 local_sidecar.write_text(invalid_content, encoding="utf-8")
                 try:
                     _deliver_produced_assets(
@@ -952,6 +998,7 @@ def main() -> None:
         print("PASS: GitHub HTTP status cannot be spoofed by response-body digits")
         print("PASS: Concurrent destination HEAD movement refuses stale asset commit")
         print("PASS: Malformed and structurally invalid GitHub/worktree receipts rejected")
+        print("PASS: Nested receipt history and companion corruption refused before GitHub/worktree writes")
         print("PASS: Tampered real producer SpriteFrames rejected before delivery")
 
 

@@ -393,6 +393,53 @@ def _version_sidecar(
             or not isinstance(existing.get("companions"), list)
         ):
             raise RuntimeError("existing asset version receipt has invalid structure")
+
+        # The nested history and companion entries are integrity evidence.
+        # Refuse malformed persisted records instead of propagating them into
+        # new versions or silently rewriting provenance metadata.
+        previous_history_version = 0
+        for record in existing["history"]:
+            if (
+                not isinstance(record, dict)
+                or type(record.get("version")) is not int
+                or not previous_history_version < record["version"] < existing["version"]
+                or not isinstance(record.get("sha256"), str)
+                or re.fullmatch(r"[0-9a-f]{64}", record["sha256"]) is None
+                or (
+                    record.get("request_fingerprint") is not None
+                    and not isinstance(record["request_fingerprint"], str)
+                )
+            ):
+                raise RuntimeError("existing asset version receipt has invalid history")
+            previous_history_version = record["version"]
+
+        import unicodedata
+        occupied = {
+            unicodedata.normalize("NFC", item["target_path"]).casefold(),
+            unicodedata.normalize(
+                "NFC", _sidecar_relative_path(item["target_path"])
+            ).casefold(),
+        }
+        for record in existing["companions"]:
+            if not isinstance(record, dict):
+                raise RuntimeError("existing asset version receipt has invalid companions")
+            try:
+                normalized_path = _validated_target_path(record.get("target_path"))
+            except ValueError as exc:
+                raise RuntimeError(
+                    "existing asset version receipt has invalid companions"
+                ) from exc
+            key = unicodedata.normalize("NFC", normalized_path).casefold()
+            digest = record.get("sha256")
+            if (
+                key in occupied
+                or not isinstance(digest, str)
+                or re.fullmatch(r"[0-9a-f]{64}", digest) is None
+            ):
+                raise RuntimeError("existing asset version receipt has invalid companions")
+            occupied.add(key)
+        if _has_file_parent_collision(occupied):
+            raise RuntimeError("existing asset version receipt has conflicting companions")
     existing = existing if isinstance(existing, dict) else {}
     prior_sha = str(existing.get("sha256") or "")
     prior_version = int(existing.get("version") or 0)
