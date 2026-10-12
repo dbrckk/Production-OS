@@ -751,57 +751,50 @@ def execute_asset_forge(
     delivery_mode = None
     delivered_to = None
     if normalized_target is not None:
-        if _is_godot_sprite_sheet(request):
-            companions = _local_godot_spriteframes_companions(
-                destination, report, normalized_target
-            )
-            generation = report.get("generation")
-            validation = report.get("validation")
-            generation = generation if isinstance(generation, dict) else {}
-            validation = validation if isinstance(validation, dict) else {}
-            single_item = {
-                "batch_id": str(request["manifest"].get("id") or request_id),
-                "request_id": request_id,
-                "target_path": normalized_target,
-                "artifact": artifact,
-                "sha256": hashlib.sha256(artifact.read_bytes()).hexdigest(),
-                "companion_files": companions,
-                "request_fingerprint": _request_fingerprint(
-                    request, [], source_path=source_path
-                ),
-                "depends_on": [],
-                "dependency_artifacts": [],
-                "cache_hit": False,
-                "visual_similarity": generation.get("visualSimilarity"),
-                "technical_art": validation.get("technicalArt"),
-                "semantic_art": validation.get("semanticArt"),
-                "library": report.get("library"),
-            }
-            delivery_mode, _delivered_files = _deliver_produced_assets(
-                [single_item],
-                target_repository=target_repository,
-                target_worktree=target_worktree,
-                target_ref=target_ref,
-                client=client,
-            )
-            if delivery_mode == "worktree":
-                delivered_to = str(
-                    (Path(target_worktree).resolve() / normalized_target).resolve()
-                )
-            else:
-                delivered_to = (
-                    f"{target_repository}:{normalized_target}@{target_ref}"
-                )
-        else:
-            delivery_mode, delivered_to = _deliver_artifact(
-                artifact,
-                target_path=normalized_target,
-                target_repository=target_repository,
-                target_worktree=target_worktree,
-                target_ref=target_ref,
-                client=client,
-                request_id=request_id,
-            )
+        # All local single-asset deliveries must carry the same verified
+        # version receipt and transactional mutation semantics as batches.
+        # Godot assets additionally have validated SpriteFrames companions.
+        companions = (
+            _local_godot_spriteframes_companions(destination, report, normalized_target)
+            if _is_godot_sprite_sheet(request)
+            else []
+        )
+        generation = report.get("generation")
+        validation = report.get("validation")
+        generation = generation if isinstance(generation, dict) else {}
+        validation = validation if isinstance(validation, dict) else {}
+        manifest = request.get("manifest")
+        manifest = manifest if isinstance(manifest, dict) else {}
+        single_item = {
+            "batch_id": str(manifest.get("id") or request_id),
+            "request_id": request_id,
+            "target_path": normalized_target,
+            "artifact": artifact,
+            "sha256": hashlib.sha256(artifact.read_bytes()).hexdigest(),
+            "companion_files": companions,
+            "request_fingerprint": _request_fingerprint(
+                request, [], source_path=source_path
+            ),
+            "depends_on": [],
+            "dependency_artifacts": [],
+            "cache_hit": False,
+            "visual_similarity": generation.get("visualSimilarity"),
+            "technical_art": validation.get("technicalArt"),
+            "semantic_art": validation.get("semanticArt"),
+            "library": report.get("library"),
+        }
+        delivery_mode, _delivered_files = _deliver_produced_assets(
+            [single_item],
+            target_repository=target_repository,
+            target_worktree=target_worktree,
+            target_ref=target_ref,
+            client=client,
+        )
+        delivered_to = (
+            str((Path(target_worktree).resolve() / normalized_target).resolve())
+            if delivery_mode == "worktree"
+            else f"{target_repository}:{normalized_target}@{target_ref}"
+        )
 
     return AssetForgeDispatch(
         repository=repository,

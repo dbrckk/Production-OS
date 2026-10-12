@@ -27,7 +27,8 @@
     "Preflight resolved local batch per-request job directories against output_root before any generation, rejecting pre-existing escaping symlinks; extend native Godot/producer smoke",
     "Reject Windows device names used as request/item IDs, and reject symlink-alias local batch job output directories even when target remains inside output_root; expand existing real producer→Godot functional smoke",
     "Prevalidate local direct single-asset target_path and consumer destination pairing before invoking CLI or creating generation output; extend existing genuine Godot functional smoke with invalid/incomplete local destination refusal",
-    "Reject local direct single-asset GitHub default-branch targets (main/master) before generating; defend _deliver_artifact direct calls; adapt existing fixture to a review branch and expand original Godot smoke"
+    "Reject local direct single-asset GitHub default-branch targets (main/master) before generating; defend _deliver_artifact direct calls; adapt existing fixture to a review branch and expand original Godot smoke",
+    "Unify local direct non-Godot and Godot asset deliveries through transactional SHA-256 sidecar/version receipt publication, including GitHub expected-head CAS; extend existing local and GitHub delivery fixtures without new tests"
   ],
   "validation": {
     "baseline_remote_godot_ci": "38136230642 COMPLETED SUCCESS on 35d92a99041858fe3b93efc000711c05068e1df0",
@@ -50,7 +51,8 @@
     "local_job_symlink_ci": "38201664711 COMPLETED SUCCESS 4/4 on 6741b57de1ae670122a6b30362f6f21484b64723 (Godot 4.4.1, Python 3.11/3.12, existing production CI)",
     "portable_id_and_internal_alias_ci": "38202253894 COMPLETED SUCCESS 4/4 on 521aa9abf7862bca2921b46accaeb3f51715d582 (Godot real import, Python 3.11/3.12, existing E2E)",
     "direct_local_destination_ci": "38202695823 COMPLETED SUCCESS 4/4 on a0fcb691c40ec516e5d2f44cc5c324501c7c8ec6 (real Godot, Python 3.11/3.12, existing E2E/Docker)",
-    "local_single_github_review_gate_ci": "pending exact-head CI"
+    "local_single_github_review_gate_ci": "pending exact-head CI",
+    "generic_local_single_sidecar_ci": "pending exact-head CI"
   },
   "remaining": [
     "Live worker-to-PR and consuming game release not verified",
@@ -61,6 +63,6 @@
     "Review-branch version fix remains DRAFT until actual CI and review"
   ],
   "current_work": [
-    "Qualify local single-asset GitHub review-branch guard; keep PR DRAFT and no canary, GPU, Render, merge or deploy"
+    "Qualify generic local single-asset SHA-256 receipt parity at exact new HEAD; preserve PR DRAFT; no GPU, canary, Render, merge"
   ]
 }

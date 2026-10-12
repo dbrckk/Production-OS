@@ -103,6 +103,15 @@ existing native producer → Godot 4 smoke checks invalid paths, Windows
 devices and mismatched destination options offline. No paid provider
 is invoked for these cases.
 
+Local direct single-asset handoff (not only Godot SpriteFrames) now reuses the
+**transactional batch delivery ledger**: each ordinary image/SVG asset and its
+`.asset-forge.json` SHA-256/version receipt are updated together in a worktree
+or a single compare-and-swap GitHub review-branch commit. Previously the
+generic direct local path used `put_file` or bare `copyfile`, omitting
+version history and atomic companion mutation. Existing worktree and GitHub
+delivery tests now assert persisted receipts, while the existing native
+Godot smoke covers the common transactional route.
+
 For GitHub repository targets, direct local single-asset delivery now requires
 a **non-default review branch**, consistent with remote single-asset and
 transactional batch delivery. `main`, `master` and their explicit

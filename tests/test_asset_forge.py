@@ -203,6 +203,10 @@ def test_execute_asset_forge_delivers_to_worktree(tmp_path):
 
     delivered = worktree / "assets/art/hud-icon.svg"
     assert delivered.read_text(encoding="utf-8") == "<svg/>"
+    sidecar = json.loads((worktree / "assets/art/hud-icon.svg.asset-forge.json").read_text())
+    assert sidecar["target_path"] == "assets/art/hud-icon.svg"
+    assert sidecar["version"] == 1
+    assert sidecar["sha256"] == hashlib.sha256(b"<svg/>").hexdigest()
     assert receipt.delivery_mode == "worktree"
     assert receipt.delivered_to == str(delivered.resolve())
 
@@ -244,11 +248,18 @@ def test_execute_asset_forge_delivers_with_existing_github_client(tmp_path):
             client=fake,
         )
 
-    write = [call for call in fake.calls if "path" in call][0]
-    assert write["repository"] == "dbrckk/deadline-zero"
-    assert write["branch"] == "review/asset-handoff"
-    assert write["path"] == "assets/art/hud-icon.svg"
-    assert write["content"] == b"<svg/>"
+    commits = [call for call in fake.calls if "files" in call]
+    assert len(commits) == 1
+    assert commits[0]["repository"] == "dbrckk/deadline-zero"
+    assert commits[0]["branch"] == "review/asset-handoff"
+    payload = commits[0]["files"]
+    assert sorted(payload) == [
+        "assets/art/hud-icon.svg", "assets/art/hud-icon.svg.asset-forge.json",
+    ]
+    assert payload["assets/art/hud-icon.svg"] == b"<svg/>"
+    sidecar = json.loads(payload["assets/art/hud-icon.svg.asset-forge.json"])
+    assert sidecar["version"] == 1
+    assert sidecar["sha256"] == hashlib.sha256(b"<svg/>").hexdigest()
     assert receipt.delivery_mode == "github"
 
 
