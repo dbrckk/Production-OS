@@ -252,6 +252,8 @@ def _preflight_worktree_delivery(
     if not worktree:
         return
     root = Path(worktree).resolve()
+    if root.exists() and not root.is_dir():
+        raise ValueError("asset-forge target_worktree must be a directory")
     for relative in target_paths:
         candidate = root
         for component in _validated_target_path(relative).split("/"):
@@ -1671,6 +1673,8 @@ def execute_asset_forge_batch(
 ) -> dict[str, Any]:
     if not items:
         raise ValueError("asset-forge batch requires at least one item")
+    if mode not in {"auto", "local", "github"}:
+        raise ValueError("asset-forge mode must be auto, local, or github")
 
     # Reject unsafe paths and case/Unicode-equivalent aliases before a remote
     # dispatch or an expensive local generation can be started.

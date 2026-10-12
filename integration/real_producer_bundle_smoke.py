@@ -689,6 +689,56 @@ def main() -> None:
                 if protected.read_bytes() != b"unrelated-original-bytes":
                     raise RuntimeError("Rejected destination alias mutated unrelated file")
 
+        # An existing worktree ROOT may itself be a regular file.
+        # Reject it before creating output or invoking the actual producer
+        # (or dispatching a remote workflow), not only at final delivery.
+        blocked_root_file = root / "invalid-consumer-root.bin"
+        blocked_root_file.write_bytes(b"keep-unrelated-consumer-data")
+        for blocked_mode in ("single-local", "batch-local", "batch-github"):
+            output = root / ("no-generation-root-file-" + blocked_mode)
+            try:
+                if blocked_mode == "single-local":
+                    execute_asset_forge(
+                        request, mode="local", output_dir=str(output),
+                        source_path=str(image), target_path=target,
+                        target_worktree=str(blocked_root_file),
+                    )
+                else:
+                    execute_asset_forge_batch(
+                        [{"id": "player", "request": request,
+                          "target_path": target,
+                          **({"source_path": str(image)} if blocked_mode == "batch-local" else {})}],
+                        mode="local" if blocked_mode == "batch-local" else "github",
+                        output_root=str(output),
+                        target_worktree=str(blocked_root_file),
+                        client=OfflineClient(source_archive),
+                    )
+            except ValueError as exc:
+                if "target_worktree must be a directory" not in str(exc):
+                    raise
+            else:
+                raise RuntimeError("Non-directory consumer root reached generation")
+            if output.exists():
+                raise RuntimeError("Invalid consumer root caused output creation")
+            if blocked_root_file.read_bytes() != b"keep-unrelated-consumer-data":
+                raise RuntimeError("Invalid consumer root changed protected file")
+
+        # An unsupported mode must not make a generation directory either.
+        invalid_mode_root = root / "no-generation-invalid-mode"
+        try:
+            execute_asset_forge_batch(
+                [{"id": "player", "request": request, "target_path": target}],
+                mode="invalid", output_root=str(invalid_mode_root),
+                target_worktree=str(consumer),
+            )
+        except ValueError as exc:
+            if "mode must be auto, local, or github" not in str(exc):
+                raise
+        else:
+            raise RuntimeError("Invalid asset batch mode reached output creation")
+        if invalid_mode_root.exists():
+            raise RuntimeError("Invalid asset batch mode created output directory")
+
         # A pre-existing job directory symlink may escape the batch output
         # root even when requestId is otherwise a safe single component.
         linked_root = root / "linked-local-jobs"
@@ -1222,6 +1272,7 @@ def main() -> None:
         print("PASS: Local batch refuses escaping or aliasing job symlinks before generator")
         print("PASS: Worktree asset, receipt and parent symlink aliases fail before writes")
         print("PASS: Local single and batch aliases rejected before generator/output")
+        print("PASS: Invalid consumer root and batch execution mode refused before generation/dispatch")
         print("PASS: Windows-reserved batch identifiers rejected before any dispatch")
         print("PASS: Invalid/incomplete local single-asset destinations refused before CLI generation")
         print("PASS: Missing direct/batch explicit source files refused before generation or cache reuse")
