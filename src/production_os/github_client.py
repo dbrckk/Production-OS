@@ -19,6 +19,12 @@ class GitHubAPIError(RuntimeError):
 
     def __init__(self, message: str, *, status_code: int | None = None):
         super().__init__(message)
+        # Existing callers and offline fixtures historically supplied only
+        # the canonical error prefix. Preserve that contract, but never
+        # mistake digits *inside the response body* for an HTTP status.
+        if status_code is None:
+            match = re.match(r"^GitHub API ([1-5][0-9]{2}):", message)
+            status_code = int(match.group(1)) if match else None
         self.status_code = status_code
 
 

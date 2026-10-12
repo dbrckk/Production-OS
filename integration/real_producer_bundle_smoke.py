@@ -484,6 +484,17 @@ def main() -> None:
                 self.written_files = dict(files)
                 return {"files": sorted(files)}
 
+        # Preserve legacy GitHubAPIError("GitHub API NNN: ...") callers while
+        # never considering a status number quoted only inside a response body.
+        for message, expected_status in (
+            ("GitHub API 404: not found", 404),
+            ("GitHub API 422: Invalid request", 422),
+            ("GitHub API 503: backend reported 404 and GitHub API 422:", 503),
+            ("GitHub API unavailable: upstream 404", None),
+        ):
+            if GitHubAPIError(message).status_code != expected_status:
+                raise RuntimeError("GitHub HTTP legacy status classification regressed")
+
         # GitHub response bodies are untrusted: their text must never spoof
         # a different HTTP status and erase a review-branch version receipt.
         class OfflineStatusClient(GitHubClient):
