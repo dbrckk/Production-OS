@@ -389,6 +389,10 @@ def _version_sidecar(
             or not isinstance(existing.get("sha256"), str)
             or len(existing["sha256"]) != 64
             or any(ch not in "0123456789abcdef" for ch in existing["sha256"])
+            or (
+                existing.get("request_fingerprint") is not None
+                and not isinstance(existing["request_fingerprint"], str)
+            )
             or not isinstance(existing.get("history"), list)
             or not isinstance(existing.get("companions"), list)
         ):
@@ -588,6 +592,8 @@ def _deliver_produced_assets(
 
     if target_worktree:
         root_worktree = Path(target_worktree).resolve()
+        if root_worktree.exists() and not root_worktree.is_dir():
+            raise ValueError("target_worktree must be a directory")
         def worktree_destination(relative_path: str, label: str) -> Path:
             candidate = root_worktree
             for component in _validated_target_path(relative_path).split("/"):
@@ -597,6 +603,16 @@ def _deliver_produced_assets(
             resolved = candidate.resolve()
             if not resolved.is_relative_to(root_worktree):
                 raise ValueError(f"{label} escapes target worktree")
+            # This shared transactional boundary must validate destination
+            # types itself, even for internal callers that skip generation
+            # preflight. Check every staged path before the first write.
+            if resolved.exists() and not resolved.is_file():
+                raise ValueError(f"{label} must be a file")
+            parent = resolved.parent
+            while parent != root_worktree:
+                if parent.exists() and not parent.is_dir():
+                    raise ValueError(f"{label} parent must be a directory")
+                parent = parent.parent
             return resolved
 
         staged = []

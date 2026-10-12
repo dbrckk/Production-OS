@@ -929,6 +929,47 @@ def main() -> None:
             ).exists():
                 raise RuntimeError("Refused directory alias wrote an asset")
 
+        # The shared transaction must check existing destination file types
+        # before staging *any* asset, even when invoked without outer preflight.
+        # These are not links: a directory at a media/receipt path or a file
+        # at a parent path must never create a partial asset or receipt.
+        for blocked_kind in ("media-directory", "receipt-directory", "file-parent"):
+            worktree = root / ("consumer-type-" + blocked_kind)
+            media = worktree / target
+            receipt_path = worktree / (target + ".asset-forge.json")
+            if blocked_kind == "media-directory":
+                media.mkdir(parents=True)
+                preserved = media
+            elif blocked_kind == "receipt-directory":
+                receipt_path.mkdir(parents=True)
+                preserved = receipt_path
+            else:
+                preserved = worktree / "assets" / "characters"
+                preserved.parent.mkdir(parents=True)
+                preserved.write_bytes(b"owned-parent-content")
+            try:
+                _deliver_produced_assets(
+                    [review_item], target_repository=None,
+                    target_worktree=str(worktree), target_ref="main", client=None,
+                )
+            except ValueError as exc:
+                if not (
+                    "must be a file" in str(exc)
+                    or "parent must be a directory" in str(exc)
+                ):
+                    raise
+            else:
+                raise RuntimeError("Shared worktree delivery accepted existing non-file destination")
+            if blocked_kind == "file-parent":
+                if preserved.read_bytes() != b"owned-parent-content":
+                    raise RuntimeError("Refused file parent was modified")
+            elif not preserved.is_dir():
+                raise RuntimeError("Refused directory destination was modified")
+            if blocked_kind == "media-directory" and receipt_path.exists():
+                raise RuntimeError("Directory media path caused receipt write")
+            if blocked_kind == "receipt-directory" and media.exists():
+                raise RuntimeError("Directory receipt path caused partial media write")
+
         # Direct shared-helper calls must also refuse GitHub default branches.
         for forbidden_ref in ("main", "master", "refs/heads/main"):
             forbidden = OfflineReviewBranch()
@@ -1041,6 +1082,8 @@ def main() -> None:
             "request_fingerprint": None,
         }
         invalid_nested_receipts = (
+            {**source_version, "request_fingerprint": {"unsafe": "nested-object"}},
+            {**source_version, "request_fingerprint": ["not-a-fingerprint"]},
             {**source_version, "history": ["not-an-entry"]},
             {**source_version, "history": [
                 {**good_history, "version": True}]},
@@ -1162,6 +1205,7 @@ def main() -> None:
         print("PASS: Concurrent destination HEAD movement refuses stale asset commit")
         print("PASS: Malformed and structurally invalid GitHub/worktree receipts rejected")
         print("PASS: Nested receipt history and companion corruption refused before GitHub/worktree writes")
+        print("PASS: Invalid current receipt fingerprint and non-file worktree destinations refused before writes")
         print("PASS: Tampered real producer SpriteFrames rejected before delivery")
 
 
