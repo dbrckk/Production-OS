@@ -348,6 +348,28 @@ def main() -> None:
         if bad_receipt.exists():
             raise RuntimeError("Unsafe target/request IDs started a remote batch before preflight")
 
+        # A pre-existing job directory symlink may escape the batch output
+        # root even when requestId is otherwise a safe single component.
+        linked_root = root / "linked-local-jobs"
+        linked_root.mkdir()
+        outside_job = root / "outside-local-job"
+        outside_job.mkdir()
+        (linked_root / request["requestId"]).symlink_to(outside_job, target_is_directory=True)
+        try:
+            execute_asset_forge_batch(
+                [{"id": "player", "request": request, "target_path": target,
+                  "source_path": str(image)}],
+                mode="local", output_root=str(linked_root),
+                target_worktree=str(consumer),
+            )
+        except ValueError as exc:
+            if "escapes output_root" not in str(exc):
+                raise
+        else:
+            raise RuntimeError("Local batch followed an output symlink outside its root")
+        if list(outside_job.iterdir()):
+            raise RuntimeError("Refused local batch wrote into an external symlink target")
+
         # Verify real GitHub Contents ref encoding and branch-specific
         # version continuity using an offline recording client.
         class OfflineReviewBranch(GitHubClient):
@@ -513,6 +535,7 @@ def main() -> None:
         print("PASS: ZIP aliases, Windows reserved names and file/directory conflicts blocked before extraction")
         print("PASS: Destination paths and nested file conflicts blocked before remote dispatch")
         print("PASS: Unsafe/colliding request IDs rejected before batch or single dispatch")
+        print("PASS: Local batch refuses escaping pre-existing job symlink before generator")
         print("PASS: Direct GitHub-mode single-asset transaction + Godot import")
         print("PASS: Implicit main-branch remote delivery refused before dispatch")
         print("PASS: Remote batch rejects main/master and missing destination before dispatch")

@@ -78,6 +78,16 @@ Godot companion files, before any target repository/worktree mutation.
 The existing native producer → Godot functional smoke covers these failures
 offline; it does not prove execution on a physical Windows machine.
 
+For local transactional batches, a valid ASCII `requestId` alone is not
+sufficient: a pre-existing symlink at `output_root/requestId` can redirect
+generated report/assets outside the designated job root. The consumer now
+resolves all job paths against the resolved batch root before starting **any**
+local generator. An escaping path aborts with no producer invocation. The
+existing real producer → Godot functional smoke exercises a malicious
+external-target symlink without network, secrets or GPU. This static
+preflight is not a guarantee against concurrent filesystem mutation by an
+untrusted process.
+
 The existing `integration/real_producer_bundle_smoke.py` verifies the
 direct route using a **native pinned Asset Forge ZIP** created from an
 original local PNG and consumed by real Godot 4.4.1. It also proves that

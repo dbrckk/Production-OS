@@ -1535,6 +1535,17 @@ def execute_asset_forge_batch(
         if effective_mode != "local":
             raise ValueError("asset-forge mode must be auto, local, or github")
 
+        # The validated requestId is a single path component, but an existing
+        # directory at that path could still be a symlink to outside the
+        # intended output root. Refuse all escaping jobs before invoking a
+        # local generator; do not silently write to an unrelated worktree.
+        resolved_root = root.resolve()
+        for item in ordered_items:
+            request_id = item["request"]["requestId"]
+            job_dir = root / request_id
+            if not job_dir.resolve().is_relative_to(resolved_root):
+                raise ValueError("asset-forge batch request output escapes output_root")
+
         for index, item in enumerate(ordered_items):
             dependency_artifacts = []
             for dependency_id in item.get("_depends_on") or []:
