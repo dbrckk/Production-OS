@@ -17,6 +17,7 @@ import sys
 import tempfile
 import zipfile
 from pathlib import Path
+from unittest.mock import patch
 
 from production_os.asset_forge import _deliver_produced_assets, _extract_remote_batch_bundle, build_asset_forge_request, execute_asset_forge, execute_asset_forge_batch
 from production_os.github_client import GitHubAPIError, GitHubClient
@@ -293,6 +294,44 @@ def main() -> None:
             raise RuntimeError("Remote batch accepted generation without any destination")
         if blocked_batch_root.exists():
             raise RuntimeError("Invalid remote batch destination created an output directory")
+
+        # Explicit local raster sources cannot be fulfilled by a remote
+        # worker. Fail *before* any GitHub dispatch or output directory,
+        # including auto mode when the local CLI is unavailable. The same
+        # restriction also applies to fire-and-forget single requests, which
+        # previously silently discarded source/reference inputs.
+        for remote_mode in ("github", "auto"):
+            refused = root / ("blocked-remote-local-source-" + remote_mode)
+            with patch("production_os.asset_forge.shutil.which", return_value=None):
+                try:
+                    execute_asset_forge_batch(
+                        [{"id": "player", "request": request,
+                          "target_path": target, "source_path": str(image)}],
+                        mode=remote_mode,
+                        output_root=str(refused), target_worktree=str(consumer),
+                        client=OfflineClient(source_archive),
+                    )
+                except ValueError as exc:
+                    if "remote transactional batch does not accept local source_path" not in str(exc):
+                        raise
+                else:
+                    raise RuntimeError("Remote batch accepted an inaccessible local source")
+                for kwargs in (
+                    {"source_path": str(image)},
+                    {"reference_paths": [str(image)]},
+                ):
+                    try:
+                        execute_asset_forge(
+                            request, mode=remote_mode, output_dir=str(refused),
+                            client=OfflineClient(source_archive), **kwargs,
+                        )
+                    except ValueError as exc:
+                        if "cannot access local source/reference files" not in str(exc):
+                            raise
+                    else:
+                        raise RuntimeError("Remote fire-and-forget lost local reference input")
+            if refused.exists():
+                raise RuntimeError("Rejected remote source created an output directory")
 
         # Existing end-to-end smoke also verifies destination preflight.
         # None of these cases may dispatch, generate, or create receipt files.
@@ -993,6 +1032,7 @@ def main() -> None:
         print("PASS: Direct GitHub-mode single-asset transaction + Godot import")
         print("PASS: Implicit main-branch remote delivery refused before dispatch")
         print("PASS: Remote batch rejects main/master and missing destination before dispatch")
+        print("PASS: Remote batch and dispatch-only reject inaccessible local inputs before output")
         print("PASS: Review-branch version lookup/transaction remains on target ref")
         print("PASS: Same binary/different request fingerprint increments provenance version")
         print("PASS: GitHub HTTP status cannot be spoofed by response-body digits")

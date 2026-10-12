@@ -726,6 +726,11 @@ def execute_asset_forge(
         effective = "local" if local_cli else "github"
 
     if effective == "github":
+        # A remote generator never reads local files, including when the
+        # caller only requests fire-and-forget dispatch. Refuse the request
+        # instead of silently generating a different asset.
+        if source_path or reference_paths:
+            raise ValueError("remote single-asset delivery cannot access local source/reference files")
         # Fire-and-forget dispatch remains available only when no delivery
         # destination was requested. Otherwise, the one-item batch must
         # verify and download a correlated artifact before reporting delivery.
@@ -738,8 +743,6 @@ def execute_asset_forge(
             normalized_target = _validated_target_path(target_path)
             if not (target_worktree or target_repository):
                 raise ValueError("remote delivery requires target_worktree or target_repository")
-            if source_path or reference_paths:
-                raise ValueError("remote single-asset delivery cannot access local source/reference files")
             if target_repository and not target_worktree and (
                 target_ref.removeprefix("refs/heads/") in {"main", "master"}
             ):
@@ -1697,6 +1700,12 @@ def execute_asset_forge_batch(
                 or not Path(source_path.strip()).is_file()
             ):
                 raise ValueError("asset-forge batch explicit source_path must be an existing file")
+    if effective_mode == "github":
+        # Remote GitHub Actions cannot access the caller's local image.
+        # Reject the whole batch before creating output or attempting a
+        # dispatch, including auto-mode fallback without a local CLI.
+        if any(str(item.get("source_path") or "").strip() for item in ordered_items):
+            raise ValueError("remote transactional batch does not accept local source_path inputs")
     root = Path(output_root)
     root.mkdir(parents=True, exist_ok=True)
     produced: list[dict[str, Any]] = []
