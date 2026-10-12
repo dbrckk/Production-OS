@@ -306,7 +306,9 @@ def main() -> None:
                 raise RuntimeError("Batch file/child destination conflict bypassed preflight")
         # The consumer must reject producer-incompatible IDs before any
         # local job directory, remote dispatch, or artifact write.
-        for unsafe_id in ("../escape", "a/b", "..", "bad id", "bad\\\\id"):
+        for unsafe_id in ("../escape", "a/b", "..", "bad id", "bad\\\\id",
+                          "CON", "con.txt", "PRN", "AUX.log", "COM1",
+                          "LPT9.data", "NUL"):
             unsafe_request = dict(request)
             unsafe_request["requestId"] = unsafe_id
             try:
@@ -369,6 +371,28 @@ def main() -> None:
             raise RuntimeError("Local batch followed an output symlink outside its root")
         if list(outside_job.iterdir()):
             raise RuntimeError("Refused local batch wrote into an external symlink target")
+
+        # A symlink to a *different job inside the same output root* also
+        # aliases paths and can overwrite another production report.
+        alias_root = root / "aliased-local-jobs"
+        alias_root.mkdir()
+        other_job = alias_root / "existing-other-job"
+        other_job.mkdir()
+        (alias_root / request["requestId"]).symlink_to(other_job, target_is_directory=True)
+        try:
+            execute_asset_forge_batch(
+                [{"id": "player", "request": request, "target_path": target,
+                  "source_path": str(image)}],
+                mode="local", output_root=str(alias_root),
+                target_worktree=str(consumer),
+            )
+        except ValueError as exc:
+            if "must not be a symlink" not in str(exc):
+                raise
+        else:
+            raise RuntimeError("Local batch followed a job alias symlink inside its root")
+        if list(other_job.iterdir()):
+            raise RuntimeError("Refused local batch wrote into another job directory")
 
         # Verify real GitHub Contents ref encoding and branch-specific
         # version continuity using an offline recording client.
@@ -535,7 +559,8 @@ def main() -> None:
         print("PASS: ZIP aliases, Windows reserved names and file/directory conflicts blocked before extraction")
         print("PASS: Destination paths and nested file conflicts blocked before remote dispatch")
         print("PASS: Unsafe/colliding request IDs rejected before batch or single dispatch")
-        print("PASS: Local batch refuses escaping pre-existing job symlink before generator")
+        print("PASS: Local batch refuses escaping or aliasing job symlinks before generator")
+        print("PASS: Windows-reserved batch identifiers rejected before any dispatch")
         print("PASS: Direct GitHub-mode single-asset transaction + Godot import")
         print("PASS: Implicit main-branch remote delivery refused before dispatch")
         print("PASS: Remote batch rejects main/master and missing destination before dispatch")

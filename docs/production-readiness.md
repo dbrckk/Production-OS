@@ -86,7 +86,13 @@ local generator. An escaping path aborts with no producer invocation. The
 existing real producer → Godot functional smoke exercises a malicious
 external-target symlink without network, secrets or GPU. This static
 preflight is not a guarantee against concurrent filesystem mutation by an
-untrusted process.
+untrusted process. A second ambiguity exists when a job path is a symlink
+**inside** the output root to another job; that is now rejected as well,
+instead of writing another job's production report. The same cross-platform
+file-component rules already used for delivery paths now reject reserved
+Windows names such as `CON`, `AUX.log` and `LPT9.data` in request/item
+identifiers before dispatch. Both cases are exercised by the existing
+functional Godot smoke without introducing new unit tests.
 
 The existing `integration/real_producer_bundle_smoke.py` verifies the
 direct route using a **native pinned Asset Forge ZIP** created from an

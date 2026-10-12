@@ -802,8 +802,12 @@ def execute_asset_forge(
 
 def _validated_batch_identifier(value: Any, *, field: str) -> str:
     """Match the real Asset Forge producer's safe identifier contract."""
-    if not isinstance(value, str) or re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,127}", value) is None:
-        raise ValueError(f"asset-forge {field} must be a safe ASCII identifier (1-128 characters)")
+    if (
+        not isinstance(value, str)
+        or re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,127}", value) is None
+        or _nonportable_asset_path_component(value)
+    ):
+        raise ValueError(f"asset-forge {field} must be a safe portable ASCII identifier (1-128 characters)")
     return value
 
 
@@ -1545,6 +1549,8 @@ def execute_asset_forge_batch(
             job_dir = root / request_id
             if not job_dir.resolve().is_relative_to(resolved_root):
                 raise ValueError("asset-forge batch request output escapes output_root")
+            if job_dir.is_symlink():
+                raise ValueError("asset-forge batch request output directory must not be a symlink")
 
         for index, item in enumerate(ordered_items):
             dependency_artifacts = []
