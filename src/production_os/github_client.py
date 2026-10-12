@@ -15,7 +15,11 @@ from .source_tree import TreeSamplePolicy, is_candidate_file, path_priority
 
 
 class GitHubAPIError(RuntimeError):
-    pass
+    """Preserve actual HTTP status independently of arbitrary response text."""
+
+    def __init__(self, message: str, *, status_code: int | None = None):
+        super().__init__(message)
+        self.status_code = status_code
 
 
 class GitHubClient:
@@ -46,7 +50,7 @@ class GitHubClient:
                 return payload, {str(k): str(v) for k, v in response.headers.items()}
         except urllib.error.HTTPError as exc:
             body = exc.read().decode("utf-8", errors="replace")
-            raise GitHubAPIError(f"GitHub API {exc.code}: {body}") from exc
+            raise GitHubAPIError(f"GitHub API {exc.code}: {body}", status_code=exc.code) from exc
         except urllib.error.URLError as exc:
             raise GitHubAPIError(f"GitHub API unavailable: {exc}") from exc
 
@@ -76,7 +80,7 @@ class GitHubClient:
                 return json.loads(body.decode("utf-8")) if body else None
         except urllib.error.HTTPError as exc:
             body = exc.read().decode("utf-8", errors="replace")
-            raise GitHubAPIError(f"GitHub API {exc.code}: {body}") from exc
+            raise GitHubAPIError(f"GitHub API {exc.code}: {body}", status_code=exc.code) from exc
         except urllib.error.URLError as exc:
             raise GitHubAPIError(f"GitHub API unavailable: {exc}") from exc
 
@@ -109,7 +113,7 @@ class GitHubClient:
         try:
             payload = self._get(f"/repos/{full_name}/releases/latest")
         except GitHubAPIError as exc:
-            if "GitHub API 404:" in str(exc):
+            if exc.status_code == 404:
                 return None
             raise
         return payload if isinstance(payload, dict) else None
@@ -245,7 +249,7 @@ class GitHubClient:
                 f"/repos/{full_name}/contents/{encoded_path}?ref={urllib.parse.quote(branch)}"
             )
         except GitHubAPIError as exc:
-            if "404" not in str(exc):
+            if exc.status_code != 404:
                 raise
         payload: dict[str, Any] = {
             "message": message,
@@ -297,17 +301,9 @@ class GitHubClient:
                 {"ref": "", "inputs": {}},
             )
         except GitHubAPIError as exc:
-            detail = str(exc)
-            if "GitHub API 422:" in detail:
+            if exc.status_code == 422:
                 return True
-            if any(
-                marker in detail
-                for marker in (
-                    "GitHub API 401:",
-                    "GitHub API 403:",
-                    "GitHub API 404:",
-                )
-            ):
+            if exc.status_code in {401, 403, 404}:
                 return False
             raise
         raise GitHubAPIError(
@@ -326,9 +322,9 @@ class GitHubClient:
             )
         except GitHubAPIError as exc:
             detail = str(exc)
-            if "GitHub API 422:" in detail and "not valid Base64" in detail:
+            if exc.status_code == 422 and "not valid Base64" in detail:
                 return True
-            if any(f"GitHub API {code}:" in detail for code in (401, 403, 404)):
+            if exc.status_code in {401, 403, 404}:
                 return False
             raise
         raise GitHubAPIError("GitHub contents permission probe unexpectedly succeeded")
@@ -446,7 +442,7 @@ class GitHubClient:
                 f"/repos/{full_name}/branches/{encoded}/protection"
             )
         except GitHubAPIError as exc:
-            if "404" in str(exc):
+            if exc.status_code == 404:
                 return False
             return None
         return isinstance(payload, dict)
@@ -462,7 +458,7 @@ class GitHubClient:
                 f"/repos/{full_name}/branches/{encoded}/protection"
             )
         except GitHubAPIError as exc:
-            if "404" in str(exc):
+            if exc.status_code == 404:
                 return []
             return None
         if not isinstance(payload, dict):
@@ -696,7 +692,7 @@ class GitHubClient:
         try:
             payload = self._get(f"/repos/{full_name}/contents{suffix}")
         except GitHubAPIError as exc:
-            if "404" in str(exc):
+            if exc.status_code == 404:
                 return []
             raise
         return payload if isinstance(payload, list) else [payload]
@@ -711,7 +707,7 @@ class GitHubClient:
         try:
             payload = self._get(endpoint)
         except GitHubAPIError as exc:
-            if "404" in str(exc):
+            if exc.status_code == 404:
                 return ""
             raise
         encoded = payload.get("content")

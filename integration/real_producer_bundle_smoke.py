@@ -484,6 +484,91 @@ def main() -> None:
                 self.written_files = dict(files)
                 return {"files": sorted(files)}
 
+        # GitHub response bodies are untrusted: their text must never spoof
+        # a different HTTP status and erase a review-branch version receipt.
+        class OfflineStatusClient(GitHubClient):
+            def __init__(self, code: int, body: str):
+                super().__init__(token="offline-smoke-placeholder")
+                self.code = code
+                self.body = body
+                self.writes = 0
+
+            def _get(self, _path):
+                raise GitHubAPIError(
+                    f"GitHub API {self.code}: {self.body}",
+                    status_code=self.code,
+                )
+
+            def _request(self, _method, _path, _payload=None):
+                self.writes += 1
+                return {"content": {"sha": "offline-smoke"}}
+
+        misleading = OfflineStatusClient(
+            503, '{"message": "upstream 404 while fetching receipt"}'
+        )
+        for operation in (
+            lambda: misleading.read_json_file(
+                "dbrckk/consumer", "assets/test.asset-forge.json",
+                ref="review/asset-handoff", strict=True,
+            ),
+            lambda: misleading.put_file(
+                "dbrckk/consumer", "assets/test.png", b"payload",
+                message="offline status gate", branch="review/asset-handoff",
+            ),
+            lambda: misleading.latest_release("dbrckk/consumer"),
+            lambda: misleading._contents("dbrckk/consumer", "assets"),
+        ):
+            try:
+                operation()
+            except GitHubAPIError as exc:
+                if exc.status_code != 503:
+                    raise
+            else:
+                raise RuntimeError("GitHub HTTP 503 was silently mistaken for 404")
+        if misleading.writes:
+            raise RuntimeError("Ambiguous GitHub error triggered a contents write")
+        if misleading.get_branch_protection("dbrckk/consumer", "main") is not None:
+            raise RuntimeError("GitHub 503 spoofed an unprotected branch")
+        if misleading.get_branch_required_checks("dbrckk/consumer", "main") is not None:
+            raise RuntimeError("GitHub 503 spoofed absent required checks")
+
+        missing = OfflineStatusClient(404, '{"message": "Not Found"}')
+        if missing.read_json_file(
+            "dbrckk/consumer", "assets/test.asset-forge.json",
+            ref="review/asset-handoff", strict=True,
+        ) is not None:
+            raise RuntimeError("Real HTTP 404 receipt was not treated as absent")
+        missing.put_file(
+            "dbrckk/consumer", "assets/test.png", b"payload",
+            message="offline missing contents", branch="review/asset-handoff",
+        )
+        if missing.writes != 1:
+            raise RuntimeError("Real HTTP 404 did not permit first contents write")
+
+        class OfflinePermissionError(OfflineStatusClient):
+            def _request(self, _method, _path, _payload=None):
+                raise GitHubAPIError(
+                    f"GitHub API {self.code}: {self.body}",
+                    status_code=self.code,
+                )
+
+        spoofed = OfflinePermissionError(
+            503, '{"message": "GitHub API 422: not valid Base64"}'
+        )
+        for operation in (
+            lambda: spoofed.can_dispatch_workflow(
+                "dbrckk/consumer", "asset-forge-batch.yml"
+            ),
+            lambda: spoofed.can_write_contents("dbrckk/consumer"),
+        ):
+            try:
+                operation()
+            except GitHubAPIError as exc:
+                if exc.status_code != 503:
+                    raise
+            else:
+                raise RuntimeError("GitHub HTTP 503 spoofed positive permission probe")
+
         review_ref = "review/asset-handoff"
         review_item = {
             "batch_id": "player",
@@ -688,6 +773,7 @@ def main() -> None:
         print("PASS: Implicit main-branch remote delivery refused before dispatch")
         print("PASS: Remote batch rejects main/master and missing destination before dispatch")
         print("PASS: Review-branch version lookup/transaction remains on target ref")
+        print("PASS: GitHub HTTP status cannot be spoofed by response-body digits")
         print("PASS: Concurrent destination HEAD movement refuses stale asset commit")
         print("PASS: Malformed and structurally invalid GitHub/worktree receipts rejected")
         print("PASS: Tampered real producer SpriteFrames rejected before delivery")
