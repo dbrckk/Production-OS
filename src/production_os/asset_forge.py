@@ -1087,6 +1087,15 @@ def _extract_remote_batch_bundle(data: bytes, destination: Path) -> Path:
                 raise RuntimeError("asset-forge remote batch artifact contains unsafe path")
             if any(_nonportable_asset_path_component(part) for part in parts):
                 raise RuntimeError("asset-forge remote batch artifact contains non-portable path")
+            # Existing paths can alias ZIP entries on case-insensitive or NFC-
+            # normalizing filesystems. Reject them before extracting the first
+            # file, just as the final asset delivery boundary already does.
+            try:
+                _reject_nonportable_worktree_alias(root, "/".join(parts))
+            except ValueError as exc:
+                raise RuntimeError(
+                    "asset-forge remote batch extraction aliases existing case/Unicode path"
+                ) from exc
             mode = (info.external_attr >> 16) & 0o170000
             if mode == 0o120000:
                 raise RuntimeError("asset-forge remote batch artifact contains symlink")

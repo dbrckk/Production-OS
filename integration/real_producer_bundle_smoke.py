@@ -228,6 +228,46 @@ def main() -> None:
             ):
                 raise RuntimeError("Rejected ZIP left partial files or damaged existing data")
 
+        # Pre-existing case/Unicode aliases are just as ambiguous as symlinks
+        # when the consumer runs on case-insensitive or NFC-normalizing hosts.
+        # Refuse the *entire* archive without altering earlier files.
+        for alias_kind, existing_name, zip_name in (
+            ("file-case", "assets/PLAYER.png", "assets/player.png"),
+            ("parent-case", "Assets", "assets/player.png"),
+            ("file-unicode", "assets/café.png", "assets/cafe\u0301.png"),
+            ("parent-unicode", "café", "cafe\u0301/child.png"),
+        ):
+            alias_root = root / ("unsafe-zip-existing-portable-" + alias_kind)
+            alias_root.mkdir()
+            existing_path = alias_root / existing_name
+            if alias_kind.startswith("parent"):
+                existing_path.mkdir(parents=True)
+                protected = existing_path / "preserved.bin"
+            else:
+                existing_path.parent.mkdir(parents=True, exist_ok=True)
+                protected = existing_path
+            protected.write_bytes(b"preserve-original-owned-file")
+            bundle = io.BytesIO()
+            with zipfile.ZipFile(bundle, "w", zipfile.ZIP_DEFLATED) as archive:
+                archive.writestr("safe-first.png", b"must-not-extract")
+                archive.writestr(zip_name, b"untrusted-overwrite")
+            try:
+                _extract_remote_batch_bundle(bundle.getvalue(), alias_root)
+            except RuntimeError as exc:
+                if "extraction aliases existing case/Unicode path" not in str(exc):
+                    raise
+            else:
+                raise RuntimeError(
+                    "Existing ZIP extraction portable alias passed preflight: " + alias_kind
+                )
+            if (
+                (alias_root / "safe-first.png").exists()
+                or protected.read_bytes() != b"preserve-original-owned-file"
+            ):
+                raise RuntimeError(
+                    "Rejected portable-alias ZIP mutated existing data or extracted first file"
+                )
+
         # An existing *internal* symlink aliases another file in the same
         # extraction root. Earlier path-escape checks accepted such aliases,
         # overwriting files the producer ZIP did not explicitly name.
@@ -1390,6 +1430,7 @@ def main() -> None:
         print("PASS: REAL Asset Forge remote_batch -> Production-OS -> Godot 4")
         print("PASS: Native batch-result/report, sidecar SHA256 and Godot resource load")
         print("PASS: ZIP aliases, Windows reserved names and file/directory conflicts blocked before extraction")
+        print("PASS: Existing ZIP target/parent case and Unicode aliases fail before extraction")
         print("PASS: Corrupt ZIP CRC rejected before creating or overwriting any extraction files")
         print("PASS: Existing file/parent symlink ZIP aliases refused before any write")
         print("PASS: Existing ZIP file/directory destination conflicts refuse partial extraction")
