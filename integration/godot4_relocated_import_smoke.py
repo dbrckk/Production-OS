@@ -307,6 +307,31 @@ def main() -> None:
             )
             if cached["quality_summary"]["cache_hits"] != 1:
                 raise RuntimeError("Verified Godot cache did not avoid regeneration")
+            # A cache from one generator/model must never masquerade as
+            # a different generation. The CLI is absent here: a wrong cache
+            # hit would succeed, while correct invalidation must refuse.
+            receipt_path = consumer / (target + ".asset-forge.json")
+            baseline_receipt = receipt_path.read_bytes()
+            for variant in (
+                {"backend": "another-backend"},
+                {"model": "another-model"},
+            ):
+                try:
+                    execute_asset_forge_batch(
+                        local_items, mode="local",
+                        output_root=str(root / ("variant-" + next(iter(variant)))),
+                        target_worktree=str(consumer), **variant,
+                    )
+                except RuntimeError as exc:
+                    if "CLI is required" not in str(exc):
+                        raise
+                else:
+                    raise RuntimeError(
+                        "Asset cache incorrectly reused across generator/model change"
+                    )
+                if receipt_path.read_bytes() != baseline_receipt:
+                    raise RuntimeError("Refused generation altered version provenance")
+            print("PASS: cache invalidates on backend/model changes without CLI")
             tres = consumer / "assets/characters/player.tres"
             clean = tres.read_bytes()
             tres.write_bytes(clean + b"\n; altered cached SpriteFrames\n")
