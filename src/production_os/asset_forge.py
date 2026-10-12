@@ -880,6 +880,14 @@ def execute_asset_forge(
         if normalized_target is not None else None
     )
     destination = Path(output_dir or f"build/asset-forge/{request_id}")
+    # Direct single-asset execution must match the batch output-root safety
+    # boundary. A user-supplied directory (or an ancestor) may be a symlink
+    # to a separate worktree: the original producer would write there before
+    # consumer delivery validation can refuse the request.
+    if any(path.is_symlink() for path in (destination, *destination.parents)):
+        raise ValueError("asset-forge local output directory must not traverse a symlink")
+    if destination.exists() and not destination.is_dir():
+        raise ValueError("asset-forge local output directory must be a directory")
     destination.mkdir(parents=True, exist_ok=True)
 
     with tempfile.TemporaryDirectory(prefix="production-os-asset-forge-") as tmp:

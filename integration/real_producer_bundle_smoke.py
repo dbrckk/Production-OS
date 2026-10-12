@@ -620,6 +620,53 @@ def main() -> None:
         if bad_local_root.exists():
             raise RuntimeError("Refused local asset delivery created output before preflight")
 
+        # Direct local generation must not follow a symlinked output root
+        # (or an ancestor), including when no consumer delivery is requested.
+        # The batch API already rejects its output_root symlinks.
+        for alias_type in ("root", "parent"):
+            protected_root = root / ("protected-single-output-" + alias_type)
+            protected_root.mkdir()
+            protected_marker = protected_root / "do-not-touch.bin"
+            protected_marker.write_bytes(b"owned-single-output")
+            link = root / ("single-output-link-" + alias_type)
+            link.symlink_to(protected_root, target_is_directory=True)
+            output_destination = link if alias_type == "root" else link / "generated"
+            for delivery_fields in (
+                {},
+                {"target_path": target, "target_worktree": str(consumer)},
+            ):
+                try:
+                    execute_asset_forge(
+                        request, mode="local", output_dir=str(output_destination),
+                        source_path=str(image), **delivery_fields,
+                    )
+                except ValueError as exc:
+                    if "output directory must not traverse a symlink" not in str(exc):
+                        raise
+                else:
+                    raise RuntimeError("Direct local generator followed output symlink")
+            if (
+                sorted(path.name for path in protected_root.iterdir()) != ["do-not-touch.bin"]
+                or protected_marker.read_bytes() != b"owned-single-output"
+            ):
+                raise RuntimeError("Direct output symlink modified a protected directory")
+
+        # Existing regular files also cannot serve as local generator output.
+        blocked_direct_file = root / "blocked-single-output-file"
+        blocked_direct_file.write_bytes(b"preserve-file")
+        try:
+            execute_asset_forge(
+                request, mode="local", output_dir=str(blocked_direct_file),
+                source_path=str(image),
+            )
+        except ValueError as exc:
+            if "output directory must be a directory" not in str(exc):
+                raise
+        else:
+            raise RuntimeError("Direct local generator accepted a file output root")
+        if blocked_direct_file.read_bytes() != b"preserve-file":
+            raise RuntimeError("Direct output type check modified an existing file")
+
         # A missing explicit source must never become an implicit no-source
         # fingerprint, reuse a cache entry, or start generator work.
         absent_source = root / "missing-owned-source.png"
@@ -1445,6 +1492,7 @@ def main() -> None:
         print("PASS: Invalid consumer root and batch execution mode refused before generation/dispatch")
         print("PASS: Windows-reserved batch identifiers rejected before any dispatch")
         print("PASS: Invalid/incomplete local single-asset destinations refused before CLI generation")
+        print("PASS: Direct local output root, parent symlink and file aliases refused before generation")
         print("PASS: Missing direct/batch explicit source files refused before generation or cache reuse")
         print("PASS: Local single-asset GitHub main/master delivery refused before generation")
         print("PASS: Direct GitHub-mode single-asset transaction + Godot import")
