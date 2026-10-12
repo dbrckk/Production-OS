@@ -1637,9 +1637,11 @@ def execute_asset_forge_batch(
     effective_mode = mode
     if mode == "auto":
         effective_mode = "local" if shutil.which("asset-forge") else "github"
-    if effective_mode == "local":
+    if effective_mode == "local" or mode == "auto":
         # Reject *every* absent explicit source before creating a batch
         # output directory, running providers, or making a cache decision.
+        # Auto fallback to remote must also reject a missing local file first;
+        # otherwise it creates output before refusing local source inputs.
         for item in ordered_items:
             source_path = item.get("source_path")
             if source_path is not None and (
