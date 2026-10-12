@@ -547,6 +547,23 @@ def main() -> None:
             ).exists():
                 raise RuntimeError("Refused directory alias wrote an asset")
 
+        # Direct shared-helper calls must also refuse GitHub default branches.
+        for forbidden_ref in ("main", "master", "refs/heads/main"):
+            forbidden = OfflineReviewBranch()
+            try:
+                _deliver_produced_assets(
+                    [review_item], target_repository="dbrckk/consumer",
+                    target_worktree=None, target_ref=forbidden_ref,
+                    client=forbidden,
+                )
+            except ValueError as exc:
+                if "non-default review branch" not in str(exc):
+                    raise
+            else:
+                raise RuntimeError("Shared asset delivery bypassed GitHub review")
+            if forbidden.read_paths or forbidden.written_files:
+                raise RuntimeError("Refused default-branch delivery accessed GitHub")
+
         github = OfflineReviewBranch()
         delivery_mode, delivered_files = _deliver_produced_assets(
             [review_item],

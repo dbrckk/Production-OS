@@ -466,6 +466,13 @@ def _deliver_produced_assets(
     delivery_mode = None
     delivered_to: list[str] = []
 
+    # Enforce the review branch requirement in the shared delivery boundary.
+    # Direct internal callers must not bypass the public entrypoint preflight.
+    if target_repository and not target_worktree and (
+        target_ref.removeprefix("refs/heads/") in {"main", "master"}
+    ):
+        raise ValueError("asset-forge repository delivery requires an explicit non-default review branch")
+
     # Validate all destinations before touching either a worktree or GitHub.
     # Include metadata sidecars and companion files in the collision ledger.
     import unicodedata
