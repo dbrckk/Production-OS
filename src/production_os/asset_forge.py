@@ -864,12 +864,23 @@ def execute_asset_forge(
     if source_path and not Path(source_path).is_file():
         raise ValueError("asset-forge explicit local source_path must be an existing file")
 
-    if not local_cli:
-        raise RuntimeError("asset-forge CLI is required for local execution")
-
     request_id = str(request.get("requestId") or "").strip()
     if not request_id:
         raise ValueError("asset-forge requestId is required")
+    destination = Path(output_dir or f"build/asset-forge/{request_id}")
+    # Direct single-asset execution must match the batch output-root safety
+    # boundary. A user-supplied directory (or an ancestor) may be a symlink
+    # to a separate worktree: the original producer would write there before
+    # consumer delivery validation can refuse the request.
+    # Check before even consulting CLI availability: invalid output paths
+    # must fail closed without a generator binary or any output side effects.
+    if any(path.is_symlink() for path in (destination, *destination.parents)):
+        raise ValueError("asset-forge local output directory must not traverse a symlink")
+    if destination.exists() and not destination.is_dir():
+        raise ValueError("asset-forge local output directory must be a directory")
+
+    if not local_cli:
+        raise RuntimeError("asset-forge CLI is required for local execution")
     # Fail before CLI invocation/output creation if an explicit input
     # reference is missing; retain the exact fingerprint for the receipt.
     direct_fingerprint = (
@@ -879,15 +890,6 @@ def execute_asset_forge(
         )
         if normalized_target is not None else None
     )
-    destination = Path(output_dir or f"build/asset-forge/{request_id}")
-    # Direct single-asset execution must match the batch output-root safety
-    # boundary. A user-supplied directory (or an ancestor) may be a symlink
-    # to a separate worktree: the original producer would write there before
-    # consumer delivery validation can refuse the request.
-    if any(path.is_symlink() for path in (destination, *destination.parents)):
-        raise ValueError("asset-forge local output directory must not traverse a symlink")
-    if destination.exists() and not destination.is_dir():
-        raise ValueError("asset-forge local output directory must be a directory")
     destination.mkdir(parents=True, exist_ok=True)
 
     with tempfile.TemporaryDirectory(prefix="production-os-asset-forge-") as tmp:
