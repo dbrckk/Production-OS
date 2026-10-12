@@ -6,6 +6,12 @@ The project adopts the [88-rule standard](https://github.com/dbrckk/repo-standar
 
 **Owner preference: do not create new unit tests.** Existing tests may be run for diagnostics; prioritize real functional and integration verification, lint, build, and reproducible checks. Never claim an unexecuted check passed.
 
+## Création d'applications Android — prérequis REA
+
+Avant de planifier la réalisation d'une nouvelle application Android (ou refonte importante), lire le [workflow REA de recherche de références](https://github.com/dbrckk/repo-standards/blob/50662421a37d91cda086261d9b20b42288f66cc0/skills/app-reference-rea/SKILL.md) et le [guide de raccordement Production-OS](docs/application-reference-rea.md). Chercher des applications officielles équivalentes, renseigner la provenance exacte des APK accessibles, leur SHA-256 et la signature vérifiée, utiliser le dépôt [zombie-apk](https://github.com/dbrckk/zombie-apk/blob/ad335eab2d65def1e63fbde0374fe2cba785b400/references/catalog.json) comme **catalogue central** et exécuter REA uniquement lorsqu'un binaire licite et les prérequis techniques sont disponibles. En tirer des solutions originales et améliorées, sans copier du code/asset propriétaire.
+
+**Si le téléchargement officiel n'est pas proposé, noter le blocage et conserver des preuves issues de fiches éditeurs/officielles ; ne jamais prétendre avoir exécuté REA.** Les APK restent privés par défaut, leur diffusion publique exige les droits de redistribution. Ne pas contourner DRM, authentification ou protections ; ne pas modifier le standard figé des 88 règles. Cette instruction d'agent ne constitue pas à elle seule une nouvelle étape automatisée de runtime.
+
 Preserve repository-specific constraints and authorized scope. The pinned policy commit above governs the 88 rules; `.repo-standards.yml` continues to configure existing repository intelligence and reusable workflows independently. Do not change workflow refs merely to adopt these rules.
 
 
