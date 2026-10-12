@@ -358,10 +358,13 @@ def _version_sidecar(
         for extra in item.get("companion_files") or []
     ]
     companions.sort(key=lambda entry: entry["target_path"])
+    # An identical binary can be produced by a different semantic request.
+    # Preserve that provenance transition as a new version even if bytes match.
     same = (
         prior_sha == item["sha256"]
         and prior_version > 0
         and (existing.get("companions") or []) == companions
+        and existing.get("request_fingerprint") == item["request_fingerprint"]
     )
     version = prior_version if same else prior_version + 1
     history = list(existing.get("history") or []) if isinstance(existing.get("history"), list) else []

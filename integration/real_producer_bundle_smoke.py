@@ -682,6 +682,40 @@ def main() -> None:
         if version.get("version") != 8 or version.get("history", [{}])[-1].get("version") != 7:
             raise RuntimeError("Review branch asset history did not advance version 7 to 8")
 
+        # Identical bytes do not imply the same asset provenance. A new
+        # semantic request must advance the version and preserve fingerprint
+        # history, while an exact retry stays on its existing version.
+        source_version = json.loads(
+            github.written_files[target + ".asset-forge.json"].decode("utf-8")
+        )
+        if source_version["version"] != 8:
+            raise RuntimeError("Baseline branch version is not eight")
+        for new_fingerprint, expected_version in (
+            ("original-review-branch-smoke", 8),
+            ("original-review-branch-smoke-changed", 9),
+        ):
+            original = OfflineReviewBranch(receipt=json.dumps(source_version))
+            rerun = {**review_item, "request_fingerprint": new_fingerprint}
+            _deliver_produced_assets(
+                [rerun], target_repository="dbrckk/consumer",
+                target_worktree=None, target_ref=review_ref, client=original,
+            )
+            new_version = json.loads(
+                original.written_files[target + ".asset-forge.json"].decode("utf-8")
+            )
+            if new_version["version"] != expected_version:
+                raise RuntimeError(
+                    "Identical asset payload failed request-fingerprint versioning"
+                )
+            if new_fingerprint != source_version["request_fingerprint"]:
+                old_record = new_version["history"][-1]
+                if (old_record.get("version") != 8 or
+                        old_record.get("request_fingerprint") !=
+                        source_version["request_fingerprint"]):
+                    raise RuntimeError(
+                        "Changed semantic request lost prior provenance history"
+                    )
+
         # Exercise a concurrent branch change after reading the receipt.
         # No stale version can be committed on top of another writer's HEAD.
         moved = OfflineReviewBranch(move_before_commit=True)
@@ -784,6 +818,7 @@ def main() -> None:
         print("PASS: Implicit main-branch remote delivery refused before dispatch")
         print("PASS: Remote batch rejects main/master and missing destination before dispatch")
         print("PASS: Review-branch version lookup/transaction remains on target ref")
+        print("PASS: Same binary/different request fingerprint increments provenance version")
         print("PASS: GitHub HTTP status cannot be spoofed by response-body digits")
         print("PASS: Concurrent destination HEAD movement refuses stale asset commit")
         print("PASS: Malformed and structurally invalid GitHub/worktree receipts rejected")
