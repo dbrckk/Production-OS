@@ -410,6 +410,80 @@ def main() -> None:
                 marker="GODOT_RELOCATED_SPRITEFRAMES_OK")
             print("PASS: direct single-asset local CLI -> complete Godot 4 import")
 
+            # Same original PNG source, but a newly supplied reference image,
+            # must cause a new receipt version even if output bytes match.
+            reference_png = root / "owned-reference.png"
+            reference_png.write_bytes(original_png())
+            receipt_path = single_consumer / (target + ".asset-forge.json")
+            baseline = json.loads(receipt_path.read_text(encoding="utf-8"))
+            if baseline.get("version") != 1:
+                raise RuntimeError("Original direct asset receipt version is invalid")
+            supplied = execute_asset_forge(
+                local_request, mode="local",
+                output_dir=str(root / "single-reference-first"),
+                source_path=str(original / "player.png"),
+                reference_paths=[str(reference_png)],
+                target_path=target, target_worktree=str(single_consumer),
+            )
+            first_ref = json.loads(receipt_path.read_text(encoding="utf-8"))
+            if (
+                supplied.delivery_mode != "worktree"
+                or first_ref.get("version") != 2
+                or first_ref.get("sha256") != baseline.get("sha256")
+                or first_ref.get("request_fingerprint") == baseline.get("request_fingerprint")
+            ):
+                raise RuntimeError("Provided image reference was missing from version identity")
+
+            # Add a valid original PNG text chunk: its reference contents
+            # change, whereas the actual source image and final pixels do not.
+            ref_content = b"project-owned\x00alternate-reference"
+            ref_chunk = (
+                struct.pack(">I", len(ref_content))
+                + b"tEXt" + ref_content
+                + struct.pack(">I", zlib.crc32(b"tEXt" + ref_content) & 0xFFFFFFFF)
+            )
+            reference_png.write_bytes(original_png()[:-12] + ref_chunk + original_png()[-12:])
+            execute_asset_forge(
+                local_request, mode="local",
+                output_dir=str(root / "single-reference-changed"),
+                source_path=str(original / "player.png"),
+                reference_paths=[str(reference_png)],
+                target_path=target, target_worktree=str(single_consumer),
+            )
+            changed_ref = json.loads(receipt_path.read_text(encoding="utf-8"))
+            if (
+                changed_ref.get("version") != 3
+                or changed_ref.get("sha256") != baseline.get("sha256")
+                or changed_ref.get("request_fingerprint") == first_ref.get("request_fingerprint")
+                or changed_ref.get("history", [{}])[-1].get("request_fingerprint")
+                    != first_ref.get("request_fingerprint")
+            ):
+                raise RuntimeError("Modified local reference lost version provenance")
+
+            # A missing explicit local reference is rejected before any
+            # generation output directory or consumer write exists.
+            invalid_output = root / "invalid-reference-production"
+            try:
+                execute_asset_forge(
+                    local_request, mode="local", output_dir=str(invalid_output),
+                    source_path=str(original / "player.png"),
+                    reference_paths=[str(root / "nonexistent-reference.png")],
+                    target_path=target, target_worktree=str(single_consumer),
+                )
+            except OSError:
+                pass
+            else:
+                raise RuntimeError("Missing local reference incorrectly reached producer")
+            if invalid_output.exists():
+                raise RuntimeError("Invalid local reference created generator files")
+            run([godot, "--headless", "--path", str(single_consumer), "--import"],
+                cwd=root)
+            run([godot, "--headless", "--path", str(single_consumer), "--script",
+                 "res://verify.gd"], cwd=root,
+                marker="GODOT_RELOCATED_SPRITEFRAMES_OK")
+            print("PASS: original local visual reference hashes preserve version history")
+
+
         finally:
             os.environ["PATH"] = old_path
 

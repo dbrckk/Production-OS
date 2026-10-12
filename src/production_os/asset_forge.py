@@ -155,6 +155,7 @@ def _request_fingerprint(
     dependency_artifacts: list[dict[str, Any]],
     *,
     source_path: str | None = None,
+    reference_paths: list[str] | None = None,
     backend: str = "auto",
     model: str | None = None,
 ) -> str:
@@ -180,6 +181,13 @@ def _request_fingerprint(
         "backend": backend,
         "model": model,
     }
+    # Explicit local visual references are generator inputs. Preserve their
+    # ordered content hashes, not only their (mutable) filesystem names.
+    if reference_paths:
+        payload["reference_sha256"] = [
+            hashlib.sha256(Path(path).read_bytes()).hexdigest()
+            for path in reference_paths
+        ]
     return hashlib.sha256(
         json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
     ).hexdigest()
@@ -767,6 +775,15 @@ def execute_asset_forge(
     request_id = str(request.get("requestId") or "").strip()
     if not request_id:
         raise ValueError("asset-forge requestId is required")
+    # Fail before CLI invocation/output creation if an explicit input
+    # reference is missing; retain the exact fingerprint for the receipt.
+    direct_fingerprint = (
+        _request_fingerprint(
+            request, [], source_path=source_path,
+            reference_paths=reference_paths, backend=backend, model=model,
+        )
+        if normalized_target is not None else None
+    )
     destination = Path(output_dir or f"build/asset-forge/{request_id}")
     destination.mkdir(parents=True, exist_ok=True)
 
@@ -836,9 +853,7 @@ def execute_asset_forge(
             "artifact": artifact,
             "sha256": hashlib.sha256(artifact.read_bytes()).hexdigest(),
             "companion_files": companions,
-            "request_fingerprint": _request_fingerprint(
-                request, [], source_path=source_path, backend=backend, model=model
-            ),
+            "request_fingerprint": direct_fingerprint,
             "depends_on": [],
             "dependency_artifacts": [],
             "cache_hit": False,
