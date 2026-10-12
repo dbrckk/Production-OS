@@ -1602,16 +1602,30 @@ def execute_asset_forge_batch(
     ):
         raise ValueError("asset-forge batch repository delivery requires an explicit non-default review branch")
 
+    # A Godot sheet creates SpriteFrames and atlas companions in addition
+    # to its primary asset and receipt. Detect collisions across the *entire*
+    # intended payload before local generation or remote workflow dispatch.
+    # The transactional delivery path independently rechecks generated names.
+    delivery_names: set[str] = set()
+    target_names: list[str] = []
+    for item in ordered_items:
+        asset_path = item["target_path"]
+        names = [asset_path, _sidecar_relative_path(asset_path)]
+        if _is_godot_sprite_sheet(item["request"]):
+            names.extend([
+                str(Path(asset_path).with_suffix(".tres")),
+                str(Path(asset_path).with_suffix(".atlas-metadata.json")),
+            ])
+        for name in names:
+            key = unicodedata.normalize("NFC", _validated_target_path(name)).casefold()
+            if key in delivery_names:
+                raise ValueError("asset-forge batch planned media/receipt/companion path collision")
+            delivery_names.add(key)
+        target_names.extend(names)
+    if _has_file_parent_collision(delivery_names):
+        raise ValueError("asset-forge batch planned delivery file/directory conflict")
+
     if target_worktree:
-        target_names: list[str] = []
-        for item in ordered_items:
-            asset_path = item["target_path"]
-            target_names.extend([asset_path, _sidecar_relative_path(asset_path)])
-            if _is_godot_sprite_sheet(item["request"]):
-                target_names.extend([
-                    str(Path(asset_path).with_suffix(".tres")),
-                    str(Path(asset_path).with_suffix(".atlas-metadata.json")),
-                ])
         _preflight_worktree_delivery(target_worktree, target_names)
 
     root = Path(output_root)

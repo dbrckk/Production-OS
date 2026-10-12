@@ -149,6 +149,44 @@ def main() -> None:
 
         dispatch_item = {"id": item["id"], "request": request, "target_path": target}
 
+        # A second job may choose the first sheet's SpriteFrames or atlas
+        # companion as its own output. Such a batch must be rejected *before*
+        # creating an output root or trying a paid/hosted producer.
+        for collision_target in (
+            "assets/characters/player.tres",
+            "assets/characters/player.atlas-metadata.json",
+            "assets/characters/PLAYER.PNG.asset-forge.json",
+        ):
+            second = json.loads(json.dumps(request))
+            second["requestId"] = "companion-collision-check"
+            second["manifest"]["id"] = "collision"
+            conflicting_items = [
+                dispatch_item,
+                {
+                    "id": "collision",
+                    "request": second,
+                    "target_path": collision_target,
+                },
+            ]
+            for execution_mode in ("local", "github"):
+                refused_root = root / (
+                    "refused-companion-" + str(len(collision_target))
+                    + "-" + execution_mode
+                )
+                try:
+                    execute_asset_forge_batch(
+                        conflicting_items, mode=execution_mode,
+                        output_root=str(refused_root),
+                        target_worktree=str(root / "collision-worktree"),
+                    )
+                except ValueError as exc:
+                    if "planned media/receipt/companion path collision" not in str(exc):
+                        raise
+                else:
+                    raise RuntimeError("Batch generated despite planned companion collision")
+                if refused_root.exists():
+                    raise RuntimeError("Rejected batch created generation output")
+
         consumer = root / "verified-consumer"
         consumer.mkdir()
         (consumer / "project.godot").write_text(
@@ -850,6 +888,7 @@ def main() -> None:
         print("PASS: Native batch-result/report, sidecar SHA256 and Godot resource load")
         print("PASS: ZIP aliases, Windows reserved names and file/directory conflicts blocked before extraction")
         print("PASS: Destination paths and nested file conflicts blocked before remote dispatch")
+        print("PASS: Planned media/receipt/Godot companion collisions refused before generation")
         print("PASS: Unsafe/colliding request IDs rejected before batch or single dispatch")
         print("PASS: Local batch refuses escaping or aliasing job symlinks before generator")
         print("PASS: Worktree asset, receipt and parent symlink aliases fail before writes")
