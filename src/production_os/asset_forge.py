@@ -1938,21 +1938,16 @@ def execute_asset_forge_batch(
             produced.append(produced_item)
             produced_by_id[item["_batch_id"]] = produced_item
 
-    delivery_mode, delivered_to = _deliver_produced_assets(
-        produced,
-        target_repository=target_repository,
-        target_worktree=target_worktree,
-        target_ref=target_ref,
-        client=client,
-    )
-
-    return {
+    # Quality summaries and producer-supplied metadata are fallible. Build
+    # the entire response before the first destination write; otherwise a
+    # malformed cached visual metric can raise after a successful delivery.
+    result = {
         "schema_version": "production-os/asset-forge-batch/v1",
         "success": True,
         "count": len(produced),
         "execution_order": [item["batch_id"] for item in produced],
-        "delivery_mode": delivery_mode,
-        "delivered_to": delivered_to,
+        "delivery_mode": None,
+        "delivered_to": [],
         "dedup_summary": _dedup_summary(produced),
         "quality_summary": {
             "checked": sum(1 for item in produced if item["visual_similarity"]),
@@ -1993,6 +1988,17 @@ def execute_asset_forge_batch(
             for item in produced
         ],
     }
+
+    delivery_mode, delivered_to = _deliver_produced_assets(
+        produced,
+        target_repository=target_repository,
+        target_worktree=target_worktree,
+        target_ref=target_ref,
+        client=client,
+    )
+    result["delivery_mode"] = delivery_mode
+    result["delivered_to"] = delivered_to
+    return result
 
 
 def dispatch_asset_forge(

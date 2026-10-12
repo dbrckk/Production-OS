@@ -5,6 +5,7 @@
   "base_commit": "f7325526e47310f5d79412a089361b0cf06d81fd",
   "branch": "fix/asset-review-branch-versioning-20261011",
   "changes": [
+    "Construct batch quality/dedup response before any transactional writes; existing native Godot producer smoke validates malformed cached visual score cannot mutate consumer on failure",
     "Fail closed before worktree transaction writes for existing directory destinations and non-directory parents; refuse non-string current request_fingerprint from existing GitHub/worktree version receipt, exercised through existing original producer/Godot smoke",
     "Preflight every remote ZIP payload CRC before extracting, so late-corrupt entries cannot partially create or overwrite consumer files; existing owned-asset Godot smoke covers fresh and pre-existing roots",
     "Preflight remote ZIP existing directory/file target and parent type mismatches before extraction, preventing partial writes; extend existing original-producer Godot functional smoke",

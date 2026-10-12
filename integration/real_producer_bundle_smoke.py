@@ -1126,6 +1126,37 @@ def main() -> None:
         original_sidecar = local_sidecar.read_bytes()
         original_artifact = (consumer / target).read_bytes()
         try:
+            # A valid real Godot cache can carry malformed producer-provided
+            # visual metadata. Historically the batch wrote the receipt and
+            # only then raised when parsing its quality summary. Prove that
+            # an error never mutates the consumer after a reported failure.
+            from production_os.asset_forge import _request_fingerprint
+            invalid_metric = json.loads(original_sidecar.decode("utf-8"))
+            invalid_metric["request_fingerprint"] = _request_fingerprint(
+                request, [], source_path=str(image), backend="auto", model=None,
+            )
+            invalid_metric["visual_similarity"] = {
+                "attempts": [{"score": "not-a-number"}],
+            }
+            local_sidecar.write_text(json.dumps(invalid_metric), encoding="utf-8")
+            protected_metric_receipt = local_sidecar.read_bytes()
+            try:
+                execute_asset_forge_batch(
+                    [item], mode="local",
+                    output_root=str(root / "invalid-producer-metric"),
+                    target_worktree=str(consumer),
+                )
+            except ValueError as exc:
+                if "could not convert string to float" not in str(exc):
+                    raise
+            else:
+                raise RuntimeError("Invalid producer metric bypassed quality validation")
+            if (
+                local_sidecar.read_bytes() != protected_metric_receipt
+                or (consumer / target).read_bytes() != original_artifact
+            ):
+                raise RuntimeError("Failed quality summary mutated the delivered asset")
+
             for invalid_content in (
                 '{"version":', '{"version": 0}', '[]',
                 *(json.dumps(value) for value in invalid_nested_receipts),
@@ -1206,6 +1237,7 @@ def main() -> None:
         print("PASS: Malformed and structurally invalid GitHub/worktree receipts rejected")
         print("PASS: Nested receipt history and companion corruption refused before GitHub/worktree writes")
         print("PASS: Invalid current receipt fingerprint and non-file worktree destinations refused before writes")
+        print("PASS: Invalid cached visual score fails before transactional asset delivery")
         print("PASS: Tampered real producer SpriteFrames rejected before delivery")
 
 
