@@ -783,6 +783,106 @@ def main() -> None:
         if list(other_job.iterdir()):
             raise RuntimeError("Refused local batch wrote into another job directory")
 
+        # Existing file and directory names may have cross-platform aliases
+        # on Windows or NFC-normalizing filesystems. Refuse before any local
+        # generation or provider dispatch, including a case-aliased filename
+        # and a Unicode-equivalent filename.
+        for case_name, existing_name, target_name in (
+            ("case", "PLAYER.png", target),
+            ("unicode", "café.png", "assets/characters/cafe\u0301.png"),
+        ):
+            alias_consumer = root / ("cross-platform-alias-" + case_name)
+            protected_alias = alias_consumer / "assets" / "characters" / existing_name
+            protected_alias.parent.mkdir(parents=True)
+            protected_alias.write_bytes(b"keep-original-aliased-asset")
+            for alias_mode in ("single-local", "batch-local", "batch-github"):
+                blocked_output = root / ("no-generation-cross-platform-" + case_name + "-" + alias_mode)
+                try:
+                    if alias_mode == "single-local":
+                        execute_asset_forge(
+                            request, mode="local", output_dir=str(blocked_output),
+                            source_path=str(image), target_path=target_name,
+                            target_worktree=str(alias_consumer),
+                        )
+                    else:
+                        execute_asset_forge_batch(
+                            [{"id": "player", "request": request,
+                              "target_path": target_name,
+                              **({"source_path": str(image)} if alias_mode == "batch-local" else {})}],
+                            mode="local" if alias_mode == "batch-local" else "github",
+                            output_root=str(blocked_output),
+                            target_worktree=str(alias_consumer),
+                            client=OfflineClient(source_archive),
+                        )
+                except ValueError as exc:
+                    if "aliases an existing path by case or Unicode" not in str(exc):
+                        raise
+                else:
+                    raise RuntimeError("Existing cross-platform worktree alias reached generation")
+                if blocked_output.exists() or protected_alias.read_bytes() != b"keep-original-aliased-asset":
+                    raise RuntimeError("Rejected cross-platform alias created output or mutated existing asset")
+
+        # Pre-existing local job directories must be real directories. A
+        # regular-file collision on a later job must refuse the entire batch
+        # before the first item can generate anything.
+        job_type_root = root / "blocked-local-job-file"
+        job_type_root.mkdir()
+        blocked_job = job_type_root / "blocked-job"
+        blocked_job.write_bytes(b"keep-existing-job-file")
+        first_job_id = "unused-first-job"
+        second_request = {
+            **request, "requestId": "blocked-job",
+            "manifest": {**request["manifest"], "id": "blocked-job"},
+        }
+        first_request = {
+            **request, "requestId": first_job_id,
+            "manifest": {**request["manifest"], "id": first_job_id},
+        }
+        try:
+            execute_asset_forge_batch(
+                [
+                    {"id": "fresh-job", "request": first_request,
+                     "target_path": "assets/fresh-first-job.png",
+                     "source_path": str(image)},
+                    {"id": "blocked-job", "request": second_request,
+                     "target_path": "assets/blocked-second-job.png",
+                     "source_path": str(image)},
+                ],
+                mode="local", output_root=str(job_type_root),
+                target_worktree=str(consumer),
+            )
+        except ValueError as exc:
+            if "request output must be a directory" not in str(exc):
+                raise
+        else:
+            raise RuntimeError("File-backed job output allowed earlier asset generation")
+        if (job_type_root / first_job_id).exists() or blocked_job.read_bytes() != b"keep-existing-job-file":
+            raise RuntimeError("Rejected job-directory collision modified the worktree")
+
+        # The configured batch output root itself cannot be a symlink to an
+        # unrelated working directory, even when each job id is safe.
+        linked_output = root / "aliased-batch-output-root"
+        guarded_output = root / "guarded-output-root"
+        guarded_output.mkdir()
+        (guarded_output / "do-not-overwrite").write_bytes(b"owned-output")
+        linked_output.symlink_to(guarded_output, target_is_directory=True)
+        for alias_mode in ("local", "github"):
+            try:
+                execute_asset_forge_batch(
+                    [{"id": "player", "request": request, "target_path": target,
+                      **({"source_path": str(image)} if alias_mode == "local" else {})}],
+                    mode=alias_mode, output_root=str(linked_output),
+                    target_worktree=str(consumer),
+                    client=OfflineClient(source_archive),
+                )
+            except ValueError as exc:
+                if "output_root must not be a symlink" not in str(exc):
+                    raise
+            else:
+                raise RuntimeError("Batch output root symlink reached generation")
+        if sorted(p.name for p in guarded_output.iterdir()) != ["do-not-overwrite"]:
+            raise RuntimeError("Rejected batch output root alias modified protected output")
+
         # Verify real GitHub Contents ref encoding and branch-specific
         # version continuity using an offline recording client.
         class OfflineReviewBranch(GitHubClient):
@@ -929,6 +1029,33 @@ def main() -> None:
             "companion_files": [],
             "cache_hit": False,
         }
+        # Internal shared delivery must independently reject names that
+        # would overwrite or collide across Windows/Unicode-normalizing hosts.
+        for alias_kind, existing_name, target_name in (
+            ("case", "PLAYER.png", target),
+            ("unicode", "café.png", "assets/characters/cafe\u0301.png"),
+        ):
+            shared_consumer = root / ("shared-cross-platform-alias-" + alias_kind)
+            protected_alias = shared_consumer / "assets" / "characters" / existing_name
+            protected_alias.parent.mkdir(parents=True)
+            protected_alias.write_bytes(b"original-portable-alias-data")
+            try:
+                _deliver_produced_assets(
+                    [{**review_item, "target_path": target_name}],
+                    target_repository=None,
+                    target_worktree=str(shared_consumer),
+                    target_ref="main", client=None,
+                )
+            except ValueError as exc:
+                if "aliases an existing path by case or Unicode" not in str(exc):
+                    raise
+            else:
+                raise RuntimeError("Internal delivery accepted cross-platform alias")
+            if protected_alias.read_bytes() != b"original-portable-alias-data":
+                raise RuntimeError("Internal alias delivery mutated existing content")
+            if (shared_consumer / target_name).exists():
+                raise RuntimeError("Internal alias delivery created conflicting media")
+
         # Refuse same-root aliases before writing any asset or receipt.
         for alias_case in ("asset", "sidecar", "parent"):
             worktree = root / f"consumer-symlink-{alias_case}"
@@ -1270,6 +1397,8 @@ def main() -> None:
         print("PASS: Planned media/receipt/Godot companion collisions refused before generation")
         print("PASS: Unsafe/colliding request IDs rejected before batch or single dispatch")
         print("PASS: Local batch refuses escaping or aliasing job symlinks before generator")
+        print("PASS: Local batch rejects file-backed job directories and symlink output roots before generation")
+        print("PASS: Existing case/Unicode-equivalent worktree names rejected before generation or writes")
         print("PASS: Worktree asset, receipt and parent symlink aliases fail before writes")
         print("PASS: Local single and batch aliases rejected before generator/output")
         print("PASS: Invalid consumer root and batch execution mode refused before generation/dispatch")

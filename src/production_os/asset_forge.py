@@ -240,6 +240,25 @@ def _validated_target_path(value: Any) -> str:
 
 
 
+def _reject_nonportable_worktree_alias(root: Path, relative_path: str) -> None:
+    """Prevent creating names that collide on case-insensitive/NFC filesystems."""
+    import unicodedata
+
+    parent = root
+    for component in _validated_target_path(relative_path).split("/"):
+        if parent.is_dir() and not parent.is_symlink():
+            expected = unicodedata.normalize("NFC", component).casefold()
+            for sibling in parent.iterdir():
+                if (
+                    sibling.name != component
+                    and unicodedata.normalize("NFC", sibling.name).casefold() == expected
+                ):
+                    raise ValueError(
+                        "asset-forge destination aliases an existing path by case or Unicode"
+                    )
+        parent = parent / component
+
+
 def _preflight_worktree_delivery(
     worktree: str | None,
     target_paths: list[str],
@@ -255,6 +274,7 @@ def _preflight_worktree_delivery(
     if root.exists() and not root.is_dir():
         raise ValueError("asset-forge target_worktree must be a directory")
     for relative in target_paths:
+        _reject_nonportable_worktree_alias(root, relative)
         candidate = root
         for component in _validated_target_path(relative).split("/"):
             candidate = candidate / component
@@ -597,6 +617,7 @@ def _deliver_produced_assets(
         if root_worktree.exists() and not root_worktree.is_dir():
             raise ValueError("target_worktree must be a directory")
         def worktree_destination(relative_path: str, label: str) -> Path:
+            _reject_nonportable_worktree_alias(root_worktree, relative_path)
             candidate = root_worktree
             for component in _validated_target_path(relative_path).split("/"):
                 candidate = candidate / component
@@ -1764,6 +1785,8 @@ def execute_asset_forge_batch(
         if any(str(item.get("source_path") or "").strip() for item in ordered_items):
             raise ValueError("remote transactional batch does not accept local source_path inputs")
     root = Path(output_root)
+    if root.is_symlink():
+        raise ValueError("asset-forge batch output_root must not be a symlink")
     root.mkdir(parents=True, exist_ok=True)
     produced: list[dict[str, Any]] = []
     produced_by_id: dict[str, dict[str, Any]] = {}
@@ -1798,6 +1821,8 @@ def execute_asset_forge_batch(
                 raise ValueError("asset-forge batch request output escapes output_root")
             if job_dir.is_symlink():
                 raise ValueError("asset-forge batch request output directory must not be a symlink")
+            if job_dir.exists() and not job_dir.is_dir():
+                raise ValueError("asset-forge batch request output must be a directory")
 
         for index, item in enumerate(ordered_items):
             dependency_artifacts = []
