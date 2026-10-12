@@ -148,6 +148,46 @@ def main() -> None:
             if should_not_exist.exists():
                 raise RuntimeError("Rejected remote ZIP created an output directory")
 
+        # An existing *internal* symlink aliases another file in the same
+        # extraction root. Earlier path-escape checks accepted such aliases,
+        # overwriting files the producer ZIP did not explicitly name.
+        # Reject the whole archive before extracting even its first good file.
+        for alias_type in ("file", "parent"):
+            alias_root = root / ("unsafe-zip-existing-symlink-" + alias_type)
+            alias_root.mkdir()
+            protected = alias_root / "protected"
+            protected.mkdir()
+            preserved = protected / "owned.png"
+            preserved.write_bytes(b"preserve-original-owned-file")
+            if alias_type == "file":
+                (alias_root / "aliased.png").symlink_to(preserved)
+                malicious_entry = "aliased.png"
+            else:
+                (alias_root / "aliased").symlink_to(
+                    protected, target_is_directory=True
+                )
+                malicious_entry = "aliased/owned.png"
+            archive_buffer = io.BytesIO()
+            with zipfile.ZipFile(archive_buffer, "w", zipfile.ZIP_DEFLATED) as archive:
+                archive.writestr("safe-first.png", b"must-not-extract")
+                archive.writestr(malicious_entry, b"untrusted-overwrite")
+            try:
+                _extract_remote_batch_bundle(archive_buffer.getvalue(), alias_root)
+            except RuntimeError as exc:
+                if "targets existing symlink" not in str(exc):
+                    raise
+            else:
+                raise RuntimeError(
+                    "Existing ZIP extraction symlink escaped preflight: " + alias_type
+                )
+            if (
+                (alias_root / "safe-first.png").exists()
+                or preserved.read_bytes() != b"preserve-original-owned-file"
+            ):
+                raise RuntimeError(
+                    "Rejected ZIP mutated existing files or partially extracted"
+                )
+
         dispatch_item = {"id": item["id"], "request": request, "target_path": target}
 
         # A second job may choose the first sheet's SpriteFrames or atlas
@@ -1019,6 +1059,7 @@ def main() -> None:
         print("PASS: REAL Asset Forge remote_batch -> Production-OS -> Godot 4")
         print("PASS: Native batch-result/report, sidecar SHA256 and Godot resource load")
         print("PASS: ZIP aliases, Windows reserved names and file/directory conflicts blocked before extraction")
+        print("PASS: Existing file/parent symlink ZIP aliases refused before any write")
         print("PASS: Destination paths and nested file conflicts blocked before remote dispatch")
         print("PASS: Planned media/receipt/Godot companion collisions refused before generation")
         print("PASS: Unsafe/colliding request IDs rejected before batch or single dispatch")

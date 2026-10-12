@@ -1054,7 +1054,17 @@ def _extract_remote_batch_bundle(data: bytes, destination: Path) -> Path:
             total += int(info.file_size)
             if total > max_uncompressed:
                 raise RuntimeError("asset-forge remote batch artifact exceeds extraction limit")
-            target = (root / "/".join(parts)).resolve()
+            # A pre-existing in-root symlink is still unsafe: resolving it
+            # would silently overwrite another file not named by the ZIP.
+            # Check every path component *before* canonicalizing the target.
+            candidate = root
+            for part in parts:
+                candidate = candidate / part
+                if candidate.is_symlink():
+                    raise RuntimeError(
+                        "asset-forge remote batch extraction targets existing symlink"
+                    )
+            target = candidate.resolve()
             if not target.is_relative_to(root):
                 raise RuntimeError("asset-forge remote batch artifact escapes extraction root")
             # GitHub bundles can be extracted on multiple OS/filesystems. A
