@@ -148,6 +148,49 @@ def main() -> None:
             if should_not_exist.exists():
                 raise RuntimeError("Rejected remote ZIP created an output directory")
 
+        # A pre-existing directory where the ZIP expects a file, or a
+        # regular file where it expects a parent directory, must be refused
+        # BEFORE any earlier good ZIP entry is written. Previously the first
+        # entry was extracted, then an IsADirectoryError/FileExistsError
+        # interrupted extraction and left a partial bundle.
+        for conflict in ("file-target-is-directory", "parent-is-file"):
+            conflict_root = root / ("unsafe-zip-existing-type-" + conflict)
+            conflict_root.mkdir()
+            marker = conflict_root / "owned-marker.bin"
+            marker.write_bytes(b"preserve-original-owned-file")
+            if conflict == "file-target-is-directory":
+                (conflict_root / "blocked.png").mkdir()
+                conflicting_entry = "blocked.png"
+            else:
+                (conflict_root / "blocked").write_bytes(b"preserve-parent-file")
+                conflicting_entry = "blocked/child.png"
+            archive_buffer = io.BytesIO()
+            with zipfile.ZipFile(archive_buffer, "w", zipfile.ZIP_DEFLATED) as archive:
+                archive.writestr("safe-first.png", b"must-not-extract")
+                archive.writestr(conflicting_entry, b"untrusted-file")
+            try:
+                _extract_remote_batch_bundle(archive_buffer.getvalue(), conflict_root)
+            except RuntimeError as exc:
+                if "extraction has existing non-directory parent" not in str(exc) and (
+                    "extraction targets existing non-file" not in str(exc)
+                ):
+                    raise
+            else:
+                raise RuntimeError("Pre-existing ZIP destination type conflict was accepted")
+            if (
+                (conflict_root / "safe-first.png").exists()
+                or marker.read_bytes() != b"preserve-original-owned-file"
+                or (
+                    conflict == "parent-is-file"
+                    and (conflict_root / "blocked").read_bytes() != b"preserve-parent-file"
+                )
+                or (
+                    conflict == "file-target-is-directory"
+                    and not (conflict_root / "blocked.png").is_dir()
+                )
+            ):
+                raise RuntimeError("Rejected ZIP left partial files or damaged existing data")
+
         # An existing *internal* symlink aliases another file in the same
         # extraction root. Earlier path-escape checks accepted such aliases,
         # overwriting files the producer ZIP did not explicitly name.
@@ -1060,6 +1103,7 @@ def main() -> None:
         print("PASS: Native batch-result/report, sidecar SHA256 and Godot resource load")
         print("PASS: ZIP aliases, Windows reserved names and file/directory conflicts blocked before extraction")
         print("PASS: Existing file/parent symlink ZIP aliases refused before any write")
+        print("PASS: Existing ZIP file/directory destination conflicts refuse partial extraction")
         print("PASS: Destination paths and nested file conflicts blocked before remote dispatch")
         print("PASS: Planned media/receipt/Godot companion collisions refused before generation")
         print("PASS: Unsafe/colliding request IDs rejected before batch or single dispatch")

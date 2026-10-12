@@ -1058,12 +1058,24 @@ def _extract_remote_batch_bundle(data: bytes, destination: Path) -> Path:
             # would silently overwrite another file not named by the ZIP.
             # Check every path component *before* canonicalizing the target.
             candidate = root
-            for part in parts:
+            for index, part in enumerate(parts):
                 candidate = candidate / part
                 if candidate.is_symlink():
                     raise RuntimeError(
                         "asset-forge remote batch extraction targets existing symlink"
                     )
+                # Refuse pre-existing file/directory type conflicts before
+                # extracting even the first valid ZIP entry. Otherwise an
+                # archive with a good first file can leave partial output.
+                if candidate.exists():
+                    if index < len(parts) - 1 and not candidate.is_dir():
+                        raise RuntimeError(
+                            "asset-forge remote batch extraction has existing non-directory parent"
+                        )
+                    if index == len(parts) - 1 and not candidate.is_file():
+                        raise RuntimeError(
+                            "asset-forge remote batch extraction targets existing non-file"
+                        )
             target = candidate.resolve()
             if not target.is_relative_to(root):
                 raise RuntimeError("asset-forge remote batch artifact escapes extraction root")
