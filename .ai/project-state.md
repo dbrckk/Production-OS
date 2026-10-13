@@ -95,14 +95,14 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-13T21:20:33Z
+Generated: 2026-10-13T23:29:32Z
 
 ### Git
 - Branch: `main`
-- Head: `972ef8328894`
-- Commit date: 2026-10-13T23:20:20+02:00
-- Commit: fix(assets): preserve safe asset version history across review-branch delivery (#264)
-- Tracked files: 568
+- Head: `8ff0b9deda60`
+- Commit date: 2026-10-14T01:29:21+02:00
+- Commit: fix(ci): preserve exact deployed SHA qualification across context refresh (#268) [skip render]
+- Tracked files: 572
 
 ### Recently changed files
 - `.github/workflows/ci.yml`
