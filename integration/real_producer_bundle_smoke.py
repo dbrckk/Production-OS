@@ -472,7 +472,7 @@ def main() -> None:
 
         # Case variants of GitHub's default branch are not review branches.
         # They must fail before any remote workflow call or output write.
-        for mixed_case_ref in ("Main", "MASTER", "refs/heads/Main"):
+        for mixed_case_ref in ("Main", "MASTER", "refs/heads/Main", "REFS/HEADS/Main"):
             try:
                 execute_asset_forge(
                     request, mode="github", target_path=target,
@@ -490,7 +490,7 @@ def main() -> None:
         # guard, or dispatched generation with no consumer at all. Both must
         # fail before creating output or reaching a remote workflow.
         blocked_batch_root = root / "blocked-batch-destination"
-        for ref in ("main", "refs/heads/main", "master", "refs/heads/master", "Main", "MASTER", "refs/heads/Main", "refs/heads/MASTER"):
+        for ref in ("main", "refs/heads/main", "master", "refs/heads/master", "Main", "MASTER", "refs/heads/Main", "refs/heads/MASTER", "REFS/HEADS/Main", "Refs/Heads/MASTER"):
             try:
                 execute_asset_forge_batch(
                     [dispatch_item], mode="github",
@@ -838,7 +838,7 @@ def main() -> None:
         # default branch without an explicit review branch. This is refused
         # before any CLI or expensive generation.
         blocked_local_github = root / "blocked-local-main-delivery"
-        for default_branch in ("main", "master", "refs/heads/main", "Main", "MASTER", "refs/heads/MAIN"):
+        for default_branch in ("main", "master", "refs/heads/main", "Main", "MASTER", "refs/heads/MAIN", "REFS/HEADS/MAIN"):
             try:
                 execute_asset_forge(
                     request, mode="local", output_dir=str(blocked_local_github),
@@ -1642,7 +1642,7 @@ def main() -> None:
                 raise RuntimeError("Rejected internal hardlink delivery made partial changes")
 
         # Direct shared-helper calls must also refuse GitHub default branches.
-        for forbidden_ref in ("main", "master", "refs/heads/main", "Main", "MASTER", "refs/heads/MAIN"):
+        for forbidden_ref in ("main", "master", "refs/heads/main", "Main", "MASTER", "refs/heads/MAIN", "REFS/HEADS/MAIN"):
             forbidden = OfflineReviewBranch()
             try:
                 _deliver_produced_assets(
