@@ -259,6 +259,13 @@ def _reject_nonportable_worktree_alias(root: Path, relative_path: str) -> None:
         parent = parent / component
 
 
+def _reject_worktree_root_symlinks(worktree: str) -> None:
+    """Reject explicit consumer-root aliases, including symlinked ancestors."""
+    requested = Path(worktree)
+    if any(path.is_symlink() for path in (requested, *requested.parents)):
+        raise ValueError("asset-forge target_worktree must not traverse a symlink")
+
+
 def _preflight_worktree_delivery(
     worktree: str | None,
     target_paths: list[str],
@@ -270,6 +277,7 @@ def _preflight_worktree_delivery(
     """
     if not worktree:
         return
+    _reject_worktree_root_symlinks(worktree)
     root = Path(worktree).resolve()
     if root.exists() and not root.is_dir():
         raise ValueError("asset-forge target_worktree must be a directory")
@@ -613,6 +621,7 @@ def _deliver_produced_assets(
         raise RuntimeError("asset-forge batch delivery file/directory path conflict")
 
     if target_worktree:
+        _reject_worktree_root_symlinks(target_worktree)
         root_worktree = Path(target_worktree).resolve()
         if root_worktree.exists() and not root_worktree.is_dir():
             raise ValueError("target_worktree must be a directory")

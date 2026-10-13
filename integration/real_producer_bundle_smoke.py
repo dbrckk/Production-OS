@@ -810,6 +810,56 @@ def main() -> None:
             if blocked_root_file.read_bytes() != b"keep-unrelated-consumer-data":
                 raise RuntimeError("Invalid consumer root changed protected file")
 
+        # The consumer root itself (or one of its ancestors) may be a
+        # symlink. Path.resolve() must not silently redirect an asset delivery
+        # into a different, unintended workspace. Refuse *before* generating
+        # locally or dispatching the offline-correlated remote batch.
+        protected_consumer_root = root / "protected-consumer-root"
+        protected_consumer_root.mkdir()
+        protected_consumer_marker = protected_consumer_root / "do-not-touch.bin"
+        protected_consumer_marker.write_bytes(b"owned-consumer-marker")
+        linked_consumer_root = root / "linked-consumer-root"
+        linked_consumer_root.symlink_to(protected_consumer_root, target_is_directory=True)
+        linked_consumer_parent = root / "linked-consumer-parent"
+        linked_consumer_parent.symlink_to(protected_consumer_root, target_is_directory=True)
+        for alias_kind, linked_destination in (
+            ("root", linked_consumer_root),
+            ("ancestor", linked_consumer_parent / "nested" / "worktree"),
+        ):
+            for blocked_mode in ("single-local", "batch-local", "batch-github"):
+                refused_output = root / (
+                    "blocked-consumer-link-" + alias_kind + "-" + blocked_mode
+                )
+                try:
+                    if blocked_mode == "single-local":
+                        execute_asset_forge(
+                            request, mode="local", output_dir=str(refused_output),
+                            source_path=str(image), target_path=target,
+                            target_worktree=str(linked_destination),
+                        )
+                    else:
+                        execute_asset_forge_batch(
+                            [{"id": "player", "request": request,
+                              "target_path": target,
+                              **({"source_path": str(image)} if blocked_mode == "batch-local" else {})}],
+                            mode="local" if blocked_mode == "batch-local" else "github",
+                            output_root=str(refused_output),
+                            target_worktree=str(linked_destination),
+                            client=OfflineClient(source_archive),
+                        )
+                except ValueError as exc:
+                    if "target_worktree must not traverse a symlink" not in str(exc):
+                        raise
+                else:
+                    raise RuntimeError("Symlinked consumer root reached generator or dispatch")
+                if refused_output.exists():
+                    raise RuntimeError("Rejected consumer root alias created producer output")
+            if (
+                sorted(path.name for path in protected_consumer_root.iterdir()) != ["do-not-touch.bin"]
+                or protected_consumer_marker.read_bytes() != b"owned-consumer-marker"
+            ):
+                raise RuntimeError("Rejected consumer root alias modified protected files")
+
         # An unsupported mode must not make a generation directory either.
         invalid_mode_root = root / "no-generation-invalid-mode"
         try:
@@ -1146,6 +1196,29 @@ def main() -> None:
             "companion_files": [],
             "cache_hit": False,
         }
+        # Direct callers of the shared transactional writer must not bypass
+        # the public preflight and follow consumer-root symlink aliases.
+        for linked_destination in (
+            linked_consumer_root,
+            linked_consumer_parent / "nested" / "worktree",
+        ):
+            try:
+                _deliver_produced_assets(
+                    [review_item], target_repository=None,
+                    target_worktree=str(linked_destination),
+                    target_ref="main", client=None,
+                )
+            except ValueError as exc:
+                if "target_worktree must not traverse a symlink" not in str(exc):
+                    raise
+            else:
+                raise RuntimeError("Internal asset delivery followed consumer-root alias")
+        if (
+            sorted(path.name for path in protected_consumer_root.iterdir()) != ["do-not-touch.bin"]
+            or protected_consumer_marker.read_bytes() != b"owned-consumer-marker"
+        ):
+            raise RuntimeError("Internal consumer-root alias damaged protected workspace")
+
         # Internal shared delivery must independently reject names that
         # would overwrite or collide across Windows/Unicode-normalizing hosts.
         for alias_kind, existing_name, target_name in (
@@ -1519,6 +1592,7 @@ def main() -> None:
         print("PASS: Local and GitHub batches reject symlinked output-root ancestors before writes/dispatch")
         print("PASS: Existing case/Unicode-equivalent worktree names rejected before generation or writes")
         print("PASS: Worktree asset, receipt and parent symlink aliases fail before writes")
+        print("PASS: Consumer root/ancestor symlinks refused before local/remote generation and internal delivery")
         print("PASS: Local single and batch aliases rejected before generator/output")
         print("PASS: Invalid consumer root and batch execution mode refused before generation/dispatch")
         print("PASS: Windows-reserved batch identifiers rejected before any dispatch")
