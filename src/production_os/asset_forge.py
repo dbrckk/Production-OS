@@ -194,6 +194,11 @@ def _request_fingerprint(
     ).hexdigest()
 
 
+def _is_default_branch_name(target_ref: str) -> bool:
+    """Refuse main/master case variants at every repository write boundary."""
+    return target_ref.removeprefix("refs/heads/").casefold() in {"main", "master"}
+
+
 def _sidecar_relative_path(target_path: str) -> str:
     return target_path.strip().replace("\\", "/").lstrip("/") + ".asset-forge.json"
 
@@ -572,7 +577,7 @@ def _deliver_artifact(
         raise ValueError("target_repository is required when no target_worktree is provided")
     # Defensive check for direct internal calls: local single-artifact writes
     # must not bypass the review-branch requirement used by batch delivery.
-    if target_ref.removeprefix("refs/heads/") in {"main", "master"}:
+    if _is_default_branch_name(target_ref):
         raise ValueError("asset-forge local repository delivery requires an explicit non-default review branch")
     gh = client or GitHubClient()
     gh.put_file(
@@ -644,7 +649,7 @@ def _deliver_frozen_assets(
     # Enforce the review branch requirement in the shared delivery boundary.
     # Direct internal callers must not bypass the public entrypoint preflight.
     if target_repository and not target_worktree and (
-        target_ref.removeprefix("refs/heads/") in {"main", "master"}
+        _is_default_branch_name(target_ref)
     ):
         raise ValueError("asset-forge repository delivery requires an explicit non-default review branch")
 
@@ -860,7 +865,7 @@ def execute_asset_forge(
             if not (target_worktree or target_repository):
                 raise ValueError("remote delivery requires target_worktree or target_repository")
             if target_repository and not target_worktree and (
-                target_ref.removeprefix("refs/heads/") in {"main", "master"}
+                _is_default_branch_name(target_ref)
             ):
                 raise ValueError("remote repository delivery requires an explicit non-default review branch")
             if workflow != ASSET_FORGE_WORKFLOW:
@@ -920,7 +925,7 @@ def execute_asset_forge(
     if normalized_target is not None and not (target_repository or target_worktree):
         raise ValueError("asset-forge local target_path requires a delivery destination")
     if target_repository and not target_worktree and (
-        target_ref.removeprefix("refs/heads/") in {"main", "master"}
+        _is_default_branch_name(target_ref)
     ):
         raise ValueError("asset-forge local repository delivery requires an explicit non-default review branch")
 
@@ -1871,7 +1876,7 @@ def execute_asset_forge_batch(
     if not (target_worktree or target_repository):
         raise ValueError("asset-forge batch requires target_worktree or target_repository before generation")
     if target_repository and not target_worktree and (
-        target_ref.removeprefix("refs/heads/") in {"main", "master"}
+        _is_default_branch_name(target_ref)
     ):
         raise ValueError("asset-forge batch repository delivery requires an explicit non-default review branch")
 

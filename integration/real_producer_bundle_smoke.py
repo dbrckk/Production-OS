@@ -470,11 +470,27 @@ def main() -> None:
         else:
             raise RuntimeError("Remote single-asset attempted implicit main-branch delivery")
 
+        # Case variants of GitHub's default branch are not review branches.
+        # They must fail before any remote workflow call or output write.
+        for mixed_case_ref in ("Main", "MASTER", "refs/heads/Main"):
+            try:
+                execute_asset_forge(
+                    request, mode="github", target_path=target,
+                    target_repository="dbrckk/consumer",
+                    target_ref=mixed_case_ref,
+                    client=OfflineClient(source_archive),
+                )
+            except ValueError as exc:
+                if "non-default review branch" not in str(exc):
+                    raise
+            else:
+                raise RuntimeError("Remote single-asset accepted case-variant default branch")
+
         # Batch callers previously bypassed the direct API's main-branch
         # guard, or dispatched generation with no consumer at all. Both must
         # fail before creating output or reaching a remote workflow.
         blocked_batch_root = root / "blocked-batch-destination"
-        for ref in ("main", "refs/heads/main", "master", "refs/heads/master"):
+        for ref in ("main", "refs/heads/main", "master", "refs/heads/master", "Main", "MASTER", "refs/heads/Main", "refs/heads/MASTER"):
             try:
                 execute_asset_forge_batch(
                     [dispatch_item], mode="github",
@@ -822,7 +838,7 @@ def main() -> None:
         # default branch without an explicit review branch. This is refused
         # before any CLI or expensive generation.
         blocked_local_github = root / "blocked-local-main-delivery"
-        for default_branch in ("main", "master", "refs/heads/main"):
+        for default_branch in ("main", "master", "refs/heads/main", "Main", "MASTER", "refs/heads/MAIN"):
             try:
                 execute_asset_forge(
                     request, mode="local", output_dir=str(blocked_local_github),
@@ -1626,7 +1642,7 @@ def main() -> None:
                 raise RuntimeError("Rejected internal hardlink delivery made partial changes")
 
         # Direct shared-helper calls must also refuse GitHub default branches.
-        for forbidden_ref in ("main", "master", "refs/heads/main"):
+        for forbidden_ref in ("main", "master", "refs/heads/main", "Main", "MASTER", "refs/heads/MAIN"):
             forbidden = OfflineReviewBranch()
             try:
                 _deliver_produced_assets(
@@ -1895,6 +1911,7 @@ def main() -> None:
         print("PASS: Direct GitHub-mode single-asset transaction + Godot import")
         print("PASS: Implicit main-branch remote delivery refused before dispatch")
         print("PASS: Remote batch rejects main/master and missing destination before dispatch")
+        print("PASS: Case-variant default branch refs rejected before local/remote delivery")
         print("PASS: Remote batch and dispatch-only reject inaccessible local inputs before output")
         print("PASS: Review-branch version lookup/transaction remains on target ref")
         print("PASS: Same binary/different request fingerprint increments provenance version")
