@@ -589,7 +589,50 @@ def _deliver_produced_assets(
     target_ref: str,
     client: GitHubClient | None,
 ) -> tuple[str, list[str]]:
-    """Preflight and transactionally deliver validated assets and sidecars."""
+    """Deliver a stable, SHA-verified snapshot of each produced artifact.
+
+    A producer can modify its output between SHA preflight and copying to
+    GitHub or the worktree. Freeze files in private temporary storage before
+    either consumer is contacted; the receipt then covers the exact bytes
+    subsequently delivered, even if the original producer path changes.
+    Snapshots stream in 1 MiB chunks rather than accumulating whole batches
+    in memory. They are removed on both success and failure.
+    """
+    with tempfile.TemporaryDirectory(prefix="production-os-asset-frozen-") as tmp:
+        frozen: list[dict[str, Any]] = []
+        for index, item in enumerate(produced):
+            snapshot = Path(tmp) / f"artifact-{index:06d}"
+            sha256 = hashlib.sha256()
+            try:
+                with Path(item["artifact"]).open("rb") as source, snapshot.open("wb") as output:
+                    while chunk := source.read(1024 * 1024):
+                        sha256.update(chunk)
+                        output.write(chunk)
+            except (OSError, TypeError, ValueError) as exc:
+                raise RuntimeError(
+                    "asset-forge produced artifact is unreadable before delivery"
+                ) from exc
+            if sha256.hexdigest() != item.get("sha256"):
+                raise RuntimeError("asset-forge produced artifact changed before delivery")
+            frozen.append({**item, "artifact": snapshot})
+        return _deliver_frozen_assets(
+            frozen,
+            target_repository=target_repository,
+            target_worktree=target_worktree,
+            target_ref=target_ref,
+            client=client,
+        )
+
+
+def _deliver_frozen_assets(
+    produced: list[dict[str, Any]],
+    *,
+    target_repository: str | None,
+    target_worktree: str | None,
+    target_ref: str,
+    client: GitHubClient | None,
+) -> tuple[str, list[str]]:
+    """Validate destinations and atomically deliver frozen assets and receipts."""
 
     delivery_mode = None
     delivered_to: list[str] = []

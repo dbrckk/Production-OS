@@ -1087,6 +1087,56 @@ def main() -> None:
                 self.written_files = dict(files)
                 return {"files": sorted(files)}
 
+        # Reproduce the original TOCTOU gap with a real PNG and offline
+        # review-branch client: the producer mutates its path *after* the
+        # initial integrity check, during the GitHub branch-head read. Both
+        # the media payload and SHA receipt must still describe the same
+        # original bytes. No hosted workflow or API request is made.
+        class OfflineLateProducerMutation(OfflineReviewBranch):
+            def __init__(self):
+                super().__init__()
+                self.mutated = False
+
+            def branch_head_sha(self, repository, branch):
+                image.write_bytes(image_bytes + b"late-producer-mutation")
+                self.mutated = True
+                return super().branch_head_sha(repository, branch)
+
+        frozen_review = OfflineLateProducerMutation()
+        frozen_item = {
+            "batch_id": "original-frozen",
+            "request_id": request["requestId"],
+            "target_path": target,
+            "artifact": image,
+            "sha256": hashlib.sha256(image_bytes).hexdigest(),
+            "request_fingerprint": "original-frozen-contract",
+            "depends_on": [],
+            "dependency_artifacts": [],
+            "companion_files": [],
+            "cache_hit": False,
+        }
+        try:
+            _deliver_produced_assets(
+                [frozen_item],
+                target_repository="dbrckk/consumer",
+                target_worktree=None,
+                target_ref="review/asset-handoff",
+                client=frozen_review,
+            )
+        finally:
+            image.write_bytes(image_bytes)
+        frozen_receipt = json.loads(
+            frozen_review.written_files[target + ".asset-forge.json"].decode("utf-8")
+        )
+        if (
+            not frozen_review.mutated
+            or frozen_review.written_files.get(target) != image_bytes
+            or frozen_receipt.get("sha256") != hashlib.sha256(image_bytes).hexdigest()
+        ):
+            raise RuntimeError(
+                "Producer changed after preflight and GitHub received mismatched bytes/receipt"
+            )
+
         # Preserve legacy GitHubAPIError("GitHub API NNN: ...") callers while
         # never considering a status number quoted only inside a response body.
         for message, expected_status in (
@@ -1634,6 +1684,7 @@ def main() -> None:
         print("PASS: REAL Asset Forge remote_batch -> Production-OS -> Godot 4")
         print("PASS: Native batch-result/report, sidecar SHA256 and Godot resource load")
         print("PASS: Changed produced bytes refused before multi-item worktree/GitHub delivery")
+        print("PASS: Late producer mutations cannot change frozen GitHub media or SHA receipt")
         print("PASS: ZIP aliases, Windows reserved names and file/directory conflicts blocked before extraction")
         print("PASS: Existing ZIP target/parent case and Unicode aliases fail before extraction")
         print("PASS: Corrupt ZIP CRC rejected before creating or overwriting any extraction files")
