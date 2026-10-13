@@ -5,6 +5,7 @@
   "base_commit": "f7325526e47310f5d79412a089361b0cf06d81fd",
   "branch": "fix/asset-review-branch-versioning-20261011",
   "changes": [
+    "Correct the existing Godot functional negative reference case to expect the new explicit early ValueError rather than its old late OSError, after CI 38431959617 isolated the fixture mismatch",
     "Preflight direct local reference_paths with and without consumer delivery, rejecting missing/directory/blank/non-list references and explicitly empty source_path before output/CLI; extend existing real producer-to-Godot smoke",
     "Reject hardlinked worktree media/receipt and ZIP extraction files plus symlinked ZIP extraction-root ancestors before writes; extend existing genuine producer/Godot smoke for public/internal and local/remote cases",
     "Freeze producer artifacts as streamed SHA-verified private temporary snapshots for transactional GitHub/worktree delivery; real owned-PNG Godot smoke mutates producer output during branch-head lookup and verifies media SHA receipt equality",

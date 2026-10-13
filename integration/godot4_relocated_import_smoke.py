@@ -536,8 +536,9 @@ def main() -> None:
                     reference_paths=[str(root / "nonexistent-reference.png")],
                     target_path=target, target_worktree=str(single_consumer),
                 )
-            except OSError:
-                pass
+            except ValueError as exc:
+                if "reference_paths entries must be existing files" not in str(exc):
+                    raise
             else:
                 raise RuntimeError("Missing local reference incorrectly reached producer")
             if invalid_output.exists():
