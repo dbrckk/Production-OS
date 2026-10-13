@@ -935,6 +935,20 @@ def execute_asset_forge(
                 f"asset-forge local execution failed with exit code {completed.returncode}{suffix}"
             )
 
+    # The producer may read an explicitly supplied source/reference after we
+    # hashed it for the version receipt. Refuse provenance drift before any
+    # consumer mutation, even if the CLI succeeded and wrote a valid report.
+    if direct_fingerprint is not None:
+        try:
+            current_fingerprint = _request_fingerprint(
+                request, [], source_path=source_path,
+                reference_paths=reference_paths, backend=backend, model=model,
+            )
+        except OSError as exc:
+            raise RuntimeError("asset-forge local inputs changed during generation") from exc
+        if current_fingerprint != direct_fingerprint:
+            raise RuntimeError("asset-forge local inputs changed during generation")
+
     report_path = destination / "production-report.json"
     if not report_path.is_file():
         raise RuntimeError("asset-forge local execution produced no production report")
@@ -1998,6 +2012,35 @@ def execute_asset_forge_batch(
             }
             produced.append(produced_item)
             produced_by_id[item["_batch_id"]] = produced_item
+
+    # A local batch can run multiple producer jobs. Inputs for an earlier job
+    # may change while a later job executes. Recheck every source and verified
+    # dependency against its recorded fingerprint before delivering any file.
+    if effective_mode == "local":
+        for requested, completed in zip(ordered_items, produced, strict=True):
+            for dependency in completed["dependency_artifacts"]:
+                try:
+                    digest = hashlib.sha256(
+                        Path(dependency["artifact"]).read_bytes()
+                    ).hexdigest()
+                except OSError as exc:
+                    raise RuntimeError(
+                        "asset-forge local dependency changed during generation"
+                    ) from exc
+                if digest != dependency["sha256"]:
+                    raise RuntimeError(
+                        "asset-forge local dependency changed during generation"
+                    )
+            explicit_source = str(requested.get("source_path") or "").strip() or None
+            try:
+                current_fingerprint = _request_fingerprint(
+                    requested["request"], completed["dependency_artifacts"],
+                    source_path=explicit_source, backend=backend, model=model,
+                )
+            except OSError as exc:
+                raise RuntimeError("asset-forge local inputs changed during generation") from exc
+            if current_fingerprint != completed["request_fingerprint"]:
+                raise RuntimeError("asset-forge local inputs changed during generation")
 
     # Quality summaries and producer-supplied metadata are fallible. Build
     # the entire response before the first destination write; otherwise a

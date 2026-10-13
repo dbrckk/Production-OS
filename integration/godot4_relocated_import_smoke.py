@@ -20,6 +20,7 @@ import tempfile
 import zlib
 import zipfile
 from pathlib import Path
+from unittest.mock import patch
 
 from production_os.asset_forge import (build_asset_forge_request, execute_asset_forge, execute_asset_forge_batch)
 
@@ -409,6 +410,71 @@ def main() -> None:
                  "res://verify.gd"], cwd=root,
                 marker="GODOT_RELOCATED_SPRITEFRAMES_OK")
             print("PASS: direct single-asset local CLI -> complete Godot 4 import")
+
+            # Reproduce real input drift without provider calls: run the
+            # original owned-image Asset Forge CLI, then alter the source or
+            # visual reference before Production-OS can publish a receipt.
+            # No consumer asset or sidecar may be written by these attempts.
+            drift_source = root / "drift-source.png"
+            drift_reference = root / "drift-reference.png"
+            drift_consumer = root / "drift-consumer"
+            drift_consumer.mkdir()
+            real_cli_run = subprocess.run
+            for drift_kind in ("direct-source", "direct-reference", "batch-source"):
+                drift_source.write_bytes(primary)
+                drift_reference.write_bytes(primary)
+
+                def change_input_after_real_cli(*args, **kwargs):
+                    completed = real_cli_run(*args, **kwargs)
+                    if completed.returncode == 0:
+                        changed = drift_reference if drift_kind == "direct-reference" else drift_source
+                        changed.write_bytes(changed.read_bytes() + b"\\nowned-source-updated-after-producer")
+                    return completed
+
+                with patch(
+                    "production_os.asset_forge.subprocess.run",
+                    side_effect=change_input_after_real_cli,
+                ):
+                    try:
+                        if drift_kind == "batch-source":
+                            execute_asset_forge_batch(
+                                [{
+                                    "id": "drift-hero", "request": local_request,
+                                    "target_path": target,
+                                    "source_path": str(drift_source),
+                                }],
+                                mode="local",
+                                output_root=str(root / "drift-batch-production"),
+                                target_worktree=str(drift_consumer),
+                            )
+                        else:
+                            execute_asset_forge(
+                                local_request, mode="local",
+                                output_dir=str(root / ("drift-" + drift_kind)),
+                                source_path=str(drift_source),
+                                reference_paths=(
+                                    [str(drift_reference)]
+                                    if drift_kind == "direct-reference" else None
+                                ),
+                                target_path=target,
+                                target_worktree=str(drift_consumer),
+                            )
+                    except RuntimeError as exc:
+                        if "local inputs changed during generation" not in str(exc):
+                            raise
+                    else:
+                        raise RuntimeError(
+                            "Mutated owned-image producer input was delivered"
+                        )
+                if (
+                    (drift_consumer / target).exists()
+                    or (drift_consumer / (target + ".asset-forge.json")).exists()
+                    or (drift_consumer / "assets/characters/player.tres").exists()
+                ):
+                    raise RuntimeError(
+                        "Input drift changed a consumer asset or version receipt"
+                    )
+            print("PASS: original local source/reference drift fails before delivery")
 
             # Same original PNG source, but a newly supplied reference image,
             # must cause a new receipt version even if output bytes match.
