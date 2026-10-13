@@ -10,8 +10,11 @@ on:
 permissions:
   contents: read
 
+# Isolate push/dispatch runs by immutable commit: a post-release documentation
+# refresh on main must never cancel the deployed release's CI proof.
+# Pull-request updates still supersede older attempts for the same PR number.
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: true
 
 jobs:
