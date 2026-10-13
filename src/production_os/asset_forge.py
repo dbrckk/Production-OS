@@ -196,7 +196,7 @@ def _request_fingerprint(
 
 def _is_default_branch_name(target_ref: str) -> bool:
     """Refuse main/master case variants at every repository write boundary."""
-    return target_ref.removeprefix("refs/heads/").casefold() in {"main", "master"}
+    return target_ref.casefold().removeprefix("refs/heads/") in {"main", "master"}
 
 
 def _sidecar_relative_path(target_path: str) -> str:
