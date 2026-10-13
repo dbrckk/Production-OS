@@ -970,6 +970,36 @@ def main() -> None:
         if sorted(p.name for p in guarded_output.iterdir()) != ["do-not-overwrite"]:
             raise RuntimeError("Rejected batch output root alias modified protected output")
 
+        # The batch output leaf may be a normal path while its *parent*
+        # aliases another directory. Fail before mkdir, a local producer,
+        # or the offline-correlated GitHub dispatch in both modes.
+        guarded_parent = root / "guarded-batch-output-parent"
+        guarded_parent.mkdir()
+        marker_file = guarded_parent / "do-not-touch.bin"
+        marker_file.write_bytes(b"owned-batch-parent")
+        alias_parent = root / "batch-output-parent-link"
+        alias_parent.symlink_to(guarded_parent, target_is_directory=True)
+        nested_output = alias_parent / "nested" / "jobs"
+        for alias_mode in ("local", "github"):
+            try:
+                execute_asset_forge_batch(
+                    [{"id": "player", "request": request, "target_path": target,
+                      **({"source_path": str(image)} if alias_mode == "local" else {})}],
+                    mode=alias_mode, output_root=str(nested_output),
+                    target_worktree=str(consumer),
+                    client=OfflineClient(source_archive),
+                )
+            except ValueError as exc:
+                if "output_root must not traverse a symlink" not in str(exc):
+                    raise
+            else:
+                raise RuntimeError("Batch output followed a symlinked ancestor")
+        if (
+            sorted(path.name for path in guarded_parent.iterdir()) != ["do-not-touch.bin"]
+            or marker_file.read_bytes() != b"owned-batch-parent"
+        ):
+            raise RuntimeError("Rejected batch ancestor symlink modified protected output")
+
         # Verify real GitHub Contents ref encoding and branch-specific
         # version continuity using an offline recording client.
         class OfflineReviewBranch(GitHubClient):
@@ -1486,6 +1516,7 @@ def main() -> None:
         print("PASS: Unsafe/colliding request IDs rejected before batch or single dispatch")
         print("PASS: Local batch refuses escaping or aliasing job symlinks before generator")
         print("PASS: Local batch rejects file-backed job directories and symlink output roots before generation")
+        print("PASS: Local and GitHub batches reject symlinked output-root ancestors before writes/dispatch")
         print("PASS: Existing case/Unicode-equivalent worktree names rejected before generation or writes")
         print("PASS: Worktree asset, receipt and parent symlink aliases fail before writes")
         print("PASS: Local single and batch aliases rejected before generator/output")

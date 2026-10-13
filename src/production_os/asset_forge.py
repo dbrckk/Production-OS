@@ -1806,6 +1806,10 @@ def execute_asset_forge_batch(
     root = Path(output_root)
     if root.is_symlink():
         raise ValueError("asset-forge batch output_root must not be a symlink")
+    # A non-symlink leaf can still traverse an aliased parent. Match the
+    # direct local output_dir guard before mkdir or any remote dispatch.
+    if any(parent.is_symlink() for parent in root.parents):
+        raise ValueError("asset-forge batch output_root must not traverse a symlink")
     root.mkdir(parents=True, exist_ok=True)
     produced: list[dict[str, Any]] = []
     produced_by_id: dict[str, dict[str, Any]] = {}
