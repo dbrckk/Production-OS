@@ -1,5 +1,33 @@
 {
   "files": {
+    "integration/godot4_relocated_import_smoke.py": {
+      "dependencies": [
+        "src/production_os/__init__.py",
+        "src/production_os/asset_forge.py",
+        "tests/test_asset_forge.py",
+        "tests/test_github_automerge.py"
+      ],
+      "dependents": [
+        "integration/real_producer_bundle_smoke.py"
+      ],
+      "in_degree": 1,
+      "out_degree": 4
+    },
+    "integration/real_producer_bundle_smoke.py": {
+      "dependencies": [
+        "integration/godot4_relocated_import_smoke.py",
+        "src/production_os/__init__.py",
+        "src/production_os/asset_forge.py",
+        "src/production_os/components.py",
+        "src/production_os/github_client.py",
+        "src/production_os/workers.py",
+        "tests/test_asset_forge.py",
+        "tests/test_github_automerge.py"
+      ],
+      "dependents": [],
+      "in_degree": 0,
+      "out_degree": 8
+    },
     "scripts/render-start.py": {
       "dependencies": [
         "src/production_os/workers.py"
@@ -11,6 +39,8 @@
     "src/production_os/__init__.py": {
       "dependencies": [],
       "dependents": [
+        "integration/godot4_relocated_import_smoke.py",
+        "integration/real_producer_bundle_smoke.py",
         "tests/test_adaptation.py",
         "tests/test_adaptation_plan.py",
         "tests/test_agent_benchmark.py",
@@ -217,7 +247,7 @@
         "tests/test_workflow_splitting.py",
         "tests/test_worktree_contract.py"
       ],
-      "in_degree": 205,
+      "in_degree": 207,
       "out_degree": 0
     },
     "src/production_os/adaptation.py": {
@@ -389,17 +419,20 @@
     },
     "src/production_os/asset_forge.py": {
       "dependencies": [
+        "src/production_os/components.py",
         "src/production_os/github_client.py",
         "tests/test_asset_forge.py",
         "tests/test_github_automerge.py"
       ],
       "dependents": [
+        "integration/godot4_relocated_import_smoke.py",
+        "integration/real_producer_bundle_smoke.py",
         "src/production_os/cli.py",
         "tests/test_asset_forge.py",
         "tests/test_asset_forge_dispatch_probe.py"
       ],
-      "in_degree": 3,
-      "out_degree": 3
+      "in_degree": 5,
+      "out_degree": 4
     },
     "src/production_os/asymmetric_attestations.py": {
       "dependencies": [
@@ -775,8 +808,10 @@
         "src/production_os/workers.py"
       ],
       "dependents": [
+        "integration/real_producer_bundle_smoke.py",
         "src/production_os/adaptation.py",
         "src/production_os/adaptation_plan.py",
+        "src/production_os/asset_forge.py",
         "src/production_os/callgraph.py",
         "src/production_os/cli.py",
         "src/production_os/compatibility.py",
@@ -789,7 +824,7 @@
         "tests/test_adaptation_plan.py",
         "tests/test_components.py"
       ],
-      "in_degree": 13,
+      "in_degree": 15,
       "out_degree": 3
     },
     "src/production_os/control_plane.py": {
@@ -1360,6 +1395,7 @@
         "src/production_os/source_tree.py"
       ],
       "dependents": [
+        "integration/real_producer_bundle_smoke.py",
         "src/production_os/asset_forge.py",
         "src/production_os/cli.py",
         "src/production_os/control_plane.py",
@@ -1378,7 +1414,7 @@
         "tests/test_github_client_pr_files.py",
         "tests/test_github_client_put_file.py"
       ],
-      "in_degree": 17,
+      "in_degree": 18,
       "out_degree": 2
     },
     "src/production_os/github_webhook.py": {
@@ -2520,6 +2556,7 @@
         "src/production_os/locks.py"
       ],
       "dependents": [
+        "integration/real_producer_bundle_smoke.py",
         "scripts/render-start.py",
         "src/production_os/agent_runtime.py",
         "src/production_os/api_auth.py",
@@ -2584,7 +2621,6 @@
         "tests/test_dashboard_remediation_api.py",
         "tests/test_dashboard_remediation_history.py",
         "tests/test_dashboard_retention_prune.py",
-        "tests/test_dashboard_store.py",
         "tests/test_execution_optimizer.py",
         "tests/test_execution_optimizer_postgres.py",
         "tests/test_preemption.py",
@@ -2749,6 +2785,8 @@
         "tests/test_github_automerge.py"
       ],
       "dependents": [
+        "integration/godot4_relocated_import_smoke.py",
+        "integration/real_producer_bundle_smoke.py",
         "src/production_os/agent_benchmark.py",
         "src/production_os/agent_planning_policy.py",
         "src/production_os/asset_forge.py",
@@ -2809,9 +2847,7 @@
         "tests/test_dashboard_store.py",
         "tests/test_fanout_learning.py",
         "tests/test_github_work_state.py",
-        "tests/test_governance.py",
-        "tests/test_incident_history.py",
-        "tests/test_managed_github_reconciliation.py"
+        "tests/test_governance.py"
       ],
       "in_degree": 63,
       "out_degree": 3
@@ -3649,12 +3685,11 @@
         "src/production_os/__init__.py",
         "src/production_os/dashboard_store.py",
         "src/production_os/sqlite_backend.py",
-        "src/production_os/workers.py",
         "tests/test_asset_forge.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 5
+      "out_degree": 4
     },
     "tests/test_dashboard_store_postgres.py": {
       "dependencies": [
@@ -3909,6 +3944,8 @@
         "src/production_os/github_client.py"
       ],
       "dependents": [
+        "integration/godot4_relocated_import_smoke.py",
+        "integration/real_producer_bundle_smoke.py",
         "src/production_os/asset_forge.py",
         "src/production_os/cli.py",
         "src/production_os/controller.py",
@@ -3931,7 +3968,7 @@
         "tests/test_remote_worker.py",
         "tests/test_remote_worker_runner.py"
       ],
-      "in_degree": 21,
+      "in_degree": 23,
       "out_degree": 2
     },
     "tests/test_github_change_review.py": {
@@ -4023,12 +4060,11 @@
         "src/production_os/__init__.py",
         "src/production_os/release_ledger.py",
         "src/production_os/sqlite_backend.py",
-        "src/production_os/workflow_engine.py",
-        "tests/test_asset_forge.py"
+        "src/production_os/workflow_engine.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 5
+      "out_degree": 4
     },
     "tests/test_key_domains.py": {
       "dependencies": [
@@ -4086,12 +4122,11 @@
         "src/production_os/history.py",
         "src/production_os/managed_projects.py",
         "src/production_os/sqlite_backend.py",
-        "src/production_os/workflow_engine.py",
-        "tests/test_asset_forge.py"
+        "src/production_os/workflow_engine.py"
       ],
       "dependents": [],
       "in_degree": 0,
-      "out_degree": 7
+      "out_degree": 6
     },
     "tests/test_managed_project_outcome.py": {
       "dependencies": [

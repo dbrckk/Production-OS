@@ -51,6 +51,9 @@ config/
   policy.example.json
   repository-catalog.json
   workflow.example.json
+integration/
+  godot4_relocated_import_smoke.py
+  real_producer_bundle_smoke.py
 scripts/
   render-start.py
 src/
@@ -571,6 +574,322 @@ jobs:
 
       - name: CLI smoke test
         run: production-os --help
+
+      - name: Smoke-check remote batch receipt integrity offline
+        run: |
+          python - <<'PY'
+          import hashlib
+          import io
+          import json
+          import zipfile
+          from pathlib import Path
+          from tempfile import TemporaryDirectory
+
+          from production_os.asset_forge import (
+              build_asset_forge_request,
+              execute_asset_forge_batch,
+          )
+
+          # Test the real remote batch parser/delivery boundary using a local
+          # ZIP and an in-memory Actions client, without dispatching anything.
+          class OfflineClient:
+              def __init__(self, archive):
+                  self.archive = archive
+                  self.correlation = None
+
+              def can_dispatch_workflow(self, *_args):
+                  return True
+
+              def dispatch_workflow(self, _repository, _workflow, *, ref, inputs):
+                  self.correlation = inputs["correlation_id"]
+
+              def wait_for_workflow_run(self, *_args, **_kwargs):
+                  return {"id": 77, "conclusion": "success"}
+
+              def workflow_run_artifacts(self, *_args):
+                  return [{
+                      "id": 88,
+                      "name": "asset-forge-batch-" + self.correlation,
+                      "expired": False,
+                  }]
+
+              def download_workflow_artifact(self, *_args):
+                  return self.archive
+
+          items = []
+          rows = []
+          for name in ("a", "b"):
+              request = build_asset_forge_request(
+                  request_id="remote-" + name,
+                  project="offline-smoke",
+                  asset_id="remote-" + name,
+                  asset_type="sprite-sheet",
+                  instruction="Verify offline remote batch correlation",
+                  target_format="png",
+              )
+              target = "assets/art/remote-" + name + ".png"
+              items.append({"id": name, "request": request, "target_path": target})
+              payload = ("fake-byte-content-" + name).encode()
+              rows.append({
+                  "id": name,
+                  "depends_on": [],
+                  "request_id": "remote-" + name,
+                  "target_path": target,
+                  "artifact": "bundle/" + name + ".png",
+                  "sha256": hashlib.sha256(payload).hexdigest(),
+              })
+
+          def archive_for(receipts, *, scenario="valid"):
+              report = {
+                  "schema_version": "asset-forge/remote-batch-result/v1",
+                  "success": True,
+                  "count": 2,
+                  "items": receipts,
+              }
+              output = io.BytesIO()
+              with zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED) as zf:
+                  zf.writestr("batch-result.json", json.dumps(report))
+                  for name in ("a", "b"):
+                      zf.writestr("bundle/" + name + ".png",
+                                  ("fake-byte-content-" + name).encode())
+                      if scenario == "missing-report" and name == "b":
+                          continue
+                      reported_request = (
+                          "remote-a"
+                          if scenario == "wrong-report-id" and name == "b"
+                          else "remote-" + name
+                      )
+                      zf.writestr(
+                          "jobs/remote-" + name + "/production-report.json",
+                          json.dumps({
+                              "schema": "asset-forge/production-report/v1",
+                              "requestId": reported_request,
+                              "assetId": "remote-" + name,
+                              "assetType": "sprite-sheet",
+                              "success": True,
+                          }),
+                      )
+              return output.getvalue()
+
+          with TemporaryDirectory() as temporary:
+              root = Path(temporary)
+              cases = [
+                  ("valid", rows, True),
+                  ("duplicate", [rows[0], dict(rows[0])], False),
+                  ("wrong-request-id", [
+                      rows[0], {**rows[1], "request_id": "remote-a"},
+                  ], False),
+                  ("unknown-item", [
+                      rows[0], {**rows[1], "id": "other"},
+                  ], False),
+                  ("missing-report", rows, False),
+                  ("wrong-report-id", rows, False),
+              ]
+              for name, receipts, allowed in cases:
+                  target = root / (name + "-worktree")
+                  client = OfflineClient(archive_for(receipts, scenario=name))
+                  try:
+                      result = execute_asset_forge_batch(
+                          items,
+                          mode="github",
+                          output_root=str(root / (name + "-output")),
+                          target_worktree=str(target),
+                          client=client,
+                      )
+                  except RuntimeError:
+                      if allowed:
+                          raise
+                  else:
+                      if not allowed:
+                          raise AssertionError("invalid remote receipts accepted: " + name)
+                      assert result["success"] is True
+                      assert result["count"] == 2
+                      assert (target / "assets/art/remote-a.png").read_bytes() == b"fake-byte-content-a"
+                      assert (target / "assets/art/remote-b.png").read_bytes() == b"fake-byte-content-b"
+                  if not allowed:
+                      assert not (target / "assets/art/remote-a.png").exists()
+                      assert not (target / "assets/art/remote-b.png").exists()
+          print("PASS: real remote batch parser rejects duplicate/mismatched receipts before delivery")
+
+          # In addition to receipt identity, verify a real Godot bundle
+          # contract with sidecars, relocation and tamper resistance.
+          godot = build_asset_forge_request(
+              request_id="godot-sprite-request",
+              project="offline-smoke",
+              asset_id="player",
+              asset_type="sprite-sheet",
+              instruction="Relocate original Godot 4 SpriteFrames",
+              target_format="png",
+              engine="godot4",
+          )
+          target = "assets/characters/player.png"
+          primary = b"offline-sprite-atlas"
+          original_tres = (
+              '[gd_resource type="SpriteFrames" load_steps=3 format=3]\n'
+              '[ext_resource type="Texture2D" path="res://player.png" id="1_atlas"]\n'
+              '[resource]\n'
+          ).encode()
+          original_meta = json.dumps({
+              "assetId": "player", "image": "player.png",
+              "frames": [{"index": 0, "x": 0, "y": 0, "width": 32, "height": 32}],
+          }).encode()
+          bundles = {
+              "bundle/hero.png": primary,
+              "bundle/hero.tres": original_tres,
+              "bundle/hero.atlas-metadata.json": original_meta,
+          }
+          extras = [
+              {
+                  "artifact": "bundle/hero.tres",
+                  "sha256": hashlib.sha256(original_tres).hexdigest(),
+                  "source_name": "player.tres",
+                  "role": "godot-spriteframes",
+              },
+              {
+                  "artifact": "bundle/hero.atlas-metadata.json",
+                  "sha256": hashlib.sha256(original_meta).hexdigest(),
+                  "source_name": "atlas-metadata.json",
+                  "role": "godot-atlas-metadata",
+              },
+          ]
+          row = {
+              "id": "hero", "request_id": "godot-sprite-request",
+              "target_path": target, "depends_on": [],
+              "artifact": "bundle/hero.png",
+              "sha256": hashlib.sha256(primary).hexdigest(),
+              "additional_artifacts": extras,
+          }
+          report = {
+              "schema": "asset-forge/production-report/v1",
+              "success": True,
+              "requestId": "godot-sprite-request",
+              "assetId": "player", "assetType": "sprite-sheet",
+              "artifact": "jobs/godot-sprite-request/player.png",
+              "engineHandoff": {
+                  "engine": "godot4", "type": "spriteframes", "ready": True,
+                  "spriteFrames": "jobs/godot-sprite-request/player.tres",
+                  "atlasMetadata": "jobs/godot-sprite-request/atlas-metadata.json",
+                  "atlasResourcePath": "res://player.png",
+              },
+          }
+
+          def godot_archive(current_extras):
+              output = io.BytesIO()
+              with zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED) as zf:
+                  zf.writestr("batch-result.json", json.dumps({
+                      "schema_version": "asset-forge/remote-batch-result/v1",
+                      "success": True, "count": 1,
+                      "items": [{**row, "additional_artifacts": current_extras}],
+                  }))
+                  zf.writestr("jobs/godot-sprite-request/production-report.json", json.dumps(report))
+                  for name, content in bundles.items():
+                      zf.writestr(name, content)
+              return output.getvalue()
+
+          with TemporaryDirectory() as temporary:
+              work = Path(temporary)
+              for scenario in ("valid", "missing-companion", "tampered-hash"):
+                  current = list(extras)
+                  if scenario == "missing-companion":
+                      current = current[:1]
+                  if scenario == "tampered-hash":
+                      current = [{**current[0], "sha256": "0" * 64}, current[1]]
+                  destination = work / scenario
+                  fake = OfflineClient(godot_archive(current))
+                  try:
+                      receipt = execute_asset_forge_batch(
+                          [{"id": "hero", "request": godot, "target_path": target}],
+                          mode="github",
+                          output_root=str(work / (scenario + "-cache")),
+                          target_worktree=str(destination),
+                          client=fake,
+                      )
+                  except RuntimeError:
+                      if scenario == "valid":
+                          raise
+                  else:
+                      assert scenario == "valid", "unsafe Godot companions delivered"
+                      assert receipt["success"] is True
+                      assert (destination / target).read_bytes() == primary
+                      tres = (destination / "assets/characters/player.tres").read_text()
+                      assert 'path="res://assets/characters/player.png"' in tres
+                      metadata = json.loads(
+                          (destination / "assets/characters/player.atlas-metadata.json").read_text()
+                      )
+                      assert metadata["image"] == "player.png"
+                  if scenario != "valid":
+                      assert not (destination / target).exists(), "invalid archive reached worktree"
+          print("PASS: hashed Godot SpriteFrames and atlas sidecars delivered with corrected res:// URI")
+          PY
+
+  godot4-relocated-import:
+    name: Real Godot 4 relocated consumer import
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+      - name: Install Production-OS and original-image handling
+        run: python -m pip install -e . "Pillow>=12.2,<13"
+      - name: Checkout pinned Asset Forge source for local CLI
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: dbrckk/asset-forge
+          ref: 7fd8875036b188eab3f3f0ce8ed47c025c5f33ec
+          path: .ci-tools/asset-forge-src
+          persist-credentials: false
+      - name: Cache official Godot 4.4.1 binary
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: .ci-tools/Godot_v4.4.1-stable_linux.x86_64.zip
+          key: production-os-godot-4.4.1-linux-x64-v1
+      - name: Fetch and verify official Godot 4.4.1 editor
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .ci-tools
+          release="https://github.com/godotengine/godot/releases/download/4.4.1-stable"
+          name="Godot_v4.4.1-stable_linux.x86_64.zip"
+          curl --fail --location --silent --show-error --retry 3 --max-time 45 \
+            "$release/SHA512-SUMS.txt" -o .ci-tools/SHA512-SUMS.txt
+          if [ ! -s ".ci-tools/$name" ]; then
+            curl --fail --location --silent --show-error --retry 3 --max-time 180 \
+              "$release/$name" -o ".ci-tools/$name"
+          fi
+          python - <<'PY'
+          import hashlib
+          import re
+          from pathlib import Path
+
+          name = "Godot_v4.4.1-stable_linux.x86_64.zip"
+          entries = [
+              line.split(maxsplit=1)[0].lower()
+              for line in Path(".ci-tools/SHA512-SUMS.txt").read_text().splitlines()
+              if len(line.split(maxsplit=1)) == 2
+              and line.split(maxsplit=1)[1].lstrip("*").removeprefix("./") == name
+          ]
+          if len(entries) != 1 or not re.fullmatch(r"[0-9a-f]{128}", entries[0]):
+              raise SystemExit("Official Godot SHA512 manifest entry missing")
+          if hashlib.sha512((Path(".ci-tools") / name).read_bytes()).hexdigest() != entries[0]:
+              raise SystemExit("Godot binary SHA512 does not match official release")
+          print("Official Godot 4.4.1 SHA512 verified")
+          PY
+          unzip -oq ".ci-tools/$name" -d .ci-tools/
+          chmod +x .ci-tools/Godot_v4.4.1-stable_linux.x86_64
+          .ci-tools/Godot_v4.4.1-stable_linux.x86_64 --version
+      - name: Import remotely delivered and relocated Godot SpriteFrames
+        env:
+          GODOT_BIN: .ci-tools/Godot_v4.4.1-stable_linux.x86_64
+          ASSET_FORGE_SOURCE_DIR: .ci-tools/asset-forge-src
+        run: |
+          python integration/godot4_relocated_import_smoke.py
+          python integration/real_producer_bundle_smoke.py
 ````
 
 ## File: .github/workflows/semantic-refresh.yml
@@ -1032,6 +1351,674 @@ initial_prompt: |
     }
   ]
 }
+````
+
+## File: integration/godot4_relocated_import_smoke.py
+````python
+#!/usr/bin/env python3
+"""Offline Production-OS remote delivery -> real Godot 4 editor/runtime smoke.
+
+Generates an ORIGINAL local RGBA PNG and SpriteFrames with the actual Godot
+editor, then passes the hashed bytes through the real Production-OS remote
+batch parser and transactional worktree delivery. No inference, token, network
+dispatch, external art or new unit tests. GODOT_BIN must point to Godot 4.
+"""
+⋮----
+GENERATOR = """extends SceneTree
+⋮----
+VALIDATOR = """extends SceneTree
+⋮----
+def run(command: list[str], *, cwd: Path, marker: str | None = None) -> None
+⋮----
+result = subprocess.run(command, cwd=cwd, text=True, capture_output=True,
+output = result.stdout + "\n" + result.stderr
+⋮----
+def original_png() -> bytes
+⋮----
+# Deterministically generate two original 32x32 drawings, with alpha.
+def chunk(name: bytes, data: bytes) -> bytes
+rows = []
+⋮----
+row = bytearray(b"\x00")
+⋮----
+class OfflineClient
+⋮----
+def __init__(self, archive: bytes) -> None
+⋮----
+def can_dispatch_workflow(self, *_args) -> bool
+⋮----
+def dispatch_workflow(self, _repo, _workflow, *, ref, inputs) -> None
+⋮----
+def wait_for_workflow_run(self, *_args, **_kwargs) -> dict
+⋮----
+def workflow_run_artifacts(self, *_args) -> list[dict]
+⋮----
+def download_workflow_artifact(self, *_args) -> bytes
+⋮----
+def main() -> None
+⋮----
+raw_bin = os.environ.get("GODOT_BIN", "").strip()
+⋮----
+godot = str(Path(raw_bin).resolve(strict=True))
+⋮----
+root = Path(temp)
+original = root / "original"
+⋮----
+primary = original_png()
+⋮----
+tres = (original / "player.tres").read_bytes()
+⋮----
+metadata = json.dumps({
+parts = {"bundle/hero.png": primary, "bundle/hero.tres": tres,
+request_id = "godot-relocated-engine-smoke"
+request = build_asset_forge_request(
+target = "assets/characters/player.png"
+extras = [
+row = {
+report = {
+zip_buffer = io.BytesIO()
+⋮----
+consumer = root / "consumer"
+⋮----
+delivered = execute_asset_forge_batch(
+⋮----
+relocated_tres = consumer / "assets/characters/player.tres"
+⋮----
+meta = json.loads((consumer / "assets/characters/player.atlas-metadata.json").read_text())
+⋮----
+# Real local Asset Forge CLI, no fake generation, and verified cache repair.
+source_root = os.environ.get("ASSET_FORGE_SOURCE_DIR", "").strip()
+⋮----
+forge_entry = Path(source_root).resolve(strict=True) / "asset_forge.py"
+⋮----
+binary_dir = root / "local-cli-bin"
+⋮----
+wrapper = binary_dir / "asset-forge"
+shell_command = (
+⋮----
+local_request = build_asset_forge_request(
+⋮----
+local_items = [{
+old_path = os.environ.get("PATH", "")
+⋮----
+first = execute_asset_forge_batch(
+⋮----
+receipt = json.loads(
+⋮----
+payload = (consumer / record["target_path"]).read_bytes()
+⋮----
+# A valid cache must work with the CLI removed.
+⋮----
+cached = execute_asset_forge_batch(
+⋮----
+# A cache from one generator/model must never masquerade as
+# a different generation. The CLI is absent here: a wrong cache
+# hit would succeed, while correct invalidation must refuse.
+receipt_path = consumer / (target + ".asset-forge.json")
+baseline_receipt = receipt_path.read_bytes()
+⋮----
+tres = consumer / "assets/characters/player.tres"
+clean = tres.read_bytes()
+⋮----
+# A true CLI production repairs both files, then Godot reimports.
+⋮----
+repaired = execute_asset_forge_batch(
+⋮----
+# Single-asset API must preserve the complete Godot handoff too.
+single_consumer = root / "single-consumer"
+⋮----
+direct = execute_asset_forge(
+⋮----
+single_receipt = json.loads(
+⋮----
+payload = (single_consumer / companion["target_path"]).read_bytes()
+⋮----
+# Reproduce real input drift without provider calls: run the
+# original owned-image Asset Forge CLI, then alter the source or
+# visual reference before Production-OS can publish a receipt.
+# No consumer asset or sidecar may be written by these attempts.
+drift_source = root / "drift-source.png"
+drift_reference = root / "drift-reference.png"
+drift_consumer = root / "drift-consumer"
+⋮----
+real_cli_run = subprocess.run
+⋮----
+def change_input_after_real_cli(*args, **kwargs)
+⋮----
+completed = real_cli_run(*args, **kwargs)
+⋮----
+changed = drift_reference if drift_kind == "direct-reference" else drift_source
+⋮----
+# Same original PNG source, but a newly supplied reference image,
+# must cause a new receipt version even if output bytes match.
+reference_png = root / "owned-reference.png"
+⋮----
+receipt_path = single_consumer / (target + ".asset-forge.json")
+baseline = json.loads(receipt_path.read_text(encoding="utf-8"))
+⋮----
+supplied = execute_asset_forge(
+first_ref = json.loads(receipt_path.read_text(encoding="utf-8"))
+⋮----
+# Add a valid original PNG text chunk: its reference contents
+# change, whereas the actual source image and final pixels do not.
+ref_content = b"project-owned\x00alternate-reference"
+ref_chunk = (
+⋮----
+changed_ref = json.loads(receipt_path.read_text(encoding="utf-8"))
+⋮----
+# A missing explicit local reference is rejected before any
+# generation output directory or consumer write exists.
+invalid_output = root / "invalid-reference-production"
+````
+
+## File: integration/real_producer_bundle_smoke.py
+````python
+#!/usr/bin/env python3
+"""Actual pinned Asset Forge producer bundle -> Production-OS consumer -> Godot 4.
+
+This is a functional integration smoke, not a new unit test. It uses only
+locally authored original PNG pixels and the real Asset Forge CLI; no paid
+inference, hosted dispatch, credentials, old canaries, or network is invoked.
+"""
+⋮----
+def main() -> None
+⋮----
+godot_bin = os.environ.get("GODOT_BIN", "").strip()
+source_dir = os.environ.get("ASSET_FORGE_SOURCE_DIR", "").strip()
+⋮----
+godot = str(Path(godot_bin).resolve(strict=True))
+forge_dir = Path(source_dir).resolve(strict=True)
+⋮----
+root = Path(temp)
+originals = root / "original-art"
+⋮----
+image = originals / "owned-player.png"
+image_bytes = original_png()
+⋮----
+request = build_asset_forge_request(
+⋮----
+target = "assets/characters/player.png"
+item = {"id": "player", "request": request,
+spec = root / "producer-spec.json"
+⋮----
+# Keep CLI execution self-contained and deterministic without any
+# provider credential, model selection, or remote source paths.
+bin_dir = root / "bin"
+⋮----
+wrapper = bin_dir / "asset-forge"
+⋮----
+produced_root = root / "native-bundle"
+original_root = os.environ.get("ASSET_FORGE_BATCH_SOURCE_ROOT")
+⋮----
+produced = run_real_producer(
+⋮----
+row = produced["items"][0]
+roles = {comp.get("role") for comp in row.get("additional_artifacts") or []}
+⋮----
+# Produce exactly the ZIP layout the GitHub workflow uploads from
+# the real remote_batch output tree, not synthetic report fixtures.
+archive_bytes = io.BytesIO()
+⋮----
+source_archive = archive_bytes.getvalue()
+⋮----
+# An untrusted ZIP must be fully preflighted before any extraction:
+# aliases, Unicode NFC names, duplicate separators and parent/file
+# conflicts all risk overwriting earlier bundle entries.
+ambiguous_bundles = (
+⋮----
+suspicious = io.BytesIO()
+⋮----
+should_not_exist = root / f"unsafe-zip-preflight-{index}"
+⋮----
+# A ZIP central directory can have valid paths and declared sizes
+# while a later stored entry fails its CRC. Without preflight, the
+# preceding file is written first, including an overwrite of a real
+# existing file. Test both a new directory and a populated one.
+corrupt_zip = io.BytesIO()
+crc_original = b"original-owned-crc-verification-payload"
+⋮----
+corrupted_bytes = bytearray(corrupt_zip.getvalue())
+corrupt_at = corrupted_bytes.index(crc_original) + 4
+⋮----
+corrupt_root = root / (
+owned_marker = corrupt_root / "owned-marker.bin"
+⋮----
+# An existing hardlinked filename is an alias too: writing the ZIP
+# member would change a protected file outside the extraction root.
+owned_hardlink_target = root / "owned-zip-hardlink-source.bin"
+⋮----
+zip_hardlink_root = root / "unsafe-zip-existing-hardlink"
+⋮----
+hardlink_zip = io.BytesIO()
+⋮----
+# A symbolic link on the extraction ROOT (or one of its parents)
+# must be rejected before unzipping to the resolved external folder.
+zip_root_owner = root / "protected-zip-extraction-root"
+⋮----
+zip_root_marker = zip_root_owner / "keep-owned.bin"
+⋮----
+zip_root_link = root / "zip-extraction-root-link"
+⋮----
+# A pre-existing directory where the ZIP expects a file, or a
+# regular file where it expects a parent directory, must be refused
+# BEFORE any earlier good ZIP entry is written. Previously the first
+# entry was extracted, then an IsADirectoryError/FileExistsError
+# interrupted extraction and left a partial bundle.
+⋮----
+conflict_root = root / ("unsafe-zip-existing-type-" + conflict)
+⋮----
+marker = conflict_root / "owned-marker.bin"
+⋮----
+conflicting_entry = "blocked.png"
+⋮----
+conflicting_entry = "blocked/child.png"
+archive_buffer = io.BytesIO()
+⋮----
+# Pre-existing case/Unicode aliases are just as ambiguous as symlinks
+# when the consumer runs on case-insensitive or NFC-normalizing hosts.
+# Refuse the *entire* archive without altering earlier files.
+⋮----
+alias_root = root / ("unsafe-zip-existing-portable-" + alias_kind)
+⋮----
+existing_path = alias_root / existing_name
+⋮----
+protected = existing_path / "preserved.bin"
+⋮----
+protected = existing_path
+⋮----
+bundle = io.BytesIO()
+⋮----
+# An existing *internal* symlink aliases another file in the same
+# extraction root. Earlier path-escape checks accepted such aliases,
+# overwriting files the producer ZIP did not explicitly name.
+# Reject the whole archive before extracting even its first good file.
+⋮----
+alias_root = root / ("unsafe-zip-existing-symlink-" + alias_type)
+⋮----
+protected = alias_root / "protected"
+⋮----
+preserved = protected / "owned.png"
+⋮----
+malicious_entry = "aliased.png"
+⋮----
+malicious_entry = "aliased/owned.png"
+⋮----
+dispatch_item = {"id": item["id"], "request": request, "target_path": target}
+⋮----
+# A second job may choose the first sheet's SpriteFrames or atlas
+# companion as its own output. Such a batch must be rejected *before*
+# creating an output root or trying a paid/hosted producer.
+⋮----
+second = json.loads(json.dumps(request))
+⋮----
+conflicting_items = [
+⋮----
+refused_root = root / (
+⋮----
+consumer = root / "verified-consumer"
+⋮----
+delivered = execute_asset_forge_batch(
+⋮----
+version = json.loads(
+⋮----
+resource = consumer / companion["target_path"]
+⋮----
+# Direct GitHub-mode single-asset calls must no longer return a mere
+# dispatch receipt when a consumer delivery was explicitly requested.
+single = root / "direct-github-consumer"
+⋮----
+direct = execute_asset_forge(
+⋮----
+direct_version = json.loads(
+⋮----
+# Refuse to dispatch a billed remote generation when delivery would
+# silently write a repository's default branch without PR review.
+⋮----
+# Case variants of GitHub's default branch are not review branches.
+# They must fail before any remote workflow call or output write.
+⋮----
+# Batch callers previously bypassed the direct API's main-branch
+# guard, or dispatched generation with no consumer at all. Both must
+# fail before creating output or reaching a remote workflow.
+blocked_batch_root = root / "blocked-batch-destination"
+⋮----
+# Explicit local raster sources cannot be fulfilled by a remote
+# worker. Fail *before* any GitHub dispatch or output directory,
+# including auto mode when the local CLI is unavailable. The same
+# restriction also applies to fire-and-forget single requests, which
+# previously silently discarded source/reference inputs.
+⋮----
+refused = root / ("blocked-remote-local-source-" + remote_mode)
+⋮----
+# Existing end-to-end smoke also verifies destination preflight.
+# None of these cases may dispatch, generate, or create receipt files.
+bad_receipt = root / "blocked-path-receipt"
+⋮----
+first = "assets/player.png" if "PLAYER" in second else "assets/café.png"
+⋮----
+# These distinct strings still conflict as file and parent folder.
+⋮----
+# The consumer must reject producer-incompatible IDs before any
+# local job directory, remote dispatch, or artifact write.
+⋮----
+unsafe_request = dict(request)
+⋮----
+first = dict(request)
+second = dict(request)
+⋮----
+# A direct local request formerly checked destination paths only
+# after generating an asset. Refuse unsafe or missing destinations
+# before creating even the local output directory or invoking CLI.
+bad_local_root = root / "blocked-local-single"
+⋮----
+# Direct local generation must not follow a symlinked output root
+# (or an ancestor), including when no consumer delivery is requested.
+# The batch API already rejects its output_root symlinks.
+⋮----
+protected_root = root / ("protected-single-output-" + alias_type)
+⋮----
+protected_marker = protected_root / "do-not-touch.bin"
+⋮----
+link = root / ("single-output-link-" + alias_type)
+⋮----
+output_destination = link if alias_type == "root" else link / "generated"
+⋮----
+# Existing regular files also cannot serve as local generator output.
+blocked_direct_file = root / "blocked-single-output-file"
+⋮----
+# A missing explicit source must never become an implicit no-source
+# fingerprint, reuse a cache entry, or start generator work.
+absent_source = root / "missing-owned-source.png"
+direct_absent = root / "blocked-missing-direct-source"
+⋮----
+# Reference inputs were previously fingerprint-preflighted only when
+# a consumer delivery target was provided. Local producer-only mode
+# must reject missing, directory and malformed references just as
+# strongly, before creating output or invoking a generator.
+⋮----
+refused_output = root / (
+⋮----
+# An explicitly supplied empty source is invalid: it must not fall
+# back to no-source generation just because the string is falsey.
+⋮----
+refused_output = root / ("blocked-empty-source-" + delivery_case)
+⋮----
+# Validate *all* source paths before creating output even if another
+# item in the batch has a valid, cacheable target.
+⋮----
+absent_batch = root / ("blocked-missing-batch-" + batch_mode)
+⋮----
+# A locally generated asset must not be pushed directly to GitHub's
+# default branch without an explicit review branch. This is refused
+# before any CLI or expensive generation.
+blocked_local_github = root / "blocked-local-main-delivery"
+⋮----
+# A destination alias must be blocked *before* local CLI generation
+# or remote dispatch, not just by the final transactional write.
+⋮----
+blocked_root = root / ("preflight-alias-" + alias)
+characters = blocked_root / "assets" / "characters"
+⋮----
+protected = root / ("preflight-protected-" + alias + ".bin")
+⋮----
+name = "player.png" if alias == "asset" else "player.png.asset-forge.json"
+⋮----
+output = root / ("no-generation-" + alias + "-" + delivery)
+⋮----
+# Existing hardlinks look like regular files, but overwriting
+# them silently mutates the other linked inode outside the consumer.
+# Refuse both media and receipt aliases before producer/provider calls.
+⋮----
+hardlink_root = root / ("hardlink-consumer-" + hardlink_kind)
+owned_target = root / ("owned-hardlink-" + hardlink_kind + ".bin")
+⋮----
+alias = hardlink_root / (
+⋮----
+blocked_output = root / (
+⋮----
+# An existing worktree ROOT may itself be a regular file.
+# Reject it before creating output or invoking the actual producer
+# (or dispatching a remote workflow), not only at final delivery.
+blocked_root_file = root / "invalid-consumer-root.bin"
+⋮----
+output = root / ("no-generation-root-file-" + blocked_mode)
+⋮----
+# The consumer root itself (or one of its ancestors) may be a
+# symlink. Path.resolve() must not silently redirect an asset delivery
+# into a different, unintended workspace. Refuse *before* generating
+# locally or dispatching the offline-correlated remote batch.
+protected_consumer_root = root / "protected-consumer-root"
+⋮----
+protected_consumer_marker = protected_consumer_root / "do-not-touch.bin"
+⋮----
+linked_consumer_root = root / "linked-consumer-root"
+⋮----
+linked_consumer_parent = root / "linked-consumer-parent"
+⋮----
+# An unsupported mode must not make a generation directory either.
+invalid_mode_root = root / "no-generation-invalid-mode"
+⋮----
+# A pre-existing job directory symlink may escape the batch output
+# root even when requestId is otherwise a safe single component.
+linked_root = root / "linked-local-jobs"
+⋮----
+outside_job = root / "outside-local-job"
+⋮----
+# A symlink to a *different job inside the same output root* also
+# aliases paths and can overwrite another production report.
+alias_root = root / "aliased-local-jobs"
+⋮----
+other_job = alias_root / "existing-other-job"
+⋮----
+# Existing file and directory names may have cross-platform aliases
+# on Windows or NFC-normalizing filesystems. Refuse before any local
+# generation or provider dispatch, including a case-aliased filename
+# and a Unicode-equivalent filename.
+⋮----
+alias_consumer = root / ("cross-platform-alias-" + case_name)
+protected_alias = alias_consumer / "assets" / "characters" / existing_name
+⋮----
+blocked_output = root / ("no-generation-cross-platform-" + case_name + "-" + alias_mode)
+⋮----
+# Pre-existing local job directories must be real directories. A
+# regular-file collision on a later job must refuse the entire batch
+# before the first item can generate anything.
+job_type_root = root / "blocked-local-job-file"
+⋮----
+blocked_job = job_type_root / "blocked-job"
+⋮----
+first_job_id = "unused-first-job"
+second_request = {
+first_request = {
+⋮----
+# The configured batch output root itself cannot be a symlink to an
+# unrelated working directory, even when each job id is safe.
+linked_output = root / "aliased-batch-output-root"
+guarded_output = root / "guarded-output-root"
+⋮----
+# The batch output leaf may be a normal path while its *parent*
+# aliases another directory. Fail before mkdir, a local producer,
+# or the offline-correlated GitHub dispatch in both modes.
+guarded_parent = root / "guarded-batch-output-parent"
+⋮----
+marker_file = guarded_parent / "do-not-touch.bin"
+⋮----
+alias_parent = root / "batch-output-parent-link"
+⋮----
+nested_output = alias_parent / "nested" / "jobs"
+⋮----
+# Verify real GitHub Contents ref encoding and branch-specific
+# version continuity using an offline recording client.
+class OfflineReviewBranch(GitHubClient)
+⋮----
+def __init__(self, receipt=None, *, move_before_commit=False)
+⋮----
+def _get(self, path)
+⋮----
+def branch_head_sha(self, repository, branch)
+⋮----
+def commit_files(self, repository, files, *, message, branch, expected_sha=None)
+⋮----
+# Reproduce the original TOCTOU gap with a real PNG and offline
+# review-branch client: the producer mutates its path *after* the
+# initial integrity check, during the GitHub branch-head read. Both
+# the media payload and SHA receipt must still describe the same
+# original bytes. No hosted workflow or API request is made.
+class OfflineLateProducerMutation(OfflineReviewBranch)
+⋮----
+def __init__(self)
+⋮----
+frozen_review = OfflineLateProducerMutation()
+frozen_item = {
+⋮----
+frozen_receipt = json.loads(
+⋮----
+# Preserve legacy GitHubAPIError("GitHub API NNN: ...") callers while
+# never considering a status number quoted only inside a response body.
+⋮----
+# GitHub response bodies are untrusted: their text must never spoof
+# a different HTTP status and erase a review-branch version receipt.
+class OfflineStatusClient(GitHubClient)
+⋮----
+def __init__(self, code: int, body: str)
+⋮----
+def _get(self, _path)
+⋮----
+def _request(self, _method, _path, _payload=None)
+⋮----
+misleading = OfflineStatusClient(
+⋮----
+missing = OfflineStatusClient(404, '{"message": "Not Found"}')
+⋮----
+class OfflinePermissionError(OfflineStatusClient)
+⋮----
+spoofed = OfflinePermissionError(
+⋮----
+review_ref = "review/asset-handoff"
+review_item = {
+# Two produced files may not be stable by the time transactional
+# delivery starts. Corrupt the second item *after* recording its real
+# authored PNG SHA-256, then prove that neither the first nor second
+# output, nor any version receipt, was written to either consumer.
+drift_media = root / "changed-after-production.png"
+⋮----
+original_drift_sha = hashlib.sha256(drift_media.read_bytes()).hexdigest()
+⋮----
+drift_target = "assets/characters/changed-after-production.png"
+drift_item = {
+drift_batch = [review_item, drift_item]
+drift_consumer = root / "reject-stale-producer-outputs"
+protected_media = drift_consumer / target
+⋮----
+rejected_github = OfflineReviewBranch()
+⋮----
+# Direct callers of the shared transactional writer must not bypass
+# the public preflight and follow consumer-root symlink aliases.
+⋮----
+# Internal shared delivery must independently reject names that
+# would overwrite or collide across Windows/Unicode-normalizing hosts.
+⋮----
+shared_consumer = root / ("shared-cross-platform-alias-" + alias_kind)
+protected_alias = shared_consumer / "assets" / "characters" / existing_name
+⋮----
+# Refuse same-root aliases before writing any asset or receipt.
+⋮----
+worktree = root / f"consumer-symlink-{alias_case}"
+assets_root = worktree / "assets"
+⋮----
+alternate = assets_root / "elsewhere"
+⋮----
+protected = alternate / "unrelated.bin"
+⋮----
+characters = assets_root / "characters"
+⋮----
+protected = characters / "unrelated.bin"
+link_name = (
+⋮----
+# The shared transaction must check existing destination file types
+# before staging *any* asset, even when invoked without outer preflight.
+# These are not links: a directory at a media/receipt path or a file
+# at a parent path must never create a partial asset or receipt.
+⋮----
+worktree = root / ("consumer-type-" + blocked_kind)
+media = worktree / target
+receipt_path = worktree / (target + ".asset-forge.json")
+⋮----
+preserved = media
+⋮----
+preserved = receipt_path
+⋮----
+preserved = worktree / "assets" / "characters"
+⋮----
+# Internal callers must not bypass the hardlink guard merely
+# because they skip the public pre-generation validation.
+⋮----
+internal_root = root / ("hardlink-internal-" + hardlink_kind)
+protected = root / ("hardlink-internal-owner-" + hardlink_kind + ".bin")
+⋮----
+hardlinked_path = internal_root / (
+⋮----
+# Direct shared-helper calls must also refuse GitHub default branches.
+⋮----
+forbidden = OfflineReviewBranch()
+⋮----
+github = OfflineReviewBranch()
+⋮----
+expected_url = (
+⋮----
+version = json.loads(github.written_files[target + ".asset-forge.json"].decode("utf-8"))
+⋮----
+# Identical bytes do not imply the same asset provenance. A new
+# semantic request must advance the version and preserve fingerprint
+# history, while an exact retry stays on its existing version.
+source_version = json.loads(
+⋮----
+original = OfflineReviewBranch(receipt=json.dumps(source_version))
+rerun = {**review_item, "request_fingerprint": new_fingerprint}
+⋮----
+new_version = json.loads(
+⋮----
+old_record = new_version["history"][-1]
+⋮----
+# Exercise a concurrent branch change after reading the receipt.
+# No stale version can be committed on top of another writer's HEAD.
+moved = OfflineReviewBranch(move_before_commit=True)
+⋮----
+# A corrupt existing receipt cannot be silently replaced with version 1.
+# The actual GitHubClient must reject malformed JSON before commit_files.
+⋮----
+blocked = OfflineReviewBranch(receipt=malformed)
+⋮----
+# A list-typed history/companion field with corrupt *entries* must
+# never propagate into a new GitHub version receipt.
+good_history = {
+invalid_nested_receipts = (
+⋮----
+blocked = OfflineReviewBranch(receipt=json.dumps(invalid))
+⋮----
+# The real worktree delivery path must also refuse malformed history
+# before touching the existing PNG, sidecars or the corrupt metadata.
+local_sidecar = consumer / (target + ".asset-forge.json")
+original_sidecar = local_sidecar.read_bytes()
+original_artifact = (consumer / target).read_bytes()
+⋮----
+# A valid real Godot cache can carry malformed producer-provided
+# visual metadata. Historically the batch wrote the receipt and
+# only then raised when parsing its quality summary. Prove that
+# an error never mutates the consumer after a reported failure.
+⋮----
+invalid_metric = json.loads(original_sidecar.decode("utf-8"))
+⋮----
+protected_metric_receipt = local_sidecar.read_bytes()
+⋮----
+# Tamper with the REAL producer .tres byte payload but preserve its
+# real declared checksum; fail closed before any consumer file write.
+tres_path = next(
+tampered_zip = io.BytesIO()
+⋮----
+content = genuine.read(member.filename)
+⋮----
+rejected_root = root / "rejected-consumer"
 ````
 
 ## File: scripts/render-start.py
@@ -1653,9 +2640,96 @@ source = Path(source_path)
 source_sha256 = hashlib.sha256(source.read_bytes()).hexdigest()
 payload = {
 ⋮----
+# A different generator/model is a different production request:
+# never reuse previously generated bytes solely on input similarity.
+⋮----
+# Explicit local visual references are generator inputs. Preserve their
+# ordered content hashes, not only their (mutable) filesystem names.
+⋮----
+def _is_default_branch_name(target_ref: str) -> bool
+⋮----
+"""Refuse main/master case variants at every repository write boundary."""
+⋮----
 def _sidecar_relative_path(target_path: str) -> str
 ⋮----
+def _nonportable_asset_path_component(part: str) -> bool
+⋮----
+"""Reject destination/ZIP path segments that alias or fail on Windows."""
+reserved = (
+⋮----
+def _has_file_parent_collision(paths: set[str]) -> bool
+⋮----
+"""Detect file A and file A/child even when both names are unique."""
+⋮----
+parent = key.rpartition("/")[0]
+⋮----
+parent = parent.rpartition("/")[0]
+⋮----
+def _validated_target_path(value: Any) -> str
+⋮----
+"""Keep delivery paths canonical before generation, dispatch or writes."""
+⋮----
+normalized = value.replace("\\", "/")
+parts = normalized.split("/")
+⋮----
+def _reject_nonportable_worktree_alias(root: Path, relative_path: str) -> None
+⋮----
+"""Prevent creating names that collide on case-insensitive/NFC filesystems."""
+⋮----
+parent = root
+⋮----
+expected = unicodedata.normalize("NFC", component).casefold()
+⋮----
+parent = parent / component
+⋮----
+def _reject_worktree_root_symlinks(worktree: str) -> None
+⋮----
+"""Reject explicit consumer-root aliases, including symlinked ancestors."""
+requested = Path(worktree)
+⋮----
+"""Refuse existing destination aliases before paying for generation.
+
+    The transactional delivery boundary repeats these checks when writing:
+    this preflight protects the caller from needless or billed generation.
+    """
+⋮----
 root = Path(worktree).resolve()
+⋮----
+candidate = root
+⋮----
+candidate = candidate / component
+⋮----
+# A hardlink is not a symlink: overwriting it also mutates any
+# unrelated file sharing the inode, including outside this worktree.
+⋮----
+parent = candidate.parent
+⋮----
+parent = parent.parent
+⋮----
+def _is_godot_sprite_sheet(request: dict[str, Any]) -> bool
+⋮----
+manifest = request.get("manifest")
+⋮----
+target = manifest.get("target")
+⋮----
+"""A Godot cache hit requires verified PNG, SpriteFrames and atlas JSON."""
+expected = {
+records = metadata.get("companions")
+⋮----
+found: dict[str, bytes] = {}
+⋮----
+rel = record.get("target_path")
+digest = record.get("sha256")
+⋮----
+candidate = (root / rel).resolve()
+⋮----
+content = candidate.read_bytes()
+⋮----
+tres = found[str(Path(target_path).with_suffix(".tres"))].decode("utf-8")
+atlas = json.loads(
+⋮----
+reference = 'path=' + json.dumps("res://" + target_path, ensure_ascii=False)
+⋮----
 normalized = target_path.strip().replace("\\", "/").lstrip("/")
 artifact = (root / normalized).resolve()
 sidecar = (root / _sidecar_relative_path(normalized)).resolve()
@@ -1664,10 +2738,34 @@ metadata = json.loads(sidecar.read_text(encoding="utf-8"))
 ⋮----
 digest = hashlib.sha256(artifact.read_bytes()).hexdigest()
 ⋮----
+companions = _cached_godot_companions(root, normalized, metadata)
+⋮----
+metadata = {**metadata, "_verified_companions": companions}
+⋮----
+# An existing receipt is integrity metadata. Reject damaged or mismatched
+# structure before assigning versions, rather than treating it as a new asset.
+⋮----
+# The nested history and companion entries are integrity evidence.
+# Refuse malformed persisted records instead of propagating them into
+# new versions or silently rewriting provenance metadata.
+previous_history_version = 0
+⋮----
+previous_history_version = record["version"]
+⋮----
+occupied = {
+⋮----
+normalized_path = _validated_target_path(record.get("target_path"))
+⋮----
+key = unicodedata.normalize("NFC", normalized_path).casefold()
+⋮----
 existing = existing if isinstance(existing, dict) else {}
 prior_sha = str(existing.get("sha256") or "")
 prior_version = int(existing.get("version") or 0)
-same = prior_sha == item["sha256"] and prior_version > 0
+companions = [
+⋮----
+# An identical binary can be produced by a different semantic request.
+# Preserve that provenance transition as a new version even if bytes match.
+same = (
 version = prior_version if same else prior_version + 1
 history = list(existing.get("history") or []) if isinstance(existing.get("history"), list) else []
 ⋮----
@@ -1689,16 +2787,152 @@ resolved_artifact = artifact.resolve()
 root = Path(target_worktree).resolve()
 destination = (root / normalized).resolve()
 ⋮----
+# Defensive check for direct internal calls: local single-artifact writes
+# must not bypass the review-branch requirement used by batch delivery.
+⋮----
 gh = client or GitHubClient()
+⋮----
+"""Deliver a stable, SHA-verified snapshot of each produced artifact.
+
+    A producer can modify its output between SHA preflight and copying to
+    GitHub or the worktree. Freeze files in private temporary storage before
+    either consumer is contacted; the receipt then covers the exact bytes
+    subsequently delivered, even if the original producer path changes.
+    Snapshots stream in 1 MiB chunks rather than accumulating whole batches
+    in memory. They are removed on both success and failure.
+    """
+⋮----
+frozen: list[dict[str, Any]] = []
+⋮----
+snapshot = Path(tmp) / f"artifact-{index:06d}"
+sha256 = hashlib.sha256()
+⋮----
+"""Validate destinations and atomically deliver frozen assets and receipts."""
+⋮----
+delivery_mode = None
+delivered_to: list[str] = []
+⋮----
+# Enforce the review branch requirement in the shared delivery boundary.
+# Direct internal callers must not bypass the public entrypoint preflight.
+⋮----
+# Validate all destinations before touching either a worktree or GitHub.
+# Include metadata sidecars and companion files in the collision ledger.
+⋮----
+delivery_names: set[str] = set()
+⋮----
+companion_files = produced_item.get("companion_files") or []
+names = [
+⋮----
+key = unicodedata.normalize("NFC", _validated_target_path(name)).casefold()
+⋮----
+# Source artifacts may change after the producer validated their SHA-256
+# while another batch job runs. Check *every* artifact before the first
+# consumer file write or GitHub API read/commit. Otherwise a version receipt
+# can attest to bytes that were never delivered.
+⋮----
+actual_sha256 = hashlib.file_digest(source, "sha256").hexdigest()
+⋮----
+root_worktree = Path(target_worktree).resolve()
+⋮----
+def worktree_destination(relative_path: str, label: str) -> Path
+⋮----
+candidate = root_worktree
+⋮----
+resolved = candidate.resolve()
+⋮----
+# This shared transactional boundary must validate destination
+# types itself, even for internal callers that skip generation
+# preflight. Check every staged path before the first write.
+⋮----
+# Repeat the hardlink preflight at the shared transaction boundary
+# for internal callers and changes after generator preflight.
+⋮----
+parent = resolved.parent
+⋮----
+staged = []
+⋮----
+normalized = item["target_path"].replace("\\", "/").lstrip("/")
+destination = worktree_destination(normalized, "target_path")
+sidecar_destination = worktree_destination(
+existing = None
+⋮----
+value = json.loads(sidecar_destination.read_text(encoding="utf-8"))
+⋮----
+existing = value
+sidecar = _version_sidecar(item, existing=existing)
+⋮----
+extra_destination = worktree_destination(
+⋮----
+backup_root = Path(tempfile.mkdtemp(prefix="production-os-asset-batch-backup-"))
+backups: list[tuple[Path, Path | None]] = []
+⋮----
+backup = None
+⋮----
+backup = backup_root / str(len(backups))
+⋮----
+delivery_mode = "worktree"
+⋮----
+# Bind all receipt reads and the final non-force commit to one branch
+# revision. A concurrent delivery must abort, never reuse stale versions.
+expected_head_sha = gh.branch_head_sha(target_repository, target_ref)
+payload: dict[str, bytes] = {}
+⋮----
+sidecar_path = _sidecar_relative_path(item["target_path"])
+# Read the existing receipt on the destination review branch,
+# not the unrelated repository default branch.
+existing = (
+⋮----
+result = gh.commit_files(
+delivered_to = [
+delivery_mode = "github"
+⋮----
+request_id = _validated_batch_identifier(request.get("requestId"), field="requestId")
 ⋮----
 local_cli = shutil.which("asset-forge")
 effective = mode
 ⋮----
 effective = "local" if local_cli else "github"
 ⋮----
+# A remote generator never reads local files, including when the
+# caller only requests fire-and-forget dispatch. Refuse the request
+# instead of silently generating a different asset.
+⋮----
+# Fire-and-forget dispatch remains available only when no delivery
+# destination was requested. Otherwise, the one-item batch must
+# verify and download a correlated artifact before reporting delivery.
+destination_requested = any(
+⋮----
+normalized_target = _validated_target_path(target_path)
+⋮----
 request_id = str(request.get("requestId") or "").strip()
 ⋮----
+asset_id = str(manifest.get("id") or "").strip() if isinstance(manifest, dict) else ""
+result = execute_asset_forge_batch(
+⋮----
+delivered_to = (
+⋮----
+# Local single-asset fulfillment must not generate (or bill) an asset
+# before rejecting an unsafe/missing consumer delivery destination.
+normalized_target = _validated_target_path(target_path) if target_path is not None else None
+⋮----
+target_names = [
+⋮----
+# Explicit local image inputs are required generator inputs even without
+# a consumer destination or receipt. Validate before creating output or
+# invoking a potentially billed producer. With delivery, the fingerprint
+# still independently hashes the exact input bytes.
+⋮----
 destination = Path(output_dir or f"build/asset-forge/{request_id}")
+# Direct single-asset execution must match the batch output-root safety
+# boundary. A user-supplied directory (or an ancestor) may be a symlink
+# to a separate worktree: the original producer would write there before
+# consumer delivery validation can refuse the request.
+# Check before even consulting CLI availability: invalid output paths
+# must fail closed without a generator binary or any output side effects.
+⋮----
+# Fail before CLI invocation/output creation if an explicit input
+# reference is missing; retain the exact fingerprint for the receipt.
+direct_fingerprint = (
 ⋮----
 request_path = Path(tmp) / "request.json"
 ⋮----
@@ -1709,14 +2943,35 @@ completed = subprocess.run(
 detail = (getattr(completed, "stderr", "") or getattr(completed, "stdout", "") or "").strip()
 suffix = f": {detail}" if detail else ""
 ⋮----
+# The producer may read an explicitly supplied source/reference after we
+# hashed it for the version receipt. Refuse provenance drift before any
+# consumer mutation, even if the CLI succeeded and wrote a valid report.
+⋮----
+current_fingerprint = _request_fingerprint(
+⋮----
 report_path = destination / "production-report.json"
 ⋮----
 report = json.loads(report_path.read_text(encoding="utf-8"))
 ⋮----
 artifact = _validated_artifact(report, destination)
 ⋮----
-delivery_mode = None
 delivered_to = None
+⋮----
+# All local single-asset deliveries must carry the same verified
+# version receipt and transactional mutation semantics as batches.
+# Godot assets additionally have validated SpriteFrames companions.
+companions = (
+generation = report.get("generation")
+validation = report.get("validation")
+generation = generation if isinstance(generation, dict) else {}
+validation = validation if isinstance(validation, dict) else {}
+⋮----
+manifest = manifest if isinstance(manifest, dict) else {}
+single_item = {
+⋮----
+def _validated_batch_identifier(value: Any, *, field: str) -> str
+⋮----
+"""Match the real Asset Forge producer's safe identifier contract."""
 ⋮----
 def _batch_item_id(item: dict[str, Any], index: int) -> str
 ⋮----
@@ -1754,20 +3009,110 @@ blocked = [item_id for item_id in order_hint if indegree[item_id] > 0]
 ⋮----
 def _extract_remote_batch_bundle(data: bytes, destination: Path) -> Path
 ⋮----
-root = destination.resolve()
+"""Preflight a remote ZIP before extracting any files into the workspace."""
+⋮----
+# Resolving first would silently follow an extraction-root symlink, even
+# if individual archive members themselves have no symlink components.
+requested_root = Path(destination)
+⋮----
+root = requested_root.resolve()
 max_files = 5000
 max_uncompressed = 512 * 1024 * 1024
 total = 0
+# The same cross-platform component validation applies to user-chosen
+# delivery paths and producer ZIP paths before any disk write.
 ⋮----
 infos = archive.infolist()
 ⋮----
+pending: list[tuple[zipfile.ZipInfo, Path]] = []
+file_keys: set[str] = set()
+⋮----
 name = info.filename.replace("\\", "/")
 ⋮----
-parts = [part for part in name.split("/") if part]
+parts = name.split("/")
+⋮----
+# Existing paths can alias ZIP entries on case-insensitive or NFC-
+# normalizing filesystems. Reject them before extracting the first
+# file, just as the final asset delivery boundary already does.
 ⋮----
 mode = (info.external_attr >> 16) & 0o170000
 ⋮----
-target = (root / "/".join(parts)).resolve()
+# A pre-existing in-root symlink is still unsafe: resolving it
+# would silently overwrite another file not named by the ZIP.
+# Check every path component *before* canonicalizing the target.
+⋮----
+candidate = candidate / part
+⋮----
+# Refuse pre-existing file/directory type conflicts before
+# extracting even the first valid ZIP entry. Otherwise an
+# archive with a good first file can leave partial output.
+⋮----
+target = candidate.resolve()
+⋮----
+# GitHub bundles can be extracted on multiple OS/filesystems. A
+# repeated path, Unicode alias or case alias must not overwrite an
+# earlier entry and make its final provenance ambiguous.
+key = unicodedata.normalize("NFC", "/".join(parts)).casefold()
+⋮----
+# Valid central-directory paths/sizes do not prove that the data is
+# intact. A broken CRC or truncated compressed stream detected during
+# extraction could otherwise leave previous files overwritten. Decode
+# and verify every entry *before* creating any output path. Extraction
+# still streams rather than retaining a second full bundle in memory.
+⋮----
+# No output directory is created until all entries are preflighted.
+⋮----
+"""Verify Godot sidecars and relocate the atlas URI for the consumer.
+
+    Bundle paths and checksums are untrusted until checked against the
+    extracted checkout; no sidecar content is written before all checks pass.
+    """
+handoff = production_report.get("engineHandoff")
+⋮----
+target = target_path.replace("\\", "/")
+⋮----
+root = bundle_root.resolve()
+roles: dict[str, bytes] = {}
+fields = {
+⋮----
+role = row.get("role")
+⋮----
+relative = Path(str(row.get("artifact") or ""))
+⋮----
+candidate = (root / relative).resolve()
+⋮----
+recorded_name = handoff.get(fields[role])
+⋮----
+source_name = Path(str(production_report.get("artifact") or "")).name
+original_atlas_ref = "res://" + source_name
+⋮----
+spriteframes = roles["godot-spriteframes"].decode("utf-8")
+metadata = json.loads(roles["godot-atlas-metadata"].decode("utf-8"))
+⋮----
+old_reference = 'path=' + json.dumps(original_atlas_ref, ensure_ascii=False)
+⋮----
+new_reference = 'path=' + json.dumps("res://" + target, ensure_ascii=False)
+rewritten = spriteframes.replace(old_reference, new_reference, 1).encode("utf-8")
+⋮----
+updated_metadata = (json.dumps(metadata, indent=2, sort_keys=True) + "\n").encode("utf-8")
+⋮----
+"""Validate genuine local CLI sidecars with the remote Godot handoff contract."""
+root = output_root.resolve()
+⋮----
+raw_additional = production_report.get("additionalArtifacts")
+⋮----
+def inside(value: Any) -> Path
+⋮----
+candidate = Path(value)
+⋮----
+candidate = root / candidate
+candidate = candidate.resolve()
+⋮----
+listed = [inside(value) for value in raw_additional]
+⋮----
+rows: list[dict[str, Any]] = []
+⋮----
+path = inside(handoff.get(field))
 ⋮----
 serializable_items = []
 ⋮----
@@ -1802,13 +3147,15 @@ rows = result.get("items")
 expected_by_id = {
 produced: list[dict[str, Any]] = []
 produced_by_id: dict[str, dict[str, Any]] = {}
+# A matching item count is insufficient: duplicate rows can hide missing
+# assets and cause the caller to report a partial batch as delivered.
+seen_ids: set[str] = set()
 ⋮----
 item_id = str(row.get("id") or "")
 expected = expected_by_id.get(item_id)
 ⋮----
 target_path = str(row.get("target_path") or "")
 ⋮----
-relative = Path(str(row.get("artifact") or ""))
 artifact_path = (remote_root / relative).resolve()
 ⋮----
 digest = hashlib.sha256(artifact_path.read_bytes()).hexdigest()
@@ -1821,7 +3168,20 @@ dependency = produced_by_id.get(dependency_id)
 ⋮----
 visual_references = [
 request_id = str(row.get("request_id") or "")
+expected_request = expected.get("request")
+expected_request_id = (
+⋮----
 report_path = remote_root / "jobs" / request_id / "production-report.json"
+⋮----
+production_report = json.loads(report_path.read_text(encoding="utf-8"))
+⋮----
+manifest = (
+⋮----
+request_target = manifest.get("target") if isinstance(manifest, dict) else None
+expected_engine = (
+companion_files: list[dict[str, Any]] = []
+⋮----
+companion_files = _godot_spriteframes_companions(
 produced_item = {
 ⋮----
 def _hex_hash_similarity(left: str, right: str) -> float | None
@@ -1862,18 +3222,67 @@ right_metrics = (
 similarity = _hex_hash_similarity(
 color_distance = _rgb_distance(
 ⋮----
-root = Path(output_root)
+# Reject unsafe paths and case/Unicode-equivalent aliases before a remote
+# dispatch or an expensive local generation can be started.
 ⋮----
 ordered_items = _order_asset_batch(items)
+# Validate every ID before output directories or hosted dispatch. Local
+# jobs use requestId as a directory name; duplicates can overwrite reports.
+seen_item_ids: set[str] = set()
+seen_request_ids: set[str] = set()
 ⋮----
-target_paths = [
+item_id = _validated_batch_identifier(item["_batch_id"], field="batch item id")
+⋮----
+item_key = item_id.casefold()
+request_key = request_id.casefold()
+⋮----
+target_paths = [item["target_path"] for item in ordered_items]
+keys = {unicodedata.normalize("NFC", path).casefold() for path in target_paths}
+⋮----
+# A batch always delivers files. Fail before local generation or a billed
+# remote workflow if no destination exists or GitHub main is implicit.
+⋮----
+# A Godot sheet creates SpriteFrames and atlas companions in addition
+# to its primary asset and receipt. Detect collisions across the *entire*
+# intended payload before local generation or remote workflow dispatch.
+# The transactional delivery path independently rechecks generated names.
+⋮----
+target_names: list[str] = []
+⋮----
+asset_path = item["target_path"]
+names = [asset_path, _sidecar_relative_path(asset_path)]
 ⋮----
 effective_mode = mode
 ⋮----
 effective_mode = "local" if shutil.which("asset-forge") else "github"
 ⋮----
+# Reject *every* absent explicit source before creating a batch
+# output directory, running providers, or making a cache decision.
+# Auto fallback to remote must also reject a missing local file first;
+# otherwise it creates output before refusing local source inputs.
+⋮----
+source_path = item.get("source_path")
+⋮----
+# Remote GitHub Actions cannot access the caller's local image.
+# Reject the whole batch before creating output or attempting a
+# dispatch, including auto-mode fallback without a local CLI.
+⋮----
+root = Path(output_root)
+⋮----
+# A non-symlink leaf can still traverse an aliased parent. Match the
+# direct local output_dir guard before mkdir or any remote dispatch.
+⋮----
 produced = _produce_asset_forge_batch_remote(
 produced_by_id = {
+⋮----
+# The validated requestId is a single path component, but an existing
+# directory at that path could still be a symlink to outside the
+# intended output root. Refuse all escaping jobs before invoking a
+# local generator; do not silently write to an unrelated worktree.
+resolved_root = root.resolve()
+⋮----
+request_id = item["request"]["requestId"]
+job_dir = root / request_id
 ⋮----
 dependency_path = Path(dependency["artifact"])
 current_sha256 = hashlib.sha256(dependency_path.read_bytes()).hexdigest()
@@ -1884,6 +3293,7 @@ source_path = str(item.get("source_path") or "").strip() or None
 request_id = str(request.get("requestId") or f"item-{index+1}")
 out = root / request_id
 request_fingerprint = _request_fingerprint(
+godot_required = _is_godot_sprite_sheet(request)
 cached = _cached_worktree_asset(
 ⋮----
 raster_reference_suffixes = {".png", ".webp", ".jpg", ".jpeg"}
@@ -1896,44 +3306,23 @@ receipt = execute_asset_forge(
 report_path = Path(str(receipt.report_path))
 ⋮----
 artifact = _validated_artifact(report, out)
+companion_files = (
 generation = report.get("generation") if isinstance(report.get("generation"), dict) else {}
 validation = report.get("validation") if isinstance(report.get("validation"), dict) else {}
 visual_similarity = (
 ⋮----
-delivered_to: list[str] = []
+# A local batch can run multiple producer jobs. Inputs for an earlier job
+# may change while a later job executes. Recheck every source and verified
+# dependency against its recorded fingerprint before delivering any file.
 ⋮----
-root_worktree = Path(target_worktree).resolve()
-staged = []
+digest = hashlib.sha256(
 ⋮----
-normalized = item["target_path"].replace("\\", "/").lstrip("/")
-destination = (root_worktree / normalized).resolve()
+explicit_source = str(requested.get("source_path") or "").strip() or None
 ⋮----
-sidecar_destination = (
-⋮----
-existing = None
-⋮----
-value = json.loads(sidecar_destination.read_text(encoding="utf-8"))
-existing = value if isinstance(value, dict) else None
-⋮----
-sidecar = _version_sidecar(item, existing=existing)
-⋮----
-backup_root = Path(tempfile.mkdtemp(prefix="production-os-asset-batch-backup-"))
-backups: list[tuple[Path, Path | None]] = []
-⋮----
-backup = None
-⋮----
-backup = backup_root / str(len(backups))
-⋮----
-delivery_mode = "worktree"
-⋮----
-payload: dict[str, bytes] = {}
-⋮----
-sidecar_path = _sidecar_relative_path(item["target_path"])
-existing = gh.read_json_file(target_repository, sidecar_path)
-⋮----
-result = gh.commit_files(
-delivered_to = [
-delivery_mode = "github"
+# Quality summaries and producer-supplied metadata are fallible. Build
+# the entire response before the first destination write; otherwise a
+# malformed cached visual metric can raise after a successful delivery.
+result = {
 ⋮----
 inputs = {
 ````
@@ -6631,6 +8020,17 @@ files = client.list_pull_request_files(repository, pr_number)
 ````python
 class GitHubAPIError(RuntimeError)
 ⋮----
+"""Preserve actual HTTP status independently of arbitrary response text."""
+⋮----
+def __init__(self, message: str, *, status_code: int | None = None)
+⋮----
+# Existing callers and offline fixtures historically supplied only
+# the canonical error prefix. Preserve that contract, but never
+# mistake digits *inside the response body* for an HTTP status.
+⋮----
+match = re.match(r"^GitHub API ([1-5][0-9]{2}):", message)
+status_code = int(match.group(1)) if match else None
+⋮----
 class GitHubClient
 ⋮----
 API = "https://api.github.com"
@@ -6681,9 +8081,18 @@ def latest_ci_status(self, full_name: str, branch: str) -> str | None
 ⋮----
 run = self._latest_workflow_run(full_name, branch)
 ⋮----
-ref_name = branch.removeprefix("refs/heads/")
+def branch_head_sha(self, full_name: str, branch: str) -> str
+⋮----
+"""Read the destination ref before reading version receipts."""
+normalized = branch.removeprefix("refs/heads/")
+⋮----
 ref = self._get(
-base_commit_sha = str(ref.get("object", {}).get("sha") or "")
+sha = str((ref.get("object") or {}).get("sha") or "").lower()
+⋮----
+ref_name = branch.removeprefix("refs/heads/")
+base_commit_sha = self.branch_head_sha(full_name, ref_name)
+# A receipt read from an older HEAD must never be written on top of
+# a newer revision: that silently corrupts asset-version history.
 ⋮----
 base_commit = self._get(f"/repos/{full_name}/git/commits/{base_commit_sha}")
 base_tree_sha = str(base_commit.get("tree", {}).get("sha") or "")
@@ -6715,11 +8124,11 @@ encoded = urllib.parse.quote(workflow, safe="")
 ⋮----
 """Probe Actions write access without creating a workflow run."""
 ⋮----
-detail = str(exc)
-⋮----
 def can_write_contents(self, full_name: str) -> bool
 ⋮----
 """Check cross-repository contents write without creating a commit."""
+⋮----
+detail = str(exc)
 ⋮----
 payload = self._get(
 runs = payload.get("workflow_runs", []) if isinstance(payload, dict) else []
@@ -6806,15 +8215,20 @@ suffix = f"/{encoded_path}" if encoded_path else ""
 ⋮----
 payload = self._get(f"/repos/{full_name}/contents{suffix}")
 ⋮----
-def _read_text(self, full_name: str, path: str) -> str
+def _read_text(self, full_name: str, path: str, *, ref: str | None = None, strict: bool = False) -> str
 ⋮----
-payload = self._get(f"/repos/{full_name}/contents/{encoded_path}")
+endpoint = f"/repos/{full_name}/contents/{encoded_path}"
+⋮----
+payload = self._get(endpoint)
 ⋮----
 encoded = payload.get("content")
 ⋮----
-def read_json_file(self, full_name: str, path: str) -> dict[str, Any] | None
+# GitHub Contents base64 can contain line breaks.
+normalized = re.sub(r"\s+", "", encoded) if strict else encoded
 ⋮----
-text = self._read_text(full_name, path)
+text = self._read_text(full_name, path, ref=ref, strict=True)
+⋮----
+text = self._read_text(full_name, path) if ref is None else self._read_text(full_name, path, ref=ref)
 ⋮----
 value = json.loads(text)
 ⋮----
@@ -6827,6 +8241,8 @@ tree = payload.get("tree", []) if isinstance(payload, dict) else []
 policy = policy or TreeSamplePolicy()
 candidates = [
 docs: dict[str, str] = {}
+⋮----
+text = self._read_text(full_name, path)
 ⋮----
 path = f".github/workflows/{workflow}"
 ⋮----
@@ -11842,9 +13258,13 @@ def download_workflow_artifact(self, repository, artifact_id)
 ⋮----
 def put_file(self, repository, path, content, *, message, branch)
 ⋮----
-def read_json_file(self, repository, path)
+def read_json_file(self, repository, path, *, ref=None, strict=False)
 ⋮----
-def commit_files(self, repository, files, *, message, branch)
+# Mirror the production client contract; this fixture represents a missing receipt.
+⋮----
+def branch_head_sha(self, repository, branch)
+⋮----
+def commit_files(self, repository, files, *, message, branch, expected_sha=None)
 ⋮----
 def test_build_asset_forge_request()
 ⋮----
@@ -11882,9 +13302,15 @@ receipt = execute_asset_forge(
 ⋮----
 delivered = worktree / "assets/art/hud-icon.svg"
 ⋮----
+sidecar = json.loads((worktree / "assets/art/hud-icon.svg.asset-forge.json").read_text())
+⋮----
 def test_execute_asset_forge_delivers_with_existing_github_client(tmp_path)
 ⋮----
-write = [call for call in fake.calls if "path" in call][0]
+commits = [call for call in fake.calls if "files" in call]
+⋮----
+payload = commits[0]["files"]
+⋮----
+sidecar = json.loads(payload["assets/art/hud-icon.svg.asset-forge.json"])
 ⋮----
 def test_execute_asset_forge_batch_delivers_only_after_all_validate(tmp_path)
 ⋮----
@@ -11916,8 +13342,6 @@ def test_execute_asset_forge_batch_uses_single_github_commit(tmp_path)
 ⋮----
 asset_id = request["manifest"]["id"]
 artifact = output / f"{asset_id}.svg"
-⋮----
-commits = [call for call in fake.calls if "files" in call]
 ⋮----
 def test_execute_asset_forge_batch_respects_dependency_order(tmp_path)
 ⋮----

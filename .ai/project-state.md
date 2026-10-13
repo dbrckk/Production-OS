@@ -95,27 +95,25 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-09T19:51:37Z
+Generated: 2026-10-13T21:20:33Z
 
 ### Git
 - Branch: `main`
-- Head: `2752685edd0e`
-- Commit date: 2026-10-09T21:51:27+02:00
-- Commit: fix(workers): require persistent active specialists for cooperative launch (#261)
-- Tracked files: 564
+- Head: `972ef8328894`
+- Commit date: 2026-10-13T23:20:20+02:00
+- Commit: fix(assets): preserve safe asset version history across review-branch delivery (#264)
+- Tracked files: 568
 
 ### Recently changed files
-- `src/production_os/control_plane.py`
+- `.github/workflows/ci.yml`
+- `docs/asset-review-branch-guard.md`
 - `docs/production-readiness.md`
-- `src/production_os/dashboard_ui.py`
-- `src/production_os/managed_projects.py`
-- `docs/worker-wake.md`
-- `src/production_os/dashboard_control.py`
-- `src/production_os/dashboard_service.py`
-- `README.md`
-- `tests/test_dashboard_control.py`
-- `tests/test_dashboard_launch_readiness.py`
-- `AGENTS.md`
+- `docs/worktree-delivery-symlinks.md`
+- `integration/godot4_relocated_import_smoke.py`
+- `integration/real_producer_bundle_smoke.py`
+- `src/production_os/asset_forge.py`
+- `src/production_os/github_client.py`
+- `tests/test_asset_forge.py`
 
 ### Project signals
 - `pyproject.toml`

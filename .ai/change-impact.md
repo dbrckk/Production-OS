@@ -1,16 +1,28 @@
 # Change impact
 
-Base: 8e5522029fb4244e7f8a6c5fc26ade3208697aa4
-Head: 2752685edd0e172bb7133262d648e5dceb8e6116
+Base: f7325526e47310f5d79412a089361b0cf06d81fd
+Head: 972ef8328894d9cc1f18e7a6c7db96b5eb5b4aa1
 
 ## Changed files
-- M src/production_os/control_plane.py
+- M .github/workflows/ci.yml
+- A docs/asset-review-branch-guard.md
+- M docs/production-readiness.md
+- A docs/worktree-delivery-symlinks.md
+- M integration/godot4_relocated_import_smoke.py
+- M integration/real_producer_bundle_smoke.py
+- M src/production_os/asset_forge.py
+- M src/production_os/github_client.py
+- M tests/test_asset_forge.py
 
 ## Affected areas
+- .github
+- docs
+- integration
 - src
+- tests
 
 ## Related test candidates
-- tests/test_control_plane.py
+- tests/test_asset_forge.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

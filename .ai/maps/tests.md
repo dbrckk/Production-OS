@@ -502,9 +502,13 @@ def download_workflow_artifact(self, repository, artifact_id)
 ⋮----
 def put_file(self, repository, path, content, *, message, branch)
 ⋮----
-def read_json_file(self, repository, path)
+def read_json_file(self, repository, path, *, ref=None, strict=False)
 ⋮----
-def commit_files(self, repository, files, *, message, branch)
+# Mirror the production client contract; this fixture represents a missing receipt.
+⋮----
+def branch_head_sha(self, repository, branch)
+⋮----
+def commit_files(self, repository, files, *, message, branch, expected_sha=None)
 ⋮----
 def test_build_asset_forge_request()
 ⋮----
@@ -542,9 +546,15 @@ receipt = execute_asset_forge(
 ⋮----
 delivered = worktree / "assets/art/hud-icon.svg"
 ⋮----
+sidecar = json.loads((worktree / "assets/art/hud-icon.svg.asset-forge.json").read_text())
+⋮----
 def test_execute_asset_forge_delivers_with_existing_github_client(tmp_path)
 ⋮----
-write = [call for call in fake.calls if "path" in call][0]
+commits = [call for call in fake.calls if "files" in call]
+⋮----
+payload = commits[0]["files"]
+⋮----
+sidecar = json.loads(payload["assets/art/hud-icon.svg.asset-forge.json"])
 ⋮----
 def test_execute_asset_forge_batch_delivers_only_after_all_validate(tmp_path)
 ⋮----
@@ -576,8 +586,6 @@ def test_execute_asset_forge_batch_uses_single_github_commit(tmp_path)
 ⋮----
 asset_id = request["manifest"]["id"]
 artifact = output / f"{asset_id}.svg"
-⋮----
-commits = [call for call in fake.calls if "files" in call]
 ⋮----
 def test_execute_asset_forge_batch_respects_dependency_order(tmp_path)
 ⋮----

@@ -2,27 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat(runtime): attach non-blocking bisect diagnostics to rollback plans",
-      "terms": [
-        "attach",
-        "bisect",
-        "diagnostics",
-        "feat",
-        "non-blocking",
-        "plans",
-        "rollback",
-        "runtime"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/managed_projects.py",
-        "src/production_os/rollback_plan.py",
-        "tests/test_managed_github_reconciliation.py",
-        "tests/test_rollback_plan.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat(browser): fail closed on uncertain side-effect replay",
       "terms": [
         "browser",
@@ -1237,6 +1216,30 @@
       "useful": [
         "src/production_os/control_plane.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "fix(assets): preserve safe asset version history across review-branch delivery (#264)",
+      "terms": [
+        "264",
+        "across",
+        "asset",
+        "assets",
+        "delivery",
+        "history",
+        "preserve",
+        "review-branch",
+        "safe",
+        "version"
+      ],
+      "tests": [],
+      "useful": [
+        "integration/godot4_relocated_import_smoke.py",
+        "integration/real_producer_bundle_smoke.py",
+        "src/production_os/asset_forge.py",
+        "src/production_os/github_client.py",
+        "tests/test_asset_forge.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1532,6 +1535,13 @@
     "261": {
       "src/production_os/control_plane.py": 4
     },
+    "264": {
+      "integration/godot4_relocated_import_smoke.py": 4,
+      "integration/real_producer_bundle_smoke.py": 4,
+      "src/production_os/asset_forge.py": 4,
+      "src/production_os/github_client.py": 4,
+      "tests/test_asset_forge.py": 4
+    },
     "27": {
       "src/production_os/dashboard_backups.py": 4,
       "src/production_os/dashboard_ui.py": 4,
@@ -1730,11 +1740,16 @@
       "tests/test_dashboard_mobile_stability.py": 4
     },
     "across": {
+      "integration/godot4_relocated_import_smoke.py": 4,
+      "integration/real_producer_bundle_smoke.py": 4,
+      "src/production_os/asset_forge.py": 4,
       "src/production_os/browser_computer.py": 4,
       "src/production_os/cli.py": 4,
       "src/production_os/control_plane.py": 4,
       "src/production_os/controller.py": 4,
+      "src/production_os/github_client.py": 4,
       "src/production_os/worker_wake.py": 4,
+      "tests/test_asset_forge.py": 4,
       "tests/test_browser_computer.py": 4,
       "tests/test_controller_managed_projects.py": 4,
       "tests/test_dashboard_launch_ux.py": 4,
@@ -2008,17 +2023,19 @@
       "tests/test_controller_daemon_deployment.py": 4
     },
     "asset": {
+      "integration/godot4_relocated_import_smoke.py": 4,
+      "integration/real_producer_bundle_smoke.py": 4,
       "src/production_os/asset_forge.py": 40,
       "src/production_os/capabilities.py": 4,
       "src/production_os/classification.py": 4,
       "src/production_os/cli.py": 12,
       "src/production_os/control_plane.py": 8,
       "src/production_os/controller.py": 12,
-      "src/production_os/github_client.py": 12,
+      "src/production_os/github_client.py": 16,
       "src/production_os/reuse.py": 4,
       "src/production_os/task_capabilities.py": 4,
       "src/production_os/workflow_engine.py": 4,
-      "tests/test_asset_forge.py": 36,
+      "tests/test_asset_forge.py": 40,
       "tests/test_asset_forge_dispatch_probe.py": 4,
       "tests/test_capabilities_graph.py": 4,
       "tests/test_classification_history_reuse.py": 8,
@@ -2036,7 +2053,11 @@
       "tests/test_cli.py": 4
     },
     "assets": {
-      "src/production_os/asset_forge.py": 4
+      "integration/godot4_relocated_import_smoke.py": 4,
+      "integration/real_producer_bundle_smoke.py": 4,
+      "src/production_os/asset_forge.py": 8,
+      "src/production_os/github_client.py": 4,
+      "tests/test_asset_forge.py": 4
     },
     "at": {
       "src/production_os/browser_computer.py": 4,
@@ -2906,12 +2927,14 @@
       "tests/test_dashboard_ui_v3.py": 4
     },
     "delivery": {
-      "src/production_os/asset_forge.py": 4,
+      "integration/godot4_relocated_import_smoke.py": 4,
+      "integration/real_producer_bundle_smoke.py": 4,
+      "src/production_os/asset_forge.py": 8,
       "src/production_os/cli.py": 4,
       "src/production_os/dashboard_ui.py": 4,
-      "src/production_os/github_client.py": 4,
+      "src/production_os/github_client.py": 8,
       "src/production_os/managed_projects.py": 4,
-      "tests/test_asset_forge.py": 8,
+      "tests/test_asset_forge.py": 12,
       "tests/test_github_client_put_file.py": 4
     },
     "dependency": {
@@ -3533,8 +3556,11 @@
       "tests/test_remote_worker.py": 4
     },
     "history": {
+      "integration/godot4_relocated_import_smoke.py": 4,
+      "integration/real_producer_bundle_smoke.py": 4,
       "src/production_os/agent_benchmark.py": 4,
       "src/production_os/agent_planning_policy.py": 4,
+      "src/production_os/asset_forge.py": 4,
       "src/production_os/cli.py": 4,
       "src/production_os/control_plane.py": 8,
       "src/production_os/dashboard_backups.py": 4,
@@ -3542,9 +3568,11 @@
       "src/production_os/dashboard_store.py": 4,
       "src/production_os/dashboard_ui.py": 8,
       "src/production_os/fanout_learning.py": 4,
+      "src/production_os/github_client.py": 4,
       "src/production_os/postgres_backend.py": 4,
       "src/production_os/sqlite_backend.py": 4,
       "tests/test_agent_benchmark.py": 4,
+      "tests/test_asset_forge.py": 4,
       "tests/test_dashboard_backup_api.py": 4,
       "tests/test_dashboard_backups.py": 4,
       "tests/test_dashboard_control_audit.py": 4,
@@ -4416,11 +4444,15 @@
       "tests/test_remote_worker_runner.py": 4
     },
     "preserve": {
-      "src/production_os/asset_forge.py": 4,
+      "integration/godot4_relocated_import_smoke.py": 4,
+      "integration/real_producer_bundle_smoke.py": 4,
+      "src/production_os/asset_forge.py": 8,
       "src/production_os/controller.py": 4,
       "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/github_client.py": 4,
       "src/production_os/task_capabilities.py": 4,
       "src/production_os/workflow_engine.py": 4,
+      "tests/test_asset_forge.py": 4,
       "tests/test_dashboard_launch_freshness.py": 4,
       "tests/test_workflow_engine.py": 4
     },
@@ -5100,6 +5132,13 @@
       "src/production_os/dashboard_ui.py": 4,
       "src/production_os/managed_projects.py": 4
     },
+    "review-branch": {
+      "integration/godot4_relocated_import_smoke.py": 4,
+      "integration/real_producer_bundle_smoke.py": 4,
+      "src/production_os/asset_forge.py": 4,
+      "src/production_os/github_client.py": 4,
+      "tests/test_asset_forge.py": 4
+    },
     "revocable": {
       "src/production_os/control_plane.py": 4,
       "src/production_os/dashboard_store.py": 4,
@@ -5221,8 +5260,10 @@
       "tests/test_worker_compose_deployment.py": 8
     },
     "safe": {
+      "integration/godot4_relocated_import_smoke.py": 4,
+      "integration/real_producer_bundle_smoke.py": 4,
       "src/production_os/agent_planning_policy.py": 4,
-      "src/production_os/asset_forge.py": 4,
+      "src/production_os/asset_forge.py": 8,
       "src/production_os/browser_computer.py": 4,
       "src/production_os/cli.py": 4,
       "src/production_os/control_plane.py": 12,
@@ -5231,11 +5272,12 @@
       "src/production_os/dashboard_ui.py": 8,
       "src/production_os/fanout_learning.py": 4,
       "src/production_os/github_change_review.py": 4,
+      "src/production_os/github_client.py": 4,
       "src/production_os/github_work_state.py": 4,
       "src/production_os/postgres_backend.py": 4,
       "src/production_os/rollback_plan.py": 4,
       "src/production_os/sqlite_backend.py": 4,
-      "tests/test_asset_forge.py": 4,
+      "tests/test_asset_forge.py": 8,
       "tests/test_browser_computer.py": 4,
       "tests/test_dashboard_api.py": 4,
       "tests/test_dashboard_production_status.py": 4,
@@ -5847,9 +5889,12 @@
       "tests/test_remote_worker_runner.py": 4
     },
     "version": {
-      "src/production_os/asset_forge.py": 8,
+      "integration/godot4_relocated_import_smoke.py": 4,
+      "integration/real_producer_bundle_smoke.py": 4,
+      "src/production_os/asset_forge.py": 12,
       "src/production_os/control_plane.py": 4,
-      "tests/test_asset_forge.py": 8,
+      "src/production_os/github_client.py": 4,
+      "tests/test_asset_forge.py": 12,
       "tests/test_dashboard_launch.py": 4
     },
     "versions": {
