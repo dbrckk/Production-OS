@@ -734,6 +734,64 @@ def main() -> None:
         if direct_absent.exists():
             raise RuntimeError("Missing direct source created output directory")
 
+        # Reference inputs were previously fingerprint-preflighted only when
+        # a consumer delivery target was provided. Local producer-only mode
+        # must reject missing, directory and malformed references just as
+        # strongly, before creating output or invoking a generator.
+        for reference_case, explicit_references in (
+            ("missing", [str(root / "missing-owned-reference.png")]),
+            ("directory", [str(originals)]),
+            ("blank", [""]),
+            ("wrong-type", str(image)),
+        ):
+            for delivery_case, destination_fields in (
+                ("producer-only", {}),
+                ("consumer", {"target_path": target,
+                              "target_worktree": str(consumer)}),
+            ):
+                refused_output = root / (
+                    "blocked-reference-" + reference_case + "-" + delivery_case
+                )
+                try:
+                    execute_asset_forge(
+                        request, mode="local", output_dir=str(refused_output),
+                        source_path=str(image), reference_paths=explicit_references,
+                        **destination_fields,
+                    )
+                except ValueError as exc:
+                    if "reference_paths" not in str(exc):
+                        raise
+                else:
+                    raise RuntimeError(
+                        "Invalid explicit reference reached local generator: "
+                        + reference_case + "/" + delivery_case
+                    )
+                if refused_output.exists():
+                    raise RuntimeError(
+                        "Invalid explicit reference created an output directory"
+                    )
+
+        # An explicitly supplied empty source is invalid: it must not fall
+        # back to no-source generation just because the string is falsey.
+        for delivery_case, destination_fields in (
+            ("producer-only", {}),
+            ("consumer", {"target_path": target,
+                          "target_worktree": str(consumer)}),
+        ):
+            refused_output = root / ("blocked-empty-source-" + delivery_case)
+            try:
+                execute_asset_forge(
+                    request, mode="local", output_dir=str(refused_output),
+                    source_path="", **destination_fields,
+                )
+            except ValueError as exc:
+                if "source_path must be an existing file" not in str(exc):
+                    raise
+            else:
+                raise RuntimeError("Empty explicit source reached generator")
+            if refused_output.exists():
+                raise RuntimeError("Empty explicit source created output")
+
         # Validate *all* source paths before creating output even if another
         # item in the batch has a valid, cacheable target.
         for batch_mode in ("local", "auto"):
@@ -1832,6 +1890,7 @@ def main() -> None:
         print("PASS: Invalid/incomplete local single-asset destinations refused before CLI generation")
         print("PASS: Direct local output root, parent symlink and file aliases refused before generation")
         print("PASS: Missing direct/batch explicit source files refused before generation or cache reuse")
+        print("PASS: Invalid/absent local references and blank source refused without delivery too")
         print("PASS: Local single-asset GitHub main/master delivery refused before generation")
         print("PASS: Direct GitHub-mode single-asset transaction + Godot import")
         print("PASS: Implicit main-branch remote delivery refused before dispatch")

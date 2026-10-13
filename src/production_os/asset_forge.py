@@ -936,10 +936,26 @@ def execute_asset_forge(
             ])
         _preflight_worktree_delivery(target_worktree, target_names)
 
-    # An explicit source is a required generator input. Reject its absence
-    # even if no consumer destination/receipt was requested, before output.
-    if source_path and not Path(source_path).is_file():
+    # Explicit local image inputs are required generator inputs even without
+    # a consumer destination or receipt. Validate before creating output or
+    # invoking a potentially billed producer. With delivery, the fingerprint
+    # still independently hashes the exact input bytes.
+    if source_path is not None and (
+        not isinstance(source_path, str)
+        or not source_path.strip()
+        or not Path(source_path).is_file()
+    ):
         raise ValueError("asset-forge explicit local source_path must be an existing file")
+    if reference_paths is not None:
+        if not isinstance(reference_paths, list):
+            raise ValueError("asset-forge local reference_paths must be a list")
+        for reference_path in reference_paths:
+            if (
+                not isinstance(reference_path, str)
+                or not reference_path.strip()
+                or not Path(reference_path).is_file()
+            ):
+                raise ValueError("asset-forge local reference_paths entries must be existing files")
 
     request_id = str(request.get("requestId") or "").strip()
     if not request_id:
