@@ -292,6 +292,10 @@ def _preflight_worktree_delivery(
             raise ValueError("asset-forge destination escapes target worktree")
         if candidate.exists() and not candidate.is_file():
             raise ValueError("asset-forge destination must be a file")
+        # A hardlink is not a symlink: overwriting it also mutates any
+        # unrelated file sharing the inode, including outside this worktree.
+        if candidate.is_file() and candidate.stat().st_nlink > 1:
+            raise ValueError("asset-forge destination must not overwrite a hardlinked file")
         parent = candidate.parent
         while parent != root:
             if parent.exists() and not parent.is_dir():
@@ -700,6 +704,10 @@ def _deliver_frozen_assets(
             # preflight. Check every staged path before the first write.
             if resolved.exists() and not resolved.is_file():
                 raise ValueError(f"{label} must be a file")
+            # Repeat the hardlink preflight at the shared transaction boundary
+            # for internal callers and changes after generator preflight.
+            if resolved.is_file() and resolved.stat().st_nlink > 1:
+                raise ValueError(f"{label} must not overwrite a hardlinked file")
             parent = resolved.parent
             while parent != root_worktree:
                 if parent.exists() and not parent.is_dir():
@@ -1159,7 +1167,12 @@ def _extract_remote_batch_bundle(data: bytes, destination: Path) -> Path:
     """Preflight a remote ZIP before extracting any files into the workspace."""
     import unicodedata
 
-    root = destination.resolve()
+    # Resolving first would silently follow an extraction-root symlink, even
+    # if individual archive members themselves have no symlink components.
+    requested_root = Path(destination)
+    if any(path.is_symlink() for path in (requested_root, *requested_root.parents)):
+        raise RuntimeError("asset-forge remote batch extraction root must not traverse a symlink")
+    root = requested_root.resolve()
     max_files = 5000
     max_uncompressed = 512 * 1024 * 1024
     total = 0
@@ -1216,6 +1229,14 @@ def _extract_remote_batch_bundle(data: bytes, destination: Path) -> Path:
                     if index == len(parts) - 1 and not candidate.is_file():
                         raise RuntimeError(
                             "asset-forge remote batch extraction targets existing non-file"
+                        )
+                    if (
+                        index == len(parts) - 1
+                        and candidate.is_file()
+                        and candidate.stat().st_nlink > 1
+                    ):
+                        raise RuntimeError(
+                            "asset-forge remote batch extraction targets existing hardlinked file"
                         )
             target = candidate.resolve()
             if not target.is_relative_to(root):

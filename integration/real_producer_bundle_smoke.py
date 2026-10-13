@@ -185,6 +185,52 @@ def main() -> None:
             elif corrupt_root.exists():
                 raise RuntimeError("Corrupt ZIP created partial output directory")
 
+        # An existing hardlinked filename is an alias too: writing the ZIP
+        # member would change a protected file outside the extraction root.
+        owned_hardlink_target = root / "owned-zip-hardlink-source.bin"
+        owned_hardlink_target.write_bytes(b"preserve-original-hardlink-owner")
+        zip_hardlink_root = root / "unsafe-zip-existing-hardlink"
+        zip_hardlink_root.mkdir()
+        os.link(owned_hardlink_target, zip_hardlink_root / "linked.png")
+        hardlink_zip = io.BytesIO()
+        with zipfile.ZipFile(hardlink_zip, "w", zipfile.ZIP_DEFLATED) as archive:
+            archive.writestr("safe-first.png", b"must-not-extract")
+            archive.writestr("linked.png", b"untrusted-overwrite")
+        try:
+            _extract_remote_batch_bundle(hardlink_zip.getvalue(), zip_hardlink_root)
+        except RuntimeError as exc:
+            if "targets existing hardlinked file" not in str(exc):
+                raise
+        else:
+            raise RuntimeError("Existing ZIP hardlink aliased external owned file")
+        if (
+            (zip_hardlink_root / "safe-first.png").exists()
+            or owned_hardlink_target.read_bytes() != b"preserve-original-hardlink-owner"
+        ):
+            raise RuntimeError("ZIP hardlink rejection partially extracted or overwrote outside file")
+
+        # A symbolic link on the extraction ROOT (or one of its parents)
+        # must be rejected before unzipping to the resolved external folder.
+        zip_root_owner = root / "protected-zip-extraction-root"
+        zip_root_owner.mkdir()
+        zip_root_marker = zip_root_owner / "keep-owned.bin"
+        zip_root_marker.write_bytes(b"preserve-zip-root")
+        zip_root_link = root / "zip-extraction-root-link"
+        zip_root_link.symlink_to(zip_root_owner, target_is_directory=True)
+        for unsafe_destination in (zip_root_link, zip_root_link / "nested"):
+            try:
+                _extract_remote_batch_bundle(hardlink_zip.getvalue(), unsafe_destination)
+            except RuntimeError as exc:
+                if "extraction root must not traverse a symlink" not in str(exc):
+                    raise
+            else:
+                raise RuntimeError("ZIP extraction followed a linked root or ancestor")
+        if (
+            sorted(path.name for path in zip_root_owner.iterdir()) != ["keep-owned.bin"]
+            or zip_root_marker.read_bytes() != b"preserve-zip-root"
+        ):
+            raise RuntimeError("Rejected ZIP extraction root changed owned data")
+
         # A pre-existing directory where the ZIP expects a file, or a
         # regular file where it expects a parent directory, must be refused
         # BEFORE any earlier good ZIP entry is written. Previously the first
@@ -775,6 +821,52 @@ def main() -> None:
                     raise RuntimeError("Rejected destination alias created output")
                 if protected.read_bytes() != b"unrelated-original-bytes":
                     raise RuntimeError("Rejected destination alias mutated unrelated file")
+
+        # Existing hardlinks look like regular files, but overwriting
+        # them silently mutates the other linked inode outside the consumer.
+        # Refuse both media and receipt aliases before producer/provider calls.
+        for hardlink_kind in ("media", "receipt"):
+            hardlink_root = root / ("hardlink-consumer-" + hardlink_kind)
+            owned_target = root / ("owned-hardlink-" + hardlink_kind + ".bin")
+            owned_target.write_bytes(b"protected-outside-consumer")
+            alias = hardlink_root / (
+                target if hardlink_kind == "media"
+                else target + ".asset-forge.json"
+            )
+            alias.parent.mkdir(parents=True)
+            os.link(owned_target, alias)
+            for hardlink_mode in ("single-local", "batch-local", "batch-github"):
+                blocked_output = root / (
+                    "blocked-hardlink-" + hardlink_kind + "-" + hardlink_mode
+                )
+                try:
+                    if hardlink_mode == "single-local":
+                        execute_asset_forge(
+                            request, mode="local", output_dir=str(blocked_output),
+                            source_path=str(image), target_path=target,
+                            target_worktree=str(hardlink_root),
+                        )
+                    else:
+                        execute_asset_forge_batch(
+                            [{"id": "player", "request": request,
+                              "target_path": target,
+                              **({"source_path": str(image)}
+                                 if hardlink_mode == "batch-local" else {})}],
+                            mode="local" if hardlink_mode == "batch-local" else "github",
+                            output_root=str(blocked_output),
+                            target_worktree=str(hardlink_root),
+                            client=OfflineClient(source_archive),
+                        )
+                except ValueError as exc:
+                    if "must not overwrite a hardlinked file" not in str(exc):
+                        raise
+                else:
+                    raise RuntimeError("Hardlinked worktree destination reached generation")
+                if (
+                    blocked_output.exists()
+                    or owned_target.read_bytes() != b"protected-outside-consumer"
+                ):
+                    raise RuntimeError("Hardlink preflight created output or modified owned data")
 
         # An existing worktree ROOT may itself be a regular file.
         # Reject it before creating output or invoking the actual producer
@@ -1441,6 +1533,40 @@ def main() -> None:
             if blocked_kind == "receipt-directory" and media.exists():
                 raise RuntimeError("Directory receipt path caused partial media write")
 
+        # Internal callers must not bypass the hardlink guard merely
+        # because they skip the public pre-generation validation.
+        for hardlink_kind in ("media", "receipt"):
+            internal_root = root / ("hardlink-internal-" + hardlink_kind)
+            protected = root / ("hardlink-internal-owner-" + hardlink_kind + ".bin")
+            protected.write_bytes(b"keep-internal-hardlink-owner")
+            hardlinked_path = internal_root / (
+                target if hardlink_kind == "media"
+                else target + ".asset-forge.json"
+            )
+            hardlinked_path.parent.mkdir(parents=True)
+            os.link(protected, hardlinked_path)
+            try:
+                _deliver_produced_assets(
+                    [review_item], target_repository=None,
+                    target_worktree=str(internal_root), target_ref="main",
+                    client=None,
+                )
+            except ValueError as exc:
+                if "must not overwrite a hardlinked file" not in str(exc):
+                    raise
+            else:
+                raise RuntimeError("Internal asset writer overwrote a hardlinked inode")
+            if (
+                protected.read_bytes() != b"keep-internal-hardlink-owner"
+                or (
+                    internal_root / (
+                        target + ".asset-forge.json"
+                        if hardlink_kind == "media" else target
+                    )
+                ).exists()
+            ):
+                raise RuntimeError("Rejected internal hardlink delivery made partial changes")
+
         # Direct shared-helper calls must also refuse GitHub default branches.
         for forbidden_ref in ("main", "master", "refs/heads/main"):
             forbidden = OfflineReviewBranch()
@@ -1698,6 +1824,7 @@ def main() -> None:
         print("PASS: Local and GitHub batches reject symlinked output-root ancestors before writes/dispatch")
         print("PASS: Existing case/Unicode-equivalent worktree names rejected before generation or writes")
         print("PASS: Worktree asset, receipt and parent symlink aliases fail before writes")
+        print("PASS: ZIP/worktree hardlink aliases and extraction-root symlinks refuse writes")
         print("PASS: Consumer root/ancestor symlinks refused before local/remote generation and internal delivery")
         print("PASS: Local single and batch aliases rejected before generator/output")
         print("PASS: Invalid consumer root and batch execution mode refused before generation/dispatch")
