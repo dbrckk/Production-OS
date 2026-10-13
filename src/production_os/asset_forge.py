@@ -620,6 +620,23 @@ def _deliver_produced_assets(
     if _has_file_parent_collision(delivery_names):
         raise RuntimeError("asset-forge batch delivery file/directory path conflict")
 
+    # Source artifacts may change after the producer validated their SHA-256
+    # while another batch job runs. Check *every* artifact before the first
+    # consumer file write or GitHub API read/commit. Otherwise a version receipt
+    # can attest to bytes that were never delivered.
+    for item in produced:
+        try:
+            with Path(item["artifact"]).open("rb") as source:
+                actual_sha256 = hashlib.file_digest(source, "sha256").hexdigest()
+        except (OSError, TypeError, ValueError) as exc:
+            raise RuntimeError(
+                "asset-forge produced artifact is unreadable before delivery"
+            ) from exc
+        if actual_sha256 != item.get("sha256"):
+            raise RuntimeError(
+                "asset-forge produced artifact changed before delivery"
+            )
+
     if target_worktree:
         _reject_worktree_root_symlinks(target_worktree)
         root_worktree = Path(target_worktree).resolve()

@@ -1196,6 +1196,60 @@ def main() -> None:
             "companion_files": [],
             "cache_hit": False,
         }
+        # Two produced files may not be stable by the time transactional
+        # delivery starts. Corrupt the second item *after* recording its real
+        # authored PNG SHA-256, then prove that neither the first nor second
+        # output, nor any version receipt, was written to either consumer.
+        drift_media = root / "changed-after-production.png"
+        drift_media.write_bytes(image_bytes)
+        original_drift_sha = hashlib.sha256(drift_media.read_bytes()).hexdigest()
+        drift_media.write_bytes(image_bytes + b"changed-during-another-job")
+        drift_target = "assets/characters/changed-after-production.png"
+        drift_item = {
+            **review_item,
+            "batch_id": "late-asset",
+            "request_id": "late-asset",
+            "target_path": drift_target,
+            "artifact": drift_media,
+            "sha256": original_drift_sha,
+        }
+        drift_batch = [review_item, drift_item]
+        drift_consumer = root / "reject-stale-producer-outputs"
+        protected_media = drift_consumer / target
+        protected_media.parent.mkdir(parents=True)
+        protected_media.write_bytes(b"original-consumer-media")
+        try:
+            _deliver_produced_assets(
+                drift_batch, target_repository=None,
+                target_worktree=str(drift_consumer), target_ref="main", client=None,
+            )
+        except RuntimeError as exc:
+            if "produced artifact changed before delivery" not in str(exc):
+                raise
+        else:
+            raise RuntimeError("Stale producer SHA-256 reached worktree delivery")
+        if (
+            protected_media.read_bytes() != b"original-consumer-media"
+            or (drift_consumer / drift_target).exists()
+            or (drift_consumer / (target + ".asset-forge.json")).exists()
+            or (drift_consumer / (drift_target + ".asset-forge.json")).exists()
+        ):
+            raise RuntimeError("Stale producer media partially mutated consumer worktree")
+        rejected_github = OfflineReviewBranch()
+        try:
+            _deliver_produced_assets(
+                drift_batch, target_repository="dbrckk/consumer",
+                target_worktree=None, target_ref=review_ref,
+                client=rejected_github,
+            )
+        except RuntimeError as exc:
+            if "produced artifact changed before delivery" not in str(exc):
+                raise
+        else:
+            raise RuntimeError("Stale producer SHA-256 reached GitHub delivery")
+        if rejected_github.read_paths or rejected_github.written_files:
+            raise RuntimeError("Stale producer media reached GitHub read/commit")
+
         # Direct callers of the shared transactional writer must not bypass
         # the public preflight and follow consumer-root symlink aliases.
         for linked_destination in (
@@ -1579,6 +1633,7 @@ def main() -> None:
 
         print("PASS: REAL Asset Forge remote_batch -> Production-OS -> Godot 4")
         print("PASS: Native batch-result/report, sidecar SHA256 and Godot resource load")
+        print("PASS: Changed produced bytes refused before multi-item worktree/GitHub delivery")
         print("PASS: ZIP aliases, Windows reserved names and file/directory conflicts blocked before extraction")
         print("PASS: Existing ZIP target/parent case and Unicode aliases fail before extraction")
         print("PASS: Corrupt ZIP CRC rejected before creating or overwriting any extraction files")
