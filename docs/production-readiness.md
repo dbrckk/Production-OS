@@ -19,6 +19,107 @@ GitHub repository require an **explicit non-default review branch**
 (`--target-ref`); implicit `main`/`master` delivery fails before
 dispatch to avoid modifying released files outside PR review.
 
+The **remote batch API** independently requires a consumer destination and
+refuses implicit `main`/`master` repository writes **before creating its
+output directory or invoking Asset Forge**, not only when called through the
+single-asset wrapper. This closes the direct-batch bypass and prevents an
+otherwise guaranteed failed batch from incurring remote generation cost.
+The existing native producer → Godot functional smoke checks these negative
+batch calls offline, without any hosted dispatch or new unit tests.
+
+Existing `.asset-forge.json` receipts are integrity metadata, not disposable cache.
+An invalid JSON/non-object/invalid-encoding receipt on a GitHub review branch,
+or an unreadable or structurally invalid local/worktree or GitHub receipt,
+**blocks delivery before any asset write** instead of silently resetting its
+version history. A prior receipt must have the expected schema, target path,
+positive integer version, SHA-256 digest and list-valued history/companions. A genuinely absent
+receipt still starts at version 1. The existing native Asset Forge → Godot 4
+functional smoke includes both negative delivery cases without invoking GPU,
+network providers or creating unit tests.
+
+For GitHub review branches, the previous `.asset-forge.json` receipt
+must be read from the **same destination branch**, not the default
+branch; otherwise a successful delivery can reset version history.
+`GitHubClient.read_json_file(..., ref=target_ref)` now qualifies the
+GET with an encoded branch ref, retaining backward compatibility for
+default-main lookups. The destination branch HEAD is captured before reading
+receipts and passed to `GitHubClient.commit_files(expected_sha=...)`. If the
+branch moves, the transaction fails before constructing any Git blob; if it
+moves during the Git commit, GitHub's `force=false` ref update must reject
+the non-fast-forward. No retry is attempted with stale receipt metadata.
+The existing functional integration smoke verifies
+this offline using an instrumented real GitHub client and a simulated
+version 7 → 8 GitHub review-branch transaction; there is no network
+request, hosted dispatch or test-only production implementation. It also
+simulates concurrent movement of a review branch between receipt reads and
+commit, requiring a refusal with zero asset writes.
+
+Hosted ZIP bundles are preflighted **before creating an extraction directory**.
+File entries that collide after casefold + Unicode NFC normalization, repeated
+separators, or file/directory parent conflicts are rejected, preventing
+silent overwrites and ambiguous checksums on cross-platform consumers. The
+existing functional Godot smoke exercises the native producer ZIP and negative
+ambiguous-archive cases, without external inference or a new unit-test file.
+The same preflight also rejects Windows-reserved device basenames (including
+`CON`, `COM1`, `LPT1`), alternate-data-stream colons, forbidden characters,
+control bytes and segments ending in a dot or space. Without this guard, a ZIP
+accepted on Linux can fail or alias another path on a Windows consumer. The
+existing genuine producer → Godot smoke includes these negative ZIP cases and
+asserts that rejected archives do not create an extraction directory.
+
+The **consumer destination preflight** applies these same portable segment
+rules to user-supplied `target_path` before starting either local asset
+generation or a remote GitHub workflow. It rejects Windows devices, colon/ADS,
+wildcards and trailing dot/space components, and also rejects file-vs-child
+conflicts across requested batch targets (including Unicode/case aliases)
+before creating a batch output directory. The transactional delivery stage
+independently rejects conflicts involving generated metadata sidecars and
+Godot companion files, before any target repository/worktree mutation.
+The existing native producer → Godot functional smoke covers these failures
+offline; it does not prove execution on a physical Windows machine.
+
+For local transactional batches, a valid ASCII `requestId` alone is not
+sufficient: a pre-existing symlink at `output_root/requestId` can redirect
+generated report/assets outside the designated job root. The consumer now
+resolves all job paths against the resolved batch root before starting **any**
+local generator. An escaping path aborts with no producer invocation. The
+existing real producer → Godot functional smoke exercises a malicious
+external-target symlink without network, secrets or GPU. This static
+preflight is not a guarantee against concurrent filesystem mutation by an
+untrusted process. A second ambiguity exists when a job path is a symlink
+**inside** the output root to another job; that is now rejected as well,
+instead of writing another job's production report. The same cross-platform
+file-component rules already used for delivery paths now reject reserved
+Windows names such as `CON`, `AUX.log` and `LPT9.data` in request/item
+identifiers before dispatch. Both cases are exercised by the existing
+functional Godot smoke without introducing new unit tests.
+
+**Direct local single-asset delivery** validates the complete destination
+contract before starting generation: a supplied `target_path` must be
+portable and paired with a consumer worktree or repository, and an explicit
+consumer requires a nonempty target path. This avoids generation cost and
+partially created output folders for invalid local delivery requests. The
+existing native producer → Godot 4 smoke checks invalid paths, Windows
+devices and mismatched destination options offline. No paid provider
+is invoked for these cases.
+
+Local direct single-asset handoff (not only Godot SpriteFrames) now reuses the
+**transactional batch delivery ledger**: each ordinary image/SVG asset and its
+`.asset-forge.json` SHA-256/version receipt are updated together in a worktree
+or a single compare-and-swap GitHub review-branch commit. Previously the
+generic direct local path used `put_file` or bare `copyfile`, omitting
+version history and atomic companion mutation. Existing worktree and GitHub
+delivery tests now assert persisted receipts, while the existing native
+Godot smoke covers the common transactional route.
+
+For GitHub repository targets, direct local single-asset delivery now requires
+a **non-default review branch**, consistent with remote single-asset and
+transactional batch delivery. `main`, `master` and their explicit
+`refs/heads/` forms are rejected before invoking local generation. Worktree
+delivery remains permitted. The underlying direct artifact delivery helper
+independently refuses default-branch GitHub writes. The existing native
+producer → Godot smoke checks this without dispatch, paid inference or secrets.
+
 The existing `integration/real_producer_bundle_smoke.py` verifies the
 direct route using a **native pinned Asset Forge ZIP** created from an
 original local PNG and consumed by real Godot 4.4.1. It also proves that

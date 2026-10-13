@@ -20,6 +20,7 @@ import tempfile
 import zlib
 import zipfile
 from pathlib import Path
+from unittest.mock import patch
 
 from production_os.asset_forge import (build_asset_forge_request, execute_asset_forge, execute_asset_forge_batch)
 
@@ -307,6 +308,31 @@ def main() -> None:
             )
             if cached["quality_summary"]["cache_hits"] != 1:
                 raise RuntimeError("Verified Godot cache did not avoid regeneration")
+            # A cache from one generator/model must never masquerade as
+            # a different generation. The CLI is absent here: a wrong cache
+            # hit would succeed, while correct invalidation must refuse.
+            receipt_path = consumer / (target + ".asset-forge.json")
+            baseline_receipt = receipt_path.read_bytes()
+            for variant in (
+                {"backend": "another-backend"},
+                {"model": "another-model"},
+            ):
+                try:
+                    execute_asset_forge_batch(
+                        local_items, mode="local",
+                        output_root=str(root / ("variant-" + next(iter(variant)))),
+                        target_worktree=str(consumer), **variant,
+                    )
+                except RuntimeError as exc:
+                    if "CLI is required" not in str(exc):
+                        raise
+                else:
+                    raise RuntimeError(
+                        "Asset cache incorrectly reused across generator/model change"
+                    )
+                if receipt_path.read_bytes() != baseline_receipt:
+                    raise RuntimeError("Refused generation altered version provenance")
+            print("PASS: cache invalidates on backend/model changes without CLI")
             tres = consumer / "assets/characters/player.tres"
             clean = tres.read_bytes()
             tres.write_bytes(clean + b"\n; altered cached SpriteFrames\n")
@@ -384,6 +410,146 @@ def main() -> None:
                  "res://verify.gd"], cwd=root,
                 marker="GODOT_RELOCATED_SPRITEFRAMES_OK")
             print("PASS: direct single-asset local CLI -> complete Godot 4 import")
+
+            # Reproduce real input drift without provider calls: run the
+            # original owned-image Asset Forge CLI, then alter the source or
+            # visual reference before Production-OS can publish a receipt.
+            # No consumer asset or sidecar may be written by these attempts.
+            drift_source = root / "drift-source.png"
+            drift_reference = root / "drift-reference.png"
+            drift_consumer = root / "drift-consumer"
+            drift_consumer.mkdir()
+            real_cli_run = subprocess.run
+            for drift_kind in ("direct-source", "direct-reference", "batch-source"):
+                drift_source.write_bytes(primary)
+                drift_reference.write_bytes(primary)
+
+                def change_input_after_real_cli(*args, **kwargs):
+                    completed = real_cli_run(*args, **kwargs)
+                    if completed.returncode == 0:
+                        changed = drift_reference if drift_kind == "direct-reference" else drift_source
+                        changed.write_bytes(changed.read_bytes() + b"\\nowned-source-updated-after-producer")
+                    return completed
+
+                with patch(
+                    "production_os.asset_forge.subprocess.run",
+                    side_effect=change_input_after_real_cli,
+                ):
+                    try:
+                        if drift_kind == "batch-source":
+                            execute_asset_forge_batch(
+                                [{
+                                    "id": "drift-hero", "request": local_request,
+                                    "target_path": target,
+                                    "source_path": str(drift_source),
+                                }],
+                                mode="local",
+                                output_root=str(root / "drift-batch-production"),
+                                target_worktree=str(drift_consumer),
+                            )
+                        else:
+                            execute_asset_forge(
+                                local_request, mode="local",
+                                output_dir=str(root / ("drift-" + drift_kind)),
+                                source_path=str(drift_source),
+                                reference_paths=(
+                                    [str(drift_reference)]
+                                    if drift_kind == "direct-reference" else None
+                                ),
+                                target_path=target,
+                                target_worktree=str(drift_consumer),
+                            )
+                    except RuntimeError as exc:
+                        if "local inputs changed during generation" not in str(exc):
+                            raise
+                    else:
+                        raise RuntimeError(
+                            "Mutated owned-image producer input was delivered"
+                        )
+                if (
+                    (drift_consumer / target).exists()
+                    or (drift_consumer / (target + ".asset-forge.json")).exists()
+                    or (drift_consumer / "assets/characters/player.tres").exists()
+                ):
+                    raise RuntimeError(
+                        "Input drift changed a consumer asset or version receipt"
+                    )
+            print("PASS: original local source/reference drift fails before delivery")
+
+            # Same original PNG source, but a newly supplied reference image,
+            # must cause a new receipt version even if output bytes match.
+            reference_png = root / "owned-reference.png"
+            reference_png.write_bytes(original_png())
+            receipt_path = single_consumer / (target + ".asset-forge.json")
+            baseline = json.loads(receipt_path.read_text(encoding="utf-8"))
+            if baseline.get("version") != 1:
+                raise RuntimeError("Original direct asset receipt version is invalid")
+            supplied = execute_asset_forge(
+                local_request, mode="local",
+                output_dir=str(root / "single-reference-first"),
+                source_path=str(original / "player.png"),
+                reference_paths=[str(reference_png)],
+                target_path=target, target_worktree=str(single_consumer),
+            )
+            first_ref = json.loads(receipt_path.read_text(encoding="utf-8"))
+            if (
+                supplied.delivery_mode != "worktree"
+                or first_ref.get("version") != 2
+                or first_ref.get("sha256") != baseline.get("sha256")
+                or first_ref.get("request_fingerprint") == baseline.get("request_fingerprint")
+            ):
+                raise RuntimeError("Provided image reference was missing from version identity")
+
+            # Add a valid original PNG text chunk: its reference contents
+            # change, whereas the actual source image and final pixels do not.
+            ref_content = b"project-owned\x00alternate-reference"
+            ref_chunk = (
+                struct.pack(">I", len(ref_content))
+                + b"tEXt" + ref_content
+                + struct.pack(">I", zlib.crc32(b"tEXt" + ref_content) & 0xFFFFFFFF)
+            )
+            reference_png.write_bytes(original_png()[:-12] + ref_chunk + original_png()[-12:])
+            execute_asset_forge(
+                local_request, mode="local",
+                output_dir=str(root / "single-reference-changed"),
+                source_path=str(original / "player.png"),
+                reference_paths=[str(reference_png)],
+                target_path=target, target_worktree=str(single_consumer),
+            )
+            changed_ref = json.loads(receipt_path.read_text(encoding="utf-8"))
+            if (
+                changed_ref.get("version") != 3
+                or changed_ref.get("sha256") != baseline.get("sha256")
+                or changed_ref.get("request_fingerprint") == first_ref.get("request_fingerprint")
+                or changed_ref.get("history", [{}])[-1].get("request_fingerprint")
+                    != first_ref.get("request_fingerprint")
+            ):
+                raise RuntimeError("Modified local reference lost version provenance")
+
+            # A missing explicit local reference is rejected before any
+            # generation output directory or consumer write exists.
+            invalid_output = root / "invalid-reference-production"
+            try:
+                execute_asset_forge(
+                    local_request, mode="local", output_dir=str(invalid_output),
+                    source_path=str(original / "player.png"),
+                    reference_paths=[str(root / "nonexistent-reference.png")],
+                    target_path=target, target_worktree=str(single_consumer),
+                )
+            except ValueError as exc:
+                if "reference_paths entries must be existing files" not in str(exc):
+                    raise
+            else:
+                raise RuntimeError("Missing local reference incorrectly reached producer")
+            if invalid_output.exists():
+                raise RuntimeError("Invalid local reference created generator files")
+            run([godot, "--headless", "--path", str(single_consumer), "--import"],
+                cwd=root)
+            run([godot, "--headless", "--path", str(single_consumer), "--script",
+                 "res://verify.gd"], cwd=root,
+                marker="GODOT_RELOCATED_SPRITEFRAMES_OK")
+            print("PASS: original local visual reference hashes preserve version history")
+
 
         finally:
             os.environ["PATH"] = old_path

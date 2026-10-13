@@ -15,7 +15,17 @@ from .source_tree import TreeSamplePolicy, is_candidate_file, path_priority
 
 
 class GitHubAPIError(RuntimeError):
-    pass
+    """Preserve actual HTTP status independently of arbitrary response text."""
+
+    def __init__(self, message: str, *, status_code: int | None = None):
+        super().__init__(message)
+        # Existing callers and offline fixtures historically supplied only
+        # the canonical error prefix. Preserve that contract, but never
+        # mistake digits *inside the response body* for an HTTP status.
+        if status_code is None:
+            match = re.match(r"^GitHub API ([1-5][0-9]{2}):", message)
+            status_code = int(match.group(1)) if match else None
+        self.status_code = status_code
 
 
 class GitHubClient:
@@ -46,7 +56,7 @@ class GitHubClient:
                 return payload, {str(k): str(v) for k, v in response.headers.items()}
         except urllib.error.HTTPError as exc:
             body = exc.read().decode("utf-8", errors="replace")
-            raise GitHubAPIError(f"GitHub API {exc.code}: {body}") from exc
+            raise GitHubAPIError(f"GitHub API {exc.code}: {body}", status_code=exc.code) from exc
         except urllib.error.URLError as exc:
             raise GitHubAPIError(f"GitHub API unavailable: {exc}") from exc
 
@@ -76,7 +86,7 @@ class GitHubClient:
                 return json.loads(body.decode("utf-8")) if body else None
         except urllib.error.HTTPError as exc:
             body = exc.read().decode("utf-8", errors="replace")
-            raise GitHubAPIError(f"GitHub API {exc.code}: {body}") from exc
+            raise GitHubAPIError(f"GitHub API {exc.code}: {body}", status_code=exc.code) from exc
         except urllib.error.URLError as exc:
             raise GitHubAPIError(f"GitHub API unavailable: {exc}") from exc
 
@@ -109,7 +119,7 @@ class GitHubClient:
         try:
             payload = self._get(f"/repos/{full_name}/releases/latest")
         except GitHubAPIError as exc:
-            if "GitHub API 404:" in str(exc):
+            if exc.status_code == 404:
                 return None
             raise
         return payload if isinstance(payload, dict) else None
@@ -125,6 +135,19 @@ class GitHubClient:
             return None
         return str(run.get("conclusion") or run.get("status") or "") or None
 
+    def branch_head_sha(self, full_name: str, branch: str) -> str:
+        """Read the destination ref before reading version receipts."""
+        normalized = branch.removeprefix("refs/heads/")
+        if not normalized:
+            raise ValueError("GitHub target branch must be non-empty")
+        ref = self._get(
+            f"/repos/{full_name}/git/ref/heads/{urllib.parse.quote(normalized, safe='')}"
+        )
+        sha = str((ref.get("object") or {}).get("sha") or "").lower()
+        if not re.fullmatch(r"[0-9a-f]{40}", sha):
+            raise GitHubAPIError("GitHub target branch has no valid commit SHA")
+        return sha
+
     def commit_files(
         self,
         full_name: str,
@@ -132,18 +155,18 @@ class GitHubClient:
         *,
         message: str,
         branch: str = "main",
+        expected_sha: str | None = None,
     ) -> dict[str, Any]:
         if not self.token:
             raise GitHubAPIError("GITHUB_TOKEN is required to write repository contents")
         if not files:
             raise ValueError("at least one file is required")
         ref_name = branch.removeprefix("refs/heads/")
-        ref = self._get(
-            f"/repos/{full_name}/git/ref/heads/{urllib.parse.quote(ref_name, safe='')}"
-        )
-        base_commit_sha = str(ref.get("object", {}).get("sha") or "")
-        if not base_commit_sha:
-            raise GitHubAPIError("GitHub branch ref has no commit sha")
+        base_commit_sha = self.branch_head_sha(full_name, ref_name)
+        # A receipt read from an older HEAD must never be written on top of
+        # a newer revision: that silently corrupts asset-version history.
+        if expected_sha is not None and base_commit_sha != expected_sha:
+            raise GitHubAPIError("GitHub target branch changed during asset delivery")
         base_commit = self._get(f"/repos/{full_name}/git/commits/{base_commit_sha}")
         base_tree_sha = str(base_commit.get("tree", {}).get("sha") or "")
         if not base_tree_sha:
@@ -232,7 +255,7 @@ class GitHubClient:
                 f"/repos/{full_name}/contents/{encoded_path}?ref={urllib.parse.quote(branch)}"
             )
         except GitHubAPIError as exc:
-            if "404" not in str(exc):
+            if exc.status_code != 404:
                 raise
         payload: dict[str, Any] = {
             "message": message,
@@ -284,17 +307,9 @@ class GitHubClient:
                 {"ref": "", "inputs": {}},
             )
         except GitHubAPIError as exc:
-            detail = str(exc)
-            if "GitHub API 422:" in detail:
+            if exc.status_code == 422:
                 return True
-            if any(
-                marker in detail
-                for marker in (
-                    "GitHub API 401:",
-                    "GitHub API 403:",
-                    "GitHub API 404:",
-                )
-            ):
+            if exc.status_code in {401, 403, 404}:
                 return False
             raise
         raise GitHubAPIError(
@@ -313,9 +328,9 @@ class GitHubClient:
             )
         except GitHubAPIError as exc:
             detail = str(exc)
-            if "GitHub API 422:" in detail and "not valid Base64" in detail:
+            if exc.status_code == 422 and "not valid Base64" in detail:
                 return True
-            if any(f"GitHub API {code}:" in detail for code in (401, 403, 404)):
+            if exc.status_code in {401, 403, 404}:
                 return False
             raise
         raise GitHubAPIError("GitHub contents permission probe unexpectedly succeeded")
@@ -433,7 +448,7 @@ class GitHubClient:
                 f"/repos/{full_name}/branches/{encoded}/protection"
             )
         except GitHubAPIError as exc:
-            if "404" in str(exc):
+            if exc.status_code == 404:
                 return False
             return None
         return isinstance(payload, dict)
@@ -449,7 +464,7 @@ class GitHubClient:
                 f"/repos/{full_name}/branches/{encoded}/protection"
             )
         except GitHubAPIError as exc:
-            if "404" in str(exc):
+            if exc.status_code == 404:
                 return []
             return None
         if not isinstance(payload, dict):
@@ -683,36 +698,60 @@ class GitHubClient:
         try:
             payload = self._get(f"/repos/{full_name}/contents{suffix}")
         except GitHubAPIError as exc:
-            if "404" in str(exc):
+            if exc.status_code == 404:
                 return []
             raise
         return payload if isinstance(payload, list) else [payload]
 
-    def _read_text(self, full_name: str, path: str) -> str:
+    def _read_text(self, full_name: str, path: str, *, ref: str | None = None, strict: bool = False) -> str:
         encoded_path = "/".join(urllib.parse.quote(part) for part in path.split("/") if part)
+        endpoint = f"/repos/{full_name}/contents/{encoded_path}"
+        if ref is not None:
+            if not isinstance(ref, str) or not ref.strip():
+                raise ValueError("GitHub read ref must be non-empty")
+            endpoint += "?ref=" + urllib.parse.quote(ref, safe="")
         try:
-            payload = self._get(f"/repos/{full_name}/contents/{encoded_path}")
+            payload = self._get(endpoint)
         except GitHubAPIError as exc:
-            if "404" in str(exc):
+            if exc.status_code == 404:
                 return ""
             raise
         encoded = payload.get("content")
-        if not encoded:
+        if not isinstance(encoded, str) or not encoded.strip():
+            if strict:
+                raise GitHubAPIError("existing GitHub asset version receipt has no content")
             return ""
         try:
-            return b64decode(encoded).decode("utf-8", errors="replace")
-        except Exception:
+            # GitHub Contents base64 can contain line breaks.
+            normalized = re.sub(r"\s+", "", encoded) if strict else encoded
+            return b64decode(normalized, validate=strict).decode(
+                "utf-8", errors="strict" if strict else "replace"
+            )
+        except Exception as exc:
+            if strict:
+                raise GitHubAPIError("existing GitHub asset version receipt has invalid encoding") from exc
             return ""
 
-    def read_json_file(self, full_name: str, path: str) -> dict[str, Any] | None:
-        text = self._read_text(full_name, path)
+    def read_json_file(
+        self, full_name: str, path: str, *, ref: str | None = None, strict: bool = False
+    ) -> dict[str, Any] | None:
+        if strict:
+            text = self._read_text(full_name, path, ref=ref, strict=True)
+        else:
+            text = self._read_text(full_name, path) if ref is None else self._read_text(full_name, path, ref=ref)
         if not text:
             return None
         try:
             value = json.loads(text)
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as exc:
+            if strict:
+                raise GitHubAPIError("existing GitHub asset version receipt contains invalid JSON") from exc
             return None
-        return value if isinstance(value, dict) else None
+        if not isinstance(value, dict):
+            if strict:
+                raise GitHubAPIError("existing GitHub asset version receipt must be a JSON object")
+            return None
+        return value
 
     def _latest_workflow_run(self, full_name: str, branch: str) -> dict[str, Any] | None:
         try:

@@ -62,10 +62,15 @@ class FakeGitHub:
         })
         return {"content": {"path": path}}
 
-    def read_json_file(self, repository, path):
+    def read_json_file(self, repository, path, *, ref=None, strict=False):
+        # Mirror the production client contract; this fixture represents a missing receipt.
         return None
 
-    def commit_files(self, repository, files, *, message, branch):
+    def branch_head_sha(self, repository, branch):
+        return "a" * 40
+
+    def commit_files(self, repository, files, *, message, branch, expected_sha=None):
+        assert expected_sha == "a" * 40
         self.calls.append({
             "repository": repository,
             "files": dict(files),
@@ -198,6 +203,10 @@ def test_execute_asset_forge_delivers_to_worktree(tmp_path):
 
     delivered = worktree / "assets/art/hud-icon.svg"
     assert delivered.read_text(encoding="utf-8") == "<svg/>"
+    sidecar = json.loads((worktree / "assets/art/hud-icon.svg.asset-forge.json").read_text())
+    assert sidecar["target_path"] == "assets/art/hud-icon.svg"
+    assert sidecar["version"] == 1
+    assert sidecar["sha256"] == hashlib.sha256(b"<svg/>").hexdigest()
     assert receipt.delivery_mode == "worktree"
     assert receipt.delivered_to == str(delivered.resolve())
 
@@ -235,13 +244,22 @@ def test_execute_asset_forge_delivers_with_existing_github_client(tmp_path):
             mode="local",
             target_repository="dbrckk/deadline-zero",
             target_path="assets/art/hud-icon.svg",
+            target_ref="review/asset-handoff",
             client=fake,
         )
 
-    write = [call for call in fake.calls if "path" in call][0]
-    assert write["repository"] == "dbrckk/deadline-zero"
-    assert write["path"] == "assets/art/hud-icon.svg"
-    assert write["content"] == b"<svg/>"
+    commits = [call for call in fake.calls if "files" in call]
+    assert len(commits) == 1
+    assert commits[0]["repository"] == "dbrckk/deadline-zero"
+    assert commits[0]["branch"] == "review/asset-handoff"
+    payload = commits[0]["files"]
+    assert sorted(payload) == [
+        "assets/art/hud-icon.svg", "assets/art/hud-icon.svg.asset-forge.json",
+    ]
+    assert payload["assets/art/hud-icon.svg"] == b"<svg/>"
+    sidecar = json.loads(payload["assets/art/hud-icon.svg.asset-forge.json"])
+    assert sidecar["version"] == 1
+    assert sidecar["sha256"] == hashlib.sha256(b"<svg/>").hexdigest()
     assert receipt.delivery_mode == "github"
 
 
@@ -415,7 +433,7 @@ def test_execute_asset_forge_batch_uses_single_github_commit(tmp_path):
             requests,
             output_root=str(out),
             target_repository="dbrckk/deadline-zero",
-            target_ref="main",
+            target_ref="review/asset-handoff",
             client=fake,
             mode="local",
         )
