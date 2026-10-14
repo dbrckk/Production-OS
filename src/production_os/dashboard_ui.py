@@ -2655,7 +2655,7 @@ async function loadManagedProjects(){
     '<div class="small"><strong>Objectif :</strong> '+esc(String(row.final_goal||""))+'</div>'+
     renderCooperativeStages(row)+
     renderProductionOutcome(outcome,true)+
-    '<div class="small"><strong>Génération actuelle :</strong> '+formatNumber(row.generation||1)+' · <strong>Budget :</strong> '+formatNumber(row.token_budget)+' tokens · <strong>Utilisés :</strong> '+formatNumber(usage.total_tokens||0)+' · <strong>Agent :</strong> '+esc(String(row.agent_preference||"auto"))+'</div>'+
+    '<div class="small"><strong>Génération actuelle :</strong> '+formatNumber(row.generation||1)+' · <strong>Budget :</strong> '+formatNumber(row.token_budget)+' tokens · <strong>Utilisés :</strong> '+formatNumber(usage.total_tokens||0)+(usage.usage_unknown?' (décompte partiellement indisponible)':usage.estimated_calls>0?' (estimation incluse)':'')+' · <strong>Agent :</strong> '+esc(String(row.agent_preference||"auto"))+'</div>'+
     history+actions+'</div>';
   }).join(""):'<div class="empty">Aucun projet managé.</div>';
   if(appState.focus){

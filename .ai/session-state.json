@@ -29,7 +29,7 @@
     "Extend explicit missing-source preflight to auto mode when CLI is absent, fixing negative Godot functional smoke regression in CI 38239536750 before output creation",
     "Reject missing explicit local source_path at fingerprint, direct execution and all batch inputs before output/cache/provider; verify via existing native producer/Godot smoke",
     "Reject planned asset/receipt/Godot companion delivery collisions across a batch before local generation or GitHub workflow dispatch; extend original producer/Godot integration smoke for three collisions and both modes",
-    "Version direct local visual references by ordered SHA-256 content hashes and preflight missing explicit references before invoking the real producer; extend native original PNG/Godot smoke with same-media 1→2→3 receipt history",
+    "Version direct local visual references by ordered SHA-256 content hashes and preflight missing explicit references before invoking the real producer; extend native original PNG/Godot smoke with same-media 1\u21922\u21923 receipt history",
     "Preflight asset/worktree media, receipt and Godot companion symlink aliases before local single/batch generation or remote batch dispatch; extend original producer-to-Godot smoke",
     "Add backend/model generator identity to asset request fingerprints, preventing wrong-model cache reuse; validate with existing original producer/Godot functional smoke while CLI is absent",
     "Preserve semantic asset provenance in version history even when identical produced bytes accompany a different request fingerprint; extend existing native/Godot review-branch smoke to distinguish exact retries from changed requests",
@@ -45,7 +45,7 @@
     "Direct GitHub-mode single-asset destination uses verified one-item batch and native ZIP before reporting delivered",
     "Implicit remote GitHub main/master delivery rejected before dispatch; no-destination async unchanged",
     "GitHub JSON receipt reads accept explicit destination branch ref",
-    "Existing offline Godot smoke verifies review-branch version 7→8 and preserves history",
+    "Existing offline Godot smoke verifies review-branch version 7\u21928 and preserves history",
     "Refuse malformed existing GitHub/worktree version receipts before any delivery",
     "Align existing FakeGitHub read_json_file fixture with strict/ref production interface; reject structurally invalid prior version receipts",
     "Pin destination GitHub branch HEAD before receipt reads; require same expected SHA at commit, failing on concurrent moves",
@@ -55,7 +55,7 @@
     "Reject remote batch without a consumer or with implicit GitHub main/master destination before generation/dispatch; extend existing native producer-to-Godot functional smoke",
     "Update existing atomic-GitHub-batch fixture to explicitly target a review branch after repository-main batch delivery became fail-closed; preserve the production guard",
     "Preflight resolved local batch per-request job directories against output_root before any generation, rejecting pre-existing escaping symlinks; extend native Godot/producer smoke",
-    "Reject Windows device names used as request/item IDs, and reject symlink-alias local batch job output directories even when target remains inside output_root; expand existing real producer→Godot functional smoke",
+    "Reject Windows device names used as request/item IDs, and reject symlink-alias local batch job output directories even when target remains inside output_root; expand existing real producer\u2192Godot functional smoke",
     "Prevalidate local direct single-asset target_path and consumer destination pairing before invoking CLI or creating generation output; extend existing genuine Godot functional smoke with invalid/incomplete local destination refusal",
     "Reject local direct single-asset GitHub default-branch targets (main/master) before generating; defend _deliver_artifact direct calls; adapt existing fixture to a review branch and expand original Godot smoke",
     "Unify local direct non-Godot and Godot asset deliveries through transactional SHA-256 sidecar/version receipt publication, including GitHub expected-head CAS; extend existing local and GitHub delivery fixtures without new tests",
@@ -98,5 +98,19 @@
   ],
   "current_work": [
     "Verify exact-head CI for direct shared GitHub review-branch guard; preserve DRAFT"
-  ]
+  ],
+  "native_usage_quality": {
+    "branch": "fix/native-usage-quality-20261014",
+    "status": "validation",
+    "worker_pr": 300,
+    "changes": [
+      "retain estimated_calls and unavailable native accounting markers",
+      "display accounting quality on managed projects"
+    ],
+    "pending": [
+      "full pytest",
+      "exact-head CI",
+      "review"
+    ]
+  }
 }

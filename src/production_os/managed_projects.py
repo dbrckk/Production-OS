@@ -106,6 +106,11 @@ def _usage_from_result(result: dict | None) -> dict:
             run_count = 0
         if run_count >= 0:
             normalized["runs"] = run_count
+    estimated = usage.get("estimated_calls")
+    if type(estimated) is int and estimated >= 0:
+        normalized["estimated_calls"] = estimated
+    if isinstance(evidence, dict) and evidence.get("native_usage_status") == "unavailable":
+        normalized["usage_unknown"] = True
     agents = usage.get("agents")
     if isinstance(agents, dict):
         clean = {}
@@ -1914,6 +1919,10 @@ class ManagedProjectService:
                 continue
             for task in workflow.get("tasks", []):
                 item = _usage_from_result(task.get("result"))
+                if item.get("estimated_calls", 0) > 0:
+                    usage["estimated_calls"] = usage.get("estimated_calls", 0) + item["estimated_calls"]
+                if item.get("usage_unknown") is True:
+                    usage["usage_unknown"] = True
                 for key in USAGE_KEYS:
                     value = item.get(key)
                     if isinstance(value, int) and not isinstance(value, bool):
