@@ -2,24 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat(browser): fail closed on uncertain side-effect replay",
-      "terms": [
-        "browser",
-        "closed",
-        "fail",
-        "feat",
-        "replay",
-        "side-effect",
-        "uncertain"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/browser_computer.py",
-        "tests/test_browser_computer.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat(browser): recover uncertain actions from positive postconditions",
       "terms": [
         "actions",
@@ -1240,6 +1222,26 @@
         "src/production_os/github_client.py",
         "tests/test_asset_forge.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "fix(dashboard): preserve native token accounting quality (#269)",
+      "terms": [
+        "269",
+        "accounting",
+        "dashboard",
+        "native",
+        "preserve",
+        "quality",
+        "token"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/dashboard_ui.py",
+        "src/production_os/managed_projects.py",
+        "tests/test_dashboard_ui_v3.py",
+        "tests/test_managed_projects_v4.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1542,6 +1544,12 @@
       "src/production_os/github_client.py": 4,
       "tests/test_asset_forge.py": 4
     },
+    "269": {
+      "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/managed_projects.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_managed_projects_v4.py": 4
+    },
     "27": {
       "src/production_os/dashboard_backups.py": 4,
       "src/production_os/dashboard_ui.py": 4,
@@ -1738,6 +1746,12 @@
     "accessibility": {
       "src/production_os/dashboard_ui.py": 4,
       "tests/test_dashboard_mobile_stability.py": 4
+    },
+    "accounting": {
+      "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/managed_projects.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_managed_projects_v4.py": 4
     },
     "across": {
       "integration/godot4_relocated_import_smoke.py": 4,
@@ -2829,7 +2843,7 @@
       "src/production_os/dashboard_ui.py": 40,
       "src/production_os/dashboard_usage.py": 4,
       "src/production_os/github_client.py": 4,
-      "src/production_os/managed_projects.py": 4,
+      "src/production_os/managed_projects.py": 8,
       "src/production_os/postgres_backend.py": 8,
       "src/production_os/project_progress.py": 4,
       "src/production_os/sqlite_backend.py": 8,
@@ -2870,6 +2884,7 @@
       "tests/test_dashboard_worker_detail_freshness.py": 4,
       "tests/test_dashboard_workflow_snapshot_invalidation.py": 4,
       "tests/test_github_client_pr_files.py": 4,
+      "tests/test_managed_projects_v4.py": 4,
       "tests/test_portfolio_claim_api.py": 4,
       "tests/test_project_progress.py": 4,
       "tests/test_release32_one_tap_e2e.py": 4,
@@ -4065,14 +4080,15 @@
       "src/production_os/browser_loop.py": 4,
       "src/production_os/cli.py": 4,
       "src/production_os/control_plane.py": 4,
-      "src/production_os/dashboard_ui.py": 4,
-      "src/production_os/managed_projects.py": 12,
+      "src/production_os/dashboard_ui.py": 8,
+      "src/production_os/managed_projects.py": 16,
       "src/production_os/native_executor.py": 4,
       "src/production_os/remote_worker_runner.py": 8,
       "tests/test_browser_loop.py": 4,
       "tests/test_cooperative_managed_projects.py": 8,
-      "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_dashboard_ui_v3.py": 8,
       "tests/test_managed_project_outcome.py": 4,
+      "tests/test_managed_projects_v4.py": 4,
       "tests/test_native_browser_worker_e2e.py": 4,
       "tests/test_native_executor.py": 4,
       "tests/test_release32_one_tap_e2e.py": 4,
@@ -4448,12 +4464,15 @@
       "integration/real_producer_bundle_smoke.py": 4,
       "src/production_os/asset_forge.py": 8,
       "src/production_os/controller.py": 4,
-      "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/dashboard_ui.py": 8,
       "src/production_os/github_client.py": 4,
+      "src/production_os/managed_projects.py": 4,
       "src/production_os/task_capabilities.py": 4,
       "src/production_os/workflow_engine.py": 4,
       "tests/test_asset_forge.py": 4,
       "tests/test_dashboard_launch_freshness.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_managed_projects_v4.py": 4,
       "tests/test_workflow_engine.py": 4
     },
     "prevent": {
@@ -4672,8 +4691,12 @@
     "quality": {
       "src/production_os/asset_forge.py": 4,
       "src/production_os/control_plane.py": 8,
+      "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/managed_projects.py": 4,
       "tests/test_asset_forge.py": 4,
-      "tests/test_dashboard_launch.py": 8
+      "tests/test_dashboard_launch.py": 8,
+      "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_managed_projects_v4.py": 4
     },
     "queue": {
       "src/production_os/control_plane.py": 12,
@@ -5705,7 +5728,11 @@
     },
     "token": {
       "src/production_os/asset_forge.py": 4,
-      "tests/test_asset_forge_dispatch_probe.py": 4
+      "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/managed_projects.py": 4,
+      "tests/test_asset_forge_dispatch_probe.py": 4,
+      "tests/test_dashboard_ui_v3.py": 4,
+      "tests/test_managed_projects_v4.py": 4
     },
     "tool": {
       "src/production_os/workflow_engine.py": 4,

@@ -96,16 +96,20 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-13T23:29:32Z
+Generated: 2026-10-14T19:46:21Z
 
 ### Git
 - Branch: `main`
-- Head: `8ff0b9deda60`
-- Commit date: 2026-10-14T01:29:21+02:00
-- Commit: fix(ci): preserve exact deployed SHA qualification across context refresh (#268) [skip render]
+- Head: `e61ef01db896`
+- Commit date: 2026-10-14T21:46:10+02:00
+- Commit: fix(dashboard): preserve native token accounting quality (#269)
 - Tracked files: 572
 
 ### Recently changed files
+- `src/production_os/dashboard_ui.py`
+- `src/production_os/managed_projects.py`
+- `tests/test_dashboard_ui_v3.py`
+- `tests/test_managed_projects_v4.py`
 - `.github/workflows/ci.yml`
 - `docs/asset-review-branch-guard.md`
 - `docs/production-readiness.md`

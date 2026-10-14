@@ -1,13 +1,17 @@
 # Change impact
 
-Base: 9c845fbb3bdd09329b2d694a55c257db1c9cd14b
-Head: 8ff0b9deda60869e5d1eed263c02701022462239
+Base: 097e269a0248148e572d4b270c7b9ab2224ad43c
+Head: e61ef01db896d1f1e6a37006ab111338f547a12d
 
 ## Changed files
-- M .github/workflows/ci.yml
+- M src/production_os/dashboard_ui.py
+- M src/production_os/managed_projects.py
+- M tests/test_dashboard_ui_v3.py
+- M tests/test_managed_projects_v4.py
 
 ## Affected areas
-- .github
+- src
+- tests
 
 ## Related test candidates
 - No direct filename-based test match detected.

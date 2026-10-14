@@ -8805,6 +8805,8 @@ run_count = int(runs)
 ⋮----
 run_count = 0
 ⋮----
+estimated = usage.get("estimated_calls")
+⋮----
 agents = usage.get("agents")
 ⋮----
 clean = {}
