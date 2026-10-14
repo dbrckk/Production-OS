@@ -34,6 +34,7 @@ def test_managed_project_requires_human_completion_after_execution(tmp_path):
         result={
             "usage":{
                 "total_tokens":12_345,
+                "estimated_calls":1,
                 "runs":2,
                 "agents":{"codex":2},
             }
@@ -42,6 +43,7 @@ def test_managed_project_requires_human_completion_after_execution(tmp_path):
     review = projects.get(created["project_id"])
     assert review["state"] == "REVIEW_REQUIRED"
     assert review["usage"]["total_tokens"] == 12_345
+    assert review["usage"]["estimated_calls"] == 1
     assert review["usage"]["runs"] == 2
     assert review["usage"]["agents"] == {"codex":2}
 

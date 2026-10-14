@@ -59,6 +59,8 @@ def test_dashboard_v3_has_usage_window_controls():
     for label in ("24h", "7d", "30d"):
         assert label in DASHBOARD_HTML
     assert "setDashboardWindow" in DASHBOARD_HTML
+    assert "estimation incluse" in DASHBOARD_HTML
+    assert "décompte partiellement indisponible" in DASHBOARD_HTML
 
 
 def test_dashboard_workers_view_is_bound_to_observability_api():
