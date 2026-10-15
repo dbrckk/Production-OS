@@ -4553,6 +4553,8 @@ def _select_columns(spec: RetentionSpec) -> str
 ⋮----
 columns = [
 ⋮----
+# These receipts are the durable usage ledger for retained projects.
+⋮----
 parsed = _parse_time(row["timestamp"])
 ⋮----
 status = str(row["row_status"] or "")
@@ -7312,7 +7314,18 @@ usage = {
 ⋮----
 workflow = self.workflows.get(str(run["workflow_id"]))
 ⋮----
-item = _usage_from_result(task.get("result"))
+# Task results are replaced on retry. Completed execution receipts
+# retain each attempt, including failures that consumed tokens.
+# Prefer those receipts without counting the latest task result
+# twice; direct/legacy workflows without receipts keep their
+# existing result-based accounting.
+⋮----
+receipts = _execute(
+by_task: dict[str, list] = {}
+⋮----
+results = []
+⋮----
+item = _usage_from_result(result)
 ⋮----
 value = item.get(key)
 ⋮----

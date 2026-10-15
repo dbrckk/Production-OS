@@ -6344,6 +6344,13 @@ project = created["project"]
 project_id = project["project_id"]
 first_workflow_id = project["workflow_id"]
 ⋮----
+# Exercise actual worker callbacks: a failed attempt must remain in
+# project totals after a successful retry and a server restart.
+⋮----
+key = claimed["job"]["key"]
+⋮----
+current = first.managed_projects.get(project_id)
+⋮----
 first_snapshot = first.workflows.get(first_workflow_id)
 ⋮----
 second = instructed["project"]
@@ -6358,6 +6365,18 @@ second = ControlPlane(database, authorizer=_auth())
 restored = second.managed_projects.get(project_id)
 ⋮----
 listed = second.managed_projects.list()
+⋮----
+# Retention may remove ordinary execution history, but must preserve
+# receipts that still supply a managed project's cumulative accounting.
+unrelated = {
+⋮----
+cleanup_time = datetime(2026, 10, 15, tzinfo=timezone.utc)
+snapshot = storage_maintenance_snapshot(second.backend, now=cleanup_time)
+executions = next(row for row in snapshot["tables"] if row["name"] == "executions")
+⋮----
+pruned = prune_expired_history(
+⋮----
+after_cleanup = second.managed_projects.get(project_id)
 ```
 
 ## File: test_release19_restore_staging_e2e.py

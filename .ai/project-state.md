@@ -104,18 +104,20 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-14T19:46:21Z
+Generated: 2026-10-15T13:12:54Z
 
 ### Git
 - Branch: `main`
-- Head: `e61ef01db896`
-- Commit date: 2026-10-14T21:46:10+02:00
-- Commit: fix(dashboard): preserve native token accounting quality (#269)
+- Head: `b5752c7d8189`
+- Commit date: 2026-10-15T15:12:43+02:00
+- Commit: fix(projects): retain retry accounting through restarts and cleanup (#270)
 - Tracked files: 572
 
 ### Recently changed files
-- `src/production_os/dashboard_ui.py`
+- `src/production_os/dashboard_maintenance.py`
 - `src/production_os/managed_projects.py`
+- `tests/test_release18_managed_projects_e2e.py`
+- `src/production_os/dashboard_ui.py`
 - `tests/test_dashboard_ui_v3.py`
 - `tests/test_managed_projects_v4.py`
 - `.github/workflows/ci.yml`
