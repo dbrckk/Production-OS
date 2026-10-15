@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import math
+import re
 from typing import Any
 
 
@@ -50,7 +52,7 @@ def _haystack(item: dict[str, Any]) -> str:
         value = item.get(key)
         if value is not None:
             parts.append(str(value))
-    for key in ("capabilities", "bestFor", "avoidWhen", "languages", "platforms", "runtime"):
+    for key in ("capabilities", "bestFor", "languages", "platforms", "runtime"):
         value = item.get(key)
         if isinstance(value, list):
             parts.extend(str(entry) for entry in value)
@@ -79,23 +81,36 @@ def rank_catalog(
     limit: int = 5,
     min_score: float = 8.0,
 ) -> list[ExternalReference]:
-    if not catalog:
+    if not isinstance(catalog, dict):
+        return []
+    repositories = catalog.get("repositories")
+    if not isinstance(repositories, list):
         return []
 
     terms = CAPABILITY_TERMS.get(capability, (capability.replace("-", " "),))
+    # Word/phrase boundaries prevent e.g. "ci" matching "specialized".
+    patterns = [
+        re.compile(r"(?<!\w)" + re.escape(term) + r"(?!\w)")
+        for term in terms
+    ]
     ranked: list[tuple[float, ExternalReference]] = []
 
-    for item in catalog.get("repositories", []):
+    for item in repositories:
         if not isinstance(item, dict) or not item.get("repo"):
             continue
         if not _eligible_catalog_entry(item):
             continue
-        score = float(item.get("score") or 0)
-        if score < min_score:
+        try:
+            score = float(item.get("score") or 0)
+        except (TypeError, ValueError, OverflowError):
+            continue
+        # JSON catalogs may contain invalid scores. NaN passes ordinary
+        # numeric comparisons and would otherwise pollute ranking results.
+        if not math.isfinite(score) or score < min_score:
             continue
 
         haystack = _haystack(item)
-        matches = sum(1 for term in terms if term in haystack)
+        matches = sum(1 for pattern in patterns if pattern.search(haystack))
         if not matches:
             continue
 
