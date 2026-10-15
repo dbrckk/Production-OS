@@ -1378,13 +1378,20 @@ def make_handler(control: ControlPlane):
                                 + request_id
                             ).encode("utf-8")
                         ).hexdigest()[:32]
-                    raw_budget = body.get("token_budget", 30000)
-                    # Dashboard callers retain the original 30k default.
-                    # Authorized automation may request a bounded larger
-                    # envelope for work that requires multiple implementation
-                    # and validation passes. Boolean/coerced values fail closed.
-                    if type(raw_budget) is not int or not 1000 <= raw_budget <= 120000:
-                        raise ValueError("token_budget must be an integer between 1000 and 120000")
+                    # Preserve the historical one-tap contract: arbitrary
+                    # token_budget fields are ignored for ordinary launches.
+                    # Only authenticated callers explicitly selecting the
+                    # portfolio integration profile may set a larger budget.
+                    profile = str(body.get("launch_profile") or "").strip()
+                    if profile not in {"", "portfolio-integration"}:
+                        raise ValueError("unsupported launch_profile")
+                    raw_budget = 30000
+                    if profile == "portfolio-integration":
+                        raw_budget = body.get("token_budget", 30000)
+                        if type(raw_budget) is not int or not 1000 <= raw_budget <= 120000:
+                            raise ValueError(
+                                "integration token_budget must be an integer between 1000 and 120000"
+                            )
                     project = control.managed_projects.create(
                         repository=str(body.get("repository") or ""),
                         final_goal=str(body.get("instruction") or ""),
