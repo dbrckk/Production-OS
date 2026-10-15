@@ -5321,6 +5321,16 @@ project_id = None
 ⋮----
 actor = f"{principal.role}:{principal.name}"
 project_id = hashlib.sha256(
+# Preserve the historical one-tap contract: arbitrary
+# token_budget fields are ignored for ordinary launches.
+# Only authenticated callers explicitly selecting the
+# portfolio integration profile may set a larger budget.
+profile = str(body.get("launch_profile") or "").strip()
+⋮----
+raw_budget = 30000
+⋮----
+raw_budget = body.get("token_budget", 30000)
+⋮----
 project = control.managed_projects.create(
 wake = control.ensure_worker_for_queued_work(
 ⋮----

@@ -112,16 +112,17 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-15T19:58:40Z
+Generated: 2026-10-15T21:12:13Z
 
 ### Git
 - Branch: `main`
-- Head: `08911ad417d5`
-- Commit date: 2026-10-15T21:58:27+02:00
-- Commit: fix(star-list): robust capability recommendations (#272)
+- Head: `1efc5ec7657b`
+- Commit date: 2026-10-15T23:12:02+02:00
+- Commit: fix: configurable bounded budgets for portfolio integration launches
 - Tracked files: 572
 
 ### Recently changed files
+- `src/production_os/control_plane.py`
 - `src/production_os/starlist.py`
 - `tests/test_deep_fingerprint_starlist.py`
 - `src/production_os/dashboard_maintenance.py`
@@ -130,7 +131,6 @@ Generated: 2026-10-15T19:58:40Z
 - `src/production_os/dashboard_ui.py`
 - `tests/test_dashboard_ui_v3.py`
 - `tests/test_managed_projects_v4.py`
-- `.github/workflows/ci.yml`
 
 ### Project signals
 - `pyproject.toml`

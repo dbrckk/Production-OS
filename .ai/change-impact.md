@@ -1,18 +1,16 @@
 # Change impact
 
-Base: eaec2b4c8f4e47fb0d3d4fe3495c2e40bea8778a
-Head: 08911ad417d50a566c01be39e28f2a68d4f4dbee
+Base: 230106b6ba0dfe9d455883b38aab75a52fc6b822
+Head: 1efc5ec7657bf343d40d055f40c9e7f7e74bff1c
 
 ## Changed files
-- M src/production_os/starlist.py
-- M tests/test_deep_fingerprint_starlist.py
+- M src/production_os/control_plane.py
 
 ## Affected areas
 - src
-- tests
 
 ## Related test candidates
-- No direct filename-based test match detected.
+- tests/test_control_plane.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.
