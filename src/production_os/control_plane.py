@@ -1378,10 +1378,24 @@ def make_handler(control: ControlPlane):
                                 + request_id
                             ).encode("utf-8")
                         ).hexdigest()[:32]
+                    # Preserve the historical one-tap contract: arbitrary
+                    # token_budget fields are ignored for ordinary launches.
+                    # Only authenticated callers explicitly selecting the
+                    # portfolio integration profile may set a larger budget.
+                    profile = str(body.get("launch_profile") or "").strip()
+                    if profile not in {"", "portfolio-integration"}:
+                        raise ValueError("unsupported launch_profile")
+                    raw_budget = 30000
+                    if profile == "portfolio-integration":
+                        raw_budget = body.get("token_budget", 30000)
+                        if type(raw_budget) is not int or not 1000 <= raw_budget <= 120000:
+                            raise ValueError(
+                                "integration token_budget must be an integer between 1000 and 120000"
+                            )
                     project = control.managed_projects.create(
                         repository=str(body.get("repository") or ""),
                         final_goal=str(body.get("instruction") or ""),
-                        token_budget=30000,
+                        token_budget=raw_budget,
                         agent_preference="auto",
                         requested_by=(
                             f"{principal.role}:{principal.name}"
@@ -1415,7 +1429,7 @@ def make_handler(control: ControlPlane):
                         "launch":{
                             "mode":"managed-project",
                             "persistent":True,
-                            "token_budget":30000,
+                            "token_budget":raw_budget,
                             "agent_preference":"auto",
                             "worker_wake":wake,
                             **(
