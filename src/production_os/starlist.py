@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import math
+import re
 from typing import Any
 
 
@@ -87,6 +88,11 @@ def rank_catalog(
         return []
 
     terms = CAPABILITY_TERMS.get(capability, (capability.replace("-", " "),))
+    # Word/phrase boundaries prevent e.g. "ci" matching "specialized".
+    patterns = [
+        re.compile(r"(?<!\\w)" + re.escape(term) + r"(?!\\w)")
+        for term in terms
+    ]
     ranked: list[tuple[float, ExternalReference]] = []
 
     for item in repositories:
@@ -104,7 +110,7 @@ def rank_catalog(
             continue
 
         haystack = _haystack(item)
-        matches = sum(1 for term in terms if term in haystack)
+        matches = sum(1 for pattern in patterns if pattern.search(haystack))
         if not matches:
             continue
 
