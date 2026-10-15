@@ -4105,6 +4105,10 @@ def test_starlist_catalog_is_ranked_by_score_and_match()
 ⋮----
 catalog = {
 refs = suggest_external_references("backtesting", catalog)
+⋮----
+# Catalog capability IDs contain hyphens; they must be recognized without
+# depending on free-text descriptions or an exact repository name.
+tool_catalog = {
 ```
 
 ## File: test_device_pairing.py

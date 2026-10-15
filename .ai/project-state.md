@@ -112,16 +112,18 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-15T13:12:54Z
+Generated: 2026-10-15T13:43:52Z
 
 ### Git
 - Branch: `main`
-- Head: `b5752c7d8189`
-- Commit date: 2026-10-15T15:12:43+02:00
-- Commit: fix(projects): retain retry accounting through restarts and cleanup (#270)
+- Head: `f8f94c066b55`
+- Commit date: 2026-10-15T15:43:40+02:00
+- Commit: fix(star-list): enforce production eligibility for tool recommendations (#271)
 - Tracked files: 572
 
 ### Recently changed files
+- `src/production_os/starlist.py`
+- `tests/test_deep_fingerprint_starlist.py`
 - `src/production_os/dashboard_maintenance.py`
 - `src/production_os/managed_projects.py`
 - `tests/test_release18_managed_projects_e2e.py`

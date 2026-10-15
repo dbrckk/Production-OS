@@ -11965,6 +11965,13 @@ parts: list[str] = []
 ⋮----
 value = item.get(key)
 ⋮----
+def _eligible_catalog_entry(item: dict[str, Any]) -> bool
+⋮----
+# Match star-list's default production recommendations: audit/reference
+# entries and inactive GitHub repositories are not deployable choices.
+⋮----
+github = item.get("github")
+⋮----
 terms = CAPABILITY_TERMS.get(capability, (capability.replace("-", " "),))
 ranked: list[tuple[float, ExternalReference]] = []
 ⋮----
@@ -16879,6 +16886,10 @@ def test_starlist_catalog_is_ranked_by_score_and_match()
 ⋮----
 catalog = {
 refs = suggest_external_references("backtesting", catalog)
+⋮----
+# Catalog capability IDs contain hyphens; they must be recognized without
+# depending on free-text descriptions or an exact repository name.
+tool_catalog = {
 ````
 
 ## File: tests/test_device_pairing.py

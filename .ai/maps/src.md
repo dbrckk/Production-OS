@@ -10095,6 +10095,13 @@ parts: list[str] = []
 ⋮----
 value = item.get(key)
 ⋮----
+def _eligible_catalog_entry(item: dict[str, Any]) -> bool
+⋮----
+# Match star-list's default production recommendations: audit/reference
+# entries and inactive GitHub repositories are not deployable choices.
+⋮----
+github = item.get("github")
+⋮----
 terms = CAPABILITY_TERMS.get(capability, (capability.replace("-", " "),))
 ranked: list[tuple[float, ExternalReference]] = []
 ⋮----
