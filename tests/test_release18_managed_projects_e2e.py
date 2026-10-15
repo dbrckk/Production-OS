@@ -4,10 +4,14 @@ import json
 import threading
 import urllib.error
 import urllib.request
+from datetime import datetime, timezone
 from http.server import ThreadingHTTPServer
 
 from production_os.api_auth import TokenAuthorizer, token_digest
 from production_os.control_plane import ControlPlane, make_handler
+from production_os.dashboard_maintenance import (
+    prune_expired_history, storage_maintenance_snapshot,
+)
 
 
 def _auth():
@@ -215,3 +219,28 @@ def test_release18_managed_project_generations_survive_restart(tmp_path):
 
     listed = second.managed_projects.list()
     assert [row["project_id"] for row in listed] == [project_id]
+
+    # Retention may remove ordinary execution history, but must preserve
+    # receipts that still supply a managed project's cumulative accounting.
+    unrelated = {
+        "key":"unrelated", "repository":"dbrckk/unrelated", "payload":{},
+    }
+    second.dashboard_store.start_execution(unrelated, "worker-a")
+    second.dashboard_store.finish_execution(
+        "unrelated", "worker-a", status="succeeded",
+        duration_seconds=1, result={},
+    )
+    with second.backend.transaction() as db:
+        db.execute("UPDATE job_executions SET created_at='2000-01-01T00:00:00+00:00'")
+    cleanup_time = datetime(2026, 10, 15, tzinfo=timezone.utc)
+    snapshot = storage_maintenance_snapshot(second.backend, now=cleanup_time)
+    executions = next(row for row in snapshot["tables"] if row["name"] == "executions")
+    assert executions["prunable_candidate_rows"] == 1
+    assert executions["protected_candidate_rows"] == 2
+    pruned = prune_expired_history(
+        second.backend, expected_candidate_rows=snapshot["prunable_candidate_rows"], now=cleanup_time,
+    )
+    assert pruned["deleted_by_table"]["executions"] == 1
+    assert second.dashboard_store.latest_execution("unrelated") is None
+    after_cleanup = second.managed_projects.get(project_id)
+    assert after_cleanup["usage"] == restored["usage"]

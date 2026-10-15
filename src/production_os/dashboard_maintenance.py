@@ -161,6 +161,11 @@ def _select_columns(spec: RetentionSpec) -> str:
     ]
     if spec.mode == "execution":
         columns.append("status AS row_status")
+        # These receipts are the durable usage ledger for retained projects.
+        columns.append(
+            "EXISTS (SELECT 1 FROM managed_project_runs AS runs "
+            "WHERE runs.workflow_id=job_executions.workflow_id) AS managed_receipt"
+        )
     return ", ".join(columns)
 
 
@@ -178,6 +183,8 @@ def _old_row_disposition(
     if spec.mode == "protected":
         return "protected"
     if spec.mode == "execution":
+        if row["managed_receipt"]:
+            return "protected"
         status = str(row["row_status"] or "")
         return (
             "prunable"
