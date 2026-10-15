@@ -4,7 +4,7 @@
   "objective": "Stabilize Production-OS star-list recommendation ranking and qualify the hosted worker-to-PR path",
   "branch": "fix/starlist-safe-ranking-20261015",
   "base_commit": "eaec2b4c8f4e47fb0d3d4fe3495c2e40bea8778a",
-  "status": "Fix committed on review branch: avoidWhen no longer increases suitability and malformed/NaN/Infinity scores are excluded; existing test function expanded; exact-head CI pending",
+  "status": "Ranking hardening committed: ignore avoidWhen for positive matches, reject invalid/non-finite scores, require capability term boundaries (prevent ci/specialized false positives); existing test function expanded; exact-head CI pending",
   "remaining": [
     "Verify exact branch-head GitHub CI (Python 3.11/3.12, PostgreSQL E2E, Godot integration and Docker) before merge",
     "Review the fix and merge only on green CI; check deployed Render revision",
