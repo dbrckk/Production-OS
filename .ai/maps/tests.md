@@ -4109,6 +4109,14 @@ refs = suggest_external_references("backtesting", catalog)
 # Catalog capability IDs contain hyphens; they must be recognized without
 # depending on free-text descriptions or an exact repository name.
 tool_catalog = {
+⋮----
+# "avoidWhen" documents where NOT to use a repository. It must never
+# count as positive capability evidence when ranking free tools.
+defensive_catalog = {
+⋮----
+# Very short identifiers must not match inside unrelated words:
+# "ci" was previously found within the "specialized" tier itself.
+ci_catalog = {
 ```
 
 ## File: test_device_pairing.py

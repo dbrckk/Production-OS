@@ -8,38 +8,38 @@
     "ExternalReference": {
       "definition": {
         "file": "src/production_os/starlist.py",
-        "line": 8,
+        "line": 10,
         "kind": "class",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/starlist.py",
-          "line": 8,
+          "line": 10,
           "preview": "class ExternalReference:",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/starlist.py",
-          "line": 81,
+          "line": 83,
           "preview": ") -> list[ExternalReference]:",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/starlist.py",
-          "line": 86,
+          "line": 96,
           "preview": "ranked: list[tuple[float, ExternalReference]] = []",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/starlist.py",
-          "line": 105,
+          "line": 120,
           "preview": "ref = ExternalReference(",
           "definition_candidate": false
         },
         {
           "file": "src/production_os/starlist.py",
-          "line": 134,
+          "line": 149,
           "preview": ") -> list[ExternalReference]:",
           "definition_candidate": false
         }
@@ -49,7 +49,7 @@
     "to_dict": {
       "definition": {
         "file": "src/production_os/starlist.py",
-        "line": 17,
+        "line": 19,
         "kind": "function",
         "language": "python"
       },
@@ -780,20 +780,20 @@
     "_haystack": {
       "definition": {
         "file": "src/production_os/starlist.py",
-        "line": 47,
+        "line": 49,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/starlist.py",
-          "line": 47,
+          "line": 49,
           "preview": "def _haystack(item: dict[str, Any]) -> str:",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/starlist.py",
-          "line": 97,
+          "line": 112,
           "preview": "haystack = _haystack(item)",
           "definition_candidate": false
         }
@@ -803,20 +803,20 @@
     "_eligible_catalog_entry": {
       "definition": {
         "file": "src/production_os/starlist.py",
-        "line": 60,
+        "line": 62,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/starlist.py",
-          "line": 60,
+          "line": 62,
           "preview": "def _eligible_catalog_entry(item: dict[str, Any]) -> bool:",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/starlist.py",
-          "line": 91,
+          "line": 101,
           "preview": "if not _eligible_catalog_entry(item):",
           "definition_candidate": false
         }
@@ -826,20 +826,20 @@
     "rank_catalog": {
       "definition": {
         "file": "src/production_os/starlist.py",
-        "line": 75,
+        "line": 77,
         "kind": "function",
         "language": "python"
       },
       "occurrences": [
         {
           "file": "src/production_os/starlist.py",
-          "line": 75,
+          "line": 77,
           "preview": "def rank_catalog(",
           "definition_candidate": true
         },
         {
           "file": "src/production_os/starlist.py",
-          "line": 135,
+          "line": 150,
           "preview": "return rank_catalog(capability, catalog, limit=limit)",
           "definition_candidate": false
         }
@@ -849,7 +849,7 @@
     "suggest_external_references": {
       "definition": {
         "file": "src/production_os/starlist.py",
-        "line": 129,
+        "line": 144,
         "kind": "function",
         "language": "python"
       },
@@ -868,7 +868,7 @@
         },
         {
           "file": "src/production_os/starlist.py",
-          "line": 129,
+          "line": 144,
           "preview": "def suggest_external_references(",
           "definition_candidate": true
         },
@@ -889,9 +889,27 @@
           "line": 87,
           "preview": "ref.repository for ref in suggest_external_references(\"model-routing\", tool_catalog)",
           "definition_candidate": false
+        },
+        {
+          "file": "tests/test_deep_fingerprint_starlist.py",
+          "line": 126,
+          "preview": "for ref in suggest_external_references(\"android-device-qa\", defensive_catalog)",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_deep_fingerprint_starlist.py",
+          "line": 128,
+          "preview": "assert suggest_external_references(",
+          "definition_candidate": false
+        },
+        {
+          "file": "tests/test_deep_fingerprint_starlist.py",
+          "line": 152,
+          "preview": "for ref in suggest_external_references(\"github-actions-ci\", ci_catalog)",
+          "definition_candidate": false
         }
       ],
-      "occurrence_count": 6
+      "occurrence_count": 9
     },
     "test_deep_fingerprint_detects_real_dependencies": {
       "definition": {

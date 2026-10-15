@@ -10102,13 +10102,20 @@ def _eligible_catalog_entry(item: dict[str, Any]) -> bool
 ⋮----
 github = item.get("github")
 ⋮----
+repositories = catalog.get("repositories")
+⋮----
 terms = CAPABILITY_TERMS.get(capability, (capability.replace("-", " "),))
+# Word/phrase boundaries prevent e.g. "ci" matching "specialized".
+patterns = [
 ranked: list[tuple[float, ExternalReference]] = []
 ⋮----
 score = float(item.get("score") or 0)
 ⋮----
+# JSON catalogs may contain invalid scores. NaN passes ordinary
+# numeric comparisons and would otherwise pollute ranking results.
+⋮----
 haystack = _haystack(item)
-matches = sum(1 for term in terms if term in haystack)
+matches = sum(1 for pattern in patterns if pattern.search(haystack))
 ⋮----
 semantic = min(matches / max(len(terms), 1), 1.0)
 quality = min(score / 10.0, 1.0)

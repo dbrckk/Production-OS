@@ -11972,13 +11972,20 @@ def _eligible_catalog_entry(item: dict[str, Any]) -> bool
 ⋮----
 github = item.get("github")
 ⋮----
+repositories = catalog.get("repositories")
+⋮----
 terms = CAPABILITY_TERMS.get(capability, (capability.replace("-", " "),))
+# Word/phrase boundaries prevent e.g. "ci" matching "specialized".
+patterns = [
 ranked: list[tuple[float, ExternalReference]] = []
 ⋮----
 score = float(item.get("score") or 0)
 ⋮----
+# JSON catalogs may contain invalid scores. NaN passes ordinary
+# numeric comparisons and would otherwise pollute ranking results.
+⋮----
 haystack = _haystack(item)
-matches = sum(1 for term in terms if term in haystack)
+matches = sum(1 for pattern in patterns if pattern.search(haystack))
 ⋮----
 semantic = min(matches / max(len(terms), 1), 1.0)
 quality = min(score / 10.0, 1.0)
@@ -16890,6 +16897,14 @@ refs = suggest_external_references("backtesting", catalog)
 # Catalog capability IDs contain hyphens; they must be recognized without
 # depending on free-text descriptions or an exact repository name.
 tool_catalog = {
+⋮----
+# "avoidWhen" documents where NOT to use a repository. It must never
+# count as positive capability evidence when ranking free tools.
+defensive_catalog = {
+⋮----
+# Very short identifiers must not match inside unrelated words:
+# "ci" was previously found within the "specialized" tier itself.
+ci_catalog = {
 ````
 
 ## File: tests/test_device_pairing.py

@@ -112,13 +112,13 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-15T13:43:52Z
+Generated: 2026-10-15T19:58:40Z
 
 ### Git
 - Branch: `main`
-- Head: `f8f94c066b55`
-- Commit date: 2026-10-15T15:43:40+02:00
-- Commit: fix(star-list): enforce production eligibility for tool recommendations (#271)
+- Head: `08911ad417d5`
+- Commit date: 2026-10-15T21:58:27+02:00
+- Commit: fix(star-list): robust capability recommendations (#272)
 - Tracked files: 572
 
 ### Recently changed files
@@ -131,14 +131,6 @@ Generated: 2026-10-15T13:43:52Z
 - `tests/test_dashboard_ui_v3.py`
 - `tests/test_managed_projects_v4.py`
 - `.github/workflows/ci.yml`
-- `docs/asset-review-branch-guard.md`
-- `docs/production-readiness.md`
-- `docs/worktree-delivery-symlinks.md`
-- `integration/godot4_relocated_import_smoke.py`
-- `integration/real_producer_bundle_smoke.py`
-- `src/production_os/asset_forge.py`
-- `src/production_os/github_client.py`
-- `tests/test_asset_forge.py`
 
 ### Project signals
 - `pyproject.toml`
