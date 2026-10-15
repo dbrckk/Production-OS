@@ -90,7 +90,7 @@ def rank_catalog(
     terms = CAPABILITY_TERMS.get(capability, (capability.replace("-", " "),))
     # Word/phrase boundaries prevent e.g. "ci" matching "specialized".
     patterns = [
-        re.compile(r"(?<!\\w)" + re.escape(term) + r"(?!\\w)")
+        re.compile(r"(?<!\w)" + re.escape(term) + r"(?!\w)")
         for term in terms
     ]
     ranked: list[tuple[float, ExternalReference]] = []
