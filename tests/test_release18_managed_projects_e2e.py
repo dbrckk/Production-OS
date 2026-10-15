@@ -4,10 +4,14 @@ import json
 import threading
 import urllib.error
 import urllib.request
+from datetime import datetime, timezone
 from http.server import ThreadingHTTPServer
 
 from production_os.api_auth import TokenAuthorizer, token_digest
 from production_os.control_plane import ControlPlane, make_handler
+from production_os.dashboard_maintenance import (
+    prune_expired_history, storage_maintenance_snapshot,
+)
 
 
 def _auth():
@@ -69,18 +73,38 @@ def test_release18_managed_project_generations_survive_restart(tmp_path):
         assert project["generation"] == 1
         assert project["status"] == "ACTIVE"
 
-        first.workflows.record_result(
-            first_workflow_id,
-            "implementation",
-            succeeded=True,
-            result={
-                "usage":{
-                    "total_tokens":1200,
-                    "runs":1,
-                    "agents":{"codex":1},
-                }
-            },
-        )
+        # Exercise actual worker callbacks: a failed attempt must remain in
+        # project totals after a successful retry and a server restart.
+        first.workers.register("worker-a", ["python"], 1)
+        for succeeded, tokens in [(False, 300), (True, 1200)]:
+            status, claimed = _request(
+                base, "/v1/jobs/claim", "worker", method="POST",
+                body={"worker_id":"worker-a", "capabilities":["python"]},
+            )
+            assert status == 200
+            key = claimed["job"]["key"]
+            status, _ = _request(
+                base, "/v1/jobs/ack", "worker", method="POST",
+                body={"key":key, "worker_id":"worker-a"},
+            )
+            assert status == 200
+            status, _ = _request(
+                base, "/v1/jobs/complete" if succeeded else "/v1/jobs/fail",
+                "worker", method="POST",
+                body={
+                    "key":key, "worker_id":"worker-a", "reason":"retry fixture",
+                    "result":{"usage":{
+                        "total_tokens":tokens, "runs":1,
+                        "estimated_calls":0 if succeeded else 1,
+                        "agents":{"codex":1},
+                    }},
+                },
+            )
+            assert status == 200
+            current = first.managed_projects.get(project_id)
+            assert current["usage"]["total_tokens"] == (1500 if succeeded else 300)
+            assert current["usage"]["estimated_calls"] == 1
+            assert current["usage"]["runs"] == (2 if succeeded else 1)
         status, reviewed = _request(
             base,
             f"/v1/managed-projects/{project_id}",
@@ -168,7 +192,7 @@ def test_release18_managed_project_generations_survive_restart(tmp_path):
         assert final["status"] == "DONE"
         assert final["generation"] == 3
         assert final["approved_by"] == "operator:operator"
-        assert final["usage"]["total_tokens"] == 2500
+        assert final["usage"]["total_tokens"] == 2800
         assert [run["generation"] for run in final["runs"]] == [1, 2, 3]
         assert [run["kind"] for run in final["runs"]] == [
             "initial",
@@ -185,10 +209,38 @@ def test_release18_managed_project_generations_survive_restart(tmp_path):
     assert restored["status"] == "DONE"
     assert restored["generation"] == 3
     assert restored["workflow_id"] == third_workflow_id
-    assert restored["usage"]["total_tokens"] == 2500
+    assert restored["usage"]["total_tokens"] == 2800
+    assert restored["usage"]["estimated_calls"] == 1
+    assert restored["usage"]["runs"] == 4
+    assert restored["usage"]["agents"] == {"codex":4}
     assert second.workflows.get(first_workflow_id) == first_snapshot
     assert second.workflows.get(second_workflow_id)["status"] == "succeeded"
     assert second.workflows.get(third_workflow_id)["status"] == "succeeded"
 
     listed = second.managed_projects.list()
     assert [row["project_id"] for row in listed] == [project_id]
+
+    # Retention may remove ordinary execution history, but must preserve
+    # receipts that still supply a managed project's cumulative accounting.
+    unrelated = {
+        "key":"unrelated", "repository":"dbrckk/unrelated", "payload":{},
+    }
+    second.dashboard_store.start_execution(unrelated, "worker-a")
+    second.dashboard_store.finish_execution(
+        "unrelated", "worker-a", status="succeeded",
+        duration_seconds=1, result={},
+    )
+    with second.backend.transaction() as db:
+        db.execute("UPDATE job_executions SET created_at='2000-01-01T00:00:00+00:00'")
+    cleanup_time = datetime(2026, 10, 15, tzinfo=timezone.utc)
+    snapshot = storage_maintenance_snapshot(second.backend, now=cleanup_time)
+    executions = next(row for row in snapshot["tables"] if row["name"] == "executions")
+    assert executions["prunable_candidate_rows"] == 1
+    assert executions["protected_candidate_rows"] == 2
+    pruned = prune_expired_history(
+        second.backend, expected_candidate_rows=snapshot["prunable_candidate_rows"], now=cleanup_time,
+    )
+    assert pruned["deleted_by_table"]["executions"] == 1
+    assert second.dashboard_store.latest_execution("unrelated") is None
+    after_cleanup = second.managed_projects.get(project_id)
+    assert after_cleanup["usage"] == restored["usage"]

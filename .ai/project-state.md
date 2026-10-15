@@ -1,3 +1,11 @@
+
+## 2026-10-15 — retry usage accounting
+
+- Reproduced over authenticated local HTTP: a 300-token failed attempt followed by 1200-token success displayed only 1200 on the managed project.
+- Managed project totals now use all terminal execution receipts per task, avoiding duplicate latest-result counting. Legacy/direct workflows without receipts retain task-result accounting.
+- Existing restart/generation integration covers actual claim/ack/fail/complete callbacks, estimated calls, retries, and persistence across restart: 1500 in generation 1 and 2800 after subsequent generations. No new unit test functions.
+- Initial head76186759 CI38724388828 passed all4jobs (1304tests +20PostgreSQL E2E). Review found retention cleanup could erase retry receipts; managed-project receipts are now protected while their project run exists, and the same integration exercises genuine retention cleanup alongside unrelated expired history. Final-head checks/deployment pending. No hosted data rewritten or budgets increased.
+
 # Project state
 
 Status: active
