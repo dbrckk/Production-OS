@@ -1917,8 +1917,30 @@ class ManagedProjectService:
                 workflow = self.workflows.get(str(run["workflow_id"]))
             except KeyError:
                 continue
+            # Task results are replaced on retry. Completed execution receipts
+            # retain each attempt, including failures that consumed tokens.
+            # Prefer those receipts without counting the latest task result
+            # twice; direct/legacy workflows without receipts keep their
+            # existing result-based accounting.
+            with self.backend.connect() as db:
+                receipts = _execute(
+                    db,
+                    self.backend,
+                    """SELECT workflow_task_id, result_summary_json
+                       FROM job_executions
+                       WHERE workflow_id=? AND status<>'running'""",
+                    (str(run["workflow_id"]),),
+                ).fetchall()
+            by_task: dict[str, list] = {}
+            for receipt in receipts:
+                by_task.setdefault(str(receipt["workflow_task_id"]), []).append(
+                    json.loads(receipt["result_summary_json"] or "{}")
+                )
+            results = []
             for task in workflow.get("tasks", []):
-                item = _usage_from_result(task.get("result"))
+                results.extend(by_task.get(str(task["task_id"]), [task.get("result")]))
+            for result in results:
+                item = _usage_from_result(result)
                 if item.get("estimated_calls", 0) > 0:
                     usage["estimated_calls"] = usage.get("estimated_calls", 0) + item["estimated_calls"]
                 if item.get("usage_unknown") is True:

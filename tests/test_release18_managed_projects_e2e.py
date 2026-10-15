@@ -69,18 +69,38 @@ def test_release18_managed_project_generations_survive_restart(tmp_path):
         assert project["generation"] == 1
         assert project["status"] == "ACTIVE"
 
-        first.workflows.record_result(
-            first_workflow_id,
-            "implementation",
-            succeeded=True,
-            result={
-                "usage":{
-                    "total_tokens":1200,
-                    "runs":1,
-                    "agents":{"codex":1},
-                }
-            },
-        )
+        # Exercise actual worker callbacks: a failed attempt must remain in
+        # project totals after a successful retry and a server restart.
+        first.workers.register("worker-a", ["python"], 1)
+        for succeeded, tokens in [(False, 300), (True, 1200)]:
+            status, claimed = _request(
+                base, "/v1/jobs/claim", "worker", method="POST",
+                body={"worker_id":"worker-a", "capabilities":["python"]},
+            )
+            assert status == 200
+            key = claimed["job"]["key"]
+            status, _ = _request(
+                base, "/v1/jobs/ack", "worker", method="POST",
+                body={"key":key, "worker_id":"worker-a"},
+            )
+            assert status == 200
+            status, _ = _request(
+                base, "/v1/jobs/complete" if succeeded else "/v1/jobs/fail",
+                "worker", method="POST",
+                body={
+                    "key":key, "worker_id":"worker-a", "reason":"retry fixture",
+                    "result":{"usage":{
+                        "total_tokens":tokens, "runs":1,
+                        "estimated_calls":0 if succeeded else 1,
+                        "agents":{"codex":1},
+                    }},
+                },
+            )
+            assert status == 200
+            current = first.managed_projects.get(project_id)
+            assert current["usage"]["total_tokens"] == (1500 if succeeded else 300)
+            assert current["usage"]["estimated_calls"] == 1
+            assert current["usage"]["runs"] == (2 if succeeded else 1)
         status, reviewed = _request(
             base,
             f"/v1/managed-projects/{project_id}",
@@ -168,7 +188,7 @@ def test_release18_managed_project_generations_survive_restart(tmp_path):
         assert final["status"] == "DONE"
         assert final["generation"] == 3
         assert final["approved_by"] == "operator:operator"
-        assert final["usage"]["total_tokens"] == 2500
+        assert final["usage"]["total_tokens"] == 2800
         assert [run["generation"] for run in final["runs"]] == [1, 2, 3]
         assert [run["kind"] for run in final["runs"]] == [
             "initial",
@@ -185,7 +205,10 @@ def test_release18_managed_project_generations_survive_restart(tmp_path):
     assert restored["status"] == "DONE"
     assert restored["generation"] == 3
     assert restored["workflow_id"] == third_workflow_id
-    assert restored["usage"]["total_tokens"] == 2500
+    assert restored["usage"]["total_tokens"] == 2800
+    assert restored["usage"]["estimated_calls"] == 1
+    assert restored["usage"]["runs"] == 4
+    assert restored["usage"]["agents"] == {"codex":4}
     assert second.workflows.get(first_workflow_id) == first_snapshot
     assert second.workflows.get(second_workflow_id)["status"] == "succeeded"
     assert second.workflows.get(third_workflow_id)["status"] == "succeeded"

@@ -1,3 +1,11 @@
+
+## 2026-10-15 — retry usage accounting
+
+- Reproduced over authenticated local HTTP: a 300-token failed attempt followed by 1200-token success displayed only 1200 on the managed project.
+- Managed project totals now use all terminal execution receipts per task, avoiding duplicate latest-result counting. Legacy/direct workflows without receipts retain task-result accounting.
+- Existing restart/generation integration covers actual claim/ack/fail/complete callbacks, estimated calls, retries, and persistence across restart: 1500 in generation 1 and 2800 after subsequent generations. No new unit test functions.
+- Targeted checks: 54 passed. Full checks/CI and deployment pending; no hosted data rewritten and no budget increased.
+
 # Project state
 
 Status: active
