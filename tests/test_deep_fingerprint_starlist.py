@@ -128,3 +128,26 @@ def test_starlist_catalog_is_ranked_by_score_and_match():
     assert suggest_external_references(
         "android-device-qa", {"repositories": None}
     ) == []
+
+    # Very short identifiers must not match inside unrelated words:
+    # "ci" was previously found within the "specialized" tier itself.
+    ci_catalog = {
+        "repositories": [
+            {
+                "repo": "desktop/productivity",
+                "score": 9.9,
+                "tier": "specialized",
+                "bestFor": ["desktop productivity"],
+            },
+            {
+                "repo": "tools/build",
+                "score": 9.1,
+                "tier": "specialized",
+                "capabilities": ["github-actions-ci"],
+            },
+        ]
+    }
+    assert [
+        ref.repository
+        for ref in suggest_external_references("github-actions-ci", ci_catalog)
+    ] == ["tools/build"]
