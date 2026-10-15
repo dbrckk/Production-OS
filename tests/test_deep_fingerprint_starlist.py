@@ -23,6 +23,33 @@ def test_starlist_catalog_is_ranked_by_score_and_match():
     catalog = {
         "repositories": [
             {
+                "repo": "audit/example",
+                "score": 9.9,
+                "tier": "audit",
+                "capabilities": ["backtesting"],
+            },
+            {
+                "repo": "archived/example",
+                "score": 9.9,
+                "tier": "core",
+                "capabilities": ["backtesting"],
+                "github": {"archived": True},
+            },
+            {
+                "repo": "disabled/example",
+                "score": 9.9,
+                "tier": "core",
+                "capabilities": ["backtesting"],
+                "github": {"disabled": True},
+            },
+            {
+                "repo": "legacy/example",
+                "score": 9.9,
+                "tier": "core",
+                "capabilities": ["backtesting"],
+                "lifecycle": "legacy",
+            },
+            {
                 "repo": "low/example",
                 "score": 8.1,
                 "tier": "specialized",
@@ -43,3 +70,19 @@ def test_starlist_catalog_is_ranked_by_score_and_match():
     refs = suggest_external_references("backtesting", catalog)
     assert [ref.repository for ref in refs] == ["high/example", "low/example"]
     assert refs[0].star_score == 9.7
+
+    # Catalog capability IDs contain hyphens; they must be recognized without
+    # depending on free-text descriptions or an exact repository name.
+    tool_catalog = {
+        "repositories": [
+            {
+                "repo": "BerriAI/litellm",
+                "score": 9.7,
+                "tier": "core",
+                "capabilities": ["model-routing", "llm-gateway"],
+            },
+        ],
+    }
+    assert [
+        ref.repository for ref in suggest_external_references("model-routing", tool_catalog)
+    ] == ["BerriAI/litellm"]

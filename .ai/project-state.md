@@ -1,3 +1,11 @@
+## 2026-10-15 — star-list production eligibility hardening
+
+- Confirmed main commit `9e0af242`, GitHub CI `38740895652` 4/4 passed and Render service `production-os1` deployed `b5752c7d` live (commit `9e0af242` is context-only and ignored by Render).
+- Reviewed `dbrckk/star-list` catalog (725 records), `RECOMMENDER.md`, stacks, and Production-OS integration. Identified that `starlist.rank_catalog` admitted audit, archived, disabled or legacy catalog items and lacked exact capability aliases for model-routing/observability/sandbox/browser E2E/autonomous coding.
+- Branch `fix/starlist-eligibility-20261015`: fail-closed exclusion for inactive or reference-only records; add capability aliases and extend the **existing** ranking test function. No new unit-test functions or runtime dependencies; no alteration to active worker dispatch, budgets or deployed credentials.
+- **Qualification:** exact branch-head CI and review pending; no claim of end-to-end hosted autonomous project success.
+- **Open product gate:** Jumpy objective end-to-end delivery (including real Android), durable free worker capacity, and real model/provider provenance remain unqualified. Do not silently widen budgets or treat a green CI as finished deployment.
+
 
 ## 2026-10-15 — retry usage accounting
 

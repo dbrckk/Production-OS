@@ -36,6 +36,11 @@ CAPABILITY_TERMS: dict[str, tuple[str, ...]] = {
     "experiment-registry": ("experiment", "mlops", "tracking"),
     "queued-workers": ("queue", "worker", "celery", "task"),
     "docker-compose-deployment": ("docker", "compose", "container"),
+    "model-routing": ("model-routing", "llm-gateway", "provider routing", "litellm"),
+    "agent-observability": ("observability", "tracing", "monitoring", "langfuse"),
+    "sandboxed-code-execution": ("sandbox", "code-execution", "isolated code", "microvm"),
+    "browser-e2e": ("browser e2e", "cross-browser", "playwright"),
+    "autonomous-coding": ("autonomous coding", "repo-level changes", "agentic repository", "opencode", "openhands"),
 }
 
 
@@ -50,6 +55,21 @@ def _haystack(item: dict[str, Any]) -> str:
         if isinstance(value, list):
             parts.extend(str(entry) for entry in value)
     return " ".join(parts).lower()
+
+
+def _eligible_catalog_entry(item: dict[str, Any]) -> bool:
+    # Match star-list's default production recommendations: audit/reference
+    # entries and inactive GitHub repositories are not deployable choices.
+    if str(item.get("tier") or "").casefold() == "audit":
+        return False
+    if str(item.get("lifecycle") or "").casefold() in {
+        "legacy", "reference", "inactive", "deprecated"
+    }:
+        return False
+    github = item.get("github")
+    if isinstance(github, dict) and (github.get("archived") or github.get("disabled")):
+        return False
+    return True
 
 
 def rank_catalog(
@@ -67,6 +87,8 @@ def rank_catalog(
 
     for item in catalog.get("repositories", []):
         if not isinstance(item, dict) or not item.get("repo"):
+            continue
+        if not _eligible_catalog_entry(item):
             continue
         score = float(item.get("score") or 0)
         if score < min_score:

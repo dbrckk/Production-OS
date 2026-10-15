@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
   "updated_at": "2026-10-15",
-  "objective": "Preserve consumed tokens across failed worker attempts and successful retries",
-  "branch": "fix/project-retry-usage-20261015",
-  "base_commit": "40dde8b4c1fc7e4f09c83574b7215a4796eb609e",
-  "status": "Initial CI4/4 passed; retain managed-project accounting receipts during history cleanup; final verification pending",
+  "objective": "Make star-list recommendations safe for production deployment; verify full Production-OS qualification gates",
+  "branch": "fix/starlist-eligibility-20261015",
+  "base_commit": "9e0af242c5954af92e74c39724070909d084be57",
+  "status": "Star-list eligibility and exact capability matching changed; exact-head GitHub CI pending",
   "remaining": [
-    "Run full existing suite and exact-head CI",
-    "Merge only after verification and confirm automatic Render deployment",
-    "Jumpy Android and sustained free capacity remain separate open qualification gates"
+    "Verify exact PR-head Python 3.11/3.12, PostgreSQL E2E, Docker build and Godot import via CI",
+    "Merge only after verified CI and review; monitor Render auto deploy",
+    "Qualify a complete authenticated hosted worker-to-target-PR execution and Android before declaring end-to-end production ready"
   ]
 }
