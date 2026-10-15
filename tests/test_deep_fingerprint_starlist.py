@@ -86,3 +86,45 @@ def test_starlist_catalog_is_ranked_by_score_and_match():
     assert [
         ref.repository for ref in suggest_external_references("model-routing", tool_catalog)
     ] == ["BerriAI/litellm"]
+
+    # "avoidWhen" documents where NOT to use a repository. It must never
+    # count as positive capability evidence when ranking free tools.
+    defensive_catalog = {
+        "repositories": [
+            {
+                "repo": "desktop/only",
+                "score": 9.9,
+                "tier": "core",
+                "bestFor": ["desktop tooling"],
+                "avoidWhen": ["android device emulator testing"],
+            },
+            {
+                "repo": "broken/score",
+                "score": "not-a-number",
+                "capabilities": ["android-device-qa"],
+            },
+            {
+                "repo": "nan/score",
+                "score": "NaN",
+                "capabilities": ["android-device-qa"],
+            },
+            {
+                "repo": "infinity/score",
+                "score": "Infinity",
+                "capabilities": ["android-device-qa"],
+            },
+            {
+                "repo": "valid/android-qa",
+                "score": 9.3,
+                "tier": "core",
+                "capabilities": ["android-device-qa"],
+            },
+        ]
+    }
+    assert [
+        ref.repository
+        for ref in suggest_external_references("android-device-qa", defensive_catalog)
+    ] == ["valid/android-qa"]
+    assert suggest_external_references(
+        "android-device-qa", {"repositories": None}
+    ) == []
