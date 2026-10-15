@@ -1378,10 +1378,17 @@ def make_handler(control: ControlPlane):
                                 + request_id
                             ).encode("utf-8")
                         ).hexdigest()[:32]
+                    raw_budget = body.get("token_budget", 30000)
+                    # Dashboard callers retain the original 30k default.
+                    # Authorized automation may request a bounded larger
+                    # envelope for work that requires multiple implementation
+                    # and validation passes. Boolean/coerced values fail closed.
+                    if type(raw_budget) is not int or not 1000 <= raw_budget <= 120000:
+                        raise ValueError("token_budget must be an integer between 1000 and 120000")
                     project = control.managed_projects.create(
                         repository=str(body.get("repository") or ""),
                         final_goal=str(body.get("instruction") or ""),
-                        token_budget=30000,
+                        token_budget=raw_budget,
                         agent_preference="auto",
                         requested_by=(
                             f"{principal.role}:{principal.name}"
@@ -1415,7 +1422,7 @@ def make_handler(control: ControlPlane):
                         "launch":{
                             "mode":"managed-project",
                             "persistent":True,
-                            "token_budget":30000,
+                            "token_budget":raw_budget,
                             "agent_preference":"auto",
                             "worker_wake":wake,
                             **(
