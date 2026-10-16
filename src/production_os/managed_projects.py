@@ -2024,7 +2024,7 @@ class ManagedProjectService:
             rows = _execute(
                 db,
                 self.backend,
-                """SELECT repository, final_goal, status, created_at
+                """SELECT id, repository, final_goal, status, created_at
                    FROM managed_projects
                    WHERE final_goal LIKE ?
                    ORDER BY created_at DESC""",
@@ -2043,6 +2043,12 @@ class ManagedProjectService:
                 raise RuntimeError("integration inventory contains invalid tracking metadata")
             repository = str(row["repository"] or "")
             status = str(row["status"] or "")
+            # Unlike the bounded dashboard list, this index includes older
+            # active rows. Reconcile active workflows so completed/failed work
+            # does not occupy free-worker slots indefinitely.
+            if status == ACTIVE:
+                fresh = self.reconcile(str(row["id"]))
+                status = str(fresh.get("status") or "")
             created_at = str(row["created_at"] or "")
             if not repository or not status or not created_at:
                 raise RuntimeError("integration inventory contains incomplete metadata")
