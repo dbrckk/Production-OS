@@ -1857,9 +1857,27 @@ class WorkflowEngine:
                 and str(result.get("ai_dev_server_status") or "").strip().lower()
                 == "capacity_exhausted"
             )
+            # Preview-cycle exhaustion is a durable Godot project checkpoint,
+            # not a transient provider/runner failure. Requeueing the same
+            # workflow task repeats the already-blocked checkpoint with zero
+            # inference and no chance of producing a new edit.
+            evidence = result.get("evidence") if isinstance(result, dict) else None
+            godot_preview_exhausted = (
+                not succeeded
+                and isinstance(evidence, dict)
+                and str(result.get("ai_dev_server_status") or "").strip().lower()
+                    == "blocked"
+                and evidence.get("pipeline_status") == "blocked"
+                and evidence.get("next_stage") == "godot_preview_cycle_budget_exhausted"
+            )
+            retry_suppressed = (
+                "capacity_exhausted" if capacity_exhausted else
+                "godot_preview_cycle_budget_exhausted"
+                if godot_preview_exhausted else None
+            )
             if succeeded:
                 status = "succeeded"
-            elif capacity_exhausted:
+            elif retry_suppressed is not None:
                 status = "failed"
             elif int(row["attempts"]) < int(row["max_attempts"]):
                 status = "ready"
@@ -1891,7 +1909,7 @@ class WorkflowEngine:
                     "task_id":task_id,
                     "succeeded":succeeded,
                     "status":status,
-                    "retry_suppressed":"capacity_exhausted" if capacity_exhausted else None,
+                    "retry_suppressed":retry_suppressed,
                 },
                 task_key_value=row["claimed_job_key"],
             )
