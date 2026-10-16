@@ -5043,6 +5043,14 @@ control = ControlPlane(str(tmp_path / "db.sqlite"), authorizer=_auth())
 ⋮----
 project = created["project"]
 ⋮----
+# An explicit operator opt-in reveals only the opaque project ID,
+# enabling efficient per-project diagnosis without scanning the
+# expensive global dashboard inbox or exposing full instructions.
+marker = "starlist-integration-v2-" + "a" * 24
+⋮----
+identifier = tracked["project"]["project_id"]
+endpoint = "/v1/managed-projects/integration-inventory"
+⋮----
 def test_viewer_cannot_create_managed_project(tmp_path)
 ⋮----
 def test_managed_project_http_generations_and_explicit_completion(tmp_path)

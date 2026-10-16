@@ -3425,7 +3425,10 @@ release = control.releases.get(parts[2])
 # Only operators may read this private-repository-aware index.
 principal = self._require("operator")
 ⋮----
-projects = control.managed_projects.integration_inventory()
+parameters = parse_qs(parsed.query, keep_blank_values=True)
+selected = parameters.get("include_project_ids", [])
+⋮----
+projects = control.managed_projects.integration_inventory(
 ⋮----
 project = control.managed_projects.get(parts[2])
 ⋮----
@@ -7358,7 +7361,7 @@ current_workflow = self.workflows.get(
 usage = self._usage(runs)
 display_state = (
 ⋮----
-def integration_inventory(self) -> list[dict]
+def integration_inventory(self, *, include_project_ids: bool = False) -> list[dict]
 ⋮----
 """Complete, redacted integration index for operator-owned scanners.
 
@@ -7383,6 +7386,13 @@ status = str(row["status"] or "")
 fresh = self.reconcile(str(row["id"]))
 status = str(fresh.get("status") or "")
 created_at = str(row["created_at"] or "")
+⋮----
+item = {
+# Only an explicitly opted-in, operator-authenticated client
+# receives opaque IDs needed for targeted per-project diagnostics.
+# The normal deduplication inventory remains unchanged.
+⋮----
+identifier = str(row["id"] or "")
 ⋮----
 def list(self, *, limit: int = 100) -> list[dict]
 ⋮----
