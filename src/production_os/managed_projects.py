@@ -2012,6 +2012,48 @@ class ManagedProjectService:
             "outcome":_outcome_from_workflow(current_workflow),
         }
 
+    def integration_inventory(self) -> list[dict]:
+        """Complete, redacted integration index for operator-owned scanners.
+
+        The normal dashboard list intentionally caps at 100 recent projects.
+        A scanner must never infer that older integrations do not exist from
+        that truncated view, as doing so can create duplicate paid/limited work.
+        Expose only the validated tracking marker, not worker instructions.
+        """
+        with self.backend.connect() as db:
+            rows = _execute(
+                db,
+                self.backend,
+                """SELECT repository, final_goal, status, created_at
+                   FROM managed_projects
+                   WHERE final_goal LIKE ?
+                   ORDER BY created_at DESC""",
+                ("%starlist-integration-v%",),
+            ).fetchall()
+        # No partial inventory can safely authorize more work.
+        if len(rows) > 10000:
+            raise RuntimeError("integration inventory exceeds safety limit")
+        inventory = []
+        for row in rows:
+            tracking = re.search(
+                r"(?<![a-z0-9])starlist-integration-v[123]-[0-9a-f]{24}(?![0-9a-f])",
+                str(row["final_goal"] or ""),
+            )
+            if not tracking:
+                raise RuntimeError("integration inventory contains invalid tracking metadata")
+            repository = str(row["repository"] or "")
+            status = str(row["status"] or "")
+            created_at = str(row["created_at"] or "")
+            if not repository or not status or not created_at:
+                raise RuntimeError("integration inventory contains incomplete metadata")
+            inventory.append({
+                "repository": repository,
+                "final_goal": "Tracking: " + tracking.group(0),
+                "status": status,
+                "created_at": created_at,
+            })
+        return inventory
+
     def list(self, *, limit: int = 100) -> list[dict]:
         bounded = max(1, min(500, int(limit)))
         with self.backend.connect() as db:
