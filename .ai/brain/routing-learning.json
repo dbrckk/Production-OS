@@ -2,26 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat(browser): advertise crash-safe multi-turn browser contract",
-      "terms": [
-        "advertise",
-        "browser",
-        "contract",
-        "crash-safe",
-        "feat",
-        "multi-turn"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/browser_computer.py",
-        "src/production_os/browser_loop.py",
-        "src/production_os/workflow_engine.py",
-        "tests/test_browser_computer.py",
-        "tests/test_browser_loop.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "fix(agents): enforce strict dynamic-plan input types",
       "terms": [
         "agents",
@@ -1235,6 +1215,22 @@
       "useful": [
         "src/production_os/control_plane.py",
         "src/production_os/managed_projects.py"
+      ]
+    },
+    {
+      "rejected": [],
+      "task": "fix(workflows): suppress terminal Godot preview retries",
+      "terms": [
+        "godot",
+        "preview",
+        "retries",
+        "suppress",
+        "terminal",
+        "workflows"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/workflow_engine.py"
       ]
     }
   ],
@@ -3556,6 +3552,9 @@
       "src/production_os/managed_projects.py": 4,
       "tests/test_cooperative_managed_projects.py": 4
     },
+    "godot": {
+      "src/production_os/workflow_engine.py": 4
+    },
     "graceful": {
       "src/production_os/cli.py": 4,
       "src/production_os/remote_worker_runner.py": 4,
@@ -4531,6 +4530,7 @@
     "preview": {
       "src/production_os/dashboard_backups.py": 4,
       "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/workflow_engine.py": 4,
       "tests/test_dashboard_backups.py": 4,
       "tests/test_dashboard_ui_v3.py": 4
     },
@@ -5176,7 +5176,7 @@
     },
     "retries": {
       "src/production_os/control_plane.py": 4,
-      "src/production_os/workflow_engine.py": 4,
+      "src/production_os/workflow_engine.py": 8,
       "tests/test_workflow_auto_wake_api.py": 8,
       "tests/test_workflow_engine.py": 4
     },
@@ -5708,6 +5708,9 @@
     "supported": {
       "tests/test_runtime_contract.py": 4
     },
+    "suppress": {
+      "src/production_os/workflow_engine.py": 4
+    },
     "syntax": {
       "src/production_os/dashboard_ui.py": 4,
       "tests/test_dashboard_production_inbox_filters_ui.py": 4,
@@ -5739,6 +5742,9 @@
       "tests/test_dashboard_backup_api.py": 4,
       "tests/test_dashboard_backups.py": 4,
       "tests/test_dashboard_ui_v3.py": 4
+    },
+    "terminal": {
+      "src/production_os/workflow_engine.py": 4
     },
     "test": {
       "src/production_os/asset_forge.py": 36,
@@ -6183,7 +6189,7 @@
       "tests/test_workflow_engine.py": 4
     },
     "workflows": {
-      "src/production_os/workflow_engine.py": 4,
+      "src/production_os/workflow_engine.py": 8,
       "tests/test_workflow_auto_wake_api.py": 4,
       "tests/test_workflow_engine.py": 4
     },

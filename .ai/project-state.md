@@ -112,22 +112,21 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-16T11:11:45Z
+Generated: 2026-10-16T12:10:50Z
 
 ### Git
 - Branch: `main`
-- Head: `e7cf33a6cd5c`
-- Commit date: 2026-10-16T13:11:35+02:00
-- Commit: fix(portfolio): complete redacted integration inventory
+- Head: `dd975e3898d2`
+- Commit date: 2026-10-16T14:10:39+02:00
+- Commit: fix(workflows): suppress terminal Godot preview retries
 - Tracked files: 572
 
 ### Recently changed files
+- `src/production_os/workflow_engine.py`
 - `src/production_os/control_plane.py`
 - `src/production_os/managed_projects.py`
 - `src/production_os/starlist.py`
 - `tests/test_deep_fingerprint_starlist.py`
-- `src/production_os/dashboard_maintenance.py`
-- `tests/test_release18_managed_projects_e2e.py`
 
 ### Project signals
 - `pyproject.toml`

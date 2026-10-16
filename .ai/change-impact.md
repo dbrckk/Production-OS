@@ -1,17 +1,16 @@
 # Change impact
 
-Base: 6eacf3f309d79c89b63a503cab5991857d489f32
-Head: e7cf33a6cd5c1e28da8f8c62ff303f547aa942db
+Base: 0cc823da5bb64188576e0e0d8b9f87bca5391c6a
+Head: dd975e3898d2dcf6ad6e8959d1c9c411edb5da0e
 
 ## Changed files
-- M src/production_os/control_plane.py
-- M src/production_os/managed_projects.py
+- M src/production_os/workflow_engine.py
 
 ## Affected areas
 - src
 
 ## Related test candidates
-- tests/test_control_plane.py
+- tests/test_workflow_engine.py
 
 ## Agent guidance
 - Read this file before broad repository exploration.

@@ -12985,6 +12985,13 @@ dynamic_specs = self._dynamic_agent_specs(
 # exhausted project capacity envelope. Inspect only the worker's
 # structured status: generic error text is not a quota signal.
 capacity_exhausted = (
+# Preview-cycle exhaustion is a durable Godot project checkpoint,
+# not a transient provider/runner failure. Requeueing the same
+# workflow task repeats the already-blocked checkpoint with zero
+# inference and no chance of producing a new edit.
+evidence = result.get("evidence") if isinstance(result, dict) else None
+godot_preview_exhausted = (
+retry_suppressed = (
 ⋮----
 status = "succeeded"
 ⋮----
