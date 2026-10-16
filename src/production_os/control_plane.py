@@ -1164,6 +1164,31 @@ def make_handler(control: ControlPlane):
                 )
                 return
 
+            if parsed.path == "/v1/managed-projects/integration-inventory":
+                # A complete deduplication index is required for autonomous
+                # portfolio scans. The ordinary dashboard list is capped.
+                # Only operators may read this private-repository-aware index.
+                principal = self._require("operator")
+                if principal is None:
+                    return
+                try:
+                    projects = control.managed_projects.integration_inventory()
+                except RuntimeError:
+                    self._send(
+                        HTTPStatus.SERVICE_UNAVAILABLE,
+                        {"error": "complete integration inventory unavailable"},
+                    )
+                    return
+                self._send(
+                    HTTPStatus.OK,
+                    {
+                        "projects": projects,
+                        "total_count": len(projects),
+                        "complete": True,
+                    },
+                )
+                return
+
             if parsed.path.startswith("/v1/managed-projects/"):
                 principal = self._require("viewer")
                 if principal is None:
