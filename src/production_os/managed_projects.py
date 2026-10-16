@@ -2012,7 +2012,7 @@ class ManagedProjectService:
             "outcome":_outcome_from_workflow(current_workflow),
         }
 
-    def integration_inventory(self) -> list[dict]:
+    def integration_inventory(self, *, include_project_ids: bool = False) -> list[dict]:
         """Complete, redacted integration index for operator-owned scanners.
 
         The normal dashboard list intentionally caps at 100 recent projects.
@@ -2052,12 +2052,21 @@ class ManagedProjectService:
             created_at = str(row["created_at"] or "")
             if not repository or not status or not created_at:
                 raise RuntimeError("integration inventory contains incomplete metadata")
-            inventory.append({
+            item = {
                 "repository": repository,
                 "final_goal": "Tracking: " + tracking.group(0),
                 "status": status,
                 "created_at": created_at,
-            })
+            }
+            # Only an explicitly opted-in, operator-authenticated client
+            # receives opaque IDs needed for targeted per-project diagnostics.
+            # The normal deduplication inventory remains unchanged.
+            if include_project_ids:
+                identifier = str(row["id"] or "")
+                if not identifier or len(identifier) > 64:
+                    raise RuntimeError("integration inventory contains invalid project identity")
+                item["project_id"] = identifier
+            inventory.append(item)
         return inventory
 
     def list(self, *, limit: int = 100) -> list[dict]:

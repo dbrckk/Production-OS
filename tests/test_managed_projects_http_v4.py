@@ -79,6 +79,38 @@ def test_operator_can_create_and_viewer_can_list_managed_projects(tmp_path):
         assert status == 200
         assert detail["project"]["project_id"] == project["project_id"]
         assert detail["project"]["final_goal"] == "Ship a verified release"
+
+        # An explicit operator opt-in reveals only the opaque project ID,
+        # enabling efficient per-project diagnosis without scanning the
+        # expensive global dashboard inbox or exposing full instructions.
+        marker = "starlist-integration-v2-" + "a" * 24
+        status, tracked = _request(
+            base, "/v1/managed-projects", "operator", method="POST",
+            body={
+                "repository": "dbrckk/example",
+                "final_goal": "Tracking: " + marker,
+                "token_budget": 90000,
+            },
+        )
+        assert status == 201
+        identifier = tracked["project"]["project_id"]
+        endpoint = "/v1/managed-projects/integration-inventory"
+        status, redacted = _request(base, endpoint, "operator")
+        assert status == 200
+        assert redacted["complete"] is True
+        assert redacted["total_count"] == 1
+        assert "project_id" not in redacted["projects"][0]
+        assert redacted["projects"][0]["final_goal"] == "Tracking: " + marker
+        status, detail_index = _request(
+            base, endpoint + "?include_project_ids=1", "operator"
+        )
+        assert status == 200
+        assert detail_index["projects"][0]["project_id"] == identifier
+        assert detail_index["projects"][0]["final_goal"] == "Tracking: " + marker
+        status, _ = _request(base, endpoint + "?include_project_ids=1", "viewer")
+        assert status == 403
+        status, _ = _request(base, endpoint + "?include_project_ids=0", "operator")
+        assert status == 400
     finally:
         server.shutdown()
         server.server_close()

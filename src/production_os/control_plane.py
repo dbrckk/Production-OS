@@ -1171,8 +1171,18 @@ def make_handler(control: ControlPlane):
                 principal = self._require("operator")
                 if principal is None:
                     return
+                parameters = parse_qs(parsed.query, keep_blank_values=True)
+                selected = parameters.get("include_project_ids", [])
+                if selected not in ([], ["1"]):
+                    self._send(
+                        HTTPStatus.BAD_REQUEST,
+                        {"error": "invalid optional project ID flag"},
+                    )
+                    return
                 try:
-                    projects = control.managed_projects.integration_inventory()
+                    projects = control.managed_projects.integration_inventory(
+                        include_project_ids=selected == ["1"]
+                    )
                 except RuntimeError:
                     self._send(
                         HTTPStatus.SERVICE_UNAVAILABLE,
