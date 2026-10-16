@@ -2,26 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "feat(browser): add bounded idempotent multi-turn JSONL browser loop",
-      "terms": [
-        "add",
-        "bounded",
-        "browser",
-        "feat",
-        "idempotent",
-        "jsonl",
-        "loop",
-        "multi-turn"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/browser_loop.py",
-        "src/production_os/cli.py",
-        "tests/test_browser_loop.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat(browser): advertise crash-safe multi-turn browser contract",
       "terms": [
         "advertise",
@@ -1239,6 +1219,22 @@
       "tests": [],
       "useful": [
         "src/production_os/control_plane.py"
+      ]
+    },
+    {
+      "rejected": [],
+      "task": "fix(portfolio): complete redacted integration inventory",
+      "terms": [
+        "complete",
+        "integration",
+        "inventory",
+        "portfolio",
+        "redacted"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/control_plane.py",
+        "src/production_os/managed_projects.py"
       ]
     }
   ],
@@ -2642,6 +2638,10 @@
       "src/production_os/managed_projects.py": 4,
       "tests/test_managed_github_reconciliation.py": 4
     },
+    "complete": {
+      "src/production_os/control_plane.py": 4,
+      "src/production_os/managed_projects.py": 4
+    },
     "completion": {
       "src/production_os/control_plane.py": 4,
       "tests/test_workflow_auto_wake_api.py": 4
@@ -3738,8 +3738,9 @@
       "tests/test_remote_worker_runner.py": 4
     },
     "integration": {
-      "src/production_os/control_plane.py": 4,
+      "src/production_os/control_plane.py": 8,
       "src/production_os/executor_worktree.py": 4,
+      "src/production_os/managed_projects.py": 4,
       "src/production_os/remote_worker_runner.py": 4,
       "tests/test_executor_worktree.py": 4,
       "tests/test_remote_worker_runner.py": 4
@@ -3758,9 +3759,11 @@
       "tests/test_dashboard_workflow_snapshot_invalidation.py": 4
     },
     "inventory": {
+      "src/production_os/control_plane.py": 4,
       "src/production_os/dashboard_backups.py": 4,
       "src/production_os/dashboard_service.py": 4,
       "src/production_os/dashboard_ui.py": 4,
+      "src/production_os/managed_projects.py": 4,
       "tests/test_dashboard_backup_api.py": 4,
       "tests/test_dashboard_backups.py": 4,
       "tests/test_dashboard_ui_v3.py": 4
@@ -4447,7 +4450,8 @@
       "tests/test_dashboard_ui_v3.py": 8
     },
     "portfolio": {
-      "src/production_os/control_plane.py": 4
+      "src/production_os/control_plane.py": 8,
+      "src/production_os/managed_projects.py": 4
     },
     "positive": {
       "src/production_os/browser_computer.py": 4,
@@ -4854,6 +4858,10 @@
       "tests/test_dashboard_remediation_metrics.py": 4,
       "tests/test_dashboard_store_postgres.py": 4,
       "tests/test_dashboard_ui_v3.py": 4
+    },
+    "redacted": {
+      "src/production_os/control_plane.py": 4,
+      "src/production_os/managed_projects.py": 4
     },
     "reference": {
       "src/production_os/asset_forge.py": 8,

@@ -1,10 +1,11 @@
 # Change impact
 
-Base: 230106b6ba0dfe9d455883b38aab75a52fc6b822
-Head: 1efc5ec7657bf343d40d055f40c9e7f7e74bff1c
+Base: 6eacf3f309d79c89b63a503cab5991857d489f32
+Head: e7cf33a6cd5c1e28da8f8c62ff303f547aa942db
 
 ## Changed files
 - M src/production_os/control_plane.py
+- M src/production_os/managed_projects.py
 
 ## Affected areas
 - src

@@ -112,25 +112,22 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-15T21:12:13Z
+Generated: 2026-10-16T11:11:45Z
 
 ### Git
 - Branch: `main`
-- Head: `1efc5ec7657b`
-- Commit date: 2026-10-15T23:12:02+02:00
-- Commit: fix: configurable bounded budgets for portfolio integration launches
+- Head: `e7cf33a6cd5c`
+- Commit date: 2026-10-16T13:11:35+02:00
+- Commit: fix(portfolio): complete redacted integration inventory
 - Tracked files: 572
 
 ### Recently changed files
 - `src/production_os/control_plane.py`
+- `src/production_os/managed_projects.py`
 - `src/production_os/starlist.py`
 - `tests/test_deep_fingerprint_starlist.py`
 - `src/production_os/dashboard_maintenance.py`
-- `src/production_os/managed_projects.py`
 - `tests/test_release18_managed_projects_e2e.py`
-- `src/production_os/dashboard_ui.py`
-- `tests/test_dashboard_ui_v3.py`
-- `tests/test_managed_projects_v4.py`
 
 ### Project signals
 - `pyproject.toml`

@@ -5290,6 +5290,13 @@ verification = control.releases.verify(
 ⋮----
 release = control.releases.get(parts[2])
 ⋮----
+# A complete deduplication index is required for autonomous
+# portfolio scans. The ordinary dashboard list is capped.
+# Only operators may read this private-repository-aware index.
+principal = self._require("operator")
+⋮----
+projects = control.managed_projects.integration_inventory()
+⋮----
 project = control.managed_projects.get(parts[2])
 ⋮----
 def do_POST(self) -> None
@@ -5298,8 +5305,6 @@ body = self._read_json()
 unknown = sorted(
 ⋮----
 pairing = control.device_pairing.exchange(
-⋮----
-principal = self._require("operator")
 ⋮----
 pairing = control.device_pairing.issue_pairing_code(
 ⋮----
@@ -9222,6 +9227,32 @@ current_workflow = self.workflows.get(
 ⋮----
 usage = self._usage(runs)
 display_state = (
+⋮----
+def integration_inventory(self) -> list[dict]
+⋮----
+"""Complete, redacted integration index for operator-owned scanners.
+
+        The normal dashboard list intentionally caps at 100 recent projects.
+        A scanner must never infer that older integrations do not exist from
+        that truncated view, as doing so can create duplicate paid/limited work.
+        Expose only the validated tracking marker, not worker instructions.
+        """
+⋮----
+# No partial inventory can safely authorize more work.
+⋮----
+inventory = []
+⋮----
+tracking = re.search(
+⋮----
+repository = str(row["repository"] or "")
+status = str(row["status"] or "")
+# Unlike the bounded dashboard list, this index includes older
+# active rows. Reconcile active workflows so completed/failed work
+# does not occupy free-worker slots indefinitely.
+⋮----
+fresh = self.reconcile(str(row["id"]))
+status = str(fresh.get("status") or "")
+created_at = str(row["created_at"] or "")
 ⋮----
 def list(self, *, limit: int = 100) -> list[dict]
 ⋮----
