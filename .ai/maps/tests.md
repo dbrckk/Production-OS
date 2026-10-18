@@ -1966,6 +1966,13 @@ healthy = control.queue.enqueue({
 ⋮----
 summary = payload["summary"]
 ⋮----
+# A completed one-shot Actions runner may retain an online heartbeat.
+# It must never advertise an immediate claim slot for queued work.
+⋮----
+ephemeral = control.queue.enqueue({
+⋮----
+rows = {item["job_key"]:item for item in payload["jobs"]}
+⋮----
 def test_dashboard_health_requires_viewer_and_has_stable_shape(running_control_plane)
 ⋮----
 def test_worker_detail_includes_recoverable_jobs(running_control_plane)

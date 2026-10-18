@@ -1,19 +1,19 @@
 # Change impact
 
-Base: 80b9143ec609fa8bd2377c8ebb65e30221d54473
-Head: 04d60fd59f75fff250a2779e7454851b841652bf
+Base: 1fa26455f067733480220eb572d3d6cfe38772f3
+Head: 019db671edb0b5484b79fa0db0c9b1d23008b54d
 
 ## Changed files
-- M src/production_os/control_plane.py
-- M src/production_os/managed_projects.py
-- M tests/test_managed_projects_http_v4.py
+- M src/production_os/dashboard_service.py
+- M src/production_os/dashboard_ui.py
+- M tests/test_dashboard_api.py
 
 ## Affected areas
 - src
 - tests
 
 ## Related test candidates
-- tests/test_control_plane.py
+- No direct filename-based test match detected.
 
 ## Agent guidance
 - Read this file before broad repository exploration.

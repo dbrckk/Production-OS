@@ -2,23 +2,6 @@
   "examples": [
     {
       "rejected": [],
-      "task": "fix(browser): inject tool contract for inferred browser tasks",
-      "terms": [
-        "browser",
-        "contract",
-        "inferred",
-        "inject",
-        "tasks",
-        "tool"
-      ],
-      "tests": [],
-      "useful": [
-        "src/production_os/workflow_engine.py",
-        "tests/test_browser_computer.py"
-      ]
-    },
-    {
-      "rejected": [],
       "task": "feat(agents): add native browser executor runtime",
       "terms": [
         "add",
@@ -1237,6 +1220,25 @@
         "src/production_os/managed_projects.py",
         "tests/test_managed_projects_http_v4.py"
       ]
+    },
+    {
+      "rejected": [],
+      "task": "fix(autopilot): exclude stale Actions worker capacity (#277)",
+      "terms": [
+        "277",
+        "actions",
+        "autopilot",
+        "capacity",
+        "exclude",
+        "stale",
+        "worker"
+      ],
+      "tests": [],
+      "useful": [
+        "src/production_os/dashboard_service.py",
+        "src/production_os/dashboard_ui.py",
+        "tests/test_dashboard_api.py"
+      ]
     }
   ],
   "generated_by": "dbrckk/repo-brain-learning-v1",
@@ -1569,6 +1571,11 @@
       "src/production_os/managed_projects.py": 4,
       "tests/test_managed_projects_http_v4.py": 4
     },
+    "277": {
+      "src/production_os/dashboard_service.py": 4,
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_api.py": 4
+    },
     "28": {
       "src/production_os/dashboard_backups.py": 4,
       "src/production_os/dashboard_ui.py": 4,
@@ -1790,8 +1797,8 @@
       "src/production_os/browser_computer.py": 4,
       "src/production_os/control_plane.py": 4,
       "src/production_os/dashboard_control.py": 4,
-      "src/production_os/dashboard_service.py": 12,
-      "src/production_os/dashboard_ui.py": 12,
+      "src/production_os/dashboard_service.py": 16,
+      "src/production_os/dashboard_ui.py": 16,
       "src/production_os/github_client.py": 4,
       "src/production_os/worker_wake.py": 4,
       "tests/test_asset_forge.py": 4,
@@ -1799,7 +1806,7 @@
       "tests/test_browser_computer.py": 4,
       "tests/test_control_plane.py": 4,
       "tests/test_control_plane_webhook.py": 4,
-      "tests/test_dashboard_api.py": 4,
+      "tests/test_dashboard_api.py": 8,
       "tests/test_dashboard_attention.py": 8,
       "tests/test_dashboard_control.py": 4,
       "tests/test_dashboard_launch_readiness.py": 4,
@@ -2240,9 +2247,9 @@
     },
     "autopilot": {
       "src/production_os/control_plane.py": 4,
-      "src/production_os/dashboard_service.py": 8,
-      "src/production_os/dashboard_ui.py": 8,
-      "tests/test_dashboard_api.py": 8,
+      "src/production_os/dashboard_service.py": 12,
+      "src/production_os/dashboard_ui.py": 12,
+      "tests/test_dashboard_api.py": 12,
       "tests/test_dashboard_ui_v3.py": 8
     },
     "availability": {
@@ -2460,10 +2467,10 @@
       "src/production_os/dashboard_backups.py": 4,
       "src/production_os/dashboard_health.py": 4,
       "src/production_os/dashboard_incidents.py": 4,
-      "src/production_os/dashboard_service.py": 8,
-      "src/production_os/dashboard_ui.py": 8,
+      "src/production_os/dashboard_service.py": 12,
+      "src/production_os/dashboard_ui.py": 12,
       "src/production_os/workflow_engine.py": 4,
-      "tests/test_dashboard_api.py": 4,
+      "tests/test_dashboard_api.py": 8,
       "tests/test_dashboard_backup_api.py": 4,
       "tests/test_dashboard_backups.py": 4,
       "tests/test_dashboard_health.py": 4,
@@ -3224,6 +3231,11 @@
       "src/production_os/dashboard_ui.py": 4,
       "tests/test_dashboard_pair_link_timeout.py": 4,
       "tests/test_dashboard_pairing_freshness.py": 4
+    },
+    "exclude": {
+      "src/production_os/dashboard_service.py": 4,
+      "src/production_os/dashboard_ui.py": 4,
+      "tests/test_dashboard_api.py": 4
     },
     "exclusive": {
       "src/production_os/control_plane.py": 4,
@@ -5620,8 +5632,10 @@
       "tests/test_release19_restore_staging_e2e.py": 4
     },
     "stale": {
-      "src/production_os/dashboard_ui.py": 8,
+      "src/production_os/dashboard_service.py": 4,
+      "src/production_os/dashboard_ui.py": 12,
       "src/production_os/worker_wake.py": 4,
+      "tests/test_dashboard_api.py": 4,
       "tests/test_dashboard_ui_v3.py": 8,
       "tests/test_worker_wake.py": 4
     },
@@ -6148,8 +6162,8 @@
       "src/production_os/control_plane.py": 40,
       "src/production_os/controller.py": 12,
       "src/production_os/dashboard_control.py": 12,
-      "src/production_os/dashboard_service.py": 16,
-      "src/production_os/dashboard_ui.py": 12,
+      "src/production_os/dashboard_service.py": 20,
+      "src/production_os/dashboard_ui.py": 16,
       "src/production_os/managed_projects.py": 4,
       "src/production_os/model_router.py": 4,
       "src/production_os/remote_worker.py": 12,
@@ -6166,6 +6180,7 @@
       "tests/test_controller_asset_capabilities.py": 4,
       "tests/test_controller_managed_projects.py": 4,
       "tests/test_cooperative_managed_projects.py": 4,
+      "tests/test_dashboard_api.py": 4,
       "tests/test_dashboard_attention.py": 4,
       "tests/test_dashboard_control.py": 8,
       "tests/test_dashboard_launch.py": 12,

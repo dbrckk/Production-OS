@@ -112,22 +112,23 @@ Status: active
 <!-- AUTO:START -->
 ## Automatic repository state
 
-Generated: 2026-10-16T20:48:24Z
+Generated: 2026-10-18T10:14:28Z
 
 ### Git
 - Branch: `main`
-- Head: `04d60fd59f75`
-- Commit date: 2026-10-16T16:48:13-04:00
-- Commit: feat(portfolio): operator-only targeted integration inventory IDs for fast diagnostics (#276)
+- Head: `019db671edb0`
+- Commit date: 2026-10-18T06:14:20-04:00
+- Commit: fix(autopilot): exclude stale Actions worker capacity (#277)
 - Tracked files: 572
 
 ### Recently changed files
+- `src/production_os/dashboard_service.py`
+- `src/production_os/dashboard_ui.py`
+- `tests/test_dashboard_api.py`
 - `src/production_os/control_plane.py`
 - `src/production_os/managed_projects.py`
 - `tests/test_managed_projects_http_v4.py`
 - `src/production_os/workflow_engine.py`
-- `src/production_os/starlist.py`
-- `tests/test_deep_fingerprint_starlist.py`
 
 ### Project signals
 - `pyproject.toml`

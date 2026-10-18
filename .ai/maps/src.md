@@ -4824,6 +4824,7 @@ ranked_item = self.control.portfolio.rank([job])[0]
 ranked_item = {
 ⋮----
 workers = self._worker_rows()
+ephemeral_ids = _ephemeral_worker_ids()
 ⋮----
 worker_views = []
 ⋮----
@@ -4853,6 +4854,8 @@ wait_reason = "missing_capability"
 wait_reason = "worker_controlled"
 ⋮----
 wait_reason = "capacity_full"
+⋮----
+wait_reason = "worker_wake_required"
 ⋮----
 wait_reason = "no_online_worker"
 ⋮----
@@ -4985,7 +4988,7 @@ online = [
 # An Actions runner exits after its one-shot job, but its last
 # heartbeat can remain "online" in the registry. It must not make
 # launch readiness promise an immediate execution slot.
-ephemeral_ids = _ephemeral_worker_ids()
+⋮----
 available = [
 ⋮----
 queued_row = db.execute(

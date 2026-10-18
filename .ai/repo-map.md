@@ -6694,6 +6694,7 @@ ranked_item = self.control.portfolio.rank([job])[0]
 ranked_item = {
 ⋮----
 workers = self._worker_rows()
+ephemeral_ids = _ephemeral_worker_ids()
 ⋮----
 worker_views = []
 ⋮----
@@ -6723,6 +6724,8 @@ wait_reason = "missing_capability"
 wait_reason = "worker_controlled"
 ⋮----
 wait_reason = "capacity_full"
+⋮----
+wait_reason = "worker_wake_required"
 ⋮----
 wait_reason = "no_online_worker"
 ⋮----
@@ -6855,7 +6858,7 @@ online = [
 # An Actions runner exits after its one-shot job, but its last
 # heartbeat can remain "online" in the registry. It must not make
 # launch readiness promise an immediate execution slot.
-ephemeral_ids = _ephemeral_worker_ids()
+⋮----
 available = [
 ⋮----
 queued_row = db.execute(
@@ -14811,6 +14814,13 @@ stale = control.queue.enqueue({
 healthy = control.queue.enqueue({
 ⋮----
 summary = payload["summary"]
+⋮----
+# A completed one-shot Actions runner may retain an online heartbeat.
+# It must never advertise an immediate claim slot for queued work.
+⋮----
+ephemeral = control.queue.enqueue({
+⋮----
+rows = {item["job_key"]:item for item in payload["jobs"]}
 ⋮----
 def test_dashboard_health_requires_viewer_and_has_stable_shape(running_control_plane)
 ⋮----
