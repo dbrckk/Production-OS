@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-15",
-  "objective": "Stabilize Production-OS star-list recommendation ranking and qualify the hosted worker-to-PR path",
-  "branch": "fix/starlist-safe-ranking-20261015",
-  "base_commit": "eaec2b4c8f4e47fb0d3d4fe3495c2e40bea8778a",
-  "status": "Ranking hardening committed: ignore avoidWhen for positive matches, reject invalid/non-finite scores, require capability term boundaries (prevent ci/specialized false positives); existing test function expanded; exact-head CI pending",
+  "updated_at": "2026-10-18",
+  "objective": "Stabilize the live Production-OS control plane and qualify real hosted AI-worker-to-target-PR delivery without paid inference or unverified success claims",
+  "branch": "main",
+  "base_commit": "019db671edb0b5484b79fa0db0c9b1d23008b54d",
+  "status": "Autopilot ephemeral-worker readiness corrected via PR #277 (merged); exact PR-head CI run 39118205264 passed 4/4 including Python 3.11/3.12, PostgreSQL E2E, Docker and real Godot. Render production-os1 deploy dep-dba9nvjrjlhs73cchccg live 2026-10-18; external GET /health returned healthy and /readyz returned ready with database reachable. Post-merge run 39118456142 was still in progress when checked; .ai refresh on main followed code merge.",
   "remaining": [
-    "Verify exact branch-head GitHub CI (Python 3.11/3.12, PostgreSQL E2E, Godot integration and Docker) before merge",
-    "Review the fix and merge only on green CI; check deployed Render revision",
-    "Qualify a real hosted worker-to-review-PR objective (last 2026-10-15 Actions worker succeeded while queue_empty and skipped execution)",
-    "Diagnose previous model provider capacity_exhausted results (27 historically failed jobs / 12 failed workflows at last inspected run) and verify model quotas",
-    "Qualify real Android device output before declaring product complete"
+    "Verify final exact runtime merge SHA 019db671 CI run 39118456142 and subsequent context-only CI; do not confuse context-only SHA with deployed code",
+    "Qualify a bounded genuine hosted ai-dev-server execution that writes real target files and creates a review PR, with exact-sha target CI and persisted evidence; no blind replays of historical failed Jumpy/capacity jobs",
+    "Inspect provider free-tier admission/quota evidence and keep terminal capacity_exhausted integrations from repeatedly launching until capacity is positively proven",
+    "Validate actual Android/Jumpy output and visual-asset rights/quality before declaring end-to-end product readiness",
+    "Track operational details in Production-OS issue #262 and avoid claiming Render Free is always available"
   ]
 }
