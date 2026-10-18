@@ -1723,7 +1723,8 @@ function autopilotWaitLabel(value){
   missing_capability:"Capacité requise indisponible",
   worker_controlled:"Worker en pause ou drain",
   capacity_full:"Capacité worker saturée",
-  no_online_worker:"Aucun worker en ligne"
+  no_online_worker:"Aucun worker en ligne",
+  worker_wake_required:"Worker éphémère · réveil nécessaire"
  };
  return value?(labels[value]||String(value)):"Prêt à être pris";
 }

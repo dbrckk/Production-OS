@@ -212,6 +212,7 @@ class DashboardService:
             )
         )
         workers = self._worker_rows()
+        ephemeral_ids = _ephemeral_worker_ids()
 
         worker_views = []
         for worker in workers:
@@ -224,7 +225,8 @@ class DashboardService:
                 "desired_state":desired["desired_state"],
             }
             item["available"] = (
-                item.get("status") == "online"
+                worker_id not in ephemeral_ids
+                and item.get("status") == "online"
                 and item["desired_state"] == "active"
                 and int(item.get("active_tasks") or 0)
                     < int(item.get("max_concurrency") or 0)
@@ -283,6 +285,15 @@ class DashboardService:
                     for worker in capable
                 ):
                     wait_reason = "capacity_full"
+                elif any(
+                    worker["worker_id"] in ephemeral_ids
+                    and worker.get("status") == "online"
+                    and worker.get("desired_state") == "active"
+                    and int(worker.get("active_tasks") or 0)
+                        < int(worker.get("max_concurrency") or 0)
+                    for worker in capable
+                ):
+                    wait_reason = "worker_wake_required"
                 else:
                     wait_reason = "no_online_worker"
 
@@ -320,7 +331,8 @@ class DashboardService:
                 - int(worker.get("active_tasks") or 0),
             )
             for worker in worker_views
-            if worker.get("status") == "online"
+            if worker["worker_id"] not in ephemeral_ids
+            and worker.get("status") == "online"
             and worker.get("desired_state") == "active"
         )
         summary = {
