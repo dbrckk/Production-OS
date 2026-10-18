@@ -1,16 +1,16 @@
 {
   "schema_version": 1,
   "updated_at": "2026-10-18",
-  "objective": "Qualify actual hosted worker-to-target draft PR delivery after repairing verifier selection and trusted Ai-trading target handoff, preserving cost/security/CI gates",
+  "objective": "Qualify hosted AI worker to target draft-PR delivery and reliable wake path, with explicit exact-sha evidence and zero blind provider retries",
   "branch": "main",
   "base_commit": "f549d913918fdb8795ea2f4b3eb5e3bec5be36d2",
-  "status": "Production-OS runtime PR #277 live and healthy; exact deployed runtime SHA 019db671 CI 39118456142 success 4/4; .ai context-only main CI 39118613922 success. Hosted worker run 39002238768 on Ai-trading generated two source files but consumed 80315 reported tokens, failed capacity_exhausted, wrong unittest verifier (0 tests) and PR handoff not_configured. Ai-trading target receiver PR #144 merged at ed434822 after PR CI and CodeQL and main CI success. Worker PR #343 pytest discovery 6/7 green (mobile pending) and worker PR #344 draft allowlist 5/7 green (multi-engine/mobile pending). No new expensive model request or user task relaunch.",
+  "status": "AI Dev Server PR #343 pytest verifier merged at 5fec1d415724e49eabcd196b7de1676dcc00499b, PR exact head 7/7 CI and merged-head 8/8 CI succeeded. Ai-trading target receiver PR #144 merged at ed4348220b4d23a24759afd33c6c1c15f7b0fb35 with exact CI/CodeQL. AI Dev Server trusted Ai-trading opt-in PR #344 merged at bbd863fd5646081489f4183841129c42840e13db with exact PR-head 7/7 success; on 2026-10-18 11:20 UTC 6/8 postmerge checks already successful and real Android/multi-engine long jobs still running. The historic 80315 reported-token Ai-trading run had no verified PR, no safe source integration, so do not retry/merge. Real repository_dispatch→draft PR→exact target CI remains UNPROVEN: GitHub connector cannot invoke repository_dispatch; no speculative PR or paid inference initiated. Actions cron configured */5 but scheduled worker executions observed hours apart, so do not promise 300-second ETA; Production-OS immediate wake uses configured GitHub Actions dispatch/push fallback.",
   "remaining": [
-    "Require exact-head 7/7 worker pipelines including Flutter/Android before merging AI Dev Server PR #343; postmerge checks required",
-    "Wait until Ai-trading #144 target receiver is on default branch with verified exact-SHA workflow; already merged and main CI successful",
-    "After exact-head 7/7 worker PR #344 and target CI gates, mark #344 ready and merge; ensure allowlist only names dbrckk/Ai-trading",
-    "Do NOT merge historical studio/mp-5d99b4a161eddcb880d68936: source has in-loop unused MACD demo and verification did not pass",
-    "Qualify a fresh bounded real hosted worker creating target source edit, target-produced draft PR, exact SHA passing target CI, authenticated durable evidence; refuse paid or capacity-exhausted blind retries",
-    "Validate Godot/Jumpy Android device output and licensed production-grade visual quality separately; do not claim continuously available Render Free"
+    "Verify all exact merged-head worker postmerge workflows for bbd863fd5646081489f4183841129c42840e13db, especially long Mobile Studio Real Build and multi-engine E2E; do not claim success while in progress",
+    "Prove real end-to-end with a fresh low-budget, non-trading-risk repo task: Production-OS queue -> authenticated Actions worker -> meaningful source fix -> exact commit/branch -> trusted target draft PR -> GitHub CI -> durable result; do not equate dispatch HTTP 204 or PR existence with verified delivery",
+    "Confirm GitHub Actions target repository settings allow target GITHUB_TOKEN to create draft PR; default-branch review relay is present, but real dispatch has not yet been observed",
+    "Do not merge historic Ai-trading checkpoint studio/mp-5d99b4a161eddcb880d68936: unused MACD demo, failed tests and exhausted reported token envelope",
+    "Check actual automatic kick delivery audit under operator authentication; scheduled cron interval is 5min configuration, observed real scheduled launches are much sparser",
+    "Keep provider budget bounded and respect free/open-source preference, no automatic failed-job replay; validate separate Android Jumpy/Godot production evidence and licensing"
   ]
 }
